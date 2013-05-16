@@ -1,0 +1,32 @@
+@@ Run this following series of commands to create an FAQ Object. An FAQ Object is like a room-only version of +info. The creator and any admin or added writers may edit it freely. This was originally made for the Sword Art Online TP, keeping track of how things go in that world in relation to the Multiverse and so on, but I'm sure people out there could find more creative uses for it!
+
+@create FAQ Object
+@set FAQ Object=!NO_COMMAND
+drop FAQ Object
+
+&CMD`FAQ FAQ Object=$^(?s)\+faq(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(v(VAR`PLAYFLAGS),if(setr(admin,or(controls(%#,me),match(v(OWNERS),%:))),v(VAR`ADMINFLAGS)),|,|)),%1,|))=@pemit %#=ERROR: Invalid switch for +faq! Your choices are: [itemize(%q<choices>,|,and,\,)];@include me/INC`[strfirstof(%1,MAIN)]=%2,%3
+@set FAQ Object/CMD`FAQ=regexp
+
+&FUN`HEADER FAQ Object=if(strlen(%0),center(ansi(b,<)[ansi(hb,*%B)][if(%1,%0,ansi(hw,%0))][ansi(hb,%B*)][ansi(b,>)],78,ansi(b,-=-)),ansi(b,repeat(-=-,26)))
+&FUN`SUBHEADER FAQ Object=if(strlen(%0),center(%b[if(%1,%0,ansi(hw,%0))]%b,78,ansi(b,-=-)),ansi(b,repeat(-=-,26)))
+&FUN`FINDFAQ Faq object=first(grepi(me,FAQ`*,%0))
+
+&INC`ADDWRI FAQ Object=@assert controls(%#,me)=@pemit %#=ERROR: Only the FAQ's owner or admin may add additional FAQ writers.;@assert strlen(%0)=@pemit %#=ERROR: Must include a name!;@assert isdbref(setr(p,objid(pmatch(%0))))=@pemit %#=ERROR: '%0' not found.;@break controls(%qp,%#)=@pemit %#=ERROR: Object owners and admin do not need to be listed.;@break match(v(OWNERS),%qp)=@pemit %#=ERROR: That player is already on the writer list.;&OWNERS me=filterbool(#lambda/isobjid(\%0),setunion(v(owners),%qp));@pemit %#=SUCCESS: [name(%qp)] added to Writers.
+
+&INC`FIND Faq Object=@assert strlen(%0)=@pemit %#=ERROR: Must include a topic name.;@assert hasattr(me/[setr(attr,u(FUN`FINDFAQ,%0))])=@pemit %#=ERROR: Article not found.
+
+&INC`DEL FAQ Object=@include me/INC`FIND=%0;@wipe me/%q<attr>;@pemit %#=SUCCESS: Article deleted.
+
+&INC`DELWRI FAQ Object=@assert controls(%#,me)=@pemit %#=ERROR: Only the FAQ's owner or admin may remove FAQ writers.;@assert strlen(%0)=@pemit %#=ERROR: Must include a name!;@assert isdbref(setr(p,objid(pmatch(%0))))=@pemit %#=ERROR: '%0' not found.;@assert match(v(OWNERS),%qp)=@pemit %#=ERROR: That player is not on the writer list.;&OWNERS me=filterbool(#lambda/isobjid(\%0),setdiff(v(owners),%qp));@pemit %#=SUCCESS: [name(%qp)] removed from Writers.
+&INC`GET FAQ Object=@include me/INC`FIND=%0;@pemit %#=decompose(get(me/%q<attr>`DETAILS))
+
+&INC`HELP FAQ Object=@pemit %#=u(FUN`HEADER,FAQ Help);@pemit %#=This FAQ Object allows an object owner and their selected collaboratives to write FAQ articles, help articles, and basically anything that you'd want to organize by TITLE->TONS OF TEXT with. It is used as follows:%R%R[ansi(hw,+faq)]%RWithout Arguments, displays table of contents and FAQ configuration.%R%R[ansi(hw,+faq <topic>)]%RDisplays a topic's contents.%R%R[ansi(hw,+faq/set <topic>=<contents>)]%RSets or overwrites a topic's details. Topic is created if it does not exist.%R%R[ansi(hw,+faq/del <topic>)]%RDeletes a topic. Warning: cannot be undone.%R%R[ansi(hw,+faq/get <topic>)]%RRetrieves a decompose()'d version of Topic's text for hopefully easy editing.%R%R[ansi(hw,+faq/ren <topic>=<newname>)]%RRenames a topic. Won't work if <newname> already exists on another topic.%R%R[ansi(hw,+faq/addwri <name>)]%RAdds player to the writers list. Can only be used by admin and FAQ object owner.%R%R[ansi(hw,+faq/delwri <name>)]%RRemoves a player from the writers list. Can only be used by admin and FAQ object owner.%R%RFormatting such as ansi and linebreaks are all supported.;@pemit %#=u(FUN`SUBHEADER)
+
+&INC`MAIN FAQ Object=@switch/inline gt(strlen(%0),0)=1,{@include me/INC`FIND=%0;@pemit %#=u(FUN`HEADER,v(%q<attr>));@pemit %#=v(%q<attr>`DETAILS);@pemit %#=u(FUN`SUBHEADER,Set by: [name(v(%q<attr>`BY))] on [convsecs(v(%q<attr>`ON))])},0,{@pemit %#=u(FUN`HEADER,FAQ Index);@pemit %#=table(sort(iter(lattr(me/FAQ`*),get(me/%i0),,|),a,|,|),19,78,|);@pemit %#=u(FUN`SUBHEADER)%R[ansi(hw,WRITERS:)] [itemize(iter(sort(filterbool(#lambda/isdbref(\%0),setunion(v(OWNERS),owner(me))),name),name(%i0),,|),|,and,\,)];@pemit %#=u(FUN`SUBHEADER,if(%q<admin>,+faq/help for instructions,+faq <topic> to read))}
+
+&INC`REN FAQ Object=@include me/INC`FIND=%0;@assert strlen(%1)=@pemit %#=ERROR: No new field entered to rename to.;@break strlen(u(FUN`FINDFAQ,%1))=@pemit %#=ERROR: An article named '%1' already exists. Cannot rename.;&%q<attr> me=%1;@pemit %#=SUCCESS: Article Renamed to '[ansi(hw,%1)]'.
+
+&INC`SET FAQ Object=@assert strlen(%0)=@pemit %#=ERROR: Must include a topic name.;@assert strlen(%1)=@pemit %#=ERROR: Must include topic details.;@switch/inline gt(strlen(u(FUN`FINDFAQ,%0)),0)=1,{@include me/INC`FIND=%0},0,{&[setr(attr,FAQ`[add(lmath(max,iter(lattr(me/FAQ`*),last(%i0,`))),1)])] me=%0};&%q<attr>`DETAILS me=%1;&%q<attr>`by me=%#;&%q<attr>`ON me=secs();@pemit %#=SUCCESS: Article '[ansi(hw,%0)]' Set.
+
+&VAR`ADMINFLAGS FAQ Object=SET|GET|DEL|REN|ADDWRI|DELWRI
+&VAR`PLAYFLAGS FAQ Object=HELP

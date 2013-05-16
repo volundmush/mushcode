@@ -1,0 +1,72 @@
+@@ DEPENDENCIES - PGO SGO
+@@ Player Globals Object <PGO> is needed to have an actual +help command to use.
+@@ Staff Globals Object <SGO> is needed for the same reason as the PGO.
+
+@@ This script will create default commands +help and +shelp and the objects their files will be stored on.
+@@ Though this system is not required for core functionality, it is highly recommended as all other systems have included help files meant to be used with this help system.
+
+@teleport create(Help System Object <HSO>)=config(master_room)
+&hso u(coi)=locate(config(master_room),Help System Object <HSO>,TXxi)
+@parent u(hso)=u(coi)
+@set u(hso)=WIZARD
+th attrib_set(u(hso)/VAR`HELP,create(HELP DATABASE))
+@tel get(u(hso)/VAR`HELP)=u(hso)
+th attrib_set(u(hso)/VAR`SHELP,create(SHELP DATABASE))
+@tel get(u(hso)/VAR`SHELP)=u(hso)
+th attrib_set(u(hso)/VAR`NEWS,create(NEWS DATABASE))
+@tel get(u(hso)/VAR`NEWS)=u(hso)
+
+&CMD`+HELP u(PGO)=$^(?s)\+(help)(?\:/(\S+?))?(?\: +(.+?))?$:@include u(hso)/INC`MAIN=%0,lcstr(%1),%2,%3,mudname() +help Files,after(%3,=),+help;@@ %1 is <MAIN_CATEGORY>. %2 is /switch. %3 is full text. %4 is the Header text. %5 is anything after the =, %6 is the command
+@set u(PGO)/CMD`+HELP=regexp
+
+&CMD`NEWS u(PGO)=$^(?s)(news)(?\:/(\S+?))?(?\: +(.+?))?$:@include u(hso)/INC`MAIN=%0,lcstr(%1),%2,%3,mudname() News Files,after(%3,=),news;@@ %1 is <MAIN_CATEGORY>. %2 is /switch. %3 is full text. %4 is the Header text. %5 is anything after the =, %6 is the command
+@set u(PGO)/CMD`NEWS=regexp
+
+&CMD`+SHELP u(SGO)=$^(?s)\+(shelp)(?\:/(\S+?))?(?\: +(.+?))?$:@include u(hso)/INC`MAIN=%0,lcstr(%1),%2,%3,mudname() +help Staff Files,after(%3,=),+shelp;@@ %1 is <MAIN_CATEGORY>. %2 is /switch. %3 is full text. %4 is the Header text. %5 is anything after the =.
+@set u(SGO)/CMD`+SHELP=regexp
+
+&INC`MAIN u(hso)=@assert or(not(strlen(%2)),match(setunion(get(u(hso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(hso)/VAR`ADMINFLAGS)),|,|),%2,|))=@nspemit %#=+[lcstr(%1)] does not recognize switch [ucstr(%2)].;th iter(before(%3,=),setq(chr(add(inum(0),64)),%i0),/);@assert isdbref(setr(db,get(u(hso)/VAR`%1)))=@pemit %#=announce(%1) ERROR: %1 Database object not found.;@include u(hso)/INC`[strfirstof(%2,SHOW)]
+
+&VAR`ADMINFLAGS u(hso)=WIZHELP|ADDMAIN|EDITMAIN|RENMAIN|DELMAIN|CHCAT|VIEWCODE|ADDSUB|EDITSUB|RENSUB|DELSUB
+
+&INC`SHOW u(hso)=@switch/inline words(%3,/)=0,{@include u(hso)/INC`SHOW`ALL},1,{@include u(hso)/INC`SHOW`TOPIC},2,{@include u(hso)/INC`SHOW`SUB},{@nspemit %#=announce(%1) ERROR: +[lcstr(%1)] supports only 2 maximum arguments for viewing.}
+
+&INC`SHOW`ALL u(hso)=@nspemit %#=header(%4);th null(iter(setunion(setr(list1,ucstr(iter(lattr(%q<db>/*`CATEGORY),get(%q<db>/%i0),,|))),%q<list1>,|,|),nspemit(%#,subheader(capnames(%i0)))[iter(lnum(1,ceil(fdiv(words(setr(list,iter(wildgrepi(%q<db>,*`CATEGORY,%i0),before(%i0,`),%b,|)),|),30))),nspemit(%#,table(iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),|,|),rjust(u(u(hso)/FUN`HAVEREAD,%#,%1,%i0,%q<db>),2)[ljust(pueblize(ansi(h,setr(name,get(%q<db>/%i0`NAME))),+[lcstr(%1)] %q<name>)%B,24,.)]%B[timefmt($x,get(%q<db>/%i0`TIMESTAMP))],|,|),37,78,|)))][nspemit(%#,%R)],|));@nspemit %#=[subheader()]%R%TFor more information on the listed topics, please use '[ansi(h,lcstr(%6) <topic>)]'[if(isadmin(%#),%R%TWizards\, please see [pueblize(ansi(h,lcstr(%6)/wizhelp),lcstr(%6)/wizhelp)] for config information.)];@nspemit %#=header()
+
+&FUN`HAVEREAD u(hso)=switch(1,gt(get(%3/%2`TIMESTAMP),getstat(%0/PDATA`%1`HAVEREAD,%2)),ansi(hr,*),t(words(filterbool(#lambda/gt(get(\%3/\%0`TIMESTAMP),getstat(%0/PDATA`%1`HAVEREAD,%2_\[last(\%0,`)])),lattr(%3/%2`SUB`*)))),ansi(y,&),%B)
+
+&INC`SHOW`TOPIC u(hso)=@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@nspemit %#=[header(+[lcstr(%1)]: [setr(name,get(%q<db>/%q<topid>`NAME))])];@nspemit %#=[setr(contents,get(%q<db>/%q<topid>`CONTENTS))];@switch/inline t(setr(count,words(setr(subs,lattr(%q<db>/%q<topid>`SUB`*,|)),|)))=1,{@nspemit %#=[subheader(Subfiles)]%R%TTo read subfiles, use '[ansi(h,+[lcstr(%1)] %q<name>/<file>)]';th iter(lnum(1,ceil(fdiv(%q<count>,30))),nspemit(%#,table(iter(%q<subs>,rjust(u(u(hso)/FUN`HAVEREADSUB,%#,%1,%q<db>,%q<topid>,%i0),%B,2)[ljust(pueblize(ansi(h,setr(subname,get(%q<db>/%i0`NAME))),lcstr(%6) %q<name>/%q<subname>)%B,24,.)]%B[timefmt($x,get(%q<db>/%i0`TIMESTAMP))],|,|),37,78,|)))};@nspemit %#=[header()];th setstat(%#/PDATA`%1`HAVEREAD,%q<topid>,secs())
+
+&FUN`HAVEREADSUB u(hso)=if(gt(get(%3/%4`TIMESTAMP),getstat(%0/PDATA`%1`HAVEREAD,%3_[last(%4,`)])),ansi(hr,*),%B)
+
+&FUN`FINDTOP u(hso)=before(firstof(wildgrepi(%0,*`NAME,%1)),`)
+
+&INC`SHOW`SUB u(hso)=@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@assert setr(subid,u(u(hso)/FUN`FINDSUB,%q<db>,%q<topid>,%qb))=@nspemit %#=announce(%1) ERROR: Subfile not found.;@nspemit %#=header(+[lcstr(%1)]: [get(%q<db>/%q<topid>`NAME)]/[setr(name,get(%q<db>/%q<topid>`SUB`%q<subid>`NAME))]);@nspemit %#=get(%q<db>/%q<topid>`SUB`%q<subid>`CONTENTS);@nspemit %#=header()
+
+&INC`ADDMAIN u(hso)=@assert strlen(%qa)=@nspemit %#=announce(%1) ERROR: Category name empty.;@assert strlen(%qb)=@nspemit %#=announce(%1) ERROR: Topic name empty.;@break u(u(hso)/FUN`FINDTOP,%q<db>,%qb)=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qb already exists!;@assert strlen(%5)=@nspemit %#=announce(%1) ERROR: Contents empty!;&[setr(n,randword(setdiff(rand(1,9999),lattr(%q<db>/*))))]`NAME %q<db>=%qb;&%qn`CATEGORY %q<db>=%qa;&%qn`TIMESTAMP %q<db>=secs();&%qn`CONTENTS %q<db>=%5;@nspemit %#=announce(HELP) %qa / %qb [capnames(%1)]file created!
+
+&INC`EDITMAIN u(hso)=@assert strlen(%qa)=announce(%1) ERROR: [capnames(%1)]file name segment empty.;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@assert strlen(setr(contents,%5))=@nspemit %#=announce(%1) ERROR: Contents segment empty.;&%q<topid>`CONTENTS %q<db>=%5;&%q<topid>`TIMESTAMP %q<db>=secs();@nspemit %#=[capnames(%1)]file edited!
+
+&INC`RENMAIN u(hso)=@assert strlen(%qa)=announce(%1) ERROR: [capnames(%1)]file name segment empty.;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@assert strlen(setr(contents,%5))=@nspemit %#=announce(%1) ERROR: New Name segment empty.;@break u(u(hso)/FUN`FINDTOP,%q<db>,%5)=@nspemit %#=announce(%1) ERROR: A topic with that name already exists.;&%q<topid>`NAME %q<db>=%5;&%q<topid>`TIMESTAMP %q<db>=secs();@nspemit %#=[capnames(%1)]file renamed!
+
+&INC`DELMAIN u(hso)=@assert strlen(%qa)=announce(%1) ERROR: [capnames(%1)]file name segment empty.;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@include u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)]%BThis will DELETE file %qa and any Subfiles. Are you SURE you want to do this? Enter the same command within 10 Seconds to verify.},%1 DELMAIN %qa,%1;@wipe %q<db>/%q<topid>;@nspemit %#=File %qa deleted!
+
+&INC`CHCAT u(hso)=@assert strlen(%qa)=announce(%1) ERROR: [capnames(%1)]file name segment empty.;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@assert strlen(setr(contents,%5))=@nspemit %#=announce(%1) ERROR: New Category segment empty.;@break strmatch(get(%q<db>/%q<topid>`CATEGORY),%5)=@nspemit %#=announce(%1) ERROR: It is already a member of that Category.;&%q<topid>`CATEGORY %q<db>=%5;&%q<topid>`TIMESTAMP %q<db>=secs();@nspemit %#=File %qa moved to Category %5!
+
+&INC`ADDSUB u(hso)=@assert strlen(%qa)=@nspemit %#=announce(%1) ERROR: Main name empty.;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@assert strlen(%qb)=@nspemit %#=announce(%1) ERROR: Sub name empty.;@break u(u(hso)/FUN`FINDSUB,%q<db>,%q<topid>,%qb)=@nspemit %#=announce(%1) ERROR: Subfile already exists in that topic.;@assert strlen(%5)=@nspemit %#=announce(%1) ERROR: Contents section empty.;&[setr(n,%q<topid>`SUB`[randword(setdiff(rand(1,9999),iter(lattr(%q<db>/%q<topid>`SUB`*),last(%i0,`))))])]`NAME %q<db>=%qb;&%qn %q<db>`TIMESTAMP %q<db>=secs();&%qn`CONTENTS %q<db>=%5;@nspemit %#=announce(%1) %qa / %qb Sub-%1file set!
+
+&FUN`FINDSUB u(hso)=elements(firstof(wildgrepi(%0,%1`SUB`*`NAME,%2)),3,`)
+
+&INC`EDITSUB u(hso)=@assert strlen(%qa)=announce(%1) ERROR: [capnames(%1)]file name segment empty.;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@assert strlen(%qb)=@nspemit %#=announce(%1) ERROR: Subfile name section empty.;@assert setr(subid,u(u(hso)/FUN`FINDSUB,%q<db>,%q<topid>,%qb))=@nspemit %#=announce(%1) ERROR: Subfile not found.;@assert strlen(%5)=@nspemit %#=announce(%1) ERROR: Contents section empty.;&%q<topid>`SUB`%q<subid>`CONTENTS %q<db>=%5;&%q<topid>`SUB`%q<subid>`TIMESTAMP %q<db>=secs();@nspemit %#=Sub-%1file edited!
+
+&INC`RENSUB u(hso)=@assert strlen(%qa)=announce(%1) ERROR: [capnames(%1)]file name segment empty.;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@assert strlen(%qb)=@nspemit %#=announce(%1) ERROR: Subfile name section empty.;@assert setr(subid,u(u(hso)/FUN`FINDSUB,%q<db>,%q<topid>,%qb))=@nspemit %#=announce(%1) ERROR: Subfile not found.;@assert strlen(%5)=@nspemit %#=announce(%1) ERROR: New subfile name section empty.;@break u(u(hso)/FUN`FINDSUB,%q<db>,%q<topid>,%5)=@nspemit %#=ERROR; Subfile by that name already exists.;&%q<topid>`SUB`%q<subid>`NAME %q<db>=%5;&%q<topid>`SUB`%q<subid>`TIMESTAMP %q<db>=secs();@nspemit %#=Sub-%1file renamed!
+
+&INC`DELSUB u(hso)=@assert strlen(%qa)=announce(%1) ERROR: [capnames(%1)]file name segment empty.;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@assert strlen(%qb)=@nspemit %#=announce(%1) ERROR: Subfile name section empty.;@assert setr(subid,u(u(hso)/FUN`FINDSUB,%q<db>,%q<topid>,%qb))=@nspemit %#=announce(%1) ERROR: Subfile not found.;@include u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)]%BThis will DELETE subfile %qb. Are you SURE you want to do this? Enter the same command within 10 Seconds to verify.},%1 DELSUB %qa_%qb,%1;@wipe %q<db>/%q<topid>`SUB`%q<subid>;@nspemit %#=Sub-%1file deleted!
+
+&INC`VIEWCODE u(hso)=@switch/inline words(%3,/)=0,{@nspemit %#=announce(%1) ERROR: Must include an article to retrieve!},1,{@include u(hso)/INC`GET`TOPIC},2,{@include u(hso)/INC`GET`SUB},{@nspemit %#=announce(%1) ERROR: +[lcstr(%1)] supports only 2 maximum arguments for retrieving unformatted text.}
+
+&INC`GET`TOPIC u(hso)=@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@nspemit %#=decompose(get(%q<db>/%q<topid>`CONTENTS))
+
+&INC`GET`SUB u(hso)=@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@assert setr(subid,u(u(hso)/FUN`FINDSUB,%q<db>,%q<topid>,%qb))=@nspemit %#=announce(%1) ERROR: Subfile not found.;@nspemit %#=decompose(get(%q<db>/%q<topid>`SUB`%q<subid>`CONTENTS))
+
+&INC`WIZHELP u(hso)=@nspemit %#=[header(Wizard +[capstr(%1)] Commands)]%r%b+%1/addmain <SECTION>/<New Main File Name>=<Text>%r%b+%1/editmain <Main File Name>=<Text>%r%b+%1/chcat <Main File Name>=<new SECTION>%r%b+%1/delmain <Main File Name> %(Deletes all sub-entries%)%r%b+%1/viewcode <Main File Name> %(Returns Unparsed Text%)%r%r%b+%1/addsub <Main File Name>/<Sub-Title to be Listed under Main File>=<Text>%r%b+%1/editsub <Main File Name>/<Sub-Title Name>=<Text>%r%b+%1/delsub <Main File Name>/<Sub-Title Name>%r%b+%1/viewcode <Main File Name>/<Sub-Title Name> %(Returns Unparsed Text%)%r%b+%1/listsub <Main File Name> %(Lists all the Sub-Titles under that News File%)%r%rThe Help System is actually split into three seperate components, allowing it to be used for different commands: such as news\, +help\, +shelp\, +faq\, and similar \(all using the same menu and syntax.\)%R%R1\) A command to invoke it. The command must use @include to call INC`MAIN on the Help System Object - currently [u(hso)]. It must use regular expression matching (or comparable input/output) using the following general syntax:%R[lit(&CMD`+HELP PGO=$^(?s)\+(help)(?\:/(\S+?))?(?\: +(.+?))?$:@include u(hso)/INC`MAIN=%0,ucstr(%1),%2,%3,mudname() +help Files,after(%3,=);@@ %1 is <MAIN_CATEGORY>. %2 is /switch. %3 is full text. %4 is the Header text. %5 is anything after the =.)]%R[lit(@set PGO/CMD`+HELP=regexp)]%R%R2) The Help System Object itself contains all the code used to format\, present\, and modify the help code. INC`MAIN is called to do this. The DBREF of the database object must be stored in an attribute on the HSO with the name VAR`DBNAME\, such as VAR`HELP or VAR`FAQ.%R%R3\) The file database. This is nothing more than an object that the Help System Object points to. Preferably stored inside the HSO.%R[header()]

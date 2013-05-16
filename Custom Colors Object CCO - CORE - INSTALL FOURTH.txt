@@ -1,0 +1,26 @@
+
+@tel create(Custom Colors Object <CCO>)=config(master_room)
+&cco u(coi)=locate(config(master_room),Custom Colors Object <CCO>,TXxi)
+@parent u(cco)=u(coi)
+@set u(cco)=WIZARD !NO_COMMAND
+
+&CMD`+color u(cco)=$^(?s)(?\:\+)?color(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(cco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(cco)/VAR`ADMINFLAGS)),|,|)),%1,|))=@nspemit %#=announce(COLOR)%BERROR: Invalid switch for +color! [pueblize(Your choices are: [itemize(%q<choices>,|,and,\,)],+help Colors)];@include u(cco)/INC`[strfirstof(%1,MAIN)]=%2,%3
+@set u(cco)/CMD`+COLOR=regexp
+
+&CMD`COLORDEMO u(cco)=$^(?\:\+)?colordemo$:@nspemit %#=iter(colors(),ansi(+%i0,+%i0))
+@set u(cco)/CMD`COLORDEMO=regexp
+
+&INC`MAIN u(cco)=@switch/inline t(strlen(setr(cat,before(%0,/))))=1,{@switch/inline gt(match(setr(list,v(VAR`CATEGORIES)),setr(cat,capnames(%q<cat>)),|),0)=0,{@assert strlen(setr(find,graball(%q<list>,%q<cat>*,|)))=@nspemit %#=That's not a valid Color Category. Your choices are: [itemize(%q<list>,|,and,\,)];@break gt(words(%q<find>,|),1)=@nspemit %#=announce(COLOR)%BERROR: That matched [itemize(%q<find>,|,and,\,)]. Please be more specific.};@switch/inline t(strlen(setr(type,after(%0,/))))=0,{@nspemit %#=announce(COLOR)%BERROR: Please pick a color Type for that Category. Your choices are: [itemize(v(VAR`CATEGORIES`%q<cat>),|,and,\,)]},1,{@switch/inline gt(match(setr(list,v(VAR`CATEGORIES`%q<cat>)),setr(type,capnames(%q<type>)),|),0)=0,{@assert strlen(setr(find,graball(%q<list>,%q<type>*,|)))=@nspemit %#=That's not a valid Color Type. Your choices are: [itemize(%q<list>,|,and,\,)];@break gt(words(%q<find>,|),1)=@nspemit %#=announce(COLOR)%BERROR: That matched [itemize(%q<find>,|,and,\,)]. Please be more specific.};@switch/inline t(strlen(%1))=0,{@nspemit %#=announce(COLOR)%B%q<cat> %q<type> Color Cleared!;&D`COLOR`%q<cat>`%q<type> %#},1,{@assert or(valid(colornames,%1),valid(ansicodes,%1))=@nspemit %#=announce(COLOR)%BERROR: That is not a valid color code. Please see [pueblize(help ansi(),help ansi())] for more information!;@nspemit %#=announce(COLOR)%B%q<cat> %q<type> Color set to %1!;&D`COLOR`%q<cat>`%q<type> %#=%1}}},0,{@nspemit %#=announce(COLOR)%BERROR: Please pick a color Category. Your choices are: [itemize(v(VAR`CATEGORIES),|,and,\,)]}
+
+&INC`LIST u(cco)=@switch/inline t(strlen(setr(cat,before(%0,/))))=1,{@switch/inline gt(match(setr(list,v(VAR`CATEGORIES)),setr(cat,capnames(%q<cat>)),|),0)=0,{@assert strlen(setr(find,graball(%q<list>,%q<cat>*,|)))=@nspemit %#=That's not a valid Color Category. Your choices are: [itemize(%q<list>,|,and,\,)];@break gt(words(%q<find>,|),1)=@nspemit %#=announce(COLOR)%BERROR: That matched [itemize(%q<find>,|,and,\,)]. Please be more specific.};@nspemit %#=[header(Colors for %q<cat>)];@nspemit %#=table(iter(v(VAR`CATEGORIES`%q<cat>),color(%#,%i0,%q<cat>`%i0),|,|),25,78,|);@nspemit %#=header()},0,{@nspemit %#=announce(COLOR)%BERROR: Please pick a color Category. Your choices are: [itemize(v(VAR`CATEGORIES),|,and,\,)]}
+
+&INC`DEFAULTS u(cco)=@include u(ccs)/INC`VERIFY={WARNING: This will restore all default settings for personal Colors. Enter the same command within ten seconds to verify.},COLOR DEFAULTS,COLOR;@nspemit %#=announce(COLOR)%BYou have restored all default colors!;@wipe %#/D`COLOR
+
+&INC`IMPORT u(cco)=@switch/inline t(strlen(setr(cat,before(%0,/))))=1,{@switch/inline gt(match(setr(list,v(VAR`CATEGORIES)),setr(cat,capnames(%q<cat>)),|),0)=0,{@assert strlen(setr(find,graball(%q<list>,%q<cat>*,|)))=@nspemit %#=That's not a valid Color Category. Your choices are: [itemize(%q<list>,|,and,\,)];@break gt(words(%q<find>,|),1)=@nspemit %#=announce(COLOR)%BERROR: That matched [itemize(%q<find>,|,and,\,)]. Please be more specific.};@include u(ccs)/INC`CHECKPC=%1,1,COLORS
+
+&GFN`COLOR u(cco)=ansi(strfirstof(get(%0/D`COLOR`%2),%3,n),%1)
+
+&VAR`PLAYFLAGS u(cco)=LIST|DEFAULTS|IMPORT
+
+th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),MAIN,|,|))
+&VAR`CATEGORIES`MAIN u(cco)=HEADER1|HEADER2|SUBHEADER|ANNOUNCE

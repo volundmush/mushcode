@@ -1,0 +1,12 @@
+@tel create(Event Handler <EH>)=config(master_room)
+@set Event Handler <EH>=WIZARD
+&eh u(coi)=locate(config(master_room),Event Handler <EH>,TXxi)
+@parent u(eh)=u(COI)
+
+&PLAYER`CONNECT u(eh)=@dolist filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0)))={@dolist lattr(%i0/PLAYER`CONNECT`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+
+&PLAYER`CREATE u(eh)=@dolist filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0)))={@dolist lattr(%i0/PLAYER`CREATE`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+
+&PLAYER`DISCONNECT u(eh)=@dolist filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0)))={@dolist lattr(%i0/PLAYER`DISCONNECT`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+
+&SOCKET`LOGINFAIL u(eh)=@dolist filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0)))={@dolist lattr(%i0/SOCKET`LOGINFAIL`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}

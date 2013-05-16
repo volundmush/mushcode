@@ -1,0 +1,8 @@
+@tel create(PennMUSH Configuration Object <PCO>)=config(master_room)
+&pco u(coi)=locate(config(master_room),PennMUSH Configuration Object <PCO>,TXxi)
+@parent u(pco)=u(coi)
+@set u(pco)=WIZARD
+
+&STARTUP u(pco)=@attribute/access/retroactive descformat=WIZARD;@attribute/access/retroactive short-desc=visual;@attribute/access/retroactive playstatus=WIZARD VISUAL;@attribute/access/retroactive D=WIZARD MORTAL_DARK
+
+&PLAYER`DISCONNECT`TELGUEST u(pco)=@switch/inline gt(haspower(%0,GUEST),0)=1,{@tel %0=config(player_start)}

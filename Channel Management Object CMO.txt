@@ -1,0 +1,49 @@
+@@ DEPENDENCIES - KLS (Key Lock System)
+@@ Without the KLS, the LOCK/UNLOCK flags will NOT function.
+
+@tel create(Channel Management Object <CMO>)=config(master_room)
+&cmo u(coi)=locate(config(master_room),Channel Management Object <CMO>,TXxi)
+@parent u(cmo)=u(coi)
+@set u(cmo)=WIZARD !NO_COMMAND
+
+&CMD`+CHANNEL u(cmo)=$^(?s)(?\:\+)?channel(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(cmo)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`ADMINFLAGS)),|,|)),%1,|))=@nspemit %#=announce(CHANNEL)%BERROR: Invalid switch for +channel! [pueblize(Your choices are: [itemize(%q<choices>,|,and,\,)],+help Channels)];@include u(cmo)/INC`[strfirstof(%1,MAIN)]=%2,%3
+@set u(cmo)/CMD`+CHANNEL=regexp
+
+&VAR`PLAYFLAGS u(cmo)=MUZZLE
+&VAR`ADMINFLAGS u(cmo)=UNMUZZLE|LOCK|UNLOCK|RENAME|ADD
+
+&INC`MAIN u(cmo)=@nspemit %#=header(mudname() Channel Status);@nspemit %#=iter(channels(|),u(u(cmo)/FUN`FINDCHANNEL,%i0)%B%B[ljust(%i0,25)][ljust(words(cwho(%i0)),10)],|,%R);@nspemit %#=header()
+
+&INC`MUZZLE u(cmo)=@switch/inline strlen(%0)=0,{@switch/inline isadmin(%#)=0,{@include u(cmo)/INC`MUZZLE`SHOWPLAYER=%#},1,{@assert words(setr(list,lsearch(all,eplayer,\[nattr(##/D`MUZZLE`*)\])))=@nspemit %#=announce(MUZZLE) No players are Muzzled.;@nspemit %#=header(mudname() Muzzled Players);@nspemit %#=iter(%q<list>,ljust(pueblize(name(%i0),+channel/muzzle [name(%i0)]),20) - [itemize(iter(lattr(%i0/D`MUZZLE`*),get(u(cmo)/D`CHANNEL`[get(%i1/%i0)]) - For [etime(sub(get(%i1/%i0`UNTIL),secs()))],%B,|),|,and,\,)])}},{@switch/inline words(%0,/)=1,{@switch/inline isadmin(%#)=0,{@include u(cmo)/INC`MUZZLE`SHOWPLAYER=%#},1,{@include u(ccs)/INC`CHECKPC=%0,1,MUZZLE;@include u(cmo)/INC`MUZZLE`SHOWPLAYER=%q<t1>}},2,{@include u(ccs)/INC`CHECKPC=before(%0,/),1,MUZZLE;@assert strlen(after(%0,/))=@nspemit %#=announce(MUZZLE) ERROR: Must enter a Channel to muzzle from.;@assert setr(channel,u(u(cmo)/FUN`FINDCHANNEL,after(%0,/)))=@nspemit %#=announce(MUZZLE) [after(%0,/)] does not match a channel!;@break strlen(setr(exist,first(grepi(%#,D`MUZZLE`*,%q<channel>))))=@nspemit %#=announce(ERROR) %q<t1name> is already Muzzled from [get(u(cmo)/D`CHANNEL`%q<channel>)].;@assert strlen(%1)=@nspemit %#=announce(MUZZLE) ERROR: No Muzzle duration entered.;@assert gt(stringsecs(%1),0)=@nspemit %#=announce(MUZZLE) ERROR: Invalid duration entered. Please see [pueblize(help stringsecs(),help stringsecs())] for more information.;&[setr(muzattr,D`MUZZLE`[nextslot(%q<t1>,D`MUZZLE)])] %q<t1>=%q<channel>;&%q<muzattr>`UNTIL %q<t1>=add(secs(),stringsecs(%1));@nspemit %#=announce(MUZZLE) You have Muzzled %q<t1name> from [get(u(cmo)/D`CHANNEL`%q<channel>)] for [timestring(stringsecs(%1))] - Until [convsecs(add(secs(),stringsecs(%1)))].;@nspemit %q<t1>=announce(MUZZLE) You have been Muzzled from [get(u(cmo)/D`CHANNEL`%q<channel>)] for [timestring(stringsecs(%1))] - Until [convsecs(add(secs(),stringsecs(%1)))].;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=[ansi(h,%n)] has Muzzled %q<t1name> from [get(u(cmo)/D`CHANNEL`%q<channel>)] for [timestring(stringsecs(%1))] - Until [convsecs(add(secs(),stringsecs(%1)))].}},{@nspemit %#=announce(MUZZLE) ERROR: Only two arguments allowed for target!}}
+
+&INC`MUZZLE`SHOWPLAYER u(cmo)=@assert isdbref(%0);@nspemit %#=header(name(%0)'s Muzzlings);@nspemit %#=iter(lattr(%0/D`MUZZLE`*),get(u(cmo)/D`CHANNEL`[get(%0/%i0)]) - For [etime(sub(get(%0/%i0`UNTIL),secs()))],%B,|);@nspemit %#=header()
+
+&INC`UNMUZZLE u(cmo)=@include u(ccs)/INC`CHECKPC=before(%0,/),1,MUZZLE;@assert strlen(after(%0,/))=@nspemit %#=announce(MUZZLE) ERROR: Must enter a Channel to muzzle from.;@assert setr(channel,u(u(cmo)/FUN`FINDCHANNEL,after(%0,/)))=@nspemit %#=announce(MUZZLE) [after(%0,/)] does not match a channel!;@assert strlen(setr(exist,first(grepi(%q<t1>,D`MUZZLE`*,%q<channel>))))=@nspemit %#=announce(MUZZLE) ERROR: %q<t1name> is not Muzzled from [get(u(cmo)/D`CHANNEL`%q<channel>)].;@wipe %q<t1>/%q<exist>;@nspemit %#=announce(MUZZLE) You have unMuzzled %q<t1name> from [get(u(cmo)/D`CHANNEL`%q<channel>)].;@nspemit %q<t1>=announce(MUZZLE) You have been unMuzzled from [get(u(cmo)/D`CHANNEL`%q<channel>)].;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=[ansi(h,%n)] has unMuzzled %q<t1name> from [get(u(cmo)/D`CHANNEL`%q<channel>)].}
+
+&INC`ADD u(cmo)=@assert strlen(setr(name,%0))=@nspemit %#=announce(CHANNEL) Name field empty.;@break strmatch(%q<name>,ansi\(*)=@nspemit %#=announce(CHANNEL) ERROR: Please use brackets around colored channel names.;@break match(capnames(channels(|)),capnames(%q<name>),|)=@nspemit %#=announce(CHANNEL) ERROR: A Channel of that name already exists.;@channel/add %q<name>=PQ;@assert match(channels(|),%0,|)=@nspemit %#=announce(CHANNEL) ERROR: That is not an acceptable Channel name.;@channel/buffer %q<name>=10;@channel/mogrifier %q<name>=u(cmo);@nspemit %#=announce(CHANNEL) Channel %q<name> created!;@switch/inline words(setr(slots,grepi(u(cmo),D`CHANNEL`*,stripansi(%q<name>))))=0,{&[setr(chanattr,D`CHANNEL`[nextslot(u(cmo),D`CHANNEL)])] u(cmo)=stripansi(%q<name>)},1,{},{@nspemit %#=announce(CHANNEL) ERROR: Channel was created, but existing +channel bindings were found. All but the first have been cleared.;@dolist setdiff(%q<slots>,first(%q<slots>))=@wipe u(cmo)/%i0};@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) has created the %q<name> channel!}
+
+&INC`RENAME u(cmo)=@assert strlen(setr(name,%0))=@nspemit %#=announce(CHANNEL) Name field empty.;@break strmatch(%q<name>,ansi\(*)=@nspemit %#=announce(CHANNEL) ERROR: Please use brackets around colored channel names.;@assert match(capnames(channels(|)),capnames(%0),|)=@nspemit %#=announce(CHANNEL) ERROR: Channel not found.;@assert setr(id,u(u(cmo)/FUN`FINDCHANNEL,%q<name>))=@nspemit %#=announce(CHANNEL) Channel was not found in the +channel database!;@assert strlen(%1)=@nspemit %#=announce(CHANNEL) ERROR: New Name field Empty.;@break strmatch(%1,ansi\(*)=@nspemit %#=announce(CHANNEL) ERROR: Please use brackets around colored channel names.;@break match(capnames(setdiff(channels(|)),capnames(%1),|,|),%1,|)=@nspemit %#=announce(CHANNEL) ERROR: A channel by that name already exists.;@channel/name %0=%1;@assert match(channels(|),%1,|)=@nspemit %#=announce(CHANNEL) ERROR: That is not an acceptable Channel name.;&D`CHANNEL`%q<id> u(cmo)=stripansi(%1);@nspemit %#=announce(CHANNEL) You have renamed channel %0 to %1!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) has renamed the %q<name> channel to %1!}
+
+&INC`LOCK u(cmo)=@assert strlen(setr(name,%0))=@nspemit %#=announce(CHANNEL) Name field empty.;@assert match(channels(|),%q<name>,|)=@nspemit %#=announce(CHANNEL) ERROR: Channel not found.;@assert setr(id,u(u(cmo)/FUN`FINDCHANNEL,%q<name>))=@nspemit %#=announce(CHANNEL) Channel was not found in the +channel database!;@assert eq(words(setr(choices,setdiff(%1,u(u(kls)/FUN`LISTLOCKS)))),0)=@nspemit %#=announce(KEY) ERROR: Following lock types not found: [itemize(%q<choices>,|,and,\,)];@dolist/delimit | [v(VAR`CLOCKTYPES)]={@clock/%i0 %q<name>=iter(%1,@[u(kdb)]/%i0,%B,|)};&D`CHANNEL`%q<id>`LOCK u(cmo)=capnames(%1);@nspemit %#=announce(CHANNEL) %q<name> %q<type> Locked to [itemize(%1,%b,and,\,)];@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) %q<type> locked the %q<name> channel to [itemize(%1,%b,and,\,)]!}
+
+&INC`UNLOCK u(cmo)=@assert strlen(setr(name,%0))=@nspemit %#=announce(CHANNEL) Name field empty.;@assert match(channels(|),%q<name>,|)=@nspemit %#=announce(CHANNEL) ERROR: Channel not found.;@assert setr(id,u(u(cmo)/FUN`FINDCHANNEL,%q<name>))=@nspemit %#=announce(CHANNEL) Channel was not found in the +channel database!;@dolist/delimit | [v(VAR`CLOCKTYPES)]={@clock/%i0 %q<name>};&D`CHANNEL`%q<id>`LOCK u(cmo);@nspemit %#=announce(CHANNEL) %q<name> %q<type> unLocked.;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) %q<type> unlocked the %q<name> channel!}
+
+&VAR`CLOCKTYPES u(cmo)=join|speak|see
+
+&STARTUP u(cmo)=@hook/ignore @channel=u(cmo),HOOK`IGNORECHECK
+&HOOK`IGNORECHECK u(cmo)=if(and(or(strmatch(first(after(%u,/)),a*),strmatch(first(after(%u,/)),ren*)),hastype(%#,PLAYER),not(hastyle(%#,PLAYER))),0[nspemit(%#,announce(CHANNEL) ERROR: Please use +channel for this purpose!)],1)
+
+&VAR`ALERTMODE u(cmo)=1
+&VAR`ALERTSCHANNEL u(cmo)=Staff Reports
+
+&FUN`FINDCHANNEL u(cmo)=last(first(grepi(u(cmo),D`CHANNEL`*,stripansi(%0))),`)
+
+&MOGRIFY`PLAYERNAME u(cmo)=if(isadmin(%#),\[[ansi(h,Staff)]\] %0,%0)
+&MOGRIFY`BLOCK u(cmo)=if(strlen(setr(check,first(grepi(%#,D`MUZZLE`*,u(u(cmo)/FUN`FINDCHANNEL,stripansi(%1)))))),if(gt(setr(until,get(%#/%q<check>`UNTIL)),secs()),announce(MUZZLE) You have been Muzzled from %1 until [convsecs(%q<until>)],wipe(%#/%q<check>)))
+&MOGRIFY`MESSAGE u(cmo)=regeditalli(%0,v(VAR`REGEXP`WWW),weblink(strfirstof($<2>,http://,$<1>)$<3>,$<1>))
+&VAR`REGEXP`WWW u(cmo)=(?P<1>(?P<2>((http|https|ftp))\://)?(?P<3>(((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])|([a-zA-Z0-9_\-\.])+\.(com|net|org|edu|int|mil|gov|arpa|biz|aero|name|coop|info|pro|museum|uk|me))((:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])*)))
+
+
+
+
+{\b(?:(?:(?:f|ht)tps?://)|www\.)(?:(?:[a-zA-Z_\.0-9%+/@~=&,;-]*))?(?::[0-9]+/)?(?:[a-zA-Z_\.0-9%+/@~=&,;-]*)(?:\?(?:[a-zA-Z_\.0-9%+/@~=&,;:-]*))?(?:#[a-zA-Z_\.0-9%+/@~=&,;:-]*)?}

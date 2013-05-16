@@ -1,0 +1,29 @@
+
+
+@tel create(Global Functions Object <GFO>)=config(master_room)
+&gfo u(coi)=locate(config(master_room),Global Functions Object <GFO>,TXxi)
+@parent u(gfo)=u(coi)
+@set u(gfo)=WIZARD
+
+&GFN`AGO u(gfo)=switch(1,lt(%0,60),%0s,lt(%0,3600),div(%0,60)m,lt(%0,86400),div(%0,3600)h,div(%0,86400)d)
+&GFN`ANNOUNCE GFO=color(%#,-=<,MAIN`ANNOUNCE,hm)[ansi(h,ucstr(%0))][color(%#,>=-,MAIN`ANNOUNCE,hm)]
+&GFN`CAPNAMES u(gfo)=regeditall(lcstr(%0),(?<=\[_-\\s\]|^)(\[a-z\]),capstr($1))
+&GFN`COMMAFY u(gfo)=squish(flip(foreach(#lambda/if(mod(\%1,3),\%0,\\,\%0),flip(%0))),\,)
+&GFN`DELSTAT u(gfo)=attrib_set(%0,setdiff(get(%0),grab(get(%0),%1~*,|),|)
+&GFN`GETSTAT u(gfo)=if(strlen(%2),add(rest(grab(get(%0),%1~*,|),~),rest(grab(get(before(%0,/)/D`%2),%1~*,|),~)),rest(grab(get(%0),%1~*,|),~))
+&GFN`GRABSTAT u(gfo)=rest(grab(%0,%1~*,|),~)
+&GFN`HEADER u(gfo)=if(strlen(%0),center(color(%#,<,MAIN`HEADER1,m)[if(pueblo(%#),endtag(a))][color(%#,*%B,MAIN`HEADER2,hm)][if(%1,%0,ansi(hw,%0))][color(%#,%B*,MAIN`HEADER2,hm)][color(%#,>,MAIN`HEADER1,m)],78,color(%#,-=-,MAIN`HEADER1,m)),color(%#,repeat(-=-,26),MAIN`HEADER1,m))
+&GFN`LISTMAX u(gfo)=lmath(max,iter(%0,strlen(%i0),|,|),|)
+&GFN`NEXTSLOT u(gfo)=add(1,lmath(max,iter(filterbool(#lambda/isint(last(\%0,`)),lattr(%0/[if(strlen(%1),%1`*,*)])),last(%i0,`))))
+&GFN`NUMTH u(gfo)=%0[switch(right(%0,1),1,st,2,nd,3,rd,th)]
+&GFN`PUEBLIZE u(gfo)=tagwrap(A,XCH_CMD="%1",%0)
+&GFN`SETSTAT u(gfo)=localize(attrib_set(%0,setunion(setdiff(setr(0,get(%0)),grab(%q0,%1~*,|),|),%1~%2,|)))
+&GFN`SUBHEADER u(gfo)=if(strlen(%0),center(%b[if(%1,%0,ansi(hw,%0))]%b,78,color(%#,-=-,MAIN`SUBHEADER,m)),color(%#,repeat(-=-,26),MAIN`SUBHEADER,m))
+&GFN`TIMESTAMP u(gfo)=timefmt($Y-$m-$d $H:$M:$S,firstof(%0,secs()))
+&GFN`UNPRIV u(gfo)=setq(unprivtext,%0)[objeval(get(u(mdo)/VAR`UNPRIV),s(%q<unprivtext>))]
+&GFN`VALNUM u(gfo)=and(isint(%0),gt(%0,0))
+&GFN`WEBLINK u(gfo)=tagwrap(a,href="%0",%1)
+
+
+&STARTUP u(gfo)=@dolist/inline get(u(gfo)/VAR`FUNRESTRICT)=@function/restrict %i0=WIZARD LOCALIZE
+&VAR`FUNRESTRICT u(gfo)=GETSTAT SETSTAT DELSTAT

@@ -1,0 +1,45 @@
+@tel create(Key Lock System <KLS>)=config(master_room)
+&kls u(coi)=locate(config(master_room),Key Lock System <KLS>,TXxi)
+@parent u(kls)=u(coi)
+@set u(kls)=WIZARD !NO_COMMAND
+
+@tel create(Key Database <KDB>)=u(kls)
+&kdb u(coi)=locate(u(kls),Key Database <KDB>,TXxi)
+@parent u(kdb)=u(coi)
+@set u(kdb)=WIZARD
+&ISADMIN u(kdb)=isadmin(%#)
+
+
+&CMD`+KEY u(kls)=$^(?s)(?\:\+)?key(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(kls)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(kls)/VAR`ADMINFLAGS)),|,|)),%1,|))=@nspemit %#=announce(MUZZLE)%BERROR: Invalid switch for +key! [pueblize(Your choices are: [itemize(%q<choices>,|,and,\,)],+help Channels)];@include u(kls)/INC`[strfirstof(%1,MAIN)]=%2,%3
+@set u(kls)/CMD`+KEY=regexp
+
+&VAR`PLAYFLAGS u(kls)=LOCK|UNLOCK|GIVE|TAKE
+&VAR`ADMINFLAGS u(kls)=MAKEMASTER|DESTROYMASTER|GIVEAUTH|REMAUTH
+
+&VAR`LOCKTYPES u(kls)=Basic|Enter|Teleport|use|page|zone|parent|link|open|mail|speech|listen|command|leave|drop|dropin|give|from|pay|receive|follow|examine|chzone|forward|filter|infilter|control|dropto|destroy|interact|take|mailforward|chanjoinlock|chanspeaklock|chanseelock|chanhidelock|chanmodlock
+
+&INC`MAIN u(kls)=@assert words(setr(locks,u(u(kls)/FUN`LISTLOCKS)))=@nspemit %#=announce(KEY) ERROR: There are no Master Keys!;@switch/inline gt(strlen(%0),0)=0,{@switch/inline or(isadmin(%#),v(VAR`HOLDERSVIS))=1,{@nspemit %#=header(mudname() Key Types);th iter(%q<locks>,nspemit(%#,ansi(h,%i0) - [itemize(iter(filterbool(#lambda/isobjid(\%0),get(u(kdb)/LOCK`%i0)),name(%i0),%B,|),|,and,\,)]));@nspemit %#=header()},0,{@nspemit %#=header(mudname() Key Types);th iter(%q<locks>,if(match(get(u(kdb)/LOCK`%i0`AUTH),%:),nspemit(%#,ansi(h,%i0) - [itemize(iter(filterbool(#lambda/isobjid(\%0),get(u(kdb)/LOCK`%i0)),name(%i0),%B,|),|,and,\,)]),nspemit(%#,ljust(ansi(h,%i0) -,12) [rjust(words(filterbool(#lambda/isobjid(\%0),get(u(kdb)/LOCK`%i0))),3)] Players Registered![if(match(get(u(kdb)/LOCK`%i0),%:),%B\(You [ansi(hg,have)] this Key!\),%B\(You [ansi(hr,lack)] this key!\))])));@nspemit %#=header()}},1,{@assert match(%q<locks>,%0)=@nspemit %#=announce(KEY) ERROR: That Master Key does not exist!;@nspemit %#=header(Master Key [capnames(%0)] Info);@nspemit %#=Holders: [if(or(isadmin(%#),v(VAR`HOLDERSVIS)),itemize(iter(filterbool(#lambda/isobjid(\%0),get(u(kdb)/LOCK`%0)),name(%i0),%b,|),|,and,\,),words(filterbool(#lambda/isobjid(\%0),get(u(kdb)/LOCK`%0))) Players)];@switch/inline or(isadmin(%#),v(VAR`HOLDERSVIS))=1,{@nspemit %#=%RMaster Key Holders: [itemize(iter(filterbool(#lambda/isobjid(\%0),get(u(kdb)/LOCK`%0`AUTH)),name(%i0),%b,|),|,and,\,)]};@nspemit %#=header()}
+
+&VAR`HOLDERSVIS u(kls)=1
+
+&INC`MAKEMASTER u(kls)=@assert strlen(%0)=@nspemit %#=announce(KEYS) ERROR: Master Key Name field empty.;@break match(v(VAR`LOCKTYPES),%0,|)=@nspemit %#=announce(KEY) ERROR: Master Keys may not be the names of hardcoded @lock types.;@assert eq(words(%0),1)=@nspemit %#=announce(KEY) ERROR: A Master must be a single word.;@break match(u(u(kls)/FUN`LISTLOCKS),%0,|)=@nspemit %#=announce(KEY) ERROR: That Master Key already exists!;@lock/user:%0 u(kdb)=DBREFLIST^LOCK`%0|ISADMIN/1;@lset u(kdb)/%0=v;@nspemit %#=announce(KEY) You have created the %0 Master Key!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) has created a new Master Key: %0}
+
+&INC`DESTROYMASTER u(kls)=@assert strlen(%0)=@nspemit %#=announce(KEY) ERROR: Master Key Name field empty.;@break match(v(VAR`LOCKTYPES),%0,|)=@nspemit %#=announce(KEY) ERROR: Master Keys may not be the names of hardcoded @lock types.;@assert eq(words(%0),1)=@nspemit %#=announce(KEY) ERROR: A Master Key must be a single word.;@assert match(u(u(kls)/FUN`LISTLOCKS),%0,|)=@nspemit %#=announce(KEY) ERROR: That Master Key doesn't exist!;@include u(ccs)/INC`VERIFY={WARNING: This will Destroy the Master Key %0. The key list will be deleted. Are you sure? Enter the same command again in ten seconds to verify.},LOCK DELETE %0;@unlock/user:%0 u(kdb);@wipe u(kdb)/LOCK`%0;@nspemit %#=announce(KEY) You have created the %0 lock!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) has destroyed a Master Key: %0}
+
+&INC`LOCK u(kls)=@assert strlen(before(%0,/))=@nspemit %#=announce(KEY) ERROR: No Target entered to lock.;@assert isdbref(setr(target,locate(%#,before(%0,/),N)))=@nspemit %#=announce(KEY) ERROR: %0 does not match anything.;@assert controls(%#,%q<target>)=@nspemit %#=announce(KEY) ERROR: Permission denied.;@switch/inline gt(strlen(after(%0,/)),0)=1,{@assert match(v(VAR`LOCKTYPES),after(%0,/),|)=@nspemit %#=announce(KEY) ERROR: that does not match a hardcode @lock! Your choices are: [itemize(v(VAR`LOCKTYPES),|,and,\,)]};@assert strlen(%1)=@nspemit %#=announce(KEY) ERROR: Key Types field empty.;@assert eq(words(setr(choices,setdiff(%1,u(u(kls)/FUN`LISTLOCKS)))),0)=@nspemit %#=announce(KEY) ERROR: Following lock types not found: [itemize(%q<choices>,|,and,\,)];@lock[if(strlen(after(%0,/)),/[after(%0,/)])] %q<target>=\(\([iter(%1,@[u(kdb)]/%i0,%B,|)]|DBREFLIST^LOCK`EXCEPTIONS\)&!DBREFLIST^LOCK`BANNED\)|POWER^BUILDER;@nspemit %#=announce(KEY) You have changed the Lock on [name(%q<target>)] to: [itemize(capnames(%1),%b,and,\,)];@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) set the lock on [name(%q<target>)] to: [itemize(capnames(%1),%b,and,\,)]}
+
+&INC`UNLOCK u(kls)=@assert strlen(%0)=@nspemit %#=announce(KEY) ERROR: No Target entered to unlock.;@assert isdbref(setr(target,locate(%#,%0,N)))=@nspemit %#=announce(KEY) ERROR: %0 does not match anything.;@assert controls(%#,%q<target>)=@nspemit %#=announce(KEY) ERROR: Permission denied.;@unlock %q<target>;@nspemit %#=announce(KEY) You have removed the Lock on [name(%q<target>)];@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) removed the lock on [name(%q<target>)]}
+
+&INC`GIVEAUTH u(kls)=@include u(ccs)/INC`CHECKPC=%0,1,KEY;@assert match(u(u(kls)/FUN`LISTLOCKS),%1)=@nspemit %#=announce(KEY) ERROR: %1 does not match an existing Master Key.;@break match(get(u(kdb)/LOCK`%1`AUTH),%q<t1objid>)=@nspemit %#=announce(KEY) ERROR: %q<t1name> already has that Master Key.;&LOCK`%1`AUTH u(kdb)=setunion(get(u(kdb)/LOCK`%1`AUTH),%q<t1objid>);@nspemit %#=announce(KEY) You give %q<t1name> a [capnames(%1)] MASTER Key.;@nspemit %q<t1>=announce(KEY) %n gave you a [capnames(%1)] MASTER Key!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) gave %q<t1name> a [capnames(%1)] MASTER Key.}
+
+&INC`REMAUTH u(kls)=@include u(ccs)/INC`CHECKPC=%0,1,KEY;@assert match(u(u(kls)/FUN`LISTLOCKS),%1)=@nspemit %#=announce(KEY) ERROR: %1 does not match an existing Master Key.;@assert match(get(u(kdb)/LOCK`%1`AUTH),%q<t1objid>)=@nspemit %#=announce(KEY) ERROR: %q<t1name> doesn't have that Master Key.;&LOCK`%1`AUTH u(kdb)=setdiff(get(u(kdb)/LOCK`%1`AUTH),%q<t1objid>);@nspemit %#=announce(KEY) You took %q<t1name>'s [capnames(%1)] MASTER Key.;@nspemit %q<t1>=announce(KEY) %n took your [capnames(%1)] MASTER Key!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) took %q<t1name>'s [capnames(%1)] MASTER Key.}
+
+&INC`GIVE u(kls)=@include u(ccs)/INC`CHECKPC=%0,1,KEY;@assert match(u(u(kls)/FUN`LISTLOCKS),%1)=@nspemit %#=announce(KEY) ERROR: %1 does not match an existing Master Key.;@assert or(isadmin(%#),match(get(u(kdb)/LOCK`%1`AUTH),%:))=@nspemit %#=announce(KEY) ERROR: You lack Permission to grant that key.;@break match(get(u(kdb)/LOCK`%1),%q<t1objid>)=@nspemit %#=announce(KEY) ERROR: %q<t1name> already has that Key.;&LOCK`%1 u(kdb)=setunion(get(u(kdb)/LOCK`%1),%q<t1objid>);@nspemit %#=announce(KEY) You give %q<t1name> a [capnames(%1)] Key.;@nspemit %q<t1>=announce(KEY) %n gave you a [capnames(%1)] Key!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) gave %q<t1name> a [capnames(%1)] Key.}
+
+&INC`TAKE u(kls)=@include u(ccs)/INC`CHECKPC=%0,1,KEY;@assert match(u(u(kls)/FUN`LISTLOCKS),%1)=@nspemit %#=announce(KEY) ERROR: %1 does not match an existing Lock.;@assert or(isadmin(%#),match(get(u(kdb)/LOCK`%1`AUTH),%:))=@nspemit %#=announce(KEY) ERROR: You lack Permission to remove that key.;@assert match(get(u(kdb)/LOCK`%1),%q<t1objid>)=@nspemit %#=announce(KEY) ERROR: %q<t1name> does not have that Key.;&LOCK`%1 u(kdb)=setdiff(get(u(kdb)/LOCK`%1),%q<t1objid>);@nspemit %#=announce(KEY) You take away %q<t1name>'s [capnames(%1)] Key.;@nspemit %q<t1>=announce(KEY) %n took away your [capnames(%1)] Key!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) removed %q<t1name>'s [capnames(%1)] Key.}
+
+&VAR`ALERTMODE u(kls)=1
+&VAR`ALERTSCHANNEL u(kls)=Staff Reports
+&FUN`LISTLOCKS u(kls)=iter(filterbool(#lambda/strmatch(\%0,USER:*),llocks(u(kdb))),after(%i0,USER:))
+
+
