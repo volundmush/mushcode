@@ -1,0 +1,42 @@
+@teleport create(Experience Point Tracker <EX-EPT>)=config(master_room)
+&ex-ept u(coi)=locate(config(master_room),Experience Point Tracker <EX-EPT>,TXxi)
+@parent u(ex-ept)=u(coi)
+@set u(ex-ept)=WIZARD
+
+
+&CMD`+XP u(ex-ept)=$^(?s)\+XP(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(ex-ept)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ex-ept)/VAR`ADMINFLAGS)),|,|)),%1,|))=@nspemit %#=ERROR: Invalid switch for +XP! [pueblize(Your choices are: [itemize(%q<choices>,|,and,\,)],+help Recommendations)];@include u(ex-ept)/INC`[strfirstof(%1,MAIN)]=%2,%3,%4
+@set u(ex-ept)/CMD`+XP=regexp
+
+&VAR`ADMINFLAGS u(ex-ept)=DELGAINED|DELSPENT|TOTALS|AWARD|SPEND
+&VAR`PLAYERFLAGS u(ex-ept)=GAINED|SPENT
+
+&INC`MAIN u(ex-ept)=@switch/inline and(strlen(%0),isadmin(%#))=1,{@include u(ccs)/INC`CHECKPC=%0,1,XP},0,{@include u(ccs)/INC`CHECKPC=%#,1,XP};@include u(ex-ept)/INC`LIST=%q<t1>
+
+&INC`LIST u(ex-ept)=@nspemit %#=header(name(%0) XP)%R[ljust(ansi(h,rjust(Current:,10)),10)][rjust(sub(setr(gained,u(u(ex-ept)/FUN`COUNT,%0,G)),setr(spent,u(u(ex-ept)/FUN`COUNT,%0,S))),4)]%r[ljust(ansi(h,rjust(Total:,10)),10)][rjust(%q<gained>,4)]%r[ljust(ansi(h,rjust(Spent:,10)),10)][rjust(%q<spent>,4)];@nspemit %#=header()
+
+&FUN`COUNT u(ex-ept)=lmath(add,iter(lattr(%0/D`XP`%1`*),get(%0/%i0)))
+
+&FUN`DETAIL u(ex-ept)=
+
+&INC`GAINED u(ex-ept)=@include u(ex-ept)/INC`LISTBY=%0,G
+&INC`SPENT u(ex-ept)=@include u(ex-ept)/INC`LISTBY=%0,S
+
+&INC`LISTBY u(ex-ept)=@nspemit %#=header(name(%0)'s [if(strmatch(%1,G),GAINED,SPENT)] XP);@dolist/inline lattr(%0/D`XP`%1`*)=@nspemit %#=#[ljust(last(%i0,`),5)][ljust(ansi(hw,Amount:)%B[get(%0/%i0)],15)][ljust(ansi(hw,Reason:)%B[get(%0/%i0`REASON)],60)]%R%B%B%B[ljust(ansi(hw,Handled By:)%B[get(%0/%i0`BY)],75)]%R%B%B%B[ljust(ansi(hw,Time:)%B[convsecs(get(%0/%i0`ON))],78)];@nspemit %#=header()
+
+&INC`DELGAINED u(ex-ept)=@include u(ex-ept)/INC`DELETE=%0,G,%1
+&INC`DELSPENT u(ex-ept)=@include u(ex-ept)/INC`DELETE=%0,S,%1
+
+&INC`DELETE u(ex-ept)=@assert valnum(%2)=@nspemit %#=XP entries must be addressed via whole and positive numbers!;@assert hasattr(%0/D`XP`%1`%2)=@nspemit %#=ansi(h,name(%0)) does not have that entry!;@switch/inline v(VAR`ALERTSMODE)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just removed [ansi(h,name(%0))]'s XP [if(strmatch(%1,G),GAINED,SPENT)] Entry #%2: [get(%0/D`XP`%1`%2)] - [get(%0/D`XP`%1`%2`REASON)]};@nspemit %#=announce(XP) You just removed [ansi(h,name(%0))]'s XP [if(strmatch(%1,G),GAINED,SPENT)] Entry #%2: [get(%0/D`XP`%1`%2)] - [get(%0/D`XP`%1`%2`REASON)];@switch/inline 1=not(strmatch(%0,%#)),{@nspemit %#=announce(XP) ansi(h,name(%#)) just removed your XP [if(strmatch(%1,G),GAINED,SPENT)] Entry #%2: [get(%0/D`XP`%1`%2)] - [get(%0/D`XP`%1`%2`REASON)]};@wipe %0/D`XP`%1`%2
+
+&INC`TOTALS u(ex-ept)=@nspemit %#=header(mudname() XP Totals);@nspemit %#=ansi(hc,Name[space(29)]Gained XP[space(3)]Splat);@dolist/inline sortkey(#lambda/u(u(ex-ept)/FUN`COUNT,\%0,G),lsearch(all,eplayer,\[and(u(u(ex-ept)/FUN`COUNT,##,G),not(isadmin(##)),approved(##))\]),n)=ljust(left(name(%i0)),33)[ljust(rjust(u(u(ex-ept)/FUN`COUNT,%%i0,G),6),12)][getsphere(%i0)];@nspemit %#=header()
+
+&INC`AWARD u(ex-ept)=@include u(ex-ept)/INC`MARKXP=%0,%1,%2,AWARD
+&INC`SPEND u(ex-ept)=@include u(ex-ept)/INC`MARKXP=%0,%1,%2,SPEND
+
+&INC`MARKXP u(ex-ept)=@assert strlen(%0)=@nspemit %#=announce(XP) ERROR: No Reason entered!;@assert strlen(%1)=@nspemit %#=announce(XP) ERROR: Target List empty.;@assert strlen(%2)=@nspemit %#=announce(XP) ERROR: XP %3 Value Empty.;@dolist/inline setr(list,lnum(1,words(%1,|)))={@include u(ccs)/INC`CHECKPC=elements(%1,inum(0),|),inum(0),XP};@nspemit/list setr(list1,iter(%q<list>,%q<t%i0>))=announce(XP) You have [switch(%3,AWARD,been awarded,spent)] %2 XP for: %0;@dolist %q<list1>=@include u(ex-ept)/INC`APPLY=%i0,%2,%0,%:,switch(%3,G,S);@switch/inline v(VAR`ALERTSMODE)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just [switch(%3,AWARD,awarded,spent)] [ansi(h,itemize(iter(%q<list1>,name(%i0),%b,|),|,and,\,))]'s %2 XP for: %0}
+
+&INC`APPLY u(ex-ept)=&[setr(attr,D`XP`%4`[nextslot(%0,D`XP`%4)])] %0=%1;&%q<attr>`ON %0=secs();&%q<attr>`BY %0=%3
+
++help/addmain General IC/+xp=[ansi(h,+xp)]%RDisplays your current XP totals.%R%R[ansi(h,+xp/gained)] or [ansi(h,+xp/spent)]%RDisplays details about your XP gains and spends.
+
++shelp/addmain Characters/+xp=[ansi(h,+xp <name>)]%RCheck a player's XP totals.%R%R[ansi(h,+xp/gained <name>)] or [ansi(h,+xp/spent <name>)]%RDisplays details about a player's XP gains and spends.%R%R[ansi(h,+xp/delgained <name>=<#>)] or [ansi(h,+xp/delspent <name>=<#>)]%RDeletes a player's XP Spent or Gained entry. Does NOT add or subtract XP!%R%R[ansi(h,+xp/award <reason>=<list|of|players>=<#>)] and [ansi(h,+xp/spend <reason>=<list|of|players>=<#>)]%RAwards or Spends XP. <list|of|players> can be either a single name or several player names separated by | to mass-apply gains or spends.

@@ -1,0 +1,200 @@
+@tel create(Pools System Object <EX-PSO>)=config(master_room)
+&ex-pso u(coi)=locate(config(master_room),Pools System Object <EX-PSO>,TXxi)
+@set u(ex-pso)=WIZARD !NO_COMMAND
+@parent u(ex-pso)=u(coi)
+
+&CMD`+POOL u(ex-pso)=$^\+(burn|gain|refresh|commit|uncommit|pools)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(v(VAR`PLAYFLAGS),if(isadmin(%#),v(VAR`ADMINFLAGS))),|,POOLS,choice,switch;@include u(ex-pso)/INC`%1=%3,%4
+@set u(ex-pso)/CMD`+POOL=regexp
+
+&VAR`PLAYFLAGS u(ex-pso)=
+&VAR`ADMINFLAGS u(ex-pso)=
+
+&INC`FINDPOOL u(ex-pso)=@assert strlen(%0)=@nspemit %#=announce(POOLS) ERROR: What Pool or Track will you burn from? Your choices are: [itemize(u(FUN`LISTPOOLS,%#),%b,and,\,)];@include u(ccs)/INC`PARTIAL=%0,u(FUN`LISTPOOLS,%#),%b,POOLS,choice,pool
+
+&FUN`POOLDETAIL u(ex-pso)=v(DAT`%0`UNITNAME) of [if(strmatch(v(DAT`%0`UNITTYPE),Essence),capnames(%0)%B)][v(DAT`%0`UNITTYPE)]
+
+&FUN`LISTPOOLS u(ex-pso)=u(FUN`SORTPOOLS,filterbool(#lambda/and(u(FUN`MAX,%0,\%0),strmatch(v(DAT`\%0`TYPE),if(strlen(%1),%1,*))),iter(lattr(u(ex-pso)/FUN`MAX`*),last(%i0,`))))
+
+&FUN`SORTPOOLS u(ex-pso)=filterbool(#lambda/match(%0,\%0),Personal Peripheral Willpower Overdrive Limit Resonance Paradox Clarity Stasis Divergence Dissonance Compassion Conviction Valor Temperance)
+
+&INC`BURN u(ex-pso)=@include u(ex-pso)/INC`FINDPOOL=%0,%#;@assert strlen(%1)=@nspemit %#=announce(POOLS) ERROR: Burn Value empty.;@assert valnum(%1)=@nspemit %#=announce(POOLS) ERROR: Burn values must be whole, positive numbers.;@break lt(u(FUN`CUR,%#,%q<choice>),%1)=@nspemit %#=announce(POOLS) There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(VAR`POOL`%q<choice>`TYPE)]!;@nsremit %l=announce(POOLS) [ansi(h,%n)] just burned %1 [u(FUN`POOLDETAIL,%q<choice>)]!;&D`POOLS`%q<choice>`CUR %#=sub(u(FUN`CUR,%#,%q<choice>),%1)
+
+&INC`REGAIN u(ex-pso)=@include u(ex-pso)/INC`FINDPOOL=%0,%#;@assert strlen(%1)=@nspemit %#=announce(POOLS) ERROR: Regain Value empty.;@assert valnum(%1)=@nspemit %#=announce(POOLS) ERROR: Regain values must be whole, positive numbers.;@nsremit %l=announce(POOLS) [ansi(h,%n)] just regained %1 [u(FUN`POOLDETAIL,%q<choice>)]!;&D`POOLS`%q<choice>`CUR %#=bound(add(u(FUN`CUR,%#,%q<choice>),%1),0,u(FUN`MAX,%#,%q<choice>))
+
+&INC`REFRESH u(ex-pso)=@dolist/inline setunion(u(FUN`LISTPOOLS,%#,Pool),u(FUN`LISTPOOLS,%#,Channel))=&D`POOLS`%i0`CUR %#=u(FUN`MAX,%#,%i0);@nsremit %l=announce(POOLS) [ansi(h,%n)] just refreshed %p Pools and Channels!
+
+&INC`COMMIT u(ex-pso)=@include u(ex-pso)/INC`FINDPOOL=before(%0,/),%#;@assert strlen(after(%0,/))=@nspemit %#=announce(POOLS) ERROR: Commit Value empty.;@assert valnum(after(%0,/))=@nspemit %#=announce(POOLS) ERROR: Commit values must be whole, positive numbers.;@break lt(u(FUN`CUR,%#,%q<choice>),after(%0,/))=@nspemit %#=announce(POOLS) There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(VAR`POOL`%q<choice>`TYPE)]!;@assert strlen(%1)=@nspemit %#=announce(POOLS) ERROR: No reason entered for this Commitment!;&[setr(attr,D`POOLS`%q<choice>`COMMIT`[nextslot(D`POOLS`%q<choice>`COMMIT)])] %#=after(%0,/);&%q<attr>`REASON %#=%1;@nsremit %l=announce(POOLS) [ansi(h,%n)] just Committed [after(%0,/)] [u(FUN`POOLDETAIL,%q<choice>)] to: %1
+
+&INC`UNCOMMIT u(ex-pso)=@include u(ex-pso)/INC`FINDPOOL=%0,%#;@assert valnum(%1)=@nspemit %#=announce(POOLS) ERROR: Uncommit target empty.;@assert hasattr(%#/D`POOLS`%q<choice>`COMMIT`%1)=@nspemit %#=announce(POOLS) ERROR: No Commitment matches that slot.;@nsremit %l=announce(POOLS) [ansi(h,%n)] just release [get(%#/D`POOLS`%q<choice>`COMMIT`%1)] [u(FUN`POOLDETAIL,%q<choice>)] from: [get(%#/D`POOLS`%q<choice>`COMMIT`%1`REASON)];@wipe %#/D`POOLS`%q<choice>`COMMIT`%1
+
+&INC`POOLS u(ex-pso)=@switch/inline and(isadmin(%#),strlen(%0))=1,{@include u(ccs)/INC`CHECKPC=%0,1,POOLS},0,{th setq(t1,%#)};@nspemit %#=header(name(%q<t1>)'s Pools);@dolist/inline u(FUN`LISTPOOLS,%q<t1>)={@nspemit %#=rjust(capnames(%i0),10): [rjust(u(FUN`CUR,%q<t1>,%i0),3,0)]/[rjust(u(FUN`MAX,%q<t1>,%i0),3,0)][if(nattr(%q<t1>/D`POOLS`%i0`COMMIT`*),%R[iter(lattr(%q<t1>/D`POOLS`%i0`COMMIT`*),%T[last(%i0,`)]: [rjust(get(%q<t1>/%i0),3)] for [get(%q<t1>/%i0`REASON)],%B,%R)])]};@nspemit %#=header()
+
+&FUN`CUR u(ex-pso)=bound(get(%0/D`POOLS`%1`CUR),if(strmatch(v(VAR`POOL`%1`TYPE),Track),lmath(add,iter(lattr(%0/D`POOLS`%1`COMMIT`*),get(%0/%i0))),0),u(FUN`MAX,%0,%1))
+
+&FUN`MAX u(ex-pso)=add(u(FUN`MAX`%1,%0),getstat(%0/D`POOLBONUS,%1))
+
+&FUN`MAX`PERSONAL u(ex-pso)=add(u(FUN`MAX`PERSONAL`[getsplat(%0)],%0),if(strmatch(getsplat(%0),GOD-BLOODED),u(v(u(ex-pso))/FUN`CALCEXPANDER,%0,D`CHARMS`[reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,Raksha,^(Divine|Demon)$,Spirit,^(Ghost)$,Ghost)],DAT`[reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,Raksha,^(Divine|Demon)$,Spirit,^(Ghost)$,Ghost)]`EXPANDER),0))
+
+&FUN`MAX`PERIPHERAL u(ex-pso)=add(u(FUN`MAX`PERIPHERAL`[getsplat(%0)],%0),u(u(ex-pso)/FUN`CALCEXPANDER,%0,D`CHARMS`[getsplat(%0)],DAT`[getsplat(%0)]`EXPANDER))
+&FUN`MAX`OVERDRIVE u(ex-pso)=bound(add(u(FUN`MAX`OVERDRIVE`[getsplat(%0)],%0),u(u(ex-pso)/FUN`CALCOVERDRIVE,%0,D`CHARMS`[getsplat(%0)],DAT`[getsplat(%0)]`OVERDRIVE)),0,default(VAR`MAXOVERDRIVE,25))
+&FUN`MAX`LIMIT u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(SOLAR|LUNAR|SIDEREAL|INFERNAL|DRAGON-BLOODED)$),10,gt(getstat(%0/D`NEGATIVE_MUTATIONS,Great Curse),0),10,0)
+&FUN`MAX`RESONANCE u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(ABYSSAL)$),10,0)
+&FUN`MAX`CLARITY u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(ALCHEMICAL)$),10,0)
+
+&FUN`MAX`PERSONAL`SOLAR u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
+&FUN`MAX`PERIPHERAL`SOLAR u(ex-pso)=add(mul(7,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),null(SKINMOUNTHERE))
+
+&FUN`CALCEXPANDER u(ex-psso)=lmath(add,iter(lattr(u(ex-pso)/%2`*),mul(last(%i0,`),iter(ucstr(get(u(ex-pso)/%i0)),lmath(max,iter(iter(graball(ucstr(get(%0/D`CHARMS`[elements(%i0,2 3,`,`)])),%i0*,|,|),last(%i0)),if(isnum(%i0),%i0,1))),|))))
+
+&FUN`CALCOVERDRIVE u(ex-psso)=lmath(add,iter(lattr(u(ex-pso)/%2`*),mul(last(%i0,`),words(setinter(ucstr(get(%0/D`CHARMS`[elements(%i0,2 3,`,`)])),ucstr(get(u(ex-pso)/%i0)),|,|)))))
+
+&FUN`MAX`PERSONAL`ABYSSAL u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
+&FUN`MAX`PERIPHERAL`ABYSSAL u(ex-pso)=add(mul(7,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),null(SKINMOUNTHERE))
+
+&FUN`MAX`PERSONAL`ALCHEMICAL u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
+&FUN`MAX`PERIPHERAL`ALCHEMICAL u(ex-pso)=add(mul(5,getstat(%0/D`INFO,Essence)),mul(3,u(FUN`MAX`WILLPOWER,%0)),null(SKINMOUNTHERE),mul(2,if(default(VAR`MAXVIRTUES,0),5,lmath(max,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
+
+&FUN`MAX`PERSONAL`DRAGON-BLOODED u(ex-pso)=add(getstat(%0/D`INFO,Essence),u(FUN`MAX`WILLPOWER,%0),bound(max(getstat(%0/D`BACKGROUNDS,Breeding),getstat(%0/D`INFO,Essence)),0,6))
+&FUN`MAX`PERIPHERAL`DRAGON-BLOODED u(ex-pso)=add(mul(4,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),10,lmath(add,elements(sort(iter(get(%0/D`VIRTUES),last(%i0,~),|)),3 4))),null(SKINMOUNTHERE),switch(bound(max(getstat(%0/D`BACKGROUNDS,Breeding),getstat(%0/D`INFO,Essence)),0,6),1,2,2,3,3,5,4,7,5,9,6,11,0))
+
+&FUN`MAX`PERSONAL`DRAGON-KING u(ex-pso)=add(mul(4,getstat(%0/D`INFO,Essence)),null(SKINMOUNTHERE),mul(2,u(FUN`MAX`WILLPOWER,%0)),if(default(VAR`MAXVIRTUES,0),10,add(getstat(%0/D`VIRTUES,Conviction),getstat(%0/D`VIRTUES,Valor))))
+
+&FUN`MAX`PERSONAL`GHOST u(ex-pso)=add(mul(10,getstat(%0/D`INFO,Essence)),mul(3,u(FUN`MAX`WILLPOWER,%0)),null(SKINMOUNTHERE),mul(2,if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
+
+&FUN`MAX`PERSONAL`GOD`BLOODED u(ex-pso)=add(reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,mul(getstat(%0/D`INFO,Essence),8),^(Divine|Demon|Ghost)$,add(mul(5,getstat(%0/D`INFO,Essence)),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),mul(2,u(FUN`MAX`WILLPOWER,%0)))),switch(getstat(%0/D`POSITIVE_MUTATIONS,Essence Abundance),1,3,2,6,4,12,6,16,0))
+
+&FUN`MAX`PERSONAL`HALF`CASTE u(ex-pso)=add(mul(4,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),switch(getstat(%0/D`POSITIVE_MUTATIONS,Essence Abundance),1,3,2,6,4,12,6,16,0))
+
+&FUN`MAX`PERSONAL`INFERNAL u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
+&FUN`MAX`PERIPHERAL`INFERNAL u(ex-pso)=add(mul(7,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),null(SKINMOUNTHERE))
+
+&FUN`MAX`PERSONAL`JADEBORN u(ex-pso)=add(mul(10,getstat(%0/D`INFO,Essence)),null(SKINMOUNTHERE))
+&FUN`MAX`DIVERGENCE u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(JADEBORN)$),10,0)
+
+&FUN`MAX`PERSONAL`LUNAR u(ex-pso)=add(getstat(%0/D`INFO,Essence),mul(2,u(FUN`MAX`WILLPOWER,%0)))
+&FUN`MAX`PERIPHERAL`LUNAR u(ex-pso)=add(mul(4,getstat(%0/D`INFO,Essence)),mul(2,u(FUN`MAX`WILLPOWER,%0)),mul(4,if(default(VAR`MAXVIRTUES,0),5,lmath(max,iter(get(%0/D`VIRTUES),last(%i0,~),|)))),null(SKINMOUNTHERE))
+
+&FUN`MAX`PERSONAL`MORTAL u(ex-pso)=if(or(getstat(%0/D`MERITS,Awakened Essence),getstat(%0/D`POSITIVE_MUTATIONS,Awakened Essence),v(VAR`MORTALESSENCE)),add(mul(10,getstat(%0/D`INFO,Essence)),null(SKINMOUNTHERE)),0)
+
+&VAR`MORTALESSENCE u(ex-pso)=1
+
+&FUN`MAX`PERSONAL`RAKSHA u(ex-pso)=add(mul(10,getstat(%0/D`INFO,Essence)),null(SKINMOUNTHERE))
+&FUN`MAX`STASIS u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(RAKSHA)$),10,0)
+
+&FUN`MAX`PERSONAL`SIDEREAL u(ex-pso)=add(mul(2,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
+&FUN`MAX`PERIPHERAL`SIDEREAL u(ex-pso)=add(mul(6,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),null(SKINMOUNTHERE),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))))
+&FUN`MAX`PARADOX u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(SIDEREAL)$),10,0)
+
+&FUN`MAX`PERSONAL`SPIRIT u(ex-pso)=add(mul(10,getstat(%0/D`INFO,Essence)),mul(5,u(FUN`MAX`WILLPOWER,%0)),null(SKINMOUNTHERE))
+
+&FUN`MAX`WILLPOWER u(ex-pso)=firstof(getstat(%0/D`INFO,Willpower),0)
+&FUN`MAX`DISSONANCE u(ex-pso)=if(getstat(%0/D`NEGATIVE_MUTATIONS,Gremlin Syndrome),10,0)
+
+
+&FUN`MAX`COMPASSION u(ex-pso)=if(strmatch(getstat(%0/D`INFO,Race),Raksha),getstat(%0/D`GRACES,Cup),getstat(%0/D`VIRTUES,Compassion))
+&FUN`MAX`CONVICTION u(ex-pso)=if(strmatch(getstat(%0/D`INFO,Race),Raksha),getstat(%0/D`GRACES,Staff),getstat(%0/D`VIRTUES,Conviction))
+&FUN`MAX`TEMPERANCE u(ex-pso)=if(strmatch(getstat(%0/D`INFO,Race),Raksha),getstat(%0/D`GRACES,Ring),getstat(%0/D`VIRTUES,Temperance))
+&FUN`MAX`VALOR u(ex-pso)=if(strmatch(getstat(%0/D`INFO,Race),Raksha),getstat(%0/D`GRACES,Sword),getstat(%0/D`VIRTUES,Valor))
+
+&DAT`ABYSSAL u(ex-pso)=
+&DAT`ABYSSAL`EXPANDER u(ex-pso)=
+&DAT`ABYSSAL`EXPANDER`10 u(ex-pso)=Essence Engorgement Technique
+&DAT`ABYSSAL`OVERDRIVE u(ex-pso)=
+&DAT`ABYSSAL`OVERDRIVE`10 u(ex-pso)=Sunlight Bleeding Away|Methodical Sniper Method|'Til Death Do You Part|Sanguine Trophies Collected|Pyrrhic Victory Conflagration|Child of the Apocalypse|That I Should Be Haunted|World-Betraying Knife Visage|Monster in the Mist
+&DAT`ABYSSAL`OVERDRIVE`15 u(ex-pso)=Bright Days Painted Black
+&DAT`ALCHEMICAL u(ex-pso)=
+&DAT`ALCHEMICAL`EXPANDER u(ex-pso)=
+&DAT`ALCHEMICAL`EXPANDER`10 u(ex-pso)=Auxiliary Essence Storage Unit
+&DAT`CLARITY u(ex-pso)=
+&DAT`CLARITY`TYPE u(ex-pso)=Track
+&DAT`CLARITY`UNITNAME u(ex-pso)=Points
+&DAT`CLARITY`UNITTYPE u(ex-pso)=Clarity
+&DAT`COMPASSION u(ex-pso)=
+&DAT`COMPASSION`TYPE u(ex-pso)=Channel
+&DAT`COMPASSION`UNITNAME u(ex-pso)=Channels
+&DAT`COMPASSION`UNITTYPE u(ex-pso)=Compassion
+&DAT`CONVICTION u(ex-pso)=
+&DAT`CONVICTION`TYPE u(ex-pso)=Channel
+&DAT`CONVICTION`UNITNAME u(ex-pso)=Channels
+&DAT`CONVICTION`UNITTYPE u(ex-pso)=Conviction
+&DAT`DISSONANCE u(ex-pso)=
+&DAT`DISSONANCE`TYPE u(ex-pso)=Track
+&DAT`DISSONANCE`UNITTYPE u(ex-pso)=Dissonance
+&DAT`DIVERGENCE u(ex-pso)=
+&DAT`DIVERGENCE`TYPE u(ex-pso)=Track
+&DAT`DIVERGENCE`UNITNAME u(ex-pso)=Points
+&DAT`DIVERGENCE`UNITTYPE u(ex-pso)=Divergence
+&DAT`DRAGON-BLOODED u(ex-pso)=
+&DAT`DRAGON-BLOODED`EXPANDER u(ex-pso)=
+&DAT`DRAGON-BLOODED`EXPANDER`1 u(ex-pso)=The Wind Turns
+&DAT`DRAGON-BLOODED`EXPANDER`5 u(ex-pso)=Elemental Engorgement Technique
+&DAT`GOSSAMER u(ex-pso)=
+&DAT`GOSSAMER`TYPE u(ex-pso)=Pool
+&DAT`GOSSAMER`UNITNAME u(ex-pso)=Strands
+&DAT`GOSSAMER`UNITTYPE u(ex-pso)=Gossamer
+&DAT`INFERNAL u(ex-pso)=
+&DAT`INFERNAL`EXPANDER u(ex-pso)=
+&DAT`INFERNAL`EXPANDER`10 u(ex-pso)=Sun-Heart Furnace Soul|Sweet Agony Savored|Flames Lit Within|Riding Tide Ascension|Beauteous Carnage Incentive|Transcendent Desert Within
+&DAT`INFERNAL`OVERDRIVE u(ex-pso)=
+&DAT`INFERNAL`OVERDRIVE`10 u(ex-pso)=The King Still Stands|Wayward Serf Remonstrations|Specks Before Infinity|Follow The Leader|Force-Draining Exigence|Wind Shearing Hearts|Hungry Wind Howling|The Face in the Darkness|Wicked Void Reversal
+&DAT`INFERNAL`OVERDRIVE`15 u(ex-pso)=Rage-Stoked Inferno Soul|The Tide Turns
+&DAT`INFERNAL`OVERDRIVE`20 u(ex-pso)=Song of the Depths
+&DAT`LIMIT u(ex-pso)=
+&DAT`LIMIT`TYPE u(ex-pso)=Track
+&DAT`LIMIT`UNITNAME u(ex-pso)=Points
+&DAT`LIMIT`UNITTYPE u(ex-pso)=Limit
+&DAT`LUNAR u(ex-pso)=
+&DAT`LUNAR`EXPANDER u(ex-pso)=
+&DAT`LUNAR`EXPANDER`10 u(ex-pso)=Silver Lunar Resolution
+&DAT`LUNAR`OVERDRIVE u(ex-pso)=
+&DAT`LUNAR`OVERDRIVE`10 u(ex-pso)=Never To Rise Again|Biting At the Heels|Undying Ratel's Vengeance|Disappointed Guardian-Spirit Correction|Protean Exemplar Differentiation|World-Warden Onslaught|Hunter-As-Bait Gambit|Snarling Watchdog Retribution|Sleeping Dragon Awakens
+&DAT`OVERDRIVE u(ex-pso)=
+&DAT`OVERDRIVE`TYPE u(ex-pso)=Pool
+&DAT`OVERDRIVE`UNITNAME u(ex-pso)=Motes
+&DAT`OVERDRIVE`UNITTYPE u(ex-pso)=Essence
+&DAT`PARADOX u(ex-pso)=
+&DAT`PARADOX`TYPE u(ex-pso)=Track
+&DAT`PARADOX`UNITNAME u(ex-pso)=Points
+&DAT`PARADOX`UNITTYPE u(ex-pso)=Paradox
+&DAT`PERIPHERAL u(ex-pso)=
+&DAT`PERIPHERAL`TYPE u(ex-pso)=Pool
+&DAT`PERIPHERAL`UNITNAME u(ex-pso)=Motes
+&DAT`PERIPHERAL`UNITTYPE u(ex-pso)=Essence
+&DAT`PERSONAL u(ex-pso)=
+&DAT`PERSONAL`TYPE u(ex-pso)=Pool
+&DAT`PERSONAL`UNITNAME u(ex-pso)=Motes
+&DAT`PERSONAL`UNITTYPE u(ex-pso)=Essence
+&DAT`RAKSHA u(ex-pso)=
+&DAT`RAKSHA`EXPANDER u(ex-pso)=
+&DAT`RAKSHA`EXPANDER`5 u(ex-pso)=Bottomless Dream Gullet
+&DAT`RESONANCE u(ex-pso)=
+&DAT`RESONANCE`TYPE u(ex-pso)=Track
+&DAT`RESONANCE`UNITNAME u(ex-pso)=Points
+&DAT`RESONANCE`UNITTYPE u(ex-pso)=Resonance
+&DAT`SIDEREAL u(ex-pso)=
+&DAT`SIDEREAL`OVERDRIVE u(ex-pso)=
+&DAT`SIDEREAL`OVERDRIVE`10 u(ex-pso)=Guarding the Weave|Portentous Omens Manifested|Tactic-Snatching Ingenuity|Mana Drips From Lotus Petals|Covert Shadows Woven|Horizon-Cresting Cavalry Rescue
+&DAT`SOLAR u(ex-pso)=
+&DAT`SOLAR`EXPANDER u(ex-pso)=
+&DAT`SOLAR`EXPANDER`10 u(ex-pso)=Immanent Solar Glory
+&DAT`SOLAR`OVERDRIVE u(ex-pso)=
+&DAT`SOLAR`OVERDRIVE`10 u(ex-pso)=Storm-Gathering Practice|Hero's Fatal Resolve|Fading Light Quickening|Righteous Avenger's Aspect|Certain Victory Formulation|Red Dawn Ascending|Essence-Gathering Temper|You Shall Not Pass|Virtuous Warrior's Fortitude|Labors Treasured and Defended|Is This Tomorrow|Triumph Signed By Excellence|Honest Turnabout Assault|Wrongly-Condemned Rage|Jousting at Giants|Fearless Admiral's Dominion
+&DAT`SPIRIT u(ex-pso)=
+&DAT`SPIRIT`EXPANDER u(ex-pso)=
+&DAT`SPIRIT`EXPANDER`10 u(ex-pso)=Essence Plethora
+&DAT`STASIS u(ex-pso)=
+&DAT`STASIS`TYPE u(ex-pso)=Track
+&DAT`STASIS`UNITNAME u(ex-pso)=Points
+&DAT`STASIS`UNITTYPE u(ex-pso)=Stasis
+&DAT`TEMPERANCE u(ex-pso)=
+&DAT`TEMPERANCE`TYPE u(ex-pso)=Channel
+&DAT`TEMPERANCE`UNITNAME u(ex-pso)=Channels
+&DAT`TEMPERANCE`UNITTYPE u(ex-pso)=Temperance
+&DAT`VALOR u(ex-pso)=
+&DAT`VALOR`TYPE u(ex-pso)=Channel
+&DAT`VALOR`UNITNAME u(ex-pso)=Channels
+&DAT`VALOR`UNITTYPE u(ex-pso)=Valor
+&DAT`WILLPOWER u(ex-pso)=
+&DAT`WILLPOWER`TYPE u(ex-pso)=Pool
+&DAT`WILLPOWER`UNITNAME u(ex-pso)=Points
+&DAT`WILLPOWER`UNITTYPE u(ex-pso)=Willpower
