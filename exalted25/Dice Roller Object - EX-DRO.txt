@@ -1,0 +1,152 @@
+
+@tel create(Dice Roller Object <EX-DRO>)=config(master_room)
+&ex-dro u(coi)=locate(config(master_room),Dice Roller Object <EX-DRO>,TXxi)
+@parent u(ex-dro)=u(coi)
+@set u(ex-dro)=WIZARD !NO_COMMAND
+
+@tel create(Dice Roller Statlist <EX-DRS>)=u(nrs)
+&ex-drs u(coi)=locate(config(master_room),Dice Roller Statlist <EX-DRS>,TXxi)
+@parent u(ex-drs)=u(coi)
+@set u(ex-drs)=WIZARD
+
+&CMD`+ROLL u(ex-dro)=$^\+(d)?roll(?\:/(\S+))?(?\: +(.*))?:@switch/inline gt(words(%2,/),0)=1,{@assert u(u(ex-dro)/FUN`FLAGCHECK,%2)=@nspemit %#=ERROR: [itemize(iter(%q<errcheck>,ansi(h,%i0),|,|),|,and,\,)]};@break and(%q<dif>,%q<dv>)=@nspemit %#=ERROR: Defense Values and Difficulty may not be used together.;@assert strlen(%3)=@nspemit %#=ERROR: You must enter a formula of stats and/or numbers to roll. Example: Dexterity + Melee - 3;@assert strlen(setr(inflate,u(u(ex-dro)/FUN`INFLATE,%3)))=@nspemit %#=ERROR: Could not format roll formula. Please contact a coder.;@assert strlen(setr(findnames,u(u(ex-dro)/FUN`FINDNAMES,%q<inflate>)))=@nspemit %#=ERROR: Could not perform name finding. Please contact a coder.;@assert gt(setr(totaldice,ulocal(u(ex-dro)/FUN`CALC,setr(calcdice,u(u(ex-dro)/FUN`CALCDICE,%q<findnames>)))),0)=@nspemit %#=ERROR: You have no dice to roll! Check your spelling and ensure that penalties aren't reducing your roll to nothing.;@include u(ex-dro)/INC`[if(%q<mul>,MUL)]ROLL
+@set u(ex-dro)/CMD`+ROLL=regexp
+
+&FUN`CALC u(ex-dro)=lmath(add,regeditalli(%0,(\[-+\])%B(\\d+),$1$2))
+
+&FUN`CALCDICE u(ex-dro)=regeditalli(%0,(?<!/)\\b\\w+(/\\w+)?\\b,if(isnum($0),floor($0),u(u(ex-dro)/FUN`FINDSTAT,$0)))
+
+&FUN`FANCYDICE u(ex-dro)=iter(%0,if(eq(1,%i0),ansi(hx,-1-),if(gte(%i0,%1),if(and(eq(10,%i0),not(%2)),ansi(hy,<10>),ansi(hg,%i0)),ansi(hr,%i0))))
+
+&FUN`FINDNAMES u(ex-dro)=regeditalli(%0,(?<!/)\\b\\w+(/\\w+)?\\b,if(isnum($0),floor($0),if(strlen(setr(grabbed,grab(iter(lattr(u(ex-drs)/D`CATEGORY`*,|),last(%i0,`),|,|),ucstr(before($0,/))*,|))),%q<grabbed>[if(strlen(after($0,/)),/[after($0,/)])],$0)))
+
+&FUN`FINDSTAT u(ex-dro)=if(strmatch(%0,*/*),strfirstof(last(grab(get(%#/D`SPECIALTIES),elements(%0,1 2,/,/)*~*,|),~),0),if(strmatch(get(u(ex-drs)/D`CATEGORY`%0),DYNAMIC),u(u(ex-dro)/FUN`GETDYNAMIC,%0),strfirstof(if(match(get(u(ncdo)/VAR`ATTRIBUTES),%0,|),bound(getstat(%#/D`[get(u(ex-drs)/D`CATEGORY`%0)],%0,BONUS),1),getstat(%#/D`[get(u(ex-drs)/D`CATEGORY`%0)],%0)),0)))
+
+&FUN`FLAGCHECK u(ex-dro)=lmath(min,iter(ucstr(%0),switch(%i0,MUL*,if(valnum(after(%i0,MUL)),setq(mul,after(%i0,MUL))1,setq(errcheck,setunion(%q<errcheck>,Multi-Rolls must use whole positive numbers.,|,|))0),TN*,if(valnum(after(%i0,TN)),setq(tn,after(%i0,TN))1,setq(errcheck,setunion(%q<errcheck>,Target Numbers must use whole positive numbers.,|,|))0),DIF*,if(valnum(after(%i0,DIF)),setq(dif,after(%i0,DIF))1,setq(errcheck,setunion(%q<errcheck>,Difficulty must use whole positive numbers.,|,|))0),DV*,if(valnum(after(%i0,DV)),setq(dv,after(%i0,DV))1,setq(errcheck,setunion(%q<errcheck>,Defense Values must use whole positive numbers.,|,|))0),SUX*,if(valnum(after(%i0,SUX)),setq(sux,after(%i0,SUX))1,setq(errcheck,setunion(%q<errcheck>,Successes must use whole positive numbers.,|,|))0),PEN*,if(valnum(after(%i0,PEN)),setq(pen,after(%i0,PEN))1,setq(errcheck,setunion(%q<errcheck>,Penalties must use whole positive numbers.,|,|))0),PRIVATE,setq(private,1)1,setq(errcheck,setunion(%q<errcheck>,Unrecognized switch: %i0,|,|))0),/))
+
+&FUN`FORMATROLL u(ex-dro)=regeditalli(ansi(h,%0),(?<!/)\\b\\w+(/\\w+)?\\b,if(isnum($0),floor($0),if(u(u(ex-dro)/FUN`FINDSTAT,$0),ansi(h,$0<[u(u(ex-dro)/FUN`FINDSTAT,$0)]>),ansi(hx,$0<0>))))
+
+&FUN`INFLATE u(ex-dro)=regeditall(%0,\\s*,,\[^\\w\\.!/_`\],%b$0%b)
+
+&FUN`ROLLDICE u(ex-dro)=lmath(add,elements(0.001 [iter(lnum(sub(%1,2)),0)] [iter(lnum(sub(10,%1)),1)] [if(%2,1,2)],%0))
+
+&FUN`ROLLRESULT u(ex-dro)=if(and(not(isint(%0)),lt(%0,1)),ansi(hr,a BOTCH!),switch(%1,0,if(lt(floor(%0),1),ansi(hr,a failure!),if(gt(floor(%0),1),ansi(hg,floor(%0) successes!),ansi(hg,a success!))),1,if(lte(floor(%0),%2),if(floor(%0),floor(%0) success[if(gt(floor(%0),1),es)]\, but [ansi(hr,a miss.)],no successes! [ansi(hr,a miss!)]),ansi(hg,floor(%0) success[if(gt(floor(%0),1),es)]! [sub(floor(%0),%2)] success[if(gt(sub(floor(%0),%2),1),es)] over DV!)),2,if(lt(floor(%0),%2),if(floor(%0),floor(%0) successes\, but [ansi(hr,a failure.)],no successes! [ansi(hr,a failure!)]),ansi(hg,floor(%0) Success[if(gt(floor(%0),1),es)]!%B[sub(floor(%0),%2)] Threshold Success[if(gt(sub(floor(%0),%2),1),es)]))))
+
+&INC`MULROLL u(ex-dro)=@[if(%q<private>,nspemit,nsremit)] [if(%q<private>,%#,loc(%#))]=setr(finaldisplay,announce(ROLL)%b[if(%q<private>,You roll,[name(%#)] rolls)] [u(u(ex-dro)/FUN`FORMATROLL,%q<findnames>)][if(not(eq(strfirstof(%q<tn>,7),7)),%Bat TN%q<tn>)][if(%q<dv>,%BAgainst DV %q<dv>)][if(%q<dif>,%BAgainst Difficulty %q<dif>)]: %q<totaldice> Total dice![iter(lnum(1,%q<mul>),setq(rollsux,sub(u(u(ex-dro)/FUN`ROLLDICE,setr(roll,sort(die(%q<totaldice>,10,1))),strfirstof(%q<tn>,7),gt(strlen(%1),0)),abs(%q<pen>)))[setq(fancydice,u(u(ex-dro)/FUN`FANCYDICE,%q<roll>,strfirstof(%q<tn>,7),gt(strlen(%1),0)))][setq(result,u(u(ex-dro)/FUN`ROLLRESULT,lmath(add,%q<sux> %q<rollsux>),if(%q<dv>,1,if(%q<dif>,2,0)),strfirstof(%q<dv>,%q<dif>)))]%R[ljust(Roll %i0:,8)]%q<fancydice>%R%TResulting in: %q<result>[if(%q<sux>,%BFrom Bonus Successes: %q<sux>)][if(%q<pen>,%BExternal Penalty: %q<pen>)])]);@nscemit/noisy Dice Log=if(%q<private>,edit(%q<finaldisplay>,You roll,%n PRIVATELY rolls),%q<finaldisplay>)
+
+&INC`ROLL u(ex-dro)=@[if(%q<private>,nspemit,nsremit)] [if(%q<private>,%#,loc(%#))]=setr(finaldisplay,announce(ROLL)%b[if(%q<private>,You roll,[name(%#)] rolls)] [u(u(ex-dro)/FUN`FORMATROLL,%q<findnames>)][if(not(eq(strfirstof(%q<tn>,7),7)),%Bat TN%q<tn>)][if(%q<dv>,%BAgainst DV %q<dv>)][if(%q<dif>,%BAgainst Difficulty %q<dif>)]: %q<totaldice> Total dice![setq(rollsux,sub(u(u(ex-dro)/FUN`ROLLDICE,setr(roll,sort(die(%q<totaldice>,10,1))),strfirstof(%q<tn>,7),gt(strlen(%1),0)),abs(%q<pen>)))][setq(fancydice,u(u(ex-dro)/FUN`FANCYDICE,%q<roll>,strfirstof(%q<tn>,7),gt(strlen(%1),0)))][setq(result,u(u(ex-dro)/FUN`ROLLRESULT,lmath(add,%q<sux> %q<rollsux>),if(%q<dv>,1,if(%q<dif>,2,0)),strfirstof(%q<dv>,%q<dif>)))]%B%q<fancydice>%R%TResulting in: %q<result>[if(%q<sux>,%BFrom Bonus Successes: %q<sux>)][if(%q<pen>,%BExternal Penalty: %q<pen>)]);@nscemit/noisy Dice Log=if(%q<private>,edit(%q<finaldisplay>,You roll,%n PRIVATELY rolls),%q<finaldisplay>)
+
++help/addmain General IC/+roll=[ansi(h,+roll\[/switches\] <stats to roll>)]%R[ansi(h,+droll\[/switches\] <stats to roll>)]%R%R+roll is for virtually any situation that involves rolling X amount of d10.%R%R<stats to roll> can be any Attribute, Ability, or Specialty (addressed by attribute or ability followed by a slash and then the text-- example, Melee/Swords), Willpower, Essence, and backgrounds such as Cult. It will also accept any whole numbers. Each entry can be seperated by a + or -.%R%RExample of a valid roll formula: +roll Dexterity + Melee + 10%R%RStat entries are not case sensitive, although they do support partial matches. Dex will be matched to Dexterity... however, int could be either Intelligence or Integrity, and it will pick the first its matching algorithm finds, so be careful to enter enough to not be vague.%R%R+droll is the same as +roll, though it does not count 10s as succeses. This is used for rolling extras or damage and so on.%R%RSWITCHES (which can be combined in any order) are-%R%R/dv# - Roll against a given DV to determine hit or miss and threshold successes. (may not be used with /dif# simultaneously)%R/dif# - Roll against a given difficulty to determine threshold succeses. (may not be used with /dv# simultaneously)%R/tn# - change target number.%R/sux# - adds automatic successes.%R/pen# - external penalties to subtract successes from rolls.%R/PRIVATE - only you see the roll's results.%R/mul# - multi-roll. Rolls the given <stats to roll> # amount of times. Note: does not support cumulative penalties for flurries.
+
+
+&D`CATEGORY`APPEARANCE u(ex-drs)=ATTRIBUTES
+&D`CATEGORY`ARCHERY u(ex-drs)=ABILITIES
+&D`CATEGORY`ATHLETICS u(ex-drs)=ABILITIES
+&D`CATEGORY`AWARENESS u(ex-drs)=ABILITIES
+&D`CATEGORY`BACKING u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`BLAZING_FIRE u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`BRAWL u(ex-drs)=ABILITIES
+&D`CATEGORY`BUREAUCRACY u(ex-drs)=ABILITIES
+&D`CATEGORY`CELESTIAL_AIR u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`CHARISMA u(ex-drs)=ATTRIBUTES
+&D`CATEGORY`CLEAR_AIR u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`COAGULATED_EUCHARIST u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`COMPASSION u(ex-drs)=VIRTUES
+&D`CATEGORY`CONNECTIONS u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`CONTACTS u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`CONVICTION u(ex-drs)=VIRTUES
+&D`CATEGORY`CRAFT u(ex-drs)=ABILITIES
+&D`CATEGORY`CRAFT_AIR u(ex-drs)=ABILITIES
+&D`CATEGORY`CRAFT_EARTH u(ex-drs)=ABILITIES
+&D`CATEGORY`CRAFT_FATE u(ex-drs)=ABILITIES
+&D`CATEGORY`CRAFT_FIRE u(ex-drs)=ABILITIES
+&D`CATEGORY`CRAFT_GLAMOUR u(ex-drs)=ABILITIES
+&D`CATEGORY`CRAFT_MAGITECH u(ex-drs)=ABILITIES
+&D`CATEGORY`CRAFT_WATER u(ex-drs)=ABILITIES
+&D`CATEGORY`CRAFT_WOOD u(ex-drs)=ABILITIES
+&D`CATEGORY`CULT u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`CUP u(ex-drs)=GRACES
+&D`CATEGORY`DEXTERITY u(ex-drs)=ATTRIBUTES
+&D`CATEGORY`DODGE u(ex-drs)=ABILITIES
+&D`CATEGORY`ECSTATIC_ARMAGEDDON u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`ENDURANCE u(ex-drs)=ABILITIES
+&D`CATEGORY`ESSENCE u(ex-drs)=INFO
+&D`CATEGORY`FAMILY u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`FLICKERING_FIRE u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`FLOWING_WATER u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`GLORIOUS_CONSUMPTION u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`GROWING_WOOD u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`HEART u(ex-drs)=GRACES
+&D`CATEGORY`INFLUENCE u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`INHERITENCE u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`INTEGRITY u(ex-drs)=ABILITIES
+&D`CATEGORY`INTELLIGENCE u(ex-drs)=ATTRIBUTES
+&D`CATEGORY`INVESTIGATION u(ex-drs)=ABILITIES
+&D`CATEGORY`LARCENY u(ex-drs)=ABILITIES
+&D`CATEGORY`LINGUISTICS u(ex-drs)=ABILITIES
+&D`CATEGORY`LORE u(ex-drs)=ABILITIES
+&D`CATEGORY`MANIPULATION u(ex-drs)=ATTRIBUTES
+&D`CATEGORY`MARTIAL_ARTS u(ex-drs)=ABILITIES
+&D`CATEGORY`MEDICINE u(ex-drs)=ABILITIES
+&D`CATEGORY`MELEE u(ex-drs)=ABILITIES
+&D`CATEGORY`OCCULT u(ex-drs)=ABILITIES
+&D`CATEGORY`PATRON u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`PERCEPTION u(ex-drs)=ATTRIBUTES
+&D`CATEGORY`PERFORMANCE u(ex-drs)=ABILITIES
+&D`CATEGORY`PRESENCE u(ex-drs)=ABILITIES
+&D`CATEGORY`REPUTATION u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`RESISTANCE u(ex-drs)=ABILITIES
+&D`CATEGORY`RIDE u(ex-drs)=ABILITIES
+&D`CATEGORY`RING u(ex-drs)=GRACES
+&D`CATEGORY`SAIL u(ex-drs)=ABILITIES
+&D`CATEGORY`SHAPING_WOOD u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`SHIMMERING_WATER u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`SOCIALIZE u(ex-drs)=ABILITIES
+&D`CATEGORY`SOLAR_BOND u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`SOLID_EARTH u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`SPIES u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`STAFF u(ex-drs)=GRACES
+&D`CATEGORY`STAMINA u(ex-drs)=ATTRIBUTES
+&D`CATEGORY`STEALTH u(ex-drs)=ABILITIES
+&D`CATEGORY`STRENGTH u(ex-drs)=ATTRIBUTES
+&D`CATEGORY`SURVIVAL u(ex-drs)=ABILITIES
+&D`CATEGORY`SWORD u(ex-drs)=GRACES
+&D`CATEGORY`TECHNOMORPHIC_TRANSCENDANCE u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`TEMPERANCE u(ex-drs)=VIRTUES
+&D`CATEGORY`THE_BANNER u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_CAPTAIN u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_CORPSE u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_CROW u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_EWER u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_GAUNTLET u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_GUARDIANS u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_GULL u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_HAYWAIN u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_KEY u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_LOVERS u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_MASK u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_MAST u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_MESSENGER u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_MUSICIAN u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_PEACOCK u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_PILLAR u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_QUIVER u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_RISING_SMOKE u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_SHIELD u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_SHIP'S_WHEEL u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_SHIPS_WHEEL u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_SORCEROR u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_SPEAR u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_SWORD u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THE_TREASURE_TROVE u(ex-drs)=COLLEGES`SIDEREAL
+&D`CATEGORY`THROWN u(ex-drs)=ABILITIES
+&D`CATEGORY`TORMENTED_BODHISATTVA u(ex-drs)=PATHS`DRAGON-KING
+&D`CATEGORY`VALOR u(ex-drs)=VIRTUES
+&D`CATEGORY`WAR u(ex-drs)=ABILITIES
+&D`CATEGORY`WAY u(ex-drs)=GRACES
+&D`CATEGORY`WHISPERS u(ex-drs)=BACKGROUNDS
+&D`CATEGORY`WILLPOWER u(ex-drs)=POOLS
+&D`CATEGORY`WITS u(ex-drs)=ATTRIBUTES
+&D`CATEGORY`YIELDING_EARTH u(ex-drs)=PATHS`DRAGON-KING
+
+
