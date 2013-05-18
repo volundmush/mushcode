@@ -3,7 +3,7 @@
 @parent u(ccs)=u(coi)
 @set u(CCS)=WIZARD
 
-&INC`CHECKPC u(ccs)=@assert strlen(%0);@assert strlen(%1);@assert strlen(%2);@assert isdbref(setr(t%1,pmatch(%0)))=@nspemit %#=announce(%2)%BERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th setq(t%1objid,objid(pmatch(%0)));th setq(t%1name,name(pmatch(%0)))
+&INC`CHECKPC u(ccs)=@assert strlen(%0)=@nspemit %#=announce(%2) ERROR: You must enter a player name!;@assert strlen(%1);@assert strlen(%2);@assert isdbref(setr(t%1,pmatch(%0)))=@nspemit %#=announce(%2)%BERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th setq(t%1objid,objid(pmatch(%0)));th setq(t%1name,name(pmatch(%0)))
 @@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into, %2 = title for ANNOUNCE if there's an error.
 
 &INC`VERIFY u(CCS)=@switch/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th attrib_set(%#/VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@break 1={@nspemit %#=if(strlen(%2),announce(%2)%B)%0}}

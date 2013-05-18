@@ -5,7 +5,7 @@
 @parent u(ifo)=u(coi)
 @set u(ifo)=WIZARD !NO_COMMAND
 
-&CMD`+INFO u(ifo)=$^(?s)(?\:\+)?info(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(ifo)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ifo)/VAR`ADMINFLAGS)),|,|)),%1,|))=@nspemit %#=ERROR: Invalid switch for +info! Your choices are: [itemize(%q<choices>,|,and,\,)];@include u(ifo)/INC`[strfirstof(%1,MAIN)]=%2,%3
+&CMD`+INFO u(ifo)=$^(?s)(?\:\+)?info(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(ifo)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ifo)/VAR`ADMINFLAGS)),|,|),|,INFO,switch,switch;@include u(ifo)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(ifo)/CMD`+INFO=regexp
 
 &VAR`PLAYFLAGS u(ifo)=SET|GET|RENAME|DELETE|CATEGORIES|PUBLISH|UNPUBLISH|PUBLISHED

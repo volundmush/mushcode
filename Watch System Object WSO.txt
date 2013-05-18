@@ -3,7 +3,7 @@
 @parent u(wso)=u(coi)
 @set u(wso)=WIZARD !NO_COMMAND
 
-&CMD`+WATCH u(wso)=$^(?s)(?\:\+)?(?\:watch|wf|friend)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(wso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(wso)/VAR`ADMINFLAGS)),|,|)),%1,|))=@nspemit %#=ERROR: Invalid switch for tel! [pueblize(Your choices are: [itemize(%q<choices>,|,and,\,)],+help Friends)];@include u(wso)/INC`[strfirstof(%1,MAIN)]=%2,%3
+&CMD`+WATCH u(wso)=$^(?s)(?\:\+)?(?\:watch|wf|friend)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(wso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(wso)/VAR`ADMINFLAGS)),|,|),|,WATCH,switch,switch;@include u(wso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 
 &INC`MAIN u(wso)=@assert words(setr(list,filterbool(u(wso)/FILTER_ISOBJID,get(%#/D`WATCH),%B,|)),|)=@nspemit %#=ERROR: You have no friends on watch!;@nspemit %#=header(Your Friends);th iter(lnum(1,ceil(fdiv(words(%q<list>,|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),|,|),ljust(pueblize(name(%i0),finger [name(%i0)]),60)[if(gte(conn(%i0),0),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3)))],|,%R)));@nspemit %#=header();
 

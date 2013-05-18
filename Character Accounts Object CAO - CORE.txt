@@ -13,11 +13,12 @@
 
 &STARTUP u(cao)=@dolist lattr(me/STARTUP`*)=@trigger me/%i0
 
-@@ ****** ACCOUNT SECTION *******
 
-&CMD`+ACCOUNT u(cao)=$^(?\:\+)?(account)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%2)),match(setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),%2,|))=@nspemit %#=ERROR: %2 is not a recognized flag for +[lcstr(%1)]!;@include u(cao)/INC`%1`[strfirstof(%2,MAIN)]=%3,%4
+@@ ****** COMMAND SECTION *******
+&CMD`+ACCOUNT u(cao)=$^(?\:\+)?(account|ip|approve|unapprove|staff|admin|wizlist|builder)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+ACCOUNT=regexp
 
+@@ ****** ACCOUNT SECTION *******
 &FILTER`OBJID u(cao)=isobjid(%0)
 
 &FUN`FINDACCOUNT u(cao)=firstof(wildgrepi(u(adb),*,*%0*),0)
@@ -46,9 +47,6 @@
 
 @@ ******* IP SECTION *********
 
-&CMD`+IP u(cao)=$^(?\:\+)?(ip)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%2)),match(setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),%2,|))=@nspemit %#=ERROR: %2 is not a recognized flag for +[lcstr(%1)]!;@include u(cao)/INC`%1`[strfirstof(%2,MAIN)]=%3,%4
-@set u(cao)/CMD`+IP=regexp
-
 &INC`IP`MAIN u(cao)=@break haspower(%#,GUEST)=@nspemit %#=ERROR: Guests cannot use +ip.;@switch/inline isadmin(%#)=0,{@include u(cao)/INC`IP`IPSHOW=%#,0},{@include u(ccs)/INC`CHECKPC=strfirstof(%0,%#),1,IP;@break haspower(%q<t1>,GUEST)=@nspemit %#=ERROR: To match Guests, please use +ip/guests;@include u(cao)/INC`IP`IPSHOW=%q<t1>,0}
 
 &INC`IP`GUESTS u(cao)=@switch/inline isadmin(%#)=0,{@include u(cao)/INC`IP`IPSHOW=%#,1},{@include u(ccs)/INC`CHECKPC=%0,1,IP;@include u(cao)/INC`IP`IPSHOW=%q<t1>,1}
@@ -73,9 +71,6 @@
 &VAR`IP`ADMINFLAGS u(cao)=GUESTS|IP
 
 @@ ****** APPROVAL SECTION *********
-&CMD`APPROVE u(cao)=$^(?\:\+)?(approve|unapprove)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%2)),match(setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),%2,|))=@nspemit %#=ERROR: %2 is not a recognized flag for +[lcstr(%1)]!;@include u(cao)/INC`%1`[strfirstof(%2,MAIN)]=%3,%4
-@set u(cao)/CMD`APPROVE=regexp
-
 &PLAYER`CREATE`UNREGISTER u(cao)=@set %0=UNREGISTERED
 
 &INC`APPROVE`MAIN u(cao)=@switch/inline and(isadmin(%#),strlen(%0))=1,{@include u(ccs)/INC`CHECKPC=%0,1,APPROVE;@break approved(%q<t1>)=@nspemit %#=announce(APPROVE)%BERROR: They are already approved!;@include u(cao)/INC`APPROVE`DOAPPROVE=%q<t1>;@nspemit %#=announce(APPROVE)%BYou have approved %q<t1name> for play!;@switch/inline gt(v(VAR`APPROVE`ALERTMODE),0)={@nscemit/noisy v(VAR`APPROVE`ALERTSCHANNEL)=%n has approved %q<t1name> for play!;@nscemit/noisy v(VAR`APPROVE`ANNOUNCECHANNEL)=ansi(h,%n) just approved %q<t1name> for play!}},{@nspemit %#=announce(APPROVE)%BYou [if(approved(%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
@@ -94,9 +89,6 @@
 &VAR`APPROVE`ANNOUNCECHANNEL u(cao)=OOC
 
 @@ ********* STAFF SECTION ********
-&CMD`STAFF u(cao)=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%2)),match(setunion(get(u(cao)/VAR`STAFF`PLAYFLAGS),if(u(u(cao)/FUN`STAFF`CHSTAFF,%#),get(u(cao)/VAR`STAFF`ADMINFLAGS)),|,|),%2,|))=@nspemit %#=ERROR: %2 is not a recognized flag for +[lcstr(%1)]!;@include u(cao)/INC`STAFF`[strfirstof(%2,MAIN)]=%3,%4
-@set u(cao)/CMD`STAFF=regexp
-
 &GFN`ISADMIN u(cao)=or(orflags(%0,WrJ),strlen(getstat(u(cao)/VAR`STAFF`WIZLIST,objid(%0))))
 
 &FUN`STAFF`CHSTAFF u(cao)=orflags(%0,W)
@@ -123,9 +115,6 @@
 &TRG`STAFF`CLEANSTAFF u(cao)=&VAR`STAFF`WIZLIST u(cao)=filterbool(#lambda/isobjid(before(\%0,~)),get(u(cao)/VAR`STAFF`WIZLIST),|,|);@wait 7200=@trigger u(cao)/TRG`STAFF`CLEANSTAFF
 
 @@ ********* BUILDER SECTION ********
-&CMD`BUILDER u(cao)=$^(?\:\+)?(builder)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%2)),match(setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),%2,|))=@nspemit %#=ERROR: %2 is not a recognized flag for +[lcstr(%1)]!;@include u(cao)/INC`%1`[strfirstof(%2,MAIN)]=%3,%4
-@set u(cao)/CMD`BUILDER=regexp
-
 &INC`BUILDER`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@assert words(setr(build,lsearch(all,eplayer,\[haspower(##,BUILDER)\])))=@nspemit %#=announce(BUILDER) There are no Builder Characters.;@nspemit %#=header(mudname() Builder Characters);@nspemit %#=iter(%q<build>,ansi(h,%i0 - [name(%i0)]) - [powers(%i0)],%b,%R);@nspemit %#=header()},0,{@nspemit %#=announce(BUILDER)%BYou [if(haspower(%#,BUILDER),ansi(hg,are),ansi(hr,are not))] A Builder!}
 
 &INC`BUILDER`ADD u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@break haspower(%q<t1>,BUILDER)=@nspemit %#=announce(BUILDER)%BERROR: They are already a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=builder link_anywhere open_anywhere no_quota no_pay pick_dbref;@nspemit %#=announce(BUILDER)%BYou have made %q<t1name> a Builder.;@nspemit %q<t1>=announce(BUILDER) %n has granted you Builder powers.;@switch/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy v(VAR`BUILDER`ALERTSCHANNEL)=%n has made %q<t1name> a Builder.}

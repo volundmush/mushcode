@@ -6,7 +6,7 @@
 @parent u(cmo)=u(coi)
 @set u(cmo)=WIZARD !NO_COMMAND
 
-&CMD`+CHANNEL u(cmo)=$^(?s)(?\:\+)?channel(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(cmo)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`ADMINFLAGS)),|,|)),%1,|))=@nspemit %#=announce(CHANNEL)%BERROR: Invalid switch for +channel! [pueblize(Your choices are: [itemize(%q<choices>,|,and,\,)],+help Channels)];@include u(cmo)/INC`[strfirstof(%1,MAIN)]=%2,%3
+&CMD`+CHANNEL u(cmo)=$^(?s)(?\:\+)?channel(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(cmo)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`ADMINFLAGS)),|,|),|,CHANNEL,switch,switch;@include u(cmo)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(cmo)/CMD`+CHANNEL=regexp
 
 &VAR`PLAYFLAGS u(cmo)=MUZZLE

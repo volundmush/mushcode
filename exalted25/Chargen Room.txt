@@ -1,0 +1,8 @@
+@dig/teleport Chargen=Chargen;ch;gen,Player Nexus;pl
+@parent here=u(coi)
+th attrib_set(u(coi)/cg,%l)
+@set u(cg)=WIZARD !NO_COMMAND
+
+@desc here=
+
+&CMD`+PAGE here=

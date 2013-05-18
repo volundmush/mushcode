@@ -9,7 +9,7 @@
 @set u(rddb)=WIZARD
 @power u(rddb)=many_attribs
 
-&CMD`+RADIO u(rdso)=$^(?s)(?\:\+)?radio(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(rdso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(rdso)/VAR`ADMINFLAGS)),|,|)),%1,|))=@nspemit %#=ERROR: Invalid switch for +radio! [pueblize(Your choices are: [itemize(%q<choices>,|,and,\,)],+help +radio)];@include u(rdso)/INC`[strfirstof(%1,MAIN)]=%2,%3
+&CMD`+RADIO u(rdso)=$^(?s)(?\:\+)?radio(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(rdso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(rdso)/VAR`ADMINFLAGS)),|,|),|,RADIO,switch,switch;@include u(rdso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(rdso)/CMD`+RADIO=regexp
 
 &INC`MAIN u(rdso)=@switch/inline strlen(%0)=0,{@include u(rdso)/INC`LIST},{@include u(rdso)/INC`CHECKSLOT;@assert strlen(get(%#/D`RADIO`%0))=@nspemit %#=announce(RADIO) ERROR: That Slot has no Frequency set!;@assert get(%#/D`RADIO`%0`ON)=@nspemit %#=announce(RADIO) That Slot is turned off.;@include u(rdso)/INC`BROADCAST}
