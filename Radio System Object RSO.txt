@@ -16,7 +16,7 @@
 
 &INC`LIST u(rdso)=@nspemit %#=header(Your Radio Config)%R%B[ansi(hc,SLOT)][space(5)][ansi(hc,FREQ)][space(9)][ansi(hc,NAME)][space(18)][ansi(hc,ENC KEY)][space(11)][ansi(hc,STATUS)]%R[subheader()];@dolist/inline filterbool(#lambda/strlen(get(%#/\%0)),lattr(%#/D`RADIO`*))=@nspemit %#=%B%B[ljust(left(last(%i0,`),8),8)][ljust(get(%#/%i0),15)][ljust(left(u(u(rdso)/FUN`FREQNAME,%#,last(%i0,`)),20),20)][ljust(left(default(%#/%i0`KEY,--Unencrypted--),20),20)][ljust(if(get(%#/%i0`ON),ansi(hg,On),ansi(hr,Off)),10)];@nspemit %#=header()
 
-&INC`CHECKSLOT u(rdso)=@assert strlen(%0)=announce(RADIO) ERROR: No Slot entered to Set.;@assert regmatchi(%0,\[A-Z\])=@nspemit %#=announce(RADIO) ERROR: Slots must be addressed by single Alphabetical characters A-Z (case insensitive.)
+&INC`CHECKSLOT u(rdso)=@assert strlen(%0)=@nspemit %#=announce(RADIO) ERROR: No Slot entered to Set.;@assert regmatchi(%0,\[A-Z\])=@nspemit %#=announce(RADIO) ERROR: Slots must be addressed by single Alphabetical characters A-Z (case insensitive.)
 
 &INC`FREQ u(rdso)=@include u(rdso)/INC`CHECKSLOT;@assert strlen(%1)=@nspemit %#=announce(RADIO) ERROR: Frequency Field empty.;@assert regmatchi(%1,\[0-9\]+\\.\[0-9\]+)=@nspemit %#=announce(RADIO) ERROR: Frequencies must be in the form of (number).(number), example 105.32;&D`RADIO`%0 %#=%1;&D`RADIO`%0`ON %#=1;@nspemit %#=announce(RADIO) You tune Radio Slot [ucstr(%0)] to %1.
 
