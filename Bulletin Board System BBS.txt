@@ -2,12 +2,12 @@
 @@ neater appearance, and pueblo support. It requires the Core code suite to function.
 @@ The +bbnext is from Multiverse Crisis MUSH. It does not ignore board locks.
 
-@tel create(Bulletin Board System <BBS>)=config(master_room)
+@switch/inline isdbref(u(bbs))=0,{@tel create(Bulletin Board System <BBS>)=config(master_room)}
 &bbs u(coi)=locate(config(master_room),Bulletin Board System <BBS>,TXxi)
 @parent u(bbs)=u(coi)
 @set u(bbs)=WIZARD !NO_COMMAND
 
-@tel create(bbpocket)=u(bbs)
+@switch/inline isdbref(u(bbp))=0,{@switch/inline isdbref(u(bbs))=1,{@tel create(bbpocket)=u(bbs)}}
 &bbp u(coi)=locate(u(bbs),bbpocket,TXxi)
 @tel u(bbp)=u(bbs)
 @set u(bbp)=SAFE WIZARD

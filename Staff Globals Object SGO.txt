@@ -1,5 +1,6 @@
+@@ DEPENDENCIES - CORE
 
-@tel create(Staff Globals Object <SGO>)=config(master_room)
+@switch/inline isdbref(u(sgo))=0,{@tel create(Staff Globals Object <SGO>)=config(master_room)}
 &sgo u(coi)=locate(config(master_room),Staff Globals Object <SGO>,TXxi)
 @parent u(sgo)=u(coi)
 @set u(sgo)=WIZARD !NO_COMMAND

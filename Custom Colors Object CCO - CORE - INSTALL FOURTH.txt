@@ -1,5 +1,6 @@
+@@ DEPENDENCIES - CORE
 
-@tel create(Custom Colors Object <CCO>)=config(master_room)
+@switch/inline isdbref(u(cco))=0,{@tel create(Custom Colors Object <CCO>)=config(master_room)}
 &cco u(coi)=locate(config(master_room),Custom Colors Object <CCO>,TXxi)
 @parent u(cco)=u(coi)
 @set u(cco)=WIZARD !NO_COMMAND
@@ -7,7 +8,7 @@
 &CMD`+COLOR u(cco)=$^(?s)(?\:\+)?color(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(cco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(cco)/VAR`ADMINFLAGS)),|,|),|,COLOR,switch,switch;@include u(cco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(cco)/CMD`+COLOR=regexp
 
-&CMD`COLORDEMO u(cco)=$^(?\:\+)?colordemo$:@nspemit %#=iter(colors(),ansi(+%i0,+%i0))
+&CMD`COLORDEMO u(cco)=$^(?\:\+)?color(s|demo)$:@dolist/inline lnum(97,122)=@nspemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,%i0))],%b,%r)))
 @set u(cco)/CMD`COLORDEMO=regexp
 
 &INC`MAIN u(cco)=@switch/inline t(strlen(setr(cat,before(%0,/))))=1,{@include u(ccs)/INC`PARTIAL=%q<cat>,v(VAR`CATEGORIES),|,COLOR,cat,Color Category;@switch/inline t(strlen(setr(type,after(%0,/))))=0,{@nspemit %#=announce(COLOR)%BERROR: Please pick a color Type for that Category. Your choices are: [itemize(v(VAR`CATEGORIES`%q<cat>),|,and,\,)]},1,{@include u(ccs)/INC`PARTIAL=%q<type>,v(VAR`CATEGORIES`%q<cat>),|,COLOR,type,Color Type;@switch/inline t(strlen(%1))=0,{@nspemit %#=announce(COLOR)%B%q<cat> %q<type> Color Cleared!;&D`COLOR`%q<cat>`%q<type> %#},1,{@assert or(valid(colornames,%1),valid(ansicodes,%1))=@nspemit %#=announce(COLOR)%BERROR: That is not a valid color code. Please see [pueblize(help ansi(),help ansi())] for more information!;@nspemit %#=announce(COLOR)%B%q<cat> %q<type> Color set to %1!;&D`COLOR`%q<cat>`%q<type> %#=%1}}},0,{@nspemit %#=announce(COLOR)%BERROR: Please pick a color Category. Your choices are: [itemize(v(VAR`CATEGORIES),|,and,\,)]}

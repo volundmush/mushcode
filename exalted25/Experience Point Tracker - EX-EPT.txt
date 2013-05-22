@@ -1,8 +1,9 @@
-@teleport create(Experience Point Tracker <EX-EPT>)=config(master_room)
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(ex-ept))=0,{@teleport create(Experience Point Tracker <EX-EPT>)=config(master_room)}
 &ex-ept u(coi)=locate(config(master_room),Experience Point Tracker <EX-EPT>,TXxi)
 @parent u(ex-ept)=u(coi)
-@set u(ex-ept)=WIZARD
-
+@set u(ex-ept)=WIZARD !NO_COMMAND
 
 &CMD`+XP u(ex-ept)=$^(?s)\+XP(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(ex-ept)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ex-ept)/VAR`ADMINFLAGS)),|,|)),%1,|))=@nspemit %#=ERROR: Invalid switch for +XP! [pueblize(Your choices are: [itemize(%q<choices>,|,and,\,)],+help Recommendations)];@include u(ex-ept)/INC`[strfirstof(%1,MAIN)]=%2,%3,%4
 @set u(ex-ept)/CMD`+XP=regexp

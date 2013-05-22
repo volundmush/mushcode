@@ -1,4 +1,6 @@
-@tel create(Weekly Vote Code <WVC>)=config(master_room)
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(wvc))=0,{@tel create(Weekly Vote Code <WVC>)=config(master_room)}
 &WVC u(coi)=locate(config(master_room),Weekly Vote Code <WVC>,TXxi)
 @parent u(wvc)=u(coi)
 @set u(wvc)=WIZARD !NO_COMMAND

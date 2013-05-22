@@ -1,4 +1,6 @@
-@tel create(Sheet System Object <EX-SSO>)=config(master_room)
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(U(ex-sso))=0,{@tel create(Sheet System Object <EX-SSO>)=config(master_room)}
 &ex-sso u(coi)=locate(config(master_room),Sheet System Object <EX-SSO>,TXxi)
 @set u(ex-sso)=WIZARD !NO_COMMAND
 @parent u(ex-sso)=u(coi)

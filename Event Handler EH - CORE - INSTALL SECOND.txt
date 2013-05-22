@@ -1,7 +1,9 @@
-@tel create(Event Handler <EH>)=config(master_room)
-@set Event Handler <EH>=WIZARD
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(eh))=0,{@tel create(Event Handler <EH>)=config(master_room)}
 &eh u(coi)=locate(config(master_room),Event Handler <EH>,TXxi)
 @parent u(eh)=u(COI)
+@set u(eh)=WIZARD
 
 &PLAYER`CONNECT u(eh)=@dolist filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0)))={@dolist lattr(%i0/PLAYER`CONNECT`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
 

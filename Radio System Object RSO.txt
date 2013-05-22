@@ -1,9 +1,12 @@
-@tel create(Radio System Object <RDSO>)=config(master_room)
+@@ DEPENDENCIES - CORE
+@@ NOTE: This requires @dolist/inline!
+
+@switch/inline isdbref(u(rdso))=0,{@tel create(Radio System Object <RDSO>)=config(master_room)}
 &rdso u(coi)=locate(config(master_room),Radio System Object <RDSO>,TXxi)
 @parent u(rdso)=u(coi)
 @set u(rdso)=WIZARD !NO_COMMAND
 
-@tel create(Radio Database <RDDB>)=u(rdso)
+@switch/inline isdbref(u(rddb))=0,{@switch/inline isdbref(u(rdso))=1,{@tel create(Radio Database <RDDB>)=u(rdso)}}
 &rddb u(coi)=locate(u(rdso),Radio Database <RDDB>,TXxi)
 @parent u(rddb)=u(coi)
 @set u(rddb)=WIZARD

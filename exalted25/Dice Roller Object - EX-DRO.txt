@@ -1,5 +1,6 @@
+@@ DEPENDENCIES - CORE
 
-@tel create(Dice Roller Object <EX-DRO>)=config(master_room)
+@switch/inline isdbref(u(ex-dro))=0,{@tel create(Dice Roller Object <EX-DRO>)=config(master_room)}
 &ex-dro u(coi)=locate(config(master_room),Dice Roller Object <EX-DRO>,TXxi)
 @parent u(ex-dro)=u(coi)
 @set u(ex-dro)=WIZARD !NO_COMMAND
@@ -149,4 +150,4 @@
 &D`CATEGORY`WITS u(ex-drs)=ATTRIBUTES
 &D`CATEGORY`YIELDING_EARTH u(ex-drs)=PATHS`DRAGON-KING
 
-
++help/addmain General IC/+roll=[ansi(h,+roll\[/switches\] <stats to roll>)]%R[ansi(h,+droll\[/switches\] <stats to roll>)]%R%R+roll is for virtually any situation that involves rolling X amount of d10.%R%R<stats to roll> can be any Attribute, Ability, or Specialty (addressed by attribute or ability followed by a slash and then the text-- example, Melee/Swords), Willpower, Essence, and backgrounds such as Cult. It will also accept any whole numbers. Each entry can be seperated by a + or -.%R%RExample of a valid roll formula: +roll Dexterity + Melee + 10%R%RStat entries are not case sensitive, although they do support partial matches. Dex will be matched to Dexterity... however, int could be either Intelligence or Integrity, and it will pick the first its matching algorithm finds, so be careful to enter enough to not be vague.%R%R+droll is the same as +roll, though it does not count 10s as succeses. This is used for rolling extras or damage and so on.%R%RSWITCHES (which can be combined in any order) are-%R%R/dv# - Roll against a given DV to determine hit or miss and threshold successes. (may not be used with /dif# simultaneously)%R/dif# - Roll against a given difficulty to determine threshold succeses. (may not be used with /dv# simultaneously)%R/tn# - change target number.%R/sux# - adds automatic successes.%R/pen# - external penalties to subtract successes from rolls.%R/PRIVATE - only you see the roll's results.%R/mul# - multi-roll. Rolls the given <stats to roll> # amount of times. Note: does not support cumulative penalties for flurries.

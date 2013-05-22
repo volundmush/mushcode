@@ -1,4 +1,6 @@
-@tel create(PennMUSH Configuration Object <PCO>)=config(master_room)
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(pco))=0,{@tel create(PennMUSH Configuration Object <PCO>)=config(master_room)}
 &pco u(coi)=locate(config(master_room),PennMUSH Configuration Object <PCO>,TXxi)
 @parent u(pco)=u(coi)
 @set u(pco)=WIZARD

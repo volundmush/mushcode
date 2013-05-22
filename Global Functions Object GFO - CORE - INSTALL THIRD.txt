@@ -1,6 +1,6 @@
+@@ DEPENDENCIES - CORE
 
-
-@tel create(Global Functions Object <GFO>)=config(master_room)
+@switch/inline isdbref(u(gfo))=0,{@tel create(Global Functions Object <GFO>)=config(master_room)}
 &gfo u(coi)=locate(config(master_room),Global Functions Object <GFO>,TXxi)
 @parent u(gfo)=u(coi)
 @set u(gfo)=WIZARD

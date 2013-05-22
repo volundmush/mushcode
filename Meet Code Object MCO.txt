@@ -1,5 +1,6 @@
+@@ DEPENDENCIES - Core
 
-@tel create(Meet Code Object <MCO>)=config(master_room)
+@switch/inline isdbref(u(mco))=0,{@tel create(Meet Code Object <MCO>)=config(master_room)}
 &mco u(coi)=locate(config(master_room),Meet Code Object <MCO>,TXxi)
 @parent u(mco)=u(coi)
 @set u(mco)=WIZARD !NO_COMMAND

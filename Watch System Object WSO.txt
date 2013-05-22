@@ -1,9 +1,12 @@
-@tel create(Watch System Object <WSO>)=config(master_room)
+@@ DEPENDENCIES - Core
+
+@switch/inline isdbref(u(wso))=0,{@tel create(Watch System Object <WSO>)=config(master_room)}
 &wso u(coi)=locate(config(master_room),Watch System Object <WSO>,TXxi)
 @parent u(wso)=u(coi)
 @set u(wso)=WIZARD !NO_COMMAND
 
 &CMD`+WATCH u(wso)=$^(?s)(?\:\+)?(?\:watch|wf|friend)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(wso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(wso)/VAR`ADMINFLAGS)),|,|),|,WATCH,switch,switch;@include u(wso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set u(wso)/CMD`+WATCH=regexp
 
 &INC`MAIN u(wso)=@assert words(setr(list,filterbool(u(wso)/FILTER_ISOBJID,get(%#/D`WATCH),%B,|)),|)=@nspemit %#=ERROR: You have no friends on watch!;@nspemit %#=header(Your Friends);th iter(lnum(1,ceil(fdiv(words(%q<list>,|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),|,|),ljust(pueblize(name(%i0),finger [name(%i0)]),60)[if(gte(conn(%i0),0),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3)))],|,%R)));@nspemit %#=header();
 

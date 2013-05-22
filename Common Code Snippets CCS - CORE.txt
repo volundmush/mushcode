@@ -1,4 +1,6 @@
-@tel create(Common Code Snippets <CCS>)=config(master_room)
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(ccs))=0,{@tel create(Common Code Snippets <CCS>)=config(master_room)}
 &ccs u(coi)=locate(config(master_room),Common Code Snippets <CCS>,TXxi)
 @parent u(ccs)=u(coi)
 @set u(CCS)=WIZARD

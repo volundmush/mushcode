@@ -1,7 +1,7 @@
 @@ DEPENDENCIES - KLS (Key Lock System)
 @@ Without the KLS, the LOCK/UNLOCK flags will NOT function.
 
-@tel create(Channel Management Object <CMO>)=config(master_room)
+@switch/inline isdbref(u(cmo))=0,{@tel create(Channel Management Object <CMO>)=config(master_room)}
 &cmo u(coi)=locate(config(master_room),Channel Management Object <CMO>,TXxi)
 @parent u(cmo)=u(coi)
 @set u(cmo)=WIZARD !NO_COMMAND

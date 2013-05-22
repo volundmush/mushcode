@@ -1,6 +1,6 @@
 @@ DEPENDENCIES - CORE
 
-@tel create(Info Files Object <IFO>)=config(master_room)
+@switch/inline isdbref(u(ifo))=0,{@tel create(Info Files Object <IFO>)=config(master_room)}
 &ifo u(coi)=locate(config(master_room),Info Files Object <IFO>,TXxi)
 @parent u(ifo)=u(coi)
 @set u(ifo)=WIZARD !NO_COMMAND

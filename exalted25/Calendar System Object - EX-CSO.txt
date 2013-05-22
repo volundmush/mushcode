@@ -1,4 +1,6 @@
-@tel create(Calendar System Object <EX-CSO>)=config(master_room)
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(ex-cso))=0,{@tel create(Calendar System Object <EX-CSO>)=config(master_room)}
 &ex-cso u(coi)=locate(config(master_room),Calendar System Object <EX-CSO>,TXxi)
 @parent u(ex-cso)=u(coi)
 @set u(ex-cso)=WIZARD !NO_COMMAND

@@ -1,0 +1,8 @@
+@@ DEPENDENCIES - CORE, MCRON
+
+&CRON_JOB_AUTOXP u(mcron)=@dolist lsearch(all,eplayer,\[and(approved(##),not(isadmin(##)),hasattr(##/D`VOTE))\])=@switch/inline gt(get(%i0/D`VOTE`COUNT),0)=1,{@wipe %i0/D`VOTE`NOVOTE;@force/inline owner(me)=+vote/process %i0},0,{&D`VOTE`NOVOTE %i0=add(get(%i0/D`VOTE`NOVOTE),1)}
+&CRON_TIME_AUTOXP u(mcron)=||Sat|12|00
+
+
+
+lte(default(##/D`VOTE`NOVOTE),7)

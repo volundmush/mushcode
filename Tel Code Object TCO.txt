@@ -1,10 +1,11 @@
+@@ DEPENDENCIES - CORE
 
-@teleport create(Tel Code Object <TCO>)=config(master_room)
+@switch/inline isdbref(u(tco))=0,{@tel create(Tel Code Object <TCO>)=config(master_room)}
 &tco u(coi)=locate(config(master_room),Tel Code Object <TCO>,TXxi)
 @parent u(tco)=u(coi)
 @set u(tco)=WIZARD !NO_COMMAND
 
-&CMD`TEL u(tco)=$^(?\:\+)?tel(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(wso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(wso)/VAR`ADMINFLAGS)),|,|),|,TEL,switch,switch;@include u(tco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+&CMD`TEL u(tco)=$^(?\:\+)?tel(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(tco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(tco)/VAR`ADMINFLAGS)),|,|),|,TEL,switch,switch;@include u(tco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(tco)/CMD`TEL=regexp
 
 &INC`MAIN u(tco)=@switch/inline strlen(%0)=0,{@assert words(setr(0,sortkey(#lambda/strfirstof(stripansi(get_eval(before(\%0,~)/COLORNAME)),name(before(\%0,~))),if(isadmin(%#),filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),filterbool(FILTER_VISROOM,filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),|,|)),i,|,|)),|)=@nspemit %#=ERROR: No Tel locations registered.;@nspemit %#=header(Tel Locations);th iter(setunion(setr(list2,iter(%q0,strfirstof(capnames(get(before(%i0,~)/district)),Unbound),|,|)),%q<list2>,|,|),nspemit(%#,subheader(capnames(%i0)))[nspemit(%#,table(iter(filterbool(#lambda/strmatch(%i0,strfirstof(get(before(\%0,~)/District),Unbound)),%q0,|,|),ansi(if(last(%i0,~),hw,hr),pueblize(rjust(first(%i0,~),5),tel [first(%i0,~)]))%B-%B[left(strfirstof(get_eval(first(%i0,~)/COLORNAME),name(first(%i0,~))),35)],|,|),38,78,|))],|);@nspemit %#=subheader(Use tel #DBREF to teleport)},{@switch/inline isadmin(%#)=0,{@assert words(setr(0,if(isadmin(%#),filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),filterbool(FILTER_VISROOM,filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),|,|))),|)=@nspemit %#=ERROR: No Tel locations registered.;@assert match(%q0,%0~*,|)=@nspemit %#=ERROR: %0 doesn't match a DBREF.;@break strmatch(loc(%#),%0)=@nspemit %#=You are already there!;@tel %#=%0},1,{@assert hastype(%0,ROOM)=@nspemit %#=ERROR: That is not a room!;@tel %#=%0}}

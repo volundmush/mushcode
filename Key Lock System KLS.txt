@@ -1,9 +1,11 @@
-@tel create(Key Lock System <KLS>)=config(master_room)
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(kls))=0,{@tel create(Key Lock System <KLS>)=config(master_room)}
 &kls u(coi)=locate(config(master_room),Key Lock System <KLS>,TXxi)
 @parent u(kls)=u(coi)
 @set u(kls)=WIZARD !NO_COMMAND
 
-@tel create(Key Database <KDB>)=u(kls)
+@switch/inline isdbref(u(kdb))=0,{@switch/inline isdbref(u(kls))=1,{@tel create(Key Database <KDB>)=u(kls)}}
 &kdb u(coi)=locate(u(kls),Key Database <KDB>,TXxi)
 @parent u(kdb)=u(coi)
 @set u(kdb)=WIZARD

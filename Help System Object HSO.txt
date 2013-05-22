@@ -35,20 +35,18 @@ th attrib_set(u(hso)/VAR`NEWS,create(NEWS DATABASE))
 
 &FUN`HAVEREAD u(hso)=switch(1,gt(get(%3/%2`TIMESTAMP),getstat(%0/PDATA`%1`HAVEREAD,%2)),ansi(hr,*),t(words(filterbool(#lambda/gt(get(\%3/\%0`TIMESTAMP),getstat(%0/PDATA`%1`HAVEREAD,%2_\[last(\%0,`)])),lattr(%3/%2`SUB`*)))),ansi(y,&),%B)
 
-&INC`SHOW`TOPIC u(hso)=@switch/inline gt(setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa)),0)=1,{@nspemit %#=header(+[lcstr(%1)]: [setr(name,get(%q<db>/%q<topid>`NAME))]);@nspemit %#=[setr(contents,get(%q<db>/%q<topid>`CONTENTS))];@switch/inline t(setr(count,words(setr(subs,lattr(%q<db>/%q<topid>`SUB`*,|)),|)))=1,{@nspemit %#=[subheader(Subfiles)]%R%TTo read subfiles, use '[ansi(h,+[lcstr(%1)] %q<name>/<file>)]';th iter(lnum(1,ceil(fdiv(%q<count>,30))),nspemit(%#,table(iter(%q<subs>,rjust(u(u(hso)/FUN`HAVEREADSUB,%#,%1,%q<db>,%q<topid>,%i0),%B,2)[ljust(pueblize(ansi(h,setr(subname,get(%q<db>/%i0`NAME))),lcstr(%6) %q<name>/%q<subname>)%B,24,.)]%B[timefmt($x,get(%q<db>/%i0`TIMESTAMP))],|,|),37,78,|)))};@nspemit %#=header();th setstat(%#/PDATA`%1`HAVEREAD,%q<topid>,secs())},0,{}
+&INC`SHOW`TOPIC u(hso)=@include u(ccs)/INC`PARTIAL=%qa,iter(lattr(%q<db>/*),get(%q<db>/%i0`NAME),%B,|),|,%6,choice,%1file;@switch/inline gt(setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%q<choice>)),0)=1,{@nspemit %#=header(+[lcstr(%1)]: [setr(name,get(%q<db>/%q<topid>`NAME))]);@nspemit %#=[setr(contents,get(%q<db>/%q<topid>`CONTENTS))];@switch/inline t(setr(count,words(setr(subs,lattr(%q<db>/%q<topid>`SUB`*,|)),|)))=1,{@nspemit %#=[subheader(Subfiles)]%R%TTo read subfiles, use '[ansi(h,+[lcstr(%1)] %q<name>/<file>)]';th iter(lnum(1,ceil(fdiv(%q<count>,30))),nspemit(%#,table(iter(%q<subs>,rjust(u(u(hso)/FUN`HAVEREADSUB,%#,%1,%q<db>,%q<topid>,%i0),%B,2)[ljust(pueblize(ansi(h,setr(subname,get(%q<db>/%i0`NAME))),lcstr(%6) %q<name>/%q<subname>)%B,24,.)]%B[timefmt($x,get(%q<db>/%i0`TIMESTAMP))],|,|),37,78,|)))};@nspemit %#=header();th setstat(%#/PDATA`%1`HAVEREAD,%q<topid>,secs())},0,{}
 
-
-
-@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;
-
-
-
+@@ Unfinished Search Results Feature
+@@ @assert words(setr(results,wildgrepi(%q<db>,*`NAME,*%qa*)))=@nspemit %#=announce(%1) Sorry, '%qa' was not found.;@nspemit %#=header(%4: Search Results);@nspemit %#=Sorry, '%qa' was not found. 
+@@ @nspemit %#=iter(%q<results>
+@@
 
 &FUN`HAVEREADSUB u(hso)=if(gt(get(%3/%4`TIMESTAMP),getstat(%0/PDATA`%1`HAVEREAD,%3_[last(%4,`)])),ansi(hr,*),%B)
 
 &FUN`FINDTOP u(hso)=before(firstof(wildgrepi(%0,*`NAME,%1)),`)
 
-&INC`SHOW`SUB u(hso)=@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qa))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@assert setr(subid,u(u(hso)/FUN`FINDSUB,%q<db>,%q<topid>,%qb))=@nspemit %#=announce(%1) ERROR: Subfile not found.;@nspemit %#=header(+[lcstr(%1)]: [get(%q<db>/%q<topid>`NAME)]/[setr(name,get(%q<db>/%q<topid>`SUB`%q<subid>`NAME))]);@nspemit %#=get(%q<db>/%q<topid>`SUB`%q<subid>`CONTENTS);@nspemit %#=header()
+&INC`SHOW`SUB u(hso)=@include u(ccs)/INC`PARTIAL=%qa,iter(lattr(%q<db>/*),get(%q<db>/%i0`NAME),%B,|),|,%6,choice,%1file;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%q<choice>))=@nspemit %#=announce(%1) ERROR: [capnames(%1)]file %qa not found!;@include u(ccs)/INC`PARTIAL=%qb,iter(lattr(%q<db>/%q<topid>`SUB`*),get(%q<db>/%i0`NAME),%B,|),|,%6,subchoice,sub%1file;@assert setr(subid,u(u(hso)/FUN`FINDSUB,%q<db>,%q<topid>,%q<subchoice>))=@nspemit %#=announce(%1) ERROR: Subfile not found.;@nspemit %#=header(+[lcstr(%1)]: [get(%q<db>/%q<topid>`NAME)]/[setr(name,get(%q<db>/%q<topid>`SUB`%q<subid>`NAME))]);@nspemit %#=get(%q<db>/%q<topid>`SUB`%q<subid>`CONTENTS);@nspemit %#=header()
 
 &INC`ADDMAIN u(hso)=@assert strlen(%qa)=@nspemit %#=announce(%1) ERROR: Category name empty.;@assert strlen(%qb)=@nspemit %#=announce(%1) ERROR: Topic name empty.;@switch/inline gt(setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qb)),0)=1,{@assert strlen(setr(contents,%5))=@nspemit %#=announce(%1) ERROR: Contents segment empty.;&%q<topid>`CONTENTS %q<db>=%5;&%q<topid>`CATEGORY %q<db>=%qa;&%q<topid>`TIMESTAMP %q<db>=secs();@nspemit %#=[capnames(%1)]file edited!},0,{@assert strlen(%5)=@nspemit %#=announce(%1) ERROR: Contents empty!;&[setr(n,randword(setdiff(rand(1,9999),lattr(%q<db>/*))))]`NAME %q<db>=%qb;&%qn`CATEGORY %q<db>=%qa;&%qn`TIMESTAMP %q<db>=secs();&%qn`CONTENTS %q<db>=%5;@nspemit %#=announce(HELP) %qa / %qb [capnames(%1)]file created!}
 

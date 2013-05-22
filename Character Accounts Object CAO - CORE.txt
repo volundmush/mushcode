@@ -1,18 +1,17 @@
-@@ DEPENDENCIES - Part of Core - INSTALL THIS THIRD!
+@@ DEPENDENCIES - Core
 
-@tel create(Character Accounts Object <CAO>)=config(master_room)
+@switch/inline isdbref(u(cao))=0,{@tel create(Character Accounts Object <CAO>)=config(master_room)}
 &cao u(coi)=locate(config(master_room),Character Accounts Object <CAO>,TXxi)
 @parent u(cao)=u(coi)
 @set u(cao)=WIZARD !NO_COMMAND
 
-@tel create(Account Database <ADB>)=u(cao)
+@switch/inline isdbref(u(adb))=0,{@switch/inline isdbref(u(cao))=1,{@tel create(Account Database <ADB>)=u(cao)}}
 &adb u(coi)=locate(u(cao),Account Database <ADB>,TXxi)
 @parent u(adb)=u(coi)
 @set u(adb)=WIZARD
 @power u(adb)=many_attribs
 
 &STARTUP u(cao)=@dolist lattr(me/STARTUP`*)=@trigger me/%i0
-
 
 @@ ****** COMMAND SECTION *******
 &CMD`+ACCOUNT u(cao)=$^(?\:\+)?(account|ip|approve|unapprove|staff|admin|wizlist|builder)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
@@ -100,7 +99,7 @@
 
 &INC`STAFF`MAIN u(cao)=@assert words(setr(staff,filterbool(#lambda/isobjid(\%0),iter(sortkey(#lambda/after(\%0,~),get(u(cao)/VAR`STAFF`WIZLIST),n,|,|),before(%i0,~),|,|),|,|)),|)=@nspemit %#=announce(STAFF)%BERROR: There are no Staff registered!;@nspemit %#=header(mudname() Staff)%R[ljust(Bit,4)][ljust(Name,14)][ljust(Alias,6)][ljust(Position,20)][ljust(Status,18)]Conn%R[header()];@pemit %#=iter(%q<staff>,u(u(cao)/FUN`Staff`WIZLIST,%i0),|,%R);@nspemit %#=header()
 
-&FUN`STAFF`WIZLIST u(cao)=ljust(switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hb,ROY),hasflag(%0,JUDGE),ansi(hy,JDG),ansi(hx,N/A)),4)[ljust(left(name(%0),13),14)][ljust(left(get(%0/ALIAS),5),6)][ljust(left(default(%0/POSITION,???),19),20)][ljust(left(default(%0/Status,???),17),18)][ljust(if(or(hasflag(%0,DARK),eq(-1,conn(%0))),ansi(hx,elements(get(%0/last),2 3)),ansi(hg,ago(idle(%0)))),10)]
+&FUN`STAFF`WIZLIST u(cao)=ljust(switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hb,ROY),hasflag(%0,JUDGE),ansi(hy,JDG),ansi(hx,N/A)),4)[ljust(left(name(%0),13),14)][ljust(left(alias(%0),5),6)][ljust(left(default(%0/POSITION,???),19),20)][ljust(left(default(%0/Status,???),17),18)][ljust(if(or(hasflag(%0,DARK),eq(-1,conn(%0))),ansi(hx,elements(get(%0/last),2 3)),ansi(hg,ago(idle(%0)))),10)]
 
 &INC`STAFF`ADD u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,STAFF;@break strlen(getstat(u(cao)/VAR`STAFF`WIZLIST,%q<t1objid>))=@nspemit %#=announce(STAFF) ERROR: They are already on the Staff list!;@switch/inline gt(strlen(%1),0)=1,{@assert valnum(%1)=@nspemit %#=announce(STAFF) ERROR: Order Must be a whole positive number.;th setstat(u(cao)/VAR`STAFF`WIZLIST,%q<t1objid>,%1)},0,{th setstat(u(cao)/VAR`STAFF`WIZLIST,%q<t1objid>,setr(order,add(1,iter(get(u(cao)/VAR`STAFF`WIZLIST),last(%i0,~)))))};@nspemit %#=announce(STAFF) You have added %q<t1name> to Staff!;@nspemit %q<t1>=announce(STAFF) You have been added to Staff!;@switch/inline gt(v(VAR`STAFF`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`STAFF`ALERTSCHANNEL)=ansi(h,%n) has added %q<t1name> to Staff!}
 
