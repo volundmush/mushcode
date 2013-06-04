@@ -79,7 +79,7 @@
 
 &INC`UNAPPROVE`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@include u(ccs)/INC`CHECKPC=%0,1,APPROVE;@assert approved(%q<t1>)=@nspemit %#=announce(APPROVE)%BERROR: They are not approved!;@include u(cao)/INC`APPROVE`DOUNAPPROVE=%q<t1>;@nspemit %#=announce(APPROVE)%BYou have unapproved %q<t1name> for play!;@switch/inline gt(v(VAR`APPROVE`ALERTMODE),0)={@nscemit/noisy v(VAR`APPROVE`ALERTSCHANNEL)=%n has unapproved %q<t1name> for play!}},{@nspemit %#=announce(APPROVE)%BYou [if(approved(%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
 
-&GFN`APPROVED u(cao)=or(hasflag(%0,!UNREGISTERED),isadmin(%0))
+&GFN`APPROVED u(cao)=or(not(hasflag(%0,UNREGISTERED)),isadmin(%0))
 
 &APPROVE u(ae)=approved(%#)
 

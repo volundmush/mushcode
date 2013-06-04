@@ -1,5 +1,6 @@
+@@ DEPENDENCIES - CORE
 
-@tel create(Pose Order Tracker <POT>)=config(master_room)
+@switch/inline isdbref(u(pot))=0,{@tel create(Pose Order Tracker <POT>)=config(master_room)}
 &pot u(coi)=locate(config(master_room),Pose Order Tracker <POT>,TXxi)
 @parent u(pot)=u(coi)
 @set u(pot)=WIZARD !NO_COMMAND
@@ -25,7 +26,7 @@
 
 &TRG`SELFCLEAN u(pot)=@switch/inline gt(v(VAR`SELFCLEAN),0)=1,{@dolist lsearch(all,eroom,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0;@dolist lsearch(all,ething,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0};@wait mul(60,v(var`checkminutes))=@trigger v(pot)/TRG`SELFCLEAN
 
-&TRG`DOCLEAN u(pot)=@dolist filterbool(#lambda/gte(sub(secs(),get(%0/POT`POSES`\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),sort(iter(lattr(%0/POT`POSES`*),last(%i0,`)),n))=@wipe %0/%i0
+&TRG`DOCLEAN u(pot)=@dolist filterbool(#lambda/gte(sub(secs(),get(%0/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%0/POT`POSES`*))=@wipe %0/%i0
 
 &VAR`SELFCLEAN u(pot)=1
 &VAR`PLAYFLAGS u(pot)=BRIEF|PRIVATE|LAST|MAX

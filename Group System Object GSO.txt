@@ -1,10 +1,11 @@
+@@ DEPENDENCIES - Core
 
-@tel create(Group System Object <GSO>)=config(master_room)
+@switch/inline isdbref(u(gso))=0,{@tel create(Group System Object <GSO>)=config(master_room)}
 &gso u(coi)=locate(config(master_room),Group System Object <GSO>,TXxi)
 @parent u(gso)=u(coi)
 @set u(gso)=WIZARD !NO_COMMAND
 
-@tel create(Group Database Object <GDB>)=u(gso)
+@switch/inline isdbref(u(gdb))=0,{@switch/inline isdbref(u(gso))=1,{@tel create(Group Database Object <GDB>)=u(gso)}}
 &gdb u(coi)=locate(u(gso),Group Database Object <GDB>,TXxi)
 @parent u(gdb)=u(coi)
 @set u(gdb)=WIZARD
