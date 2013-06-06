@@ -23,7 +23,7 @@
 
 &INC`REGAIN u(ex-pso)=@include u(ex-pso)/INC`FINDPOOL=%0,%#;@assert strlen(%1)=@nspemit %#=announce(POOLS) ERROR: Regain Value empty.;@assert valnum(%1)=@nspemit %#=announce(POOLS) ERROR: Regain values must be whole, positive numbers.;@nsremit %l=announce(POOLS) [ansi(h,%n)] just regained %1 [u(FUN`POOLDETAIL,%q<choice>)]!;&D`POOLS`%q<choice>`CUR %#=bound(add(u(FUN`CUR,%#,%q<choice>),%1),0,u(FUN`MAX,%#,%q<choice>))
 
-&INC`REFRESH u(ex-pso)=@dolist/inline setunion(u(FUN`LISTPOOLS,%#,Pool),u(FUN`LISTPOOLS,%#,Channel))=&D`POOLS`%i0`CUR %#=u(FUN`MAX,%#,%i0);@nsremit %l=announce(POOLS) [ansi(h,%n)] just refreshed %p Pools and Channels!
+&INC`REFRESH u(ex-pso)=@dolist/inline setunion(u(FUN`LISTPOOLS,%#,Pool),u(FUN`LISTPOOLS,%#,Channel))=&D`POOLS`%i0`CUR %#=u(FUN`MAX,%#,%i0);&D`POOLS`OVERDRIVE`CUR %#=0;@nsremit %l=announce(POOLS) [ansi(h,%n)] just refreshed %p Pools and Channels!
 
 &INC`COMMIT u(ex-pso)=@include u(ex-pso)/INC`FINDPOOL=before(%0,/),%#;@assert strlen(after(%0,/))=@nspemit %#=announce(POOLS) ERROR: Commit Value empty.;@assert valnum(after(%0,/))=@nspemit %#=announce(POOLS) ERROR: Commit values must be whole, positive numbers.;@break lt(u(FUN`CUR,%#,%q<choice>),after(%0,/))=@nspemit %#=announce(POOLS) There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(VAR`POOL`%q<choice>`TYPE)]!;@assert strlen(%1)=@nspemit %#=announce(POOLS) ERROR: No reason entered for this Commitment!;&[setr(attr,D`POOLS`%q<choice>`COMMIT`[nextslot(D`POOLS`%q<choice>`COMMIT)])] %#=after(%0,/);&%q<attr>`REASON %#=%1;@nsremit %l=announce(POOLS) [ansi(h,%n)] just Committed [after(%0,/)] [u(FUN`POOLDETAIL,%q<choice>)] to: %1
 
@@ -46,9 +46,9 @@
 &FUN`MAX`PERSONAL`SOLAR u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
 &FUN`MAX`PERIPHERAL`SOLAR u(ex-pso)=add(mul(7,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),null(SKINMOUNTHERE))
 
-&FUN`CALCEXPANDER u(ex-psso)=lmath(add,iter(lattr(u(ex-pso)/%2`*),mul(last(%i0,`),iter(ucstr(get(u(ex-pso)/%i0)),lmath(max,iter(iter(graball(ucstr(get(%0/D`CHARMS`[elements(%i0,2 3,`,`)])),%i0*,|,|),last(%i0)),if(isnum(%i0),%i0,1))),|))))
+&FUN`CALCEXPANDER u(ex-pso)=lmath(add,iter(filterbool(#lambda/valnum(\%0),iter(lattr(u(ex-pso)/%2`*),last(%i0,`))),mul(%i0,lmath(add,iter(filterbool(#lambda/strlen(\%0),iter(get(u(ex-pso)/%2`%i0),iter(lattr(%0/%1`*),grab(get(%0/%i0),%i1*,|),%B,|),|,|),|,|),if(isnum(last(%i0)),last(%i0),1),|)))))
 
-&FUN`CALCOVERDRIVE u(ex-psso)=lmath(add,iter(lattr(u(ex-pso)/%2`*),mul(last(%i0,`),words(setinter(ucstr(get(%0/D`CHARMS`[elements(%i0,2 3,`,`)])),ucstr(get(u(ex-pso)/%i0)),|,|)))))
+&FUN`CALCOVERDRIVE u(ex-pso)=lmath(add,iter(filterbool(#lambda/valnum(\%0),iter(lattr(u(ex-pso)/%2`*),last(%i0,`))),mul(%i0,lmath(add,iter(lattr(%0/%1`*),words(setinter(ucstr(get(%0/%i0)),ucstr(get(u(ex-pso)/%2`%i1)),|,|),|))))))
 
 &FUN`MAX`PERSONAL`ABYSSAL u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
 &FUN`MAX`PERIPHERAL`ABYSSAL u(ex-pso)=add(mul(7,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),null(SKINMOUNTHERE))
@@ -102,7 +102,7 @@
 &DAT`ABYSSAL`EXPANDER u(ex-pso)=
 &DAT`ABYSSAL`EXPANDER`10 u(ex-pso)=Essence Engorgement Technique
 &DAT`ABYSSAL`OVERDRIVE u(ex-pso)=
-&DAT`ABYSSAL`OVERDRIVE`10 u(ex-pso)=Sunlight Bleeding Away|Methodical Sniper Method|'Til Death Do You Part|Sanguine Trophies Collected|Pyrrhic Victory Conflagration|Child of the Apocalypse|That I Should Be Haunted|World-Betraying Knife Visage|Monster in the Mist
+&DAT`ABYSSAL`OVERDRIVE`10 u(ex-pso)=Sunlight Bleeding Away|Methodical Sniper Method|'Til Death Do You Part|Sanguine Trophies Collected|Pyrrhic Victory Conflagration|Child of the Apocalypse|That I Should Be Haunted|World-Betraying Knife Visage|Monster in the Mist|Vengeful Mariner's Shanty
 &DAT`ABYSSAL`OVERDRIVE`15 u(ex-pso)=Bright Days Painted Black
 &DAT`ALCHEMICAL u(ex-pso)=
 &DAT`ALCHEMICAL`EXPANDER u(ex-pso)=

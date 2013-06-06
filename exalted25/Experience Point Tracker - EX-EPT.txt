@@ -5,11 +5,13 @@
 @parent u(ex-ept)=u(coi)
 @set u(ex-ept)=WIZARD !NO_COMMAND
 
-&CMD`+XP u(ex-ept)=$^(?s)\+XP(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(ex-ept)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ex-ept)/VAR`ADMINFLAGS)),|,|)),%1,|))=@nspemit %#=ERROR: Invalid switch for +XP! [pueblize(Your choices are: [itemize(%q<choices>,|,and,\,)],+help Recommendations)];@include u(ex-ept)/INC`[strfirstof(%1,MAIN)]=%2,%3,%4
+%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;
+
+&CMD`+XP u(ex-ept)=$^(?s)\+XP(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(ex-ept)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ex-ept)/VAR`ADMINFLAGS)),|,|),|,XP,switch,switch;@include u(ex-ept)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3,%4
 @set u(ex-ept)/CMD`+XP=regexp
 
 &VAR`ADMINFLAGS u(ex-ept)=DELGAINED|DELSPENT|TOTALS|AWARD|SPEND
-&VAR`PLAYERFLAGS u(ex-ept)=GAINED|SPENT
+&VAR`PLAYFLAGS u(ex-ept)=GAINED|SPENT
 
 &INC`MAIN u(ex-ept)=@switch/inline and(strlen(%0),isadmin(%#))=1,{@include u(ccs)/INC`CHECKPC=%0,1,XP},0,{@include u(ccs)/INC`CHECKPC=%#,1,XP};@include u(ex-ept)/INC`LIST=%q<t1>
 
@@ -19,10 +21,10 @@
 
 &FUN`DETAIL u(ex-ept)=
 
-&INC`GAINED u(ex-ept)=@include u(ex-ept)/INC`LISTBY=%0,G
-&INC`SPENT u(ex-ept)=@include u(ex-ept)/INC`LISTBY=%0,S
+&INC`GAINED u(ex-ept)=@switch/inline and(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(ex-ept)/INC`LISTBY=%q<t1>,G
+&INC`SPENT u(ex-ept)=@switch/inline and(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(ex-ept)/INC`LISTBY=%q<t1>,S
 
-&INC`LISTBY u(ex-ept)=@nspemit %#=header(name(%0)'s [if(strmatch(%1,G),GAINED,SPENT)] XP);@dolist/inline lattr(%0/D`XP`%1`*)=@nspemit %#=#[ljust(last(%i0,`),5)][ljust(ansi(hw,Amount:)%B[get(%0/%i0)],15)][ljust(ansi(hw,Reason:)%B[get(%0/%i0`REASON)],60)]%R%B%B%B[ljust(ansi(hw,Handled By:)%B[get(%0/%i0`BY)],75)]%R%B%B%B[ljust(ansi(hw,Time:)%B[convsecs(get(%0/%i0`ON))],78)];@nspemit %#=header()
+&INC`LISTBY u(ex-ept)=@nspemit %#=header(name(%0)'s [if(strmatch(%1,G),GAINED,SPENT)] XP);@dolist/inline lattr(%0/D`XP`%1`*)=@nspemit %#=#[ljust(last(%i0,`),4)][ansi(h,default(%0/%i0,N/A))] for [default(%0/%i0`REASON,Unknown Reason)]%R%B%B%B%B%B[ansi(hw,Handled By)]%B[name(get(%0/%i0`BY))] [ansi(h,On)] [convsecs(get(%0/%i0`ON))];@nspemit %#=header()
 
 &INC`DELGAINED u(ex-ept)=@include u(ex-ept)/INC`DELETE=%0,G,%1
 &INC`DELSPENT u(ex-ept)=@include u(ex-ept)/INC`DELETE=%0,S,%1
@@ -34,9 +36,12 @@
 &INC`AWARD u(ex-ept)=@include u(ex-ept)/INC`MARKXP=%0,%1,%2,AWARD
 &INC`SPEND u(ex-ept)=@include u(ex-ept)/INC`MARKXP=%0,%1,%2,SPEND
 
-&INC`MARKXP u(ex-ept)=@assert strlen(%0)=@nspemit %#=announce(XP) ERROR: No Reason entered!;@assert strlen(%1)=@nspemit %#=announce(XP) ERROR: Target List empty.;@assert strlen(%2)=@nspemit %#=announce(XP) ERROR: XP %3 Value Empty.;@dolist/inline setr(list,lnum(1,words(%1,|)))={@include u(ccs)/INC`CHECKPC=elements(%1,inum(0),|),inum(0),XP};@nspemit/list setr(list1,iter(%q<list>,%q<t%i0>))=announce(XP) You have [switch(%3,AWARD,been awarded,spent)] %2 XP for: %0;@dolist %q<list1>=@include u(ex-ept)/INC`APPLY=%i0,%2,%0,%:,switch(%3,G,S);@switch/inline v(VAR`ALERTSMODE)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just [switch(%3,AWARD,awarded,spent)] [ansi(h,itemize(iter(%q<list1>,name(%i0),%b,|),|,and,\,))]'s %2 XP for: %0}
+&INC`MARKXP u(ex-ept)=@assert strlen(%0)=@nspemit %#=announce(XP) ERROR: No Reason entered!;@assert strlen(%1)=@nspemit %#=announce(XP) ERROR: Target List empty.;@assert strlen(%2)=@nspemit %#=announce(XP) ERROR: XP %3 Value Empty.;@dolist/inline setr(list,lnum(1,words(%1,|)))={@include u(ccs)/INC`CHECKPC=elements(%1,inum(0),|),inum(0),XP};@nspemit/list setr(list1,iter(%q<list>,%q<t%i0>))=announce(XP) You have [switch(%3,AWARD,been awarded,spent)] %2 XP for: %0;@nspemit %#=announce(XP) You have [switch(%3,AWARD,awarded,deducted)] %2 of [ansi(h,itemize(iter(%q<list1>,name(%i0),%b,|),|,and,\,))]'s XP for: %0;@dolist %q<list1>=@include u(ex-ept)/INC`APPLY=%i0,%2,%0,%:,switch(%3,AWARD,G,S);@switch/inline v(VAR`ALERTSMODE)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just [switch(%3,AWARD,awarded,spent)] [ansi(h,itemize(iter(%q<list1>,name(%i0),%b,|),|,and,\,))]'s %2 XP for: %0}
 
-&INC`APPLY u(ex-ept)=&[setr(attr,D`XP`%4`[nextslot(%0,D`XP`%4)])] %0=%1;&%q<attr>`ON %0=secs();&%q<attr>`BY %0=%3
+&VAR`ALERTSMODE u(ex-ept)=1
+&VAR`ALERTSCHANNEL u(ex-ept)=Staff Reports
+
+&INC`APPLY u(ex-ept)=&[setr(attr,D`XP`%4`[nextslot(%0,D`XP`%4)])] %0=%1;&%q<attr>`ON %0=secs();&%q<attr>`BY %0=%3;&%q<attr>`REASON %0=%2
 
 +help/addmain General IC/+xp=[ansi(h,+xp)]%RDisplays your current XP totals.%R%R[ansi(h,+xp/gained)] or [ansi(h,+xp/spent)]%RDisplays details about your XP gains and spends.
 

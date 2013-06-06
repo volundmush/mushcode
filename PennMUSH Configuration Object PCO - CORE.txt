@@ -7,4 +7,4 @@
 
 &STARTUP u(pco)=@attribute/access/retroactive descformat=WIZARD;@attribute/access/retroactive short-desc=visual;@attribute/access/retroactive playstatus=WIZARD VISUAL;@attribute/access/retroactive D=WIZARD MORTAL_DARK
 
-&PLAYER`DISCONNECT`TELGUEST u(pco)=@switch/inline gt(haspower(%0,GUEST),0)=1,{@tel %0=config(player_start)}
+&PLAYER`DISCONNECT`TELGUEST u(pco)=@assert %1;@switch/inline gt(haspower(%0,GUEST),0)=1,{@tel %0=config(player_start)}
