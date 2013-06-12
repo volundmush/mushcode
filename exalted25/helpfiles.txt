@@ -1,0 +1,7 @@
++help/addmain General OOC/+status=[ansi(h,+status)]%RThis command toggles your status between IC and OOC!
+
++help/addmain General OOC/+ooc=[ansi(h,+ooc <text>)]%RThis command is used to speak out of character while in IC locations/scenes.
+
++help/addmain General OOC/+recall=[ansi(h,+recall)]%RThis command returns you to the Player Nexus.
+
++help/addmain General IC/+look=[ansi(h,+look)]%rShows the short descriptions and a selection of social stats for every person in the room.

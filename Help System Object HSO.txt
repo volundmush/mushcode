@@ -21,6 +21,7 @@ th attrib_set(u(hso)/VAR`NEWS,create(NEWS DATABASE))
 
 &CMD`NEWS u(PGO)=$^(?s)(news)(?\:/(\S+?))?(?\: +(.+?))?(?\:=(.+?))?$:@include u(hso)/INC`MAIN=%0,lcstr(%1),%2,%3,mudname() News Files,%4,news;@@ %1 is <MAIN_CATEGORY>. %2 is /switch. %3 is full text. %4 is the Header text. %5 is anything after the =, %6 is the command
 @set u(PGO)/CMD`NEWS=regexp
+&STARTUP u(pgo)=@hook/override news=u(pgo),CMD`NEWS
 
 &CMD`+SHELP u(SGO)=$^(?s)\+(shelp)(?\:/(\S+?))?(?\: +(.+?))?(?\:=(.+?))?$:@include u(hso)/INC`MAIN=%0,lcstr(%1),%2,%3,mudname() +help Staff Files,%4,+shelp;@@ %1 is <MAIN_CATEGORY>. %2 is /switch. %3 is full text. %4 is the Header text. %5 is anything after the =.
 @set u(SGO)/CMD`+SHELP=regexp

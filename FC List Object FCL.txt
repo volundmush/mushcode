@@ -1,0 +1,34 @@
+@@ DEPENDENCIES - CORE
+
+@teleport create(FC List Object <FCL>)=config(master_room)
+&fcl u(coi)=locate(config(master_room),FC List Object <FCL>,TXxi)
+@parent u(fcl)=u(coi)
+@set u(fcl)=WIZARD !NO_COMMAND
+
+&CMD`+FCLIST u(fcl)=$^(?s)(?\:\+)?fclist(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(fcl)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(fcl)/VAR`ADMINFLAGS)),|,|),|,FCLIST,switch,switch;@include u(fcl)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set u(fcl)/CMD`+FCLIST=regexp
+
+&INC`MAIN u(fcl)=@switch/inline gt(strlen(%0),0)=1,{@assert setr(group,u(FUN`FINDGROUP,%0))=@nspemit %#=announce(FCLIST) ERROR: Group not found!;@nspemit %#=header(v(DAT`%q<group>) Roster)%R[ljust(NAME,26)][ljust(FACTION,22)][ljust(LAST ON,10)][ljust(TYPE,9)][ljust(AVAILABLE,5)]%R[subheader()];@dolist/inline filterbool(#lambda/isobjid(\%0),v(DAT`%q<group>`LIST))={@nspemit %#=ljust(left(name(%i0),25),26)[ljust(default(%i0/D`FINGER`GROUP,Unaffiliated),20)][ljust(left(rjust(if(gt(conn(%i0),0),ansi(hg,ago(conn(%i0))),ansi(hx,elements(get(%i0/LAST),2 3))),9),9),10)]%B%B[ljust(left(default(%i0/D`FINGER`TYPE,N/A),4),9)][ljust(left(if(gt(get(%i0/D`FINGER`DEAD),0),ansi(hx,DEAD),if(approved(%i0),ansi(hx,No),ansi(hg,Yes))),4),5)]};@nspemit %#=header()},0,{@nspemit %#=header(mudname()'s FClist Groups);@nspemit %#=table(iter(lattr(u(fcl)/DAT`*),pueblize(get(u(fcl)/%i0),+fclist [get(u(fcl)/%i0)]),%B,|),26,78,|);@nspemit %#=header()}
+
+&INC`ADDGROUP u(fcl)=@assert strlen(%0)=@nspemit %#=announce(FCLIST) ERROR: No group name entered!;@break u(FUN`FINDGROUP,%0)=@nspemit %#=announce(FCLIST) ERROR: Group already exists!;&DAT`[nextslot(u(fcl),DAT)] u(fcl)=%0;@nspemit %#=announce(FCLIST) Group '%0' created!;@switch/inline gt(v(VAR`ALERTSMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just created FCLIST Group '%0'!}
+
+&INC`RENGROUP u(fcl)=@assert strlen(%0)=@nspemit %#=announce(FCLIST) ERROR: No group name entered!;@assert setr(group,u(FUN`FINDGROUP,%0))=@nspemit %#=announce(FCLIST) ERROR: Group not found!;@nspemit %#=announce(FCLIST) Group [v(DAT`%q<group>)] Renamed to '%1'!;@switch/inline gt(v(VAR`ALERTSMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just renamed FCLIST Group [v(DAT`%q<group>)] to '%1'!};&DAT`%q<group> u(fcl)=%1
+
+&INC`DELGROUP u(fcl)=@assert strlen(%0)=@nspemit %#=announce(FCLIST) ERROR: No group name entered!;@assert setr(group,u(FUN`FINDGROUP,%0))=@nspemit %#=announce(FCLIST) ERROR: Group not found!;@include u(ccs)/INC`VERIFY={WARNING: This will delete Group '%0' and all data associated with it. Are you SURE you want to do this? Enter the same command again wtihin ten seconds to verify.},FCLIST DELETE %0,FCLIST;@nspemit %#=announce(FCLIST) Group [get(u(fcl)/DAT`%q<group>)] deleted!;@switch/inline gt(v(VAR`ALERTSMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just deleted FCLIST Group [v(DAT`%q<group>)]!};@wipe u(fcl)/DAT`%q<group>
+
+&INC`ADD u(fcl)=@assert strlen(%0)=@nspemit %#=announce(FCLIST) ERROR: No group name entered!;@assert setr(group,u(FUN`FINDGROUP,%0))=@nspemit %#=announce(FCLIST) ERROR: Group not found!;@include u(ccs)/INC`CHECKPC=%1,1,FCLIST;&DAT`%q<group>`LIST u(fcl)=filterbool(#lambda/isobjid(\%0),setunion(v(DAT`%q<group>`LIST),%q<t1objid>,%B,namei));@nspemit %#=announce(FCLIST) You added %q<t1name> to FCLIST Group [v(DAT`%q<group>)]!;@switch/inline gt(v(VAR`ALERTSMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) added %q<t1name> to FCLIST Group [v(DAT`%q<group>)]!}
+
+&INC`REM u(fcl)=@assert strlen(%0)=@nspemit %#=announce(FCLIST) ERROR: No group name entered!;@assert setr(group,u(FUN`FINDGROUP,%0))=@nspemit %#=announce(FCLIST) ERROR: Group not found!;@include u(ccs)/INC`CHECKPC=%1,1,FCLIST;@assert match(v(DAT`%q<group>`LIST),%q<t1objid>)=@nspemit %#=announce(FCLIST) ERROR: %q<t1name> is not in that group!;&DAT`%q<group>`LIST u(fcl)=filterbool(#lambda/isobjid(\%0),setdiff(v(DAT`%q<group>`LIST),%q<t1objid>,%B,namei));@nspemit %#=announce(FCLIST) You removed %q<t1name> from FCLIST Group [v(DAT`%q<group>)]!;@switch/inline gt(v(VAR`ALERTSMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) removed %q<t1name> from FCLIST Group [v(DAT`%q<group>)]!}
+
+&FUN`FINDGROUP u(fcl)=last(wildgrepi(u(fcl),DAT`*,%0),`)
+
+&VAR`PLAYFLAGS u(fcl)=
+
+&VAR`ADMINFLAGS u(fcl)=ADDGROUP|RENGROUP|DELGROUP|ADD|REM
+
+&VAR`ALERTSMODE u(fcl)=1
+&VAR`ALERTSCHANNEL u(fcl)=Staff Reports
+
+
+&CMD`SET u(sgo)=$^\+set(profile|sex|group|race|job|quote|skills)(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`CHECKPC=%2,1,SETFINGER;@switch/inline %1=SEX,{@sex %q<t1>=%3},SKILLS,{&SKILLS %q<t1>=%3},{&D`FINGER`%1 %q<t1>=%3};@nspemit %#=announce(SETFINGER) %q<t1name>'s [ucstr(%1)] set to: %3;@nscemit/noisy Staff Reports=ansi(h,%n) set %q<t1name>'s [ucstr(%1)] to: %3
+@set u(sgo)/CMD`SET=regexp
