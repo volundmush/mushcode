@@ -5,14 +5,14 @@
 @parent u(pot)=u(coi)
 @set u(pot)=WIZARD !NO_COMMAND
 
-&FUN`MAIN u(pot)=null(if(ISROOMIC(%l),setq(type,switch(before(%u,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:))[attrib_set(%l/[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])],speak(%#,%q<type>[after(%u,%B)]))][attrib_set(%l/%q<potattr>`BY,%#)][attrib_set(%l/%q<potattr>`WHEN,secs())]))
+&FUN`MAIN u(pot)=null(if(ISROOMIC(%l),setq(type,switch(before(%u,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:))[attrib_set(%l/[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])],speak(%#,%q<type>[after(%u,%B)]))][attrib_set(%l/%q<potattr>`BY,%#)][attrib_set(%l/%q<potattr>`WHEN,secs())][iter(filterbool(#lambda/gte(sub(secs(),get(%l/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%l/POT`POSES`*)),wipe(%l/%i0))]))
 
 &GFN`ISROOMIC u(pot)=or(gt(get(%0/IC),0),hastype(%0,ROOM))
 
 &CMD`+POT u(pot)=$^\+pot(?\:/(\S+))?(?\: +(.+))?$:@assert or(ISROOMIC(%l),isadmin(%#))=@nspemit %#=This room is not IC!;@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(pot)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(pot)/VAR`ADMINFLAGS)),|,|)),ucstr(%1),|))=@nspemit %#=announce(JOBS)%BERROR: Invalid switch for +pot! Your choices are: [itemize(%q<choices>,|,and,\,)];@include u(pot)/INC`[strfirstof(%1,MAIN)]
 @set u(pot)/CMD`+pot=regexp
 
-&INC`MAIN u(pot)=@assert words(setr(listposes,filterbool(#lambda/lte(sub(secs(),get(%l/POT`POSES`\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),sort(iter(lattr(%l/POT`POSES`*),last(%i0,`)),n))))=@nspemit %#=No recent poses tracked in this location.;@nspemit %#=header(Recent Poses);th null(iter(revwords(elements(revwords(%q<listposes>),lnum(1,default(%#/POT`MAX,15)))),[nspemit(%#,ansi(hc,<[name(get(%l/POT`POSES`%i0`BY))]'s [if(and(isadmin(%#),get(get(%l/POT`POSES`%i0`BY)/POT`PRIVACY)),[ansi(hr,PRIVATE)]%B)]Pose from [timestring(sub(secs(),get(%l/POT`POSES`%i0`WHEN)))] Ago>))][if(or(isadmin(%#),not(get(get(%l/POT`POSES`%i0`BY)/POT`PRIVACY))),nspemit(%#,get(%l/POT`POSES`%i0)),nspemit(%#,<Pose hidden by privacy settings>))]));@nspemit %#=header(End of Poses)
+&INC`MAIN u(pot)=@assert words(setr(listposes,filterbool(#lambda/lte(sub(secs(),get(%l/POT`POSES`\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),sort(iter(if(gt(nattr(%l/POT`POSES`*),100),xattr(%l/POT`POSES`*,sub(nattr(%l/POT`POSES`*),70),100),lattr(%l/POT`POSES`*)),last(%i0,`)),n))))=@nspemit %#=No recent poses tracked in this location.;@nspemit %#=header(Recent Poses);th null(iter(revwords(elements(revwords(%q<listposes>),lnum(1,default(%#/POT`MAX,15)))),[nspemit(%#,ansi(hc,<[name(get(%l/POT`POSES`%i0`BY))]'s [if(and(isadmin(%#),get(get(%l/POT`POSES`%i0`BY)/POT`PRIVACY)),[ansi(hr,PRIVATE)]%B)]Pose from [timestring(sub(secs(),get(%l/POT`POSES`%i0`WHEN)))] Ago>))][if(or(isadmin(%#),not(get(get(%l/POT`POSES`%i0`BY)/POT`PRIVACY))),nspemit(%#,get(%l/POT`POSES`%i0)),nspemit(%#,<Pose hidden by privacy settings>))]));@nspemit %#=header(End of Poses)
 
 &INC`BRIEF u(pot)=@assert words(setr(listposes,filterbool(#lambda/lte(sub(secs(),get(%l/POT`POSES`\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),sort(iter(lattr(%l/POT`POSES`*),last(%i0,`)),n))))=@nspemit %#=No recent poses tracked in this location.;@nspemit %#=[header(Summary of Recent Poses)];th null(iter(revwords(elements(revwords(%q<listposes>),lnum(1,default(%#/POT`MAX,15)))),nspemit(%#,ansi(hc,<[name(get(%l/POT`POSES`%i0`BY))]'s [if(and(isadmin(%#),get(get(%l/POT`POSES`%i0`BY)/POT`PRIVACY)),[ansi(hr,PRIVATE)]%B)]Pose from [timestring(sub(secs(),get(%l/POT`POSES`%i0`WHEN)))] Ago>))[if(or(isadmin(%#),not(get(get(%l/POT`POSES`%i0`BY)/POT`PRIVACY))),nspemit(%#,left(get(%l/POT`POSES`%i0),68)...),nspemit(%#,<Pose hidden by privacy settings>))]));@nspemit %#=header(End of Poses)
 
@@ -24,11 +24,11 @@
 
 &STARTUP u(pot)=@dolist SAY SEMIPOSE POSE @EMIT={@hook/before %i0=u(pot),FUN`MAIN};@attribute/access/retroactive POT=WIZARD MORTAL_DARK;@trigger u(pot)/TRG`SELFCLEAN
 
-&TRG`SELFCLEAN u(pot)=@switch/inline gt(v(VAR`SELFCLEAN),0)=1,{@dolist lsearch(all,eroom,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0;@dolist lsearch(all,ething,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0};@wait mul(60,v(var`checkminutes))=@trigger v(pot)/TRG`SELFCLEAN
+&TRG`SELFCLEAN u(pot)=@switch/inline gt(v(VAR`SELFCLEAN),0)=1,{@dolist/inline lsearch(all,eroom,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0;@dolist/inline lsearch(all,ething,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0};@wait mul(60,v(var`checkminutes))=@trigger v(pot)/TRG`SELFCLEAN
 
-&TRG`DOCLEAN u(pot)=@dolist filterbool(#lambda/gte(sub(secs(),get(%0/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%0/POT`POSES`*))=@wipe %0/%i0
+&TRG`DOCLEAN u(pot)=@dolist/inline filterbool(#lambda/gte(sub(secs(),get(%0/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%0/POT`POSES`*))=@wipe %0/%i0
 
 &VAR`SELFCLEAN u(pot)=1
 &VAR`PLAYFLAGS u(pot)=BRIEF|PRIVATE|LAST|MAX
 &VAR`TIMEOUTHOURS u(pot)=2
-&VAR`CHECKMINUTES u(pot)=30
+&VAR`CHECKMINUTES u(pot)=10

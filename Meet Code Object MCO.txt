@@ -5,11 +5,12 @@
 @parent u(mco)=u(coi)
 @set u(mco)=WIZARD !NO_COMMAND
 
-&CMD`JOIN u(mco)=$^(?\:\+)?join(?\: +(.+))?$:@switch/inline gt(strlen(%1),0)=1,{@include u(ccs)/INC`CHECKPC=%1,1,MEET;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=announce(MEET) ERROR: %q<t1name> is not online.;@switch/inline or(if(v(VAR`ADMINNEEDINVITES),0,isadmin(%#)),V(VAR`NOINVITES))=0,{@switch/inline hasattr(u(mco)/MEETME`SUMMON`%q<t1>`%#)=1,{@switch/inline strmatch(%l,loc(%q<t1>))=0,{@tel %#=loc(%q<t1>)},1,{@nspemit %#=announce(MEET) ERROR: You are already there!;@break 1=@wipe u(mco)/MEETME`SUMMON`%q<t1>`%#};@wipe u(mco)/MEETME`SUMMON`%q<t1>`%#},0,{&MEETME`JOIN`%#`%q<t1> u(mco)=secs();@nspemit %#=announce(MEET) You have sent %q<t1name> a Join request!;@nspemit %q<t1>=announce(MEET) %n sent you a JOIN request. To bring %n to you, use '[pueblize(summon %n,summon %n)]'.;@break 1}},1,{@tel %#=loc(%q<t1>)};@nspemit %#=announce(MEET) You have joined %q<t1name>!;@nsoemit %# %q<t1>=announce(MEET) %n has joined %q<t1name>!;@nspemit %q<t1>=announce(MEET) %n has joined you!},0,{@nspemit %#=announce(MEET) Who will you Join?}
-@set u(mco)/CMD`JOIN=regexp
+&CMD`+MEETME u(mco)=$^(?\:\+)?(join|summon)(?\: +(.+))?$:@switch/inline gt(strlen(%2),0)=1,{@include u(ccs)/INC`CHECKPC=%2,1,MEET;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=announce(MEET) ERROR: %q<t1name> is not online.;@switch/inline or(if(v(VAR`ADMINNEEDINVITES),0,isadmin(%#)),v(VAR`NOINVITES))=0,{@switch/inline gt(setr(find,u(u(mco)/FUN`FINDMEET,%#,%q<t1>,if(strmatch(%1,summon),join,summon))),0)=0,{&[setr(attr,MEETME`[nextslot(u(mco),MEETME)])] u(mco)=secs();&%q<attr>`FROM u(mco)=%#;&%q<attr>`FOR u(mco)=%q<t1>;&%q<attr>`TYPE u(mco)=%1;@nspemit %#=announce(MEET) You have sent %q<t1name> a [capnames(%1)] request!;@nspemit %q<t1>=announce(MEET) %n sent you a [capnames(%1)] request. To [if(strmatch(join,%1),bring %n to you,go to %n)], use '[if(strmatch(join,%1),pueblize(summon %n,summon %n),pueblize(join %n,join %n))]'.},1,{@include u(mco)/INC`TEL}},1,{@include u(mco)/INC`TEL}},0,{@nspemit %#=announce(MEET) Who will you [capnames(%1)]?}
+@set u(mco)/CMD`+MEETME=regexp
 
-&CMD`SUMMON u(mco)=$^(?\:\+)?summon(?\: +(.+))?$:@switch/inline gt(strlen(%1),0)=1,{@include u(ccs)/INC`CHECKPC=%1,1,MEET;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=announce(MEET) ERROR: %q<t1name> is not online.;@switch/inline or(if(v(VAR`ADMINNEEDINVITES),0,isadmin(%#)),V(VAR`NOINVITES))=0,{@switch/inline hasattr(u(mco)/MEETME`JOIN`%q<t1>`%#)=1,{@switch/inline strmatch(%l,loc(%q<t1>))=0,{@tel %q<t1>=%l)},1,{@nspemit %#=announce(MEET) ERROR: You are already there!;@break 1=@wipe u(mco)/MEETME`JOIN`%q<t1>`%#};@wipe u(mco)/MEETME`JOIN`%q<t1>`%#},0,{&MEETME`SUMMON`%#`%q<t1> u(mco)=secs();@nspemit %#=announce(MEET) You have sent %q<t1name> a Summon request!;@nspemit %q<t1>=announce(MEET) %n sent you a SUMMON request. To go to %n, use '[pueblize(join %n,join %n)]'.;@break 1}},1,{@tel %q<t1>=%l};@nspemit %#=announce(MEET) You have summoned %q<t1name>!;@nsoemit %# %q<t1>=announce(MEET) %n has summoned %q<t1name>!;@nspemit %q<t1>=announce(MEET) %n has summoned you!},0,{@nspemit %#=announce(MEET) Who will you Summon?}
-@set u(mco)/CMD`SUMMON=regexp
+&INC`TEL u(mco)=@switch/inline %1=JOIN,{@tel %#=setr(loc,loc(%q<t1>))},SUMMON,{@tel %q<t1>=setr(loc,%l)};@nspemit %#=announce(MEET) You have [lcstr(%1)]ed %q<t1name>!;@nsoemit %# %q<t1>=announce(MEET) %n has [lcstr(%1)]ed %q<t1name>!;@nspemit %q<t1>=announce(MEET) %n has [lcstr(%1)]ed you!;@wipe u(mco)/MEETME`%q<find>
+
+&FUN`FINDMEET u(mco)=last(first(filterbool(#lambda/and(strmatch(get(u(mco)/\%0`FOR),%0),strmatch(get(u(mco)/\%0`FROM),%1),strmatch(get(u(mco)/\%0`TYPE),%2)),lattr(u(mco)/MEETME`*))),`)
 
 &VAR`NOINVITES u(mco)=0
 &VAR`ADMINNEEDINVITES u(mco)=0
@@ -17,3 +18,5 @@
 &FILTER_TIMEOUT u(mco)=gt(sub(secs(),v(%0)),600)
 &STARTUP u(mco)=@trigger me/TRG`DOCLEANUP
 &TRG`DOCLEANUP u(mco)=@dolist filterbool(FILTER_TIMEOUT,lattr(me/MEETME`*))={@wipe me/%i0};@wait 60=@trigger u(mco)/TRG`DOCLEANUP
+
++Help/addmain 
