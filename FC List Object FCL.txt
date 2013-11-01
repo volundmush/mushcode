@@ -32,3 +32,7 @@
 
 &CMD`SET u(sgo)=$^\+set(profile|sex|group|race|job|quote|skills)(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`CHECKPC=%2,1,SETFINGER;@switch/inline %1=SEX,{@sex %q<t1>=%3},SKILLS,{&SKILLS %q<t1>=%3},{&D`FINGER`%1 %q<t1>=%3};@nspemit %#=announce(SETFINGER) %q<t1name>'s [ucstr(%1)] set to: %3;@nscemit/noisy Staff Reports=ansi(h,%n) set %q<t1name>'s [ucstr(%1)] to: %3
 @set u(sgo)/CMD`SET=regexp
+
++shelp/addmain Characters/+fclist=The FCList system allows characters to be added to one or more groups for listing purposes.%R%R[ansi(h,+fclist \[<group>\])]%RBy itself, lists all groups. Given a group as an argument, shows characters in that group.%R%R[ansi(h,+fclist/addgroup <group>)]%RCreates a new group. Group names must be unique.%R%R[ansi(h,+fclist/delgroup <group>)]%RDeletes a group. Be careful with it!%R%R[ansi(h,+fclist/rengroup <group>=<newname>)]%RRenames a group.%R%R[ansi(h,+fclist/add <group>=<character>)]%RAdds a character to a group. Sorting is done by character's name, alphabetical and case-insensitive.%R%R[ansi(h,+fclist/rem <group>=<character>)]%RRemoves a character from a group.
+
++shelp/addmain Characters/+finger=Configuring fingers is actually a series of different commands based off of +set.%R%R[ansi(h,+set<whatever> <target>=<value>)]%R<whatever> can be: profile, sex, group, race, job, quote, skills%R%RAs an example:%R+setsex Volund=Male

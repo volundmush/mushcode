@@ -18,5 +18,3 @@
 &FILTER_TIMEOUT u(mco)=gt(sub(secs(),v(%0)),600)
 &STARTUP u(mco)=@trigger me/TRG`DOCLEANUP
 &TRG`DOCLEANUP u(mco)=@dolist filterbool(FILTER_TIMEOUT,lattr(me/MEETME`*))={@wipe me/%i0};@wait 60=@trigger u(mco)/TRG`DOCLEANUP
-
-+Help/addmain 

@@ -38,7 +38,8 @@
 
 &FUN`FINDCHANNEL u(cmo)=last(first(grepi(u(cmo),D`CHANNEL`*,stripansi(%0))),`)
 
-&MOGRIFY`PLAYERNAME u(cmo)=if(isadmin(%#),\[[ansi(h,Staff)]\] %0,%0)
+&MOGRIFY`PLAYERNAME u(cmo)
+&MOGRIFY`TITLE u(cmo)=if(isadmin(%#),\[[ansi(h,Staff)]\][if(strlen(%0),%B%0)],%0)
 &MOGRIFY`BLOCK u(cmo)=if(strlen(setr(check,first(grepi(%#,D`MUZZLE`*,u(u(cmo)/FUN`FINDCHANNEL,stripansi(%1)))))),if(gt(setr(until,get(%#/%q<check>`UNTIL)),secs()),announce(MUZZLE) You have been Muzzled from %1 until [convsecs(%q<until>)],wipe(%#/%q<check>)))
 &MOGRIFY`MESSAGE u(cmo)=regeditalli(%0,v(VAR`REGEXP`WWW),weblink(strfirstof($<2>,http://,$<1>)$<3>,$<1>))
 &VAR`REGEXP`WWW u(cmo)=(?P<1>(?P<2>((http|https|ftp))\://)?(?P<3>(((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])|([a-zA-Z0-9_\-\.])+\.(com|net|org|edu|int|mil|gov|arpa|biz|aero|name|coop|info|pro|museum|uk|me))((:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])*)))

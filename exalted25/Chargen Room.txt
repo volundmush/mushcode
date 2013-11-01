@@ -106,7 +106,7 @@
 &DAT`3`FAVORED`AIR u(cg)=Linguistics|Lore|Occult|Stealth|Thrown
 &DAT`3`FAVORED`ANKLOK u(cg)=Resistance|Survival|War
 &DAT`3`FAVORED`BATTLES u(cg)=Archery|Athletics|Melee|Presence|War
-&DAT`3`FAVORED`DAWN u(cg)=Archery|Martial_arts|Melee|Thrown|War
+&DAT`3`FAVORED`DAWN u(cg)=Archery|Martial_Arts|Melee|Thrown|War
 &DAT`3`FAVORED`DAY u(cg)=Athletics|Awareness|Dodge|Larceny|Stealth
 &DAT`3`FAVORED`DAYBREAK u(cg)=Craft|Investigation|Lore|Medicine|Occult
 &DAT`3`FAVORED`DEFILER u(cg)=Craft|Investigation|Lore|Medicine|Occult
@@ -129,12 +129,19 @@
 &DAT`3`FAVORED`SECRETS u(cg)=Investigation|Larceny|Lore|Occult|Stealth
 &DAT`3`FAVORED`SERENITY u(cg)=Craft|Dodge|Linguistics|Performance|Socialize
 &DAT`3`FAVORED`SLAYER u(cg)=Archery|Martial_arts|Melee|Thrown|War
+&DAT`3`FAVORED`SOVEREIGN u(cg)=Integrity|Awareness|Bureaucracy|Presence|War
 &DAT`3`FAVORED`TWILIGHT u(cg)=Craft|Investigation|Lore|Medicine|Occult
 &DAT`3`FAVORED`WATER u(cg)=Bureaucracy|Investigation|Larceny|Martial_arts|Sail
 &DAT`3`FAVORED`WOOD u(cg)=Archery|Medicine|Performance|Ride|Survival
 &DAT`3`FAVORED`ZENITH u(cg)=Integrity|Performance|Presence|Resistance|Survival
 &DAT`HERITAGE_DYNAST u(cg)=Archery~1|Lore~2|Martial_Arts~1|Melee~1|Performance~1|Presence~1|Ride~1|Socialize~2|War~1
 &DAT`HERITAGE_LOOKSHY u(cg)=Archery~2|Linguistics~3|Lore~2|Martial_arts~2|Melee~2|Performance~1|Presence~1|Ride~1|Stealth~1|War~2
+
+&DAT`3`FAVORED`QAESTOR u(cg)=INTEGRITY|INVESTIGATION|SOCIALIZE|LARCENY|BUREAUCRACY
+&DAT`3`FAVORED`ECSTATIC u(cg)=ATHLETICS|CRAFT|DODGE|PERFORMANCE|SOCIALIZE
+&DAT`3`FAVORED`MONOLITH u(cg)=PRESENCE|SURVIVAL|INVESTIGATION|ATHLETICS|RESISTANCE
+&DAT`3`FAVORED`JUGGERNAUT u(cg)=ATHLETICS|PRESENCE|RESISTANCE|INTEGRITY|MARTIAL_ARTS
+&DAT`3`FAVORED`DELUGE u(cg)=ATHLETICS|SURVIVAL|SAIL|INVESTIGATION|OCCULT
 
 &4 u(cg)=ansi(h,+addcharm <category>=<charm1>|<charm2>|<charm3>|etc) to add native Charms.%R[ansi(h,+delcharm <category>=<charm1|<charm2>|<charm3>|etc)] to delete native Charms.%R%R[ansi(h,+addocharm <splat>/<category>=<charm1>|<charm2>|<charm3>|etc)] to add Other Splat Charms.%R[ansi(h,+delocharm <splat>/<category>=<charm1|<charm2>|<charm3>|etc)] to delete Other Splat Charms.%R%R[ansi(h,+addmacharm <tier>/<slot number>=<charm1>|<charm2>|<charm3>|etc)] to add Martial Arts Charms.%R[ansi(h,+delmacharm <tier>/<slot number>=<charm1|<charm2>|<charm3>|etc)] to delete Martial Arts Charms.%R[ansi(h,+setma <tier>/<slot number>=<name>)] to set the name of the style in slot <number>.%R%R[ansi(h,+addspell <circle>=<spell1>|<spell2>|<spell3>|etc)] to add Sorcery or Necromancy spells.%R[ansi(h,+delspell <circle>=<spell1|<spell2>|<spell3>|etc)] to delete Sorcery or Necromancy spells.[if(and(strlen(getsplat(%#)),hasattr(me/4`[getsplat(%#)])),%R%R[u(4`[getsplat(%#)])])]%R%R[ansi(h,+addthaum <art or science>/<degree or procedure>=<name of procedure or degree>)] to take up a Thaumaturgical Degree or Procedure.%R[ansi(h,+delthaum <art or science>/<degree or procedure>=<name of procedure or degree>)] to remove a Thaumaturgical Degree or Procedure.%r(Please list all Degrees for accounting purposes!)
 

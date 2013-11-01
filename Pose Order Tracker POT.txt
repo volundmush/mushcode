@@ -7,9 +7,9 @@
 
 &FUN`MAIN u(pot)=null(if(ISROOMIC(%l),setq(type,switch(before(%u,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:))[attrib_set(%l/[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])],speak(%#,%q<type>[after(%u,%B)]))][attrib_set(%l/%q<potattr>`BY,%#)][attrib_set(%l/%q<potattr>`WHEN,secs())][iter(filterbool(#lambda/gte(sub(secs(),get(%l/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%l/POT`POSES`*)),wipe(%l/%i0))]))
 
-&GFN`ISROOMIC u(pot)=or(gt(get(%0/IC),0),hastype(%0,ROOM))
+&GFN`ISROOMIC u(pot)=t(get(%0/IC))
 
-&CMD`+POT u(pot)=$^\+pot(?\:/(\S+))?(?\: +(.+))?$:@assert or(ISROOMIC(%l),isadmin(%#))=@nspemit %#=This room is not IC!;@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(pot)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(pot)/VAR`ADMINFLAGS)),|,|)),ucstr(%1),|))=@nspemit %#=announce(JOBS)%BERROR: Invalid switch for +pot! Your choices are: [itemize(%q<choices>,|,and,\,)];@include u(pot)/INC`[strfirstof(%1,MAIN)]
+&CMD`+POT u(pot)=$^\+pot(?\:/(\S+))?(?\: +(.+))?$:@assert or(ISROOMIC(%l),isadmin(%#))=@nspemit %#=announce(POT) This room is not IC!;@assert or(not(strlen(%1)),match(setr(choices,setunion(get(u(pot)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(pot)/VAR`ADMINFLAGS)),|,|)),ucstr(%1),|))=@nspemit %#=announce(POT)%BERROR: Invalid switch for +pot! Your choices are: [itemize(%q<choices>,|,and,\,)];@include u(pot)/INC`[strfirstof(%1,MAIN)]
 @set u(pot)/CMD`+pot=regexp
 
 &INC`MAIN u(pot)=@assert words(setr(listposes,filterbool(#lambda/lte(sub(secs(),get(%l/POT`POSES`\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),sort(iter(if(gt(nattr(%l/POT`POSES`*),100),xattr(%l/POT`POSES`*,sub(nattr(%l/POT`POSES`*),70),100),lattr(%l/POT`POSES`*)),last(%i0,`)),n))))=@nspemit %#=No recent poses tracked in this location.;@nspemit %#=header(Recent Poses);th null(iter(revwords(elements(revwords(%q<listposes>),lnum(1,default(%#/POT`MAX,15)))),[nspemit(%#,ansi(hc,<[name(get(%l/POT`POSES`%i0`BY))]'s [if(and(isadmin(%#),get(get(%l/POT`POSES`%i0`BY)/POT`PRIVACY)),[ansi(hr,PRIVATE)]%B)]Pose from [timestring(sub(secs(),get(%l/POT`POSES`%i0`WHEN)))] Ago>))][if(or(isadmin(%#),not(get(get(%l/POT`POSES`%i0`BY)/POT`PRIVACY))),nspemit(%#,get(%l/POT`POSES`%i0)),nspemit(%#,<Pose hidden by privacy settings>))]));@nspemit %#=header(End of Poses)

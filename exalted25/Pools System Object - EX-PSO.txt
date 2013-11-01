@@ -17,13 +17,13 @@
 
 &FUN`LISTPOOLS u(ex-pso)=u(FUN`SORTPOOLS,filterbool(#lambda/and(u(FUN`MAX,%0,\%0),strmatch(v(DAT`\%0`TYPE),if(strlen(%1),%1,*))),iter(lattr(u(ex-pso)/FUN`MAX`*),last(%i0,`))))
 
-&FUN`SORTPOOLS u(ex-pso)=filterbool(#lambda/match(%0,\%0),Personal Peripheral Willpower Overdrive Limit Resonance Paradox Clarity Stasis Divergence Dissonance Compassion Conviction Valor Temperance)
+&FUN`SORTPOOLS u(ex-pso)=filterbool(#lambda/match(%0,\%0),Personal Peripheral Willpower Overdrive Limit Resonance Paradox Clarity Stasis Divergence Dissonance Compassion Conviction Valor Temperance Avarice)
 
 &INC`BURN u(ex-pso)=@include u(ex-pso)/INC`FINDPOOL=%0,%#;@assert strlen(%1)=@nspemit %#=announce(POOLS) ERROR: Burn Value empty.;@assert valnum(%1)=@nspemit %#=announce(POOLS) ERROR: Burn values must be whole, positive numbers.;@break lt(u(FUN`CUR,%#,%q<choice>),%1)=@nspemit %#=announce(POOLS) There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(VAR`POOL`%q<choice>`TYPE)]!;@nsremit %l=announce(POOLS) [ansi(h,%n)] just burned %1 [u(FUN`POOLDETAIL,%q<choice>)]!;&D`POOLS`%q<choice>`CUR %#=sub(u(FUN`CUR,%#,%q<choice>),%1)
 
 &INC`GAIN u(ex-pso)=@include u(ex-pso)/INC`FINDPOOL=%0,%#;@assert strlen(%1)=@nspemit %#=announce(POOLS) ERROR: Regain Value empty.;@assert valnum(%1)=@nspemit %#=announce(POOLS) ERROR: Regain values must be whole, positive numbers.;@nsremit %l=announce(POOLS) [ansi(h,%n)] just regained %1 [u(FUN`POOLDETAIL,%q<choice>)]!;&D`POOLS`%q<choice>`CUR %#=bound(add(u(FUN`CUR,%#,%q<choice>),%1),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)))
 
-&FUN`TOTALCOMMIT u(ex-pso)=lmath(max,iter(lattr(%0/D`POOLS`%1`COMMIT`*),get(%0/%i0)))
+&FUN`TOTALCOMMIT u(ex-pso)=lmath(add,iter(lattr(%0/D`POOLS`%1`COMMIT`*),get(%0/%i0)))
 
 &INC`REFRESH u(ex-pso)=@dolist/inline setunion(u(FUN`LISTPOOLS,%#,Pool),u(FUN`LISTPOOLS,%#,Channel))=&D`POOLS`%i0`CUR %#=u(FUN`MAX,%#,%i0);&D`POOLS`OVERDRIVE`CUR %#=0;@nsremit %l=announce(POOLS) [ansi(h,%n)] just refreshed %p Pools and Channels!
 
@@ -48,7 +48,7 @@
 &FUN`MAX`PERSONAL`SOLAR u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
 &FUN`MAX`PERIPHERAL`SOLAR u(ex-pso)=add(mul(7,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),null(SKINMOUNTHERE))
 
-&FUN`CALCEXPANDER u(ex-pso)=lmath(add,iter(filterbool(#lambda/valnum(\%0),iter(lattr(u(ex-pso)/%2`*),last(%i0,`))),mul(%i0,lmath(add,iter(filterbool(#lambda/strlen(\%0),iter(get(u(ex-pso)/%2`%i0),iter(lattr(%0/%1`*),grab(get(%0/%i0),%i1*,|),%B,|),|,|),|,|),if(isnum(last(%i0)),last(%i0),1),|)))))
+&FUN`CALCEXPANDER u(ex-pso)=lmath(add,iter(filterbool(#lambda/valnum(\%0),iter(lattr(u(ex-pso)/%2`*),last(%i0,`))),mul(%i0,lmath(add,iter(filterbool(#lambda/strlen(\%0),iter(get(u(ex-pso)/%2`%i0),iter(lattr(%0/%1`*),sortkey(#lambda/if(isnum(last(\%0)),last(\%0),1),graball(get(%0/%i0),%i1*,|,|),n,|,|),%B,|),|,|),|,|),if(isnum(last(%i0)),last(%i0),1),|)))))
 
 &FUN`CALCOVERDRIVE u(ex-pso)=lmath(add,iter(filterbool(#lambda/valnum(\%0),iter(lattr(u(ex-pso)/%2`*),last(%i0,`))),mul(%i0,lmath(add,iter(lattr(%0/%1`*),words(setinter(ucstr(get(%0/%i0)),ucstr(get(u(ex-pso)/%2`%i1)),|,|),|))))))
 
@@ -94,6 +94,7 @@
 &FUN`MAX`WILLPOWER u(ex-pso)=firstof(getstat(%0/D`INFO,Willpower),0)
 &FUN`MAX`DISSONANCE u(ex-pso)=if(getstat(%0/D`NEGATIVE_MUTATIONS,Gremlin Syndrome),10,0)
 
+&FUN`MAX`AVARICE u(ex-pso)=getstat(%0/D`POOLBONUS,%1)
 
 &FUN`MAX`COMPASSION u(ex-pso)=if(strmatch(getstat(%0/D`INFO,Race),Raksha),getstat(%0/D`GRACES,Cup),getstat(%0/D`VIRTUES,Compassion))
 &FUN`MAX`CONVICTION u(ex-pso)=if(strmatch(getstat(%0/D`INFO,Race),Raksha),getstat(%0/D`GRACES,Staff),getstat(%0/D`VIRTUES,Conviction))
@@ -109,6 +110,8 @@
 &DAT`ALCHEMICAL u(ex-pso)=
 &DAT`ALCHEMICAL`EXPANDER u(ex-pso)=
 &DAT`ALCHEMICAL`EXPANDER`10 u(ex-pso)=Auxiliary Essence Storage Unit
+&DAT`ALCHEMICAL`OVERDRIVE`5 u(ex-pso)=Optimized Overcharge Device
+&DAT`ALCHEMICAL`OVERDRIVE`1 u(ex-pso)=Expanded Charge Battery Submodule
 &DAT`CLARITY u(ex-pso)=
 &DAT`CLARITY`TYPE u(ex-pso)=Track
 &DAT`CLARITY`UNITNAME u(ex-pso)=Points
@@ -138,7 +141,7 @@
 &DAT`GOSSAMER`UNITTYPE u(ex-pso)=Gossamer
 &DAT`INFERNAL u(ex-pso)=
 &DAT`INFERNAL`EXPANDER u(ex-pso)=
-&DAT`INFERNAL`EXPANDER`10 u(ex-pso)=Sun-Heart Furnace Soul|Sweet Agony Savored|Flames Lit Within|Riding Tide Ascension|Beauteous Carnage Incentive|Transcendent Desert Within
+&DAT`INFERNAL`EXPANDER`10 u(ex-pso)=Sun-Heart Furnace Soul|Sweet Agony Savored|Flames Lit Within|Riding Tide Ascension|Beauteous Carnage Incentive|Transcendent Desert Within|Glory-Stoking Congregation
 &DAT`INFERNAL`OVERDRIVE u(ex-pso)=
 &DAT`INFERNAL`OVERDRIVE`10 u(ex-pso)=The King Still Stands|Wayward Serf Remonstrations|Specks Before Infinity|Follow The Leader|Force-Draining Exigence|Wind Shearing Hearts|Hungry Wind Howling|The Face in the Darkness|Wicked Void Reversal
 &DAT`INFERNAL`OVERDRIVE`15 u(ex-pso)=Rage-Stoked Inferno Soul|The Tide Turns
@@ -194,10 +197,17 @@
 &DAT`TEMPERANCE`TYPE u(ex-pso)=Channel
 &DAT`TEMPERANCE`UNITNAME u(ex-pso)=Channels
 &DAT`TEMPERANCE`UNITTYPE u(ex-pso)=Temperance
+
+&DAT`AVARICE u(ex-pso)=
+&DAT`AVARICE`TYPE u(ex-pso)=Channel
+&DAT`AVARICE`UNITNAME u(ex-pso)=Channels
+&DAT`AVARICE`UNITTYPE u(ex-pso)=Avarice
+
 &DAT`VALOR u(ex-pso)=
 &DAT`VALOR`TYPE u(ex-pso)=Channel
 &DAT`VALOR`UNITNAME u(ex-pso)=Channels
 &DAT`VALOR`UNITTYPE u(ex-pso)=Valor
+
 &DAT`WILLPOWER u(ex-pso)=
 &DAT`WILLPOWER`TYPE u(ex-pso)=Pool
 &DAT`WILLPOWER`UNITNAME u(ex-pso)=Points

@@ -16,7 +16,7 @@
 
 &INC`FILENAME u(ifo)=th setq(filename,if(strmatch(%#,%q<target>),%0,after(%0,/)))
 
-&FUN`LIST u(ifo)=sortkey(#lambda/get(%0/\%0),iter(switch(1,isadmin(%#),lattr(%0/D`INFOFILE`*),strmatch(%#,%0),filterbool(#lambda/not(getstat(%0/\%0`FLAGS,Hidden)),lattr(%0/D`INFOFILE`*)),filterbool(#lambda/and(getstat(%0/\%0`FLAGS,Published),not(getstat(%0/\%0`FLAGS,Hidden))),lattr(%0/D`INFOFILE`*))),if(%1,get(%q<target>/%i0),%i0),%b,|),i,|,|)
+&FUN`LIST u(ifo)=sortkey(#lambda/get(%0/\%0),iter(switch(1,isadmin(%#),lattr(%0/D`INFOFILE`*),strmatch(%#,%0),filterbool(#lambda/not(getstat(%0/\%0`FLAGS,Hidden)),lattr(%0/D`INFOFILE`*)),filterbool(#lambda/and(getstat(%0/\%0`FLAGS,Published),not(getstat(%0/\%0`FLAGS,Hidden))),lattr(%0/D`INFOFILE`*))),if(%1,get(%0/%i0),%i0),%b,|),i,|,|)
 
 &FUN`FINDFILE u(ifo)=first(grepi(%0,D`INFOFILE`*,%1))
 
@@ -31,7 +31,7 @@
 
 &INC`DELETE u(ifo)=@include u(ifo)/INC`TARGET;@include u(ifo)/INC`FILENAME;@assert strlen(%q<filename>)=@nspemit %#=announce(INFO)%BERROR: Info name empty.;@dolist/delimit | %q<filename>={@include u(ifo)/INC`PARTIALMATCH=%i0;@switch/inline or(isadmin(%#),strmatch(%#,%q<target>))=0,{@break 1=@nspemit %#=announce(INFO)%BERROR: You may not delete another's Info files.};@break getstat(%q<target>/%q<attr>`FLAGS,Approved)=@nspemit %#=ERROR: Approved Infos must be unapproved by admin first.;@wipe %q<target>/%q<attr>;@switch/inline strmatch(%#,%q<target>)=1,{@nspemit %#=announce(INFO)%BYou deleted your %i0 Info File},{@nspemit %#=announce(INFO)%BYou deleted [name(%q<target>)]'s %i0 Info File!;@nspemit %q<target>=announce(INFO)%B%n deleted your %i0 Info File!}}
 
-&INC`PARTIALMATCH u(ifo)=@assert strlen(%0)=@nspemit %#=announce(INFO)%BERROR: Info name empty.;@switch/inline gt(match(setr(list,u(u(ifo)/FUN`LIST,%q<target>,1)),%0,|),0)=0,{@assert strlen(setr(filename,grab(%q<list>,%0*,|)))=@nspemit %#=announce(INFO)%BERROR: File not found.};th setq(attr,u(u(ifo)/FUN`FINDFILE,%q<target>,%q<filename>))
+&INC`PARTIALMATCH u(ifo)=@assert strlen(%0)=@nspemit %#=announce(INFO)%BERROR: Info name empty.;@include u(ccs)/INC`PARTIAL=%0,u(u(ifo)/FUN`LIST,%q<target>,1),|,INFO,filename,filename;th setq(attr,u(u(ifo)/FUN`FINDFILE,%q<target>,%q<filename>))
 
 &INC`GET u(ifo)=@include u(ifo)/INC`TARGET;@include u(ifo)/INC`FILENAME;@include u(ifo)/INC`PARTIALMATCH=%q<filename>;@nspemit %#=header(Unformatted Contents of %q<filename>);@nspemit %#=decompose(get(%q<target>/[u(u(ifo)/FUN`FINDFILE,%q<target>,%q<filename>)]`CONTENTS));@nspemit %#=header()
 
