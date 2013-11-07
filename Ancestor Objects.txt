@@ -21,5 +21,7 @@ th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),ROOM,|,|
 @switch/inline isdbref(u(ap))=0,{th attrib_set(u(coi)/AP,pcreate(Ancestor Player,digest(md5,secs())))}
 @tel u(ap)=u(ar)
 
+@chatformat u(ap)=[if(hasflag(me,NOSPOOF),\[[name(%#)]:\])]%5
+
 @switch/inline isdbref(u(at))=0,{th attrib_set(u(coi)/AT,create(Ancestor Thing <AT>))}
 @tel u(at)=u(ar)

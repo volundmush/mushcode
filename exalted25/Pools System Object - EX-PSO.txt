@@ -141,7 +141,7 @@
 &DAT`GOSSAMER`UNITTYPE u(ex-pso)=Gossamer
 &DAT`INFERNAL u(ex-pso)=
 &DAT`INFERNAL`EXPANDER u(ex-pso)=
-&DAT`INFERNAL`EXPANDER`10 u(ex-pso)=Sun-Heart Furnace Soul|Sweet Agony Savored|Flames Lit Within|Riding Tide Ascension|Beauteous Carnage Incentive|Transcendent Desert Within|Glory-Stoking Congregation
+&DAT`INFERNAL`EXPANDER`10 u(ex-pso)=Sun-Heart Furnace Soul|Sweet Agony Savored|Flames Lit Within|Riding Tide Ascension|Beauteous Carnage Incentive|Transcendent Desert Within|Glory-Stoking Congregation|Reassuring Slave Chorus
 &DAT`INFERNAL`OVERDRIVE u(ex-pso)=
 &DAT`INFERNAL`OVERDRIVE`10 u(ex-pso)=The King Still Stands|Wayward Serf Remonstrations|Specks Before Infinity|Follow The Leader|Force-Draining Exigence|Wind Shearing Hearts|Hungry Wind Howling|The Face in the Darkness|Wicked Void Reversal
 &DAT`INFERNAL`OVERDRIVE`15 u(ex-pso)=Rage-Stoked Inferno Soul|The Tide Turns

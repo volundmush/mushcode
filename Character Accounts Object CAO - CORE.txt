@@ -126,7 +126,7 @@
 
 &INC`BUILDER`ADD u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@break haspower(%q<t1>,BUILDER)=@nspemit %#=announce(BUILDER)%BERROR: They are already a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=builder link_anywhere open_anywhere no_quota no_pay pick_dbref;@nspemit %#=announce(BUILDER)%BYou have made %q<t1name> a Builder.;@nspemit %q<t1>=announce(BUILDER) %n has granted you Builder powers.;@switch/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy v(VAR`BUILDER`ALERTSCHANNEL)=%n has made %q<t1name> a Builder.}
 
-&INC`BUILDER`REM u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@assert haspower(%q<t1>,BUILDER)=@nspemit %#=announce(BUILDER)%BERROR: They are not a Builder.;@power %q<t1>=!builder !link_anywhere !open_anywhere !no_quota !no_pay !pick_dbref;@nspemit %#=announce(BUILDER)%BYou have revoked %q<t1name>'s Builder powers.;@nspemit %q<t1>=announce(BUILDER) %n has revoked your Builder powers.;@switch/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy v(VAR`BUILDER`ALERTSCHANNEL)=%n has revoked %q<t1name>'s Builder powers.}
+&INC`BUILDER`REM u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@assert haspower(%q<t1>,BUILDER)=@nspemit %#=announce(BUILDER)%BERROR: They are not a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=!builder !link_anywhere !open_anywhere !no_quota !no_pay !pick_dbref;@set %q<t1>=UNREGISTERED;@nspemit %#=announce(BUILDER)%BYou have revoked %q<t1name>'s Builder powers.;@nspemit %q<t1>=announce(BUILDER) %n has revoked your Builder powers.;@switch/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy v(VAR`BUILDER`ALERTSCHANNEL)=%n has revoked %q<t1name>'s Builder powers.}
 
 &VAR`BUILDER`ADMINFLAGS u(cao)=ADD|REM
 
