@@ -5,10 +5,17 @@
 @parent u(tco)=u(coi)
 @set u(tco)=WIZARD !NO_COMMAND
 
-&CMD`TEL u(tco)=$^(?\:\+)?tel(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(tco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(tco)/VAR`ADMINFLAGS)),|,|),|,TEL,switch,switch;@include u(tco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@switch/inline isdbref(u(tdb))=0,{@switch/inline isdbref(u(tco))=1,{@tel create(Tel Database Object <TDB>)=u(tco)}}
+&tdb u(coi)=locate(u(tco),Tel Database Object <TDB>,TXxi)
+@parent u(tdb)=u(coi)
+@set u(tdb)=WIZARD SAFE
+@power u(tdb)=many_attribs
+
+&CMD`TEL u(tco)=$^(?\:\+)?(?\:tel|grid|map|travel)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(tco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(tco)/VAR`ADMINFLAGS)),|,|),|,TEL,switch,switch;@include u(tco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(tco)/CMD`TEL=regexp
 
-&VAR`ADMINFLAGS u(tco)=ADD|DEL|LOCK|UNLOCK|DIST
+&VAR`TEL`PLAYFLAGS u(tco)=
+&VAR`TEL`ADMINFLAGS u(tco)=ADD|DEL|LOCK|UNLOCK|MAKEDIST|DESTROYDIST|DESC
 
 &INC`MAIN u(tco)=@assert words(setr(0,sortkey(#lambda/strfirstof(stripansi(get_eval(before(\%0,~)/COLORNAME)),name(before(\%0,~))),if(isadmin(%#),filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),filterbool(FILTER_VISROOM,filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),|,|)),i,|,|)),|)=@nspemit %#=ERROR: No Tel locations registered.;@switch/inline strlen(%0)=0,{@include u(tco)/INC`MAIN`LISTDIST},{@switch/inline regmatchi(%0,^#\\d+$)=0,{@include u(tco)/INC`MAIN`SHOWDIST},1,{@switch/inline isadmin(%#)=0,{@assert words(setr(0,if(isadmin(%#),filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),filterbool(FILTER_VISROOM,filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),|,|))),|)=@nspemit %#=ERROR: No Tel locations registered.;@assert match(%q0,%0~*,|)=@nspemit %#=ERROR: %0 doesn't match a DBREF.;@break strmatch(loc(%#),%0)=@nspemit %#=You are already there!;@tel %#=%0},1,{@assert hastype(%0,ROOM)=@nspemit %#=ERROR: That is not a room!;@tel %#=%0}}}
 

@@ -12,6 +12,9 @@
 @@ VERIFY Arguments: %0 = message to display, %1 = code to set for verification, %2 = Title for Announce.
 
 &INC`CPTREE u(ccs)=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/%i0=%2/%3`[elements(%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)]}
+
+&GFN`CPTREE u(ccs)=null(attrib_set(%2/%#,get(%0/%1))[iter(lattr(%0/%1`**),attrib_set(%2/%3`[elements(%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)],get(%0/%i0)))])
+
 @@ CPTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
 
 &INC`MVTREE u(ccs)=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/%i0=%2/%3`[elements(%i0,lnum(add(1,words(%1,`)),add(words(%1,`),11)),`,`)]};@switch/inline hasflag(%0,SAFE)=1,{@set %0=!SAFE;@wipe %0/%1;@set %0=SAFE},0,{@wipe %0/%1}

@@ -4,13 +4,7 @@
 &scenesys u(coi)=locate(config(master_room),Scene System,TXxi)
 @parent u(scenesys)=u(coi)
 @set u(scenesys)=WIZARD !NO_COMMAND VISUAL ORPHAN
-
-@create Scene System
-@link u(scenesys) = #691
-@lock/Basic u(scenesys)=u(scenesys)
-@lset u(scenesys)/Basic=no_inherit
 @lock/Command u(scenesys)=FN`IS`RIGHTVERSION/1&FN`IS`SETUP/1
-@lset u(scenesys)/Command=no_inherit
 
 &ACONNECT u(scenesys)=@@ This will run anything placed under the INCLUDE`CONNECT attribute tree. This way you can split things up if you want to keep things tidy - or want to have an easy time telling apart your own additions.                                                                                     ; @dolist lattr(me/include`connect`)=@include me/%il=%:
 @set u(scenesys)/ACONNECT=no_command prefixmatch

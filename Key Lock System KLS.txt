@@ -39,10 +39,11 @@
 
 &INC`KEY`REM u(kls)=@include u(kls)/INC`KEYNAME=%0;@assert match(u(u(kls)/FUN`LISTLOCKS,1),%q<key>)=@nspemit %#=announce(KEY) ERROR: That Key Type doesn't exist!;@assert elock(u(kdb)/%q<key>-HANDLER,%#)=@nspemit %#=announce(KEY) ERROR: You are not authorized to handle that Key!;@include u(ccs)/INC`CHECKPC=%1,1,KEY;@assert match(get(u(kdb)/LOCK`%q<key>`HOLDERS),%q<t1objid>)=@nspemit %#=announce(KEY) ERROR: %q<t1name> does not have that Key.;&LOCK`%q<key>`HOLDERS u(kdb)=filterbool(#lambda/isobjid(\%0),setdiff(get(u(kdb)/LOCK`%q<key>`HOLDERS),%q<t1objid>));@nspemit %#=announce(KEY) You revoke %q<t1name>'s %q<key> Key.;@nspemit %q<t1>=announce(KEY) %n revoked your %q<key> Key!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) revoked %q<t1name>'s %q<key> Key.}
 
-&INC`KEY`CONFIG u(kls)=@include u(kls)/INC`KEYNAME=before(%0,/);@assert match(u(u(kls)/FUN`LISTLOCKS,1),%q<key>,|)=@nspemit %#=announce(KEY) ERROR: That Key Type doesn't exist!;@assert elock(u(kdb)/%q<key>-OWNER,%#)=@nspemit %#=announce(KEY) ERROR: Players may not configure Key Types they do not own.;@include u(ccs)/INC`PARTIAL=after(%0,/),BUILDER|APPROVED|GROUP|SPLAT|SPHERE|KEY,|,KEY,parameter,parameter;@switch/inline strlen(%1)=0,{&LOCK`%q<key>`%q<parameter> u(kdb);@nspemit %#=announce(KEY) You cleared Key Type %q<key>'s %q<paramter> Setting.},{@include u(kls)/INC`KEY`CONFIG`%q<parameter>;&LOCK`%q<key>`%q<parameter> u(kdb)=%q<entry>;@nspemit %#=announce(KEY) You set Key Type %q<key>'s %q<parameter> Setting to: %q<entry>}
+&INC`KEY`CONFIG u(kls)=@include u(kls)/INC`KEYNAME=before(%0,/);@assert match(u(u(kls)/FUN`LISTLOCKS,1),%q<key>)=@nspemit %#=announce(KEY) ERROR: That Key Type doesn't exist!;@assert elock(u(kdb)/%q<key>-OWNER,%#)=@nspemit %#=announce(KEY) ERROR: Players may not configure Key Types they do not own.;@include u(ccs)/INC`PARTIAL=after(%0,/),BUILDER|APPROVED|NOAPPROVED|GROUP|SPLAT|SPHERE|KEY,|,KEY,parameter,parameter;@switch/inline strlen(%1)=0,{&LOCK`%q<key>`%q<parameter> u(kdb);@nspemit %#=announce(KEY) You cleared Key Type %q<key>'s %q<paramter> Setting.},{@include u(kls)/INC`KEY`CONFIG`%q<parameter>;&LOCK`%q<key>`%q<parameter> u(kdb)=%q<entry>;@nspemit %#=announce(KEY) You set Key Type %q<key>'s %q<parameter> Setting to: %q<entry>}
 
 &INC`KEY`CONFIG`BUILDER u(kls)=th setq(entry,t(%1))
 &INC`KEY`CONFIG`APPROVED u(kls)=th setq(entry,t(%1))
+&INC`KEY`CONFIG`NOAPPROVED u(kls)=th setq(entry,t(%1))
 &INC`KEY`CONFIG`GROUP u(kls)=@assert lmath(min,setr(entry,iter(%1,u(u(gso)/FUN`FINDGROUP,%i0))))=@nspemit %#=announce(KEY) ERROR: One or more Groups was not found. Groups are separated by spaces so use their IDs or ALIASes!
 &INC`KEY`CONFIG`SPLAT u(kls)=@assert lmath(min,iter(setr(entry,sort(ucstr(%1))),match(get(u(ex-cdo)/VAR`SPLATS),%i0,|)))=@nspemit %#=announce(KEY) ERROR: One or more Splats was not found. Splats are separated by spaces.
 &INC`KEY`CONFIG`SPHERE u(kls)=@assert lmath(min,iter(setr(entry,sort(ucstr(%1))),match(get(u(ncdo)/VAR`SPHERES),%i0,|)))=@nspemit %#=announce(KEY) ERROR: One or more Spheres was not found. Spheres are separated by spaces.
@@ -66,6 +67,7 @@
 
 &FUN`LOCKCHECK`OR u(kls)=lmath(max,iter(lattr(u(kls)/FUN`LOCKCHECK`OR`*),u(%i0,%0,%1,%2)))
 &FUN`LOCKCHECK`OR`ADMIN u(kls)=isadmin(%0)
+&FUN`LOCKCHECK`OR`NOAPPROVED u(kls)=if(default(u(kdb)/LOCK`%2`NOAPPROVED,0),not(approved(%0)))
 &FUN`LOCKCHECK`OR`HOLDERS u(kls)=match(get(u(kdb)/LOCK`%2`HOLDERS),%0)
 &FUN`LOCKCHECK`OR`BUILDER u(kls)=if(default(u(kdb)/LOCK`%2`BUILDER,0),haspower(%0,BUILDER),0)
 &FUN`LOCKCHECK`OR`SPLAT u(kls)=if(strlen(get(u(kdb)/LOCK`%2`SPLAT)),match(get(u(kdb)/LOCK`%2`SPLAT),getstat(%0/D`INFO,Splat)),0)

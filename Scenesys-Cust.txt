@@ -1,7 +1,36 @@
-&FN`GET`BBPOST u(scenesys)=baseconv(before(grep(v(data`scheduleboard_db),*`HDR,Schedule #%0:),`),36,10)
-
-&DATA`SQL`DATABASE u(scenesys)=smtmush_main
-&DATA`SCHEDULEBOARD u(scenesys)=Scene Announcements
-&DATA`SCHEDULEBOARD_DB u(scenesys)=#311
+@@ MAIN PATCH
+&FN`GET`BBPOST u(scenesys)=match(u(u(bbs)/FUN`LISTPOSTS,v(data`scheduleboard_db)),before(grep(v(data`scheduleboard_db),*`HDR,Schedule #%0:),`))
 &FN`IS`STAFF u(scenesys)=switch([isadmin(%0)],#-1 FUNCTION *,orflags(%0,Wr),stext(0))
 &GFN`ISIC u(gfo)=default(loc(%0)/IC,1)
+&SAY_FN u(ap)=color(%!,",IC`QUOTES,n)[color(%!,%0,IC`SPEECH,n)][color(%!,",IC`QUOTES,n)]
+
+&INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1) ; @dol/inline [lockfilter(lastpose`post:1,lvplayers(%L))]=@pemit ##=[u(fn`display`footer,<%b[u(fn`islogged,name(%1),%1,%0)]End of [ansi(hw,accname(%1))]'s pose%b>,,##)] ; &lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
+
+&INCLUDE`LASTPOSE`PREPOSE u(scenesys)=@assert u(fn`is`ic,%1) ; @dol/inline [lockfilter(lastpose`pre:1,lvplayers(%L))]=@nspemit ##=u(fn`display`header,<%b[u(fn`islogged,name(%1),%1,%0)][ansi(+white,accname(%1))] has posed%b>,,##)
+
+
+th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),IC,|,|))
+&VAR`CATEGORIES`IC u(cco)=SPEECH|QUOTES
+
+&DATA`SCHEDULEBOARD u(scenesys)=Scene Announcements
+
+@@ SMT MUSH
+&DATA`SQL`DATABASE u(scenesys)=smtmush_main
+&DATA`SCHEDULEBOARD_DB u(scenesys)=#311
+
+@@ GUNSTAR MUSH
+&DATA`SQL`DATABASE u(scenesys)=phantasm_main
+&DATA`SCHEDULEBOARD_DB u(scenesys)=#334
+
+@@ NOBN MUSH
+&DATA`SQL`DATABASE u(scenesys)=m280lea_mwiki
+&D`COLOR`IC`SPEECH u(ap)=hx
+&D`COLOR`IC`QUOTES u(ap)=hx
+
+&DATA`URL`BASE u(scenesys)=projectfiction.net/scene/
+&DATA`URL`VIEW u(scenesys)=view.php?id=
+
+&INCLUDE`LASTPOSE`PREPOSE u(scenesys)=@assert u(fn`is`ic,%1);@dolist/inline [lockfilter(lastpose`pre:1,lvplayers(%L))]=@nspemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)][ansi(+white,accname(%1))] has posed%b>,78)
+
+&INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);@dolist/inline [lockfilter(lastpose`post:1,lvplayers(%L))]=@pemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)]End of [ansi(hw,accname(%1))]'s pose%b>,78);&lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
+

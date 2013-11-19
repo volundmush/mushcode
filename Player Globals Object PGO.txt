@@ -7,10 +7,23 @@
 
 &CMD`CHARSET u(pgo)=$+charset:@nspemit %#=wrap(iter(lnum(32,256),if(comp(first(chr(%i0)),#-1,A),ljust([ljust(%i0:,4)] [ansi(hy,chr(%i0))],7)), ,),78)
 
-&CMD`+BEEP u(pgo)=$+beep *:@include u(ccs)/INC`CHECKPC=%0,1,BEEP;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=That player is offline.;@nspemit %q<t1>=beep()[ansi(hr,%n wishes for your attention! BEEP!)];@nspemit %#=You have sent %q<t1name> a beep!
+&CMD`+BEEP u(pgo)=$^(?\:\+)beep(?\: +(.*))?$:@include u(ccs)/INC`CHECKPC=%1,1,BEEP;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=That player is offline.;@nspemit %q<t1>=beep()[ansi(hr,%n wishes for your attention! BEEP!)];@nspemit %#=You have sent %q<t1name> a beep!
 
-&CMD`+WHO u(pgo)=$+who:@nspemit %#=header(+Who)%R[align(30 -10 -3 -4 3 23,ansi(hb,Name),ansi(hb,Alias),ansi(hb,Sex),ansi(hb,Idle),ansi(hb,Con),ansi(hb,Location))]%R[subheader()];th null(iter(setr(list,setunion(lwho(%#),lwho(%#),,namei)),nspemit(%#,ljust(left(pueblize(if(and(orflags(%i0,HU),isadmin(%#)),ansi(hx,name(%i0)),name(%i0)),+finger [name(%i0)]),28),28)%B%B[ljust(center(left(alias(%i0),10),10),10)]%B%B[ljust(center(left(get(%i0/SEX),1),3),3)]%B[rjust(ago(idle(%i0)),3)]%B%B[rjust(ago(conn(%i0)),3)]%B%B[pueblize(left(name(loc(%i0)),23),join [name(%i0)])])));@nspemit %#=header(words(%q<list>) Characters from [words(setunion(iter(%q<list>,get(%i0/LASTIP)),iter(%q<list>,get(%i0/LASTIP))))] IPs Connected)
+&CMD`+WHO u(pgo)=$^(?\:\+)?who$:@nspemit %#=header(mudname() Connected Players)%R[align(30 -10 -3 -4 3 23,ansi(hc,Name),ansi(hc,Alias),ansi(hc,Sex),ansi(hc,Idle),ansi(hc,Con),ansi(hc,Location))]%R[subheader()];@dolist/inline setr(list,setunion(lwho(%#),lwho(%#),,namei))={@nspemit %#=u(FUN`WHO,%i0,%#)};@switch/inline gt(setr(max,words(setunion(iter(%q<list>,get(%i0/LASTIP)),))),v(VAR`MAXPLAYERS))=1,{&VAR`MAXPLAYERS u(pgo)=%q<max>};@nspemit %#=header(words(%q<list>) Characters from %q<max> IPs Connected - Record is [v(VAR`MAXPLAYERS)])
+@set u(pgo)/CMD`+WHO=regexp
+
+&FUN`WHO u(pgo)=align(30 -10 -3 -4 3 23,left(pueblize(if(and(orflags(%0,HUD),isadmin(%1)),ansi(hx,name(%0)),color(%1,name(%0),WHO`NAME,n)),+finger [name(%0)]),28),left(color(%1,alias(%0),WHO`ALIAS,n),10),left(color(%1,default(%0/SEX,?),WHO`SEX,n),1),color(%1,lastidle(%0,%1),WHO`IDLE,n),color(%1,ago(conn(%0)),WHO`CON,n),switch(1,and(isadmin(%1),or(hasflag(%0,UNFINDABLE),hasflag(room(loc(%0)),UNFINDABLE))),pueblize(left(color(%1,name(room(loc(%0))),WHO`LOCATION,hx),23),join [name(%0)]),or(hasflag(%0,UNFINDABLE),hasflag(room(loc(%0)),UNFINDABLE)),*UNFINDABLE*,pueblize(left(color(%1,name(room(loc(%0))),WHO`LOCATION,n),23),join [name(%0)])))
 
 &CMD`+FLIP u(pgo)=$+flip:th setq(roll,rand(0,100));@switch/inline %q<roll>=50,{@nsremit %l=announce(FLIP) [ansi(h,%n)] flipped a coin: [switch(rand(1,6),1,it landed on its side!,2,a Demon grabbed it!,3,it never comes back down...,4,when it lands\, both sides are blank.,5,Reality Error 404: Coin not found!,6,it's drawn into a parallel universe!)]},>50,{@nsremit %l=announce(FLIP) [ansi(h,%n)] flipped a coin: Heads!},{@nsremit %l=announce(FLIP) [ansi(h,%n)] flipped a coin: Tails!}
 
+&CMD`+OOC u(pgo)=$^(?s)(?\:\+)?(ooc|osay)(?\: +(.*))?$:@assert strlen(%2)=@nspemit %#=What will you say?;@message/spoof lplayers(%l)=%2,u(pgo)/FUN`MSGOOC,%#,##,%2
+@set u(pgo)/CMD`+OOC=regexp
 
+&CMD`QUIT u(pgo)=$^(quit|logoff|logout)$:@boot/silent %#
+@set u(pgo)/CMD`QUIT=regexp
+
+&FUN`MSGOOC u(pgo)=color(%1,-<,OOC`BORDER,hx)[color(%1,OOC,OOC`HEADER,hr)][color(%1,>-,OOC`BORDER,hx)]%B[if(isadmin(%0),ansi(h,\[Staff\]%B))][speak(&[color(%1,name(%0),OOC`NAME,n)],%2,color(%1,says\,,OOC`SAYSTRING,n),#lambda/\[color(%1,",OOC`QUOTES,n)\]\[color(%1,\%0,OOC`SPEECH,n)\]\[color(%1,",OOC`QUOTES,n)\])]
+
+th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),OOC|WHO,|,|))
+&VAR`CATEGORIES`OOC u(cco)=SPEECH|NAME|HEADER|BORDER|QUOTES|SAYSTRING
+&VAR`CATEGORIES`WHO u(cco)=NAME|ALIAS|SEX|IDLE|CON|LOCATION

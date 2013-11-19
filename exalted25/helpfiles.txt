@@ -5,3 +5,9 @@
 +help/addmain General OOC/+recall=[ansi(h,+recall)]%RThis command returns you to the Player Nexus.
 
 +help/addmain General IC/+look=[ansi(h,+look)]%rShows the short descriptions and a selection of social stats for every person in the room.
+
+
+@@ CHARACTER - +XP
++help/addmain Character/+xp=[ansi(h,+xp)]%RDisplays your current XP totals.%R%R[ansi(h,+xp/gained)] or [ansi(h,+xp/spent)]%RDisplays details about your XP gains and spends.
+
++shelp/addmain Character/+xp=[ansi(h,+xp <name>)]%RCheck a player's XP totals.%R%R[ansi(h,+xp/gained <name>)] or [ansi(h,+xp/spent <name>)]%RDisplays details about a player's XP gains and spends.%R%R[ansi(h,+xp/delgained <name>=<#>)] or [ansi(h,+xp/delspent <name>=<#>)]%RDeletes a player's XP Spent or Gained entry. Does NOT add or subtract XP!%R%R[ansi(h,+xp/award <reason>=<list|of|players>=<#>)] and [ansi(h,+xp/spend <reason>=<list|of|players>=<#>)]%RAwards or Spends XP. <list|of|players> can be either a single name or several player names separated by | to mass-apply gains or spends.

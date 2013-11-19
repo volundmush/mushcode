@@ -1,0 +1,10 @@
+@@ This patch drastically increases the speed at which Anomaly Jobs does just about anything. Use at your own risk.
+
+&job u(coi)=locate(config(master_room),Job Global Object <JGO>,TXxi)
+@edit u(job)/*=@switch,@switch/inline
+@edit u(job)/*=@force,@force/inplace
+@edit get(u(job)/va)/*=@trigger %va,@include/clearregs/localize/nobreak %va
+
+&FN_STAFFALL get(u(job)/va)=isadmin(%0)
+
+@@ To make the BBS work, you'll have to set the Job Parent Object <JPO>'s BBPOCKET attribute with the DBREF of this suite's own BBS system - we don't have a BBPOCKET and this works just as well. Use the BOARD DBREFS feature of Anomaly as normal and all will be well.

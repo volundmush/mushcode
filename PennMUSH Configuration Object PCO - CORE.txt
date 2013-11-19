@@ -3,8 +3,9 @@
 @switch/inline isdbref(u(pco))=0,{@tel create(PennMUSH Configuration Object <PCO>)=config(master_room)}
 &pco u(coi)=locate(config(master_room),PennMUSH Configuration Object <PCO>,TXxi)
 @parent u(pco)=u(coi)
-@set u(pco)=WIZARD
+@set u(pco)=WIZARD SAFE
 
-&STARTUP u(pco)=@attribute/access/retroactive descformat=WIZARD;@attribute/access/retroactive chatformat=WIZARD;@function/restrict cwho=wizard;@attribute/access/retroactive short-desc=visual;@attribute/access/retroactive playstatus=WIZARD VISUAL;@attribute/access/retroactive D=WIZARD MORTAL_DARK
+&STARTUP u(pco)=@attribute/access/retroactive short-desc=visual;@attribute/access/retroactive D=WIZARD MORTAL_DARK;@include u(pco)/STARTUP`EXTRA
+
 
 &PLAYER`DISCONNECT`TELGUEST u(pco)=@assert %1;@switch/inline gt(haspower(%0,GUEST),0)=1,{@tel %0=config(player_start)}

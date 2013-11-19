@@ -1,0 +1,8 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(wgo))=0,{@tel create(Wizard Globals Object <WGO>)=config(master_room)}
+&wgo u(coi)=locate(config(master_room),Wizard Globals Object <WGO>,TXxi)
+@parent u(wgo)=u(coi)
+@set u(wgo)=WIZARD !NO_COMMAND
+@lock/command u(wgo)=FLAG^WIZARD
+

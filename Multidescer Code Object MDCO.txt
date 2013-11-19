@@ -1,27 +1,26 @@
-@switch/inline isdbref(u(mdco))=0,{@tel create(Multidescer Code Object <MDCO>)=config(master_room)}
-&mdco u(coi)=locate(config(master_room),Multidescer Code Object <MDCO>,TXxi)
-@parent u(mdco)=u(coi)
-@set u(mdco)=WIZARD !NO_COMMAND
+@switch/inline isdbref(u(desc))=0,{@tel create(Multidescer Code Object <DESC>)=config(master_room)}
+&desc u(coi)=locate(config(master_room),Multidescer Code Object <DESC>,TXxi)
+@parent u(desc)=u(coi)
+@set u(desc)=WIZARD SAFE !NO_COMMAND
 
-&CMD`+DESC u(mdco)=$^(?s)(?\:\+)?desc(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(mdco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(mdco)/VAR`ADMINFLAGS)),|,|),|,DESC,switch,switch;@include u(mdco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
-@set u(mdco)/CMD`+DESC=regexp
+&CMD`+DESC u(desc)=$^(?s)(?\:\+)?desc(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(desc)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(desc)/VAR`ADMINFLAGS)),|,|),|,DESC,switch,switch;@include u(desc)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set u(desc)/CMD`+DESC=regexp
 
-&VAR`PLAYFLAGS u(mdco)=SAVE|DELETE|NOISY|VIEW|RENAME
-&VAR`ADMINFLAGS u(mdco)=
+&VAR`PLAYFLAGS u(desc)=SAVE|DELETE|NOISY|VIEW|RENAME
+&VAR`ADMINFLAGS u(desc)=
 
-&INC`MAIN u(mdco)=@switch/inline strlen(%0)=0,{@nspemit %#=header(Your Saved Descriptions);@nspemit %#=table(iter(lattr(%#/D`DESC`*),get(%#/%i0),%b,|),26,78,|);@nspemit %#=header()},{@assert strlen(setr(attr,u(FUN`LOCDESC,%#,%0)))=@nspemit %#=announce(DESC) ERROR: Desc '%0' not found!;@switch/inline %2=1,{@nsremit %l=announce(DESC) [ansi(h,%n)] changed to %p '[get(%#/%q<attr>)]' Description!},{@nspemit %#=announce(DESC) You change to your '[get(%#/%q<attr>)]' Description!};@cpattr %#/%q<attr>`DESC=%#/DESCRIBE}
+&INC`MAIN u(desc)=@switch/inline strlen(%0)=0,{@nspemit %#=header(Your Saved Descriptions);@nspemit %#=table(iter(lattr(%#/D`DESC`*),get(%#/%i0),%b,|),26,78,|);@nspemit %#=header()},{@assert strlen(setr(attr,u(FUN`LOCDESC,%#,%0)))=@nspemit %#=announce(DESC) ERROR: Desc '%0' not found!;@switch/inline %2=1,{@nsremit %l=announce(DESC) [ansi(h,%n)] changed to %p '[get(%#/%q<attr>)]' Description!},{@nspemit %#=announce(DESC) You change to your '[get(%#/%q<attr>)]' Description!};@cpattr %#/%q<attr>`DESC=%#/DESCRIBE}
 
-&INC`NOISY u(mdco)=@include u(mdco)/INC`MAIN=%0,%1,1
+&INC`NOISY u(desc)=@include u(desc)/INC`MAIN=%0,%1,1
 
-&FUN`LOCDESC u(mdco)=grepi(%0,D`DESC`*,%1)
+&FUN`LOCDESC u(desc)=regrepi(%0,D`DESC`*,^%1$)
 
-&INC`SAVE u(mdco)=@assert strlen(%0)=@nspemit %#=announce(DESC) ERROR: Desc name field empty!;@switch/inline strlen(setr(attr,u(FUN`LOCDESC,%#,%0)))=0,{th setq(attr,D`DESC`[nextslot(%#,D`DESC)])},{@include u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)] This will overwrite the existing file. Enter the same command within ten seconds to verify.},DESC %0,DESC};@switch/inline strlen(%1)=0,{&%q<attr> %#=%0;@cpattr %#/DESCRIBE=%#/&%q<attr>`DESC;@nspemit %#=announce(DESC) Your current Description has been saved as '%0'!},{&%q<attr> %#=%0;&%q<attr>`DESC %#=%1;@nspemit %#=announce(DESC) The entered description was saved as '%0'!}
+&GFN`MDESC u(desc)=if(strlen(u(FUN`LOCDESC,%0,%1)),get(%0/[u(FUN`LOCDESC,%0,%1)]`DESC))
 
-&INC`DELETE u(mdco)=@assert strlen(%0)=@nspemit %#=announce(DESC) ERROR: Desc name field empty!;@assert strlen(setr(attr,u(FUN`LOCDESC,%#,%0)))=@nspemit %#=announce(DESC) ERROR: Desc not found!;@include u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)] Deleting Desc '%0'. This cannot be undone. Are you sure you want to do this? Enter the same command again within ten seconds to verify.},DESC DELETE %0,DESC;th setq(name,get(%#/%q<attr>));@nspemit %#=announce(DESC) Desc '%q<name>' DELETED.;@wipe %#/%q<attr>
+&INC`SAVE u(desc)=@assert strlen(%0)=@nspemit %#=announce(DESC) ERROR: Desc name field empty!;@switch/inline strlen(setr(attr,u(FUN`LOCDESC,%#,%0)))=0,{th setq(attr,D`DESC`[nextslot(%#,D`DESC)])},{@include u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)] This will overwrite the existing file. Enter the same command within ten seconds to verify.},DESC %0,DESC};@switch/inline strlen(%1)=0,{&%q<attr> %#=%0;@cpattr %#/DESCRIBE=%#/%q<attr>`DESC;@nspemit %#=announce(DESC) Your current Description has been saved as '%0'!},{&%q<attr> %#=%0;&%q<attr>`DESC %#=%1;@nspemit %#=announce(DESC) The entered description was saved as '%0'!}
 
-&INC`VIEW u(mdco)=@assert strlen(%0)=@nspemit %#=announce(DESC) ERROR: Desc name field empty!;@assert strlen(setr(attr,u(FUN`LOCDESC,%#,%0)))=@nspemit %#=announce(DESC) ERROR: Desc not found!;@nspemit %#=header(Viewing Description: '[get(%#/%q<attr>)]');@nspemit %#=get(%#/%q<attr>`DESC);@nspemit %#=header()
+&INC`DELETE u(desc)=@assert strlen(%0)=@nspemit %#=announce(DESC) ERROR: Desc name field empty!;@assert strlen(setr(attr,u(FUN`LOCDESC,%#,%0)))=@nspemit %#=announce(DESC) ERROR: Desc not found!;@include u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)] Deleting Desc '%0'. This cannot be undone. Are you sure you want to do this? Enter the same command again within ten seconds to verify.},DESC DELETE %0,DESC;th setq(name,get(%#/%q<attr>));@nspemit %#=announce(DESC) Desc '%q<name>' DELETED.;@wipe %#/%q<attr>
 
-&INC`RENAME u(mdco)=@assert strlen(%0)=@nspemit %#=announce(DESC) ERROR: Desc name field empty!;@assert strlen(setr(attr,u(FUN`LOCDESC,%#,%0)))=@nspemit %#=announce(DESC) ERROR: Desc not found!;@assert strlen(%1)=@nspemit %#=announce(DESC) ERROR: New desc name field empty!;@break strlen(setr(attr2,u(FUN`LOCDESC,%#,%1)))=@nspemit %#=announce(DESC) ERROR: A desc with that name already exists!;@nspemit %#=announce(DESC) Desc '%0' renamed to '%1'!;&%q<attr> %#=%1
+&INC`VIEW u(desc)=@assert strlen(%0)=@nspemit %#=announce(DESC) ERROR: Desc name field empty!;@assert strlen(setr(attr,u(FUN`LOCDESC,%#,%0)))=@nspemit %#=announce(DESC) ERROR: Desc not found!;@nspemit %#=header(Viewing Description: '[get(%#/%q<attr>)]');@nspemit %#=get(%#/%q<attr>`DESC);@nspemit %#=header()
 
-
-+help/addmain General OOC/+desc=+desc is a general multidescer, aka a bit of softcode used to save premade or existing @descs to your character for quick retrieval. This is useful for writing different appearances for different outfits or hairstyles, for example, and being able to switch with a simple command.%R%R[ansi(h,+desc \[<filename>\])]%RBy itself, +desc lists all of your saved descriptions by name. Given a name, it switches you to that description. Your current @desc will be overwritten!%R%R[ansi(h,+desc/noisy <filename>)]%RWorks like +desc, but announces the change to the room. Useful for dramatics.%R%R[ansi(h,+desc/save <filename>\[=<description>\])]%RWith only a filename entered, this command saves your current @desc to a desc file. If given a description after an equals sign, saves that to it instead.%R%R[ansi(h,+desc/rename <filename>=<newname>)]%RRenames a description file.%R%R[ansi(h,+desc/view <filename>)]%RShows you one of your saved descs without changing to it.
+&INC`RENAME u(desc)=@assert strlen(%0)=@nspemit %#=announce(DESC) ERROR: Desc name field empty!;@assert strlen(setr(attr,u(FUN`LOCDESC,%#,%0)))=@nspemit %#=announce(DESC) ERROR: Desc not found!;@assert strlen(%1)=@nspemit %#=announce(DESC) ERROR: New desc name field empty!;@break strlen(setr(attr2,u(FUN`LOCDESC,%#,%1)))=@nspemit %#=announce(DESC) ERROR: A desc with that name already exists!;@nspemit %#=announce(DESC) Desc '%0' renamed to '%1'!;&%q<attr> %#=%1

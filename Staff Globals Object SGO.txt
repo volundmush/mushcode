@@ -4,7 +4,7 @@
 &sgo u(coi)=locate(config(master_room),Staff Globals Object <SGO>,TXxi)
 @parent u(sgo)=u(coi)
 @set u(sgo)=WIZARD !NO_COMMAND
-@lock/use u(sgo)=ISADMIN/1
+@lock/command u(sgo)=ISADMIN/1
 
 &ISADMIN u(sgo)=isadmin(%#)
 

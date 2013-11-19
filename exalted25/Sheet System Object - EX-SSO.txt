@@ -86,7 +86,7 @@
 
 
 
-&FUN`FOOTER u(ex-sso)=u(FUN`COLOR,%1,BORDER,|----------------------------------------------------------------------------|)%R[u(FUN`COLOR,%1,BORDER,\\)]%B[ansi(strfirstof(v(VAR`COLOR`%1`PSM),n),XP:)]%B[u(FUN`COLOR,%1,PSM,rjust(sub(setr(g,u(u(ex-ept)/FUN`COUNT,%0,G)),u(u(ex-ept)/FUN`COUNT,%0,S)),4,0))][u(FUN`COLOR,%1,BORDER,/)][u(FUN`COLOR,%1,PSM,rjust(%qg,4,0))][rjust(u(u(ex-sso)/FUN`GETSERIES,%1),61)]%B[u(FUN`COLOR,%1,BORDER,/)]%R%B[u(FUN`COLOR,%1,BORDER,'--------------------------------------------------------------------------')]
+&FUN`FOOTER u(ex-sso)=u(FUN`COLOR,%1,BORDER,|----------------------------------------------------------------------------|)%R[u(FUN`COLOR,%1,BORDER,\\)]%B[ansi(strfirstof(v(VAR`COLOR`%1`PSM),n),XP:)]%B[u(FUN`COLOR,%1,PSM,rjust(sub(setr(g,u(u(xp)/FUN`COUNT,%0,G)),u(u(xp)/FUN`COUNT,%0,S)),4,0))][u(FUN`COLOR,%1,BORDER,/)][u(FUN`COLOR,%1,PSM,rjust(%qg,4,0))][rjust(u(u(ex-sso)/FUN`GETSERIES,%1),61)]%B[u(FUN`COLOR,%1,BORDER,/)]%R%B[u(FUN`COLOR,%1,BORDER,'--------------------------------------------------------------------------')]
 
 &FUN`GETSERIES u(ex-sso)=switch(%0,SOLAR,ansi(hy,Solars):%B[ansi(hy,The Lawgivers)],ABYSSAL,ansi(hx,Abyssals):%B[ansi(hx,The Deathknights)],INFERNAL,ansi(hg,Infernals):%B[ansi(hg,The Green Sun Princes)],LUNAR,ansi(hc,Lunars):%B[ansi(hc,The Stewards)],SIDEREAL,ansi(hm,Sidereals):%B[ansi(hm,The Viziers)],DRAGON-BLOODED,ansi(hr,Terrestrials):%B[ansi(hr,The Dragon-Blooded)],ALCHEMICAL,ansi(c,Alchemicals):%B[ansi(c,The Champions)],JADEBORN,ansi(y,Jadeborn),RAKSHA,ansi(m,Raksha):%B[ansi(m,The Fair Folk)],MORTAL,Mortals:%BThe Heroes,GHOST,Ghosts,DRAGON-KING,Dragon-Kings,GOD-BLOODED,ansi(h,GOD-BLOODED):%B[ansi(h,The Children of the Mighty)],Exalted 2.5e)
 
