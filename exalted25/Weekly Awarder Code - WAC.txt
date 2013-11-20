@@ -5,11 +5,11 @@
 @parent u(wac)=u(coi)
 @set u(wac)=WIZARD !NO_COMMAND
 
-&TRG`WEEKLY u(wac)=&VAR`WEEKS me=add(1,default(me/VAR`WEEKS,0));@dolist/inline setr(list,lsearch(all,eplayer,\[and(not(haspower(##,GUEST)),not(isadmin(##)),lt(sub(secs(),default(##/D`LASTIC,0)),604800),approved(##))\]))={@trigger u(wac)/TRG`AWARD=%i0}
+&TRG`WEEKLY u(wac)=&VAR`WEEKS me=add(1,default(me/VAR`WEEKS,0));@assert words(setr(list,lsearch(all,eplayer,\[and(not(haspower(##,GUEST)),not(isadmin(##)),lt(sub(secs(),default(##/D`LASTIC,0)),604800),approved(##))\])));@force/inline v(VAR`FORCECHAR)={+xp/award %q<list>=[default(me/VAR`WEEKLY,8)]/Weekly XP};@wait 1=@dolist %q<list>=@trigger me/INC`CATCHUP=%i0
 
-&TRG`AWARD u(wac)=@force/inline v(VAR`FORCECHAR)={+xp/award Weekly XP=%0=[default(me/VAR`WEEKLY,8)]};@wait 2={@trigger me/INC`CATCHUP=%0}
+&TRG`AWARD u(wac)=@force/inline v(VAR`FORCECHAR)={+xp/award %i0=[default(me/VAR`WEEKLY,8)]/Weekly XP};@wait 2={@trigger me/INC`CATCHUP=%0}
 
-&INC`CATCHUP u(wac)=@assert lt(setr(curxp,u(u(ex-ept)/FUN`COUNT,%0,G)),u(FUN`STANDARD));@switch/inline gt(setr(diff,sub(u(FUN`STANDARD),%q<curxp>)),mul(default(me/VAR`CATCHUPMUL,0),default(me/VAR`WEEKLY,0)))=1,{@force/inline v(VAR`FORCECHAR)={+xp/award Weekly Catchup=%0=[mul(default(me/VAR`CATCHUPMUL,0),default(me/VAR`WEEKLY,0))]}},0,{@force/inline v(VAR`FORCECHAR)={+xp/award Weekly Catchup=%0=%q<diff>}}
+&INC`CATCHUP u(wac)=@assert lt(setr(curxp,u(u(ex-ept)/FUN`COUNT,%0,G)),u(FUN`STANDARD));@switch/inline gt(setr(diff,sub(u(FUN`STANDARD),%q<curxp>)),mul(default(me/VAR`CATCHUPMUL,0),default(me/VAR`WEEKLY,0)))=1,{@force/inline v(VAR`FORCECHAR)={+xp/award %0=[mul(default(me/VAR`CATCHUPMUL,0),default(me/VAR`WEEKLY,0))]/Weekly Catchup}},0,{@force/inline v(VAR`FORCECHAR)={+xp/award %0=%q<diff>/Weekly Catchup}}
 
 &FUN`STARTING u(wac)=add(default(me/VAR`STARTING,0),div(mul(default(me/VAR`WEEKLY,8),default(u(wac)/VAR`WEEKS,0)),3))
 &FUN`STANDARD u(wac)=add(default(me/VAR`STARTING,0),mul(default(me/VAR`WEEKLY,8),default(u(wac)/VAR`WEEKS,0)))

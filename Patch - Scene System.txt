@@ -1,0 +1,32 @@
+@@ You can get the latest version of Scenesys at: http://community.pennmush.org/blog/mercutio/2013/installing-scenesys
+@@ This is a patch/setup repo for Mercutio's Scenesys!
+
+@@ Integrates SceneSys with my code object indexer.
+&scenesys u(coi)=locate(config(master_room),Scene System,TXxi)
+@parent u(scenesys)=u(coi)
+
+@@ BB PATCH - For integrating it with my BBS instead of Myrddin's.
+&FN`GET`BBPOST u(scenesys)=match(u(u(bbs)/FUN`LISTPOSTS,v(data`scheduleboard_db)),before(grep(v(data`scheduleboard_db),*`HDR,Schedule #%0:),`))
+
+@@ Put your board information here!
+&DATA`SCHEDULEBOARD u(scenesys)=Scene Announcements
+&DATA`SCHEDULEBOARD_DB u(scenesys)=
+
+@@ You'll need to customize this for +scene <id> to display right.
+&DATA`URL`BASE u(scenesys)=yoursitehere.net/scene/
+&DATA`URL`VIEW u(scenesys)=view.php?id=
+
+@@ Some function stuff for it to work.
+&FN`IS`STAFF u(scenesys)=switch([isadmin(%0)],#-1 FUNCTION *,orflags(%0,Wr),stext(0))
+&GFN`ISIC u(gfo)=default(loc(%0)/IC,1)
+
+@@ A patch for the Ancestor Player to use this code system's color code!
+&SAY_FN u(ap)=color(%!,",IC`QUOTES,n)[color(%!,%0,IC`SPEECH,n)][color(%!,",IC`QUOTES,n)]
+th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),IC,|,|))
+&VAR`CATEGORIES`IC u(cco)=SPEECH|QUOTES
+
+@@ Do you think the pose headers/footers are obnoxious? Here's a slimmer alternative.
+&INCLUDE`LASTPOSE`PREPOSE u(scenesys)=@assert u(fn`is`ic,%1);@dolist/inline [lockfilter(lastpose`pre:1,lvplayers(%L))]=@nspemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)][ansi(+white,accname(%1))] has posed%b>,78)
+
+&INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);@dolist/inline [lockfilter(lastpose`post:1,lvplayers(%L))]=@pemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)]End of [ansi(hw,accname(%1))]'s pose%b>,78);&lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
+
