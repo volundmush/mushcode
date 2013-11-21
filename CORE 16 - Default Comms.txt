@@ -1,13 +1,16 @@
 @@ These are some recommended defaults to run after installing all the Core stuff!
 
 +key/make ADMIN
-+bbnewgroup Admin
-+bblock Admin/Read=ADMIN
-+bblock Admin/Write=ADMIN
 
-+channel/add [ansi(m,Admin)]
-+channel/add [ansi(hr,Staff Reports)]
-@chan/on Admin
-@chan/on Staff Reports
-+clock Admin=ADMIN
-+clock Staff Reports=ADMIN
+@wait 1=+bbnewgroup Admin
+@wait 2=+bblock Admin/Read=ADMIN
+@wait 2=+bblock Admin/Write=ADMIN
+
+@wait 2=+channel/add [ansi(m,Admin)]
+@wait 2=+channel/add [ansi(hr,Staff Reports)]
+
+@wait 3=@chan/on Admin
+@wait 3=@chan/on Staff Reports
+
+@wait 4=+clock Admin=ADMIN
+@wait 4=+clock Staff Reports=ADMIN

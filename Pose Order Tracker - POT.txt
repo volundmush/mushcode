@@ -5,11 +5,11 @@
 @parent u(pot)=u(coi)
 @set u(pot)=WIZARD SAFE !NO_COMMAND
 
-&FUN`MAIN u(pot)=null(if(ISIC(%l),attrib_set(%l/[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])]`TYPE,switch(before(%u,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:))[attrib_set(%l/%q<potattr>,after(%u,%B))][attrib_set(%l/%q<potattr>`BY,%#)][attrib_set(%l/%q<potattr>`WHEN,secs())][iter(filterbool(#lambda/gte(sub(secs(),get(%l/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%l/POT`POSES`*)),wipe(%l/%i0))]))
+&FUN`MAIN u(pot)=null(if(ISIC(%3),attrib_set(%l/[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])]`TYPE,switch(before(%u,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:))[attrib_set(%l/%q<potattr>,after(%u,%B))][attrib_set(%l/%q<potattr>`BY,%#)][attrib_set(%l/%q<potattr>`WHEN,secs())][iter(filterbool(#lambda/gte(sub(secs(),get(%l/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%l/POT`POSES`*)),wipe(%l/%i0))]))
 
-&GFN`ISIC u(gfo)=t(default(%0/IC,1))
+&GFN`ISIC u(gfo)=t(default(loc(%0)/IC,1))
 
-&CMD`+POT u(pot)=$^(?\:\+)?pot(?\:/(\S+))?(?\: +(.+))?(?\:=(.+))?$:@assert or(ISIC(%l),isadmin(%#))=@nspemit %#=announce(POT) This room is not IC!;@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(pot)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(pot)/VAR`ADMINFLAGS)),|,|),|,POT,switch,switch;@include u(pot)/INC`[strfirstof(%1,MAIN)]=%2,%3
+&CMD`+POT u(pot)=$^(?\:\+)?pot(?\:/(\S+))?(?\: +(.+))?(?\:=(.+))?$:@assert or(ISIC(%3),isadmin(%#))=@nspemit %#=announce(POT) This room is not IC!;@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(pot)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(pot)/VAR`ADMINFLAGS)),|,|),|,POT,switch,switch;@include u(pot)/INC`[strfirstof(%1,MAIN)]=%2,%3
 @set u(pot)/CMD`+pot=regexp
 
 &SAY_FN u(ap)=color(%!,",MAIN`QUOTE,n)[color(%!,%0,MAIN`SPEECH,n)][color(%!,",MAIN`QUOTE,n)]

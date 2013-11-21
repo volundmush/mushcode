@@ -83,3 +83,6 @@ Be sure you are saving the cnf files with UNIX linebreaks if you're on Windows! 
 6. Use +shelp and +help to brush up on administrating the package and your options.
 
 Install the other files as you please.
+
+-=--=--=--=--=--=--=--=--=--=--<* Donations *>=--=--=--=--=--=--=--=--=--=--=-
+While the code is all free, if anyone who finds it useful is of a mind to donate and support my work, consider donating to my PayPal? volundmush@gmail.com

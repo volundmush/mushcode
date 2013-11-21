@@ -30,3 +30,7 @@ th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),IC,|,|))
 
 &INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);@dolist/inline [lockfilter(lastpose`post:1,lvplayers(%L))]=@pemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)]End of [ansi(hw,accname(%1))]'s pose%b>,78);&lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
 
+@@ This removes them entirely...
+&INCLUDE`LASTPOSE`PREPOSE u(scenesys)
+
+&INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);&lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0

@@ -1,6 +1,7 @@
 @@ NOTE that for this code suite to work, #1 must be parented to the COI object this script creates and given the startup shown below. It is not recommended that #1 actually own the COI however.
 
 @@ RUN THIS ON CODE WIZARD OBJECT!
+@switch/inline hasflag(%#,UNREGISTERED)=1,{@set me=!UNREGISTERED}
 @power me=no_pay
 
 @switch/inline isdbref(u(coi))=0,{@tel create(Code Object Index <COI>)=config(master_room);@parent me=locate(config(master_room),Code Object Index <COI>,TXxi)}

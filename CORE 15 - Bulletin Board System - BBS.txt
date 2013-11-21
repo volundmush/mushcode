@@ -18,7 +18,9 @@
 &FUN`VALIDGROUPS`BB u(bbs)=filterbool(#lambda/and(or(elock(\%0/%1,%0),%q<isadmin>),or(%2,not(default(%0/D`BB`\%0`OMIT,0)))),u(FUN`LISTGROUPS`BB))
 &FUN`VALIDGROUPS`GB u(bbs)=filterbool(#lambda/and(or(%q<isadmin>,if(strlen(get(u(bbs)/BB`\%0`G%1)),lte(u(u(gso)/FUN`GETRANK,%q<gid1>,objid(%0)),get(u(bbs)/BB`\%0`G%1)),1)),or(%2,not(default(%0/D`BB`\%0`OMIT,0)))),u(FUN`LISTGROUPS`GB))
 
-&INC`CHECK u(bbs)=@switch/inline t(default(%#/D`BB`CHECK,0))=
+&INC`CHECK u(bbs)=@switch/inline t(default(%#/D`BB`CHECK,1))=1,{@nspemit %#=announce(%q<ann>) You will no longer +bbscan on connect!;&D`BB`CHECK %#=0},0,{@nspemit %#=announce(%q<ann>) You will now +bbscan on connect!;&D`BB`CHECK %#=1}
+
+&PLAYER`CONNECT`CHECK u(bbs)=@assert t(default(%0/D`BB`CHECK,1));@force/inline %0=+bbscan
 
 &FUN`LISTGROUPS`BB u(bbs)=filterbool(#lambda/isdbref(\%0),v(groups))
 &FUN`LISTGROUPS`GB u(bbs)=filterbool(#lambda/isdbref(\%0),get(u(gdb)/%q<gid1>`BOARDS))
