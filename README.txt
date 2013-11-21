@@ -1,47 +1,35 @@
-             MOUVAR'S MUSHCODE SUITE - VERSION 1.0
+Volund's MUSHcode Suite - For PennMUSH
 
-1. INTRODUCTION
-When you're hoping to start up a MUSH, it's more than a little daunting. You went to Game A, realized they had a pretty neat system for doing something crucially convenient, and wondered how, or where you could get it yourself. Maybe you stumbled around looking for a coder interested in your project, but were disappointed when none were to be found.
+-=--=--=--=--=--=--=--=--=--=-<* CONTACT INFO *>-=--=--=--=--=--=--=--=--=--=-
+Name: Volund
+Email: volundmush@gmail.com
 
-This pack is for you. It is the sincerest goal of the author that by using this MUSHcode suite nearly all the aspects of setting up and administrating a game will be child's play compared to starting off with a stock PennMUSH installation.
+-=--=--=--=--=--=--=--=--=--=--<* DISCLAIMER *>--=--=--=--=--=--=--=--=--=--=-
+LICENSE for using Volund's MUSHcode Suite
+Terms
 
-2. REQUIREMENTS
-This MUSHcode suite requires PennMUSH version 1.8.5p4 or newer. It may work in earlier versions, but all @dolist/inlines will need to be replaced with @dolists. None of the code requires SQL.
+"Softcode" refers to the contents of every file in this package with the exception of Myrddin's MUSH Cron and the patches for Mercutio's SceneSys and Javelin's Anomaly Jobs. (All hail them and their fine authors!) "Game" refers to any copy of PennMUSH or similar program it's running on.
 
-MUSHcode knowledge is not required, but it definitely helps for doing anything fancy building off of this pack.
+CONDITIONS
+1) This Softcode is provided as-is, with no Warranty - express or implied. The author is not responsible for any possible damages, etc.
 
-This code will NOT function in TinyMUSH or TinyMUX, and it's really not worth your time bothering trying to make it do so. An experienced coder may have some luck porting it to RhostMUSH (which shares many similarities with Penn) however.
+2) This Softcode is freely available to all under the terms of the Creative Commons Attribution-Non-Commercial 3.0 Unported License:
+http://creativecommons.org/licenses/by-nc/3.0/deed.en_US
+In other words:
+	A) you must give credit where it's due. Please be sure to credit me - Volund - on your game, and link back to my Github: https://github.com/volundmush/mushcode
+	B) You may share, alter, remix, port, copy the softcode however you wish. If you release any derivatives of my work it must be under the terms set down in this text.
+	C) You may not market the Softcode commercially or use it on games that are pay-to-play.
 
-3. FEATURES
+Support is limited by my time and energy, but it's my goal to provide an easy-to-use and expansive suite of MUSHcode for all fans of the gaming platform to enjoy. If you have questions, bug reports, or feature requests, please email them to me at the address given above.
 
-	a. Infrastructure
-	Code Indexing object for central management of code object DBREFs.
-	Room, Thing, Player, and Exit Ancestor creating code and basic room layout.
-	Custom Colors system for players to change how they see the game.
-	Event Handler designed to locate any provided Event trigger on indexed object for future expansions.
-	Centralized configuration object for keeping track of restricted and modified attributes and similar settings.
-	Global Functions for many common tasks.
-	
-	b. Administration
-	Character and Staff Administration for handling staff lists, players and their alts in accounts. Supports bitless staffers.
-	Sitematch / IP logging and login security checker.
-	Key / Lock system that simplifies PennMUSH's @lock system, designed to conveniently handle groups, factions, races, and similar setups.
-	Channel Management system for simple creation and locking of @channels (integrates with Key / Lock system) and muzzling problem players, among other features.
-	Job System inspired by Anomaly Jobs. Categorical organization of player or staff requests, supporting logging, commenting, approval, denying, and similar features.
-	Help System that can be used for softcoded help menus, supports sub-menus and can be called many ways to access different help systems (staff help, news, help, etc.)
-	Commands that simplify debugging and other common tasks.
-	
-	c. Player Conveniences
-	Watch System for tracking when friends log on and off.
-	Myrddin's BBS 4.0.6 Custom. Optimized for PennMUSH and integrates the Key / Lock system (see above.) Comes with a +bbnext that does not ignore board locks.
-	Group System for small or medium player factions, supports rank structure, IC and OOC channels, and plenty of customization options.
-	Pose Order Tracker (+pot) that stores poses for retrieval with a simple command. Supports privacy options and is easily reconfigured.
-	Tel Code for helping players get around a grid. Easily setup and organized by districts/regions.
-	Info Files, a shareable player notepad that players can use to track character data or other things, which may be published for other players to read and/or approved by admins for roleplay purposes (equipment lists, character backgrounds, etc.)
-	Meet Code for teleporting straight to other players with a quick exchange.
-	Who and Where code.
-	A frequency-based Radio system that supports logging, recall, and encryption.
+-=--=--=--=--=--=--=--=--=--=-<* REQUIREMENTS *>-=--=--=--=--=--=--=--=--=--=-
+1) PennMUSH 1.8.5p5 or higher - much of my code requires @dolist to have /inline and /nobreak switches and a few bug fixes only available from then on. You can obtain the latest version here: https://code.google.com/p/pennmush/
+2) A WIZARD character to install and maintain the code. (do NOT use #1 for this except where specified!)
+3) In mush.cnf, under TinyMUSH compatability, null_eq_zero must be 'Yes.'
+4) Ideally, access to #1's STARTUp - you'll need to get creative - or lucky - without it.
 
-4. 
+-=--=--=--=--=--=--=--=--=--=--=<* FEATURES *>=--=--=--=--=--=--=--=--=--=--=-
+ADMINISTRATION: The suite includes a player account system and extended staff permissions infrastructure, alongside a variety of tools to extend and simplify @locks and security, managing building rights, track the game's statistics and so on.
 
+CONVENIENCE: A plethora of player globals and conveniences, such as multi-descer, +beep, and +who.
 
