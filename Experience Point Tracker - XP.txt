@@ -5,7 +5,7 @@
 @parent u(xp)=u(coi)
 @set u(xp)=WIZARD SAFE !NO_COMMAND
 
-&CMD`+XP u(xp)=$^(?s)(?\:\+)?XP(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:/(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(xp)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(xp)/VAR`ADMINFLAGS)),|,|),|,XP,switch,switch;@include u(xp)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3,%4
+&CMD`+XP u(xp)=$^(?s)(?\:\+)?XP(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.+?))?(?\:/(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(xp)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(xp)/VAR`ADMINFLAGS)),|,|),|,XP,switch,switch;@include u(xp)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3,%4
 @set u(xp)/CMD`+XP=regexp
 
 &VAR`ADMINFLAGS u(xp)=DELGAINED|DELSPENT|TOTALS|AWARD|SPEND

@@ -1,8 +1,7 @@
 @@ DEPENDENCIES - Core
 @switch/inline isdbref(u(ar))=0,{th attrib_set(u(coi)/AR,dig(Ancestor Room))}
 
-&CONFORMAT u(ar)=header(pueblize(ansi(hw,Contents),+look),1)[iter(lvplayers(me),%r[switch(default(%i0/PLAYSTATUS,OOC),IC,ansi(hc,<IC>%B),OOC,ansi(hy,<OOC>))]%B[ljust(left(pueblize(color(%#,name(%i0),ROOM`PLAYERNAME,hw),look [name(%i0)]),17),18)][ljust(left(get(%i0/SHORT-DESC),54),55)])][if(words(lvthings(me)),%r[subheader(Objects)][iter(sort(lvthings(me),namei),%r[pueblize(color(%#,name(%i0)[if(or(controls(%i0,%#),isadmin(%#)),%(%i0[flags(%i0)]%))],ROOM`THINGNAME,w),look [name(%i0)])],%b)])]
-
+&CONFORMAT u(ar)=[if(or(nattr(me/VIEW`*),nattr(me/MUSIC`*)),subheader(Extra)%R[iter(filterbool(#lambda/nattr(me/\%0`*),VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)][header(pueblize(ansi(hw,Contents),+look),1)][iter(lvplayers(me),%r[switch(default(%i0/PLAYSTATUS,OOC),IC,ansi(hc,<IC>%B),OOC,ansi(hy,<OOC>))]%B[ljust(left(pueblize(color(%#,name(%i0),ROOM`PLAYERNAME,hw),look [name(%i0)]),17),18)][ljust(left(get(%i0/SHORT-DESC),54),55)])][if(words(lvthings(me)),%r[subheader(Objects)][iter(sort(lvthings(me),namei),%r[pueblize(color(%#,name(%i0)[if(or(controls(%i0,%#),isadmin(%#)),%(%i0[flags(%i0)]%))],ROOM`THINGNAME,w),look [name(%i0)])],%b)])]
 
 &EXITFORMAT u(ar)=switch(words(lexits(me)),0,header(),subheader(Exits)%r[table(iter(if(isadmin(%#),if(lmath(max,iter(lexits(me),strlen(get(%i0/ORDER)))),sortkey(#lambda/get(\%0/ORDER),lexits(me),n),sort(lexits(me),namei)),if(lmath(max,iter(lexits(me),strlen(get(%i0/ORDER)))),sortkey(#lambda/get(\%0/ORDER),lexits(me),n),sort(lexits(me),namei))),if(hasflag(%i0,DARK),ansi(m,*))[pueblize(if(strlen(alias(%i0)),regediti(color(%#,name(%i0),ROOM`EXITNAME,w),(?P<1>[alias(%i0)]),<[color(%#,stripansi($<1>),ROOM`EXITALIAS,v(VAR`ALIASCOLOR))]>),color(%#,name(%i0),ROOM`EXITNAME,w)),name(%i0))],,|),25,78,|)]%r[header()])
 

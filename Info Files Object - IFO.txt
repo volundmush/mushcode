@@ -5,16 +5,16 @@
 @parent u(ifo)=u(coi)
 @set u(ifo)=WIZARD !NO_COMMAND
 
-&CMD`+INFO u(ifo)=$^(?s)(?\:\+)?info(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(ifo)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ifo)/VAR`ADMINFLAGS)),|,|),|,INFO,switch,switch;@include u(ifo)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+&CMD`+INFO u(ifo)=$^(?s)(?\:\+)?info(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(ifo)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ifo)/VAR`ADMINFLAGS)),|,|),|,INFO,switch,switch;@include u(ifo)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(ifo)/CMD`+INFO=regexp
 
 &VAR`PLAYFLAGS u(ifo)=SET|GET|RENAME|DELETE|CATEGORIES|PUBLISH|UNPUBLISH|PUBLISHED
 &VAR`ADMINFLAGS u(ifo)=APPROVE|UNAPPROVE
 &VAR`CATEGORIES u(ifo)=Allies|Artifacts|BGStory|Backing|CombatStats|Command|Connections|Contacts|Crafts|Cult|Familiar|Followers|Henchmen|Influence|Manse|Mentor|Resources|Tribal Languages|XP
 
-&INC`TARGET u(ifo)=@switch/inline isdbref(setr(target,pmatch(before(%0,/))))=0,{@switch/inline gt(words(%0,/),1)=1,{@break 1=@nspemit %#=announce(INFO)%BERROR: [before(%0,/)] does not match a player.},0,{th setq(target,%#)}}
+&INC`TARGET u(ifo)=@switch/inline strmatch(%0,*/*)=1,{@include u(ccs)/INC`CHECKPC=before(%0,/),1,INFO;th setq(target,%q<t1>)},0,{th setq(target,%#)}
 
-&INC`FILENAME u(ifo)=th setq(filename,if(strmatch(%#,%q<target>),%0,after(%0,/)))
+&INC`FILENAME u(ifo)=th setq(filename,if(strmatch(%0,*/*),after(%0,/),%0))
 
 &FUN`LIST u(ifo)=sortkey(#lambda/get(%0/\%0),iter(switch(1,isadmin(%#),lattr(%0/D`INFOFILE`*),strmatch(%#,%0),filterbool(#lambda/not(getstat(%0/\%0`FLAGS,Hidden)),lattr(%0/D`INFOFILE`*)),filterbool(#lambda/and(getstat(%0/\%0`FLAGS,Published),not(getstat(%0/\%0`FLAGS,Hidden))),lattr(%0/D`INFOFILE`*))),if(%1,get(%0/%i0),%i0),%b,|),i,|,|)
 

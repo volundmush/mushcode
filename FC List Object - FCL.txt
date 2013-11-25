@@ -5,7 +5,7 @@
 @parent u(fcl)=u(coi)
 @set u(fcl)=WIZARD SAFE !NO_COMMAND
 
-&CMD`+FCLIST u(fcl)=$^(?s)(?\:\+)?fclist(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(fcl)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(fcl)/VAR`ADMINFLAGS)),|,|),|,FCLIST,switch,switch;@include u(fcl)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+&CMD`+FCLIST u(fcl)=$^(?s)(?\:\+)?fclist(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(fcl)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(fcl)/VAR`ADMINFLAGS)),|,|),|,FCLIST,switch,switch;@include u(fcl)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(fcl)/CMD`+FCLIST=regexp
 
 &INC`MAIN u(fcl)=@switch/inline gt(strlen(%0),0)=1,{@assert setr(group,u(FUN`FINDGROUP,%0))=@nspemit %#=announce(FCLIST) ERROR: Group not found!;@nspemit %#=header(v(DAT`%q<group>) Roster)%R[ljust(NAME,26)][ljust(FACTION,22)][ljust(LAST ON,10)][ljust(TYPE,9)][ljust(AVAILABLE,5)]%R[subheader()];@dolist/inline filterbool(#lambda/isobjid(\%0),v(DAT`%q<group>`LIST))={@nspemit %#=ljust(left(name(%i0),25),26)[ljust(default(%i0/D`FINGER`GROUP,Unaffiliated),20)][ljust(left(rjust(if(gt(conn(%i0),0),ansi(hg,ago(conn(%i0))),ansi(hx,elements(get(%i0/LAST),2 3))),9),9),10)]%B%B[ljust(left(default(%i0/D`FINGER`TYPE,N/A),4),9)][ljust(left(if(gt(get(%i0/D`FINGER`DEAD),0),ansi(hx,DEAD),if(approved(%i0),ansi(hx,No),ansi(hg,Yes))),4),5)]};@nspemit %#=header()},0,{@nspemit %#=header(mudname()'s FClist Groups);@nspemit %#=table(iter(sortkey(#lambda/get(u(fcl)/\%0),lattr(u(fcl)/DAT`*)),pueblize(get(u(fcl)/%i0),+fclist [get(u(fcl)/%i0)]),%B,|),26,78,|);@nspemit %#=header()}

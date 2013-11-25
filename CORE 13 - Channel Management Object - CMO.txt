@@ -13,13 +13,13 @@
 @parent u(cmo)=u(coi)
 @set u(cmo)=WIZARD !NO_COMMAND
 
-&CMD`+CHANNEL u(cmo)=$^(?s)(?\:\+)?(?\:channel|chan)(?\:/(\S+))?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(cmo)/VAR`CHANNEL`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`CHANNEL`ADMINFLAGS)),|,|),|,CHANNEL,switch,switch;@include u(cmo)/INC`CHANNEL`[strfirstof(%q<switch>,MAIN)]=%2,%4,%3
+&CMD`+CHANNEL u(cmo)=$^(?s)(?\:\+)?(?\:channel|chan)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(cmo)/VAR`CHANNEL`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`CHANNEL`ADMINFLAGS)),|,|),|,CHANNEL,switch,switch;@include u(cmo)/INC`CHANNEL`[strfirstof(%q<switch>,MAIN)]=%2,%4,%3
 @set u(cmo)/CMD`+CHANNEL=regexp
 
 &VAR`CHANNEL`PLAYFLAGS u(cmo)=MUZZLE|UNMUZZLE|ALIAS|RECALL
 &VAR`CHANNEL`ADMINFLAGS u(cmo)=ADD|DEL|TAG|RENAME|CONFIG
 
-&CMD`+CLOCK u(cmo)=$^(?\:\+)?(?\:chanlock|clock)(?\:/(\S+))?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(cmo)/VAR`CLOCK`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`CLOCK`ADMINFLAGS)),|,|),|,CHANNEL,switch,switch;@include u(cmo)/INC`CLOCK=%2,%3,%4,%5
+&CMD`+CLOCK u(cmo)=$^(?\:\+)?(?\:chanlock|clock)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(cmo)/VAR`CLOCK`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`CLOCK`ADMINFLAGS)),|,|),|,CHANNEL,switch,switch;@include u(cmo)/INC`CLOCK=%2,%3,%4,%5
 @set u(cmo)/CMD`+CLOCK=regexp
 
 &VAR`CLOCK`PLAYFLAGS u(cmo)=
@@ -47,7 +47,7 @@
 
 &INC`CHANNEL`CONFIG`ALIAS u(cmo)=th setq(entry,t(%1))
 
-&INC`CHANNEL`ALIAS u(cmo)=@include u(ccs)/INC`PARTIAL=%0,objeval(%#,channels(|)),|,CHANNEL,channel,channel;@include u(cmo)/INC`CHECKNAME=%q<channel>,1,1;@assert get(u(cdb)/%q<id>`CONFIG`ALIAS)=@nspemit %#=announce(CHANNEL) ERROR: That channel does not use aliases.;@assert strlen(%1)=@nspemit %#=announce(CHANNEL) ERROR: Nothing entered for an alias!;@assert valid(playername,stripansi(%1))=@nspemit %#=announce(CHANNEL) ERROR: Aliases must follow the same name rules as names, and cannot match another player's name.;@break words(setr(list,setdiff(lsearch(all,eplayer,\[strmatch(get(##/D`CHANNEL`%q<id>`ALIAS),stripansi(%1))\]),%#)))=@nspemit %#=announce(CHANNEL) ERROR: Cannot use that Alias: in use by [itemize(iter(%q<list>,name(%i0),%b,|),|,and,\,)];@nspemit %#=announce(CHANNEL) Alias set for %q<cname> to: %1 - make sure this is a reasonable alias!;&D`CHANNEL`%q<id>`ALIAS %#=%1
+&INC`CHANNEL`ALIAS u(cmo)=@include u(ccs)/INC`PARTIAL=%0,objeval(%#,channels(|)),|,CHANNEL,channel,channel;@include u(cmo)/INC`CHECKNAME=%q<channel>,1,1;@assert get(u(cdb)/%q<id>`CONFIG`ALIAS)=@nspemit %#=announce(CHANNEL) ERROR: That channel does not use aliases.;@assert strlen(%1)=@nspemit %#=announce(CHANNEL) ERROR: Nothing entered for an alias!;@assert or(valid(playername,stripansi(%1)),if(pmatch(%1),strmatch(%#,pmatch(%1)),0))=@nspemit %#=announce(CHANNEL) ERROR: Aliases must follow the same name rules as names, and cannot match another player's name.;@break words(setr(list,setdiff(lsearch(all,eplayer,\[strmatch(get(##/D`CHANNEL`%q<id>`ALIAS),stripansi(%1))\]),%#)))=@nspemit %#=announce(CHANNEL) ERROR: Cannot use that Alias: in use by [itemize(iter(%q<list>,name(%i0),%b,|),|,and,\,)];@nspemit %#=announce(CHANNEL) Alias set for %q<cname> to: %1 - make sure this is a reasonable alias!;&D`CHANNEL`%q<id>`ALIAS %#=%1
 
 &INC`CHECKNAME u(cmo)=@assert strlen(setr(name,stripansi(trim(%0))))=@nspemit %#=announce(CHANNEL) Channel Name field empty.;@assert and(lte(strlen(%q<name>),30),eq(words(%q<name>,|),1))=@nspemit %#=announce(CHANNEL) That channel name is not acceptable.;@break strmatch(%q<name>,ansi\(*)=@nspemit %#=announce(CHANNEL) ERROR: Please use brackets around colored channel names.;@switch/inline gt(%1,0)=1,{@assert setr(num,match(objeval(%#,channels(|)),%q<name>,|))=@nspemit %#=announce(CHANNEL) ERROR: Channel not found.;th setq(cname,elements(objeval(%#,channels(|)),%q<num>,|));@switch/inline gt(%2,0)=1,{@switch/inline gt(setr(id,u(u(cmo)/FUN`FINDCHANNEL,%q<name>)),0)=0,{@nspemit %#=announce(CHANNEL) WARNING: Channel exists, but wasn't found in database. Channel was added to database.;&[setr(id,nextslot(u(cdb)))] u(cdb)=stripansi(%q<cname>)}}}
 
@@ -66,7 +66,9 @@
 &MOGRIFY`PLAYERNAME u(cmo)=if(get(u(cdb)/[setr(id,u(u(cmo)/FUN`FINDCHANNEL,stripansi(%1)))]`CONFIG`ALIAS),strfirstof(get(%#/D`CHANNEL`%q<id>`ALIAS),%0))
 &MOGRIFY`TITLE u(cmo)=if(isadmin(%#),\[[ansi(h,Staff)]\][if(strlen(%0),%B%0)],%0)
 
-&MOGRIFY`BLOCK u(cmo)=if(and(gt(setr(until,default(%#/[setr(muzattr,D`CHANNEL`[setr(id,u(u(cmo)/FUN`FINDCHANNEL,stripansi(%1)))]`MUZZLE)],0)),secs()),not(isadmin(%#))),announce(CHANNEL) You have been Muzzled from %1 until [convsecs(%q<until>)],wipe(%#/%q<muzattr>)[if(and(get(u(cdb)/%q<id>`CONFIG`ALIAS),not(strlen(setr(alias,get(%#/D`CHANNEl`%q<id>`ALIAS)))),not(isadmin(%#))),announce(CHANNEL) That Channel uses aliases\, not names. Please set your alias using +channel/alias %1=<alias here>,if(and(get(u(cdb)/%q<id>`CONFIG`ALIAS),not(valid(playername,stripansi(%q<alias>))),v(VAR`ALIASNAME2)),announce(CHANNEL) Your alias may not match another player's name!))])
+&MOGRIFY`BLOCK u(cmo)=if(and(gt(setr(until,default(%#/[setr(muzattr,D`CHANNEL`[setr(id,u(u(cmo)/FUN`FINDCHANNEL,stripansi(%1)))]`MUZZLE)],0)),secs()),not(isadmin(%#))),announce(CHANNEL) You have been Muzzled from %1 until [convsecs(%q<until>)],wipe(%#/%q<muzattr>)[if(and(get(u(cdb)/%q<id>`CONFIG`ALIAS),not(strlen(setr(alias,get(%#/D`CHANNEl`%q<id>`ALIAS)))),not(isadmin(%#))),announce(CHANNEL) That Channel uses aliases\, not names. Please set your alias using +channel/alias %1=<alias here>,if(and(get(u(cdb)/%q<id>`CONFIG`ALIAS),and(not(valid(playername,stripansi(%q<alias>))),not(strmatch(%#,pmatch(%q<alias>)))),v(VAR`ALIASNAME2)),announce(CHANNEL) Your alias may not match another player's name!))])
+
+
 
 &VAR`ALIASNAME2 u(cmo)=0
 

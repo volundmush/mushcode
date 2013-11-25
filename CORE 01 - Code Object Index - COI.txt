@@ -11,6 +11,7 @@
 &DESCRIBE u(coi)=ansi(h,ATTRIBUTES:) [nattr(me/**)]%R[iter(filterbool(#lambda/nattr(me/\[elements(%%0,1,|)\]`**),CMD|COMMANDS~FUN|FUNCTION~INC|INCLUDES|GFN|GLOBALS~VAR|VARIABLES~DAT|DATA,~,~),ansi(h,[elements(%i0,2,|)]:) [itemize(iter(lattr(me/[elements(%i0,1,|)]`**),after(%i0,elements(%i1,1,|)`),,|),|,and,\,)],~,%R)]
 
 @@ RUN THIS ON #1!
+@switch/inline t(match(lflags(),JAILED))=0,{@flag/add JAILED=,PLAYER,WIZARD mdark,WIZARD}
 &STARTUP #1=@command/restrict @command=#TRUE;@dolist/inline/nobreak filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0)))={@dolist/inline/nobreak lattr(%i0/GFN`*)={@function after(%i0,GFN`)=%i1/%i0}};@config/save event_handler=u(eh);@config/save ancestor_room=u(ar);@config/save ancestor_exit=u(ae);@config/save ancestor_thing=u(at);@config/save ancestor_player=u(ap)
 
 @parent #1=locate(config(master_room),Code Object Index <COI>,TXxi)

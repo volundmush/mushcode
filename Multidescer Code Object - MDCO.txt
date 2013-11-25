@@ -3,7 +3,7 @@
 @parent u(desc)=u(coi)
 @set u(desc)=WIZARD SAFE !NO_COMMAND
 
-&CMD`+DESC u(desc)=$^(?s)(?\:\+)?desc(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(desc)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(desc)/VAR`ADMINFLAGS)),|,|),|,DESC,switch,switch;@include u(desc)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+&CMD`+DESC u(desc)=$^(?s)(?\:\+)?desc(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(desc)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(desc)/VAR`ADMINFLAGS)),|,|),|,DESC,switch,switch;@include u(desc)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(desc)/CMD`+DESC=regexp
 
 &VAR`PLAYFLAGS u(desc)=SAVE|DELETE|NOISY|VIEW|RENAME

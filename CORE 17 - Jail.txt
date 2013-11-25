@@ -1,0 +1,8 @@
+@switch/inline isdbref(u(jail))=0,{th attrib_set(u(coi)/jail,dig(Jail))}
+
+@set u(jail)=WIZARD
+@desc u(jail)=This is [mudname()]'s jail. You are likely here for breaking the rules until the game's staff can talk with you. Details are likely in @mail. Most of your commands and communications have been disabled for your stay. Waiting quietly and not abusing what few communication methods you have is in your best interests if you've been placed here for wrongdoing.
+
+&startup u(jail)=@dolist/inline @mail @chat page home @link @open @teleport @pemit @pemit @oemit @remit @cemit={@hook/ignore u(jail),HOOK`IGNORECHECK};@dolist/inline tel pemit remit oemit zemit emit={@function/restrict %i0=!FLAG^JAILED "That's not happening."}
+
+&HOOK`IGNORECHECK u(jail)=if(hasflag(%#,JAILED),0[nspemit(%#,announce(JAIL) That's not happening.)],1)

@@ -5,7 +5,7 @@
 @parent u(cco)=u(coi)
 @set u(cco)=WIZARD SAFE !NO_COMMAND
 
-&CMD`+COLOR u(cco)=$^(?s)(?\:\+)?color(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(cco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(cco)/VAR`ADMINFLAGS)),|,|),|,COLOR,switch,switch;@include u(cco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+&CMD`+COLOR u(cco)=$^(?s)(?\:\+)?color(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(cco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(cco)/VAR`ADMINFLAGS)),|,|),|,COLOR,switch,switch;@include u(cco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(cco)/CMD`+COLOR=regexp
 
 &VAR`PLAYFLAGS u(cco)=LIST|DEFAULTS|IMPORT|MODE

@@ -1,0 +1,18 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(music))=0,{@teleport create(Soundtrack System <MUSIC>)=config(master_room)}
+&music u(coi)=locate(config(master_room),Soundtrack System <MUSIC>,TXxi)
+@parent u(music)=u(coi)
+@set u(music)=WIZARD SAFE !NO_COMMAND
+
+&CMD`+SOUNDTRACK u(music)=$^(?s)(?\:\+)?(?\:soundtrack|music)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(music)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(music)/VAR`ADMINFLAGS)),|,|),|,music,switch,switch;@include u(music)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3,%4
+@set u(music)/CMD`+SOUNDTRACK=regexp
+
+&VAR`ADMINFLAGS u(music)=SET|DEL
+&VAR`PLAYFLAGS u(music)=
+
+&INC`MAIN u(music)=@assert setr(total,nattr(%l/MUSIC`*))=@nspemit %#=announce(SOUNDTRACK) Sorry, nothing here to hear!;@nspemit %#=header(Soundtrack for [strfirstof(u(%l/COLORNAME),name(%l))]);@dolist/inline sortkey(#lambda/last(\%0,`),lattr(%l/MUSIC`*))={@nspemit %#=align(4 19 55,rjust(last(%i0,`),3,0).,ansi(h,default(%l/%i0,Unnamed)),weblink(get(%l/%i0`URL),get(%l/%i0`URL)))};@nspemit %#=header(Total Songs: %q<total>)
+
+&INC`SET u(music)=@assert strlen(%0)=@nspemit %#=announce(SOUNDTRACK) ERROR: No track number entered.;@assert valnum(%0)=@nspemit %#=announce(SOUNDTRACK) ERROR: Track Numbers must be whole, positive numbers.;@assert strlen(%1)=@nspemit %#=announce(SOUNDTRACK) ERROR: No track name entered.;@assert strlen(%2)=@nspemit %#=announce(SOUNDTRACK) ERROR: URL for the song empty!;&MUSIC`%0 %l=%1;&MUSIC`%0`URL %l=%2;@nspemit %#=announce(SOUNDTRACK) Soundtrack Entry Set: Track %0: - %1 - [weblink(%2,%2)]
+
+&INC`DEL u(music)=@assert setr(total,nattr(%l/MUSIC`*))=@nspemit %#=announce(SOUNDTRACK) Sorry, nothing here to hear!;@assert strlen(%0)=@nspemit %#=announce(SOUNDTRACK) ERROR: No track number entered.;@assert valnum(%0)=@nspemit %#=announce(SOUNDTRACK) ERROR: Track Numbers must be whole, positive numbers.;@assert hasattr(%l/MUSIC`%0)=@nspemit %#=announce(SOUNDTRACK) ERROR: No Track here by that number.;@wipe %l/MUSIC`%0;@nspemit %#=announce(SOUNDTRACK) Track deleted!

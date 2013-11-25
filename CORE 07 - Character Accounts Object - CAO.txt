@@ -15,15 +15,15 @@
 &STARTUP u(cao)=@dolist lattr(me/STARTUP`*)=@trigger me/%i0
 
 @@ ****** COMMAND SECTION *******
-&CMD`+ACCOUNT u(cao)=$^(?\:\+)?(account)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`ACCOUNT`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`ACCOUNT`ADMINFLAGS)),|,|),|,ACCOUNT,switch,switch;@include u(cao)/INC`ACCOUNT`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`+ACCOUNT u(cao)=$^(?\:\+)?(account)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`ACCOUNT`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`ACCOUNT`ADMINFLAGS)),|,|),|,ACCOUNT,switch,switch;@include u(cao)/INC`ACCOUNT`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+ACCOUNT=regexp
 
 @@ ****** ACCOUNT SECTION *******
 &FILTER`OBJID u(cao)=isobjid(%0)
 
-&FUN`FINDACCOUNT u(cao)=firstof(wildgrepi(u(adb),*,*%0*),0)
+&FUN`FINDACCOUNT u(cao)=firstof(wildgrepi(u(adb),*,*%0*))
 
-&INC`ACCOUNT`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@switch/inline strlen(%0)=0,{@assert words(setr(accounts,sort(filterbool(#lambda/and(isint(\%0),strlen(get(u(adb)/\%0))),lattr(u(adb)/*),%B,|),n,|,|)))=@nspemit %#=announce(ACCOUNT) ERROR: There are no accounts entered in the system.;@nspemit %#=header(mudname() Player Accounts)%R%B%B[ljust(ID,4)]Characters%R[subheader()];th iter(lnum(1,ceil(fdiv(words(setr(list,%q<accounts>),|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),|,|),align(6 72,rjust(pueblize(%i0,+account %i0),4).,[itemize(iter(filterbool(FILTER`OBJID,get(u(adb)/%i0)),pueblize(name(%i0),+finger [name(%i0)]),,|),|,and,\,)]),|,%R)));@nspemit %#=header()},{@switch/inline valnum(%0)=1,{@assert hasattr(u(adb)/[setr(accid,%0)])=@nspemit %#=ERROR: Account ID not found.},{@include u(ccs)/INC`CHECKPC=%0,1,ACCOUNT;@assert gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%q<t1objid>)),0)=@nspemit %#=ERROR: %q<t1name> is not bound to an account.};@include u(cao)/INC`ACCOUNT`SHOW}},{@include u(ccs)/INC`CHECKPC=%#,1,ACCOUNT;@assert gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%q<t1objid>)),0)=@nspemit %#=ERROR: You are not bound to an Account. Please check with an Admin to correct this!;@include u(cao)/INC`ACCOUNT`SHOW}
+&INC`ACCOUNT`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@switch/inline strlen(%0)=0,{@assert words(setr(accounts,sort(filterbool(#lambda/and(isint(\%0),hasattrval(u(adb)/\%0)),lattr(u(adb)/*)),n)))=@nspemit %#=announce(ACCOUNT) ERROR: There are no accounts entered in the system.;@nspemit %#=header(mudname() Player Accounts)%R%B%B[ljust(ID,4)]Characters%R[subheader()];@dolist/inline %q<accounts>={@nspemit %#=align(5 73,rjust(pueblize(%i0,+account %i0),4).,itemize(iter(filterbool(FILTER`OBJID,get(u(adb)/%i0)),pueblize(name(%i0),+finger [name(%i0)]),,|),|,and,\,))};@nspemit %#=header()},{@switch/inline valnum(%0)=1,{@assert hasattr(u(adb)/[setr(accid,%0)])=@nspemit %#=ERROR: Account ID not found.},{@include u(ccs)/INC`CHECKPC=%0,1,ACCOUNT;@assert gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%q<t1objid>)),0)=@nspemit %#=ERROR: %q<t1name> is not bound to an account.};@include u(cao)/INC`ACCOUNT`SHOW}},{@include u(ccs)/INC`CHECKPC=%#,1,ACCOUNT;@assert gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%q<t1objid>)),0)=@nspemit %#=ERROR: You are not bound to an Account. Please check with an Admin to correct this!;@include u(cao)/INC`ACCOUNT`SHOW}
 
 &INC`ACCOUNT`SHOW u(cao)=@assert words(setr(pcs,filterbool(FILTER`OBJID,get(u(adb)/%q<accid>))))=@nspemit %#=announce(ACCOUNT) ERROR: No PCs bound to this account.;@nspemit %#=header(Account %q<accid>[if(strlen(setr(email,get(u(adb)/%q<accid>`EMAIL))),:%B%q<email>)] Details)%R[ljust(DBREF,7)][ljust(NAME,30)][ljust(STATUS,10)][ljust(IP,22)]LAST ON%R[subheader()];@dolist/inline %q<pcs>={@nspemit %#=rjust(num(%i0),5) %B[ljust(pueblize(name(%i0),+finger [name(%i0)]),30)][ljust(switch(1,isadmin(%i0),ansi(hy,ADM),haspower(%i0,BUILDER),ansi(hm,BUI),approved(%i0),ansi(hg,APP),ansi(hr,UNAPP)),10)][ljust(pueblize(get(%i0/LASTIP),+ip [name(%i0)]),22)][if(gte(conn(%i0),0),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3)))]};@nspemit %#=header()
 
@@ -53,7 +53,7 @@
 &TRG`ACCOUNT`CLEANACCOUNTS u(cao)=@dolist filterbool(#lambda/isint(\%0),lattr(u(adb)/*))={&%i0 u(adb)=filterbool(FILTER`OBJID,get(u(adb)/%i0));@assert words(get(u(adb)/%i0))=&%i0 u(adb)};@wait 7200=@trigger u(cao)/TRG`ACCOUNT`CLEANACCOUNTS
 
 @@ ******* IP SECTION *********
-&CMD`+IP u(cao)=$^(?\:\+)?(ip)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`IP`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`IP`ADMINFLAGS)),|,|),|,IP,switch,switch;@include u(cao)/INC`IP`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`+IP u(cao)=$^(?\:\+)?(ip)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`IP`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`IP`ADMINFLAGS)),|,|),|,IP,switch,switch;@include u(cao)/INC`IP`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+IP=regexp
 
 &INC`IP`MAIN u(cao)=@break haspower(%#,GUEST)=@nspemit %#=ERROR: Guests cannot use +ip.;@switch/inline isadmin(%#)=0,{@include u(cao)/INC`IP`IPSHOW=%#,0},{@include u(ccs)/INC`CHECKPC=strfirstof(%0,%#),1,IP;@break haspower(%q<t1>,GUEST)=@nspemit %#=ERROR: To match Guests, please use +ip/guests;@include u(cao)/INC`IP`IPSHOW=%q<t1>,0}
@@ -80,7 +80,7 @@
 &VAR`IP`ADMINFLAGS u(cao)=GUESTS|IP
 
 @@ ****** APPROVAL SECTION *********
-&CMD`+APPROVE u(cao)=$^(?\:\+)?(approve|unapprove)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`+APPROVE u(cao)=$^(?\:\+)?(approve|unapprove)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+APPROVE=regexp
 
 &PLAYER`CREATE`UNREGISTER u(cao)=@set %0=UNREGISTERED
@@ -102,7 +102,7 @@
 &VAR`APPROVE`ANNOUNCECHANNEL u(cao)=u(CMO`PUBLIC)
 
 @@ ********* STAFF SECTION ********
-&CMD`+STAFF u(cao)=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`STAFF`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`STAFF`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`STAFF`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`+STAFF u(cao)=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`STAFF`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`STAFF`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`STAFF`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+STAFF=regexp
 
 &GFN`ISADMIN u(cao)=or(orflags(%0,WrJ),strlen(getstat(u(cao)/VAR`STAFF`WIZLIST,objid(%0))))
@@ -137,7 +137,7 @@
 &TRG`STAFF`CLEANSTAFF u(cao)=&VAR`STAFF`WIZLIST u(cao)=filterbool(#lambda/isobjid(before(\%0,~)),get(u(cao)/VAR`STAFF`WIZLIST),|,|);@wait 7200=@trigger u(cao)/TRG`STAFF`CLEANSTAFF
 
 @@ ********* BUILDER SECTION ********
-&CMD`+BUILDER u(cao)=$^(?\:\+)?(builder)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`BUILDER`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`BUILDER`ADMINFLAGS)),|,|),|,BUILDER,switch,switch;@include u(cao)/INC`BUILDER`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`+BUILDER u(cao)=$^(?\:\+)?(builder)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`BUILDER`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`BUILDER`ADMINFLAGS)),|,|),|,BUILDER,switch,switch;@include u(cao)/INC`BUILDER`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+BUILDER=regexp
 
 &INC`BUILDER`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@switch/inline strlen(%0)=0,{@assert words(setr(build,lsearch(all,eplayer,\[haspower(##,BUILDER)\])))=@nspemit %#=announce(BUILDER) There are no Builder Characters.;@nspemit %#=header(mudname() Builder Characters);@nspemit %#=iter(%q<build>,ansi(h,%i0 - [name(%i0)]) - [powers(%i0)],%b,%R);@nspemit %#=header()},{@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@nspemit %#=header(%q<t1name>'s Belongings);@dolist/inline THING ROOM EXIT=@switch/inline gt(words(setr(search,lsearch(%q<t1>,type,%i0))),0)=1,{@nspemit %#=subheader(Type: %i0);@dolist/inline %q<search>=@nspemit %#=[rjust(pueblize(%i0,brief %i0),7)] - [name(%i0)]};@nspemit %#=header()}},0,{@nspemit %#=announce(BUILDER) You [if(haspower(%#,BUILDER),ansi(hg,are),ansi(hr,are not))] A Builder!}
@@ -152,7 +152,7 @@
 &VAR`BUILDER`ALERTSCHANNEL u(cao)=u(CMO`STAFFREP)
 
 @@ ******** IDLERS SECTION ******
-&CMD`+IDLERS u(cao)=$^(?\:\+)?(idlers)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`+IDLERS u(cao)=$^(?\:\+)?(idlers)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+IDLERS=regexp
 
 &INC`IDLERS`MAIN u(cao)=@switch/inline gt(strlen(%0),0)=1,{@assert valnum(setr(days,%0))=@nspemit %#=announce(IDLERS) ERROR: Day field must be a whole, positive integer!},{th setq(days,30)};@assert words(setr(idlers,sortkey(#lambda/convtime(get(\%0/LASTLOGOUT)),setdiff(lsearch(all,eplayer,\[and(gt(sub(secs(),convtime(get(##/LASTLOGOUT))),mul(86400,%q<days>)),not(haspower(##,GUEST)),not(isadmin(##)))\]),u(ap)),n,%b,|)))=@nspemit %#=announce(IDLERS) Nobody's been offline longer than %q<days>.;@nspemit %#=header(Players over %q<days> Idle)%R[ljust(DBREF,7)][ljust(NAME,30)][ljust(STATUS,10)][ljust(IP,22)]LAST ON%R[subheader()];th iter(lnum(1,ceil(fdiv(words(setr(list,%q<idlers>),|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),|,|),rjust(num(%i0),5) %B[ljust(pueblize(name(%i0),+finger [name(%i0)]),30)][ljust(if(isadmin(%i0),ansi(hy,ADM),if(approved(%i0),ansi(hg,APP),ansi(hr,UNAPP))),10)][ljust(pueblize(get(%i0/LASTIP),+ip [name(%i0)]),22)][if(gte(conn(%i0),0),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3)))],|,%R)));@nspemit %#=header()

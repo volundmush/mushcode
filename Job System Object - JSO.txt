@@ -5,7 +5,7 @@
 @parent u(jso)=u(coi)
 @set u(jso)=WIZARD SAFE !NO_COMMAND
 
-&CMD`+JOB u(jso)=$^(?s)(?\:\+)?(?\:job|request)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(jso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(jso)/VAR`ADMINFLAGS)),|,|),|,v(VAR`ANNOUNCETEXT),switch,switch;@include u(jso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+&CMD`+JOB u(jso)=$^(?s)(?\:\+)?(?\:job|request)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(jso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(jso)/VAR`ADMINFLAGS)),|,|),|,v(VAR`ANNOUNCETEXT),switch,switch;@include u(jso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(jso)/CMD`+JOB=regexp
 
 &VAR`PLAYFLAGS u(jso)=ADD|COMMENT|PAGE|LOG|VOTE|ALL

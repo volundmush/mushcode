@@ -3,7 +3,7 @@
 @parent u(mco)=u(coi)
 @set u(mco)=WIZARD SAFE !NO_COMMAND
 
-&CMD`MEETME u(mco)=$^(?s)(?\:\+)?(meet|meetme|join|mjoin|summon|msummon)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(mco)/INC`%1=%3,%4
+&CMD`MEETME u(mco)=$^(?s)(?\:\+)?(meet|meetme|join|mjoin|summon|msummon)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(mco)/INC`%1=%3,%4
 @set u(mco)/CMD`MEETME=regexp
 
 &INC`MEET u(mco)=@include u(mco)/INC`MEETME

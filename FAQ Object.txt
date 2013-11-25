@@ -4,7 +4,7 @@
 @set FAQ Object=!NO_COMMAND
 drop FAQ Object
 
-&CMD`FAQ FAQ Object=$^(?s)\+faq(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(v(VAR`PLAYFLAGS),if(setr(admin,or(controls(%#,me),match(v(OWNERS),%:))),v(VAR`ADMINFLAGS)),|,|)),%1,|))=@pemit %#=ERROR: Invalid switch for +faq! Your choices are: [itemize(%q<choices>,|,and,\,)];@include me/INC`[strfirstof(%1,MAIN)]=%2,%3
+&CMD`FAQ FAQ Object=$^(?s)\+faq(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@assert or(not(strlen(%1)),match(setr(choices,setunion(v(VAR`PLAYFLAGS),if(setr(admin,or(controls(%#,me),match(v(OWNERS),%:))),v(VAR`ADMINFLAGS)),|,|)),%1,|))=@pemit %#=ERROR: Invalid switch for +faq! Your choices are: [itemize(%q<choices>,|,and,\,)];@include me/INC`[strfirstof(%1,MAIN)]=%2,%3
 @set FAQ Object/CMD`FAQ=regexp
 
 &FUN`HEADER FAQ Object=if(strlen(%0),center(ansi(b,<)[ansi(hb,*%B)][if(%1,%0,ansi(hw,%0))][ansi(hb,%B*)][ansi(b,>)],78,ansi(b,-=-)),ansi(b,repeat(-=-,26)))

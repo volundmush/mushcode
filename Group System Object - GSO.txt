@@ -11,7 +11,7 @@
 @set u(gdb)=WIZARD SAFE
 @power u(gdb)=many_attribs
 
-&CMD`+GROUP u(gso)=$^(?s)(?\:\+)?g(roups|roup|create|rename|alias|set|div|undiv|gag|ungag|ictitle|ooctitle|invite|invites|uninvite|join|refuse|add|leave|kick|perm|rank|icon|icoff|oocon|oocoff|disband|ooc|radio|ic)(?\:/(\s+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(gso)/INC`CHOOSE=+g,%1,%2,%3,%4
+&CMD`+GROUP u(gso)=$^(?s)(?\:\+)?g(roups|roup|create|rename|alias|set|div|undiv|gag|ungag|ictitle|ooctitle|invite|invites|uninvite|join|refuse|add|leave|kick|perm|rank|icon|icoff|oocon|oocoff|disband|ooc|radio|ic)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(gso)/INC`CHOOSE=+g,%1,%2,%3,%4
 @set u(gso)/CMD`+GROUP=regexp
 
 &INC`CHOOSE u(gso)=@switch/regexp/inline 1=strmatch(%0,+g),{@assert or(not(strlen(%2)),match(setr(choices,setunion(get(u(gso)/VAR`PLAYFLAGS`G`%1),if(isadmin(%#),get(u(gso)/VAR`ADMINFLAGS`G`%1)),|,|)),ucstr(%2),|))=@nspemit %#=announce(GROUPS) ERROR: Invalid switch for %0%1! Your choices are: [itemize(%q<choices>,|,and,\,)];@include u(gso)/INC`CHOOSE`G`%1=%2,%3,%4,G},{@nspemit %#=announce(GROUPS) ERROR: Unknown code error. Please contact staff.}
@@ -40,7 +40,7 @@
 &INC`CHOOSE`G`ALIAS u(gso)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`ALIAS=%1,%2,%3
 &INC`CODE`ALIAS u(gso)=@assert isadmin(%#)=@nspemit %#=announce(GROUPS) ERROR: Only Admin may re-Alias Groups.;@assert strlen(%0)=@nspemit %#=announce(GROUPS) ERROR: ALIAS field empty.;@assert regmatchi(%0,^(\[A-Z\]\{1,5\})$)=@nspemit %#=announce(GROUPS) ERROR: Aliases may only be 7 or fewer alphabetic characters (A-Z) with no spaces or symbols.;@break words(grepi(u(gdb)/*,%0))=@nspemit %#=announce(GROUPS) ERROR: A Group already has that Alias.;&%q<gid1> u(gdb)=ucstr(%0);@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{Alias changed to: %0};@include u(gso)/INC`CODE`CHAT={%n changed the Group's Alias to [ucstr(ansi(hw,%0))]},OOC,1
 
-&GFN`ISGROUPMEMBER u(gso)=if(isadmin(%0),1,if(valnum(%1),match(get(u(gdb)/%1`MEMBERS),%0),if(eq(0,%1),if(u(u(gso)/FUN`FINDGROUP,%1),isgroupmember(%0,u(u(gso)/FUN`FINDGROUP,%1)),0),0)))
+&GFN`ISGROUPMEMBER u(gso)=switch(1,isadmin(%0),1,hasflag(%0,JAILED),0,if(valnum(%1),match(get(u(gdb)/%1`MEMBERS),%0),if(eq(0,%1),if(u(u(gso)/FUN`FINDGROUP,%1),isgroupmember(%0,u(u(gso)/FUN`FINDGROUP,%1)),0),0)))
 
 &INC`CHOOSE`G`DISBAND u(gso)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`DISBAND=%1,%2,%3
 &INC`CODE`DISBAND u(gso)=@assert isadmin(%#)=@nspemit %#=announce(GROUPS) ERROR: Only Staff may Disband Groups.;@include u(ccs)/INC`VERIFY={WARNING: This will completely disband %q<gname1> and all Divisions. ARe you sure you want to continue? Enter the same command again within 10 seconds to Verify!},FAC DELETE %q<gid1>;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n has Disbanded the Group!},OOC,1;@dolist lsearch(all,eplayer,\[hasattr(##/D`GROUP`%q<gid1>)\])={@wipe %i0/D`GROUP`%q<gid1>};@set u(gdb)=!SAFE;@wipe u(gdb)/%q<gid1>;@set u(gdb)=SAFE;@switch/inline isdbref(u(kdb))=1,{@dolist/inline regrepi(u(kdb),LOCK`*`GROUP,\\b%q<gid1>\\b)={&%i0 u(kdb)=setdiff(%q<gid1>,get(u(kdb)/%i0))}}
@@ -53,7 +53,7 @@
 
 &FUN`GRPPERM u(gso)=if(isadmin(%0),1,lte(u(u(gso)/FUN`GETRANK,%1,%0),u(u(gso)/FUN`GETPERM,%1,%2)))
 
-&FUN`GETRANK u(gso)=if(isadmin(%0),-1,strfirstof(getstat(u(gdb)/%0`RANK,%1),getstat(u(gso)/VAR`DEFAULTS`SETOP,SRANK)))
+&FUN`GETRANK u(gso)=switch(1,isadmin(%0),-1,strfirstof(getstat(u(gdb)/%0`RANK,%1),getstat(u(gso)/VAR`DEFAULTS`SETOP,SRANK)))
 
 &FUN`DIVPERM u(gso)=
 
@@ -130,7 +130,7 @@
 &INC`CODE`KICK u(gso)=@assert isgroupmember(%:,%q<gid1>)=@nspemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@assert u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,KICK)=@nspemit %#=announce(GROUPS) ERROR: You do not have permission to do that.;@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@assert match(get(u(gdb)/%q<gid1>`MEMBERS),%q<t1objid>)=@nspemit %#=announce(GROUPS) ERROR: They are not a member of the Group.;@assert lte(u(u(gso)/FUN`GETRANK,%:,%q<gid1>),u(u(gso)/FUN`GETRANK,%q<t1objid>,%q<gid1>))=@nspemit %#=announce(GROUPS) ERROR: Cannot kick those of higher rank.;&%q<gid1>`MEMBERS u(gdb)=setdiff(get(u(gdb)/%q<gid1>`MEMBERS),%q<t1objid>);@nspemit %q<t1>=announce(GROUPS) %n removed you from the %q<gname1> Group!;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>{%q<t1name> was kicked.};@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n removed %q<t1name> from the Group},OOC,1
 
 &INC`CHOOSE`G`RANK u(gso)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`RANK=%1,%2,%3
-&INC`CODE`RANK u(gso)=@assert isgroupmember(%:,%q<gid1>)=@nspemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@assert u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,RANK)=@nspemit %#=announce(GROUPS) ERROR: You do not have permission to do that.;@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@assert strlen(%1)=@nspemit %#=announce(GROUPS) ERROR: Rank field empty.;@assert and(gte(%1,0),isint(%1))=@nspemit %#=announce(GROUPS) ERROR: Ranks must be whole numbers.;@assert lt(u(u(gso)/FUN`GETRANK,%:,%q<gid1>),%1)=@nspemit %#=announce(GROUPS) ERROR: New Rank must be less than your own.;@assert lt(u(u(gso)/FUN`GETRANK,%:,%q<gid1>),u(u(gso)/FUN`GETRANK,%q<t1objid>,%q<gid1>))=@nspemit %#=announce(GROUPS) ERROR: Cannot change the rank of superiors.;th setstat(u(gdb)/%q<gid1>`RANK,%q<t1objid>,%1);@nspemit %q<t1>=announce(GROUPS) %n has Changed your rank in the %q<gname1> Group to %1!;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>{Changed %q<t1name>'s Rank to %1};@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n set %q<t1name>'s Rank to %1},OOC,1
+&INC`CODE`RANK u(gso)=@assert isgroupmember(%:,%q<gid1>)=@nspemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@assert u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,RANK)=@nspemit %#=announce(GROUPS) ERROR: You do not have permission to do that.;@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@assert strlen(%1)=@nspemit %#=announce(GROUPS) ERROR: Rank field empty.;@assert and(gte(%1,0),isint(%1))=@nspemit %#=announce(GROUPS) ERROR: Ranks must be whole numbers.;@assert lt(u(u(gso)/FUN`GETRANK,%:,%q<gid1>),%1)=@nspemit %#=announce(GROUPS) ERROR: New Rank must be less than your own.;@assert or(lt(u(u(gso)/FUN`GETRANK,%:,%q<gid1>),u(u(gso)/FUN`GETRANK,%q<t1objid>,%q<gid1>)),isadmin(%#))=@nspemit %#=announce(GROUPS) ERROR: Cannot change the rank of superiors.;th setstat(u(gdb)/%q<gid1>`RANK,%q<t1objid>,%1);@nspemit %q<t1>=announce(GROUPS) %n has Changed your rank in the %q<gname1> Group to %1!;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>{Changed %q<t1name>'s Rank to %1};@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n set %q<t1name>'s Rank to %1},OOC,1
 
 &INC`CHOOSE`G`RADIO u(gso)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`CHAT=%1[if(strlen(%2),=%2)],IC,0
 &INC`CHOOSE`G`IC u(gso)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`CHAT=%1[if(strlen(%2),=%2)],IC,0

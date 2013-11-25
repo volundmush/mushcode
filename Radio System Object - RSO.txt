@@ -4,7 +4,7 @@
 &rdso u(coi)=locate(config(master_room),Radio System Object <RDSO>,TXxi)
 @parent u(rdso)=u(coi)
 @set u(rdso)=WIZARD !NO_COMMAND
-@lock/use u(rdso)=APPROVED/1
+@lock/command u(rdso)=APPROVED/1
 &Approved u(rdso)=approved(%#)
 
 @switch/inline isdbref(u(rddb))=0,{@switch/inline isdbref(u(rdso))=1,{@tel create(Radio Database <RDDB>)=u(rdso)}}
@@ -13,7 +13,7 @@
 @set u(rddb)=WIZARD
 @power u(rddb)=many_attribs
 
-&CMD`+RADIO u(rdso)=$^(?s)(?\:\+)?radio(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(rdso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(rdso)/VAR`ADMINFLAGS)),|,|),|,RADIO,switch,switch;@include u(rdso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+&CMD`+RADIO u(rdso)=$^(?s)(?\:\+)?radio(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(rdso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(rdso)/VAR`ADMINFLAGS)),|,|),|,RADIO,switch,switch;@include u(rdso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(rdso)/CMD`+RADIO=regexp
 
 &CMD`+RADIOSHORT u(rdso)=$^(?s)\.([a-z])(?\: +(.*))?$:@include u(rdso)/INC`MAIN=%1,%2
@@ -29,15 +29,18 @@
 
 &INC`NAME u(rdso)=@include u(rdso)/INC`CHECKSLOT;@switch/inline strlen(%1)=0,{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)]'s Name has been Cleared!;&D`RADIO`%0`NAME %#},{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)] is now known as: %1;&D`RADIO`%0`NAME %#=%1}
 
+&INC`ALIAS u(rdso)=@include u(rdso)/INC`CHECKSLOT;@switch/inline strlen(%1)=0,{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)]'s Alias has been Cleared!;&D`RADIO`%0`Alias %#},{@nspemit %#=announce(RADIO) Your Alias on Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)] is now: %1;&D`RADIO`%0`ALIAS %#=%1}
+
 &INC`ENCRYPT u(rdso)=@include u(rdso)/INC`CHECKSLOT;@switch/inline strlen(%1)=0,{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)]'s Encrypt Key has been Cleared!;&D`RADIO`%0`KEY %#},{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)]'s Encrypt Key is now: %1;&D`RADIO`%0`KEY %#=%1}
 
 &INC`TOGGLE u(rdso)=@include u(rdso)/INC`CHECKSLOT;@switch/inline default(%#/D`RADIO`%0`ON,1)=1,{@nspemit %#=announce(RADIO) You switch off [u(u(rdso)/FUN`FREQNAME,%#,%0)].;&D`RADIO`%0`ON %#=0},0,{@nspemit %#=announce(RADIO) You switch on [u(u(rdso)/FUN`FREQNAME,%#,%0)].;&D`RADIO`%0`ON %#=1}
 
 &INC`WIPE u(rdso)=@include u(rdso)/INC`CHECKSLOT;@include u(ccs)/INC`VERIFY={WARNING: This will clean all data from Radio Slot %0. This action cannot be undone. Type the same command again within ten seconds to verify.},RADIO WIPE %0;@wipe %#/D`RADIO`%0;@nspemit %#=announce(RADIO) Radio Slot %0 wiped!
 
-&INC`BROADCAST u(rdso)=@assert strlen(%1)=@nspemit %#=announce(RADIO) ERROR: Nothing entered to say!;th setq(freq,get(%#/D`RADIO`%0));@message/spoof lsearch(all,eplayer,\[if(hasattr(##/\[setr(radattr,first(grepi(##,D`RADIO`*,%q<freq>)))\]),get(##/\%q<radattr>`ON),0)\])=<unset>,u(rdso)/FUN`FORMATBROADCAST,%#,##,%1,%q<freq>,%0,get(%#/D`RADIO`%0`KEY),get(%#/D`RADIO`%0`ALIAS);@include u(rdso)/INC`LOGRADIO=%#,%q<freq>,%1,get(%#/D`RADIO`%0`KEY),get(%#/D`RADIO`%0`ALIAS)
+&INC`BROADCAST u(rdso)=@assert strlen(%1)=@nspemit %#=announce(RADIO) ERROR: Nothing entered to say!;th setq(freq,get(%#/D`RADIO`%0));@message/spoof lsearch(all,eplayer,\[if(hasattr(##/\[setr(radattr,first(grepi(##,D`RADIO`*,%q<freq>)))\]),get(##/\%q<radattr>`ON),0)\])=<unset>,u(rdso)/FUN`FORMATBROADCAST,%#,##,%q<freq>,%1,get(%#/D`RADIO`%0`KEY),get(%#/D`RADIO`%0`ALIAS);@include u(rdso)/INC`LOGRADIO=%#,%q<freq>,%1,get(%#/D`RADIO`%0`KEY),get(%#/D`RADIO`%0`ALIAS)
+@@ %0 - Enactor, %1 - recipient, %2 - frequency, %3 - message, %4 - key, %5 - alias
 
-&FUN`FORMATBROADCAST u(rdso)=color(%1,-<,RADIO`1,hr)[color(%1,RADIO: [u(u(rdso)/FUN`FREQNAME,%1,%3)],RADIO`2,hw)][color(%1,>-,RADIO`1,hr)]%B[speak(&[color(%1,if(and(strlen(%6),isadmin(%1)),%6 \([name(%0)]\),strfirstof(%6,name(%0))),RADIO`NAME,n)],setr(mess,decrypt(encrypt(%2,%5),get(%1/[first(grepi(%1,D`RADIO`*,%q<freq>))]`KEY))),color(%1,says\,,RADIO`SAYS,n),#lambda/color(%1,"\%0",RADIO`SPEECH,n))]
+&FUN`FORMATBROADCAST u(rdso)=color(%1,-<,RADIO`1,hr)[color(%1,RADIO: [u(u(rdso)/FUN`FREQNAME,%1,%2)],RADIO`2,hw)][color(%1,>-,RADIO`1,hr)]%B[speak(&[color(%1,if(and(strlen(%5),isadmin(%1)),%5 \([name(%0)]\),strfirstof(%5,name(%0))),RADIO`NAME,n)],setr(mess,decrypt(encrypt(%3,%4),get(%1/[first(grepi(%1,D`RADIO`*,%q<freq>))]`KEY))),color(%1,says\,,RADIO`SAYS,n),#lambda/color(%1,"\%0",RADIO`SPEECH,n))]
 
 &INC`LOGRADIO u(rdso)=@switch/inline gt(setr(slot,first(filterbool(#lambda/isint(\%0),grepi(u(rddb),*,%1)))),0)=0,{&[setr(slot,nextslot(u(rddb),))] u(rddb)=%1};&[setr(newlog,%q<slot>`[nextslot(u(rddb),%q<slot>)])] u(rddb)=%0;&%q<newlog>`ON u(rddb)=secs();&%q<newlog>`TEXT u(rddb)=%2;&%q<newlog>`KEY u(rddb)=%3;&%q<newlog>`ALIAS u(rddb)=%4
 
@@ -45,9 +48,11 @@
 
 &FUN`FREQNAME u(rdso)=switch(1,regmatchi(%1,\[0-9\]+\\.\[0-9\]+),u(u(rdso)/FUN`FREQNAME,%0,last(first(grepi(%0,D`RADIO`*,%1)),`)),regmatchi(%1,\[A-Z\]),if(strlen(get(%0/D`RADIO`%1`NAME)),%1 - [get(%0/D`RADIO`%1`NAME)],%1),%1)
 
-&INC`RECALL u(rdso)=@include u(rdso)/INC`CHECKSLOT;@assert strlen(get(%#/D`RADIO`%0))=@nspemit %#=announce(RADIO) ERROR: That Radio Slot has no Frequency set.;@assert gt(setr(slot,first(filterbool(#lambda/isint(\%0),grepi(u(rddb),*,get(%#/D`RADIO`%0))))),0)=@nspemit %#=announce(RADIO) Nothing has been Logged.;@assert words(setr(list,sortkey(#lambda/last(\%0,`),lattr(u(rddb)/%q<slot>`*))))=@nspemit %#=announce(RADIO) Nothing to Recall.;@switch/inline %1=0,{th setq(max,ALL)},{@switch/inline strlen(%1)=0,{th setq(max,0)},{@assert and(gt(%1,-1),isint(setr(max,%1)))=@nspemit %#=announce(ERROR) Line Recall must be an integer 0 or greater.}};@nspemit %#=header(Frequency: [get(%#/D`RADIO`%0)] - Showing [switch(%q<max>,ALL,ALL,0,15,%q<MAX>)] Lines);@dolist/inline switch(%q<max>,ALL,%q<list>,0,elements(%q<list>,lnum(sub(words(%q<list>),15),words(%q<list>))),elements(%q<list>,lnum(sub(words(%q<list>),%q<max>),words(%q<list>))))=@nspemit %#=(On [convsecs(get(u(rddb)/%i0`ON))])%B[u(FUN`FORMATBROADCAST,get(u(rddb)/%i0),%#,get(u(rddb)/%i0`TEXT),get(%#/D`RADIO`%0),get(u(rddb)/%i0`KEY),get(u(rddb)/%i0`ALIAS))];@nspemit %#=header()
+&INC`RECALL u(rdso)=@include u(rdso)/INC`CHECKSLOT;@assert strlen(get(%#/D`RADIO`%0))=@nspemit %#=announce(RADIO) ERROR: That Radio Slot has no Frequency set.;@assert gt(setr(slot,first(filterbool(#lambda/isint(\%0),grepi(u(rddb),*,setr(freq,get(%#/D`RADIO`%0)))))),0)=@nspemit %#=announce(RADIO) Nothing has been Logged.;@assert words(setr(list,sortkey(#lambda/last(\%0,`),lattr(u(rddb)/%q<slot>`*))))=@nspemit %#=announce(RADIO) Nothing to Recall.;@switch/inline %1=0,{th setq(max,ALL)},{@switch/inline strlen(%1)=0,{th setq(max,0)},{@assert and(gt(%1,-1),isint(setr(max,%1)))=@nspemit %#=announce(ERROR) Line Recall must be an integer 0 or greater.}};@nspemit %#=header(Frequency: [get(%#/D`RADIO`%0)] - Showing [switch(%q<max>,ALL,ALL,0,15,%q<MAX>)] Lines);@dolist/inline switch(%q<max>,ALL,%q<list>,0,revwords(elements(revwords(%q<list>),lnum(1,15))),revwords(elements(revwords(%q<list>),lnum(1,%q<max>))))=@nspemit %#=(On [convsecs(get(u(rddb)/%i0`ON))])%B[u(FUN`FORMATBROADCAST,get(u(rddb)/%i0),%#,get(%#/D`RADIO`%0),get(u(rddb)/%i0`TEXT),get(u(rddb)/%i0`KEY),get(u(rddb)/%i0`ALIAS))];@nspemit %#=header()
 
-&VAR`PLAYFLAGS u(rdso)=SET|NAME|TOGGLE|FREQ|ENCRYPT|WIPE|RECALL
+@@ %0 - Enactor, %1 - recipient, %2 - frequency, %3 - message, %4 - key, %5 - alias
+
+&VAR`PLAYFLAGS u(rdso)=SET|NAME|TOGGLE|FREQ|ENCRYPT|WIPE|RECALL|ALIAS
 &VAR`ADMINFLAGS u(rdso)=ALLFREQ
 
 &STARTUP u(rdso)=@trigger u(rdso)/TRG`CLEANLOGS

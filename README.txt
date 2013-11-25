@@ -55,12 +55,12 @@ INTEGRATION WITH COMMON SYSTEMS: Patches are provided to make the ever-popular A
 
 2. Examine your mush.cnf, make sure it has the following:
 A) mud_name - set it to something short but respectable, it'll be showing up in my code a lot!
-B) I usually turn off database compression entirely as a habit to remove a layer of complexity from the crucial dump process after hearing a horror story from one very unlucky game whose install of gzip turned on them. 
+B) I usually turn off database compression entirely as a habit to remove a layer of complexity from the crucial dump process after hearing a horror story from one very unlucky game whose install of gzip turned on them. (Lesson to learn: BACKUPS!)
 C) Event Handler and Ancestors will be handled by the #1 Startup - leave these alone.
 D) Uncomment all the dump_* messages and then clear dump_complete - this'll get rid of that annoying 'GAME: Save Complete.'
 E) Instead of using the built-in txt files, why not create TXT`<name> attributes on the PennMUSH configuration object and link these to those when you do? It'll protect them from SVN updates and lets you use ANSI and softcode displays! As an example, once the PCO's installed (let's say as DBREF #8), if you wanted to make a softcoded connect screen you could set connect_file to #8/TXT`CONNECT, then whatever you put in the TXT`CONNECT attribute will be evaluated and shown to folk connecting.
 F) Under the help section, comment out ahelp, anews, and news.
-G) Under Logins: enable Pueblo - much of my code is clickable to people using Pueblo, those few are rare indeed.
+G) Under Logins: enable Pueblo - much of my code is clickable to people using Pueblo, though those few are rare indeed.
 H) Under Cosmetic stuff: player_name_spaces - set this to yes.
 I) Under cosmetic stuff: set page_aliases to yes
 J) Under Flags section: If your game allows players to create but need approval before they can join play, ensure that player_flags includes UNREGISTERED. You may also want to include ANSI and COLOR256 as a default but some clients might barf at this.

@@ -10,10 +10,10 @@
 @parent u(kdb)=u(coi)
 @set u(kdb)=WIZARD
 
-&CMD`+KEY u(kls)=$^(?s)(?\:\+)?(key)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(kls)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(kls)/VAR`%1`ADMINFLAGS)),|,|),|,KEY,switch,switch;@include u(kls)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`+KEY u(kls)=$^(?s)(?\:\+)?(key)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(kls)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(kls)/VAR`%1`ADMINFLAGS)),|,|),|,KEY,switch,switch;@include u(kls)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(kls)/CMD`+KEY=regexp
 
-&CMD`+LOCK u(kls)=$^(?s)(?\:\+)?(lock)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(kls)/INC`LOCK=%3,%4,strfirstof(%2,basic)
+&CMD`+LOCK u(kls)=$^(?s)(?\:\+)?(lock)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(kls)/INC`LOCK=%3,%4,strfirstof(%2,basic)
 @set u(kls)/CMD`+LOCK=regexp
 
 &VAR`KEY`PLAYFLAGS u(kls)=ADD|REM|MAKE|DESTROY|AUTH|REVOKE|CHOWN|CONFIG

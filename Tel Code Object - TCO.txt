@@ -11,7 +11,7 @@
 @set u(tdb)=WIZARD SAFE
 @power u(tdb)=many_attribs
 
-&CMD`TEL u(tco)=$^(?\:\+)?(?\:tel|grid|map|travel)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(tco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(tco)/VAR`ADMINFLAGS)),|,|),|,TEL,switch,switch;@include u(tco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+&CMD`TEL u(tco)=$^(?\:\+)?(?\:tel|grid|map|travel)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(tco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(tco)/VAR`ADMINFLAGS)),|,|),|,TEL,switch,switch;@include u(tco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(tco)/CMD`TEL=regexp
 
 &VAR`TEL`PLAYFLAGS u(tco)=

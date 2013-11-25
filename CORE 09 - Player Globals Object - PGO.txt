@@ -7,7 +7,7 @@
 
 &CMD`CHARSET u(pgo)=$+charset:@nspemit %#=wrap(iter(lnum(32,256),if(comp(first(chr(%i0)),#-1,A),ljust([ljust(%i0:,4)] [ansi(hy,chr(%i0))],7)), ,),78)
 
-&CMD`+BEEP u(pgo)=$^(?\:\+)beep(?\: +(.*))?$:@include u(ccs)/INC`CHECKPC=%1,1,BEEP;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=That player is offline.;@nspemit %q<t1>=beep()[ansi(hr,%n wishes for your attention! BEEP!)];@nspemit %#=You have sent %q<t1name> a beep!
+&CMD`+BEEP u(pgo)=$^(?\:\+)beep(?\: +(.*))?$:@include u(ccs)/INC`JAILCHECK;@include u(ccs)/INC`CHECKPC=%1,1,BEEP;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=That player is offline.;@nspemit %q<t1>=beep()[ansi(hr,%n wishes for your attention! BEEP!)];@nspemit %#=You have sent %q<t1name> a beep!
 
 &CMD`+WHO u(pgo)=$^(?\:\+)?who$:@nspemit %#=header(mudname() Connected Players)%R[align(30 -10 -3 -4 3 23,ansi(hc,Name),ansi(hc,Alias),ansi(hc,Sex),ansi(hc,Idle),ansi(hc,Con),ansi(hc,Location))]%R[subheader()];@dolist/inline setr(list,setunion(lwho(%#),lwho(%#),,namei))={@nspemit %#=u(FUN`WHO,%i0,%#)};@switch/inline gt(setr(max,words(setunion(iter(%q<list>,get(%i0/LASTIP)),))),v(VAR`MAXPLAYERS))=1,{&VAR`MAXPLAYERS u(pgo)=%q<max>};@nspemit %#=header(words(%q<list>) Characters from %q<max> IPs Connected - Record is [v(VAR`MAXPLAYERS)])
 @set u(pgo)/CMD`+WHO=regexp
@@ -16,7 +16,7 @@
 
 &CMD`+FLIP u(pgo)=$+flip:th setq(roll,rand(0,100));@switch/inline %q<roll>=50,{@nsremit %l=announce(FLIP) [ansi(h,%n)] flipped a coin: [switch(rand(1,6),1,it landed on its side!,2,a Demon grabbed it!,3,it never comes back down...,4,when it lands\, both sides are blank.,5,Reality Error 404: Coin not found!,6,it's drawn into a parallel universe!)]},>50,{@nsremit %l=announce(FLIP) [ansi(h,%n)] flipped a coin: Heads!},{@nsremit %l=announce(FLIP) [ansi(h,%n)] flipped a coin: Tails!}
 
-&CMD`+OOC u(pgo)=$^(?s)(?\:\+)?(ooc|osay)(?\: +(.*))?$:@assert strlen(%2)=@nspemit %#=What will you say?;@message/spoof lplayers(%l)=%2,u(pgo)/FUN`MSGOOC,%#,##,%2
+&CMD`+OOC u(pgo)=$^(?s)(?\:\+)?(ooc|osay)(?\: +(.*))?$:@assert elock(%l/speech,%#)=@nspemit %#=Permission denied.;@assert strlen(%2)=@nspemit %#=What will you say?;@message/spoof lplayers(%l)=%2,u(pgo)/FUN`MSGOOC,%#,##,%2
 @set u(pgo)/CMD`+OOC=regexp
 
 &CMD`QUIT u(pgo)=$^(quit|logoff|logout)$:@boot/silent %#
