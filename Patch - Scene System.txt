@@ -34,3 +34,15 @@ th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),IC,|,|))
 &INCLUDE`LASTPOSE`PREPOSE u(scenesys)
 
 &INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);&lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
+
+@@ This is a patch for making SceneSys get along with my +pot
+&OVERRIDE`@EMIT u(scenesys)=$@emit*:@assert or(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th [setr(r,speak(&%N,|%qp))] ; @include/nobreak me/include`lastpose`prepose=%qr,%: ;@include u(pot)/INC`ALTMAIN=@EMIT,%0; @message/spoof/remit %l=%qr,emitformat,%0,%#,%n,[accname(%#)],%qp,%qR,,u(fn`islogged,%N,%:,%qr) ; @include me/include`lastpose`postpose=%qr,%: ; @include me/include`lastpose`catchpose=trimpenn(trimpenn(%qr,%t,r),%r),%:
+
+&OVERRIDE`POSE u(scenesys)=$pose*:@assert or(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th [setr(r,speak(&%N,:%qp))] ; @include/nobreak me/include`lastpose`prepose=%qr,%: ;@include u(pot)/INC`ALTMAIN=POSE,%0; @message/spoof/remit %l=%qr,poseformat,%0,%#,%n,[accname(%#)],%qp,%qr,,u(fn`islogged,%N,%:,%qr) ; @include me/include`lastpose`postpose=%qr,%: ; @include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
+
+&OVERRIDE`SAY u(scenesys)=$say*:@assert or(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th [setr(r,speak(&%N,%qp))] ; @include/nobreak me/include`lastpose`prepose=%qr,%: ;@include u(pot)/INC`ALTMAIN=SAY,%0; @message/spoof/remit %l=%qr,sayformat,%0,%#,%n,[accname(%#)],%qp,%qr,[udefault(%#/saymodifier,says,%qp)],u(fn`islogged,%N,%:,%qr) ; @include/nobreak me/include`lastpose`postpose=%qr,%: ; @include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
+
+&OVERRIDE`SEMIPOSE u(scenesys)=$semipose*:@assert or(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th [setr(r,speak(&%N,;%qp))] ; @include/nobreak me/include`lastpose`prepose=%qr,%: ;@include u(pot)/INC`ALTMAIN=SEMIPOSE,%0; @message/spoof/remit %l=%qr,semiposeformat,%0,%#,%n,[accname(%#)],%qp,%qr,,,u(fn`islogged,%N,%:,%qr) ; @include/nobreak me/include`lastpose`postpose=%qr,%: ; @include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
+
+
+@include u(pot)/INC`ALTMAIN=SEMIPOSE,%0;
