@@ -15,12 +15,14 @@
 
 &INC`LIST u(xp)=@nspemit %#=header(name(%0) XP)%R[ljust(ansi(h,rjust(Current:,10)),10)][rjust(sub(setr(gained,u(u(xp)/FUN`COUNT,%0,G)),setr(spent,u(u(xp)/FUN`COUNT,%0,S))),4)]%r[ljust(ansi(h,rjust(Total:,10)),10)][rjust(%q<gained>,4)]%r[ljust(ansi(h,rjust(Spent:,10)),10)][rjust(%q<spent>,4)];@nspemit %#=header()
 
+&INC`LIST u(xp)=@nspemit %#=header(name(%0) XP)%R[ljust(ansi(h,rjust(Current:,10)),10)][rjust(sub(setr(gained,u(u(xp)/FUN`COUNT,%0,G)),setr(spent,u(u(xp)/FUN`COUNT,%0,S))),4)]%r[ljust(ansi(h,rjust(Total:,10)),10)][rjust(%q<gained>,4)]%r[ljust(ansi(h,rjust(Spent:,10)),10)][rjust(%q<spent>,4)];@nspemit %#=header()
+
 &FUN`COUNT u(xp)=lmath(add,iter(lattr(%0/D`XP`%1`*),get(%0/%i0)))
 
 &INC`GAINED u(xp)=@switch/inline and(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,G
 &INC`SPENT u(xp)=@switch/inline and(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,S
 
-&INC`LISTBY u(xp)=@nspemit %#=header(name(%0)'s [if(strmatch(%1,G),GAINED,SPENT)] XP);@dolist/inline sortkey(#lambda/last(\%0,`),lattr(%0/D`XP`%1`*))=@nspemit %#=#[ljust(last(%i0,`),4)][ansi(h,default(%0/%i0,N/A))] for [default(%0/%i0`REASON,Unknown Reason)]%R%B%B%B%B%B[ansi(hw,Handled By)]%B[name(get(%0/%i0`BY))] [ansi(h,On)] [convsecs(get(%0/%i0`ON))];@nspemit %#=header()
+&INC`LISTBY u(xp)=@nspemit %#=header(name(%0)'s [if(strmatch(%1,G),GAINED,SPENT)] XP);@dolist/inline sortkey(#lambda/last(\%0,`),lattr(%0/D`XP`%1`*))=@nspemit %#=#[ljust(last(%i0,`),4)][ansi(h,default(%0/%i0,N/A))] for [ansi(h,default(%0/%i0`REASON,Unknown Reason))]%R%B%B%B%B%BHandled By%B[ansi(h,name(get(%0/%i0`BY)))] On [convsecs(get(%0/%i0`ON))];@nspemit %#=header()
 
 &INC`DELGAINED u(xp)=@include u(xp)/INC`DELETE=%0,G,%1
 &INC`DELSPENT u(xp)=@include u(xp)/INC`DELETE=%0,S,%1

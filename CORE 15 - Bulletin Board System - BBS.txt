@@ -15,8 +15,15 @@
 
 &INC`INIT`GB u(bbs)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1
 
-&FUN`VALIDGROUPS`BB u(bbs)=filterbool(#lambda/and(or(elock(\%0/%1,%0),%q<isadmin>),or(%2,not(default(%0/D`BB`\%0`OMIT,0)))),u(FUN`LISTGROUPS`BB))
-&FUN`VALIDGROUPS`GB u(bbs)=filterbool(#lambda/and(or(%q<isadmin>,if(strlen(get(u(bbs)/BB`\%0`G%1)),lte(u(u(gso)/FUN`GETRANK,%q<gid1>,objid(%0)),get(u(bbs)/BB`\%0`G%1)),1)),or(%2,not(default(%0/D`BB`\%0`OMIT,0)))),u(FUN`LISTGROUPS`GB))
+&FUN`VALIDGROUPS`BB u(bbs)=filterbool(#lambda/u(FUN`CAN%1`BB,%0,\%0),u(FUN`LISTGROUPS`BB))
+&FUN`BBADMIN`BB u(bbs)=or(isadmin(%0),elock(%1/Admin,%0))
+&FUN`CANREAD`BB u(bbs)=and(or(elock(%1/Read,%0),u(FUN`BBADMIN`BB,%0)),or(%2,not(default(%0/D`BB`%1`OMIT,0))))
+&FUN`CANWRITE`BB u(bbs)=and(or(elock(%1/Write,%0),u(FUN`BBADMIN`BB,%0)),or(%2,not(default(%0/D`BB`%1`OMIT,0))))
+
+&FUN`VALIDGROUPS`GB u(bbs)=filterbool(#lambda/u(FUN`CAN%1`GB,%0,\%0,,%q<gid1>),u(FUN`LISTGROUPS`GB))
+&FUN`BBADMIN`GB u(bbs)=u(u(gso)/FUN`GRPPERM,objid(%0),%1,BBADMIN)
+&FUN`CANREAD`GB u(bbs)=and(or(u(FUN`BBADMIN`GB,%0,%3),if(strlen(get(u(bbs)/BB`%1`GREAD)),lte(u(u(gso)/FUN`GETRANK,%3,objid(%0)),get(u(bbs)/BB`%1`GREAD)),1)),or(%2,not(default(%0/D`BB`%1`OMIT,0))))
+&FUN`CANWRITE`GB u(bbs)=and(or(u(FUN`BBADMIN`GB,%0,%3),if(strlen(get(u(bbs)/BB`%1`GWRITE)),lte(u(u(gso)/FUN`GETRANK,%3,objid(%0)),get(u(bbs)/BB`%1`GWRITE)),1)),or(%2,not(default(%0/D`BB`%1`OMIT,0))))
 
 &INC`CHECK u(bbs)=@switch/inline t(default(%#/D`BB`CHECK,1))=1,{@nspemit %#=announce(%q<ann>) You will no longer +bbscan on connect!;&D`BB`CHECK %#=0},0,{@nspemit %#=announce(%q<ann>) You will now +bbscan on connect!;&D`BB`CHECK %#=1}
 
@@ -53,7 +60,7 @@
 
 &INC`POST`MAKEMESS u(bbs)=th setq(next,baseconv(default(u(bbs)/BB`%2`NEXT,1),10,36));&BB`%2`NEXT u(bbs)=add(default(u(bbs)/BB`%2`NEXT,1),1);&%q<next> %2=%4;&%q<next>`BY %2=name(%0);&%q<next>`BYDB %2=objid(%0);&%q<next>`ON %2=secs();&%q<next>`HDR %2=%3;&%q<next>`TIMEOUT %2=if(u(FUN`CONFIG,%2,TIMEOUT),u(FUN`CONFIG,%2,TIMEOUT),0);@switch/inline %5=BB,{@include u(bbs)/INC`ALERT=%5,%1,%2,{(New [ucstr(%5)] Message ([pueblize(setr(messnum,%1/[words(lattr(%2/*))]),+[lcstr(%5)]read %q<messnum>)]) posted to '[name(%2)]' by %n: %3)}},GB,{@include u(bbs)/INC`ALERT=%5,%1,%2,{ansi(hc,<GROUP BB>) New message posted on '[pueblize(%q<gname1>,+group %q<gname1>)]' '[name(%2)]' Board ([pueblize(setr(messnum,%1/[words(lattr(%2/*))]),+[lcstr(%5)]read %q<messnum>)]) by %n: %3}}
 
-&INC`ALERT u(bbs)=@switch/inline %0=BB,{th setq(members,filterbool(#lambda/match(u(FUN`LISTGROUPS`%0),elements(u(FUN`VALIDGROUPS`%0,\%0,READ),%1)),setunion(lwho(),)))},GB,{th setq(members,filterbool(#lambda/isgroupmember(\%0,%q<gid1>),setunion(lwho(),)))};@dolist/inline %q<members>={@nspemit %i0=%3}
+&INC`ALERT u(bbs)=@switch/inline %0=BB,{th setq(members,filterbool(#lambda/u(FUN`CANREAD`BB,\%0,%2,,),setunion(lwho(),)))},GB,{th setq(members,filterbool(#lambda/isgroupmember(\%0,%q<gid1>),setunion(lwho(),)))};@dolist/inline %q<members>={@nspemit %i0=%3}
 @@ %0 - Mode, GB or BB. %1 - Board number. %2 - Board DBREF. %3 - Message.
 
 &INC`NEWGROUP u(bbs)=@assert strlen(%1%2)=@nspemit %#=announce(%q<ann>) ERROR: No name entered for the new board!;@assert valid(name,%1%2)=@nspemit %#=announce(%q<ann>) ERROR: That is not a suitable name for a board.;@tel setr(bb,create(%1%2))=switch(%0,BB,u(bbs),GB,u(gdb));@switch/inline %0=BB,{&groups u(bbs)=trim(cat(v(groups),%q<bb>))},GB,{&%q<gid1>`BOARDS u(gdb)=trim(cat(get(u(gdb)/%q<gid1>`BOARDS),%q<bb>))};@set %q<bb>=SAFE;@nspemit %#=announce(%q<ann>) Board '%1%2' created!
