@@ -30,6 +30,16 @@ th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),IC,|,|))
 
 &INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);@dolist/inline [lockfilter(lastpose`post:1,lvplayers(%L))]=@pemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)]End of [ansi(hw,accname(%1))]'s pose%b>,78);&lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
 
+@@ This version will only show the slim headers when <player> is in an active scene!
+&INCLUDE`LASTPOSE`PREPOSE u(scenesys)=@assert u(fn`is`ic,%1);@assert u(fn`get`activescene,u(fn`get`playerid,%1))=@nsremit %l=%B;@dolist/inline [lockfilter(lastpose`pre:1,lvplayers(%L))]=@nspemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)][ansi(+white,accname(%1))] has posed%b>,78)
+
+&INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);@assert u(fn`get`activescene,u(fn`get`playerid,%1))=@nsremit %l=%B;;@dolist/inline [lockfilter(lastpose`post:1,lvplayers(%L))]=@pemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)]End of [ansi(hw,accname(%1))]'s pose%b>,78);&lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
+
+u(fn`get`activescene,u(fn`get`playerid,%1))
+
+&FN`ISLOGGED u(scenesys)=if(and(not(u(fn`is`exitsimilar,%0,loc(%1))),not(u(fn`is`oocchatter,%2)),setr(PlayerID,u(fn`get`playerid,%1)),gte(words(%2),u(data`minposewords)),not(u(fn`is`exitsimilar,%0,loc(%1))),setr(SceneID,u(fn`get`activescene,%q<PlayerID>)),not(u(fn`is`spam,%q<SceneID>,%1,%q<PlayerID>))),\[[ansi(hg,LOG: %q<SceneID>)]\]%b)[if(setr(LocalScene,u(fn`get`scene`recentatloc,objid(loc(%1)),1)),[switch(%q<LocalScene>,u(fn`get`activescene,u(fn`get`playerid,%1)),,%b[ansi(hw,\[[ansi(hr,X)]\])]%b)])]
+
+
 @@ This removes them entirely...
 &INCLUDE`LASTPOSE`PREPOSE u(scenesys)
 

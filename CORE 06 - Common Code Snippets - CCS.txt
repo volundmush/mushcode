@@ -10,7 +10,7 @@
 
 &INC`JAILCHECK u(ccs)=@break hasflag(%#,JAILED)=@nspemit %#=announce(JAIL) You have been jailed and cannot use this command.
 
-&INC`VERIFY u(CCS)=@switch/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th attrib_set(%#/VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@break 1={@nspemit %#=if(strlen(%2),announce(%2)%B)%0}}
+&INC`VERIFY u(CCS)=@switch/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th attrib_set(%#/VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@break 1={@nspemit %#=if(strlen(%2),announce(%2)%B)%0}},1,{@wipe %#/VERIFY_OK}
 @@ VERIFY Arguments: %0 = message to display, %1 = code to set for verification, %2 = Title for Announce.
 
 &INC`CPTREE u(ccs)=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/%i0=%2/%3`[elements(%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)]}

@@ -3,7 +3,7 @@
 @switch/inline isdbref(u(gfo))=0,{@tel create(Global Functions Object <GFO>)=config(master_room)}
 &gfo u(coi)=locate(config(master_room),Global Functions Object <GFO>,TXxi)
 @parent u(gfo)=u(coi)
-@set u(gfo)=WIZARD
+@set u(gfo)=WIZARD SAFE
 
 &GFN`AGO u(gfo)=switch(1,lt(%0,60),%0s,lt(%0,3600),div(%0,60)m,lt(%0,86400),div(%0,3600)h,div(%0,86400)d)
 &GFN`ANNOUNCE u(gfo)=color(strfirstof(%1,%#),-=<,MAIN`ANNOUNCEBORDER,hm)[color(strfirstof(%1,%#),ucstr(%0),MAIN`ANNOUNCETITLE,h)][color(strfirstof(%1,%#),>=-,MAIN`ANNOUNCEBORDER,hm)]

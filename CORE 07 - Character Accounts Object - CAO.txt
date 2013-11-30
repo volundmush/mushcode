@@ -105,7 +105,7 @@
 &CMD`+STAFF u(cao)=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`STAFF`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`STAFF`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`STAFF`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+STAFF=regexp
 
-&GFN`ISADMIN u(cao)=or(orflags(%0,WrJ),strlen(getstat(u(cao)/VAR`STAFF`WIZLIST,objid(%0))))
+&GFN`ISADMIN u(cao)=or(orflags(%0,Wr),orflags(%0,J),strlen(getstat(u(cao)/VAR`STAFF`WIZLIST,objid(%0))))
 
 &FUN`STAFF`CHSTAFF u(cao)=orflags(%0,W)
 
