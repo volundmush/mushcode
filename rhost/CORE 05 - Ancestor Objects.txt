@@ -1,0 +1,27 @@
+@@ DEPENDENCIES - Core
+@switch/inline isdbref(u(ar))=0,{th attrib_set(u(coi)/AR,dig(Ancestor Room))}
+
+&CONFORMAT u(ar)=header(pueblize(ansi(hw,Contents),+look),1)[iter(lvplayers(me),%r[switch(default(%i0/PLAYSTATUS,OOC),IC,ansi(hc,<IC>%B),OOC,ansi(hy,<OOC>))]%B[ljust(left(pueblize(color(%#,name(%i0),ROOM`PLAYERNAME,hw),look [name(%i0)]),17),18)][ljust(left(get(%i0/SHORT-DESC),54),55)])][if(words(lvthings(me)),%r[subheader(Objects)][iter(sort(lvthings(me),namei),%r[pueblize(color(%#,name(%i0)[if(or(controls(%i0,%#),isadmin(%#)),%(%i0[flags(%i0)]%))],ROOM`THINGNAME,w),look [name(%i0)])],%b)])]
+
+
+&EXITFORMAT u(ar)=switch(words(lexits(me)),0,header(),subheader(Exits)%r[table(iter(if(isadmin(%#),if(strfunc(max,iter(lexits(me),strlen(get(%i0/ORDER)))),sortkey(#lambda/get([lit(%0)]/ORDER),lexits(me),n),sort(lexits(me),namei)),if(strfunc(max,iter(lexits(me),strlen(get(%i0/ORDER)))),sortkey(#lambda/get([lit(%0)]/ORDER),lexits(me),n),sort(lexits(me),namei))),if(hasflag(%i0,DARK),ansi(m,*))[pueblize(if(strlen(alias(%i0)),regediti(color(%#,name(%i0),ROOM`EXITNAME,w),(?P<1>[alias(%i0)]),<[color(%#,stripansi($<1>),ROOM`EXITALIAS,v(VAR`ALIASCOLOR))]>),color(%#,name(%i0),ROOM`EXITNAME,w)),name(%i0))],,|),25,78,|)]%r[header()])
+
+&NAMEFORMAT u(ar)=endtag(a)[header(pueblize(strfirstof(u(me/COLORNAME),name(%0))[if(or(controls(%#,me),isadmin(%#)),%([num(%0)][flags(%0)]%))],look),1)]
+
+&VAR`ALIASCOLOR u(ar)=hm
+
+th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),ROOM,|,|))
+&VAR`CATEGORIES`ROOM u(cco)=OOC1|OOC2|IC1|IC2|PLAYERNAME|THINGNAMES|EXITNAME|EXITALIAS
+
+@switch/inline isdbref(u(ae))=0,{th attrib_set(u(coi)/AE,open(Ancestor Exit <AE>,#0,u(ar)))}
+&ODROP u(ae)=heads over from [fullname(home(me))]
+&OSUCCESS u(ae)=heads over to [fullname(loc(me))]
+&SUCCESS u(ae)=You head over to [fullname(loc(me))]
+
+@switch/inline isdbref(u(ap))=0,{th attrib_set(u(coi)/AP,pcreate(Ancestor Player,digest(md5,secs())))}
+@tel u(ap)=u(ar)
+
+@chatformat u(ap)=[if(hasflag(me,NOSPOOF),\[[name(%#)]:\])]%5
+
+@switch/inline isdbref(u(at))=0,{th attrib_set(u(coi)/AT,create(Ancestor Thing <AT>))}
+@tel u(at)=u(ar)

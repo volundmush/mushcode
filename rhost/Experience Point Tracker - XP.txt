@@ -1,0 +1,42 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(xp))=0,{@teleport create(Experience Point Tracker <XP>)=globalroom()}
+&xp [u(coi)]=locate(globalroom(),Experience Point Tracker <XP>,Ti)
+@wait 0=@parent [u(xp)]=[u(coi)]
+@set [u(xp)]=INHERIT SIDEFX SAFE !NO_COMMAND
+
+&CMD`+XP [u(xp)]=$^(?s)(?\:\+)?XP(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.+?))?(?\:/(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(xp)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(xp)/VAR`ADMINFLAGS)),|,|),|,XP,switch,switch;@include u(xp)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3,%4
+@set u(xp)/CMD`+XP=regexp
+
+&VAR`ADMINFLAGS [u(xp)]=DELGAINED|DELSPENT|TOTALS|AWARD|SPEND
+&VAR`PLAYFLAGS [u(xp)]=GAINED|SPENT
+
+&INC`MAIN [u(xp)]=@switch/inline and(strlen(%0),isadmin(%#))=1,{@include u(ccs)/INC`CHECKPC=%0,1,XP},0,{@include u(ccs)/INC`CHECKPC=%#,1,XP};@include u(xp)/INC`LIST=%q<t1>
+
+&INC`LIST [u(xp)]=@pemit %#=header(name(%0) XP)%R[ljust(ansi(h,rjust(Current:,10)),10)][rjust(sub(petr(gained,u(u(xp)/FUN`COUNT,%0,G)),petr(spent,u(u(xp)/FUN`COUNT,%0,S))),4)]%r[ljust(ansi(h,rjust(Total:,10)),10)][rjust(%q<gained>,4)]%r[ljust(ansi(h,rjust(Spent:,10)),10)][rjust(%q<spent>,4)];@pemit %#=header()
+
+&FUN`COUNT [u(xp)]=ladd(0 [iter(lattr(%0/^D`XP`%1`%\d+$,,,1),get(%0/%i0))])
+
+&INC`GAINED [u(xp)]=@switch/inline and(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,G
+&INC`SPENT [u(xp)]=@switch/inline and(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,S
+
+&INC`LISTBY [u(xp)]=@pemit %#=header(name(%0)'s [if(strmatch(%1,G),GAINED,SPENT)] XP);@dolist/inline sortkey(#lambda/last([lit(%0)],`),lattr(%0/^D`XP`%1`%\d+$,,,1))=@pemit %#=#[ljust(last(%i0,`),4)][ansi(h,default(%0/%i0,N/A))] for [default(%0/%i0`REASON,Unknown Reason)]%R%B%B%B%B%B[ansi(hw,Handled By)]%B[name(get(%0/%i0`BY))] [ansi(h,On)] [convsecs(get(%0/%i0`ON))];@pemit %#=header()
+
+&INC`DELGAINED [u(xp)]=@include u(xp)/INC`DELETE=%0,G,%1
+&INC`DELSPENT [u(xp)]=@include u(xp)/INC`DELETE=%0,S,%1
+
+&INC`DELETE [u(xp)]=@include u(ccs)/INC`CHECKPC=%0,1,XP;@assert/inline valnum(%2)=@pemit %#=XP entries must be addressed via whole and positive numbers!;@assert/inline hasattr(%q<t1>/D`XP`%1`%2)=@pemit %#=ansi(h,%q<t1name>) does not have that entry!;@switch/inline v(VAR`ALERTSMODE)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just removed [ansi(h,%q<t1name>)]'s XP [if(strmatch(%1,G),GAINED,SPENT)] Entry #%2: [get(%q<t1>/D`XP`%1`%2)] - [get(%q<t1>/D`XP`%1`%2`REASON)]};@pemit %#=announce(XP) You just removed [ansi(h,%q<t1name>)]'s XP [if(strmatch(%1,G),GAINED,SPENT)] Entry #%2: [get(%q<t1>/D`XP`%1`%2)] - [get(%q<t1>/D`XP`%1`%2`REASON)];@switch/inline 1=not(strmatch(%q<t1>,%#)),{@pemit %#=announce(XP) [ansi(h,%n)] just removed your XP [if(strmatch(%1,G),GAINED,SPENT)] Entry #%2: [get(%q<t1>/D`XP`%1`%2)] - [get(%q<t1>/D`XP`%1`%2`REASON)]};@wipe %q<t1>/D`XP`%1`%2;@wipe %q<t1>/D`XP`%1`%2`*
+
+&INC`TOTALS [u(xp)]=@pemit %#=header(mudname() XP Totals);@pemit %#=ansi(hc,Name[space(29)]Gained XP[space(3)]Splat);@dolist/inline sortkey(#lambda/u(u(xp)/FUN`COUNT,[lit(%0)],G),lsearch(all,eplayer,\[and(u(u(xp)/FUN`COUNT,##,G),not(isadmin(##)),approved(##))\]),n)=ljust(left(name(%i0)),33)[ljust(rjust(u(u(xp)/FUN`COUNT,%%i0,G),6),12)][getsphere(%i0)];@pemit %#=header()
+
+&INC`AWARD [u(xp)]=@include u(xp)/INC`MARKXP=%0,%1,%2,AWARD
+&INC`SPEND [u(xp)]=@include u(xp)/INC`MARKXP=%0,%1,%2,SPEND
+
+&INC`MARKXP [u(xp)]=@assert/inline strlen(%0)=@pemit %#=announce(XP) ERROR: No targets entered!;@break/inline words(filter(#lambda/strmatch([lit(%0)],#-*),petr(list,namelist(%0,u(xp)/FUN`NAMELIST))))=@pemit %#=announce(XP) ERROR: One or more entered names did not resolve. Please check your entry and try again.;@assert/inline strlen(%1)=@pemit %#=announce(XP) ERROR: No XP entered to %3!;@assert/inline valnum(%1)=@pemit %#=announce(XP) ERROR: XP amounts must be whole, positive numbers!;@pemit/list %q<list>=announce(XP) You have [switch(%3,AWARD,been awarded,spent)] %1 XP for: [strfirstof(%2,No reason given.)];@pemit %#=announce(XP) You have [switch(%3,AWARD,awarded,deducted)] [ansi(h,itemize(iter(%q<list>,name(%i0),%b,|),|,and,\,))] %1 XP for: [strfirstof(%2,No reason given.)];@dolist/inline %q<list>=@include u(xp)/INC`APPLY=##,%1,[strfirstof(%2,No reason given.)],%#,switch(%3,AWARD,G,S);@switch/inline v(VAR`ALERTSMODE)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just [switch(%3,AWARD,awarded,spent)] [ansi(h,itemize(iter(%q<list>,name(%i0),%b,|),|,and,\,))]'s %1 XP for: [strfirstof(%2,No reason given.)]}
+
+&FUN`NAMELIST [u(xp)]=pemit(%#,announce(XP) Target Not Found or Ambiguous: %0)
+
+&VAR`ALERTSMODE [u(xp)]=1
+&VAR`ALERTSCHANNEL [u(xp)]=Staff Reports
+
+&INC`APPLY [u(xp)]=&[petr(attr,D`XP`%4`[nextslot(%0,D`XP`%4)])] %0=%1;&%q<attr>`ON %0=secs();&%q<attr>`BY %0=%3;&%q<attr>`REASON %0=%2

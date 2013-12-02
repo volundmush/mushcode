@@ -1,0 +1,53 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(ifo))=0,{@tel create(Info Files Object <IFO>)=globalroom()}
+&ifo [u(coi)]=locate(globalroom(),Info Files Object <IFO>,Ti)
+@wait 0=@parent [u(ifo)]=[u(coi)]
+@set [u(ifo)]=INHERIT SIDEFX !NO_COMMAND
+
+&CMD`+INFO [u(ifo)]=$^(?s)(?\:\+)?info(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(ifo)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ifo)/VAR`ADMINFLAGS)),|,|),|,INFO,switch,switch;@include u(ifo)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set [u(ifo)]/CMD`+INFO=regexp
+
+&VAR`PLAYFLAGS [u(ifo)]=SET|GET|RENAME|DELETE|CATEGORIES|PUBLISH|UNPUBLISH|PUBLISHED
+&VAR`ADMINFLAGS [u(ifo)]=APPROVE|UNAPPROVE
+&VAR`CATEGORIES [u(ifo)]=Allies|Artifacts|BGStory|Backing|CombatStats|Command|Connections|Contacts|Crafts|Cult|Familiar|Followers|Henchmen|Influence|Manse|Mentor|Resources|Tribal Languages|XP
+
+&INC`TARGET [u(ifo)]=@switch/inline strmatch(%0,*/*)=1,{@include u(ccs)/INC`CHECKPC=before(%0,/),1,INFO;th petq(target,%q<t1>)},0,{th petq(target,%#)}
+
+&INC`FILENAME [u(ifo)]=th petq(filename,if(strmatch(%0,*/*),after(%0,/),%0))
+
+&FUN`LIST [u(ifo)]=sortkey(#lambda/get(%0/[lit(%0)]),iter(switch(1,isadmin(%#),lattr(%0/^D`INFOFILE`%\d+$,,,1),strmatch(%#,%0),filter(#lambda/not(getstat(%0/[lit(%0)]`FLAGS,Hidden)),lattr(%0/^D`INFOFILE`%\d+$,,,1)),filter(#lambda/and(getstat(%0/[lit(%0)]`FLAGS,Published),not(getstat(%0/[lit(%0)]`FLAGS,Hidden))),lattr(%0/^D`INFOFILE`%\d+$,,,1))),if(%1,get(%0/%i0),%i0),%b,|),i,|,|)
+
+&FUN`FINDFILE [u(ifo)]=first(grepi(%0,D`INFOFILE`*,%1))
+
+&INC`APPROVE [u(ifo)]=@include u(ifo)/INC`TARGET;@include u(ifo)/INC`FILENAME;@assert/inline strlen(%q<filename>)=@pemit %#=announce(INFO) ERROR: Info name empty.;@dolist/delimit | %q<filename>={@include u(ifo)/INC`PARTIALMATCH=##;@break/inline getstat(%q<target>/%q<attr>`FLAGS,Approved)=@pemit %#=announce(INFO) ERROR: Info File ## is already approved!;th setstat(%q<target>/%q<attr>`FLAGS,Approved,1);th setstat(%q<target>/%q<attr>`FLAGS,ApprovedBy,%#);th setstat(%q<target>/%q<attr>`FLAGS,ApprovedOn,secs());@switch/inline strmatch(%#,%q<target>)=1,{@pemit %#=announce(INFO) You approved your ## Info File},{@pemit %#=announce(INFO) You approved [name(%q<target>)]'s ## Info File!;@pemit %q<target>=announce(INFO) %n approved your %i0 Info File!};@switch/inline t(v(VAR`ANNOUNCEAPPROVE))=1,{@cemit/noisy v(VAR`ANNOUNCECHANNEL)=ansi(h,INFO:)%B%n just approved [name(%q<target>)]'s %i0 Info File!}}
+
+&INC`UNAPPROVE [u(ifo)]=@include u(ifo)/INC`TARGET;@include u(ifo)/INC`FILENAME;@assert/inline strlen(%q<filename>)=@pemit %#=announce(INFO) ERROR: Info name empty.;@dolist/delimit | %q<filename>={@include u(ifo)/INC`PARTIALMATCH=##;@assert/inline getstat(%q<target>/%q<attr>`FLAGS,Approved)=@pemit %#=announce(INFO) ERROR: Info File ## is not approved!;th setstat(%q<target>/%q<attr>`FLAGS,Approved,0);th delstat(%q<target>/%q<attr>`FLAGS,ApprovedBy);th delstat(%q<target>/%q<attr>`FLAGS,ApprovedOn);@switch/inline strmatch(%#,%q<target>)=1,{@pemit %#=announce(INFO) You approved your ## Info File},{@pemit %#=announce(INFO) You unapproved [name(%q<target>)]'s ## Info File!;@pemit %q<target>=announce(INFO) %n unapproved your ## Info File!};@switch/inline t(v(VAR`ANNOUNCEAPPROVE))=1,{@cemit/noisy v(VAR`ANNOUNCECHANNEL)=ansi(h,INFO:)%B%n just unapproved [name(%q<target>)]'s ## Info File!}}
+
+&VAR`ANNOUNCEAPPROVE [u(ifo)]=1
+&VAR`ANNOUNCECHANNEL [u(ifo)]=Staff Reports
+
+&INC`CATEGORIES [u(ifo)]=@pemit %#=header(list of Categories);@pemit %#=table(get(u(ifo)/VAR`CATEGORIES),24,78,|);@pemit %#=header()
+
+&INC`DELETE [u(ifo)]=@include u(ifo)/INC`TARGET;@include u(ifo)/INC`FILENAME;@assert/inline strlen(%q<filename>)=@pemit %#=announce(INFO) ERROR: Info name empty.;@dolist/delimit | %q<filename>={@include u(ifo)/INC`PARTIALMATCH=##;@switch/inline or(isadmin(%#),strmatch(%#,%q<target>))=0,{@break/inline 1=@pemit %#=announce(INFO) ERROR: You may not delete another's Info files.};@break/inline getstat(%q<target>/%q<attr>`FLAGS,Approved)=@pemit %#=ERROR: Approved Infos must be unapproved by admin first.;@wipe %q<target>/%q<attr>;@switch/inline strmatch(%#,%q<target>)=1,{@pemit %#=announce(INFO) You deleted your ## Info File},{@pemit %#=announce(INFO) You deleted [name(%q<target>)]'s ## Info File!;@pemit %q<target>=announce(INFO) %n deleted your ## Info File!}}
+
+&INC`PARTIALMATCH [u(ifo)]=@assert/inline strlen(%0)=@pemit %#=announce(INFO) ERROR: Info name empty.;@include u(ccs)/INC`PARTIAL=%0,u(u(ifo)/FUN`LIST,%q<target>,1),|,INFO,filename,filename;th petq(attr,u(u(ifo)/FUN`FINDFILE,%q<target>,%q<filename>))
+
+&INC`GET [u(ifo)]=@include u(ifo)/INC`TARGET;@include u(ifo)/INC`FILENAME;@include u(ifo)/INC`PARTIALMATCH=%q<filename>;@pemit %#=header(Unformatted Contents of %q<filename>);@pemit %#=decompose(get(%q<target>/[u(u(ifo)/FUN`FINDFILE,%q<target>,%q<filename>)]`CONTENTS));@pemit %#=header()
+
+&INC`MAIN [u(ifo)]=@include u(ifo)/INC`TARGET;@switch/inline gt(strlen(%1),0)=1,{@include u(ifo)/INC`SET},0,{@include u(ifo)/INC`LIST}
+
+&INC`LIST [u(ifo)]=@include u(ifo)/INC`FILENAME;@switch/inline gt(strlen(%q<filename>),0)=1,{@include u(ifo)/INC`LIST`CONTENTS},0,{@include u(ifo)/INC`LIST`FILES}
+
+&INC`LIST`FILES [u(ifo)]=@pemit %#=header(name(%q<target>)'s Info Files);@pemit %#=table(iter(u(u(ifo)/FUN`LIST,%q<target>),pueblize(left(if(getstat(%q<target>/%i0`FLAGS,Hidden),ansi(hx,get(%q<target>/%i0)),get(%q<target>/%i0)),18),+info [if(strmatch(%#,%q<target>),get(%q<target>/%i0),[name(%q<target>)]/[get(%q<target>/%i0)])])[if(getstat(%q<target>/%i0`FLAGS,Approved),\([ansi(hw,+)]\))][if(getstat(%q<target>/%i0`FLAGS,Published),\([ansi(hw,P)]\))],|,|),24,78,|);@pemit %#=Header(Legend: + - approved\, P - Published)
+
+&INC`LIST`CONTENTS [u(ifo)]=@include u(ifo)/INC`PARTIALMATCH=%q<filename>;@pemit %#=[header(name(%q<target>)'s [get(%q<target>/%q<attr>)] +info)];@pemit %#=get(%q<target>/%q<attr>`CONTENTS);@pemit %#=subheader()%R[ansi(h,Last set by:)] [name(getstat(%q<target>/%q<attr>`FLAGS,SetBy))] [ansi(h,On:)] [convsecs(getstat(%q<target>/%q<attr>`FLAGS,SetOn))];@switch/inline gt(getstat(%q<target>/%q<attr>`FLAGS,Approved),0)=1,{@pemit %#=ansi(h,Approved by:) [name(getstat(%q<target>/%q<attr>`FLAGS,ApprovedBy))] [ansi(h,On:)] [convsecs(getstat(%q<target>/%q<attr>`FLAGS,ApprovedOn))]};@pemit %#=[header()]
+
+&INC`PUBLISH [u(ifo)]=@include u(ifo)/INC`TARGET;@include u(ifo)/INC`FILENAME;@assert/inline strlen(%q<filename>)=@pemit %#=announce(INFO) ERROR: Info name empty.;@dolist/inline/nobreak/delimit | %q<filename>={@include u(ifo)/INC`PARTIALMATCH=##;@switch/inline or(isadmin(%#),strmatch(%#,%q<target>))=0,{@break/inline 1=@pemit %#=announce(INFO) ERROR: You may not publish another's Info files.};@break/inline getstat(%q<target>/%q<attr>`FLAGS,Published)=@pemit %#=announce(INFO) ERROR: File ## is already published.;th setstat(%q<target>/%q<attr>`FLAGS,Published,1);@switch/inline strmatch(%#,%q<target>)=1,{@pemit %#=announce(INFO) You published your ## Info File},{@pemit %#=announce(INFO) You published [name(%q<target>)]'s ## Info File!;@pemit %q<target>=announce(INFO) %n published your ## Info File!}}
+
+&INC`UNPUBLISH [u(ifo)]=@include u(ifo)/INC`TARGET;@include u(ifo)/INC`FILENAME;@assert/inline strlen(%q<filename>)=@pemit %#=announce(INFO) ERROR: Info name empty.;@dolist/delimit | %q<filename>={@include u(ifo)/INC`PARTIALMATCH=##;@switch/inline or(isadmin(%#),strmatch(%#,%q<target>))=0,{@break/inline 1=@pemit %#=announce(INFO) ERROR: You may not unpublish another's Info files.};@assert/inline getstat(%q<target>/%q<attr>`FLAGS,Published)=@pemit %#=announce(INFO) ERROR: File ## is not published.;th setstat(%q<target>/%q<attr>`FLAGS,Published,0);@switch/inline strmatch(%#,%q<target>)=1,{@pemit %#=announce(INFO) You unpublished your ## Info File},{@pemit %#=announce(INFO) You unpublished [name(%q<target>)]'s ## Info File!;@pemit %q<target>=announce(INFO) %n unpublished your ## Info File!}}
+
+&INC`SET [u(ifo)]=@include u(ifo)/INC`TARGET;@include u(ifo)/INC`FILENAME;@assert/inline strlen(%q<filename>)=@pemit %#=announce(INFO) ERROR: Info file name empty.;@switch/inline gt(strlen(petr(attr,u(u(ifo)/FUN`FINDFILE,%q<target>,%q<filename>))),0)=1,{@assert/inline or(isadmin(%#),strmatch(%q<target>,%#))=@pemit %#=announce(INFO) ERROR: You may not change another's Info files.;@switch/inline or(getstat(%q<target>/%q<attr>`FLAGS,Hidden),getstat(%q<target>/%q<attr>`FLAGS,Approved))=1,{@assert/inline isadmin(%#)=@pemit %#=announce(INFO) ERROR: That Info File may not be changed by you.}},0,{@break/inline gt(strlen(%q<filename>),18)=@pemit %#=ERROR: Info names are limited to 18 characters or less.;@break/inline regmatchi(%q<filename>,\\|)=@pemit %#=ERROR: Pipe symbols are not allowed in info names.;@break/inline regmatchi(%q<filename>,\/)=@pemit %#=ERROR: Slashes symbols are not allowed in info names.;@assert/inline strlen(%1)=ERROR: Text field empty. To delete an +info file, use +info/delete.};@switch/inline t(strlen(%q<attr>))=0,{th petq(attr,D`INFOFILE`[nextslot(%q<target>,D`INFOFILE)])};&%q<attr> %q<target>=%q<filename>;&%q<attr>`CONTENTS %q<target>=%1;th setstat(%q<target>/%q<attr>`FLAGS,SetBy,%#);th setstat(%q<target>/%q<attr>`FLAGS,SetOn,secs());@switch/inline strmatch(%#,%q<target>)=1,{@pemit %#=announce(INFO) You set your %q<filename> Info File},{@pemit %#=announce(INFO) You set [name(%q<target>)]'s %q<filename> Info File!;@pemit %q<target>=announce(INFO) %n set your %q<filename> Info File!}
+
+&INC`PUBLISHED [u(ifo)]=@assert/inline words(petr(players,lsearch(all,eplayer,\[words(wildgrepi(##,D`INFOFILE`*`FLAGS,*Published~1*))\])))=@pemit %#=announce(INFO) ERROR: No Players have published Infos.;@pemit %#=header(Published Infos);@pemit %#=table(iter(%q<players>,left(pueblize(name(%i0),+info [name(%i0)]),22)\([words(wildgrepi(%i0,D`INFOFILE`*`FLAGS,*Published~1*))]\)),25,78,|);@pemit %#=header()
+

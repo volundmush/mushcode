@@ -1,0 +1,49 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(gfo))=0,{@tel create(Global Functions Object <GFO>)=globalroom()}
+&gfo [u(coi)]=locate(globalroom(),Global Functions Object <GFO>,Ti)
+@wait 0=@parent [u(gfo)]=[u(coi)]
+@set [u(gfo)]=WIZARD SIDEFX
+
+&GFN`AGO [u(gfo)]=switch(1,lt(%0,60),%0s,lt(%0,3600),div(%0,60)m,lt(%0,86400),div(%0,3600)h,div(%0,86400)d)
+&GFN`ANNOUNCE [u(gfo)]=color(strfirstof(%1,%#),-=<,MAIN`ANNOUNCEBORDER,hm)[color(strfirstof(%1,%#),ucstr(%0),MAIN`ANNOUNCETITLE,h)][color(strfirstof(%1,%#),>=-,MAIN`ANNOUNCEBORDER,hm)]
+&GFN`ROOMANNOUNCE [u(gfo)]=color(strfirstof(%1,%#),-=<*,MAIN`ROOMANNOUNCEBORDER,hm)[color(strfirstof(%1,%#),ucstr(%0),MAIN`ROOMANNOUNCETITLE,h)][color(strfirstof(%1,%#),*>=-,MAIN`ROOMANNOUNCEBORDER,hm)]
+&GFN`CAPNAMES [u(gfo)]=caplist(%0,,,T)
+&GFN`COMMAFY [u(gfo)]=squish(flip(foreach(#lambda/if(mod([lit(%1)],3),[lit(%0)],\\,[lit(%0)]),flip(%0))),\,)
+&GFN`DELSTAT [u(gfo)]=attrib_set(%0,setdiff(get(%0),grab(get(%0),%1~*,|),|))
+&GFN`GETSTAT [u(gfo)]=if(strlen(%2),add(rest(grab(get(%0),%1~*,|),~),rest(grab(get(before(%0,/)/D`%2),%1~*,|),~)),rest(grab(get(%0),%1~*,|),~))
+&GFN`GRABSTAT [u(gfo)]=rest(grab(%0,%1~*,|),~)
+&GFN`HEADER [u(gfo)]=if(strlen(%0),center(color(%#,<,MAIN`HEADERLINE,m)[color(%#,*%B,MAIN`HEADERDOT,hm)][if(%1,%0,color(%#,%0,MAIN`HEADERTEXT,hw))][color(%#,%B*,MAIN`HEADERDOT,hm)][color(%#,>,MAIN`HEADERLINE,m)],78,color(%#,-=-,MAIN`HEADERLINE,m)),color(%#,repeat(-=-,26),MAIN`HEADERLINE,m))
+&GFN`FOOTER [u(gfo)]=header(%0)
+&GFN`MIDLINE [u(gfo)]=subheader(%0)
+&GFN`LISTMAX [u(gfo)]=strfunc(max,iter(%0,strlen(%i0),|,|),|)
+&GFN`NEXTSLOT [u(gfo)]=add(1,strfunc(max,iter(filter(#lambda/isint(last([lit(%0)],`)),lattr(%0/^[if(strlen(%1),%1`)]%[0-9%]+$,,,1)),last(%i0,`))))
+&GFN`NUMTH [u(gfo)]=%0[switch(right(%0,1),1,st,2,nd,3,rd,th)]
+&GFN`PUEBLIZE [u(gfo)]=%0
+&GFN`SETSTAT [u(gfo)]=attrib_set(%0,switch(1,not(hasattr(%0)),%1~%2,t(strlen(grab(get(%0),%1~*,|))),replace(get(%0),member(get(%0),grab(get(%0),%1~*,|),|),%1~%2,|),setunion(get(%0),%1~%2,|,|)))
+
+&GFN`SUBHEADER [u(gfo)]=if(strlen(%0),center(%b[if(%1,%0,color(%#,%0,MAIN`SUBHEADERTEXT,hw))]%b,78,color(%#,-=-,MAIN`SUBHEADERLINE,m)),color(%#,repeat(-=-,26),MAIN`SUBHEADERLINE,m))
+&GFN`TIMESTAMP [u(gfo)]=ptimefmt($Y-$m-$d $H:$M:$S,firstof(%0,secs()))
+&GFN`VALNUM [u(gfo)]=and(isint(%0),gt(%0,0))
+
+&GFN`ATTRIB_SET [u(gfo)]=set(before(%0,/),after(%0,/):%1)
+&GFN`RANDWORD [u(gfo)]=randextract(%0,1,%1)
+&GFN`STRFIRSTOF [u(gfo)]=switch(1,t(strlen(%0)),%0,t(strlen(%1)),%1,t(strlen(%2)),%2,t(strlen(%3)),%3)
+&GFN`FIRSTOF [u(gfo)]=switch(1,t(%0),%0,t(%1),%1,t(%2),%2,t(%3),%3)
+&GFN`ITEMIZE [u(gfo)]=elist(%0,%2,%1,%4,%3)
+&GFN`TABLE [u(gfo)]=columns(%0,switch([gt(words(%1),0)][gt(words(%2),0)],11,min(%1,%2),01,max(10,%2),*,10),switch([gt(words(%1),0)][gt(words(%2),0)],11,max(1,div(%2,%1)),10,max(1,div(78,%1)),01,max(1,div(%2,10)),*,7),L,0,1,,ifelse(strlen(%4),%4,%b),,1,%3)
+&GFN`PETQ [u(gfo)]=setq(+,%1,%0)
+&GFN`PETR [u(gfo)]=setr(+,%1,%0)
+&GFN`SORTATTR [u(gfo)]=sortby(#lambda/[lit([ncomp(last(%0,`),last(%1,`))])],%0)
+&GFN`ALIGN [u(gfo)]=printf([iter(%0,$[switch(mid(%i0,0,1),<,-[delete(%i0,0,1)],>,[delete(%i0,0,1)],_,_[delete(%i0,0,1)],-,^[delete(%i0,0,1)],=,_[delete(%i0,0,1)],-%i0)]|"s)],%1,%2,%3,%4,%5,%6,%7,%8,%9)
+&GFN`SORTKEY [u(gfo)]=munge(#lambda/%[sort%(%%0%,%2%,%3%)%],iter(%1,edit(u(%0,itext(0)),%b,),ifelse(!$v(3),%b,%3),ifelse(!$v(3),%b,%3)),%1,ifelse(!$v(3),%b,%3),ifelse(!$v(4),ifelse(!$v(3),%b,%3),%4))
+&GFN`BASECONV [u(gfo)]=pack(unpack(%0,%1,1),%2,1)
+
+&GFN`LASTIDLE [u(gfo)]=switch(1,and(isadmin(%1),hasflag(%0,CONNECTED),or(hidden(%0),hasflag(%0,DARK))),ansi(g,ago(idle(%0))),or(and(not(isadmin(%1)),hasflag(%0,CONNECTED),or(hidden(%0),hasflag(%0,DARK))),not(hasflag(%0,CONNECTED))),ansi(hx,elements(get(%0/last),2 3)),hasflag(%0,CONNECTED),ansi(hg,ago(idle(%0))))
+
+&GFN`FILTERVIS [u(gfo)]=if(isdbref(%0),if(words(%1),if(match(CHANNEL|WHO,%2,|),u(FUN`FILTERVIS`%2,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),#-1 FILTER MODE NOT SUPPORTED)),#-1 TARGET NOT FOUND)
+&FUN`FILTERVIS`CHANNEL [u(gfo)]=switch(0,match(channels(|),%3,|),#-1 CHANNEL NOT FOUND,if(isadmin(%0),%1,filter(#lambda/nor(hidden([lit(%0)]),match(clflags(%3,[lit(%0)]),Hide),hasflag([lit(%0)],DARK)),%1)))
+@@ %0 - Target, %1 - player list, %2 - mode, %3 - channel name
+
+&STARTUP [u(gfo)]=@dolist/inline get(u(gfo)/VAR`FUNRESTRICT)=@function/restrict %i0=WIZARD LOCALIZE
+&VAR`FUNRESTRICT [u(gfo)]=GETSTAT SETSTAT DELSTAT GRABSTAT FILTERVIS LASTIDLE

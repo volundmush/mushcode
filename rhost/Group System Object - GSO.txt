@@ -1,0 +1,151 @@
+@@ DEPENDENCIES - Core
+
+@switch/inline isdbref(u(gso))=0,{@tel create(Group System Object <GSO>)=globalroom()}
+&gso [u(coi)]=locate(globalroom(),Group System Object <GSO>,Ti)
+@wait 0=@parent [u(gso)]=[u(coi)]
+@set [u(gso)]=INHERIT SIDEFX SAFE !NO_COMMAND
+
+@switch/inline isdbref(u(gdb))=0,{@switch/inline isdbref(u(gso))=1,{@tel create(Group Database Object <GDB>)=u(gso)}}
+&gdb [u(coi)]=locate(u(gso),Group Database Object <GDB>,Ti)
+@wait 0=@parent %q<gdb>=[u(coi)]
+@set %q<gdb>=INHERIT SAFE
+
+&CMD`+GROUP [u(gso)]=$^(?s)(?\:\+)?g(roups|roup|create|rename|alias|set|div|undiv|gag|ungag|ictitle|ooctitle|invite|invites|uninvite|join|refuse|add|leave|kick|perm|rank|icon|icoff|oocon|oocoff|disband|ooc|radio|ic)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:th petq(gdb,u(gdb));@include u(gso)/INC`CHOOSE=+g,%1,%2,%3,%4
+@set u(gso)/CMD`+GROUP=regexp
+
+&INC`CHOOSE [u(gso)]=@switch/inline 1=strmatch(%0,+g),{@assert/inline or(not(strlen(%2)),match(petr(choices,setunion(get(u(gso)/VAR`PLAYFLAGS`G`%1),if(isadmin(%#),get(u(gso)/VAR`ADMINFLAGS`G`%1)),|,|)),ucstr(%2),|))=@pemit %#=announce(GROUPS) ERROR: Invalid switch for %0%1! Your choices are: [itemize(%q<choices>,|,and,\,)];@include u(gso)/INC`CHOOSE`G`%1=%2,%3,%4,G},{@pemit %#=announce(GROUPS) ERROR: Unknown code error. Please contact staff.}
+
+&INC`CHOOSE`G`CREATE [u(gso)]=@include u(gso)/INC`CODE`CREATE=%1,%2,%3
+
+&INC`CODE`CREATE [u(gso)]=@assert/inline isadmin(%#)=@pemit %#=announce(GROUPS) ERROR: Only Admin can make Groups.;@assert/inline strlen(%0)=@pemit %#=announce(GROUPS) ERROR: Alias field empty.;@assert/inline regmatchi(%0,^(\[A-Z\]\{1,7\})$)=@pemit %#=announce(GROUPS) ERROR: Aliases may only be seven or fewer alphabetic characters (A-Z) with no spaces or symbols.;@switch/inline gt(v(VAR`CODE`PERNMODE),0)=1,{@break/inline strmatch(%0,DTU)=@pemit %#=announce(GROUPS) ERROR: DTU is an unacceptable ALIAS.};@break/inline gt(words(petr(exist,u(u(gso)/FUN`FINDGROUP,%0))),0)=@pemit %#=announce(GROUPS) ERROR: A Group by that Alias already exists: [get(u(gdb)/%q<exist>)] - [get(u(gdb)/%q<exist>`NAME)];@assert/inline strlen(%1)=@pemit %#=announce(GROUPS) ERROR: Name field empty.;@include u(gso)/INC`CODE`DOCREATE=%0,%1;@pemit %#=announce(GROUP) You have created the [ansi(hw,%q<galias1> - %q<gname1>)];@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>,{The group was created.}
+
+&FUN`FINDGROUP [u(gso)]=first(filter(#lambda/isint([lit(%0)]),elements(strfirstof(first(grepi(u(gdb),GRP`*`NAME,%0)),first(grepi(u(gdb),GRP`*`ALIAS,%0))),2,`)))
+
+&VAR`DEFAULTS`SETPERM [u(gso)]=DESC~0|TYPE~0|MOTD~0|DIV~0|INV~0|KICK~0|ADD~0|IC~10|OOC~10|PROMOTE~0|GAG~0|SET~0|PERM~0|ICTITLE~0|ICTITLEOTHER~0|OOCTITLE~1|OOCTITLEOTHER~0|LOCK~0|BBADMIN~0
+
+&VAR`CODE`PERNMODE [u(gso)]=0
+
+&VAR`DEFAULTS`SETOP [u(gso)]=IC~1|OOC~1|SRANK~1|COLOR~h
+
+&INC`CODE`DOCREATE [u(gso)]=@assert/inline strlen(%0);@assert/inline strlen(%1);th petq(gattr1,GRP`[petr(gid1,nextslot(u(gdb),GRP))]);&%q<gattr1> %q<gdb>=1;&%q<gattr1>`ALIAS %q<gdb>=petr(galias1,%0);&%q<gattr1>`NAME %q<gdb>=petr(gname1,%1);th setstat(%#/D`GROUP,Group,%q<gid1>)
+
+&INC`CODE`MAKELOG [u(gso)]=th petq(log,GRP`%1`LOG`[nextslot(u(gdb),GRP`%1`LOG)]);&%q<log> %q<gdb>=%2;&%q<log>`SUBMITTER %q<gdb>=%0;&%q<log>`SUBMITTED %q<gdb>=secs()
+
+&INC`CODE`VALGROUP [u(gso)]=@assert/inline strlen(%0)=@pemit %#=announce(GROUPS) ERROR: No group entered to check.;@assert/inline valnum(%1)=@pemit %#=announce(GROUPS) ERROR: Code error, contact staff.;@switch/inline gt(petr(gid%1,firstof(u(u(gso)/FUN`FINDGROUP,%0),if(hasattr(u(gdb)/GRP`%0),%0,0))),0)=0,{@switch/inline gt(petr(gid%1,u(u(gso)/FUN`FINDGROUP,grab(iter(lattr(u(gdb)/^GRP`%\d+`ALIAS$,,,1),get(u(gdb)/%i0),%b,|),%0*,|))),0)=0,{@assert/inline gt(petr(gid%1,u(u(gso)/FUN`FINDGROUP,grab(iter(lattr(u(gdb)/^GRP`%\d+`NAME,,,1),get(u(gdb)/%i0),%b,|),%0*,|))),0)=@pemit %#=announce(GROUPS) ERROR: Group or Sub-Group not found.}};th petq(gname%1,get(u(gdb)/GRP`[r(gid%1)]`NAME))[petq(galias%1,get(u(gdb)/GRP`[r(gid%1)]))][petq(gattr%1,GRP`[r(gid%1)])]
+
+&INC`CHOOSE`G`RENAME [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`RENAME=%1,%2,%3
+&INC`CODE`RENAME [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of %q<gname1>.;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,RENAME)=@pemit %#=announce(GROUPS) ERROR: You lack permission to do that.;@assert/inline strlen(%0)=@pemit %#=announce(GROUPS) ERROR: Name field empty.;@break/inline words(grepi(u(gdb)/*`NAME,%0))=@pemit %#=announce(GROUPS) ERROR: A Group already has that name.;&%q<gattr1>`NAME %q<gdb>=%0;@include u(gso)/INC`CODE`MAKELOG=%#,q<gid1>,{Group renamed to: %0};@include u(gso)/INC`CODE`CHAT={%n Renamed the Group to %0},OOC,1
+
+&INC`CHOOSE`G`ALIAS [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`ALIAS=%1,%2,%3
+&INC`CODE`ALIAS [u(gso)]=@assert/inline isadmin(%#)=@pemit %#=announce(GROUPS) ERROR: Only Admin may re-Alias Groups.;@assert/inline strlen(%0)=@pemit %#=announce(GROUPS) ERROR: ALIAS field empty.;@assert/inline regmatchi(%0,^(\[A-Z\]\{1,5\})$)=@pemit %#=announce(GROUPS) ERROR: Aliases may only be 7 or fewer alphabetic characters (A-Z) with no spaces or symbols.;@break/inline words(grepi(u(gdb),GRP`*`ALIAS,%0))=@pemit %#=announce(GROUPS) ERROR: A Group already has that Alias.;&%q<gattr1> %q<gdb>=ucstr(%0);@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>,{Alias changed to: %0};@include u(gso)/INC`CODE`CHAT={%n changed the Group's Alias to [ucstr(ansi(hw,%0))]},OOC,1
+
+&GFN`ISGROUPMEMBER [u(gso)]=if(isadmin(%0),1,if(valnum(%1),match(get(u(gdb)/%1`MEMBERS),%0),if(eq(0,%1),if(u(u(gso)/FUN`FINDGROUP,%1),isgroupmember(%0,u(u(gso)/FUN`FINDGROUP,%1)),0),0)))
+
+&INC`CHOOSE`G`DISBAND [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`DISBAND=%1,%2,%3
+&INC`CODE`DISBAND [u(gso)]=@assert/inline isadmin(%#)=@pemit %#=announce(GROUPS) ERROR: Only Staff may Disband Groups.;@include u(ccs)/INC`VERIFY={WARNING: This will completely disband %q<gname1> and all Divisions. ARe you sure you want to continue? Enter the same command again within 10 seconds to Verify!},FAC DELETE %q<gid1>;@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n has Disbanded the Group!},OOC,1;@dolist/inline lsearch(all,eplayer,\[hasattr(##/D`GROUP`%q<gid1>)\])={@wipe ##/D`GROUP`%q<gid1>};@set %q<gdb>=!SAFE;@wipe u(gdb)/%q<gattr1>;@set %q<gdb>=SAFE;@switch/inline isdbref(u(kdb))=1,{@dolist/inline regrepi(u(kdb),LOCK`*`GROUP,%\b%q<gid1>%\b)={&## u(kdb)=setdiff(%q<gid1>,get(u(kdb)/##))}}
+
+&INC`CHOOSE`G`DIV [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`DIV=%1,%2,%3
+&INC`CODE`DIV [u(gso)]=
+
+&INC`CHOOSE`G`UNDIV [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`UNDIV=%1,%2,%3
+&INC`CODE`UNDIV [u(gso)]=
+
+&FUN`GRPPERM [u(gso)]=if(isadmin(%0),1,lte(u(u(gso)/FUN`GETRANK,%1,%0),u(u(gso)/FUN`GETPERM,%1,%2)))
+
+&FUN`GETRANK [u(gso)]=if(isadmin(%0),-1,strfirstof(getstat(u(gdb)/GRP`%0`RANK,%1),getstat(u(gso)/VAR`DEFAULTS`SETOP,SRANK)))
+
+&FUN`DIVPERM [u(gso)]=
+
+&INC`CHOOSE`G`GAG [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`GAG=%1,%2,%3
+&INC`CODE`GAG [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of %q<gname1>.;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,GAG)=@pemit %#=announce(GROUPS) ERROR: You lack permission to do that.;@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@assert/inline isgroupmember(%q<t1>,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: Must target a group member.;@assert/inline lt(u(u(gso)/FUN`GETRANK,%q<gid1>,%#),u(u(gso)/FUN`GETRANK,%q<gid1>,%q<t1>))=@pemit %#=announce(GROUPS) ERROR: Only subordinates may be gagged.;@break/inline gt(getstat(u(gdb)/%q<gattr1>`GAG,%q<t1>),-2)=@pemit %#=announce(GROUPS)%B%q<t1name> is already gagged.;th setstat(u(gdb)/%q<gattr1>`GAG,%q<1>,u(u(gso)/FUN`GETRANK,%q<gid1>,%#))
+
+&INC`CHOOSE`G`UNGAG [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`UNGAG=%1,%2,%3
+&INC`CODE`UNGAG [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of %q<gname1>.;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,GAG)=@pemit %#=announce(GROUPS) ERROR: You lack permission to do that.;@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@assert/inline isgroupmember(%q<t1>,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: Must target a group member.;@assert/inline lt(u(u(gso)/FUN`GETRANK,%q<gid1>,%#),u(u(gso)/FUN`GETRANK,%q<gid1>,%q<t1>))=@pemit %#=announce(GROUPS) ERROR: Only subordinates may be ungagged.;@assert/inline lte(u(u(gso)/FUN`GETRANK,%q<gid1>,%#),petr(gagger,getstat(u(gdb)/%q<gattr1>`GAG,%q<t1>)))=@pemit %#=announce(GROUPS) ERROR: That person was Gagged by Rank: %q<gagger>;th delstat(u(gdb)/%q<gattr1>`GAG,%q<t1>)
+
+&INC`CHOOSE`G`ROUP [u(gso)]=@switch/inline gt(strlen(%1),0)=1,{@include u(gso)/INC`CODE`SWITCH=%1,%2,%3,%4,%5,%6,%7,%8},0,{@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`WHO=%1,%2,%3}
+
+&INC`CHOOSE`G`WHO [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`WHO=%1,%2,%3
+
+&INC`CODE`SWITCH [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=%0,1;@include u(gso)/INC`CODE`WHO=0,1;@switch/inline isgroupmember(%#,%q<gid1>)=1,{@pemit %#=announce(GROUPS) You are now managing: [ansi(hw,%q<gname1>)];th setstat(%#/D`GROUP,Group,%q<gid1>)}
+
+&INC`CODE`WHO [u(gso)]=@pemit %#=header(MEMBERS: %q<gname1>);@switch/inline and(gt(strlen(setr(type,getstat(u(gdb)/%q<gattr1>`TYPE))),0),hasattr(u(gso)/INC`CODE`WHO`%q<type>))=1,{@include u(gso)/INC`CODE`WHO`%q<type>},0,{@pemit %#=align(30 4 5 20 10,Name,Sex,Rank,Title,Last/Idle)%R[subheader()];@dolist/inline sortkey(#lambda/u(u(gso)/FUN`GETRANK,%q<gid1>,[lit(%0)]),filterbool(#lambda/isdbref(\%0),get(u(gdb)/%q<gattr1>`MEMBERS)))={@pemit %#=align(30 -4 5 20 10,pueblize(color(%#,name(##),GROUP`GWHONAME,n),+finger [name(##)]),color(%#,left(get(##/SEX),1),GROUP`GWHOSEX,n),color(%#,u(u(gso)/FUN`GETRANK,%q<gid1>,##),GROUP`GWHORANK,n),color(%#,getstat(##/D`GROUP`%q<gid1>,ICTITLE),GROUP`GWHOICTITLE,n),lastidle(##,%#))}};@pemit %#=header()
+
+&INC`CHOOSE`G`ROUPS [u(gso)]=@include u(gso)/INC`CODE`GROUPLIST
+
+&FUN`GETOP [u(gso)]=strfirstof(getstat(u(gdb)/GRP`%0`OP,%1),getstat(u(gso)/VAR`DEFAULTS`SETOP,%1))
+
+&INC`CODE`GROUPLIST [u(gso)]=@pemit %#=header(List of Groups)%R[align(10 40 15,Alias,Name,Members)];@dolist/inline filterbool(#lambda/isint([lit(after(%0,`))]),lattr(u(gdb)/^GRP`%\d+$,,,1))={@pemit %#=align(10 40 15,pueblize(ansi(petr(color,strfirstof(u(u(gso)/FUN`GETOP,after(##,`),COLOR),h)),get(u(gdb)/##`ALIAS)),+group [get(u(gdb)/##)]),pueblize(ansi(%q<color>,get(u(gdb)/##`NAME)),+group [get(u(gdb)/##)]),[words(setinter(lwho(%#),petr(members,get(u(gdb)/##`MEMBERS))))]/[words(%q<members>)])};@pemit %#=header()
+
+&INC`CHOOSE`G`SET [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`SET=%1,%2,%3
+&INC`CODE`SET [u(gso)]=@switch/inline gt(strlen(%0),0)=1,{@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,SET)=@pemit %#=announce(GROUPS) ERROR: You lack permission to do that.;@assert/inline strlen(%0)=@pemit %#=announce(GROUPS) ERROR: Option field empty.;@assert/inline or(match(petr(choices,itemize(get(u(gso)/VAR`DEFAULTS`SETOP),before(%i0,~),|,|)),petr(op,ucstr(%0)),|),isadmin(%#))=@pemit %#=announce(GROUPS) ERROR: That is not a valid choice. Your options are: [itemize(%q<choices>,|,and,\,)];th setstat(u(gdb)/%q<gattr1>`OP,%q<op>,%1);@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>,{Option %q<op>: %1};@pemit %#=announce(GROUP) You have changed %q<gname1>'s %q<op> OPTION to: %1;@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n changed %q<op> OPTION to: %1},OOC,1},0,{@pemit %#=header(%q<gname1> - SET);th petq(spaces,add(2,strfunc(max,iter(petr(fields,setunion(petr(ops,ucstr(iter(get(u(gso)/VAR`DEFAULTS`SETOP),before(%i0,~),|,|))),ucstr(iter(get(u(gdb)/%q<gattr1>`OP),before(%i0,~),|,|)),|,|,i)),strlen(%i0),|,%b))));@pemit %#=table(iter(%q<fields>,ljust(rjust(if(match(get(u(gso)/VAR`DEFAULTS`SETOP),%i0~*,|),ansi(h,%i0),ansi(hr,%i0)),%q<spaces>),%q<space>):%B[left(u(u(gso)/FUN`GETOP,%q<gid1>,%i0),10)],|,|),38,78,|);@pemit %#=%R%R[ansi(h,AVAILABLE OPTIONS:)] [itemize(%q<ops>,|,and,\,)];@pemit %#=header()}
+
+
+&INC`CHOOSE`G`ICTITLE [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`ICTITLE=%1,%2,%3
+&INC`CHOOSE`G`OOCTITLE [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`OOCTITLE=%1,%2,%3
+
+&INC`CODE`ICTITLE [u(gso)]=@include u(gso)/INC`CODE`DOTITLE=%0,%1,IC
+&INC`CODE`OOCTITLE [u(gso)]=@include u(gso)/INC`CODE`DOTITLE=%0,%1,OOC
+&INC`CODE`DOTITLE [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of %q<gname1>.;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,%2TITLE[if(and(strlen(%0),strlen(%1)),OTHER)])=@pemit %#=announce(GROUPS) ERROR: You lack permission to do that.;@switch/inline and(strlen(%0),strlen(%1))=1,{@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@assert/inline isgroupmember(%q<t1>,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: Must target a group member.;th petq(target,%q<t1>);@assert/inline strlen(petr(title,%1))=@pemit %#=announce(GROUPS) ERROR: What title will you bestow?},0,{th petq(target,%#);@assert/inline strlen(petr(title,%0))=@pemit %#=announce(GROUPS) ERROR: What will you title yourself?};@break/inline gt(%q<title>,20)=@pemit %#=announce(GROUPS) ERROR: Titles may not exceed 20 characters in length.;th setstat(%q<target>/D`GROUP`%q<gid1>,%2TITLE,%q<title>);@pemit %#=announce(GROUPS) You have set [if(strmatch(%#,%q<target>),your,%q<t1name>'s)] %2TITLE in [ansi(hw,%q<gname1>)] to: %1;@switch/inline strmatch(%#,%q<t1>)=0,{@pemit %q<t1>=announce(GROUPS) %n has set your %2TITLE in [ansi(hw,%q<gname1>)] to: %1};@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>,{if(strmatch(%#,%q<target>),%n,%q<t1name>)'s %2TITLE set to: %1}
+
+&INC`CHOOSE`G`ICON [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`CHANON=%1,-
+&INC`CHOOSE`G`OOCON [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`CHANON=%1,=
+
+&INC`CODE`CHANON [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@break/inline gt(getstat(%#/D`GROUP`%q<gid1>,petr(type,if(strmatch(%1,=),OOC,IC))),0)=@pemit %#=announce(GROUPS) ERROR: You are already on that group's %q<type> Channel.;th setstat(%#/D`GROUP`%q<gid1>,%q<type>,1);@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n has joined the channel.},if(strmatch(%1,=),OOC,IC),1;@pemit %#=announce(GROUPS) You have joined the [if(strmatch(%1,=),OOC,IC)] channel of %q<gname1> 
+
+&INC`CHOOSE`G`ICOFF [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`CHANOFF=%1,-
+&INC`CHOOSE`G`OOCOFF [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`CHANOFF=%1,=
+&INC`CODE`CHANOFF [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@assert/inline gt(getstat(%#/D`GROUP`%q<gid1>,petr(type,if(strmatch(%1,=),OOC,IC))),0)=@pemit %#=announce(GROUPS) ERROR: You are not on that group's %q<type> Channel.;th setstat(%#/D`GROUP`%q<gid1>,%q<type>,0);@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n has left the channel.},%q<type>,1;@pemit %#=announce(GROUPS) You have left the %q<type> channel of %q<gname1>
+
+&FUN`GETPERM [u(gso)]=strfirstof(getstat(u(gdb)/GRP`%0`PERM,%1),getstat(u(gso)/VAR`DEFAULTS`SETPERM,%1))
+
+&INC`CHOOSE`G`PERM [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`PERM=%1,%2,%3
+&INC`CODE`PERM [u(gso)]=@switch/inline gt(strlen(%0),0)=1,{@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,PERM)=@pemit %#=announce(GROUPS) ERROR: You lack permission to do that.;@assert/inline strlen(%0)=@pemit %#=announce(GROUPS) ERROR: No PERM type entered.;@assert/inline or(match(petr(choices,setunion(iter(get(u(gso)/VAR`DEFAULTS`SETPERM),before(%i0,~),|,|),iter(get(u(gdb)/%q<gattr1>`PERM),before(%i0,~),|,|),|,|)),%0,|),isadmin(%#)) Your choices are: [itemize(%q<choices>,|,and,\,)];@assert/inline or(lte(petr(rank,u(u(gso)/FUN`GETRANK,%q<gid1>,%#)),getstat(u(gdb)/%q<gattr1>`PERMSET,%2)),isadmin(%#))=@pemit %#=announce(GROUPS) ERROR: That was set by one of higher rank.;@assert/inline strlen(%1)=@pemit %#=announce(GROUPS) ERROR: No new rank value entered.;@assert/inline isint(%1)=@pemit %#=announce(GROUPS) ERROR: Ranks must be whole numbers.;@assert/inline or(lte(%q<rank>,%1),isadmin(%#))=@pemit %#=announce(GROUPS) ERROR: Cannot set the requirement higher than your own rank.;th setstat(u(gdb)/%q<gattr1>`PERM,%0,%1);th setstat(u(gdb)/%q<gattr1>`PERMBY,%0,bound(%q<rank>,0));@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>,{Changed %q<galias1> [ucstr(%0)] PERM to: %1};@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n changed [ucstr(%0)] PERM to: %1},OOC,1},0,{@pemit %#=header(%q<gname1> - PERM);th petq(spaces,add(2,strfunc(max,iter(petr(fields,setunion(petr(PERMs,ucstr(iter(get(u(gso)/VAR`DEFAULTS`SETPERM),before(%i0,~),|,|))),ucstr(iter(get(u(gdb)/%q<gattr1>`PERM),before(%i0,~),|,|)),|,|,i)),strlen(%i0),|))));@pemit %#=table(iter(%q<fields>,ljust(rjust(if(match(iter(get(u(gso)/VAR`DEFAULTS`SETPERM),before(%i0,~),|,|),%i0,|),ansi(h,%i0),ansi(hr,%i0)),%q<spaces>),%q<space>):%B[u(u(gso)/FUN`GETPERM,%q<gid1>,%i0)],|,|),38,78,|);@pemit %#=%R[ansi(h,AVAILABLE OPTIONS:)] [itemize(%q<PERMs>,|,and,\,)];@pemit %#=header()}
+
+&INC`CHOOSE`G`INVITE [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`INVITE=%1,%2,%3
+&INC`CODE`INVITE [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,INV)=@pemit %#=announce(GROUPS) ERROR: You do not have permission to do that.;@switch/inline gt(strlen(%0),0)=1,{@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@break/inline isgroupmember(%q<t1>,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: They are already a member of the Group.;@break/inline match(get(u(gdb)/%q<gattr1>`INVITES),%q<t1>)=@pemit %#=announce(GROUPS) ERROR: %q<t1name> has already been invited to %q<gname1>.;&%q<gattr1>`INVITES %q<gdb>=setunion(get(u(gdb)/%q<gattr1>`INVITES),%q<t1>);@pemit %q<t1>=%n has invited you to join the %q<gname1>! To accept, type [pueblize(ansi(h,+gjoin %q<galias1>),+gjoin %q<galias1>)] or Refuse using [pueblize(ansi(h,+grefuse %q<galias1>),+grefuse %q<galias1>)].;@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>,{Invite sent to %q<t1name>.};@pemit %#=announce(GROUPS) You have invited %q<t1name> to the %q<gname1>},0,{@include u(gso)/INC`MAIN`SHOWINVITES}
+
+&INC`CHOOSE`G`UNINVITE [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`UNINVITE=%1,%2,%3
+&INC`CODE`UNINVITE [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,INV)=@pemit %#=announce(GROUPS) ERROR: You do not have permission to do that.;@switch/inline gt(strlen(%0),0)=1,{@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@break/inline isgroupmember(%q<t1>,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: They're already a member of the group.;@break/inline match(get(u(gdb)/%q<gattr1>`INVITES),%q<t1>)=@pemit %#=announce(GROUPS) ERROR: %q<t1name> has not been invited to %q<gname1>.;&%q<gattr1>`INVITES %q<gdb>=setdiff(get(u(gdb)/%q<gattr1>`INVITES),%q<t1>);@pemit %q<t1>=announce(GROUPS) %n withdrew your invitation to join the %q<gname1>!;@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>,{Invite withdrawn from %q<t1name>.}},0,{@include u(gso)/INC`MAIN`SHOWINVITES}
+
+&INC`MAIN`SHOWINVITES [u(gso)]=@pemit %#=header(%q<gname1>'s Pending Invites);@pemit %#=itemize(iter(petr(invites,filter(#lambda/isdbref([lit(%0)]),get(u(gdb)/%q<gattr1>`INVITES))),name(%i0),%b,|),|,and,\,);@pemit %#=header();&%q<gattr1>`INVITES %q<gdb>=%q<invites>
+
+&INC`CHOOSE`G`ADD [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`ADD=%1,%2,%3
+&INC`CODE`ADD [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,ADD)=@pemit %#=announce(GROUPS) ERROR: You do not have permission to do that.;@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@break/inline match(get(u(gdb)/%q<gattr1>`MEMBERS),%q<t1>)=@pemit %#=announce(GROUPS) ERROR: They are already a member of the Group.;&%q<gattr1>`MEMBERS %q<gdb>=setunion(get(u(gdb)/%q<gattr1>`MEMBERS),%q<t1>);@pemit %q<t1>=announce(GROUPS) %n added you to the %q<gname1> Group!;th setstat(%q<t1>/D`GROUP,Group,%q<gid1>);th setstat(%q<t1>/D`GROUP`%q<gid1>,IC,1);th setstat(%q<t1>/D`GROUP`%q<gid1>,OOC,1);@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>,{Added %q<t1name>.};@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n added %q<t1name> to the Group!},OOC,1
+
+&INC`CHOOSE`G`JOIN [u(gso)]=@switch/inline gt(strlen(%1),0)=1,{@include u(gso)/INC`CODE`VALGROUP=%1,1;@include u(gso)/INC`CODE`JOIN=%1,%2,%3},0,{@include u(gso)/INC`CODE`MYINVITES}
+&INC`CODE`JOIN [u(gso)]=@break/inline match(get(u(gdb)/%q<gattr1>`MEMBERS),%#)=@pemit %#=announce(GROUPS) ERROR: You are already a member of the Group.;@assert/inline match(get(u(gdb)/%q<gattr1>`INVITES),%#)=@pemit %#=announce(GROUPS) ERROR: You have not been invited to join that Group.;&%q<gattr1>`MEMBERS %q<gdb>=setunion(get(u(gdb)/%q<gattr1>`MEMBERS),%#);@pemit %#=announce(GROUPS) You have joined the %q<gname1> Group!;th setstat(%#/D`GROUP,Group,%q<gid1>);th setstat(%#/D`GROUP`%q<gid1>,IC,1);th setstat(%#/D`GROUP`%q<gid1>,OOC,1);@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>,{%q<t1name> joined.};@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n joined the Group!},OOC,1
+
+
+&INC`CHOOSE`G`REFUSE [u(gso)]=@switch/inline gt(strlen(%1),0)=1,{@include u(gso)/INC`CODE`VALGROUP=%1,1;@include u(gso)/INC`CODE`REFUSE=%1,%2,%3},0,{@include u(gso)/INC`CODE`MYINVITES}
+&INC`CODE`REFUSE [u(gso)]=@break/inline match(get(u(gdb)/%q<gattr1>`MEMBERS),%#)=@pemit %#=announce(GROUPS) ERROR: You are already a member of the Group.;@assert/inline match(get(u(gdb)/%q<gattr1>`INVITES),%#)=@pemit %#=announce(GROUPS) ERROR: You have not been invited to join that Group.;&%q<gattr1>`MEMBERS %q<gdb>=setdiff(get(u(gdb)/%q<gattr1>`MEMBERS),%#);@pemit %#=announce(GROUPS) You have rejected joining the %q<gname1> Group!;@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>,{%q<t1name> rejected joining.};@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n rejected [poss(%#)] invitation!},OOC,1
+
+
+&INC`CODE`MYINVITES [u(gso)]=@assert/inline words(petr(groups,grepi(u(gdb),*,*%#*)))=@pemit %#=announce(GROUPS) You have no pending invites.;@pemit %#=header(Your Group Invites);@pemit %#=iter(%q<groups>,pueblize(get(u(gdb)/%i0) - [get(u(gdb)/%i0`NAME)],+gjoin [get(u(gdb)/%i0)]),,%R);@pemit %#=header()
+
+&INC`CHOOSE`G`LEAVE [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`LEAVE=%1,%2,%3
+&INC`CODE`LEAVE [u(gso)]=@assert/inline match(get(u(gdb)/%q<gattr1>`MEMBERS),%#)=@pemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@break/inline eq(0,u(u(gso)/FUN`GETRANK,%#,%q<gid1>))=@pemit %#=announce(JOBS) ERROR: Leaders may not leave their groups. Please contact staff.;&%q<gattr1>`MEMBERS %q<gdb>=setdiff(get(u(gdb)/%q<gattr1>`MEMBERS),%#);@pemit %#=announce(GROUPS) You left the %q<gname1> Group!;@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>{%q<t1name> left the group.};@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n left the Group},OOC,1
+
+&INC`CHOOSE`G`KICK [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`KICK=%1,%2,%3
+&INC`CODE`KICK [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,KICK)=@pemit %#=announce(GROUPS) ERROR: You do not have permission to do that.;@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@assert/inline match(get(u(gdb)/%q<gattr1>`MEMBERS),%q<t1>)=@pemit %#=announce(GROUPS) ERROR: They are not a member of the Group.;@assert/inline lte(u(u(gso)/FUN`GETRANK,%#,%q<gid1>),u(u(gso)/FUN`GETRANK,%q<t1>,%q<gid1>))=@pemit %#=announce(GROUPS) ERROR: Cannot kick those of higher rank.;&%q<gattr1>`MEMBERS %q<gdb>=setdiff(get(u(gdb)/%q<gattr1>`MEMBERS),%q<t1>);@pemit %q<t1>=announce(GROUPS) %n removed you from the %q<gname1> Group!;@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>{%q<t1name> was kicked.};@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n removed %q<t1name> from the Group},OOC,1
+
+&INC`CHOOSE`G`RANK [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`RANK=%1,%2,%3
+&INC`CODE`RANK [u(gso)]=@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You are not a member of that group.;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,RANK)=@pemit %#=announce(GROUPS) ERROR: You do not have permission to do that.;@include u(ccs)/INC`CHECKPC=%0,1,GROUPS;@assert/inline strlen(%1)=@pemit %#=announce(GROUPS) ERROR: Rank field empty.;@assert/inline and(gte(%1,0),isint(%1))=@pemit %#=announce(GROUPS) ERROR: Ranks must be whole numbers.;@assert/inline lt(u(u(gso)/FUN`GETRANK,%#,%q<gid1>),%1)=@pemit %#=announce(GROUPS) ERROR: New Rank must be less than your own.;@assert/inline lt(u(u(gso)/FUN`GETRANK,%#,%q<gid1>),u(u(gso)/FUN`GETRANK,%q<t1>,%q<gid1>))=@pemit %#=announce(GROUPS) ERROR: Cannot change the rank of superiors.;th setstat(u(gdb)/%q<gattr1>`RANK,%q<t1>,%1);@pemit %q<t1>=announce(GROUPS) %n has Changed your rank in the %q<gname1> Group to %1!;@include u(gso)/INC`CODE`MAKELOG=%#,%q<gid1>{Changed %q<t1name>'s Rank to %1};@include u(gso)/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n set %q<t1name>'s Rank to %1},OOC,1
+
+&INC`CHOOSE`G`RADIO [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`CHAT=%1[if(strlen(%2),=%2)],IC,0
+&INC`CHOOSE`G`IC [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`CHAT=%1[if(strlen(%2),=%2)],IC,0
+
+&INC`CHOOSE`G`OOC [u(gso)]=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`CHAT=%1[if(strlen(%2),=%2)],OOC,0
+
+&INC`CODE`CHAT [u(gso)]=@assert/inline strlen(%0)=@pemit %#=What will you say?;@switch/inline gt(%2,0)=0,{@assert/inline strfirstof(getstat(u(gdb)/%q<gattr1>`OP,petr(chan,%1)),1)=@pemit %#=announce(GROUPS) ERROR: That channel is not enabled.;@assert/inline strfirstof(getstat(%#/D`GROUP,%q<chan>),1)=@pemit %#=announce(GROUPS) ERROR: You have universally disabled Group %q<chan> Channels!;@assert/inline u(u(gso)/FUN`GRPPERM,%#,%q<gid1>,%q<chan>)=@pemit %#=You lack permission to do that!;@break/inline strlen(getstat(u(gdb)/%q<gattr1>`GAG,%#))=@pemit %#=announce(GROUPS) ERROR: You have been Gagged from the Group's channels.;@assert/inline strfirstof(getstat(%#/D`GROUP`%q<gid1>,%q<chan>),1)=@pemit %#=announce(GROUPS) ERROR: Cannot use a channel while it is disabled.},{th petq(chan,%1)};@assert/inline words(petr(list,filter(#lambda/isdbref([lit(%0)]),iter(filter(#lambda/isgroupmember([lit(%0)],%q<gid1>),setunion(lwho(),)),if(strfirstof(getstat(%i0/D`GROUP,%q<chan>),getstat(%i0/D`GROUP`%q<gid1>,%q<chan>),1),%i0,x)))));th petq(header,ansi(c,<)[ansi(strfirstof(u(u(gso)/FUN`GETOP,%q<gid1>,COLOR),h),ucstr(get(u(gdb)/%q<gattr1>`ALIAS)))]-[if(gt(%2,0),ansi(hr,SYS),ansi(hx,%q<chan>))][ansi(c,>)]);@switch/inline gt(%2,0)=0,{th if(%2,,petq(title,getstat(%#/D`GROUP`%q<gid>,%q<chan>TITLE)));@pemit/list %q<list>=%q<header>%B[if(strlen(%q<title>),%q<title>%B)][speak(%#,%0)]},1,{@pemit/list %q<list>=%q<header>%B%0}
+
+&CMD`CHAT [u(gso)]=$^(?s)(-|=)(\w+)(?\: +(.+))?$:@include u(gso)/INC`CODE`VALGROUP=%2,1;@assert/inline isgroupmember(%#,%q<gid1>)=@pemit %#=announce(GROUPS) ERROR: You do not belong to that group!;@assert/inline strlen(%3)=@pemit %#=What will you say?;@include u(gso)/INC`CODE`CHAT=%3,if(strmatch(=,%1),OOC,IC),0
+@set u(gso)/CMD`CHAT=regexp
+
+&PLAYER`CONNECT`GROUPCHECK [u(gso)]=@dolist iter(wildgrep(u(gdb)/GRP`*`INVITES,*%0*),before(%i0,`))={@pemit %#=announce(GROUP) The [get(u(gdb)/%i0`NAME)] Have invited you to join their group! To accept, type [pueblize(ansi(h,+gjoin [get(u(gdb)/%i0)]),+gjoin %i0)]}
+
+&STARTUP [u(gso)]=@trigger u(gso)/TRG`DOCLEANUP
+
+&TRG`DOCLEANUP [u(gso)]=@dolist filter(#lambda/isnum([lit(%0)]),lattr(u(gdb)/^GRP`%\d+$,,,1))={&##`MEMBERS %q<gdb>=filter(#lambda/isdbref([lit(%0)]),get(u(gdb)/##`MEMBERS));&##`INVITES %q<gdb>=filter(#lambda/isdbref([lit(%0)]),get(u(gdb)/##`INVITES));&##`RANK %q<gdb>=filter(#lambda/isdbref(before([lit(%0)],~)),get(u(gdb)/##`RANK))};@wait 7200=@trigger u(gso)/TRG`DOCLEANUP
+
+th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),GROUP,|,|))
+&VAR`CATEGORIES`GROUP [u(cco)]=GWHONAME|GWHOSEX|GWHORANK|GWHOICTITLE

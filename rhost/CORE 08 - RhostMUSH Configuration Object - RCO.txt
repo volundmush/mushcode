@@ -1,0 +1,10 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(rco))=0,{@tel create(RhostMUSH Configuration Object <PCO>)=globalroom()}
+&rco [u(coi)]=locate(globalroom(),RhostMUSH Configuration Object <PCO>,Ti)
+@wait 0=@parent u(rco)=[u(coi)]
+@set [u(rco)]=INHERIT
+
+&STARTUP [u(rco)]=@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@attribute/access/retroactive short-desc=visual;@attribute/access/retroactive D=WIZARD MORTAL_DARK;@include u(rco)/STARTUP`EXTRA
+
+&PLAYER`DISCONNECT`TELGUEST u(rco)=@assert/inline %1;@switch/inline gt(haspower(%0,GUEST),0)=1,{@tel %0=config(player_start)}

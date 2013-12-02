@@ -1,0 +1,27 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(cco))=0,{@tel create(Custom Colors Object <CCO>)=globalroom()}
+&cco [u(coi)]=locate(globalroom(),Custom Colors Object <CCO>,Ti)
+@wait 0=@parent [u(cco)]=[u(coi)]
+@set [u(cco)]=INHERIT SAFE !NO_COMMAND
+
+&CMD`+COLOR [u(cco)]=$^(?s)(?\:\+)?color(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(cco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(cco)/VAR`ADMINFLAGS)),|,|),|,COLOR,switch,switch;@include u(cco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set [u(cco)]/CMD`+COLOR=regexp
+
+&VAR`PLAYFLAGS [u(cco)]=LIST|DEFAULTS|IMPORT|MODE
+
+&CMD`COLORDEMO [u(cco)]=$^(?\:\+)?color(s|demo)$:@dolist/inline lnum(97,122)=@pemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,%i0))],%b,%r)))
+@set [u(cco)]/CMD`COLORDEMO=regexp
+
+&INC`MAIN [u(cco)]=@switch/inline t(strlen(petr(cat,before(%0,/))))=1,{@include u(ccs)/INC`PARTIAL=%q<cat>,v(VAR`CATEGORIES),|,COLOR,cat,Color Category;@switch/inline t(strlen(petr(type,after(%0,/))))=0,{@pemit %#=announce(COLOR) Please pick a color Type for that Category. Your choices are: [itemize(get(u(cco)/VAR`CATEGORIES`%q<cat>),|,and,\,)]},1,{@include u(ccs)/INC`PARTIAL=%q<type>,v(VAR`CATEGORIES`%q<cat>),|,COLOR,type,Color Type;@switch/inline if(and(isdbref(u(cao)),isdbref(u(adb))),if(get(%#/D`COLOR),gt(petr(accid,u(u(cao)/FUN`FINDACCOUNT,%#)),0),0),0)=1,{th petq(mode,Account)[petq(attr,%q<accid>`COLOR)][petq(target,u(adb))]},0,{th petq(mode,Personal)[petq(attr,D`COLOR)][petq(target,%#)]};@switch/inline t(strlen(%1))=0,{@pemit %#=announce(COLOR) %q<cat> %q<type> %q<mode> Color Cleared!;@wipe [%q<target>]/[%q<attr>`%q<cat>`%q<type>]},1,{@assert/inline or(valid(colornames,%1),valid(ansicodes,%1))=@pemit %#=announce(COLOR) ERROR: That is not a valid color code. Please see [pueblize(help ansi(),help ansi())] for more information!;@pemit %#=announce(COLOR) %q<cat> %q<type> %q<mode> Color set to %1!;&%q<attr>`%q<cat>`%q<type> %q<target>=%1}}},0,{@pemit %#=announce(COLOR) Please pick a color Category. Your choices are: [itemize(v(VAR`CATEGORIES),|,and,\,)]}
+
+&INC`MODE [u(cco)]=@assert/inline and(isdbref(u(adb)),isdbref(u(cao)))=@pemit %#=announce(COLOR) ERROR: The Account system is not installed.;@switch/inline gt(default(%#/D`COLOR,0),0)=1,{@pemit %#=announce(COLOR) You have disconnected this character from your Account's Color settings.;&D`COLOR %#=0},0,{@assert/inline petr(accid,u(u(cao)/FUN`FINDACCOUNT,%#))=@pemit %#=announce(COLOR) ERROR: You don't have an account! Use +account/new if this is a new character or contact Staff if not.;@pemit %#=announce(COLOR) You have linked this character to your Account's color settings.;&D`COLOR %#=1}
+
+&INC`LIST [u(cco)]=@assert strlen(%0)=@pemit %#=announce(COLOR) ERROR: You must list a valid category. Your choices are: [itemize(v(VAR`CATEGORIES),|,and,\,)];@include u(ccs)/INC`PARTIAL=%0,v(VAR`CATEGORIES),|,COLOR,cat,cat;@pemit %#=header(Colors for %q<cat> - [if(get(%#/D`COLOR),Account Mode,Personal Mode)]);@pemit %#=table(iter(v(VAR`CATEGORIES`%q<cat>),color(%#,%i0,%q<cat>`%i0),|,|),25,78,|);@pemit %#=header()
+
+&INC`DEFAULTS [u(cco)]=@switch/inline if(and(isdbref(u(cao)),isdbref(u(adb))),if(get(%#/D`COLOR),gt(petr(accid,u(u(cao)/FUN`FINDACCOUNT,%#)),0),0),0)=1,{th petq(mode,Account)[petq(attr,%q<accid>`COLOR)][petq(target,u(adb))]},0,{th petq(mode,Personal)[petq(attr,D`COLOR)][petq(target,%#)]};@include u(ccs)/INC`VERIFY={WARNING: This will restore all default settings for %q<mode> Colors. Enter the same command within ten seconds to verify.},COLOR %q<mode> DEFAULTS,COLOR;@pemit %#=announce(COLOR) You have restored all %q<mode> default colors!;@switch/inline %q<mode>=PERSONAL,{@wipe %q<target>/%q<attr>},ACCOUNT,{@set %q<target>=!SAFE;@wipe %q<target>/%q<attr>;@set %q<target>=SAFE}
+
+&GFN`COLOR [u(cco)]=ansi(if(and(isdbref(u(cao)),get(%0/D`COLOR)),if(petr(accid,u(u(cao)/FUN`FINDACCOUNT,objid(%0))),strfirstof(get(u(adb)/%q<accid>`COLOR`%2),%3,n),strfirstof(get(%0/D`COLOR`%2),%3,n)),strfirstof(get(%0/D`COLOR`%2),%3,n)),%1)
+
+th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),MAIN,|,|))
+&VAR`CATEGORIES`MAIN [u(cco)]=HEADERTEXT|HEADERLINE|HEADERDOT|SUBHEADERTEXT|SUBHEADERLINE|ANNOUNCETITLE|ANNOUNCEBORDER

@@ -1,0 +1,19 @@
+@switch/inline isdbref(u(mco))=0,{@tel create(Meet Code Object <MCO>)=globalroom()}
+&mco [u(coi)]=locate(globalroom(),Meet Code Object <MCO>,Ti)
+@wait 0=@parent u(mco)=[u(coi)]
+@set u(mco)=WIZARD SAFE !NO_COMMAND
+
+&CMD`MEETME u(mco)=$^(?s)(?\:\+)?(meet|meetme|join|mjoin|summon|msummon)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(mco)/INC`%1=%3,%4
+@set u(mco)/CMD`MEETME=regexp
+
+&INC`MEET u(mco)=@include u(mco)/INC`MEETME
+&INC`MEETME u(mco)=@include u(ccs)/INC`CHECKPC=%0,1,MEET;@break/inline strmatch(%#,%q<t1>)=@pemit %#=announce(MEET) You can't Meet yourself.;@assert/inline hasflag(%q<t1>,CONNECTED)=@pemit %#=announce(MEET) %q<t1name> is not online.;@switch/inline hasattr(u(mco)/MEETME_%#_%q<t1>)=1,{@break/inline lte(sub(secs(),get(u(mco)/MEETME_%#_%q<t1>)),600)=@pemit %#=announce(MEET) An invitation to %q<t1name> is already pending.};@pemit %q<t1>=header(Meetme);@pemit %q<t1>=%n sent you a Meetme request. You have about 10 minutes to respond.%r%rTo join %n, use '[pueblize(ansi(h,join %n),join %n)]'%rTo bring %n to you, use '[pueblize(ansi(h,summon %n),summon %n)]'%rTo decline the request you needn't do a thing.;@pemit %q<t1>=header();@pemit %#=announce(MEET) You have sent %q<t1name> a Meetme request.;&MEETME_%#_%q<t1> me=secs()
+
+&INC`JOIN u(mco)=@include u(mco)/INC`MJOIN
+&INC`MJOIN u(mco)=@include u(ccs)/INC`CHECKPC=%0,1,MEET;@break/inline strmatch(%#,%q<t1>)=@pemit %#=announce(MEET) You can't Meet yourself.;@assert/inline hasflag(%q<t1>,CONNECTED)=@pemit %#=announce(MEET) %q<t1name> is not online.;@assert/inline or(hasattr(u(mco)/MEETME_%q<t1>_%#),isadmin(%#))=@pemit %#=announce(MEET) %q<t1name> has not sent you a meetme request.;@break/inline strmatch(loc(%q<t1>),%l)=@pemit %#=announce(MEET) You are both here!;@wipe me/MEETME_%q<t1>_%#;@remit/list loc(%q<t1>) %l=roomannounce(MEET) [ansi(h,%n)] has joined %q<t1name>!;@tel %#=loc(%q<t1>);@pemit %#=announce(MEET) You join %q<t1name>
+
+&INC`SUMMON u(mco)=@include u(mco)/INC`MSUMMON
+&INC`MSUMMON u(mco)=@include u(ccs)/INC`CHECKPC=%0,1,MEET;@break/inline strmatch(%#,%q<t1>)=@pemit %#=announce(MEET) You can't Meet yourself.;@assert/inline hasflag(%q<t1>,CONNECTED)=@pemit %#=announce(MEET) %q<t1name> is not online.;@assert/inline or(hasattr(u(mco)/MEETME_%q<t1>_%#),isadmin(%#))=@pemit %#=announce(MEET) %q<t1name> has not sent you a meetme request.;@break/inline strmatch(loc(%q<t1>),%l)=@pemit %#=announce(MEET) You are both here!;@wipe me/MEETME_%q<t1>_%#;@remit/list loc(%q<t1>) %l=roomannounce(MEET) [ansi(h,%q<t1name>)] is drawn away by %n's Summons;@tel %q<t1>=%l;@pemit %#=announce(MEET) You summon %q<t1name>.
+
+&FILTER_TIMEOUT u(mco)=gt(sub(secs(),v(%0)),600)
+&STARTUP u(mco)=@dolist/inline filter(FILTER_TIMEOUT,lattr(me/MEETME_*))={@wipe me/%i0};@wait 600=@trigger me/STARTUP

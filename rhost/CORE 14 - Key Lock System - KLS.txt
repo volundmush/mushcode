@@ -1,0 +1,76 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(kls))=0,{@tel create(Key Lock System <KLS>)=globalroom()}
+&kls [u(coi)]=locate(globalroom(),Key Lock System <KLS>,Ti)
+@wait 0=@parent [u(kls)]=[u(coi)]
+@set [u(kls)]=INHERIT SIDEFX !NO_COMMAND
+
+&CMD`+KEY [u(kls)]=$^(?s)(?\:\+)?(key)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(kls)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(kls)/VAR`%1`ADMINFLAGS)),|,|),|,KEY,switch,switch;@include u(kls)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+@set [u(kls)]/CMD`+KEY=regexp
+
+&CMD`+LOCK [u(kls)]=$^(?s)(?\:\+)?(lock)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(kls)/INC`LOCK=%3,%4,strfirstof(%2,basic)
+@set [u(kls)]/CMD`+LOCK=regexp
+
+&VAR`KEY`PLAYFLAGS [u(kls)]=ADD|REM|MAKE|DESTROY|AUTH|REVOKE|CHOWN|CONFIG
+&VAR`KEY`ADMINFLAGS [u(kls)]=
+
+&VAR`LOCKTYPES [u(kls)]=controllock|defaultlock|droplock|enterlock|givelock|leavelock|linklock|pagelock|parentlock|receivelock|speechlock|teloutlock|tportlock|uselock|userlock|zonetolock|zonewizlock|twinklock|darklock|openlock|droptolock|altnamelock|givetolock|getfromlock|chownlock|basic
+
+&INC`KEY`MAIN [u(kls)]=@assert/inline words(petr(locks,u(u(kls)/FUN`LISTLOCKS,1)),|)=@pemit %#=announce(KEY) ERROR: There are no Keys!;@switch/inline strlen(%0)=0,{@pemit %#=header(mudname() Keys);@dolist/inline/delimit | [setunion(iter(u(u(kls)/FUN`LISTLOCKS,0),capnames(get(%i0/CONFIG`CATEGORY)),%B,|),,|,|,i)]={@pemit %#=subheader(## Key Types);@pemit %#=table(iter(filter(#lambda/strmatch(xget([lit(%0)],CONFIG`CATEGORY),##),u(u(kls)/FUN`LISTLOCKS,0),%B,|),%[[if(elock(%i0,%#),ansi(hg,O),ansi(hr,X))]%] [name(%i0)],|,|),25,78,|)};@switch/inline gt(words(petr(unset,filter(#lambda/not(hasattr([lit(%0)],CONFIG`CATEGORY)),u(u(kls)/FUN`LISTLOCKS,0),%B,|)),|),0)=1,{@pemit %#=subheader(Unset Key Types);@pemit %#=table(iter(%q<unset>,%[[if(elock(%i0,%#),ansi(hg,O),ansi(hr,X))]%] [name(%i0)],|,|),25,78,|)};@pemit %#=header(+key <name> to see specific Key Type!)},{@include u(kls)/INC`KEYNAME=%0;@include u(kls)/INC`FINDKEY;@pemit %#=header(mudname() Key: %q<key>);@pemit %#=align(50 25,ansi(h,%q<key>) - You [if(elock(%q<kdb>,%#),ansi(hg,Pass),ansi(hr,Fail))] this Key's lock!%R[ljust(rjust(OWNER:,10),10)] [name(get(%q<kdb>/OWNER))]%R[ljust(rjust(HANDLERS:,10),10)] [itemize(iter(filter(#lambda/isdbref([lit(%0)]),get(%q<kdb>/HANDLERS)),name(%i0),%B,|),|,and,\,)]%R[ljust(rjust(HOLDERS:,10),10)] [itemize(iter(filter(#lambda/isdbref([lit(%0)]),get(%q<kdb>/HOLDERS)),name(%i0),%B,|),|,and,\,)],[ljust(rjust(APPROVED:,10),10)] [if(t(get(%q<kdb>/CONFIG`APPROVED),0),Yes,No)]%R[ljust(rjust(BUILDER:,10),10)] [if(t(get(%q<kdb>/CONFIG`BUILDER),0),Yes,No)]%R[ljust(rjust(SPLAT:,10),10)] [get(%q<kdb>/CONFIG`SPLAT)]%R[ljust(rjust(SPHERE:,10),10)] [get(%q<kdb>/CONFIG`SPHERE)]%R[ljust(rjust(GROUP:,10),10)] [itemize(iter(get(%q<kdb>/CONFIG`GROUP),,%b,|),|,and,\,)]%R[ljust(rjust(KEY:,10),10)] [itemize(iter(get(%q<kdb>/CONFIG`KEY),,%b,|),|,and,\,)]);@pemit %#=header()}
+
+&INC`KEYNAME [u(kls)]=@assert/inline strlen(petr(key,ucstr(%0)))=@pemit %#=announce(KEYS) ERROR: Key Type Name field empty.;@break/inline match(v(VAR`LOCKTYPES),%0,|)=@pemit %#=announce(KEY) ERROR: Key Type names may not conflict with hardcoded @lock types.;@assert/inline eq(words(%0),1)=@pemit %#=announce(KEY) ERROR: A Key Type must be a single word.;@break/inline strmatch(%0,*-*)=@pemit %#=announce(KEY) ERROR: A Key may not contain the - character.;@assert/inline regmatchi(%0,^(\\w+)$)=@pemit %#=announce(KEY) ERROR: Key Types must be simple words without special characters.;@assert/inline valid(name,%0)=@pemit %#=announce(KEY) ERROR: Hardcode doesn't like that name. Pick something without complicated characters.
+
+&INC`FINDKEY [u(kls)]=@assert/inline match(u(u(kls)/FUN`LISTLOCKS,1),%q<key>)=@pemit %#=announce(KEY) ERROR: That Key Type doesn't exist!;th petq(kdb,locate(u(kls),%q<key>,Ti))
+
+&INC`KEY`MAKE [u(kls)]=@assert/inline or(isadmin(%#),and(v(VAR`PLAYERMAKE),approved(%#)))=@pemit %#=announce(KEY) ERROR: Players may not make Key Types.;@include u(kls)/INC`KEYNAME=%0;@break/inline match(u(u(kls)/FUN`LISTLOCKS,1),%q<key>,|)=@pemit %#=announce(KEY) ERROR: That Key Type already exists!;@assert isdbref(petr(kdb,create(%q<key>)))=@pemit %#=announce(KEY) ERROR: Key Type could not be created.;@set %q<kdb>=INHERIT;@wait 0=@parent %q<kdb>=[u(coi)];@lock/basic %q<kdb>=LOCK/1;@cpattr u(kls)/FUN`LOCKPROTO=%q<kdb>/LOCK;&OWNER %q<kdb>=%#;@pemit %#=announce(KEY) You have created the %q<key> Key Type!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) has created a new Key Type: %q<key>}
+
+&INC`KEY`DESTROY [u(kls)]=@include u(kls)/INC`KEYNAME=%0;@include u(kls)/INC`FINDKEY;@assert/inline u(FUN`OWNER,%#,%q<key>)=@pemit %#=announce(KEY) ERROR: Players may not destroy Key Types they do not own.;@include u(ccs)/INC`VERIFY={WARNING: This will Destroy the Key Type %q<key>. The key list will be deleted. Are you sure? Enter the same command again in ten seconds to verify.},LOCK DELETE %q<key>;@destroy locate(u(kls),%q<key>,Ti);@pemit %#=announce(KEY) You have destroyed the Key Type %q<key>!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) has destroyed a Key Type: %q<key>}
+
+&INC`KEY`CHOWN [u(kls)]=@include u(kls)/INC`KEYNAME=%0;@include u(kls)/INC`FINDKEY;@assert/inline u(FUN`OWNER,%#,%q<key>)=@pemit %#=announce(KEY) ERROR: Players may not reassign Key Types they do not own.;@include u(ccs)/INC`CHECKPC=%1,1,KEY;@include u(ccs)/INC`VERIFY={WARNING: This will REASSIGN OWNERS for  the Key Type %q<key>. Are you sure? Enter the same command again in ten seconds to verify.},LOCK CHOWN %q<key> %q<t1>;&OWNER %q<kdb>=%q<t1>;@pemit %#=announce(KEY) You have reassigned ownership of Key Type %q<key> to %q<t1name>!;@pemit %q<t1>=announce(KEY) %n reassigned ownership of Key Type %q<key> to you!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) reassigned Key Type %q<key> to %q<t1name>}
+
+&INC`KEY`AUTH [u(kls)]=@include u(kls)/INC`KEYNAME=%0;@include u(kls)/INC`FINDKEY;@assert/inline u(FUN`OWNER,%#,%q<key>)=@pemit %#=announce(KEY) ERROR: Players may not authorize Key Type handlers for Key Types they do not own.;@include u(ccs)/INC`CHECKPC=%1,1,KEY;@break/inline u(FUN`HANDLER,%q<t1>,%q<key>,1)=@pemit %#=announce(KEY) ERROR: %q<t1name> is already authorized for that Key Type.;&HANDLERS %q<kdb>=filter(#lambda/isdbref([lit(%0)]),setunion(get(%q<kdb>/HANDLERS),%q<t1>));@pemit %#=announce(KEY) You authorized %q<t1name> to handle Key Type %q<key>.;@pemit %q<t1>=announce(KEY) %n authorized you to handle Key Type %q<key>!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) authorized %q<t1name> to handle Key Type %q<key>.}
+
+&INC`KEY`REVOKE [u(kls)]=@include u(kls)/INC`KEYNAME=%0;@include u(kls)/INC`FINDKEY;@assert/inline u(FUN`OWNER,%#,%q<key>)=@pemit %#=announce(KEY) ERROR: Players may not revoke Key Type handlers for Key Types they do not own.;@include u(ccs)/INC`CHECKPC=%1,1,KEY;@assert/inline u(FUN`HANDLER,%q<t1>,%q<key>,1)=@pemit %#=announce(KEY) ERROR: %q<t1name> is not authorized for that Key Type.;&HANDLERS %q<kdb>=filter(#lambda/isdbref([lit(%0)]),setdiff(get(%q<kdb>/HANDLERS),%q<t1>));@pemit %#=announce(KEY) You revoked %q<t1name>'s authority to handle Key Type %q<key>.;@pemit %q<t1>=announce(KEY) %n revoked your authority to handle Key Type %q<key>.;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) revoked %q<t1name>'s authority to handle Key Type %q<key>.}
+
+&INC`KEY`ADD [u(kls)]=@include u(kls)/INC`KEYNAME=%0;@include u(kls)/INC`FINDKEY;@assert/inline u(FUN`HANDLER,%#,%q<key>)=@pemit %#=announce(KEY) ERROR: You are not authorized to handle that Key!;@include u(ccs)/INC`CHECKPC=%1,1,KEY;@break/inline u(FUN`HOLDER,%q<t1>,%q<key>,1)=@pemit %#=announce(KEY) ERROR: %q<t1name> already has that Key.;&HOLDERS %q<kdb>=filter(#lambda/isdbref([lit(%0)]),setunion(get(%q<kdb>/HOLDERS),%q<t1>));@pemit %#=announce(KEY) You give %q<t1name> a %q<key> Key.;@pemit %q<t1>=announce(KEY) %n gave you a %q<key> Key!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) gave %q<t1name> a %q<key> Key.}
+
+&INC`KEY`REM [u(kls)]=@include u(kls)/INC`KEYNAME=%0;@include u(kls)/INC`FINDKEY;@assert/inline u(FUN`HANDLER,%#,%q<key>)=@pemit %#=announce(KEY) ERROR: You are not authorized to handle that Key!;@include u(ccs)/INC`CHECKPC=%1,1,KEY;@assert/inline u(FUN`HOLDER,%q<t1>,%q<key>,1)=@pemit %#=announce(KEY) ERROR: %q<t1name> does not have that Key.;&HOLDERS %q<kdb>=filter(#lambda/isdbref([lit(%0)]),setdiff(get(%q<kdb>/HOLDERS),%q<t1>));@pemit %#=announce(KEY) You revoke %q<t1name>'s %q<key> Key.;@pemit %q<t1>=announce(KEY) %n revoked your %q<key> Key!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) revoked %q<t1name>'s %q<key> Key.}
+
+&INC`KEY`CONFIG [u(kls)]=@include u(kls)/INC`KEYNAME=before(%0,/);@include u(kls)/INC`FINDKEY;@assert/inline u(FUN`OWNER,%#,%q<key>)=@pemit %#=announce(KEY) ERROR: Players may not configure Key Types they do not own.;@include u(ccs)/INC`PARTIAL=after(%0,/),CATEGORY|BUILDER|APPROVED|NOAPPROVED|GROUP|SPLAT|SPHERE|KEY,|,KEY,parameter,parameter;@switch/inline strlen(%1)=0,{&CONFIG`%q<parameter> %q<kdb>;@pemit %#=announce(KEY) You cleared Key Type %q<key>'s %q<paramter> Setting.},{@include u(kls)/INC`KEY`CONFIG`%q<parameter>;&CONFIG`%q<parameter> %q<kdb>=%q<entry>;@pemit %#=announce(KEY) You set Key Type %q<key>'s %q<parameter> Setting to: %q<entry>}
+
+&INC`KEY`CONFIG`CATEGORY [u(kls)]=th petq(entry,%1)
+&INC`KEY`CONFIG`BUILDER [u(kls)]=th petq(entry,t(%1))
+&INC`KEY`CONFIG`APPROVED [u(kls)]=th petq(entry,t(%1))
+&INC`KEY`CONFIG`NOAPPROVED [u(kls)]=th petq(entry,t(%1))
+&INC`KEY`CONFIG`GROUP [u(kls)]=@assert/inline strfunc(min,petr(entry,iter(%1,u(u(gso)/FUN`FINDGROUP,%i0))))=@pemit %#=announce(KEY) ERROR: One or more Groups was not found. Groups are separated by spaces so use their IDs or ALIASes!
+&INC`KEY`CONFIG`SPLAT [u(kls)]=@assert/inline strfunc(min,iter(petr(entry,sort(ucstr(%1))),match(get(u(ex-cdo)/VAR`SPLATS),%i0,|)))=@pemit %#=announce(KEY) ERROR: One or more Splats was not found. Splats are separated by spaces.
+&INC`KEY`CONFIG`SPHERE [u(kls)]=@assert/inline strfunc(min,iter(petr(entry,sort(ucstr(%1))),match(get(u(ncdo)/VAR`SPHERES),%i0,|)))=@pemit %#=announce(KEY) ERROR: One or more Spheres was not found. Spheres are separated by spaces.
+&INC`KEY`CONFIG`KEY [u(kls)]=@assert/inline eq(words(petr(choices,setdiff(petr(entry,%1),u(u(kls)/FUN`LISTLOCKS)))),0)=@pemit %#=announce(KEY) ERROR: Following lock types not found: [itemize(%q<choices>,|,and,\,)]
+
+&INC`LOCK [u(kls)]=@assert/inline strlen(%0)=@pemit %#=announce(KEY) ERROR: No Target entered to lock.;@assert/inline isdbref(petr(target,locate(%#,%0,aenpic)))=@pemit %#=announce(KEY) ERROR: %0 does not match anything.;@assert/inline controls(%#,%q<target>)=@pemit %#=announce(KEY) ERROR: Permission denied.;@assert/inline match(v(VAR`LOCKTYPES),%2,|)=@pemit %#=announce(LOCK) ERROR: Must match a proper locktype.;@switch/inline gt(strlen(%1),0)=1,{@assert/inline eq(words(petr(choices,setdiff(%1,u(u(kls)/FUN`LISTLOCKS,1)))),0)=@pemit %#=announce(KEY) ERROR: Following lock types not found: [itemize(%q<choices>,|,and,\,)];th lock(%q<target>/%2,iter(%1,@[locate(u(kls),%i0,Ti)],%B,|));@pemit %#=announce(KEY) You have changed the '[lcstr(%2)]' Lock on (%q<target> - [type(%q<target>)]) to: [itemize(capnames(%1),%b,and,\,)];@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) set the '[lcstr(%2)]' Lock on (%q<target> - [type(%q<target>)]) to: [itemize(capnames(%1),%b,and,\,)]}},0,{@unlock/%2 %q<target>;@pemit %#=announce(KEY) You have removed the '[lcstr(%2)]' Lock on (%q<target> - [type(%q<target>)]);@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@cemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) removed the '[lcstr(%2)]' Lock on [name(%q<target>)] (%q<target> - [type(%q<target>)])}}
+
+&VAR`ALERTMODE [u(kls)]=1
+&VAR`ALERTSCHANNEL [u(kls)]=Staff Reports
+&FUN`LISTLOCKS [u(kls)]=sort(lcon(u(kls)/OBJECT,,|,%0),,|,|)
+
+&FUN`LOCKPROTO [u(kls)]=[u(u(kls)/FUN`LOCKCHECK,%#,%!,num(me))]
+
+
+&FUN`OWNER [u(kls)]=if(%2,match(get(locate(u(kls),%1,Ti)/OWNER),%0),or(isadmin(%0),match(get(locate(u(kls),%1,Ti)/OWNER),%0)))
+&FUN`HANDLER [u(kls)]=if(%2,match(get(locate(u(kls),%1,Ti)/HANDLERS),%0),or(isadmin(%0),u(FUN`OWNER,%0,%1),match(get(locate(u(kls),%1,Ti)/HANDLERS),%0)))
+&FUN`HOLDER [u(kls)]=if(%2,match(get(locate(u(kls),%1,Ti)/HOLDERS),%0),or(isadmin(%0),u(FUN`HANDLER,%0,%1),match(get(locate(u(kls),%1,Ti)/HOLDERS),%0)))
+
+&FUN`LOCKCHECK [u(kls)]=if(hasattr(%2/OVERRIDE),u(%2/OVERRIDE,%0,%1,%2),if(default(%2/CONFIG`APPROVED,0),if(approved(%0),u(FUN`LOCKCHECK`OR,%0,%1,%2),0),u(FUN`LOCKCHECK`ALL,%0,%1,%2)))
+&FUN`LOCKCHECK`OWNER [u(kls)]=or(match(get(%2/LOCK`%2`OWNER),%0),isadmin(%0))
+&FUN`LOCKCHECK`HANDLER [u(kls)]=or(u(FUN`LOCKCHECK`OWNER,%0,%1,%2),match(get(%2/LOCK`%2`HANDLERS),%0),isadmin(%0))
+
+&FUN`LOCKCHECK`ALL [u(kls)]=strfunc(max,iter(lattr(u(kls)/FUN`LOCKCHECK`OR`*),u(%i0,%0,%1,%2)))
+&FUN`LOCKCHECK`OR`ADMIN [u(kls)]=isadmin(%0)
+&FUN`LOCKCHECK`OR`NOAPPROVED [u(kls)]=if(default(%2/CONFIG`NOAPPROVED,0),not(approved(%0)))
+&FUN`LOCKCHECK`OR`HOLDERS [u(kls)]=u(FUN`HOLDER,%0,name(%2))
+&FUN`LOCKCHECK`OR`BUILDER [u(kls)]=if(default(%2/CONFIG`BUILDER,0),haspower(%0,BUILDER),0)
+&FUN`LOCKCHECK`OR`SPLAT [u(kls)]=if(strlen(get(%2/CONFIG`SPLAT)),match(get(%2/CONFIG`SPLAT),getstat(%0/D`INFO,Splat)),0)
+&FUN`LOCKCHECK`OR`SPHERE [u(kls)]=if(strlen(get(%2/CONFIG`SPHERE)),match(get(%2/CONFIG`SPHERE),getsphere(%0)),0)
+&FUN`LOCKCHECK`OR`GROUP [u(kls)]=if(strlen(get(%2/CONFIG`GROUP)),strfunc(max,iter(get(%2/CONFIG`GROUP),u(u(gso)/FUN`GRPAUTH,%0,%i0,LOCK))),0)
+
+@@ %0 - objid of enactor, %1 - executor dbref, %2 - lock name

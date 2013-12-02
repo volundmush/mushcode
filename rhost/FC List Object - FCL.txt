@@ -1,0 +1,38 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(fcl))=0,{@tel create(FC List Object <FCL>)=globalroom()}
+&fcl [u(coi)]=locate(globalroom(),FC List Object <FCL>,Ti)
+@wait 0=@parent u(fcl)=[u(coi)]
+@set u(fcl)=WIZARD SAFE !NO_COMMAND
+
+&CMD`+FCLIST u(fcl)=$^(?s)(?\:\+)?fclist(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(fcl)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(fcl)/VAR`ADMINFLAGS)),|,|),|,FCLIST,switch,switch;@include u(fcl)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set u(fcl)/CMD`+FCLIST=regexp
+
+&INC`MAIN u(fcl)=@switch/inline gt(strlen(%0),0)=1,{@assert/inline petr(group,u(FUN`FINDGROUP,%0))=@pemit %#=announce(FCLIST) ERROR: Group not found!;@pemit %#=header(v(DAT`%q<group>) Roster)%R[ljust(NAME,26)][ljust(FACTION,22)][ljust(LAST ON,10)][ljust(TYPE,9)][ljust(AVAILABLE,5)]%R[subheader()];@dolist/inline filter(#lambda/isdbref([lit(%0)]),v(DAT`%q<group>`LIST))={@pemit %#=ljust(left(name(%i0),25),26)[ljust(default(%i0/D`FINGER`GROUP,Unaffiliated),20)][ljust(left(rjust(if(gt(conn(%i0),0),ansi(hg,ago(conn(%i0))),ansi(hx,elements(get(%i0/LAST),2 3))),9),9),10)]%B%B[ljust(left(default(%i0/D`FINGER`TYPE,N/A),4),9)][ljust(left(if(gt(get(%i0/D`FINGER`DEAD),0),ansi(hx,DEAD),if(approved(%i0),ansi(hx,No),ansi(hg,Yes))),4),5)]};@pemit %#=header()},0,{@pemit %#=header(mudname()'s FClist Groups);@pemit %#=table(iter(sortkey(#lambda/get(u(fcl)/[lit(%0)]),lattr(u(fcl)/DAT`*)),pueblize(get(u(fcl)/%i0),+fclist [get(u(fcl)/%i0)]),%B,|),26,78,|);@pemit %#=header()}
+
+&INC`ADDGROUP u(fcl)=@assert/inline strlen(%0)=@pemit %#=announce(FCLIST) ERROR: No group name entered!;@break/inline u(FUN`FINDGROUP,%0)=@pemit %#=announce(FCLIST) ERROR: Group already exists!;&DAT`[nextslot(u(fcl),DAT)] u(fcl)=%0;@pemit %#=announce(FCLIST) Group '%0' created!;@switch/inline gt(v(VAR`ALERTSMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just created FCLIST Group '%0'!}
+
+&INC`RENGROUP u(fcl)=@assert/inline strlen(%0)=@pemit %#=announce(FCLIST) ERROR: No group name entered!;@assert/inline petr(group,u(FUN`FINDGROUP,%0))=@pemit %#=announce(FCLIST) ERROR: Group not found!;@pemit %#=announce(FCLIST) Group [v(DAT`%q<group>)] Renamed to '%1'!;@switch/inline gt(v(VAR`ALERTSMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just renamed FCLIST Group [v(DAT`%q<group>)] to '%1'!};&DAT`%q<group> u(fcl)=%1
+
+&INC`DELGROUP u(fcl)=@assert/inline strlen(%0)=@pemit %#=announce(FCLIST) ERROR: No group name entered!;@assert/inline petr(group,u(FUN`FINDGROUP,%0))=@pemit %#=announce(FCLIST) ERROR: Group not found!;@include u(ccs)/INC`VERIFY={WARNING: This will delete Group '%0' and all data associated with it. Are you SURE you want to do this? Enter the same command again wtihin ten seconds to verify.},FCLIST DELETE %0,FCLIST;@pemit %#=announce(FCLIST) Group [get(u(fcl)/DAT`%q<group>)] deleted!;@switch/inline gt(v(VAR`ALERTSMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just deleted FCLIST Group [v(DAT`%q<group>)]!};@wipe u(fcl)/DAT`%q<group>
+
+&INC`ADD u(fcl)=@assert/inline strlen(%0)=@pemit %#=announce(FCLIST) ERROR: No group name entered!;@assert/inline petr(group,u(FUN`FINDGROUP,%0))=@pemit %#=announce(FCLIST) ERROR: Group not found!;@include u(ccs)/INC`CHECKPC=%1,1,FCLIST;&DAT`%q<group>`LIST u(fcl)=filter(#lambda/isdbref([lit(%0)]),setunion(v(DAT`%q<group>`LIST),%q<t1>,%B,namei));@pemit %#=announce(FCLIST) You added %q<t1name> to FCLIST Group [v(DAT`%q<group>)]!;@switch/inline gt(v(VAR`ALERTSMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) added %q<t1name> to FCLIST Group [v(DAT`%q<group>)]!}
+
+&INC`REM u(fcl)=@assert/inline strlen(%0)=@pemit %#=announce(FCLIST) ERROR: No group name entered!;@assert/inline petr(group,u(FUN`FINDGROUP,%0))=@pemit %#=announce(FCLIST) ERROR: Group not found!;@include u(ccs)/INC`CHECKPC=%1,1,FCLIST;@assert/inline match(v(DAT`%q<group>`LIST),%q<t1>)=@pemit %#=announce(FCLIST) ERROR: %q<t1name> is not in that group!;&DAT`%q<group>`LIST u(fcl)=filter(#lambda/isdbref([lit(%0)]),setdiff(v(DAT`%q<group>`LIST),%q<t1>,%B,namei));@pemit %#=announce(FCLIST) You removed %q<t1name> from FCLIST Group [v(DAT`%q<group>)]!;@switch/inline gt(v(VAR`ALERTSMODE),0)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) removed %q<t1name> from FCLIST Group [v(DAT`%q<group>)]!}
+
+&FUN`FINDGROUP u(fcl)=last(wildgrepi(u(fcl),DAT`*,%0),`)
+
+&VAR`PLAYFLAGS u(fcl)=
+
+&VAR`ADMINFLAGS u(fcl)=ADDGROUP|RENGROUP|DELGROUP|ADD|REM
+
+&VAR`ALERTSMODE u(fcl)=1
+&VAR`ALERTSCHANNEL u(fcl)=Staff Reports
+
+
+&CMD`SET u(sgo)=$^\+set(profile|sex|group|race|job|quote|skills)(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`CHECKPC=%2,1,SETFINGER;@switch/inline %1=SEX,{@sex %q<t1>=%3},SKILLS,{&SKILLS %q<t1>=%3},{&D`FINGER`%1 %q<t1>=%3};@pemit %#=announce(SETFINGER) %q<t1name>'s [ucstr(%1)] set to: %3;@nscemit/noisy Staff Reports=ansi(h,%n) set %q<t1name>'s [ucstr(%1)] to: %3
+@set u(sgo)/CMD`SET=regexp
+
++shelp/addmain Characters/+fclist=The FCList system allows characters to be added to one or more groups for listing purposes.%R%R[ansi(h,+fclist \[<group>\])]%RBy itself, lists all groups. Given a group as an argument, shows characters in that group.%R%R[ansi(h,+fclist/addgroup <group>)]%RCreates a new group. Group names must be unique.%R%R[ansi(h,+fclist/delgroup <group>)]%RDeletes a group. Be careful with it!%R%R[ansi(h,+fclist/rengroup <group>=<newname>)]%RRenames a group.%R%R[ansi(h,+fclist/add <group>=<character>)]%RAdds a character to a group. Sorting is done by character's name, alphabetical and case-insensitive.%R%R[ansi(h,+fclist/rem <group>=<character>)]%RRemoves a character from a group.
+
++shelp/addmain Characters/+finger=Configuring fingers is actually a series of different commands based off of +set.%R%R[ansi(h,+set<whatever> <target>=<value>)]%R<whatever> can be: profile, sex, group, race, job, quote, skills%R%RAs an example:%R+setsex Volund=Male
