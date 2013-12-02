@@ -23,7 +23,3 @@
 &INC`MOTURGE u(ex-ito)=@switch/inline strlen(%0)=0,{@nspemit %#=announce(INTIMACY) Your [capnames(%2)] has been cleared.;@wipe %1/D`INTIMACIES`%2},{@assert strlen(%0)=@nspemit %#=announce(INTIMACY) ERROR: [capnames(%1)] field empty.;&D`INTIMACIES`%2 %1=%0;@nspemit %#=announce(INTIMACY) Your [capnames(%2)] has been set to '%0'}
 
 &INC`MAIN u(ex-ito)=@nspemit %#=header(+intimacies for [name(%1)]);@dolist/inline MOTIVATION URGE={@switch/inline gt(strlen(get(%1/D`INTIMACIES`%i0)),0)=1,{@nspemit %#=rjust(ansi(h,%i0):,11) [get(%1/D`INTIMACIES`%i0)]}};@dolist/inline filterbool(#lambda/valnum(\%0),iter(lattr(%1/D`INTIMACIES`*),last(%i0,`)))=@nspemit %#=ljust(rjust(ansi(h,%i0),3): [get(%1/D`INTIMACIES`%i0`CONTEXT)],60)[ljust([bound(get(%1/D`INTIMACIES`%i0`CUR),0,getstat(%1/D`VIRTUES,Conviction))]/[getstat(%1/D`VIRTUES,Conviction)],5)];@nspemit %#=header()
-
-
-
-+help/addmain General IC/+intimacy=ljust(ansi(hw,+intimacy),28)Lists current state of Motivation, Urge, and Intimacies.%r[ljust(ansi(hw,+intimacy/help),28)]Lists this text%r[ljust(ansi(hw,+intimacy/gain <text>),28)]Gain described intimacy.%r[ljust(ansi(hw,+intimacy/lose <#>),28)]Remove an intimacy.%r[ljust(ansi(hw,+intimacy/build <#>),28)]Raise Intimacy Health by 1.%r[ljust(ansi(hw,+intimacy/erode <#>),28)]Erode Intimacy Health by 1, removes at 0.%r[ljust(ansi(hw,+intimacy/motivation <text>),28)]Sets your Motivation.%r[ljust(ansi(hw,+intimacy/urge <text>),28)]Sets your Urge if applicable.%R%R* STAFF ONLY *%R[ljust(ansi(hw,+intimacy <player>),28)]Shows Intimacy data of player.

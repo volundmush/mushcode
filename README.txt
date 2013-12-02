@@ -14,7 +14,7 @@ CONDITIONS
 1) This Softcode is provided as-is, with no Warranty - express or implied. The author is not responsible for any possible damages, etc.
 
 2) This Softcode is freely available to all under the terms of the Creative Commons Attribution-Non-Commercial 3.0 Unported License:
-http://creativecommons.org/licenses/by-nc/3.0/deed.en_US
+http://creativecommons.org/licenses/by-nc/3.0/deed
 In other words:
 	A) you must give credit where it's due. Please be sure to credit me - Volund - on your game, and link back to my Github: https://github.com/volundmush/mushcode
 	B) You may share, alter, remix, port, copy the softcode however you wish. If you release any derivatives of my work it must be under the terms set down in this text.
