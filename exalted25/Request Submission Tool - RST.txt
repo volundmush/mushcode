@@ -15,3 +15,6 @@
 &PRIORITY u(rst)=
 
 &INC`MAIN u(rst)=@assert strlen(before(%0,/))=@nspemit %#=announce(REQUEST) What Category will this request be? Your choices are: [itemize(setunion(get(u(rst)/VAR`PLAYCATS),if(isadmin(%#),get(u(rst)/VAR`ADMINCATS)),|,|),|,and,\,)];@include u(ccs)/INC`PARTIAL=before(%0,/),setunion(get(u(rst)/VAR`PLAYCATS),if(isadmin(%#),get(u(rst)/VAR`ADMINCATS)),|,|),|,REQUEST,category,category;@assert strlen(after(%0,/))=@nspemit %#=announce(REQUEST) You must enter a title for the request!;@assert strlen(%1)=@nspemit %#=announce(REQUEST) You must give some details about what you want.;@assert isdbref(setr(bucket,locate(get(u(job)/vc),%q<category>,TXxi)))=@nspemit %#=announce(REQUEST) ERROR: Category object not found, cannot continue.;@nspemit %#=announce(REQUEST) Request added. You should get a @mail within a few seconds in confirmation. If you don't, please contact staff immediately!;@trigger get(u(job)/va)/TRIG_CREATE=%#,%q<bucket>,strfirstof(getstat(u(rst)/PRIORITY,%q<category>),1),left(after(%0,/),30),%1,,,
+
+&CRON_TIME_JOBS u(mcron)=|||12|10|
+&CRON_JOB_JOBS u(mcron)=@trigger get(u(job)/vc)/DAILY

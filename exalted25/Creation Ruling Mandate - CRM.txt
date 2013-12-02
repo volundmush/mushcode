@@ -1,0 +1,72 @@
+@switch/inline isdbref(u(crm))=0,{@tel create(Creation Ruling Mandate <CRM>)=config(master_room)}
+&crm u(coi)=locate(config(master_room),Creation Ruling Mandate <CRM>,TXxi)
+@parent u(crm)=u(coi)
+@set u(crm)=WIZARD !NO_COMMAND
+
+&CMD`+CRM u(crm)=$^(?s)(?\:\+)?crm(set|sheet|act)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(crm)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(crm)/VAR`%1`ADMINFLAGS)),|,|),|,CRM,switch,switch;@assert isdbref(u(gso))=@nspemit %#=announce(CRM) ERROR: The Group System is not installed, cannot continue.;@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(crm)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+@set u(crm)/CMD`+CRM=regexp
+
+@@ SET Section
+&VAR`SET`PLAYFLAGS u(crm)=DESC
+&VAR`SET`ADMINFLAGSFLAGS u(crm)=
+
+th setstat(u(gso)/VAR`DEFAULTS`SETPERM,CRMSET,-1)
+
+&INC`SET`MAIN u(crm)=@assert u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,CRMSET)=@nspemit %#=announce(CRM) ERROR: You lack permission to do that.;@assert strlen(before(%0,/))=@nspemit %#=announce(CRM) ERROR: Nothing entered to set.;@include u(ccs)/INC`PARTIAL=before(%0,/),v(VAR`SET`MAIN`STATS),|,CRM,choice,choice;@switch/inline %q<choice>=INTIMACY,{@include u(crm)/INC`SET`INTIMACY},{@include u(crm)/INC`SET`MAIN`DOSET}
+
+&INC`SET`MAIN`DOSET u(crm)=@switch/inline strlen(%1)=0,{@nspemit %#=announce(CRM) You cleared %q<gname1>'s CRM %q<choice>!;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n cleared CRM %q<choice>},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM %q<choice> Cleared};&%q<gid1>`CRM`STAT`%q<choice> u(gdb)},{@nspemit %#=announce(CRM) You set %q<gname1>'s CRM %q<choice> to: %1!;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n set CRM %q<choice> to: %1},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM %q<choice> set: %1};&%q<gid1>`CRM`STAT`%q<choice> u(gdb)=%1}
+
+&INC`SET`INTIMACY u(crm)=@assert valnum(setr(int,after(%0,/)))=@nspemit %#=announce(CRM) ERROR: Intimacies must be handled by their Slots!;@switch/inline strlen(%1)=0,{@nspemit %#=announce(CRM) You cleared %q<gname1>'s CRM %q<choice> %q<int>!;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n cleared CRM %q<choice> %q<int>},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM %q<choice> %q<int> Cleared};&%q<gid1>`CRM`INTIMACY`%q<int> u(gdb)},{@nspemit %#=announce(CRM) You set %q<gname1>'s CRM %q<choice> %q<int> to: %1!;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n set CRM %q<choice> %q<int> to: %1},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM %q<choice> %q<int> set: %1};&%q<gid1>`CRM`%q<choice>`%q<int> u(gdb)=%1}
+
+&INC`SET`DESC u(crm)=@assert u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,CRMSET)=@nspemit %#=announce(CRM) ERROR: You lack permission to do that.;@assert strlen(%0)=@nspemit %#=announce(CRM) ERROR: Nothing entered to set.;@include u(ccs)/INC`PARTIAL=%0,v(VAR`SET`DESC`STATS),|,CRM,choice,choice;@switch/inline strlen(%1)=0,{@nspemit %#=announce(CRM) You cleared %q<gname1>'s CRM %q<choice> DESC!;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n cleared CRM %q<choice> DESC},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM %q<choice> DESC Cleared};&%q<gid1>`CRM`STAT`%q<choice>`DESC u(gdb)},{@nspemit %#=announce(CRM) You set %q<gname1>'s CRM %q<choice> DESC to: %1!;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n set CRM %q<choice> DESC to: %1},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM %q<choice> DESC set: %1};&%q<gid1>`CRM`STAT`%q<choice>`DESC u(gdb)=%1}
+
+&VAR`SET`MAIN`STATS u(crm)=INTIMACY|COMPETENCE|INFLUENCE|REACH|SIZE|WEALTH|SPECIAL|CAPITAL|MOTIVATION|NAME
+&VAR`SET`DESC`STATS u(crm)=COMPETENCE|INFLUENCE|REACH|SIZE|WEALTH
+
+@@ SHEET section
+&FUN`BORDER u(crm)=align(1. 74 1.,u(FUN`COLOR,%0,|),%1,u(FUN`COLOR,%0,|)%R)
+
+&FUN`COLOR u(crm)=ansi(strfirstof(u(u(gso)/FUN`GETOP,%0,COLOR),n),%1)
+
+&FUN`HEADER u(crm)=u(FUN`COLOR,%0,\})[center(u(FUN`COLOR,%0,/)[ansi(h,%1)][u(FUN`COLOR,%0,/)],76,u(FUN`COLOR,%0,-))][u(FUN`COLOR,%0,\{)]
+
+&INC`SHEET`MAIN u(crm)=@nspemit %#=u(FUN`HEADER,%q<gid1>,Policy);@nspemit %#=u(FUN`BORDER,%q<gid1>,align(36 37,rjust(Name:,11) [default(u(gdb)/%q<gid1>`CRM`STAT`NAME,Unset)]%RMotivation: [default(u(gdb)/%q<gid1>`CRM`STAT`MOTIVATION,Unset)],INTIMACIES%R[iter(sortkey(#lambda/last(\%0,`),lattr(u(gdb)/%q<gid1>`CRM`INTIMACY`*)),rjust(last(%i0,`),2). [default(u(gdb)/%i0,Unset (???))])]));@nspemit %#=u(FUN`HEADER,%q<gid1>,Assets);@nspemit %#=u(FUN`BORDER,%q<gid1>,iter(Competence Influence Reach Size Wealth,align(16 56,rjust(%i0:,11)%B[default(u(gdb)/%q<gid1>`CRM`STAT`%i0,0)],get(u(gdb)/%q<gid1>`CRM`STAT`%i0`DESC)),%b,%R));@nspemit %#=u(FUN`HEADER,%q<gid1>,Actions);@nspemit %#=u(FUN`BORDER,%q<gid1>,align(16 57,CAPITAL%R[iter(Max Current Committed Available,rjust(%i0:,11) [rjust(u(FUN`GET`CAPITAL`%i0,%q<gid1>),2,0)],%b,%R)],PROJECTS%R[iter(sortkey(#lambda/last(\%0,`),lattr(u(gdb)/%q<gid1>`CRM`ACT`*)),[rjust(last(%i0,`),2)]. [capnames(default(u(gdb)/%i0`ACTION,Unset))] by [name(get(u(gdb)/%i0`BY))]%R[align(20 35,rjust(Duration:,12) [if(isint(get(u(gdb)/%i0)),if(lte(get(u(gdb)/%i0),0),ansi(hr,Finished!),u(FUN`DISPTIME,get(u(gdb)/%i0))),Indefinite)]%R[rjust(Capital:,12)] [default(u(gdb)/%i0`CAPITAL,Unset)]%R[rjust(ReqCapital:,12)] [default(u(gdb)/%i0`REQCAPITAL,Unset)]%R[rjust(Difficulty:,12)] [default(u(gdb)/%i0`DIFFICULTY,Unset)]%R[rjust(Needed:,12)] [default(u(gdb)/%i0`NEEDED,Unset)]%R[rjust(Gathered:,12)] [default(u(gdb)/%i0`GATHERED,Unset)],get(u(gdb)/%i0`DESC))],%b,%R%R)]));@nspemit %#=u(FUN`COLOR,%q<gid1>,+)[u(FUN`COLOR,%q<gid1>,repeat(-,76))][u(FUN`COLOR,%q<gid1>,+)]
+
+&FUN`GET`CAPITAL`MAX u(crm)=lmath(add,iter(SIZE COMPETENCE INFLUENCE WEALTH REACH,get(u(gdb)/%0`CRM`STAT`%i0)))
+&FUN`GET`CAPITAL`CURRENT u(crm)=strfirstof(bound(get(u(gdb)/%0`CRM`STAT`CAPITAL),0,u(FUN`GET`CAPITAL`MAX,%0)),u(FUN`GET`CAPITAL`MAX,%0))
+&FUN`GET`CAPITAL`COMMITTED u(crm)=lmath(add,iter(lattr(u(gdb)/%0`CRM`ACT`*`CAPITAL),get(u(gdb)/%i0)))
+&FUN`GET`CAPITAL`AVAILABLE u(crm)=sub(u(FUN`GET`CAPITAL`CURRENT,%0),u(FUN`GET`CAPITAL`COMMITTED,%0))
+
+@@ ACT section
+&VAR`ACT`PLAYFLAGS u(crm)=SET
+
+&INC`ACT`MAIN u(crm)=@include u(crm)/INC`ACT`ADD
+
+&INC`ACT`ADD u(crm)=@assert u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,CRMSET)=@nspemit %#=announce(CRM) ERROR: You lack permission to do that.;@assert strlen(elements(%0,1,|))=@nspemit %#=announce(CRM) ERROR: No player entered to be the leader.;@include u(ccs)/INC`CHECKPC=elements(%0,1,|),1,CRM;@assert strlen(elements(%0,2,|))=@nspemit %#=announce(CRM) ERROR: No Action Type entered!;@include u(ccs)/INC`PARTIAL=elements(%0,2,|),v(VAR`ACT`ACTIONS),|,CRM,action,action;@assert setr(cap,elements(%0,3,|))=@nspemit %#=announce(CRM) ERROR: Capital field empty.;@assert isint(%q<cap>)=@nspemit %#=announce(CRM) ERROR: Capital must be in whole numbers!;@assert setr(rcap,elements(%0,4,|))=@nspemit %#=announce(CRM) ERROR: Required Capital field empty.;@assert isint(%q<rcap>)=@nspemit %#=announce(CRM) ERROR: Required Capital must be in whole numbers!;@assert strlen(setr(dur,elements(%0,5,|)))=@nspemit %#=announce(CRM) ERROR: No Duration entered!;@assert or(strmatch(%q<dur>,X),u(FUN`EVALTIME,%q<dur>))=@nspemit %#=announce(CRM) ERROR: Duration must be in EVALTIME or X for Indefinite!;@assert strlen(setr(diff,elements(%0,6,|)))=@nspemit %#=announce(CRM) ERROR: Difficulty field empty.;@assert valnum(%q<diff>)=@nspemit %#=announce(CRM) ERROR: Difficulty must be a whole, positive number!;@assert strlen(setr(need,elements(%0,7,|)))=@nspemit %#=announce(CRM) ERROR: Successes Needed field empty.;@assert valnum(%q<diff>)=@nspemit %#=announce(CRM) ERROR: Successes Needed must be a whole, positive number!;@assert strlen(%1)=@nspemit %#=announce(CRM) ERROR: An explanation for the Leadership Action is required!;&[setr(attr,%q<gid1>`CRM`ACT`[nextslot(u(gdb),%q<gid1>`CRM`ACT)])] u(gdb)=u(FUN`EVALTIME,%q<dur>);&%q<attr>`ACTION u(gdb)=%q<action>;&%q<attr>`BY u(gdb)=%q<t1objid>;&%q<attr>`DESC u(gdb)=%1;&%q<attr>`CAPITAL u(gdb)=%q<cap>;&%q<attr>`REQCAPITAL u(gdb)=%q<rcap>;&%q<attr>`DIFFICULTY u(gdb)=%q<diff>;&%q<attr>`NEEDED u(gdb)=%q<need>;@nspemit %#=announce(CRM) You start [setr(mess,a new leadership Action for %q<gname1>'s CRM on behalf of %q<t1name>: %q<action> (%q<cap>) - [if(valnum(%q<dur>),%q<dur>D,Indefinite)] - %1)];@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n started %q<mess>},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM New leadership Action on behalf of %q<t1name>: %q<action> (%q<cap>) - [if(valnum(%q<dur>),%q<dur>D,Indefinite)] - %1}
+
+@@ +crmact <player>|<action>|<capital>|<required capital>|<duration>|<diff>|<needed>=<explanation>
+
+&INC`ACT`SET u(crm)=@assert u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,CRMSET)=@nspemit %#=announce(CRM) ERROR: You lack permission to do that.;@assert strlen(%0)=@nspemit %#=announce(CRM) ERROR: Leadership Action field empty.;@assert strlen(setr(slot,before(%0,/)))=@nspemit %#=announce(CRM) ERROR: Action Slot field empty.;@assert hasattr(u(gdb)/%q<gid1>`CRM`ACT`%q<slot>)=@nspemit %#=announce(CRM) ERROR: Project not found!;@include u(ccs)/INC`PARTIAL=after(%0,/),v(VAR`ACT`SET),|,CRM,field,field;@assert strlen(%1)=@nspemit %#=announce(CRM) ERROR: Entry empty.;@include u(crm)/INC`ACT`SET`CHECK`%q<field>;&%q<gid1>`CRM`ACT`%q<slot>[switch(%q<field>,DURATION,,`%q<field>)] u(gdb)=%q<entry>;@nspemit %#=announce(CRM) You set %q<gname1>'s CRM Project %q<slot> %q<field> to: %q<entry>;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n set %q<gname1>'s CRM Project %q<slot> %q<field> to: %q<entry>},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM set %q<gname1>'s CRM Project %q<slot> %q<field> to: %q<entry>}
+
+&INC`ACT`SET`CHECK`DESC u(crm)=th setq(entry,%1)
+&INC`ACT`SET`CHECK`GATHERED u(crm)=@assert isint(setr(entry,%1))=@nspemit %#=announce(CRM) ERROR: Gathered Successes Must be an integer!
+&INC`ACT`SET`CHECK`CAPITAL u(crm)=@assert isint(setr(entry,%1))=@nspemit %#=announce(CRM) ERROR: Capital must be an integer!
+&INC`ACT`SET`CHECK`REQCAPITAL u(crm)=@assert isint(setr(entry,%1))=@nspemit %#=announce(CRM) ERROR: Required Capital must be an integer!
+&INC`ACT`SET`CHECK`ACTION u(crm)=@include u(ccs)/INC`PARTIAL=%1,v(VAR`ACT`ACTIONS),|,CRM,entry,entry
+&INC`ACT`SET`CHECK`DIFFICULTY u(crm)=@assert setr(entry,valnum(%1))=@nspemit %#=announce(CRM) ERROR: Difficulty must be a whole, positive number!
+&INC`ACT`SET`CHECK`BY u(crm)=@include u(ccs)/INC`CHECKPC=%1,1,CRM;th setq(entry,%q<t1objid>)
+&INC`ACT`SET`CHECK`NEEDED u(crm)=@assert setr(entry,valnum(%1))=@nspemit %#=announce(CRM) ERROR: Needed Successes must be a whole, positive number!
+&INC`ACT`SET`CHECK`DURATION u(crm)=@assert or(strmatch(%1,X),valnum(u(FUN`EVALTIME,%1)))=@nspemit %#=announce(CRM) ERROR: Duration must be in EVALTIME or X for Indefinite!;th setq(entry,if(strmatch(%1,X),X,u(FUN`EVALTIME,%1)))
+
+&FUN`EVALTIME u(crm)=lmath(add,iter(%0,switch(%i0,*s,before(%i0,s),*m,mul(before(%i0,m),60),*h,mul(before(%i0,h),60,60),*d,mul(before(%i0,d),60,60,25),*w,mul(before(%i0,w),60,60,25,7),*mo,mul(before(%i0,mo),60,60,25,7,28),*sea,mul(before(%i0,sea),60,60,25,7,28,3),*y,mul(before(%i0,y),60,60,25,7,28,15),0)))
+
+&FUN`DISPTIME u(crm)=if(strmatch(%0,X),Indefinite,if(setr(mo,div(setr(newsec,%0),mul(60,60,25,7,28))),%q<mo>mo[setq(newsec,sub(%0,mul(%q<mo>,60,60,25,7,28)))])[if(and(%q<newsec>,setr(we,div(%q<newsec>,mul(60,60,25,7)))),%q<we>w[setq(newsec,sub(%q<newsec>,mul(%q<we>,60,60,25,7)))])][if(and(%q<newsec>,setr(da,div(%q<newsec>,mul(60,60,25)))),%q<da>d[setq(newsec,sub(%q<newsec>,mul(%q<da>,60,60,25)))])][if(and(%q<newsec>,setr(ho,div(%q<newsec>,mul(60,60)))),%q<ho>h[setq(newsec,sub(%q<newsec>,mul(%q<ho>,60,60)))])][if(and(%q<newsec>,setr(mi,div(%q<newsec>,60))),%q<mi>m[setq(newsec,sub(%q<newsec>,mul(%q<mi>,60)))])][if(%q<newsec>,%q<newsec>s)])
+
+&VAR`ACT`SET u(crm)=DESC|BY|DIFFICULTY|GATHERED|NEEDED|DURATION|ACTION|CAPITAL|REQCAPITAL
+
+&VAR`ACT`ACTIONS u(crm)=GROW ASSET|ATTACK ASSET|CANNIBALIZE ASSET|REALLOCATE ASSET|HALT PROJECT|ATTACK PROJECT|CONTEST PROJECT|REPLENISH CAPITAL|TRANSFER CAPITAL|SHIFT POLICY/STRUCTURE|PROTECT ORGANIZATION
+
+&TRG`TICKDOWN u(crm)=@dolist/inline/nobreak regrepi(u(gdb),*`CRM`ACT`*,\\d+)={&%i0 u(gdb)=sub(get(u(gdb)/%i0),%0);@trigger u(crm)/TRG`CHECKFINISH=%i0}
+
+&TRG`CHECKFINISH u(crm)=@assert lte(get(u(gdb)/%0),0);@break get(u(gdb)/%0`REPORTED);@include u(gso)/INC`CODE`VALGROUP=first(%0,`),1;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %q<gname1>'s CRM Project [first(%0,`)] '[default(u(gdb)/%0`ACTION,Unset)]' has finished its Duration and been submitted for processing!},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM finished %q<gname1>'s CRM Project [first(%0,`)] '[default(u(gdb)/%0`ACTION,Unset)]'};@assert isdbref(setr(bucket,locate(get(u(job)/vc),CRM,TXxi)))=@nscemit/noisy Staff Reports=CRM Bucket not found, cannot finish Group %q<gid1>'s pending project!;@trigger get(u(job)/va)/TRIG_CREATE=get(u(gdb)/%0`BY),%q<bucket>,strfirstof(getstat(u(rst)/PRIORITY,%q<category>),1),%q<galias1> - [first(%0,`)] '[default(u(gdb)/%0`ACTION,Unset)]',The Project is ready for admin review.,,,;&%0`REPORTED u(gdb)=1
+

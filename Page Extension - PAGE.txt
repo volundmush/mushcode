@@ -7,4 +7,4 @@
 @set u(page)/CMD`REPLY=regexp
 
 &STARTUP u(page)=@command/add reply;@command/alias reply=r;@hook/override/inline reply=u(page),CMD`REPLY;@hook/after page=u(page),FUN`LASTPAGEDBY
-&FUN`LASTPAGEDBY u(page)=if(strmatch(after(%u,%b),*=*),if(words(setr(list,iter(filterbool(#lambda/isdbref(\%0),namelist(before(after(%u,%b),=))),objid(%i0)))-),if(words(setr(recip,filterbool(#lambda/and(hasflag(\%0,CONNECTED),or(hasflag(%#,WIZARD),and(elock(\%0/Page,%#),not(hasflag(\%0,HAVEN))))),%q<list>))),null(iter(%q<recip>,attrib_set(%i0/LASTPAGEDBY,setdiff(setunion(%q<recip>,%:),%i0)))))))
+&FUN`LASTPAGEDBY u(page)=if(words(setr(list,iter(filterbool(#lambda/isdbref(\%0),if(strmatch(after(%u,%b),*=*),namelist(before(after(%u,%b),=)),get(%#/LASTPAGED))),objid(%i0)))),if(words(setr(recip,filterbool(#lambda/and(hasflag(\%0,CONNECTED),or(hasflag(%#,WIZARD),and(elock(\%0/Page,%#),not(hasflag(\%0,HAVEN))))),%q<list>))),null(iter(%q<recip>,attrib_set(%i0/LASTPAGEDBY,setdiff(setunion(%q<recip>,%:),%i0))))))

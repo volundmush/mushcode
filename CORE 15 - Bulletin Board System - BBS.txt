@@ -16,9 +16,9 @@
 &INC`INIT`GB u(bbs)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1
 
 &FUN`VALIDGROUPS`BB u(bbs)=filterbool(#lambda/u(FUN`CAN%1`BB,%0,\%0,%2),u(FUN`LISTGROUPS`BB))
-&FUN`BBADMIN`BB u(bbs)=or(isadmin(%0),elock(%1/Admin,%0))
-&FUN`CANREAD`BB u(bbs)=and(or(elock(%1/Read,%0),u(FUN`BBADMIN`BB,%0)),or(%2,not(default(%0/D`BB`%1`OMIT,0))))
-&FUN`CANWRITE`BB u(bbs)=and(or(elock(%1/Write,%0),u(FUN`BBADMIN`BB,%0)),or(%2,not(default(%0/D`BB`%1`OMIT,0))))
+&FUN`BBADMIN`BB u(bbs)=or(isadmin(%0),if(strmatch(lock(%1/Admin),*UNLOCKED*),0,elock(%1/Admin,%0))
+&FUN`CANREAD`BB u(bbs)=and(or(elock(%1/Read,%0),u(FUN`BBADMIN`BB,%0,%1)),or(%2,not(default(%0/D`BB`%1`OMIT,0))))
+&FUN`CANWRITE`BB u(bbs)=and(or(elock(%1/Write,%0),u(FUN`BBADMIN`BB,%0,%1)),or(%2,not(default(%0/D`BB`%1`OMIT,0))))
 
 &FUN`VALIDGROUPS`GB u(bbs)=filterbool(#lambda/u(FUN`CAN%1`GB,%0,\%0,%2,%q<gid1>),u(FUN`LISTGROUPS`GB))
 &FUN`BBADMIN`GB u(bbs)=u(u(gso)/FUN`GRPPERM,objid(%0),%1,BBADMIN)
@@ -27,7 +27,7 @@
 
 &INC`CHECK u(bbs)=@switch/inline t(default(%#/D`BB`CHECK,1))=1,{@nspemit %#=announce(%q<ann>) You will no longer +bbscan on connect!;&D`BB`CHECK %#=0},0,{@nspemit %#=announce(%q<ann>) You will now +bbscan on connect!;&D`BB`CHECK %#=1}
 
-&PLAYER`CONNECT`CHECK u(bbs)=@assert t(default(%0/D`BB`CHECK,1));@force/inline %0=+bbscan
+&PLAYER`CONNECT`CHECK u(bbs)=@assert t(default(%0/D`BB`CHECK,1));@force/inplace %0=+bbscan
 
 &FUN`LISTGROUPS`BB u(bbs)=filterbool(#lambda/isdbref(\%0),v(groups))
 &FUN`LISTGROUPS`GB u(bbs)=filterbool(#lambda/isdbref(\%0),get(u(gdb)/%q<gid1>`BOARDS))
@@ -98,7 +98,7 @@
 &INC`LEAVE u(bbs)=@include u(bbs)/INC`CHECK`FINDBB=%0,%1,READ,1;@break default(%#/D`BB`%q<bb>`OMIT,0)=@nspemit %#=announce(%q<ann>) You have already left that board.;&D`BB`%q<bb>`OMIT %#=1;@nspemit %#=announce(%q<ann>) You have removed yourself from the [name(%q<bb>)] board.
 &INC`JOIN u(bbs)=@include u(bbs)/INC`CHECK`FINDBB=%0,%1,READ,1;@assert default(%#/D`BB`%q<bb>`OMIT,0)=@nspemit %#=announce(%q<ann>) You are already watching this board.;&D`BB`%q<bb>`OMIT %#=0;@nspemit %#=announce(%q<ann>) You have joined the [name(%q<bb>)] board.
 
-&INC`SCAN u(bbs)=@assert words(setr(groups,filterbool(#lambda/strlen(setdiff(lattr(\%0/*),get(%#/D`BB`\%0`READ))),u(FUN`VALIDGROUPS`%0,%#,READ))))=@nspemit %#=announce(%q<ann>) There are no unread postings on the %q<ann>.;@nspemit %#=header(- Unread Postings on the [u(FUN`NAME)] -);@dolist/inline %q<groups>={@nspemit %#=pueblize(name(%i0) (#[match(u(FUN`LISTGROUPS`%0),%i0)]),+[lcstr(%0)]read [match(u(FUN`LISTGROUPS`%0),%i0)]): [setr(num,words(setr(unread,sortkey(#lambda/baseconv(\%0,36,10),setdiff(lattr(%i0/*),get(%#/D`BB`%i0`READ))))))] unread ([itemize(iter(%q<unread>,pueblize(match(u(FUN`LISTPOSTS,%i1),%i0),+[lcstr(%0)]read [match(u(FUN`LISTGROUPS`%0),%i1)]/[match(u(FUN`LISTPOSTS,%i1),%i0)])),%b,and,\,)]);th setq(total,add(%q<total>,%q<num>))};@nspemit %#=header(Total Unread: %q<total>)
+&INC`SCAN u(bbs)=@assert words(setr(groups,filterbool(#lambda/strlen(setdiff(lattr(\%0/*),get(%#/D`BB`\%0`READ))),u(FUN`VALIDGROUPS`%0,%#,READ))))=@nspemit %#=announce(%q<ann>) There are no unread postings on the %q<ann>.;@nspemit %#=header(u(FUN`NAME) - Unread Postings);@dolist/inline %q<groups>={@nspemit %#=pueblize(name(%i0) (#[match(u(FUN`LISTGROUPS`%0),%i0)]),+[lcstr(%0)]read [match(u(FUN`LISTGROUPS`%0),%i0)]): [setr(num,words(setr(unread,sortkey(#lambda/baseconv(\%0,36,10),setdiff(lattr(%i0/*),get(%#/D`BB`%i0`READ))))))] unread ([itemize(iter(%q<unread>,pueblize(match(u(FUN`LISTPOSTS,%i1),%i0),+[lcstr(%0)]read [match(u(FUN`LISTGROUPS`%0),%i1)]/[match(u(FUN`LISTPOSTS,%i1),%i0)])),%b,and,\,)]);th setq(total,add(%q<total>,%q<num>))};@nspemit %#=header(Total Unread: %q<total>)
 
 &INC`LIST u(bbs)=@nspemit %#=header([u(FUN`NAME,%0)] Boards)%r[ljust(Available Bulletin Board Groups,37)]Member?[space(8)]Timeout (in days)%r[subheader()];@dolist/inline u(FUN`VALIDGROUPS`%0,%#,READ,1)={@nspemit %#=%b[ljust(color(%#,match(u(FUN`LISTGROUPS`%0),%i0),BBS`BOARDNUM,n),5)][ljust(color(%#,name(%i0),BBS`BOARDNAME,n),32)][ljust(switch(default(%#/D`BB`%i0`OMIT,0),0,Yes,No),19)][rjust(if(u(FUN`CONFIG,%i0,timeout),timestring(u(FUN`CONFIG,%i0,timeout)),none),4)]};@nspemit %#=header()%RTo join boards, type '+[lcstr(%0)]join <board number>'%RTo leave boards, type '+[lcstr(%0)]leave <board number>'%R[header()]
 
