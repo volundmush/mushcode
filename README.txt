@@ -20,7 +20,7 @@ In other words:
 	B) You may share, alter, remix, port, copy the softcode however you wish. If you release any derivatives of my work it must be under the terms set down in this text.
 	C) You may not market the Softcode commercially or use it on games that are pay-to-play.
 
-Support is limited by my time and energy, but it's my goal to provide an easy-to-use and expansive suite of MUSHcode for all fans of the gaming platform to enjoy. If you have questions, bug reports, or feature requests, please email them to me at the address given above.
+Support is limited by my time and energy, but it's my goal to provide an easy-to-use and expansive suite of MUSHcode for all fans of the gaming platform to enjoy. If you have questions, bug reports, or feature requests, please email them to me at the address given above. Bug reports can also go on GitHub's Issues tab.
 
 -=--=--=--=--=--=--=--=--=--=-<* REQUIREMENTS *>-=--=--=--=--=--=--=--=--=--=-
 1) PennMUSH 1.8.5p5 or higher - much of my code requires @dolist to have /inline and /nobreak switches and a few bug fixes only available from then on. You can obtain the latest version here: https://code.google.com/p/pennmush/
@@ -46,7 +46,7 @@ INTEGRATION WITH COMMON SYSTEMS: Patches are provided to make the ever-popular A
 -=--=--=--=--=--=--=--=--<* COMPLICATIONS AND BUGS *>--=--=--=--=--=--=--=--=-
 1. This code is not designed to get along with anyone else's out of the box, nor was it designed alongside anyone else's for the most part. It provides and relies on its own Event Handler, ancestors, etc. In short, it's designed to help start a new game up, and you're on your own if trying to adapt it to an established one.
 
-2. Some bugs likely remain as this is my first big project. I'm confident folk'll find it useful but everything always needs refinement. The most bugs probably lurk in the group system, so be on the lookout for them and email me your findings so I can fix 'em!
+2. Some bugs likely remain as this is my first big project. I'm confident folk'll find it useful but everything always needs refinement. The most bugs probably lurk in the group system, so be on the lookout for them and email me your findings so I can fix 'em! Bug reports can also go on GitHub's Issues tab.
 
 3. My code uses lots and lots of action lists. If you're a mostly function-based softcoder, you're on your own.
 
