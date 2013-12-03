@@ -16,7 +16,7 @@
 &INC`INIT`GB u(bbs)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1
 
 &FUN`VALIDGROUPS`BB u(bbs)=filterbool(#lambda/u(FUN`CAN%1`BB,%0,\%0,%2),u(FUN`LISTGROUPS`BB))
-&FUN`BBADMIN`BB u(bbs)=or(isadmin(%0),if(strmatch(lock(%1/Admin),*UNLOCKED*),0,elock(%1/Admin,%0))
+&FUN`BBADMIN`BB u(bbs)=or(isadmin(%0),if(strmatch(lock(%1/Admin),*UNLOCKED*),0,elock(%1/Admin,%0)))
 &FUN`CANREAD`BB u(bbs)=and(or(elock(%1/Read,%0),u(FUN`BBADMIN`BB,%0,%1)),or(%2,not(default(%0/D`BB`%1`OMIT,0))))
 &FUN`CANWRITE`BB u(bbs)=and(or(elock(%1/Write,%0),u(FUN`BBADMIN`BB,%0,%1)),or(%2,not(default(%0/D`BB`%1`OMIT,0))))
 
@@ -98,7 +98,12 @@
 
 &INC`SCAN u(bbs)=@assert words(setr(groups,filterbool(#lambda/strlen(setdiff(lattr(\%0/*),get(%#/D`BB`\%0`READ))),u(FUN`VALIDGROUPS`%0,%#,READ))))=@nspemit %#=announce(%q<ann>) There are no unread postings on the %q<ann>.;@nspemit %#=header(u(FUN`NAME) - Unread Postings);@dolist/inline %q<groups>={@nspemit %#=pueblize(name(%i0) (#[match(u(FUN`LISTGROUPS`%0),%i0)]),+[lcstr(%0)]read [match(u(FUN`LISTGROUPS`%0),%i0)]): [setr(num,words(setr(unread,sortkey(#lambda/baseconv(\%0,36,10),setdiff(lattr(%i0/*),get(%#/D`BB`%i0`READ))))))] unread ([itemize(iter(%q<unread>,pueblize(match(u(FUN`LISTPOSTS,%i1),%i0),+[lcstr(%0)]read [match(u(FUN`LISTGROUPS`%0),%i1)]/[match(u(FUN`LISTPOSTS,%i1),%i0)])),%b,and,\,)]);th setq(total,add(%q<total>,%q<num>))};@nspemit %#=header(Total Unread: %q<total>)
 
-&INC`LIST u(bbs)=@nspemit %#=header([u(FUN`NAME,%0)] Boards)%r[ljust(Available Bulletin Board Groups,37)]Member?[space(8)]Timeout (in days)%r[subheader()];@dolist/inline u(FUN`VALIDGROUPS`%0,%#,READ,1)={@nspemit %#=%b[ljust(color(%#,match(u(FUN`LISTGROUPS`%0),%i0),BBS`BOARDNUM,n),5)][ljust(color(%#,name(%i0),BBS`BOARDNAME,n),32)][ljust(switch(default(%#/D`BB`%i0`OMIT,0),0,Yes,No),19)][rjust(if(u(FUN`CONFIG,%i0,timeout),timestring(u(FUN`CONFIG,%i0,timeout)),none),4)]};@nspemit %#=header()%RTo join boards, type '+[lcstr(%0)]join <board number>'%RTo leave boards, type '+[lcstr(%0)]leave <board number>'%R[header()]
+&INC`LIST u(bbs)=@nspemit %#=header(u(FUN`NAME,%0) Boards)%r[align(36 8 20 8,Available Bulletin Board Groups,Member?,Timeout,Capacity)]%r[subheader()];@dolist/inline u(FUN`VALIDGROUPS`%0,%#,READ,1)={@nspemit %#=align(5 31 -7 20 12,%b[color(%#,match(u(FUN`LISTGROUPS`%0),%i0),BBS`BOARDNUM,n)],color(%#,name(%i0),BBS`BOARDNAME,n),switch(default(%#/D`BB`%i0`OMIT,0),0,Yes,No),if(u(FUN`CONFIG,%i0,timeout),timestring(u(FUN`CONFIG,%i0,timeout)),none),rjust(nattr(%i0/*),4,0)/[switch(strlen(default(u(bbs)/BB`%i0`NEXT,1)),1,1800?,2,1800?,3,1800?,4,1600?,5,1300?,6,1100?,7,1000?,8,900?,9,800?,10,700?,11,600?,12,500?,13,400?)])};@nspemit %#=header()%RTo join boards, type '+[lcstr(%0)]join <board number>'%RTo leave boards, type '+[lcstr(%0)]leave <board number>'%R[header()]
+
+
+
+
+
 
 &INC`CATCHUP u(bbs)=@assert strlen(%1)=@nspemit %#=announce(%q<ann>) ERROR: No board entered to catchup.;@switch/inline %1=ALL,{@dolist/inline u(FUN`VALIDGROUPS`%0,%#,READ)={&D`BB`%i0`READ %#=lattr(%i0/*)};@nspemit %#=announce(%q<ann>) All postings on all %q<ann> boards marked as read.},{@dolist/delimit , %1={@include u(bbs)/INC`CHECK`FINDBB=%0,%i0,READ;&D`BB`%q<bb>`READ %#=lattr(%q<bb>/*);@nspemit %#=announce(%q<ann>) All postings on board [name(%q<bb>)] marked as read.}}
 
