@@ -5,6 +5,25 @@
 @edit u(job)/*=@force,@force/inplace
 @edit get(u(job)/va)/*=@trigger %va,@include/clearregs/localize/nobreak %va
 
-&FN_STAFFALL get(u(job)/va)=isadmin(%0)
+&FN_STAFFALL [get(u(job)/va)]=[isadmin(%0)]
+@set [get(u(job)/vb)]=ROYALTY
+@switch/inline isdbref(u(bbs))=1,{@wait 0=&BBPOCKET [get(u(job)/vc)]=[u(bbs)]}
 
 @@ To make the BBS work, you'll have to set the Job Parent Object <JPO>'s BBPOCKET attribute with the DBREF of this suite's own BBS system - we don't have a BBPOCKET and this works just as well. Use the BOARD DBREFS feature of Anomaly as normal and all will be well.
+
+
+
+&TRIG_BROADCAST get(u(job)/va)=@switch isdbref(%1)=1,{@pemit/list [setq(0,parent(%0))][setq(J,%0)][setq(0,ifelse(isdbref(%q0),%q0,%vc))][filter(%va/FIL_BROADCAST,setunion(lwho(),))]=[announce(JOB)]%b[u(%q0/BLETTER_%2,%0,%1,%3,%4)]},{@pemit/list [setq(0,%0)][filter(%va/FIL_BROADCAST,setunion(lwho(),))]=[announce(JOB)]%b%1}
+
+&MAIN_BANNER get(u(job)/va)=[setq(0,%0)][setq(x,u(%va/FN_ITEMIZE,map(MAP_NAME,get(%q0/OPENED_BY),%b,|),|))][setq(y,u(%va/FN_ITEMIZE,map(MAP_NAME,get(%q0/TAGGED_FOR),%b,|),|))][ljust([rjust(ansi(hc,Bucket:),10)]%b[ansi(hw,[u(%va/FN_BUCKETNAME,%q0)])],div(u(FN_FLEXWIDTH,80),2))][rjust(ansi(hc,Due On:),12)]%b[ifelse(get(%q0/DUE_ON),ifelse(gt(secs(),get(%q0/DUE_ON)),OVERDUE!,convsecs(get(%q0/DUE_ON))),-)]%r[ljust([rjust(ansi(hc,Title:),10)]%b[get(%q0/TITLE)],div(u(FN_FLEXWIDTH,80),2))][rjust(ansi(hc,Status:),12)]%b[switch(get(%q0/PRIORITY),1,[ansi(hg,Green)],2,[ansi(hy,Yellow)],3,[ansi(hr,Red)])]%b%([last(get(%va/STATUS_[get(%q0/STATUS)]),|)]%)%r[ljust([rjust(ansi(hc,Opened On:),10)]%b[convsecs(get(%q0/OPENED_ON))],div(u(FN_FLEXWIDTH,80),2))][rjust(ansi(hc,Assigned To:),12)]%b[ifelse(isdbref(get(%q0/ASSIGNED_TO)),name(get(%q0/ASSIGNED_TO)),Nobody)]%r[rjust(ansi(hc,Opened By:),10)]%b%qx[ifelse(words(%qy),%r[rjust(ansi(hc,Tagged:),10)]%b%qy,)]
+&MAIN_BREAK get(u(job)/va)=[subheader()]
+&MAIN_FLAGS get(u(job)/va)=[edit(u(%va/fn_trim,squish([ifelse(u(me/IS_LOCKED,%0),%b[ansi(hr,ifelse(u(%va/FN_HASATTRP,%0,CHECKOUT),CHECKED_OUT,LOCKED))]%b,)][ifelse(u(me/IS_PUBLIC,%0),%bMYJOBS%b,)][ifelse(u(me/IS_PUBLISHED,%0),%bPUBLISHED%b,)])),%b,%b-%b)]
+&MAIN_FOOTER get(u(job)/va)=[subheader()]
+&MAIN_HEADER get(u(job)/va)=[header(mudname() +Jobs)]
+&MAIN_JOBLIST get(u(job)/va)=[setq(j,secure(ifelse(u(%va/FN_HASATTRP,%1,JOBS),lcstr(mid(get(%1/JOBS),0,20)),get(%va/JOBS_DEFAULT))))][setq(1,ifelse(get(%0/DUE_ON),ifelse(gt(secs(),get(%0/DUE_ON)),r,switch(get(%0/PRIORITY),1,g,2,y,3,r,g)),switch(get(%0/PRIORITY),1,g,2,y,3,r)))][ifelse(u(%va/FN_ISNEW,%0,%1),[ansi(hr,*)]%b,%b%b)][ansi(h%q1,[rjust([u(%va/FN_LINKJOB,last(name(%0)),+[name(%0)])],5)]%b[iter(lnum(strlen(%qj)),[u(%va/DISPLAY_[mid(%qj,##,1)],%0,%1)])])]
+&MAIN_JOBSHEADER get(u(job)/va)=[header(mudname() +Jobs)] %r[setq(j,[secure(switch(u(%va/FN_HASATTRP,%0,JOBS),1,lcstr(mid(get(%0/JOBS),0,20)),u(JOBS_DEFAULT)))])][setq(2,*%b%b[ljust(Job#,5)][iter(lnum(strlen(%qj)),u(HEADER_[mid(%qj,##,1)]))])][ansi(hc,ljust(%q2,u(FN_FLEXWIDTH,79)))]%r[subheader()]
+&MAIN_MYJOBLIST get(u(job)/va)=[ifelse(u(FN_ISNEW,%0,%1),[ansi(r,*)]%b,%b%b)]%b[setq(j,TDAS)][ansi(hw,[rjust([last(name(%0))],5)]%b[iter(lnum(strlen(%qj)),u(DISPLAY_[mid(%qj,##,1)],%0,%1))])]
+&MAIN_MYJOBSHEADER get(u(job)/va)=[header(mudname() +Jobs)] %r[setq(j,[secure(switch(u(%va/FN_HASATTRP,%0,JOBS),1,lcstr(mid(get(%0/JOBS),0,20)),u(JOBS_DEFAULT)))])][setq(2,*%b%b[ljust(Job#,5)][iter(lnum(strlen(%qj)),u(HEADER_[mid(%qj,##,1)]))])][ansi(hc,ljust(%q2,u(FN_FLEXWIDTH,77)))][subheader()]
+&MAIN_READ get(u(job)/va)=[subheader()]%r[ifelse(u(%va/EDIT_ACCESS,%#),[ansi(h,%[)][ifelse(and(or(u(%va/IS_PUBLISHED,%1),switch(extract(get(%1/%0),3,1,|),u(%1/OPENED_BY),1,0),hasflag(%1/%0,no_inherit)),u(%va/IS_PUBLIC,%1)),ansi(hc,[rest(%0,_)]+),ansi(hc,[rest(%0,_)]-))][ansi(h,%])]%b,)][ansi(h,[extract(get(%1/%0),4,1,|)]%badded on%b[convsecs(extract(get(%1/%0),2,1,|))]:%b )][edit(last(get(%1/%0),|),@@PIPE@@,|)]
+&MAIN_SKIN get(u(job)/va)=1
+&MAIN_SUMMARY get(u(job)/va)=%r[subheader([u(parent(%0)/SUMMARY,%0)])]

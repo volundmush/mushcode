@@ -4,10 +4,3 @@
 +bbnewgroup Admin
 +bblock Admin/Read=ADMIN
 +bblock Admin/Write=ADMIN
-
-+channel/add [ansi(m,Admin)]
-+channel/add [ansi(hr,Staff Reports)]
-@chan/on Admin
-@chan/on Staff Reports
-+clock Admin=ADMIN
-+clock Staff Reports=ADMIN

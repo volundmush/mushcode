@@ -5,8 +5,8 @@
 @@ This script will create default commands +help and +shelp and the objects their files will be stored on.
 @@ Though this system is not required for core functionality, it is highly recommended as all other systems have included help files meant to be used with this help system.
 
-@switch/inline isdbref(u(mco))=0,{@tel create(Help System Object <HSO>)=config(master_room)}
-&hso u(coi)=locate(config(master_room),Help System Object <HSO>,TXxi)
+@switch/inline isdbref(u(mco))=0,{@tel create(Help System Object <HSO>)=globalroom()}
+&hso [u(coi)]=locate(globalroom(),Help System Object <HSO>,TXxi)
 @parent [u(hso)]=u(coi)
 @set [u(hso)]=WIZARD SAFE !NO_COMMAND
 
@@ -23,7 +23,7 @@
 @set [u(PGO)]/CMD`NEWS=regexp
 &STARTUP [u(pgo)]=@hook/override news=u(pgo),CMD`NEWS
 
-&CMD`+SHELP [u(SGO)]=$^(?s)\+shelp(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.+?))?$:@include u(hso)/INC`MAIN=%0,lcstr(%1),%2,%3,SHELP,mudname() Staff Help Files,SHELP,+shelp;@@ %0 = %0, %1 = switch, %2 = filenames, %3 = entry, %4 = database name, %5 = header display name, %6 = Announce, %7 = Command
+&CMD`+SHELP [u(SGO)]=$^(?s)(?\:\+)?shelp(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.+?))?$:@include u(hso)/INC`MAIN=%0,lcstr(%1),%2,%3,SHELP,mudname() Staff Help Files,SHELP,+shelp;@@ %0 = %0, %1 = switch, %2 = filenames, %3 = entry, %4 = database name, %5 = header display name, %6 = Announce, %7 = Command
 @set [u(SGO)]/CMD`+SHELP=regexp
 
 &INC`MAIN [u(hso)]=@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(hso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(hso)/VAR`ADMINFLAGS)),|,|),|,%6,switch,switch;th iter(%2,setq(chr(add(inum(0),64)),%i0),/);@assert/inline isdbref(petr(db,get(u(hso)/VAR`%4)))=@pemit %#=announce(%6) ERROR: %6 Database object not found.;th petq(entry,%3);th petq(disp,%5);th petq(ann,%6);th petq(comm,%7);@include u(hso)/INC`[strfirstof(%q<switch>,SHOW)]

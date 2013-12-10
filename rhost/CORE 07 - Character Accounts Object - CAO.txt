@@ -61,8 +61,8 @@ lattr(me/^STARTUP`\\w+$,,,1)
 
 &GFN`APPROVED [u(cao)]=or(not(hasflag(%0,WANDERER)),isadmin(%0))
 
-&APPROVE u(ae)=approved(%#)
-&isadmin u(ae)=isadmin(%#)
+&APPROVE [u(ae)]=approved(%#)
+&isadmin [u(ae)]=isadmin(%#)
 
 &VAR`APPROVE`ALERTMODE [u(cao)]=1
 &VAR`APPROVE`ALERTSCHANNEL [u(cao)]=u(CMO`STAFFREP)

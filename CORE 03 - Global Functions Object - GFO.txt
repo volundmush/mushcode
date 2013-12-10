@@ -35,6 +35,7 @@
 &FUN`FILTERVIS`FIND u(gfo)=if(isadmin(%0),%1,filterbool(#lambda/nor(hidden(\%0),hasflag(\%0,DARK),hasflag(\%0,UNFINDABLE),hasflag(loc(\%0),UNFINDABLE)),%1))
 @@ %0 - Target, %1 - player list, %2 - mode, %3 - channel name
 
+&GFN`ISIC u(gfo)=switch(type(%0),ROOM,t(default(%0/IC,1)),THING,t(default(%0/IC,0)),PLAYER,isic(loc(%0)))
 
 &STARTUP u(gfo)=@dolist/inline get(u(gfo)/VAR`FUNRESTRICT)=@function/restrict %i0=WIZARD LOCALIZE
 &VAR`FUNRESTRICT u(gfo)=GETSTAT SETSTAT DELSTAT GRABSTAT FILTERVIS LASTIDLE

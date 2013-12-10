@@ -3,7 +3,7 @@
 @parent u(crm)=u(coi)
 @set u(crm)=WIZARD !NO_COMMAND
 
-&CMD`+CRM u(crm)=$^(?s)(?\:\+)?crm(set|sheet|act)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(crm)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(crm)/VAR`%1`ADMINFLAGS)),|,|),|,CRM,switch,switch;@assert isdbref(u(gso))=@nspemit %#=announce(CRM) ERROR: The Group System is not installed, cannot continue.;@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(crm)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`+CRM u(crm)=$^(?s)(?\:\+)?crm(set|sheet|act|div)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(crm)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(crm)/VAR`%1`ADMINFLAGS)),|,|),|,CRM,switch,switch;@assert isdbref(u(gso))=@nspemit %#=announce(CRM) ERROR: The Group System is not installed, cannot continue.;@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(crm)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(crm)/CMD`+CRM=regexp
 
 @@ SET Section
@@ -60,9 +60,17 @@ th setstat(u(gso)/VAR`DEFAULTS`SETPERM,CRMSET,-1)
 
 &INC`ACT`FINISH u(crm)=@assert u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,CRMSET)=@nspemit %#=announce(CRM) ERROR: You lack permission to do that.;@assert strlen(%0)=@nspemit %#=announce(CRM) ERROR: Project Slot empty!;@assert hasattr(u(gdb)/%q<gid1>`CRM`ACT`%0)=@nspemit %#=announce(CRM) ERROR: No project in that slot.;@include u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will delete/finish the Project. This cannot be undone. ARe you sure? Enter the same command within ten seconds to continue!},CRM DELETE %0,CRM;@nspemit %#=announce(CRM) You finished %q<gname1>'s CRM Project %0 '[default(u(gdb)/%q<gid1>`CRM`ACT`%0`ACTION,Unset)]';@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n finished %q<gname1>'s CRM Project %0 '[default(u(gdb)/%q<gid1>`CRM`ACT`%0`ACTION,Unset)]'},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM finished %q<gname1>'s CRM Project %0 '[default(u(gdb)/%q<gid1>`CRM`ACT`%0`ACTION,Unset)]'};@set u(gdb)=!SAFE;@wipe u(gdb)/%q<gid1>`CRM`ACT`%0;@set u(gdb)=SAFE
 
-&FUN`EVALTIME u(crm)=lmath(add,iter(%0,switch(%i0,*s,before(%i0,s),*m,mul(before(%i0,m),60),*h,mul(before(%i0,h),60,60),*d,mul(before(%i0,d),60,60,25),*w,mul(before(%i0,w),60,60,25,7),*mo,mul(before(%i0,mo),60,60,25,7,28),*sea,mul(before(%i0,sea),60,60,25,7,28,3),*y,mul(before(%i0,y),60,60,25,7,28,15),0)))
+&FUN`EVALTIME u(crm)=lmath(add,iter(%0,switch(%i0,*s,before(%i0,s),*m,mul(before(%i0,m),u(mi)),*h,mul(before(%i0,h),u(ho)),*d,mul(before(%i0,d),u(da)),*w,mul(before(%i0,w),u(we)),*mo,mul(before(%i0,mo),u(mo)),*sea,mul(before(%i0,sea),u(se)),*y,mul(before(%i0,y),u(ye)),0)))
 
-&FUN`DISPTIME u(crm)=if(strmatch(%0,X),Indefinite,if(setr(mo,div(setr(newsec,%0),mul(60,60,25,7,28))),%q<mo>mo[setq(newsec,sub(%0,mul(%q<mo>,60,60,25,7,28)))])[if(and(%q<newsec>,setr(we,div(%q<newsec>,mul(60,60,25,7)))),%q<we>w[setq(newsec,sub(%q<newsec>,mul(%q<we>,60,60,25,7)))])][if(and(%q<newsec>,setr(da,div(%q<newsec>,mul(60,60,25)))),%q<da>d[setq(newsec,sub(%q<newsec>,mul(%q<da>,60,60,25)))])][if(and(%q<newsec>,setr(ho,div(%q<newsec>,mul(60,60)))),%q<ho>h[setq(newsec,sub(%q<newsec>,mul(%q<ho>,60,60)))])][if(and(%q<newsec>,setr(mi,div(%q<newsec>,60))),%q<mi>m[setq(newsec,sub(%q<newsec>,mul(%q<mi>,60)))])][if(%q<newsec>,%q<newsec>s)])
+&FUN`DISPTIME u(crm)=if(strmatch(%0,X),Indefinite,trim(if(setr(mo,div(setr(newsec,%0),u(mo))),%q<mo>mo%B[setq(newsec,sub(%0,mul(u(mo),%q<mo>)))])[if(and(%q<newsec>,setr(we,div(%q<newsec>,u(we)))),%q<we>w%B[setq(newsec,sub(%q<newsec>,mul(u(we),%q<we>)))])][if(and(%q<newsec>,setr(da,div(%q<newsec>,u(da)))),%q<da>d%B[setq(newsec,sub(%q<newsec>,mul(u(da),%q<da>)))])][if(and(%q<newsec>,setr(ho,div(%q<newsec>,u(ho)))),%q<ho>h%B[setq(newsec,sub(%q<newsec>,mul(u(ho),%q<ho>)))])][if(and(%q<newsec>,setr(mi,div(%q<newsec>,u(mi)))),%q<mi>m%B[setq(newsec,sub(%q<newsec>,mul(u(mi),%q<mi>)))])][if(%q<newsec>,%q<newsec>s)]))
+
+&YE u(crm)=mul(u(da),425)
+&SE u(crm)=mul(u(mo),3)
+&MO u(crm)=mul(u(we),4)
+&WE u(crm)=mul(u(da),7)
+&DA u(crm)=mul(u(ho),25)
+&HO u(crm)=mul(u(mi),60)
+&MI u(crm)=60
 
 &VAR`ACT`SET u(crm)=DESC|BY|DIFFICULTY|GATHERED|NEEDED|DURATION|ACTION|CAPITAL|REQCAPITAL
 
@@ -72,3 +80,6 @@ th setstat(u(gso)/VAR`DEFAULTS`SETPERM,CRMSET,-1)
 
 &TRG`CHECKFINISH u(crm)=@assert lte(get(u(gdb)/%0),0);@break get(u(gdb)/%0`REPORTED);@include u(gso)/INC`CODE`VALGROUP=first(%0,`),1;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %q<gname1>'s CRM Project [first(%0,`)] '[default(u(gdb)/%0`ACTION,Unset)]' has finished its Duration and been submitted for processing!},OOC,1;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{CRM finished %q<gname1>'s CRM Project [first(%0,`)] '[default(u(gdb)/%0`ACTION,Unset)]'};@assert isdbref(setr(bucket,locate(get(u(job)/vc),CRM,TXxi)))=@nscemit/noisy Staff Reports=CRM Bucket not found, cannot finish Group %q<gid1>'s pending project!;@trigger get(u(job)/va)/TRIG_CREATE=get(u(gdb)/%0`BY),%q<bucket>,strfirstof(getstat(u(rst)/PRIORITY,%q<category>),1),%q<galias1> - [first(%0,`)] '[default(u(gdb)/%0`ACTION,Unset)]',The Project is ready for admin review.,,,;&%0`REPORTED u(gdb)=1
 
+@@ DIV section
+
+&INC`DIV`MAIN u(crm)=@assert strlen(%0)=@nspemit %#=announce(CRM) No time entered to divide!;@assert valnum(setr(time,u(FUN`EVALTIME,%0)))=@nspemit %#=announce(CRM) ERROR: Entered time must be in DURATION format!;@assert strlen(%1)=@nspemit %#=announce(CRM) ERROR: No value entered to divide the duration by.;@assert valnum(%1)=@nspemit %#=announce(CRM) ERROR: Divisor must be a whole, positive number.;@nspemit %#=announce(CRM) [u(FUN`DISPTIME,u(FUN`EVALTIME,%0))] Divided by %1: [u(FUN`DISPTIME,div(u(FUN`EVALTIME,%0),%1))]

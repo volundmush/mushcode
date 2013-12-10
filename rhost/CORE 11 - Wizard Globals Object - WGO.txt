@@ -4,5 +4,6 @@
 &wgo [u(coi)]=locate(globalroom(),Wizard Globals Object <WGO>,Ti)
 @wait 0=@parent u(wgo)=[u(coi)]
 @set u(wgo)=WIZARD !NO_COMMAND
-@lock/command u(wgo)=FLAG^WIZARD
+&ISWIZARD [u(wgo)]=[gte(bittype(%#),5)]
+@lock/use u(wgo)=ISWIZARD/1
 

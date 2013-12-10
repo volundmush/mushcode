@@ -1,0 +1,26 @@
+@switch/inline isdbref(u(rst))=0,{@tel create(Request Submission Tool <RST>)=config(master_room)}
+&rst u(coi)=locate(config(master_room),Request Submission Tool <RST>,TXxi)
+@parent u(rst)=u(coi)
+@set u(rst)=WIZARD !NO_COMMAND
+
+@wipe u(job)/CMD_REQUEST
+
+&CMD`+REQUEST u(rst)=$^(?s)(?\:\+)?request(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(rst)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(rst)/VAR`ADMINFLAGS)),|,|),|,REQUEST,switch,switch;@include u(rst)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set u(rst)/CMD`+REQUEST=regexp
+
+&VAR`PLAYFLAGS u(rst)=ADD
+&VAR`ADMINFLAGSFLAGS u(rst)=
+
+&FUN`GETCATS u(rst)=if(%1,iter(sort(filterbool(#lambda/u(\%0/REQUEST,%0),lthings(get(u(job)/vc)),%b,|),namei,|,|),name(%i0),|,|),sort(filterbool(#lambda/u(\%0/REQUEST,%0),lthings(get(u(job)/vc)),%b,|),namei,|,|))
+
+&PRIORITY u(rst)=APPS~2|BUGS~3|CODE~2|BUILD~1|GRIPE~3|MECH~1|MISC~1|PLOT~2|QUERY~1|THEME~1|WIKI~2|WORLD~2|XP~3
+
+&INC`MAIN u(rst)=@switch/inline strlen(%0)=0,{@nspemit %#=header(mudname() Job Categories);@nspemit %#=ansi(hc,align(7 3 3 3 3 3 3 40,NAME,You,Tot,App,Dny,Pen,Pri,Description));@nspemit %#=header();@dolist/inline/delimit | [u(FUN`GETCATS,%#)]={@nspemit %#=align(7 >3 >3 >3 >3 >3 >3 46,if(isadmin(%#),pueblize(name(%i0),+jobs/select bucket=[name(%i0)]),name(%i0)),firstof(words(filterbool(#lambda/and(strmatch(%i0,parent(\%0)),match(get(\%0/OPENED_BY),%#)),lthings(%i0)),0)),firstof(elements(grab(get(%i0/LIST_STATS),CRE|*),2,|),0),firstof(elements(grab(get(%i0/LIST_STATS),APR|*),2,|),0),firstof(elements(grab(get(%i0/LIST_STATS),DNY|*),2,|),0),firstof(words(filterbool(#lambda/strmatch(%i0,parent(\%0)),lthings(%i0))),0),firstof(getstat(u(rst)/PRIORITY,%i0),1),get(%i0/DESC))};@nspemit %#=header()},{@force/inplace %#=+myjob %0}
+
+&INC`ADD u(rst)=@assert strlen(before(%0,/))=@nspemit %#=announce(REQUEST) What Category will this request be? Your choices are: [itemize(u(FUN`GETCATS,%#,1),|,and,\,)];@include u(ccs)/INC`PARTIAL=before(%0,/),u(FUN`GETCATS,%#,1),|,REQUEST,category,category;@assert strlen(after(%0,/))=@nspemit %#=announce(REQUEST) You must enter a title for the request!;@assert strlen(%1)=@nspemit %#=announce(REQUEST) You must give some details about what you want.;@assert isdbref(setr(bucket,locate(get(u(job)/vc),%q<category>,TXxi)))=@nspemit %#=announce(REQUEST) ERROR: Category object not found, cannot continue.;@nspemit %#=announce(REQUEST) Request added. You should get a @mail within a few seconds in confirmation. If you don't, please contact staff immediately!;@trigger get(u(job)/va)/TRIG_CREATE=%#,%q<bucket>,strfirstof(getstat(u(rst)/PRIORITY,%q<category>),1),left(after(%0,/),30),%1,,,
+
+&CRON_TIME_JOBS u(mcron)=|||12|10|
+&CRON_JOB_JOBS u(mcron)=@trigger get(u(job)/vc)/DAILY
+
+&HOOK_OTH get(u(job)/vc)=@trigger %vb/TRIG_MAIL=get(%0/OPENED_BY),edit([name(%0)]: [get(%0/TITLE)],/,),{'[name(%0)]: [get(%0/TITLE)]' has been created!%RYour request should be visible in [pueblize(+myjobs,+myjobs)] and can be tracked with [pueblize(+myjob [last(name(%0))],+myjob [last(name(%0))],)]. Please give [mudname()]'s staff some time to review it.}
+
