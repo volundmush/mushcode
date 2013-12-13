@@ -7,7 +7,7 @@
 
 &FUN`MAIN u(pot)=null(if(ISIC(%#),attrib_set(%l/[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])]`TYPE,switch(before(%u,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:))[attrib_set(%l/%q<potattr>,after(%u,%B))][attrib_set(%l/%q<potattr>`BY,%#)][attrib_set(%l/%q<potattr>`WHEN,secs())][iter(filterbool(#lambda/gte(sub(secs(),get(%l/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%l/POT`POSES`*)),wipe(%l/%i0))]))
 
-&INC`ALTMAIN u(pot)=@assert isic(%#);&[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])]`TYPE %l=switch(before(%0%1,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:);&%q<potattr> %l=after(%0%1,%B);&%q<potattr>`BY %l=%#;&%q<potattr>`WHEN %l=secs()
+&INC`ALTMAIN u(pot)=@switch/inline not(hastype(%l,ROOM))=1,{@assert isic(%#)};&[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])]`TYPE %l=switch(before(%0%1,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:);&%q<potattr> %l=after(%0%1,%B);&%q<potattr>`BY %l=%#;&%q<potattr>`WHEN %l=secs()
 @@ ALTMAin is for Scenesys Compatability.
 
 &GFN`ISIC u(gfo)=t(default(loc(%0)/IC,1))

@@ -3,8 +3,11 @@
 @parent u(page)=u(coi)
 @set u(page)=WIZARD SAFE !NO_COMMAND
 
-&CMD`REPLY u(page)=$^(?s)(?\:r|reply)(?\: +(.+?))?$:@assert words(setr(list,filterbool(#lambda/isobjid(\%0),get(%#/LASTPAGEDBY))))=@nspemit %#=Nobody's sent you a page.;@assert strlen(%1)=@nspemit %#=What will you reply with?;@force/inline/clearregs/localize %#={page %q<list>=%1}
+&CMD`REPLY u(page)=$^(?s)(?\:r|reply)(?\: +(.+?))?$:@assert words(setr(list,filterbool(#lambda/isobjid(\%0),get(%#/LASTPAGEDBY))))=@nspemit %#=Nobody's sent you a page.;@assert strlen(%1)=@nspemit %#=What will you reply with?;@force/inplace %#={page %q<list>=[lit(%1)]}
 @set u(page)/CMD`REPLY=regexp
+
+&CMD`RETELL u(page)=$^(?s)(?\:rt|retell)(?\: +(.*))?$:@break hasflag(%#,HAVEN)=@nspemit %#=You are currently in QUIET mode and cannot use RETELL.;@assert lmath(max,iter(setr(list,get(%#/LASTPAGED)),isobjid(%i0)))=@nspemit %#=You haven't sent anyone tells.@assert strlen(%1)=@nspemit %#=announce(PAGE) ERROR: What will you say?;@force/inline/clearregs/localize %#={page %q<list>=[lit(%1)]}
+@set u(page)/CMD`RETELL=regexp
 
 &STARTUP u(page)=@command/add reply;@command/alias reply=r;@hook/override/inline reply=u(page),CMD`REPLY;@hook/after page=u(page),FUN`LASTPAGEDBY
 &FUN`LASTPAGEDBY u(page)=if(words(setr(list,iter(filterbool(#lambda/isdbref(\%0),if(strmatch(after(%u,%b),*=*),namelist(before(after(%u,%b),=)),get(%#/LASTPAGED))),objid(%i0)))),if(words(setr(recip,filterbool(#lambda/and(hasflag(\%0,CONNECTED),or(hasflag(%#,WIZARD),and(elock(\%0/Page,%#),not(hasflag(\%0,HAVEN))))),%q<list>))),null(iter(%q<recip>,attrib_set(%i0/LASTPAGEDBY,setdiff(setunion(%q<recip>,%:),%i0))))))

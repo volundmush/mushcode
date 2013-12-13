@@ -8,6 +8,7 @@
 &CMD`CHARSET u(pgo)=$+charset:@nspemit %#=wrap(iter(lnum(32,256),if(comp(first(chr(%i0)),#-1,A),ljust([ljust(%i0:,4)] [ansi(hy,chr(%i0))],7)), ,),78)
 
 &CMD`+BEEP u(pgo)=$^(?\:\+)beep(?\: +(.*))?$:@include u(ccs)/INC`JAILCHECK;@include u(ccs)/INC`CHECKPC=%1,1,BEEP;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=That player is offline.;@nspemit %q<t1>=beep()[ansi(hr,%n wishes for your attention! BEEP!)];@nspemit %#=You have sent %q<t1name> a beep!
+@set u(pgo)/CMD`+BEEP=regexp
 
 &CMD`+WHO u(pgo)=$^(?\:\+)?who$:@nspemit %#=header(mudname() Connected Players)%R[align(30 -10 -3 -4 3 23,ansi(hc,Name),ansi(hc,Alias),ansi(hc,Sex),ansi(hc,Idle),ansi(hc,Con),ansi(hc,Location))]%R[subheader()];@dolist/inline setr(list,setunion(lwho(%#),lwho(%#),,namei))={@nspemit %#=u(FUN`WHO,%i0,%#)};@switch/inline gt(setr(max,words(setunion(iter(%q<list>,get(%i0/LASTIP)),))),v(VAR`MAXPLAYERS))=1,{&VAR`MAXPLAYERS u(pgo)=%q<max>};@nspemit %#=header(words(%q<list>) Characters from %q<max> IPs Connected - Record is [v(VAR`MAXPLAYERS)])
 @set u(pgo)/CMD`+WHO=regexp

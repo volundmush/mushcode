@@ -35,12 +35,9 @@
 &GFN`PETQ [u(gfo)]=setq(+,%1,%0)
 &GFN`PETR [u(gfo)]=setr(+,%1,%0)
 &GFN`SORTATTR [u(gfo)]=sortby(#lambda/[lit([ncomp(last(%0,`),last(%1,`))])],%0)
-&GFN`ALIGN [u(gfo)]=printf([iter(%0,$[switch(mid(%i0,0,1),<,-[delete(%i0,0,1)],>,[delete(%i0,0,1)],_,_[delete(%i0,0,1)],-,^[delete(%i0,0,1)],=,_[delete(%i0,0,1)],-%i0)]|"s)],%1,%2,%3,%4,%5,%6,%7,%8,%9)
+&GFN`ALIGN [u(gfo)]=printf([iter(%0,$[case(mid(%i0,0,1),<,-[delete(%i0,0,1)],>,[delete(%i0,0,1)],_,_[delete(%i0,0,1)],-,^[delete(%i0,0,1)],=,_[delete(%i0,0,1)],-%i0)]|"s)],%1,%2,%3,%4,%5,%6,%7,%8,%9)
 &GFN`SORTKEY [u(gfo)]=munge(#lambda/%[sort%(%%0%,%2%,%3%)%],iter(%1,edit(u(%0,itext(0)),%b,),ifelse(!$v(3),%b,%3),ifelse(!$v(3),%b,%3)),%1,ifelse(!$v(3),%b,%3),ifelse(!$v(4),ifelse(!$v(3),%b,%3),%4))
 &GFN`BASECONV [u(gfo)]=pack(unpack(%0,%1,1),%2,1)
-&GFN`LVPLAYERS [u(gfo)]=filter(#lambda/not(hasflag([lit(%0)],DARK)),lcon(%0/CONNECT))
-
-
 
 &GFN`LASTIDLE [u(gfo)]=switch(1,and(isadmin(%1),hasflag(%0,CONNECTED),or(hidden(%0),hasflag(%0,DARK))),ansi(g,ago(idle(%0))),or(and(not(isadmin(%1)),hasflag(%0,CONNECTED),or(hidden(%0),hasflag(%0,DARK))),not(hasflag(%0,CONNECTED))),ansi(hx,elements(get(%0/last),2 3)),hasflag(%0,CONNECTED),ansi(hg,ago(idle(%0))))
 

@@ -29,6 +29,7 @@
 &SAY_FN u(ap)=color(%!,",IC`QUOTES,n)[color(%!,%0,IC`SPEECH,n)][color(%!,",IC`QUOTES,n)]
 th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),IC,|,|))
 &VAR`CATEGORIES`IC u(cco)=SPEECH|QUOTES
+&D`
 
 @@ Do you think the pose headers/footers are obnoxious? Here's a slimmer alternative.
 &INCLUDE`LASTPOSE`PREPOSE u(scenesys)=@assert u(fn`is`ic,%1);@dolist/inline [lockfilter(lastpose`pre:1,lvplayers(%L))]=@nspemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)][ansi(+white,accname(%1))] has posed%b>,78)

@@ -5,7 +5,7 @@
 @parent u(pco)=u(coi)
 @set u(pco)=WIZARD SAFE
 
-&STARTUP u(pco)=@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc order={@attribute/access/retroactive %i0=visual};@attribute/access/retroactive D=WIZARD MORTAL_DARK;@hook/override who=u(pgo),CMD`+WHO;@dolist/inline JOBSB JOSH={@attribute/access/retroactive %i0=mortal_dark WIZARD};@include u(pco)/STARTUP`EXTRA
+&STARTUP u(pco)=@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc order={@attribute/access/retroactive %i0=visual};@attribute/access/retroactive D=WIZARD MORTAL_DARK;@hook/override who=u(pgo),CMD`+WHO;@dolist/inline JOBSB JOSH={@attribute/access/retroactive %i0=mortal_dark WIZARD};@dolist/inline SAY_FN NONE_FN={@attribute/access/retroactive %i0=visual};@include u(pco)/STARTUP`EXTRA
 
 
-&PLAYER`DISCONNECT`TELGUEST u(pco)=@assert %1;@switch/inline gt(haspower(%0,GUEST),0)=1,{@tel %0=config(player_start)}
+&PLAYER`DISCONNECT`TELGUEST u(pco)=@break %1;@switch/inline gt(haspower(%0,GUEST),0)=1,{@tel %0=config(player_start)}

@@ -107,7 +107,7 @@
 +help/addmain Navigation/+recall=[ansi(hc,+recall)] simply returns you to the Player Nexus.
 
 @@ POSE ORDER TRACKER - POT
-+help/addmain General OOC/+pot=+pot, or [ansi(h,Po)]se [ansi(h,T)]racker, is a system that stores poses within the room for easy retrieval for review. Sometimes, poses are lost in spam or scroll, or a player enters late and needs to see what's going on, or was disconnected when someone else posed, and that's what this system's here to aid with.%R%R[ansi(hc,Commands)]%R[align(5 72,,{[ansi(h,+pot)] - show the last 15 (or set max) poses.%R[ansi(h,+pot <number>)] - Show a specified amount of poses.%R[ansi(h,+pot/max <number>)] - Set a new default number of poses to show.})]%R%RPOT records to any object that returns 1 on the isic() function. By default, this is locations that have no IC attribute set or those with 'true' attributes. In short, to disable POT in a location you control: &ic here=0
++help/addmain Communications/+pot=+pot, or [ansi(h,Po)]se [ansi(h,T)]racker, is a system that stores poses within the room for easy retrieval for review. Sometimes, poses are lost in spam or scroll, or a player enters late and needs to see what's going on, or was disconnected when someone else posed, and that's what this system's here to aid with.%R%R[ansi(hc,Commands)]%R[align(5 72,,{[ansi(h,+pot)] - show the last 15 (or set max) poses.%R[ansi(h,+pot <number>)] - Show a specified amount of poses.%R[ansi(h,+pot/max <number>)] - Set a new default number of poses to show.})]%R%RPOT records to any object that returns 1 on the isic() function. By default, this is locations that have no IC attribute set or those with 'true' attributes. In short, to disable POT in a location you control: &ic here=0
 
 @@ TEL CODE OBJECT - TCO
 

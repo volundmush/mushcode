@@ -2,6 +2,7 @@
 
 @@ RUN THIS ON CODE WIZARD OBJECT!
 @set me=sidefx !unregistered
+@limit/lfunction %#=1000
 @switch/inline isdbref(u(coi))=0,{@tel create(Code Object Index <COI>)=globalroom();@wait 0=@parent me=locate(globalroom(),Code Object Index <COI>,Ti)}
 &coi [locate(globalroom(),Code Object Index <COI>,Ti)]=locate(globalroom(),Code Object Index <COI>,Ti)
 @set [u(coi)]=INHERIT SAFE
