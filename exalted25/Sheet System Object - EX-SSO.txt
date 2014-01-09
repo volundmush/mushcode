@@ -52,14 +52,7 @@
 
 &FUN`ABILITIES u(ex-sso)=u(FUN`DOTFORMAT,%0,%1,ABILITIES,23,A,bilities,D`ABILITIES)
 
-&VAR`COLOR`SOLAR`BORDER u(ex-sso)=y
-&VAR`COLOR`SOLAR`PSM u(ex-sso)=hy
-
 &FUN`DOTFORMAT u(ex-sso)=u(FUN`SECTIONHEADER,%0,%1,%4%5)%R%7[u(FUN`BORDER,%0,%1,table(iter(if(%9,filterbool(#lambda/lt(strlen(before(\%0,~)),sub(%3,10)),setr(preextra,switch(1,and(strlen(get(u(ex-cdo)/VAR`%2)),strlen(%6),strlen(get(%0/%6))),filterbool(#lambda/match(iter(get(%0/%6),before(\%i0,~),|,|),\%0,|),get(u(ex-cdo)/VAR`%2),|,|),t(strlen(%6)),sort(iter(get(%0/%6),before(%i0,~),|,|),i,|,|),get(u(ex-cdo)/VAR`%2))),|,|),switch(1,and(strlen(get(u(ex-cdo)/VAR`%2)),strlen(%6),strlen(get(%0/%6))),filterbool(#lambda/match(iter(get(%0/%6),before(\%i0,~),|,|),\%0,|),get(u(ex-cdo)/VAR`%2),|,|),t(strlen(%6)),sort(iter(get(%0/%6),before(%i0,~),|,|),i,|,|),get(u(ex-cdo)/VAR`%2))),u(FUN`COLOR,%1,STATNAME,if(and(strmatch(%2,ABILITIES),strmatch(%i0,Craft*),match(get(%0/D`%2`FAVORED),Craft,|)),*,if(match(get(%0/D`%2`FAVORED),%i0,|),u(FUN`COLOR,%1,STATNAME,*),%B))[capnames(setr(statname,%i0))])[if(or(%8,not(lte(setr(linelength,sub(sub(%3,1),strlen(%q<statname>),firstof(setr(val,max(getstat(%0/D`%2,%i0),add(getstat(%0/D`%2,%i0),getstat(%0/D`BONUS,%i0)))),1))),0))),repeat(u(FUN`COLOR,%1,STATLINE,.),%q<linelength>)[u(FUN`COLOR,%1,STATDOT,if(%8,getstat(%0/D`%2,%i0,BONUS),switch(1,gt(getstat(%0/D`BONUS,%i0),0),repeat(+,getstat(%0/D`BONUS,%i0))[repeat(*,getstat(%0/D`%2,%i0))],lt(getstat(%0/D`BONUS,%i0),0),repeat(-,bound(abs(getstat(%0/D`BONUS,%i0)),,sub(getstat(%0/D`%2,%i0),1)))[repeat(*,bound(getstat(%0/D`%2,%i0,BONUS),1))],strfirstof(repeat(*,getstat(%0/D`%2,%i0)),x))))],repeat(u(FUN`COLOR,%1,STATLINE,.),sub(sub(%3,1),strlen(%q<statname>),strlen(switch(getstat(%0/D`BONUS,%i0),<0,-,>0,+)[firstof(%q<val>,1)])))[u(FUN`COLOR,%1,STATDOT,switch(getstat(%0/D`BONUS,%i0),<0,-,>0,+)[firstof(%q<val>,1)])])],|,|),%3,74,|))][if(and(%9,words(setr(extra,filterbool(#lambda/gte(strlen(before(\%0,~)),sub(%3,10)),%q<preextra>,|,|)),|)),%R[u(FUN`BORDER,%0,%1,iter(%q<extra>,u(FUN`COLOR,%1,STATNAME,if(and(strmatch(%2,ABILITIES),strmatch(%i0,Craft*),match(get(%0/D`%2`FAVORED),Craft,|)),*,if(match(get(%0/D`%2`FAVORED),%i0,|),u(FUN`COLOR,%1,STATNAME,*),%B))[capnames(setr(statname,%i0))])[if(or(%8,not(lte(setr(linelength,sub(sub(73,1),strlen(%q<statname>),firstof(setr(val,max(getstat(%0/D`%2,%i0),add(getstat(%0/D`%2,%i0),getstat(%0/D`BONUS,%i0)))),1))),0))),repeat(u(FUN`COLOR,%1,STATLINE,.),%q<linelength>)[u(FUN`COLOR,%1,STATDOT,if(%8,getstat(%0/D`%2,%i0,BONUS),switch(1,gt(getstat(%0/D`BONUS,%i0),0),repeat(+,getstat(%0/D`BONUS,%i0))[repeat(*,getstat(%0/D`%2,%i0))],lt(getstat(%0/D`BONUS,%i0),0),repeat(-,bound(abs(getstat(%0/D`BONUS,%i0)),,sub(getstat(%0/D`%2,%i0),1)))[repeat(*,bound(getstat(%0/D`%2,%i0,BONUS),1))],strfirstof(repeat(*,getstat(%0/D`%2,%i0)),x))))],repeat(u(FUN`COLOR,%1,STATLINE,.),sub(sub(73,1),strlen(%q<statname>),strlen(switch(getstat(%0/D`BONUS,%i0),<0,-,>0,+)[firstof(%q<val>,1)])))[u(FUN`COLOR,%1,STATDOT,switch(getstat(%0/D`BONUS,%i0),<0,-,>0,+)[firstof(%q<val>,1)])])],|,%R))])]
-
-
-
-
 
 &INC`ADVANTAGES u(ex-sso)=@switch/inline gt(strlen(get(%0/D`COLLEGES)),0)=1,{@nspemit %#=u(u(ex-sso)/FUN`COLLEGES,%0,%q<splat>)};@switch/inline gt(strlen(get(%0/D`PATHS)),0)=1,{@nspemit %#=u(u(ex-sso)/FUN`PATHS,%0,%q<splat>)};@include u(ex-sso)/INC`MUTATIONS;@include u(ex-sso)/INC`CHARMS;@include u(ex-sso)/INC`MACHARMS;@include u(ex-sso)/INC`SPELLS;@include u(ex-sso)/INC`CHARM_SLOTS;@@ @include u(ex-sso)/INC`VIRTUES
 
@@ -71,15 +64,17 @@
 
 &INC`MUTATIONS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(get(%0/D`\%0)),POSITIVE_MUTATIONS NEUTRAL_MUTATIONS NEGATIVE_MUTATIONS WARFORM_MUTATIONS)={@nspemit %#=u(FUN`DOTFORMAT,%0,%1,%i0,36,left(capnames(edit(%i0,_,%B)),1),after(capnames(edit(%i0,_,%B)),left(capnames(edit(%i0,_,%B)),1)),D`%i0)}
 
-&INC`CHARMS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(regrepi(%0,D`\%0`*,.+)),CHARMS`SOLAR CHARMS`LUNAR CHARMS`ABYSSAL CHARMS`ALCHEMICAL CHARMS`INFERNAL CHARMS`DRAGON-BLOODED CHARMS`JADEBORN CHARMS`RAKSHA CHARMS`SIDEREAL CHARMS`SPIRIT CHARMS`MORTAL ARCANOI`GHOST)={@switch/inline default(%#/SHEETSTYLE,0)=0,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`))\, [capnames(after(%i0,`))]);@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),lattr(%0/D`%i0`*))={@nspemit %#=u(FUN`CHARMSUBHEADER,%0,%1,capnames(last(%i0,`)));@nspemit %#=u(FUN`BORDER,%0,%1,table(sort(iter(get(%0/%i0),capnames(%i0),|,|),i,|,|),36,74,|))}},1,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`))\, [capnames(after(%i0,`))]);@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),lattr(%0/D`%i0`*))={@nspemit %#=u(FUN`BORDER,%0,%1,ansi(h,capnames(last(%i0,`))): [itemize(sort(iter(get(%0/%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}}
+&INC`CHARMS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(regrepi(%0,D`\%0`*,.+)),CHARMS`SOLAR CHARMS`LUNAR CHARMS`ABYSSAL CHARMS`ALCHEMICAL CHARMS`INFERNAL CHARMS`DRAGON-BLOODED CHARMS`JADEBORN CHARMS`RAKSHA CHARMS`SIDEREAL CHARMS`SPIRIT CHARMS`MORTAL ARCANOI`GHOST)={@switch/inline default(%#/SHEETSTYLE,0)=0,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`))\, [capnames(after(%i0,`))]);@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),lattr(%0/D`%i0`*))={@nspemit %#=u(FUN`CHARMSUBHEADER,%0,%1,capnames(last(%i0,`)));@nspemit %#=u(FUN`BORDER,%0,%1,u(u(ex-sso)/FUN`WORDLIST,%0,get(%0/%i0)))}},1,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`))\, [capnames(after(%i0,`))]);@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),lattr(%0/D`%i0`*))={@nspemit %#=u(FUN`BORDER,%0,%1,ansi(h,capnames(last(%i0,`))): [itemize(sort(iter(get(%0/%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}}
 
-&INC`MACHARMS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(regrepi(%0,D`\%0`*,.+)),CHARMS`TERRESTRIAL_MARTIAL_ARTS CHARMS`CELESTIAL_MARTIAL_ARTS CHARMS`SIDEREAL_MARTIAL_ARTS)={@switch/inline default(%#/SHEETSTYLE,0)=0,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(edit(elements(%i0,2,`),_,%b)));@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),lattr(%0/D`%i0`*))={@nspemit %#=u(FUN`CHARMSUBHEADER,%0,%1,last(%i0,`): [default(%0/%i0`NAME,Unnamed Style)]);@nspemit %#=u(FUN`BORDER,%0,%1,table(sort(iter(get(%0/%i0),capnames(%i0),|,|),i,|,|),36,74,|))}},1,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(edit(elements(%i0,2,`),_,%b)));@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),lattr(%0/D`%i0`*))={@nspemit %#=u(FUN`BORDER,%0,%1,ansi(h,last(%i0,`): [default(%0/%i0`NAME,Unnamed Style)]:) [itemize(sort(iter(get(%0/%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}}
+&INC`MACHARMS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(regrepi(%0,D`\%0`*,.+)),CHARMS`TERRESTRIAL_MARTIAL_ARTS CHARMS`CELESTIAL_MARTIAL_ARTS CHARMS`SIDEREAL_MARTIAL_ARTS)={@switch/inline default(%#/SHEETSTYLE,0)=0,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(edit(elements(%i0,2,`),_,%b)));@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),lattr(%0/D`%i0`*))={@nspemit %#=u(FUN`CHARMSUBHEADER,%0,%1,last(%i0,`): [default(%0/%i0`NAME,Unnamed Style)]);@nspemit %#=u(FUN`BORDER,%0,%1,u(u(ex-sso)/FUN`WORDLIST,%0,get(%0/%i0)))}},1,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(edit(elements(%i0,2,`),_,%b)));@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),lattr(%0/D`%i0`*))={@nspemit %#=u(FUN`BORDER,%0,%1,ansi(h,last(%i0,`): [default(%0/%i0`NAME,Unnamed Style)]:) [itemize(sort(iter(get(%0/%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}}
 
-&INC`SPELLS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(get(%0/D`\%0)),SPELLS`TERRESTRIAL SPELLS`CELESTIAL SPELLS`SOLAR SPELLS`SHADOWLANDS SPELLS`LABYRINTH SPELLS`VOID PROTOCOLS`MAN-MACHINE PROTOCOLS`GOD-MACHINE ARTS`DEGREES ARTS`PROCEDURES SCIENCES`DEGREES SCIENCES`PROCEDURES)={@switch/inline default(%#/SHEETSTYLE,0)=0,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`)));@nspemit %#=u(FUN`CHARMSUBHEADER,%0,%1,capnames(after(%i0,`)));@nspemit %#=u(FUN`BORDER,%0,%1,table(sort(iter(get(%0/D`%i0),capnames(%i0),|,|),i,|,|),36,74,|))},1,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`)));@nspemit %#=u(FUN`BORDER,%0,%1,ansi(h,capnames(after(%i0,`))): [itemize(sort(iter(get(%0/D`%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}
+&INC`SPELLS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(get(%0/D`\%0)),SPELLS`TERRESTRIAL SPELLS`CELESTIAL SPELLS`SOLAR SPELLS`SHADOWLANDS SPELLS`LABYRINTH SPELLS`VOID PROTOCOLS`MAN-MACHINE PROTOCOLS`GOD-MACHINE ARTS`DEGREES ARTS`PROCEDURES SCIENCES`DEGREES SCIENCES`PROCEDURES)={@switch/inline default(%#/SHEETSTYLE,0)=0,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`)));@nspemit %#=u(FUN`CHARMSUBHEADER,%0,%1,capnames(after(%i0,`)));@nspemit %#=u(FUN`BORDER,%0,%1,u(u(ex-sso)/FUN`WORDLIST,%0,get(%0/D`%i0)))},1,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`)));@nspemit %#=u(FUN`BORDER,%0,%1,ansi(h,capnames(after(%i0,`))): [itemize(sort(iter(get(%0/D`%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}
 
 &INC`CHARM_SLOTS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(get(%0/D`\%0)),CHARM_SLOTS)={@nspemit %#=u(FUN`DOTFORMAT,%0,%1,%i0,36,left(capnames(edit(%i0,_,%B)),1),after(capnames(edit(%i0,_,%B)),left(capnames(edit(%i0,_,%B)),1)),D`%i0,,if(strmatch(%i0,CHARM_SLOTS),1))}
 
 &INC`GRACES u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(get(%0/D`\%0)),GRACES)={@nspemit %#=u(FUN`DOTFORMAT,%0,%1,%i0,36,left(capnames(edit(%i0,_,%B)),1),after(capnames(edit(%i0,_,%B)),left(capnames(edit(%i0,_,%B)),1)),D`%i0,,if(strmatch(%i0,CHARM_SLOTS),1))}
+
+&FUN`WORDLIST u(ex-sso)=if(strlen(setr(short,table(sort(filterbool(#lambda/lte(strlen(\%0),36),setr(capped,iter(%1,capnames(%i0),|,|)),|,|),i,|,|),36,74,|))),%q<short>)[if(words(setr(toolong,filterbool(#lambda/gte(strlen(\%0),37),%q<capped>,|,|)),|),if(strlen(%q<short>),%R)[iter(%q<toolong>,%i0,|,%R)])]
 
 &FUN`CHARMHEADER u(ex-sso)=u(FUN`COLOR,%1,BORDER,\})[center(u(FUN`COLOR,%1,FRONTSLASH,/)[u(FUN`COLOR,%1,CHARMHEADER,%2)][u(FUN`COLOR,%1,FRONTSLASH,/)],76,u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,\{)]
 
@@ -116,8 +111,17 @@
 &VAR`COLOR`ABYSSAL`HEADER u(ex-sso)=+red3
 &VAR`COLOR`ABYSSAL`CHARMHEADER u(ex-sso)=+red3
 
-
 &VAR`COLOR`SIDEREAL`BORDER u(ex-sso)=hm
 &VAR`COLOR`SIDEREAL`FRONTSLASH u(ex-sso)=m
 &VAR`COLOR`SIDEREAL`HEADER u(ex-sso)=hw
 &VAR`COLOR`SIDEREAL`CHARMHEADER u(ex-sso)=hw
+
+&VAR`COLOR`DRAGON-BLOODED`BORDER u(ex-sso)=hr
+&VAR`COLOR`DRAGON-BLOODED`FRONTSLASH u(ex-sso)=c
+&VAR`COLOR`DRAGON-BLOODED`HEADER u(ex-sso)=hc
+&VAR`COLOR`DRAGON-BLOODED`CHARMHEADER u(ex-sso)=c
+
+&VAR`COLOR`RAKSHA`BORDER u(ex-sso)=+springgreen3
+&VAR`COLOR`RAKSHA`FRONTSLASH u(ex-sso)=+powderblue
+&VAR`COLOR`RAKSHA`HEADER u(ex-sso)=+powderblue
+&VAR`COLOR`RAKSHA`CHARMHEADER u(ex-sso)=+powderblue

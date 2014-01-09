@@ -2,18 +2,29 @@
 
 &job u(coi)=locate(config(master_room),Job Global Object <JGO>,TXxi)
 @edit u(job)/*=@switch,@switch/inline
+@edit get(u(job)/va)/*=@switch,@switch/inline
 @edit u(job)/*=@force,@force/inplace
+@edit u(job)/*=@dolist,@dolist/inline/nobreak
 @edit get(u(job)/va)/*=@trigger %va,@include/clearregs/localize/nobreak %va
+
+@parent get(u(job)/vb)=u(coi)
+@set get(u(job)/vb)=WIZARD
+&HOOK_APR locate(get(u(job)/vc),APPS,TXxi)=@force %1={+approve [setr(by,get(%0/OPENED_BY))];+info/approve %q<by>/[iter(lattr(%q<by>/D`INFOFILE`*),get(%q<by>/%i0),%B,|)];@@ @switch/inline t(strlen(setr(chans,switch(getsphere(%q<by>),RACE1,Channel|List,Race2,Channel|list))))=1,{@dolist/inline/delimit | %q<chans>={@chan/on %i0=%q<by>}}}
+
 
 &JOBS u(ap)=BOTDAS
 &JOBSN u(ap)=1
 &JOBSWIDTH u(ap)=79
 &JOBSWIDTH_O u(ap)=10
 &JOBSKIN u(ap)=MAIN
-
 &FN_STAFFALL get(u(job)/va)=isadmin(%0)
+
 @set get(u(job)/vb)=ROYALTY
 @switch/inline isdbref(u(bbs))=1,{@wait 0=&BBPOCKET [get(u(job)/vc)]=[u(bbs)]}
+
+&TRIG_POST get(u(job)/va)=@switch/inline [u(%va/FN_HASATTRP,%0,PLETTER_%1)]=1,{@wait 1={@trigger %vb/TRIG_POST=[get(%0/POST_[case(%1,APR,APPROVE,DEL,DELETE,DNY,DENY,COM,COMPLETE,APPROVE)])],[switch(%1,APR,A,DNY,D,COM,C,?)]:[name(get(%0/OPENED_BY))]-[get(%0/TITLE)],[u(parent(%0)/PLETTER_%1,%0,%1,%2,%3)],%0}}
+
+&TRIG_POST get(u(job)/vb)=+bbpost %0/%1=%2;@switch/inline gt(match(get(u(bbs)/VAR`BB`PLAYCOMMS),COMMENT,|),0)=1,{@wait 1={th setq(newpost,match(u(u(bbs)/FUN`LISTPOSTS,%0),last(get(me/D`BB`LASTPOST))));@dolist/inline/nobreak sortkey(#lambda/last(\%0,_),lattr(%3/COMMENT_*))={+bbcomment [first(get(me/D`BB`LASTPOST))]/%q<newpost>=[elements(get(%3/%i0),4,|)] ([elements(get(%3/%i0),3,|)]) [switch(elements(get(%3/%i0),1,|),CRE,Created,ADD,Commented,MAI,Mailed,APR,Approved,COM,Completed,DEN,Denied,DEL,Deleted,elements(get(%3/%i0),1,|))] On [convsecs(elements(get(%3/%i0),2,|))]:%R[after(get(%3/%i0),elements(get(%3/%i0),1 2 3 4,|,|)|)]}}}
 
 &FN_LINKJOB get(u(job)/va)=[tag(A,XCH_CMD="[ifelse(t(strlen(%1)),%1,%0)]")]%0[endtag(A)]
 @edit get(u(job)/vc)/BLETTER_*={name(%0)},{u(%va/FN_LINKJOB,name(%0),+[name(%0)])}

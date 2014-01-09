@@ -7,7 +7,8 @@
 
 &FUN`MAIN u(pot)=null(if(ISIC(%#),attrib_set(%l/[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])]`TYPE,switch(before(%u,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:))[attrib_set(%l/%q<potattr>,after(%u,%B))][attrib_set(%l/%q<potattr>`BY,%#)][attrib_set(%l/%q<potattr>`WHEN,secs())][iter(filterbool(#lambda/gte(sub(secs(),get(%l/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%l/POT`POSES`*)),wipe(%l/%i0))]))
 
-&INC`ALTMAIN u(pot)=@switch/inline not(hastype(%l,ROOM))=1,{@assert isic(%#)};&[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])]`TYPE %l=switch(before(%0%1,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:);&%q<potattr> %l=after(%0%1,%B);&%q<potattr>`BY %l=%#;&%q<potattr>`WHEN %l=secs()
+&INC`ALTMAIN u(pot)=@switch/inline not(hastype(%l,ROOM))=1,{@assert isic(%#)};&[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])]`TYPE %l=switch(before(%0%1,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:);&%q<potattr> %l=after(%0%1,%B);&%q<potattr>`BY %l=%#;&%q<potattr>`WHEN %l=secs();@switch/inline strmatch(parent(%l),u(vroom))=1,{&%q<potattr>`VLOC %l=get(%l/LOC-%#)}
+
 @@ ALTMAin is for Scenesys Compatability.
 
 &GFN`ISIC u(gfo)=t(default(loc(%0)/IC,1))
@@ -17,7 +18,7 @@
 
 &SAY_FN u(ap)=color(%!,",MAIN`QUOTE,n)[color(%!,%0,MAIN`SPEECH,n)][color(%!,",MAIN`QUOTE,n)]
 
-&INC`MAIN u(pot)=@switch/inline t(strlen(%0))=1,{@assert valnum(%0)=@nspemit %#=announce(POT) ERROR: Last number of poses must be a whole, positive number.};@assert words(setr(poses,revwords(elements(revwords(filterbool(#lambda/lte(sub(secs(),get(%l/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),sortkey(#lambda/last(\%0,`),lattr(%l/POT`POSES`*)))),lnum(1,firstof(%0,get(%#/POT`MAX),15))))))=@nspemit %#=No recent poses tracked in this location.;@nspemit %#=header(Recent Poses);@dolist/inline %q<poses>={@nspemit %#=subheader(name(get(%l/%i0`BY)) posed [trim(timestring(sub(secs(),get(%l/%i0`WHEN))))] Ago);@nspemit %#=speak(get(%l/%i0`BY),[get(%l/%i0`TYPE)][get(%l/%i0)],says\,,%#/SAY_FN,%#/NONE_FN)};@nspemit %#=header(End of Poses)
+&INC`MAIN u(pot)=@switch/inline t(strlen(%0))=1,{@assert valnum(%0)=@nspemit %#=announce(POT) ERROR: Last number of poses must be a whole, positive number.};@assert words(setr(poses,revwords(elements(revwords(filterbool(#lambda/and(lte(sub(secs(),get(%l/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),if(strmatch(parent(%l),u(vroom)),strmatch(get(%l/\%0`VLOC),get(%l/LOC-%#)),1)),sortkey(#lambda/last(\%0,`),lattr(%l/POT`POSES`*)))),lnum(1,firstof(%0,get(%#/POT`MAX),15))))))=@nspemit %#=No recent poses tracked in this location.;@nspemit %#=header(Recent Poses);@dolist/inline %q<poses>={@nspemit %#=subheader(name(get(%l/%i0`BY)) posed [trim(timestring(sub(secs(),get(%l/%i0`WHEN))))] Ago);@nspemit %#=speak(get(%l/%i0`BY),[get(%l/%i0`TYPE)][get(%l/%i0)],says\,,%#/SAY_FN,%#/NONE_FN)};@nspemit %#=header(End of Poses)
 
 &INC`MAX u(pot)=@assert valnum(%0)=@nspemit %#=You must enter a whole number greater than 0 for your maximum poses!;&POT`MAX %#=%0;@nspemit %#=announce(POT) You will now see only the last %0 poses in +pot.
 
