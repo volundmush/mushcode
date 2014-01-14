@@ -62,7 +62,7 @@
 &FUN`PATHS u(ex-sso)=u(FUN`DOTFORMAT,%0,%1,PATHS,36,P,aths,D`PATHS)
 &FUN`GRACES u(ex-sso)=u(FUN`DOTFORMAT,%0,%1,GRACES,23,G,races,D`GRACES)
 
-&INC`MUTATIONS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(get(%0/D`\%0)),POSITIVE_MUTATIONS NEUTRAL_MUTATIONS NEGATIVE_MUTATIONS WARFORM_MUTATIONS)={@nspemit %#=u(FUN`DOTFORMAT,%0,%1,%i0,36,left(capnames(edit(%i0,_,%B)),1),after(capnames(edit(%i0,_,%B)),left(capnames(edit(%i0,_,%B)),1)),D`%i0)}
+&INC`MUTATIONS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(get(%0/D`\%0)),POSITIVE_MUTATIONS NEUTRAL_MUTATIONS NEGATIVE_MUTATIONS WARFORM_MUTATIONS RAGE_MUTATIONS)={@nspemit %#=u(FUN`DOTFORMAT,%0,%1,%i0,36,left(capnames(edit(%i0,_,%B)),1),after(capnames(edit(%i0,_,%B)),left(capnames(edit(%i0,_,%B)),1)),D`%i0)}
 
 &INC`CHARMS u(ex-sso)=@dolist/inline filterbool(#lambda/strlen(regrepi(%0,D`\%0`*,.+)),CHARMS`SOLAR CHARMS`LUNAR CHARMS`ABYSSAL CHARMS`ALCHEMICAL CHARMS`INFERNAL CHARMS`DRAGON-BLOODED CHARMS`JADEBORN CHARMS`RAKSHA CHARMS`SIDEREAL CHARMS`SPIRIT CHARMS`MORTAL ARCANOI`GHOST)={@switch/inline default(%#/SHEETSTYLE,0)=0,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`))\, [capnames(after(%i0,`))]);@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),lattr(%0/D`%i0`*))={@nspemit %#=u(FUN`CHARMSUBHEADER,%0,%1,capnames(last(%i0,`)));@nspemit %#=u(FUN`BORDER,%0,%1,u(u(ex-sso)/FUN`WORDLIST,%0,get(%0/%i0)))}},1,{@nspemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`))\, [capnames(after(%i0,`))]);@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),lattr(%0/D`%i0`*))={@nspemit %#=u(FUN`BORDER,%0,%1,ansi(h,capnames(last(%i0,`))): [itemize(sort(iter(get(%0/%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}}
 

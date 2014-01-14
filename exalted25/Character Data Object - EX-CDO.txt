@@ -3,7 +3,7 @@
 &ex-cdo u(coi)=locate(config(master_room),Character Data Object <EX-CDO>,TXxi)
 @parent u(ex-cdo)=u(coi)
 @set u(ex-cdo)=WIZARD !NO_COMMAND
-@lock/use u(ex-cdo)=@[u(sgo)]/Use
+@lock/command u(ex-cdo)=@[u(sgo)]/Command
 
 &GFN`GETSPLAT u(ex-cdo)=strfirstof(getstat(%0/D`INFO,Splat),Mortal)
 
@@ -41,6 +41,7 @@
 &INC`SET`NEGMUT u(ex-cdo)=@include u(ex-cdo)/INC`SET`POSMUT`DOMUTATE=%0,%1,%2,NEGATIVE
 &INC`SET`NEUMUT u(ex-cdo)=@include u(ex-cdo)/INC`SET`POSMUT`DOMUTATE=%0,%1,%2,NEUTRAL
 &INC`SET`WARMUT u(ex-cdo)=@include u(ex-cdo)/INC`SET`POSMUT`DOMUTATE=%0,%1,%2,WARFORM
+&INC`SET`RAGEMUT u(ex-cdo)=@include u(ex-cdo)/INC`SET`POSMUT`DOMUTATE=%0,%1,%2,RAGE
 
 &INC`SET`POSMUT`DOMUTATE u(ex-cdo)=@assert strlen(%qc)=@nspemit %#=announce(EDITCHAR) ERROR: No [capnames(%3)] Mutation name entered.;@switch/inline strlen(%2)=0,{@assert match(get(%0/D`%3_MUTATIONS),%qc~*,|)=@nspemit %#=announce(EDITCHAR) ERROR: [ansi(h,name(%0))] does not have that [capnames(%3)] Mutation!;@nspemit %#=announce(EDITCHAR) [ansi(h,name(%0))]'s [capnames(%3)] Mutation [ansi(h,capnames(%qc))] was cleared.;@nscemit/noisy v(VAR`CHANNEL)=ansi(h,name(%0))'s [capnames(%3)] Mutation [ansi(h,capnames(%qc))] was cleared, by [ansi(h,%N)];@nspemit %0=announce(EDITCHAR) Your [capnames(%3)] Mutation [capnames(%qc)] was cleared.;th delstat(%0/D`%3_MUTATIONS,capnames(%qc))},{@nspemit %#=announce(EDITCHAR) [ansi(h,name(%0))] now has the [ansi(h,capnames(%qc))] [capnames(%3)] Mutation at [ansi(h,%2)];@nscemit/noisy v(VAR`CHANNEL)=ansi(h,name(%0)) now has the [ansi(h,capnames(%qc))] [capnames(%3)] Mutation at [ansi(h,%2)], set by [ansi(h,%n)];@nspemit %0=announce(EDITCHAR) You now have the [capnames(%3)] Mutation [capnames(%qc)] at [ansi(h,%2)];th setstat(%0/D`%3_MUTATIONS,capnames(%qc),%2)}
 

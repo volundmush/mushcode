@@ -28,7 +28,7 @@
 
 &TRG`ANNOUNCE u(ex-cso)=@switch/inline v(VAR`ANNOUNCE)=1,{@nscemit/noisy v(VAR`ANNOUNCECHANNEL)=u(u(ex-cso)/FUN`SHOWDATE) - [u(u(ex-cso)/FUN`SHOWMOON)]}
 
-&TRG`TICKER u(ex-cso)=@switch/inline t(v(VAR`ENABLED))=1,{@switch/inline gt(setr(newsecs,add(v(VAR`CURSECS),setr(secsadd,round(mul(60,v(VAR`MULTIPLIER)),0)))),90000)=1,{@trigger u(crm)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS u(ex-cso)=sub(%q<newsecs>,90000);@switch/inline gt(setr(newdays,add(v(VAR`CURDAY),1)),425)=1,{&VAR`CURDAY u(ex-cso)=sub(%q<newdays>,425);&VAR`CURYEAR u(ex-cso)=add(v(VAR`CURYEAR),1);@trigger u(ex-cso)/TRG`ANNOUNCE},{&VAR`CURDAY u(ex-cso)=%q<newdays>;@trigger me/TRG`ANNOUNCE}},{@trigger u(crm)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS u(ex-cso)=%q<newsecs>}};@wait 60={@trigger u(ex-cso)/TRG`TICKER}
+&TRG`TICKER u(ex-cso)=@switch/inline t(v(VAR`ENABLED))=1,{@switch/inline gt(setr(newsecs,add(v(VAR`CURSECS),setr(secsadd,round(mul(60,v(VAR`MULTIPLIER)),0)))),90000)=1,{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS u(ex-cso)=sub(%q<newsecs>,90000);@switch/inline gt(setr(newdays,add(v(VAR`CURDAY),1)),425)=1,{&VAR`CURDAY u(ex-cso)=sub(%q<newdays>,425);&VAR`CURYEAR u(ex-cso)=add(v(VAR`CURYEAR),1);@trigger u(ex-cso)/TRG`ANNOUNCE},{&VAR`CURDAY u(ex-cso)=%q<newdays>;@trigger me/TRG`ANNOUNCE}},{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS u(ex-cso)=%q<newsecs>}};@wait 60={@trigger u(ex-cso)/TRG`TICKER}
 
 &VAR`ADMINFLAGS u(ex-cso)=STOP|START
 &VAR`ANNOUNCE u(ex-cso)=1
