@@ -20,7 +20,7 @@
 &CMD`+OOC u(pgo)=$^(?s)(?\:\+)?(ooc|osay)(?\: +(.*))?$:@assert elock(%l/speech,%#)=@nspemit %#=Permission denied.;@assert strlen(%2)=@nspemit %#=What will you say?;@message/spoof lplayers(%l)=%2,u(pgo)/FUN`MSGOOC,%#,##,%2
 @set u(pgo)/CMD`+OOC=regexp
 
-&CMD`QUIT u(pgo)=$^(quit|logoff|logout)$:@boot/silent %#
+&CMD`QUIT u(pgo)=$^(quit|logoff|logout)$:@switch/inline default(%#/PLAYSTATUS,OOC)=IC,{@nscemit/noisy RP=ansi(w,%n) [ansi(<#848484>,is now)] [ansi(m,Out of Character.)];&PLAYSTATUS %#=OOC};@boot/silent %#
 @set u(pgo)/CMD`QUIT=regexp
 
 &FUN`MSGOOC u(pgo)=color(%1,-<,OOC`BORDER,hx)[color(%1,OOC,OOC`HEADER,hr)][color(%1,>-,OOC`BORDER,hx)]%B[if(isadmin(%0),ansi(h,\[Staff\]%B))][speak(&[color(%1,name(%0),OOC`NAME,n)],%2,color(%1,says\,,OOC`SAYSTRING,n),#lambda/\[color(%1,",OOC`QUOTES,n)\]\[color(%1,\%0,OOC`SPEECH,n)\]\[color(%1,",OOC`QUOTES,n)\])]

@@ -37,13 +37,15 @@
 
 &FUN`MAX u(ex-pso)=add(u(FUN`MAX`%1,%0),getstat(%0/D`POOLBONUS,%1))
 
-&FUN`MAX`PERSONAL u(ex-pso)=add(u(FUN`MAX`PERSONAL`[getsplat(%0)],%0),if(strmatch(getsplat(%0),GOD-BLOODED),u(v(u(ex-pso))/FUN`CALCEXPANDER,%0,D`CHARMS`[reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,Raksha,^(Divine|Demon)$,Spirit,^(Ghost)$,Ghost)],DAT`[reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,Raksha,^(Divine|Demon)$,Spirit,^(Ghost)$,Ghost)]`EXPANDER),0))
+&FUN`MAX`PERSONAL u(ex-pso)=add(u(FUN`MAX`PERSONAL`[getsplat(%0)],%0),if(strmatch(getsplat(%0),GOD-BLOODED),u(u(ex-pso)/FUN`CALCEXPANDER,%0,D`CHARMS`[reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,Raksha,^(Divine|Demon)$,Spirit,^(Ghost)$,Ghost)],DAT`[reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,Raksha,^(Divine|Demon)$,Spirit,^(Ghost)$,Ghost)]`EXPANDER),0))
 
 &FUN`MAX`PERIPHERAL u(ex-pso)=add(u(FUN`MAX`PERIPHERAL`[getsplat(%0)],%0),u(u(ex-pso)/FUN`CALCEXPANDER,%0,D`CHARMS`[getsplat(%0)],DAT`[getsplat(%0)]`EXPANDER))
 &FUN`MAX`OVERDRIVE u(ex-pso)=bound(add(u(FUN`MAX`OVERDRIVE`[getsplat(%0)],%0),u(u(ex-pso)/FUN`CALCOVERDRIVE,%0,D`CHARMS`[getsplat(%0)],DAT`[getsplat(%0)]`OVERDRIVE)),0,default(VAR`MAXOVERDRIVE,25))
 &FUN`MAX`LIMIT u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(SOLAR|LUNAR|SIDEREAL|INFERNAL|DRAGON-BLOODED)$),10,gt(getstat(%0/D`NEGATIVE_MUTATIONS,Great Curse),0),10,0)
 &FUN`MAX`RESONANCE u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(ABYSSAL)$),10,0)
 &FUN`MAX`CLARITY u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(ALCHEMICAL)$),10,0)
+
+&FUN`MAX`PERSONAL`GOD-BLOODED u(ex-pso)=reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,mul(getstat(%0/D`INFO,Essence),8),^(Divine|Ghost|Demon)$,add(mul(getstat(%0/D`INFO,Essence),5),mul(u(FUN`MAX`WILLPOWER,%0),2),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))),add(mul(getstat(%0/D`INFO,Essence),4),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
 
 &FUN`MAX`PERSONAL`SOLAR u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
 &FUN`MAX`PERIPHERAL`SOLAR u(ex-pso)=add(mul(7,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),null(SKINMOUNTHERE))
