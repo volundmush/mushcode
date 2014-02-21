@@ -24,7 +24,7 @@
 
 &STARTUP u(pot)=@dolist/inline SAY SEMIPOSE POSE @EMIT={@hook/before %i0=u(pot),FUN`MAIN};@attribute/access/retroactive POT=WIZARD MORTAL_DARK;@trigger u(pot)/TRG`SELFCLEAN
 
-&TRG`SELFCLEAN u(pot)=@switch/inline gt(v(VAR`SELFCLEAN),0)=1,{@dolist/inline lsearch(all,eroom,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0;@dolist/inline lsearch(all,ething,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0};@wait mul(60,v(var`checkminutes))=@trigger v(pot)/TRG`SELFCLEAN
+&TRG`SELFCLEAN u(pot)=@switch/inline gt(v(VAR`SELFCLEAN),0)=1,{@dolist/inline lsearch(all,eroom,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0;@dolist/inline lsearch(all,ething,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0};@wait mul(60,v(var`checkminutes))=@trigger u(pot)/TRG`SELFCLEAN
 
 &TRG`DOCLEAN u(pot)=@dolist/inline filterbool(#lambda/gte(sub(secs(),get(%0/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%0/POT`POSES`*))=@wipe %0/%i0
 

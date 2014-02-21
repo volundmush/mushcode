@@ -20,7 +20,7 @@
 
 &INC`CODE`CREATE u(gso)=@assert isadmin(%#)=@nspemit %#=announce(GROUPS) ERROR: Only Admin can make Groups.;@assert strlen(%0)=@nspemit %#=announce(GROUPS) ERROR: Alias field empty.;@assert regmatchi(%0,^(\[A-Z\]\{1,7\})$)=@nspemit %#=announce(GROUPS) ERROR: Aliases may only be seven or fewer alphabetic characters (A-Z) with no spaces or symbols.;@switch/inline gt(v(VAR`CODE`PERNMODE),0)=1,{@break strmatch(%0,DTU)=@nspemit %#=announce(GROUPS) ERROR: DTU is an unacceptable ALIAS.};@break words(grepi(u(gdb),*,%0))=@nspemit %#=announce(GROUPS) ERROR: A Group by that Alias already exists: [get(u(gdb)/%q<exist>)] - [get(u(gdb)/%q<exist>`NAME)];@assert strlen(%1)=@nspemit %#=announce(GROUPS) ERROR: Name field empty.;@include u(gso)/INC`CODE`DOCREATE=%0,%1;@nspemit %#=announce(GROUP) You have created the [ansi(hw,%q<galias1> - %q<gname1>)];@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{The group was created.}
 
-&FUN`FINDGROUP u(gso)=first(filterbool(#lambda/isint(\%0),before(strfirstof(first(grepi(u(gdb),*`NAME,%0)),first(grepi(u(gdb),*,%0))),`)))
+&FUN`FINDGROUP u(gso)=first(filterbool(#lambda/isint(\%0),before(strfirstof(first(wildgrepi(u(gdb),*`NAME,%0*)),first(wildgrepi(u(gdb),*,%0*))),`)))
 
 &VAR`DEFAULTS`SETPERM u(gso)=DESC~0|TYPE~0|MOTD~0|DIV~0|INV~0|KICK~0|ADD~0|IC~10|OOC~10|PROMOTE~0|GAG~0|SET~0|PERM~0|ICTITLE~0|ICTITLEOTHER~0|OOCTITLE~1|OOCTITLEOTHER~0|LOCK~0|BBADMIN~0
 
@@ -32,7 +32,7 @@
 
 &INC`CODE`MAKELOG u(gso)=&[setr(log,%1`LOG`[add(1,lmath(max,iter(lattr(u(gdb)/%1`LOG`*),last(%i0,`))))])] u(gdb)=%2;&%q<log>`SUBMITTER u(gdb)=%0;&%q<log>`SUBMITTED u(gdb)=secs()
 
-&INC`CODE`VALGROUP u(gso)=@assert strlen(%0)=@nspemit %#=announce(GROUPS) ERROR: No group entered to check.;@assert valnum(%1)=@nspemit %#=announce(GROUPS) ERROR: Code error, contact staff.;@switch/inline gt(setr(gid%1,firstof(u(u(gso)/FUN`FINDGROUP,%0),if(hasattr(u(gdb)/%0),%0,0))),0)=0,{@switch/inline gt(setr(gid%1,u(u(gso)/FUN`FINDGROUP,grab(iter(lattr(u(gdb)/*,|),get(u(gdb)/%i0),|,|),%0*,|))),0)=0,{@assert gt(setr(gid%1,u(u(gso)/FUN`FINDGROUP,grab(iter(lattr(u(gdb)/*`NAME,|),get(u(gdb)/%i0),|,|),%0*,|))),0)=@nspemit %#=announce(GROUPS) ERROR: Group or Sub-Group not found.}};th setq(gname%1,get(u(gdb)/%q<gid%1>`NAME),galias%1,get(u(gdb)/%q<gid%1>))
+&INC`CODE`VALGROUP u(gso)=@assert strlen(%0)=@nspemit %#=announce(GROUPS) ERROR: No group entered to check.;@assert valnum(%1)=@nspemit %#=announce(GROUPS) ERROR: Code error, contact staff.;@switch/inline gt(setr(gid%1,firstof(u(u(gso)/FUN`FINDGROUP,%0),if(valnum(%0),if(hasattr(u(gdb)/%0),%0,0),0))),0)=0,{@switch/inline gt(setr(gid%1,u(u(gso)/FUN`FINDGROUP,grab(iter(lattr(u(gdb)/*,|),get(u(gdb)/%i0),|,|),%0*,|))),0)=0,{@assert gt(setr(gid%1,u(u(gso)/FUN`FINDGROUP,grab(iter(lattr(u(gdb)/*`NAME,|),get(u(gdb)/%i0),|,|),%0*,|))),0)=@nspemit %#=announce(GROUPS) ERROR: Group or Sub-Group not found.}};th setq(gname%1,get(u(gdb)/%q<gid%1>`NAME),galias%1,get(u(gdb)/%q<gid%1>))
 
 &INC`CHOOSE`G`RENAME u(gso)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`RENAME=%1,%2,%3
 &INC`CODE`RENAME u(gso)=@assert isgroupmember(%:,%q<gid1>)=@nspemit %#=announce(GROUPS) ERROR: You are not a member of %q<gname1>.;@assert u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,RENAME)=@nspemit %#=announce(GROUPS) ERROR: You lack permission to do that.;@assert strlen(%0)=@nspemit %#=announce(GROUPS) ERROR: Name field empty.;@break words(grepi(u(gdb),*`NAME,%0))=@nspemit %#=announce(GROUPS) ERROR: A Group already has that name.;&%q<gid1>`NAME u(gdb)=%0;@include u(gso)/INC`CODE`MAKELOG=%:,q<gid1>,{Group renamed to: %0};@include u(gso)/INC`CODE`CHAT={%n Renamed the Group to %0},OOC,1
@@ -67,7 +67,7 @@
 
 &INC`CHOOSE`G`WHO u(gso)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`WHO=%1,%2,%3
 
-&INC`CODE`SWITCH u(gso)=@include u(gso)/INC`CODE`VALGROUP=%0,1;@include u(gso)/INC`CODE`WHO=0,1;@switch/inline isgroupmember(%:,%q<gid1>)=1,{@nspemit %#=announce(GROUPS) You are now managing: [ansi(hw,%q<gname1>)];th setstat(%#/D`GROUP,Group,%q<gid1>)}
+&INC`CODE`SWITCH u(gso)=@include u(gso)/INC`CODE`VALGROUP=%0,1;@include u(gso)/INC`CODE`WHO=0,1;@switch/inline and(isgroupmember(%:,%q<gid1>),not(strmatch(getstat(%#/D`GROUP,Group),%q<gid1>)))=1,{@nspemit %#=announce(GROUPS) You are now managing: [ansi(hw,%q<gname1>)];th setstat(%#/D`GROUP,Group,%q<gid1>)}
 
 &INC`CODE`WHO u(gso)=@nspemit %#=header(MEMBERS: %q<gname1>);@switch/inline and(gt(strlen(setr(type,getstat(u(gdb)/%q<gid1>`TYPE))),0),hasattr(u(gso)/INC`CODE`WHO`%q<type>))=1,{@include u(gso)/INC`CODE`WHO`%q<type>},0,{@nspemit %#=align(30 4 5 20 10,Name,Sex,Rank,Title,Last/Idle)%R[subheader()];@dolist/inline sortkey(#lambda/u(u(gso)/FUN`GETRANK,%q<gid1>,\%0),sort(filterbool(#lambda/isobjid(\%0),get(u(gdb)/%q<gid1>`MEMBERS)),namei))={@nspemit %#=align(30 -4 5 20 10,pueblize(color(%#,name(%i0),GROUP`GWHONAME,n),+finger [name(%i0)]),color(%#,left(get(%i0/SEX),1),GROUP`GWHOSEX,n),color(%#,u(u(gso)/FUN`GETRANK,%q<gid1>,%i0),GROUP`GWHORANK,n),color(%#,getstat(%i0/D`GROUP`%q<gid1>,ICTITLE),GROUP`GWHOICTITLE,n),lastidle(%i0,%#))}};@nspemit %#=header()
 
