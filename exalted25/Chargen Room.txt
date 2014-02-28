@@ -228,8 +228,10 @@
 
 &CMD`+HL u(cg)=$+hl *:@assert lmath(min,iter(%0,or(and(isint(%i0),not(gt(%i0,0))),regmatchi(%i0,^(I|D)$))))=@nspemit %#=announce(CHARGEN) %0 contains an invalid value for health. Valid values are 0, negative whole numbers, I, and D.;&D`HEALTH %#=setr(sorthealth,sortby(u(ex-cdo)/FUN`HEALTHSORT,ucstr(%0)));@nspemit %#=announce(CHARGEN) You set your health level progression to '[get(%#/D`HEALTH)]'. Don't forget your (stamina) dying Health Levels!
 
-&CMD`+LANG u(cg)=$^\+(add|del)lang(?\: (.*))$:th setq(0,capnames(%2));@switch strmatch(%1,add)=1,{@nspemit %#=announce(CHARGEN) You add '%q0' to your list of known languages.;&D`LANGUAGES %#=setunion(get(%#/D`LANGUAGES),squish(trim(%q0)),|,|)},0,{@switch/inline t(match(get(%#/D`LANGUAGES),%q0,|))=1,{@nspemit %#=announce(CHARGEN) You remove '%q0' from your list of known languages.;&D`LANGUAGES %#=setdiff(get(%#/D`LANGUAGES),%q0,|,|)},{@nspemit %#=announce(CHARGEN) You don't seem to know that language. "+sheet" to check which languages you're presently listed as understanding.}}
+&CMD`+LANG u(cg)=$^\+(add|del)lang(?\: (.*))$:th setq(0,iter(%2,capnames(trim(%i0)),|,|));@switch strmatch(%1,add)=1,{@nspemit %#=announce(CHARGEN) You add '%q0' to your list of known languages.;&D`LANGUAGES %#=setunion(get(%#/D`LANGUAGES),squish(trim(%q0)),|,|)},0,{@switch/inline t(match(get(%#/D`LANGUAGES),%q0,|))=1,{@nspemit %#=announce(CHARGEN) You remove '%q0' from your list of known languages.;&D`LANGUAGES %#=setdiff(get(%#/D`LANGUAGES),%q0,|,|)},{@nspemit %#=announce(CHARGEN) You don't seem to know that language. "+sheet" to check which languages you're presently listed as understanding.}}
 @set here/CMD`+LANG=regexp
+
+
 
 &CMD`+VIRTUES u(cg)=$^\+(virtue|Grace)(?\: (.+?))?(?\:=(.+?))?$:@assert strlen(%2)=@nspemit %#=announce(CHARGEN) What [capnames(%1)] will you set?;@include u(ccs)/INC`PARTIAL=%2,get(u(ex-cdo)/VAR`[if(strmatch(%1,virtue),VIRTUES,GRACES)]),|,CHARGEN,choice,capnames(%1);@assert and(not(lt(%3,0)),isint(%3))=@nspemit %#=announce(CHARGEN) [capnames(%1)]s must be whole numbers 0 or greater!;@nspemit %#=announce(CHARGEN) [if(%3,You set [ansi(h,capnames(%q<choice>))] to %3,You remove [ansi(h,capnames(%q<choice>))])].;th [if(%3,set,del)]stat(%#/D`[capnames(%1)]S,capnames(%q<choice>),%3)
 @set here/CMD`+VIRTUES=regexp
