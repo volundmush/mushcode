@@ -20,7 +20,7 @@
 
 &INC`CODE`CREATE u(gso)=@assert isadmin(%#)=@nspemit %#=announce(GROUPS) ERROR: Only Admin can make Groups.;@assert strlen(%0)=@nspemit %#=announce(GROUPS) ERROR: Alias field empty.;@assert regmatchi(%0,^(\[A-Z\]\{1,7\})$)=@nspemit %#=announce(GROUPS) ERROR: Aliases may only be seven or fewer alphabetic characters (A-Z) with no spaces or symbols.;@switch/inline gt(v(VAR`CODE`PERNMODE),0)=1,{@break strmatch(%0,DTU)=@nspemit %#=announce(GROUPS) ERROR: DTU is an unacceptable ALIAS.};@break words(grepi(u(gdb),*,%0))=@nspemit %#=announce(GROUPS) ERROR: A Group by that Alias already exists: [get(u(gdb)/%q<exist>)] - [get(u(gdb)/%q<exist>`NAME)];@assert strlen(%1)=@nspemit %#=announce(GROUPS) ERROR: Name field empty.;@include u(gso)/INC`CODE`DOCREATE=%0,%1;@nspemit %#=announce(GROUP) You have created the [ansi(hw,%q<galias1> - %q<gname1>)];@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{The group was created.}
 
-&FUN`FINDGROUP u(gso)=first(filterbool(#lambda/isint(\%0),before(strfirstof(first(wildgrepi(u(gdb),*`NAME,%0*)),first(wildgrepi(u(gdb),*,%0*))),`)))
+&FUN`FINDGROUP u(gso)=if(strlen(%0),first(filterbool(#lambda/isint(\%0),before(strfirstof(first(wildgrepi(u(gdb),*`NAME,%0*)),first(wildgrepi(u(gdb),*,%0*))),`))),0)
 
 &VAR`DEFAULTS`SETPERM u(gso)=DESC~0|TYPE~0|MOTD~0|DIV~0|INV~0|KICK~0|ADD~0|IC~10|OOC~10|PROMOTE~0|GAG~0|SET~0|PERM~0|ICTITLE~0|ICTITLEOTHER~0|OOCTITLE~1|OOCTITLEOTHER~0|LOCK~0|BBADMIN~0
 

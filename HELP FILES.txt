@@ -145,3 +145,6 @@
 +help/addmain Roleplaying/+xp=[ansi(hc,Aliases:)] xp%R%R[ansi(hc,Commands)]%R[align(5 72,,{[ansi(h,+xp)] - Show how much XP you have.%R[ansi(h,+xp/gained)] - Show details on your gained XP.%R[ansi(h,+xp/spent)] - Show details on your XP spends.})]
 
 +shelp/addmain Character/+xp=[ansi(hc,Viewing Commands)]%R[align(5 72,,{[ansi(h,+xp <name>)] - check a player's XP totals.%R[ansi(h,+xp/gained <name>)] - Check a player's gained XP details.%R[ansi(h,+xp/spent <name>)] - Check a player's XP spend details.})]%R%R[ansi(hc,Managing Commands)]%R[align(5 72,,{[ansi(h,+xp/delgained <name>=<#>)] - Remove a player's gained entry.%R[ansi(h,+xp/delspent <name>=<#>)] - Remove a player's spent entry.%R[ansi(h,+xp/award <list of player>=<amount>/<reason>)] - Awards XP to one or more players. Reason is optional.%R[ansi(h,+xp/spend <list of players>=<amount>/<reason>)] - Spend one or more players' XP. Reason is optional.%R%RNOTE: 'Current XP' is defined as 'gained - spent' while 'Total' is 'total gained ever.' To 'refund' XP, don't award it - delete the relevant spend records then make new ones.})]
+
+@@ ROLEPLAYING - +status
++help/addmain Roleplaying/+status=[ansi(hc,Commands)]%R[align(5 72,,{[ansi(h,+status)] - This command switches you between IC mode and OOC mode.})]

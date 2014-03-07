@@ -1,0 +1,20 @@
+@switch/inline isdbref(u(finger))=0,{@teleport create(Finger Code Object <FINGER>)=config(master_room)}
+&finger u(coi)=locate(config(master_room),Finger Code Object <FINGER>,TXxi)
+@parent u(finger)=u(coi)
+@set u(finger)=WIZARD SAFE !NO_COMMAND
+
+&CMD`FINGER u(finger)=$^(?\:\+)?finger(?\: +(.+))?$:@include u(ccs)/INC`CHECKPC=strfirstof(%1,%#),1,FINGER;@nspemit %#=header(%q<t1name>[if(strlen(alias(%q<t1>)),%B\([pueblize(alias(%q<t1>),+oocfinger %q<t1name>)]\))][if(strlen(get(%q<t1>/D`FINGER`TYPE)),%B\[[get(%q<t1>/D`FINGER`TYPE)]\])]);@nspemit %#=align(1. 36 1. 35 1.,color(%#,|,FINGER`BORDER,m),iter(v(setr(col1,VAR`[default(me/VAR`MODE,MAIN)]`COLUMN1)),rjust(elements(%i0,2,~),default(%q<col1>`RJUST,6)):%B[left(strfirstof(u(GET`[default(me/VAR`MODE,MAIN)]`[elements(%i0,1,~)],%q<t1>),u(GET`DEFAULT`[elements(%i0,1,~)],%q<t1>)),sub(36,add(2,default(%q<col1>`RJUST,6))))],|,%R),color(%#,|,FINGER`BORDER,m),iter(v(setr(col2,VAR`[default(me/VAR`MODE,MAIN)]`COLUMN2)),rjust(elements(%i0,2,~),default(%q<col2>`RJUST,6)):%B[left(strfirstof(u(GET`[default(me/VAR`MODE,MAIN)]`[elements(%i0,1,~)],%q<t1>),u(GET`DEFAULT`[elements(%i0,1,~)],%q<t1>)),sub(35,add(2,default(%q<col2>`RJUST,6))))],|,%R),color(%#,|,FINGER`BORDER,m));@switch/inline or(strlen(get(%q<t1>/D`FINGER`QUOTE)),strlen(get(%q<t1>/D`FINGER`PROFILE)))=1,{@nspemit %#=subheader(Details);@switch/inline gt(strlen(get(%q<t1>/D`FINGER`QUOTE)),0)=1,{@nspemit %#=align(1. 74 1.,color(%#,|,FINGER`BORDER,m),get(%q<t1>/D`FINGER`QUOTE)%R%R,color(%#,|,FINGER`BORDER,m)%R)};@switch/inline gt(strlen(get(%q<t1>/D`FINGER`PROFILE)),0)=1,{@nspemit %#=align(1. 74 1.,color(%#,|,FINGER`BORDER,m),get(%q<t1>/D`FINGER`PROFILE)%R,color(%#,|,FINGER`BORDER,m)%R)}};@switch/inline gt(strlen(get(%q<t1>/D`FINGER`SKILLS)),0)=1,{@nspemit %#=subheader(Skills);@nspemit %#=align(1. 74 1.,color(%#,|,FINGER`BORDER,m),get(%q<t1>/D`FINGER`SKILLS),color(%#,|,FINGER`BORDER,m)%R)};@nspemit %#=header()
+@set u(finger)/CMD`FINGER=regexp
+
+&CMD`SET u(sgo)=$^\+set(profile|type|sex|group|race|job|quote|skills|source)(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`CHECKPC=%2,1,SETFINGER;@switch/inline %1=SEX,{@sex %q<t1>=%3},{&D`FINGER`%1 %q<t1>=%3};@nspemit %#=announce(SETFINGER) %q<t1name>'s [ucstr(%1)] set to: %3;@nscemit/noisy Staff Reports=ansi(h,%n) set %q<t1name>'s [ucstr(%1)] to: %3
+@set u(sgo)/CMD`SET=regexp
+
+&VAR`MODE u(finger)=DEFAULT
+&VAR`DEFAULT`COLUMN1 u(finger)=SEX~Sex|RACE~Race
+&VAR`DEFAULT`COLUMN1`RJUST u(finger)=6
+&VAR`DEFAULT`COLUMN2 u(finger)=JOB~Job
+&VAR`DEFAULT`COLUMN2`RJUST u(finger)=6
+
+&GET`DEFAULT`SEX u(finger)=switch(get(%0/SEX),m*,Male,f*,Female,n*,Neuter,???)
+&GET`DEFAULT`RACE u(finger)=default(%0/D`FINGER`RACE,Unset)
+&GET`DEFAULT`JOB u(finger)=default(%0/D`FINGER`JOB,Wanderer)
