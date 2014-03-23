@@ -13,7 +13,10 @@
 &GFN`DELSTAT u(gfo)=attrib_set(%0,setdiff(get(%0),grab(get(%0),%1~*,|),|)
 &GFN`GETSTAT u(gfo)=if(strlen(%2),add(rest(grab(get(%0),%1~*,|),~),rest(grab(get(before(%0,/)/D`%2),%1~*,|),~)),rest(grab(get(%0),%1~*,|),~))
 &GFN`GRABSTAT u(gfo)=rest(grab(%0,%1~*,|),~)
-&GFN`HEADER u(gfo)=if(strlen(%0),center(color(%#,<,MAIN`HEADERLINE,m)[if(pueblo(%#),endtag(a))][color(%#,*%B,MAIN`HEADERDOT,hm)][if(%1,%0,color(%#,%0,MAIN`HEADERTEXT,hw))][color(%#,%B*,MAIN`HEADERDOT,hm)][color(%#,>,MAIN`HEADERLINE,m)],78,color(%#,-=-,MAIN`HEADERLINE,m)),color(%#,repeat(-=-,26),MAIN`HEADERLINE,m))
+&GFN`HEADER u(gfo)=if(strlen(%0),center(ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),<)[if(pueblo(%#),endtag(a))][ansi(strfirstof(%3,excolor(%#,MAIN`HEADERDOT,default(u(pco)/COLOR`MAIN`HEADERDOT,hm))),*%B)][if(%1,%0,ansi(strfirstof(%4,excolor(%#,MAIN`HEADERTEXT,default(u(pco)/COLOR`MAIN`HEADERTEXT,hw))),%0))][ansi(strfirstof(%3,excolor(%#,MAIN`HEADERDOT,default(u(pco)/COLOR`MAIN`HEADERDOT,hm))),%B*)][ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),>)],78,ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),-=-)),repeat(ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),-=-),26))
+
+&GFN`SUBHEADER u(gfo)=if(strlen(%0),center(%b[if(%1,%0,ansi(strfirstof(%4,excolor(%#,MAIN`SUBHEADERTEXT,default(u(pco)/COLOR`MAIN`SUBHEADERTEXT,hw))),%0))]%b,78,ansi(strfirstof(%2,excolor(%#,MAIN`SUBHEADERLINE,default(u(pco)/COLOR`MAIN`SUBHEADERLINE,m))),-=-)),ansi(strfirstof(%2,excolor(%#,MAIN`SUBHEADERLINE,default(u(pco)/COLOR`MAIN`SUBHEADERLINE,m))),repeat(-=-,26)))
+
 &GFN`FOOTER u(gfo)=header(%0)
 &GFN`MIDLINE u(gfo)=subheader(%0)
 &GFN`LISTMAX u(gfo)=lmath(max,iter(%0,strlen(%i0),|,|),|)
@@ -21,17 +24,10 @@
 &GFN`NUMTH u(gfo)=%0[switch(right(%0,1),1,st,2,nd,3,rd,th)]
 &GFN`PUEBLIZE u(gfo)=tagwrap(A,XCH_CMD="%1",%0)
 &GFN`SETSTAT u(gfo)=localize(attrib_set(%0,setunion(setdiff(setr(0,get(%0)),grab(%q0,%1~*,|),|),%1~%2,|)))
-&GFN`SUBHEADER u(gfo)=if(strlen(%0),center(%b[if(%1,%0,color(%#,%0,MAIN`SUBHEADERTEXT,hw))]%b,78,color(%#,-=-,MAIN`SUBHEADERLINE,m)),color(%#,repeat(-=-,26),MAIN`SUBHEADERLINE,m))
 &GFN`TIMESTAMP u(gfo)=timefmt($Y-$m-$d $H:$M:$S,firstof(%0,secs()))
 &GFN`UNPRIV u(gfo)=setq(unprivtext,%0)[objeval(get(u(mdo)/VAR`UNPRIV),s(%q<unprivtext>))]
 &GFN`VALNUM u(gfo)=and(isint(%0),gt(%0,0))
-
 &GFN`WEBLINK u(gfo)=if(strlen(%0),tagwrap(a,href="[setr(webfix,if(not(strmatch(%0,*://*)),http://%0,%0))]",strfirstof(%1,%q<webfix>)))
-
-
-
-
-
 
 &GFN`LASTIDLE u(gfo)=switch(1,and(isadmin(%1),hasflag(%0,CONNECTED),or(hidden(%0),hasflag(%0,DARK))),ansi(g,ago(idle(%0))),or(and(not(isadmin(%1)),hasflag(%0,CONNECTED),or(hidden(%0),hasflag(%0,DARK))),not(hasflag(%0,CONNECTED))),ansi(hx,elements(get(%0/last),2 3)),hasflag(%0,CONNECTED),ansi(hg,ago(idle(%0))))
 

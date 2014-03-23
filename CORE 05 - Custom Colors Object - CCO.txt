@@ -21,7 +21,9 @@
 
 &INC`DEFAULTS u(cco)=@switch/inline if(and(isdbref(u(cao)),isdbref(u(adb))),if(get(%#/D`COLOR),gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%:)),0),0),0)=1,{th setq(mode,Account,attr,%q<accid>`COLOR,target,u(adb))},0,{th setq(mode,Personal,attr,D`COLOR,target,%#)};@include u(ccs)/INC`VERIFY={WARNING: This will restore all default settings for %q<mode> Colors. Enter the same command within ten seconds to verify.},COLOR %q<mode> DEFAULTS,COLOR;@nspemit %#=announce(COLOR) You have restored all %q<mode> default colors!;@switch/inline %q<mode>=PERSONAL,{@wipe %q<target>/%q<attr>},ACCOUNT,{@set %q<target>=!SAFE;@wipe %q<target>/%q<attr>;@set %q<target>=SAFE}
 
-&GFN`COLOR u(cco)=ansi(if(and(isdbref(u(cao)),get(%0/D`COLOR)),if(setr(accid,u(u(cao)/FUN`FINDACCOUNT,objid(%0))),strfirstof(get(u(adb)/%q<accid>`COLOR`%2),%3,n),strfirstof(get(%0/D`COLOR`%2),%3,n)),strfirstof(get(%0/D`COLOR`%2),%3,n)),%1)
+&GFN`COLOR u(cco)=ansi(excolor(%0,%2,%3),%1)
+
+&GFN`EXCOLOR u(cco)=if(and(isdbref(u(cao)),get(%0/D`COLOR)),if(setr(accid,u(u(cao)/FUN`FINDACCOUNT,objid(%0))),strfirstof(get(u(adb)/%q<accid>`COLOR`%1),%3,n),strfirstof(get(%0/D`COLOR`%1),%2,n)),strfirstof(get(%0/D`COLOR`%1),%2,n))
 
 th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),MAIN,|,|))
 &VAR`CATEGORIES`MAIN u(cco)=HEADERTEXT|HEADERLINE|HEADERDOT|SUBHEADERTEXT|SUBHEADERLINE|ANNOUNCETITLE|ANNOUNCEBORDER

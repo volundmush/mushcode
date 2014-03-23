@@ -17,7 +17,7 @@
 
 &FUN`LISTPOOLS u(ex-pso)=u(FUN`SORTPOOLS,filterbool(#lambda/and(u(FUN`MAX,%0,\%0),strmatch(v(DAT`\%0`TYPE),if(strlen(%1),%1,*))),iter(lattr(u(ex-pso)/FUN`MAX`*),last(%i0,`))))
 
-&FUN`SORTPOOLS u(ex-pso)=filterbool(#lambda/match(%0,\%0),Personal Peripheral Gossamer Willpower Overdrive Limit Resonance Paradox Clarity Stasis Divergence Dissonance Compassion Conviction Valor Temperance Avarice)
+&FUN`SORTPOOLS u(ex-pso)=filterbool(#lambda/match(%0,\%0),Personal Peripheral Expanded Gossamer Willpower Overdrive Limit Resonance Paradox Clarity Stasis Divergence Dissonance Compassion Conviction Valor Temperance Avarice)
 
 &INC`BURN u(ex-pso)=@include u(ex-pso)/INC`FINDPOOL=%0,%#;@assert strlen(%1)=@nspemit %#=announce(POOLS) ERROR: Burn Value empty.;@assert valnum(%1)=@nspemit %#=announce(POOLS) ERROR: Burn values must be whole, positive numbers.;@break lt(u(FUN`CUR,%#,%q<choice>),%1)=@nspemit %#=announce(POOLS) There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(VAR`POOL`%q<choice>`TYPE)]!;@nsremit %l=announce(POOLS) [ansi(h,%n)] just burned %1 [u(FUN`POOLDETAIL,%q<choice>)]!;&D`POOLS`%q<choice>`CUR %#=sub(u(FUN`CUR,%#,%q<choice>),%1)
 
@@ -37,13 +37,15 @@
 
 &FUN`MAX u(ex-pso)=add(u(FUN`MAX`%1,%0),getstat(%0/D`POOLBONUS,%1))
 
-&FUN`MAX`PERSONAL u(ex-pso)=add(u(FUN`MAX`PERSONAL`[getsplat(%0)],%0),if(strmatch(getsplat(%0),GOD-BLOODED),u(u(ex-pso)/FUN`CALCEXPANDER,%0,D`CHARMS`[reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,Raksha,^(Divine|Demon)$,Spirit,^(Ghost)$,Ghost)],DAT`[reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,Raksha,^(Divine|Demon)$,Spirit,^(Ghost)$,Ghost)]`EXPANDER),0))
+&FUN`MAX`PERSONAL u(ex-pso)=add(u(FUN`MAX`PERSONAL`[getsplat(%0)],%0),mul(getstat(%0/D`POSITIVE_MUTATIONS,Essence Abundance),3))
 
-&FUN`MAX`PERIPHERAL u(ex-pso)=add(u(FUN`MAX`PERIPHERAL`[getsplat(%0)],%0),u(u(ex-pso)/FUN`CALCEXPANDER,%0,D`CHARMS`[getsplat(%0)],DAT`[getsplat(%0)]`EXPANDER))
+&FUN`MAX`PERIPHERAL u(ex-pso)=add(u(FUN`MAX`PERIPHERAL`[getsplat(%0)],%0),0)
 &FUN`MAX`OVERDRIVE u(ex-pso)=bound(add(u(FUN`MAX`OVERDRIVE`[getsplat(%0)],%0),u(u(ex-pso)/FUN`CALCOVERDRIVE,%0,D`CHARMS`[getsplat(%0)],DAT`[getsplat(%0)]`OVERDRIVE)),0,default(VAR`MAXOVERDRIVE,25))
 &FUN`MAX`LIMIT u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(SOLAR|LUNAR|SIDEREAL|INFERNAL|DRAGON-BLOODED)$),10,gt(getstat(%0/D`NEGATIVE_MUTATIONS,Great Curse),0),10,0)
 &FUN`MAX`RESONANCE u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(ABYSSAL)$),10,0)
 &FUN`MAX`CLARITY u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(ALCHEMICAL)$),10,0)
+
+&FUN`MAX`EXPANDED u(ex-pso)=if(strmatch(getsplat(%0),GOD-BLOODED),u(u(ex-pso)/FUN`CALCEXPANDER,%0,D`CHARMS`[reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,Raksha,^(Divine|Demon)$,Spirit,^(Ghost)$,Ghost)],DAT`[reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,Raksha,^(Divine|Demon)$,Spirit,^(Ghost)$,Ghost)]`EXPANDER),u(u(ex-pso)/FUN`CALCEXPANDER,%0,D`CHARMS`[getsplat(%0)],DAT`[getsplat(%0)]`EXPANDER))
 
 &FUN`MAX`PERSONAL`GOD-BLOODED u(ex-pso)=reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,mul(getstat(%0/D`INFO,Essence),8),^(Divine|Ghost|Demon)$,add(mul(getstat(%0/D`INFO,Essence),5),mul(u(FUN`MAX`WILLPOWER,%0),2),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))),add(mul(getstat(%0/D`INFO,Essence),4),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
 
@@ -178,6 +180,9 @@
 &DAT`PERSONAL`TYPE u(ex-pso)=Pool
 &DAT`PERSONAL`UNITNAME u(ex-pso)=Motes
 &DAT`PERSONAL`UNITTYPE u(ex-pso)=Essence
+&DAT`EXPANDED`TYPE u(ex-pso)=Pool
+&DAT`EXPANDED`UNITNAME u(ex-pso)=Motes
+&DAT`EXPANDED`UNITTYPE u(ex-pso)=Essence
 &DAT`RAKSHA u(ex-pso)=
 &DAT`RAKSHA`EXPANDER u(ex-pso)=
 &DAT`RAKSHA`EXPANDER`5 u(ex-pso)=Bottomless Dream Gullet
