@@ -6,10 +6,10 @@
 &CMD`BB u(bbs)=$^(?s)(?\:\+)?(bb|gb)(\S+)(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@include u(bbs)/INC`INIT`%1;@include u(ccs)/INC`PARTIAL=%2,setunion(setunion(v(VAR`BB`PLAYCOMMS),if(setr(isadmin,switch(%1,bb,isadmin(%#),gb,u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,BBADMIN))),v(VAR`BB`ADMINCOMMS)),|,|),if(hasflag(%#,WIZARD),v(VAR`BB`WIZCOMMS)),|,|),|,setr(ann,ucstr(%1S)),command,command;@include u(bbs)/INC`[strfirstof(%q<command>,WRITE)]=ucstr(%1),%3,%4,%5
 @set u(bbs)/CMD`BB=regexp
 
-&CMD`BBWRITE u(bbs)=$(?s)^\+(bb|gb)(?\:write)?(?\: +(.*))?$:th setq(ann,ucstr(%1S));@include u(bbs)/INC`INIT`%1;@include u(bbs)/INC`WRITE=ucstr(%1),%2
+&CMD`BBWRITE u(bbs)=$(?s)^\+(bb|gb)(?\: +(.*))?$:th setq(ann,ucstr(%1S));@include u(bbs)/INC`INIT`%1;@include u(bbs)/INC`WRITE=ucstr(%1),%2
 @set u(bbs)/CMD`BBWRITE=regexp
 
-&VAR`BB`PLAYCOMMS u(bbs)=READ|POST|REMOVE|MOVE|SCAN|NEXT|EDIT|JOIN|LEAVE|LIST|PROOF|TOSS|CATCHUP|SEARCH|NEW|TIMEOUT|ALL|CHECK|COMMENT|SCANALL
+&VAR`BB`PLAYCOMMS u(bbs)=READ|POST|REMOVE|MOVE|SCAN|NEXT|EDIT|WRITE|JOIN|LEAVE|LIST|PROOF|TOSS|CATCHUP|SEARCH|NEW|TIMEOUT|ALL|CHECK|COMMENT|SCANALL
 &VAR`BB`ADMINCOMMS u(bbs)=NEWGROUP|CLEARGROUP|CONFIG|TIMEOUT|LOCK|UNLOCK|ORDER|RENAME
 &VAR`BB`WIZCOMMS u(bbs)=IMPORT|CONVERT
 
