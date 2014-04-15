@@ -9,10 +9,10 @@
 
 &TRG`WEEKLY u(wxc)=&VAR`WEEKS me=add(1,default(me/VAR`WEEKS,0));&VAR`HIGHEST u(wxc)=lmath(max,iter(lsearch(all,eplayer,\[and(not(haspower(##,GUEST)),not(isadmin(##)),approved(##))\]),u(u(xp)/FUN`COUNT,%i0,G)));@assert words(setr(list,lsearch(all,eplayer,\[and(not(haspower(##,GUEST)),not(isadmin(##)),approved(##))\])));@dolist/inline %q<list>={@trigger me/TRG`AWARD=%i0};&VAR`LASTCHECK u(wxc)=secs()
 
-&TRG`AWARD u(wxc)=@force/inline v(VAR`FORCECHAR)={+xp/award %0=[add(default(me/VAR`WEEKLY,4),if(lt(sub(secs(),default(%0/D`LASTIC,0)),604800),mul(default(me/VAR`PARTICIPATION,6),if(lte(u(u(xp)/FUN`COUNT,%0,G),sub(v(VAR`HIGHEST),default(me/VAR`CATCHUPTHRESHOLD,50))),default(me/VAR`CATCHUPMUL,2),1)),0))]/Weekly XP};@wipe %0/D`LASTIC
+&TRG`AWARD u(wxc)=@switch/inline gt(setr(val,if(lt(sub(secs(),default(%0/D`LASTIC,0)),604800),mul(default(me/VAR`PARTICIPATION,6),if(lte(u(u(xp)/FUN`COUNT,%0,G),sub(v(VAR`HIGHEST),default(me/VAR`CATCHUPTHRESHOLD,50))),default(me/VAR`CATCHUPMUL,2),1)),0)),0)=0,{@nspemit %0=announce(XP) You did not receive participation XP this week, but did gain 4 base XP.},1,{@force/inline v(VAR`FORCECHAR)={+xp/award %0=%q<val>/Weekly XP};@nspemit %0=announce(XP) You also receive 4 base Xp!};@wipe %0/D`LASTIC
 
-
-
+&FUN`EXTRA`GAINED u(xp)=u(u(wxc)/FUN`STARTING)
+&FUN`EXTRA`SPENT u(xp)=0
 
 &FUN`STARTING u(wxc)=add(default(me/VAR`STARTING,0),mul(default(me/VAR`WEEKLY,4),default(u(wxc)/VAR`WEEKS,0)))
 

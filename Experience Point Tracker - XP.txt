@@ -17,7 +17,8 @@
 
 &INC`LIST u(xp)=@nspemit %#=header(name(%0) XP)%R[ljust(ansi(h,rjust(Current:,10)),10)][rjust(sub(setr(gained,u(u(xp)/FUN`COUNT,%0,G)),setr(spent,u(u(xp)/FUN`COUNT,%0,S))),4)]%r[ljust(ansi(h,rjust(Total:,10)),10)][rjust(%q<gained>,4)]%r[ljust(ansi(h,rjust(Spent:,10)),10)][rjust(%q<spent>,4)];@nspemit %#=header()
 
-&FUN`COUNT u(xp)=lmath(add,iter(lattr(%0/D`XP`%1`*),get(%0/%i0)))
+&FUN`COUNT u(xp)=add(lmath(add,iter(lattr(%0/D`XP`%1`*),get(%0/%i0))),if(not(%2),switch(%1,G,u(FUN`EXTRA`GAINED,%0),S,u(FUN`EXTRA`SPENT,%0),0),0))
+&FUN`TOTAL u(xp)=sub(u(FUN`COUNT,%0,G,%1),u(FUN`COUNT,%0,S,%2))
 
 &INC`GAINED u(xp)=@switch/inline and(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,G
 &INC`SPENT u(xp)=@switch/inline and(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,S
