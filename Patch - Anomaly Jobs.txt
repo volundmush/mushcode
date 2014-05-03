@@ -42,8 +42,8 @@
 &MAIN_JOBSHEADER get(u(job)/va)=[header(mudname() +Jobs)] %r[setq(j,[secure(switch(u(%va/FN_HASATTRP,%0,JOBS),1,lcstr(mid(get(%0/JOBS),0,20)),u(JOBS_DEFAULT)))])][setq(2,*%b%b[ljust(Job#,5)][iter(lnum(strlen(%qj)),u(HEADER_[mid(%qj,##,1)]))])][ansi(hc,ljust(%q2,u(FN_FLEXWIDTH,79)))]%r[subheader()]
 &MAIN_MYJOBLIST get(u(job)/va)=[ifelse(u(FN_ISNEW,%0,%1),[ansi(r,*)]%b,%b%b)]%b[setq(j,TDAS)][ansi(hw,[rjust([last(name(%0))],5)]%b[iter(lnum(strlen(%qj)),u(DISPLAY_[mid(%qj,##,1)],%0,%1))])]
 &MAIN_MYJOBSHEADER get(u(job)/va)=[header(mudname() +Jobs)] %r[setq(j,[secure(switch(u(%va/FN_HASATTRP,%0,JOBS),1,lcstr(mid(get(%0/JOBS),0,20)),u(JOBS_DEFAULT)))])][setq(2,*%b%b[ljust(Job#,5)][iter(lnum(strlen(%qj)),u(HEADER_[mid(%qj,##,1)]))])][ansi(hc,ljust(%q2,u(FN_FLEXWIDTH,77)))][subheader()]
-&MAIN_READ get(u(job)/va)=[subheader()]%r[ifelse(u(%va/EDIT_ACCESS,%#),[ansi(h,%[)][ifelse(and(or(u(%va/IS_PUBLISHED,%1),match(u(%1/OPENED_BY),extract(get(%1/%0),3,1,|)),hasflag(%1/%0,no_inherit)),u(%va/IS_PUBLIC,%1)),ansi(hc,[rest(%0,_)]+),ansi(hc,[rest(%0,_)]-))][ansi(h,%])]%b,)][ansi(h,[extract(get(%1/%0),4,1,|)]%badded on%b[convsecs(extract(get(%1/%0),2,1,|))]:%b )][edit(last(get(%1/%0),|),@@PIPE@@,|)]
+&MAIN_READ get(u(job)/va)=[subheader()]%r[ifelse(u(%va/EDIT_ACCESS,%#),[ansi(h,%[)][ifelse(cand(cor(u(%va/IS_PUBLISHED,%1),match(u(%1/OPENED_BY),extract(get(%1/%0),3,1,|)),hasflag(%1/%0,no_inherit)),u(%va/IS_PUBLIC,%1)),ansi(hc,[rest(%0,_)]+),ansi(hc,[rest(%0,_)]-))][ansi(h,%])]%b,)][ansi(h,[extract(get(%1/%0),4,1,|)]%badded on%b[convsecs(extract(get(%1/%0),2,1,|))]:%b )][edit(last(get(%1/%0),|),@@PIPE@@,|)]
 &MAIN_SKIN get(u(job)/va)=1
 &MAIN_SUMMARY get(u(job)/va)=%r[subheader([u(parent(%0)/SUMMARY,%0)])]
 
-&FIL_PUBLISHED get(u(job)/va)=or(u(%q0/PUBLISH),hasflag(%q0/%0,no_inherit),u(%va/FN_MYACCESSCHECK,parent(%q0),%#,%q0),match(get(%q0/OPENED_BY),extract(get(%q0/%0),3,1,|)))
+&FIL_PUBLISHED get(u(job)/va)=cor(u(%q0/PUBLISH),hasflag(%q0/%0,no_inherit),u(%va/FN_MYACCESSCHECK,parent(%q0),%#,%q0),match(get(%q0/OPENED_BY),extract(get(%q0/%0),3,1,|)))

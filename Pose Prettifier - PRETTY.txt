@@ -1,15 +1,15 @@
-@@ This is just an excerpt from Mercutio's Scenesys with support for my +pot hacked in.
+@@ This is just an excerpt from Mercutio's Scenesys with support for my +pot hacked in. It's meant to be used to make in-character speech and so on look nicer (auto-colored) and so on.
 
 @switch/inline isdbref(u(pretty))=0,{@tel create(Pose Prettifier <PRETTY>)=config(master_room)}
 &pretty u(coi)=locate(config(master_room),Pose Prettifier <PRETTY>,TXxi)
 @parent u(pretty)=u(coi)
 @set u(pretty)=WIZARD !NO_COMMAND
 
-&OVERRIDE`@EMIT u(pretty)=$@emit*:@assert or(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,|%qp)); @include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=@EMIT,%0;@message/spoof/remit %l=%qr,emitformat,%0,%#,%n,accname(%#),%qp,%qR,,u(fn`islogged,%N,%:,%qr);@include me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(trimpenn(%qr,%t,r),%r),%:
+&OVERRIDE`@EMIT u(pretty)=$@emit*:@assert cor(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,|%qp)); @include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=@EMIT,%0;@message/spoof/remit %l=%qr,emitformat,%0,%#,%n,accname(%#),%qp,%qR,,u(fn`islogged,%N,%:,%qr);@include me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(trimpenn(%qr,%t,r),%r),%:
 
-&OVERRIDE`POSE u(pretty)=$pose*:@assert or(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,:%qp));@include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=POSE,%0;@message/spoof/remit %l=%qr,poseformat,%0,%#,%n,accname(%#),%qp,%qr,,u(fn`islogged,%N,%:,%qr); @include me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
+&OVERRIDE`POSE u(pretty)=$pose*:@assert cor(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,:%qp));@include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=POSE,%0;@message/spoof/remit %l=%qr,poseformat,%0,%#,%n,accname(%#),%qp,%qr,,u(fn`islogged,%N,%:,%qr); @include me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
 
-&OVERRIDE`SAY u(pretty)=$say*:@assert or(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,%qp));@include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=SAY,%0;@message/spoof/remit %l=%qr,sayformat,%0,%#,%n,accname(%#),%qp,%qr,udefault(%#/saymodifier,says,%qp),u(fn`islogged,%N,%:,%qr);@include/nobreak me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
+&OVERRIDE`SAY u(pretty)=$say*:@assert cor(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,%qp));@include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=SAY,%0;@message/spoof/remit %l=%qr,sayformat,%0,%#,%n,accname(%#),%qp,%qr,udefault(%#/saymodifier,says,%qp),u(fn`islogged,%N,%:,%qr);@include/nobreak me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
 
 &OVERRIDE`SEMIPOSE u(pretty)=$semipose*:@assert or(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,;%qp));@include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=SEMIPOSE,%0;@message/spoof/remit %l=%qr,semiposeformat,%0,%#,%n,accname(%#),%qp,%qr,,,u(fn`islogged,%N,%:,%qr);@include/nobreak me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
 

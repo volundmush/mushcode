@@ -3,8 +3,8 @@
 +key/make ADMIN
 
 @wait 1=+bbnewgroup Admin
-@wait 2=+bblock Admin/Read=ADMIN
-@wait 2=+bblock Admin/Write=ADMIN
+@wait 2=+bblock Admin=ADMIN
+@wait 2=+bblock Admin=ADMIN
 
 @wait 2=+channel/add [ansi(m,Admin)]
 @wait 2=+channel/add [ansi(hr,Staff Reports)]

@@ -17,7 +17,7 @@
 &FUN`GET u(who)=switch(%1,NAME,name(%0),ALIAS,alias(%0),SEX,switch(get(%0/SEX),M*,Male,F*,Female,N*,Neuter,?),CONN,conn(%0),IDLE,idle(%0),u(FUN`GET`%1,%0))
 &FUN`GET`IDLE`FORMAT u(who)=edit(elements(etimefmt($zxD $zxH $zxM $xS,idle(%0)),1 2),%b,)
 &FUN`GET`CONN`FORMAT u(who)=edit(elements(etimefmt($zxD $zxH $zxM $xS,conn(%0)),1 2),%b,)
-&FUN`GET`LOCATION`FORMAT u(who)=switch(1,and(isadmin(%#),or(hasflag(%0,UNFINDABLE),hasflag(room(loc(%0)),UNFINDABLE))),name(room(loc(%0))),or(hasflag(%0,UNFINDABLE),hasflag(room(loc(%0)),UNFINDABLE)),*UNFINDABLE*,name(room(loc(%0))))
+&FUN`GET`LOCATION`FORMAT u(who)=switch(1,cand(cor(hasflag(%0,UNFINDABLE),hasflag(room(loc(%0)),UNFINDABLE)),isadmin(%#)),name(room(loc(%0))),cor(hasflag(%0,UNFINDABLE),hasflag(room(loc(%0)),UNFINDABLE)),*UNFINDABLE*,name(room(loc(%0))))
 
 &DAT`MODES u(who)=NAME|SEX|IDLE|CONN
 &DAT`MODES`SORT u(who)=NAME~NAME~i|SEX~SEX~i|IDLE~IDLE~-n|CONN~CONN~-n

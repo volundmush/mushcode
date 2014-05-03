@@ -10,12 +10,12 @@
 &GFN`ROOMANNOUNCE u(gfo)=color(strfirstof(%1,%#),-=<*,MAIN`ROOMANNOUNCEBORDER,hm)[color(strfirstof(%1,%#),ucstr(%0),MAIN`ROOMANNOUNCETITLE,h)][color(strfirstof(%1,%#),*>=-,MAIN`ROOMANNOUNCEBORDER,hm)]
 &GFN`CAPNAMES u(gfo)=regeditall(lcstr(%0),(?<=\[_/-\\s\]|^)(\[a-z\]),capstr($1))
 &GFN`COMMAFY u(gfo)=squish(flip(foreach(#lambda/if(mod(\%1,3),\%0,\\,\%0),flip(%0))),\,)
-&GFN`DELSTAT u(gfo)=attrib_set(%0,setdiff(get(%0),grab(get(%0),%1~*,|),|)
+&GFN`DELSTAT u(gfo)=attrib_set(%0,setdiff(get(%0),grab(get(%0),%1~*,|),|))
 &GFN`GETSTAT u(gfo)=if(strlen(%2),add(rest(grab(get(%0),%1~*,|),~),rest(grab(get(before(%0,/)/D`%2),%1~*,|),~)),rest(grab(get(%0),%1~*,|),~))
 &GFN`GRABSTAT u(gfo)=rest(grab(%0,%1~*,|),~)
-&GFN`HEADER u(gfo)=if(strlen(%0),center(ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),<)[if(pueblo(%#),endtag(a))][ansi(strfirstof(%3,excolor(%#,MAIN`HEADERDOT,default(u(pco)/COLOR`MAIN`HEADERDOT,hm))),*%B)][if(%1,%0,ansi(strfirstof(%4,excolor(%#,MAIN`HEADERTEXT,default(u(pco)/COLOR`MAIN`HEADERTEXT,hw))),%0))][ansi(strfirstof(%3,excolor(%#,MAIN`HEADERDOT,default(u(pco)/COLOR`MAIN`HEADERDOT,hm))),%B*)][ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),>)],78,ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),-=-)),repeat(ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),-=-),26))
+&GFN`HEADER u(gfo)=center(if(strlen(%0),ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),<)[if(pueblo(%#),endtag(a))][ansi(strfirstof(%3,excolor(%#,MAIN`HEADERDOT,default(u(pco)/COLOR`MAIN`HEADERDOT,hm))),*%B)][if(%1,%0,ansi(strfirstof(%4,excolor(%#,MAIN`HEADERTEXT,default(u(pco)/COLOR`MAIN`HEADERTEXT,hw))),%0))][ansi(strfirstof(%3,excolor(%#,MAIN`HEADERDOT,default(u(pco)/COLOR`MAIN`HEADERDOT,hm))),%B*)][ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),>)]),78,ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),-=-))
 
-&GFN`SUBHEADER u(gfo)=if(strlen(%0),center(%b[if(%1,%0,ansi(strfirstof(%4,excolor(%#,MAIN`SUBHEADERTEXT,default(u(pco)/COLOR`MAIN`SUBHEADERTEXT,hw))),%0))]%b,78,ansi(strfirstof(%2,excolor(%#,MAIN`SUBHEADERLINE,default(u(pco)/COLOR`MAIN`SUBHEADERLINE,m))),-=-)),ansi(strfirstof(%2,excolor(%#,MAIN`SUBHEADERLINE,default(u(pco)/COLOR`MAIN`SUBHEADERLINE,m))),repeat(-=-,26)))
+&GFN`SUBHEADER u(gfo)=center(if(strlen(%0),%b[if(%1,%0,ansi(strfirstof(%4,excolor(%#,MAIN`SUBHEADERTEXT,default(u(pco)/COLOR`MAIN`SUBHEADERTEXT,hw))),%0))]%b),78,ansi(strfirstof(%2,excolor(%#,MAIN`SUBHEADERLINE,default(u(pco)/COLOR`MAIN`SUBHEADERLINE,m))),-=-))
 
 &GFN`FOOTER u(gfo)=header(%0)
 &GFN`MIDLINE u(gfo)=subheader(%0)
@@ -26,10 +26,10 @@
 &GFN`SETSTAT u(gfo)=localize(attrib_set(%0,setunion(setdiff(setr(0,get(%0)),grab(%q0,%1~*,|),|),%1~%2,|)))
 &GFN`TIMESTAMP u(gfo)=timefmt($Y-$m-$d $H:$M:$S,firstof(%0,secs()))
 &GFN`UNPRIV u(gfo)=setq(unprivtext,%0)[objeval(get(u(mdo)/VAR`UNPRIV),s(%q<unprivtext>))]
-&GFN`VALNUM u(gfo)=and(isint(%0),gt(%0,0))
+&GFN`VALNUM u(gfo)=cand(isint(%0),gt(%0,0))
 &GFN`WEBLINK u(gfo)=if(strlen(%0),tagwrap(a,href="[setr(webfix,if(not(strmatch(%0,*://*)),http://%0,%0))]",strfirstof(%1,%q<webfix>)))
 
-&GFN`LASTIDLE u(gfo)=switch(1,and(isadmin(%1),hasflag(%0,CONNECTED),or(hidden(%0),hasflag(%0,DARK))),ansi(g,ago(idle(%0))),or(and(not(isadmin(%1)),hasflag(%0,CONNECTED),or(hidden(%0),hasflag(%0,DARK))),not(hasflag(%0,CONNECTED))),ansi(hx,elements(get(%0/last),2 3)),hasflag(%0,CONNECTED),ansi(hg,ago(idle(%0))))
+&GFN`LASTIDLE u(gfo)=switch(1,cand(isadmin(%1),hasflag(%0,CONNECTED),cor(hidden(%0),hasflag(%0,DARK))),ansi(g,ago(idle(%0))),cor(cand(not(isadmin(%1)),hasflag(%0,CONNECTED),cor(hidden(%0),hasflag(%0,DARK))),not(hasflag(%0,CONNECTED))),ansi(hx,elements(get(%0/last),2 3)),hasflag(%0,CONNECTED),ansi(hg,ago(idle(%0))))
 
 &GFN`RYG u(gfo)=<[if(gt(%0,50),255,round(mul(255,fdiv(mul(%0,2),100)),0))] [if(gte(%0,50),sub(mul(255,2),round(mul(255,fdiv(mul(%0,2),100)),0)),255)] 0>
 
@@ -40,6 +40,9 @@
 @@ %0 - Target, %1 - player list, %2 - mode, %3 - channel name
 
 &GFN`ISIC u(gfo)=switch(type(%0),ROOM,t(default(%0/IC,1)),THING,t(default(%0/IC,0)),PLAYER,isic(loc(%0)))
+
+&GFN`ALIASGRAB u(gfo)=if(match(%0,%1),%1,first(filterbool(#lambda/strmatch(alias(\%0),%1*),sortkey(#lambda/alias(\%0),%0,i))))
+&GFN`ALIASGRABALL u(gfo)=if(match(%0,%1),%1,filterbool(#lambda/strmatch(alias(\%0),%1*),sortkey(#lambda/alias(\%0),%0,i)))
 
 &STARTUP u(gfo)=@dolist/inline get(u(gfo)/VAR`FUNRESTRICT)=@function/restrict %i0=WIZARD LOCALIZE
 &VAR`FUNRESTRICT u(gfo)=GETSTAT SETSTAT DELSTAT GRABSTAT FILTERVIS LASTIDLE

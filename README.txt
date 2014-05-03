@@ -11,8 +11,10 @@ Terms
 "Softcode" refers to the contents of every file in this package with the exception of Myrddin's MUSH Cron and the patches for Mercutio's SceneSys and Javelin's Anomaly Jobs. (All hail them and their fine authors!) "Game" refers to any copy of PennMUSH or similar program it's running on.
 
 CONDITIONS
-This Softcode is freely available to all under the terms of the GNU General Public License: https://www.gnu.org/licenses/gpl.html also the GNUGPL.txt file.
-Meaning: No warranty, and you may copy, distribute, and modify this package, and create modifications, but all modifications must be released under the same license and must be clearly marked as such.
+You may copy, distribute, and alter this softcode with the following restrictions:
+A) The softcode may not be used for commercial purposes, whether this be selling the software or using it on a pay-to-play game.
+B) Please link back to the original repository in a visible credits file or article somewhere on your game, and give credit where it is due.
+C) You need not release any altered versions of the softcode, but if you do it must be under identical terms.
 
 Support is limited by my time and energy, but it's my goal to provide an easy-to-use and expansive suite of MUSHcode for all fans of the gaming platform to enjoy. If you have questions, bug reports, or feature requests, please email them to me at the address given above. Bug reports can also go on GitHub's Issues tab.
 

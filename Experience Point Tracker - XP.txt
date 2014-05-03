@@ -11,7 +11,7 @@
 &VAR`ADMINFLAGS u(xp)=DELGAINED|DELSPENT|TOTALS|AWARD|SPEND
 &VAR`PLAYFLAGS u(xp)=GAINED|SPENT
 
-&INC`MAIN u(xp)=@switch/inline and(strlen(%0),isadmin(%#))=1,{@include u(ccs)/INC`CHECKPC=%0,1,XP},0,{@include u(ccs)/INC`CHECKPC=%#,1,XP};@include u(xp)/INC`LIST=%q<t1>
+&INC`MAIN u(xp)=@switch/inline cand(strlen(%0),isadmin(%#))=1,{@include u(ccs)/INC`CHECKPC=%0,1,XP},0,{@include u(ccs)/INC`CHECKPC=%#,1,XP};@include u(xp)/INC`LIST=%q<t1>
 
 &INC`LIST u(xp)=@nspemit %#=header(name(%0) XP)%R[ljust(ansi(h,rjust(Current:,10)),10)][rjust(sub(setr(gained,u(u(xp)/FUN`COUNT,%0,G)),setr(spent,u(u(xp)/FUN`COUNT,%0,S))),4)]%r[ljust(ansi(h,rjust(Total:,10)),10)][rjust(%q<gained>,4)]%r[ljust(ansi(h,rjust(Spent:,10)),10)][rjust(%q<spent>,4)];@nspemit %#=header()
 
@@ -20,8 +20,8 @@
 &FUN`COUNT u(xp)=add(lmath(add,iter(lattr(%0/D`XP`%1`*),get(%0/%i0))),if(not(%2),switch(%1,G,u(FUN`EXTRA`GAINED,%0),S,u(FUN`EXTRA`SPENT,%0),0),0))
 &FUN`TOTAL u(xp)=sub(u(FUN`COUNT,%0,G,%1),u(FUN`COUNT,%0,S,%2))
 
-&INC`GAINED u(xp)=@switch/inline and(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,G
-&INC`SPENT u(xp)=@switch/inline and(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,S
+&INC`GAINED u(xp)=@switch/inline cand(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,G
+&INC`SPENT u(xp)=@switch/inline cand(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,S
 
 &INC`LISTBY u(xp)=@nspemit %#=header(name(%0)'s [if(strmatch(%1,G),GAINED,SPENT)] XP);@dolist/inline sortkey(#lambda/last(\%0,`),lattr(%0/D`XP`%1`*))=@nspemit %#=#[ljust(last(%i0,`),4)][ansi(h,default(%0/%i0,N/A))] for [ansi(h,default(%0/%i0`REASON,Unknown Reason))]%R%B%B%B%B%BHandled By%B[ansi(h,name(get(%0/%i0`BY)))] On [convsecs(get(%0/%i0`ON))];@nspemit %#=header()
 
@@ -30,7 +30,7 @@
 
 &INC`DELETE u(xp)=@include u(ccs)/INC`CHECKPC=%0,1,XP;@assert valnum(%2)=@nspemit %#=XP entries must be addressed via whole and positive numbers!;@assert hasattr(%q<t1>/D`XP`%1`%2)=@nspemit %#=ansi(h,%q<t1name>) does not have that entry!;@switch/inline v(VAR`ALERTSMODE)=1,{@nscemit/noisy v(VAR`ALERTSCHANNEL)=ansi(h,%n) just removed [ansi(h,%q<t1name>)]'s XP [if(strmatch(%1,G),GAINED,SPENT)] Entry #%2: [get(%q<t1>/D`XP`%1`%2)] - [get(%q<t1>/D`XP`%1`%2`REASON)]};@nspemit %#=announce(XP) You just removed [ansi(h,%q<t1name>)]'s XP [if(strmatch(%1,G),GAINED,SPENT)] Entry #%2: [get(%q<t1>/D`XP`%1`%2)] - [get(%q<t1>/D`XP`%1`%2`REASON)];@switch/inline 1=not(strmatch(%q<t1>,%#)),{@nspemit %q<t1>=announce(XP) [ansi(h,%n)] just removed your XP [if(strmatch(%1,G),GAINED,SPENT)] Entry #%2: [get(%q<t1>/D`XP`%1`%2)] - [get(%q<t1>/D`XP`%1`%2`REASON)]};@wipe %q<t1>/D`XP`%1`%2
 
-&INC`TOTALS u(xp)=@nspemit %#=header(mudname() XP Totals);@nspemit %#=ansi(hc,Name[space(29)]Gained XP[space(3)]Splat);@dolist/inline revwords(sortkey(#lambda/u(u(xp)/FUN`COUNT,\%0,G),lsearch(all,eplayer,\[and(u(u(xp)/FUN`COUNT,##,G),not(isadmin(##)),approved(##))\]),n))=@nspemit %#=ljust(left(name(%i0),32),33)[ljust(rjust(u(u(xp)/FUN`COUNT,%i0,G),6),12)][getsplat(%i0)];@nspemit %#=header()
+&INC`TOTALS u(xp)=@nspemit %#=header(mudname() XP Totals);@nspemit %#=ansi(hc,Name[space(29)]Gained XP[space(3)]Splat);@dolist/inline revwords(sortkey(#lambda/u(u(xp)/FUN`COUNT,\%0,G),lsearch(all,eplayer,\[cand(u(u(xp)/FUN`COUNT,##,G),not(isadmin(##)),approved(##))\]),n))=@nspemit %#=ljust(left(name(%i0),32),33)[ljust(rjust(u(u(xp)/FUN`COUNT,%i0,G),6),12)][getsplat(%i0)];@nspemit %#=header()
 
 &INC`AWARD u(xp)=@include u(xp)/INC`MARKXP=%0,%1,%2,AWARD
 &INC`SPEND u(xp)=@include u(xp)/INC`MARKXP=%0,%1,%2,SPEND

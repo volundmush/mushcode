@@ -10,11 +10,11 @@
 @parent u(hso)=u(coi)
 @set u(hso)=WIZARD SAFE !NO_COMMAND
 
-@switch/inline and(isdbref(u(hso)),not(isdbref(get(u(hso)/VAR`HELP))))=1,{th attrib_set(u(hso)/VAR`HELP,create(HELP DATABASE));@tel get(u(hso)/VAR`HELP)=u(hso);@set get(u(hso)/VAR`HELP)=SAFE}
+@switch/inline cand(isdbref(u(hso)),not(isdbref(get(u(hso)/VAR`HELP))))=1,{th attrib_set(u(hso)/VAR`HELP,create(HELP DATABASE));@tel get(u(hso)/VAR`HELP)=u(hso);@set get(u(hso)/VAR`HELP)=SAFE}
 
-@switch/inline and(isdbref(u(hso)),not(isdbref(get(u(hso)/VAR`SHELP))))=1,{th attrib_set(u(hso)/VAR`SHELP,create(SHELP DATABASE));@tel get(u(hso)/VAR`SHELP)=u(hso);@set get(u(hso)/VAR`SHELP)=SAFE}
+@switch/inline cand(isdbref(u(hso)),not(isdbref(get(u(hso)/VAR`SHELP))))=1,{th attrib_set(u(hso)/VAR`SHELP,create(SHELP DATABASE));@tel get(u(hso)/VAR`SHELP)=u(hso);@set get(u(hso)/VAR`SHELP)=SAFE}
 
-@switch/inline and(isdbref(u(hso)),not(isdbref(get(u(hso)/VAR`NEWS))))=1,{th attrib_set(u(hso)/VAR`NEWS,create(NEWS DATABASE));@tel get(u(hso)/VAR`NEWS)=u(hso);@set get(u(hso)/VAR`NEWS)=SAFE}
+@switch/inline cand(isdbref(u(hso)),not(isdbref(get(u(hso)/VAR`NEWS))))=1,{th attrib_set(u(hso)/VAR`NEWS,create(NEWS DATABASE));@tel get(u(hso)/VAR`NEWS)=u(hso);@set get(u(hso)/VAR`NEWS)=SAFE}
 
 &CMD`+HELP u(PGO)=$^(?s)\+help(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.+?))?$:@include u(hso)/INC`MAIN=%0,lcstr(%1),%2,%3,HELP,mudname() Help Files,HELP,+help;@@ %0 = %0, %1 = switch, %2 = filenames, %3 = entry, %4 = database name, %5 = header display name, %6 = Announce, %7 = Command
 @set u(PGO)/CMD`+HELP=regexp

@@ -25,7 +25,7 @@
 
 &INC`DIST u(tco)=@include u(ccs)/INC`PARTIAL=ucstr(%0),ucstr(setunion(iter(filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),default(before(%i0,~)/district,Unbound),|,|),,|,|)),|,TEL,district,district;th setq(hash,digest(md5,ucstr(%q<district>)));@switch/inline gt(strlen(%1),0)=0,{@nspemit %#=announce(TEL) District desc cleared!;&VAR`DIST`%q<hash>`DESC u(tco)},1,{@nspemit %#=announce(TEL) You set the desc for %q<district> to: %1;&VAR`DIST`%q<hash>`DESC u(tco)=%1}
 
-&FILTER_ISROOM u(tco)=and(isdbref(first(%0,~)),hastype(first(%0,~),ROOM))
+&FILTER_ISROOM u(tco)=cand(isdbref(first(%0,~)),hastype(first(%0,~),ROOM))
 
 &INC`ADD u(tco)=@assert u(FILTER_ISROOM,setr(0,setr(0,num(%0))))={@nspemit %#=ERROR: %0 is not a valid ROOM DBREF.};@break match(v(VAR`ROOMLIST),%q0~*,|)=@nspemit %#=ERROR: Location already registered.;th setstat(u(tco)/VAR`ROOMLIST,%q0,1);@nspemit %#=%q0 - [name(%q0)]: Added to Tel locations.
 

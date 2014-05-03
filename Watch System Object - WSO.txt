@@ -18,7 +18,7 @@
 
 &VAR`PLAYFLAGS u(wso)=ADD|DEL
 
-&PLAYER`CONNECT`WATCH u(wso)=@break or(hasflag(%0,DARK),hidden(%0));@break gt(%1,1);@nspemit/list lsearch(all,eplayer,\[match(get(##/D`WATCH),\%0)\])=announce(FRIEND)%B[name(%0)] has connected.
+&PLAYER`CONNECT`WATCH u(wso)=@break cor(hasflag(%0,DARK),hidden(%0));@break gt(%1,1);@nspemit/list lsearch(all,eplayer,\[match(get(##/D`WATCH),\%0)\])=announce(FRIEND)%B[name(%0)] has connected.
 
-&PLAYER`DISCONNECT`WATCH u(wso)=@break or(hasflag(%0,DARK),hidden(%0));@break gte(%1,1);@nspemit/list lsearch(all,eplayer,\[match(get(##/D`WATCH),\%0)\])=announce(FRIEND)%B[name(%0)] has disconnected.
+&PLAYER`DISCONNECT`WATCH u(wso)=@break cor(hasflag(%0,DARK),hidden(%0));@break gte(%1,1);@nspemit/list lsearch(all,eplayer,\[match(get(##/D`WATCH),\%0)\])=announce(FRIEND)%B[name(%0)] has disconnected.
 
