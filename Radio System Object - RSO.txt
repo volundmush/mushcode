@@ -29,7 +29,7 @@
 
 &INC`NAME u(rdso)=@include u(rdso)/INC`CHECKSLOT;@switch/inline strlen(%1)=0,{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)]'s Name has been Cleared!;&D`RADIO`%0`NAME %#},{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)] is now known as: %1;&D`RADIO`%0`NAME %#=%1}
 
-&INC`ALIAS u(rdso)=@include u(rdso)/INC`CHECKSLOT;@switch/inline strlen(%1)=0,{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)]'s Alias has been Cleared!;&D`RADIO`%0`Alias %#},{@nspemit %#=announce(RADIO) Your Alias on Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)] is now: %1;&D`RADIO`%0`ALIAS %#=%1}
+&INC`ALIAS u(rdso)=@include u(rdso)/INC`CHECKSLOT;@switch/inline strlen(%1)=0,{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)]'s Alias has been Cleared!;&D`RADIO`%0`Alias %#},{@break strmatch(%1,*%r*)=@nspemit %#=announce(RADIO) ERROR: Aliases may not contain linebreaks.;@nspemit %#=announce(RADIO) Your Alias on Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)] is now: %1;&D`RADIO`%0`ALIAS %#=%1}
 
 &INC`ENCRYPT u(rdso)=@include u(rdso)/INC`CHECKSLOT;@switch/inline strlen(%1)=0,{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)]'s Encrypt Key has been Cleared!;&D`RADIO`%0`KEY %#},{@nspemit %#=announce(RADIO) Radio Frequency [u(u(rdso)/FUN`FREQNAME,%#,%0)]'s Encrypt Key is now: %1;&D`RADIO`%0`KEY %#=%1}
 

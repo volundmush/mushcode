@@ -5,6 +5,8 @@
 @parent u(gfo)=u(coi)
 @set u(gfo)=WIZARD SAFE
 
+&GFN`CHARIN u(gfo)=lmath(max,iter(%1,strmatch(%0,*%i0*)))
+
 &GFN`AGO u(gfo)=switch(1,lt(%0,60),%0s,lt(%0,3600),div(%0,60)m,lt(%0,86400),div(%0,3600)h,div(%0,86400)d)
 &GFN`ANNOUNCE u(gfo)=color(strfirstof(%1,%#),-=<,MAIN`ANNOUNCEBORDER,hm)[color(strfirstof(%1,%#),ucstr(%0),MAIN`ANNOUNCETITLE,h)][color(strfirstof(%1,%#),>=-,MAIN`ANNOUNCEBORDER,hm)]
 &GFN`ROOMANNOUNCE u(gfo)=color(strfirstof(%1,%#),-=<*,MAIN`ROOMANNOUNCEBORDER,hm)[color(strfirstof(%1,%#),ucstr(%0),MAIN`ROOMANNOUNCETITLE,h)][color(strfirstof(%1,%#),*>=-,MAIN`ROOMANNOUNCEBORDER,hm)]
