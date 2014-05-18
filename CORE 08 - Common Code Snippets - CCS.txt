@@ -5,12 +5,12 @@
 @parent u(ccs)=u(coi)
 @set u(CCS)=WIZARD
 
-&INC`CHECKPC u(ccs)=@assert strlen(%0)=@nspemit %#=announce(%2) ERROR: You must enter a player name!;@assert strlen(%1);@assert strlen(%2);@assert isdbref(setr(t%1,pmatch(%0)))=@nspemit %#=announce(%2) ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th setq(t%1objid,objid(pmatch(%0)));th setq(t%1name,name(pmatch(%0)))
+&INC`CHECKPC u(ccs)=@assert strlen(%0)=@nspemit %#=msghead(%2) ERROR: You must enter a player name!;@assert strlen(%1);@assert strlen(%2);@assert isdbref(setr(t%1,pmatch(%0)))=@nspemit %#=msghead(%2) ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th setq(t%1objid,objid(pmatch(%0)));th setq(t%1name,name(pmatch(%0)))
 @@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into, %2 = title for ANNOUNCE if there's an error.
 
-&INC`JAILCHECK u(ccs)=@break hasflag(%#,JAILED)=@nspemit %#=announce(JAIL) You have been jailed and cannot use this command.
+&INC`JAILCHECK u(ccs)=@break hasflag(%#,JAILED)=@nspemit %#=msghead(JAIL) You have been jailed and cannot use this command.
 
-&INC`VERIFY u(CCS)=@switch/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th attrib_set(%#/VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@break 1={@nspemit %#=if(strlen(%2),announce(%2)%B)%0}},1,{@wipe %#/VERIFY_OK}
+&INC`VERIFY u(CCS)=@switch/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th attrib_set(%#/VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@break 1={@nspemit %#=if(strlen(%2),msghead(%2)%B)%0}},1,{@wipe %#/VERIFY_OK}
 @@ VERIFY Arguments: %0 = message to display, %1 = code to set for verification, %2 = Title for Announce.
 
 &INC`CPTREE u(ccs)=@switch/inline gte(1008005005,numversion())=1,{@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/%i0=%2/%3`[elements(%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)]}},{th cptree(%0,%1,%2,%3)}
@@ -22,5 +22,5 @@
 &INC`MVTREE u(ccs)=@switch/inline gte(1008005005,numversion())=1,{@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/%i0=%2/%3`[elements(%i0,lnum(add(1,words(%1,`)),add(words(%1,`),11)),`,`)]}},0,{th cptree(%0,%1,%2,%3)};@switch/inline hasflag(%0,SAFE)=1,{@set %0=!SAFE;@wipe %0/%1;@set %0=SAFE},0,{@wipe %0/%1}
 @@ MVTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
 
-&INC`PARTIAL u(ccs)=@switch/inline cor(not(strlen(%0)),match(%1,setr(strfirstof(%4,choice),%0),strfirstof(%2,%b)))=0,{@assert words(setr(strfirstof(%4,choice),graball(%1,%0*,strfirstof(%2,%b),strfirstof(%2,%b))))=@nspemit %#=announce(%3) ERROR: Invalid %5! Valid choices are: [itemize(%1,strfirstof(%2,%b))];@break gt(words(r(strfirstof(%4,choice)),strfirstof(%2,%b)),1)=@nspemit %#=announce(%3) ERROR: %0 matched [itemize(r(strfirstof(%4,choice)),strfirstof(%2,%b),and,\,)]. Please be more specific.}
+&INC`PARTIAL u(ccs)=@switch/inline cor(not(strlen(%0)),match(%1,setr(strfirstof(%4,choice),%0),strfirstof(%2,%b)))=0,{@assert words(setr(strfirstof(%4,choice),graball(%1,%0*,strfirstof(%2,%b),strfirstof(%2,%b))))=@nspemit %#=msghead(%3) ERROR: Invalid %5! Valid choices are: [itemize(%1,strfirstof(%2,%b))];@break gt(words(r(strfirstof(%4,choice)),strfirstof(%2,%b)),1)=@nspemit %#=msghead(%3) ERROR: %0 matched [itemize(r(strfirstof(%4,choice)),strfirstof(%2,%b),and,\,)]. Please be more specific.}
 @@ PARTIAL %0 = entry, %1 = choices, %2 = delimiter, %3 = announce, %4 = register name, %5 = topic name

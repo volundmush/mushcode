@@ -1,0 +1,38 @@
+@@ DEPENDENCIES - Core
+@switch/inline isdbref(config(ancestor_room))=1,{th attrib_set(u(coi)/AR,config(ancestor_room))}
+@switch/inline isdbref(u(ar))=0,{th attrib_set(u(coi)/AR,dig(Ancestor Room))}
+
+&RFN`HEADER u(ar)=header(%0,%1,ROOM`BORDER,ROOM`BORDERDOT,ROOM`BORDERTEXT)
+&RFN`SEPARATOR u(ar)=separator(%0,,ROOM`BORDER,ROOM`BORDERDOT,ROOM`BORDERTEXT)
+
+&NAMEFORMAT u(ar)=endtag(a)[u(RFN`HEADER,pueblize(moniker(%0)[if(cor(controls(%#,me),isadmin(%#)),%([num(%0)][flags(%0)]%))],look),1)]
+
+&CONFORMAT u(ar)=[u(FUN`CONFORMAT`EXTRA)][trim(if(words(lvplayers(me)),u(FUN`CONFORMAT`PLAYERS`[default(me/VAR`MODE,DEFAULT)]))[if(words(lvthings(me)),u(FUN`CONFORMAT`THINGS`[default(me/VAR`MODE,DEFAULT)]))],%r)]
+
+&FUN`CONFORMAT`PLAYERS`DEFAULT u(ar)=u(RFN`SEPARATOR,Players)%R[align(19,Name)]%R[trim(iter(sort(lvplayers(me),namei),align(19,pueblize(ansi(custcolor(%#,ROOM`PLAYERNAME),name(%i0)),look [name(%i0)])),%b,%R),%r)]
+
+&FUN`CONFORMAT`THINGS`DEFAULT u(ar)=u(RFN`SEPARATOR,Things)%R[align(40,Name)]%R[trim(iter(sort(lvthings(me),namei),align(40,pueblize(name(%i0),look [name(%i0)])),%b,%R),%r)]
+
+&FUN`CONFORMAT`EXTRA u(ar)=if(cor(nattr(me/VIEW`*),nattr(me/MUSIC`*)),separator(Extra)%R[iter(filterbool(#lambda/nattr(me/\%0`*),VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)
+
+&EXITFORMAT u(ar)=if(words(lvexits(me)),u(FUN`EXITFORMAT`[default(me/VAR`MODE,DEFAULT)]),u(RFN`HEADER))
+
+&FUN`EXITFORMAT`DEFAULT u(ar)=u(RFN`SEPARATOR,Exits)[table(iter(sortkey(#lambda/default(\%0/ORDER,0),sort(lvexits(me),namei)),ljust(if(strlen(alias(%i0)),<[ansi(custcolor(%#,ROOM`EXITALIAS),ucstr(alias(%i0)))]>),6)[ansi(custcolor(%#,ROOM`EXITNAME),name(%i0))] to [ansi(custcolor(%#,ROOM`EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))]),37,width(%#),|)]
+
+
+th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),ROOM,|,|))
+&VAR`CATEGORIES`ROOM u(cco-db)=OOC1|OOC2|IC1|IC2|PLAYERNAME|THINGNAME|EXITNAME|EXITALIAS
+
+@switch/inline isdbref(u(ae))=0,{th attrib_set(u(coi)/AE,open(Ancestor Exit,#0,u(ar)))}
+&ODROP u(ae)=heads over from [fullname(home(me))]
+&OSUCCESS u(ae)=heads over to [fullname(loc(me))]
+&SUCCESS u(ae)=You head over to [fullname(loc(me))]
+
+@switch/inline isdbref(u(ap))=0,{th attrib_set(u(coi)/AP,pcreate(Ancestor Player,digest(md5,secs())))}
+@tel u(ap)=u(ar)
+@pageformat u(ap)=ansi(custcolor(%@,DEFAULT`PAGE),%4)
+@outpageformat u(ap)=ansi(custcolor(%@,DEFAULT`OUTPAGE),%4)
+@chatformat u(ap)=if(strlen(setr(color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[after(%5,>)],%5)
+
+@switch/inline isdbref(u(at))=0,{th attrib_set(u(coi)/AT,create(Ancestor Thing <AT>))}
+@tel u(at)=u(ar)

@@ -6,6 +6,8 @@
 @set u(sgo)=WIZARD !NO_COMMAND
 @lock/command u(sgo)=ISADMIN/1
 
+&RFN`MSHEAD u(sgo)=msghead(%0)
+
 &ISADMIN u(sgo)=isadmin(%#)
 
 &CMD`+DEBUG u(sgo)=$+debug *:@assert setr(find,firstof(locate(%#,%0,N),u(%0)))=@nspemit %#=ERROR: Sorry, %0 not found.;@set %q<find>=DEBUG VERBOSE PUPPET;@debugforwardlist %q<find>=setdiff(setunion(%#,get(%q<find>/DEBUGFORWARDLIST)),owner(%q<find>));@power %q<find>=pemit_all;@nspemit %#=DEBUG for [name(%q<find>)] enabled!

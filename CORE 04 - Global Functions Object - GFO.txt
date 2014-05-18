@@ -8,16 +8,20 @@
 &GFN`CHARIN u(gfo)=lmath(max,iter(%1,strmatch(%0,*%i0*)))
 
 &GFN`AGO u(gfo)=switch(1,lt(%0,60),%0s,lt(%0,3600),div(%0,60)m,lt(%0,86400),div(%0,3600)h,div(%0,86400)d)
-&GFN`ANNOUNCE u(gfo)=color(strfirstof(%1,%#),-=<,MAIN`ANNOUNCEBORDER,hm)[color(strfirstof(%1,%#),ucstr(%0),MAIN`ANNOUNCETITLE,h)][color(strfirstof(%1,%#),>=-,MAIN`ANNOUNCEBORDER,hm)]
-&GFN`ROOMANNOUNCE u(gfo)=color(strfirstof(%1,%#),-=<*,MAIN`ROOMANNOUNCEBORDER,hm)[color(strfirstof(%1,%#),ucstr(%0),MAIN`ROOMANNOUNCETITLE,h)][color(strfirstof(%1,%#),*>=-,MAIN`ROOMANNOUNCEBORDER,hm)]
+
+&GFN`MSGHEAD u(gfo)=ansi(custcolor(%#,DEFAULT`MSGBORDER),-=<)[ansi(custcolor(%#,DEFAULT`MSG),ucstr(%0))][ansi(custcolor(%#,DEFAULT`MSGBORDER),>=-)]
+&GFN`MSGHEADROOM u(gfo)=ansi(custcolor(%#,DEFAULT`MSGBORDER),-=<*)[ansi(custcolor(%#,DEFAULT`MSG),ucstr(%0))][ansi(custcolor(%#,DEFAULT`MSGBORDER),*>=-)]
+
 &GFN`CAPNAMES u(gfo)=regeditall(lcstr(%0),(?<=\[_/-\\s\]|^)(\[a-z\]),capstr($1))
 &GFN`COMMAFY u(gfo)=squish(flip(foreach(#lambda/if(mod(\%1,3),\%0,\\,\%0),flip(%0))),\,)
 &GFN`DELSTAT u(gfo)=attrib_set(%0,setdiff(get(%0),grab(get(%0),%1~*,|),|))
 &GFN`GETSTAT u(gfo)=if(strlen(%2),add(rest(grab(get(%0),%1~*,|),~),rest(grab(get(before(%0,/)/D`%2),%1~*,|),~)),rest(grab(get(%0),%1~*,|),~))
 &GFN`GRABSTAT u(gfo)=rest(grab(%0,%1~*,|),~)
-&GFN`HEADER u(gfo)=center(if(strlen(%0),ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),<)[if(pueblo(%#),endtag(a))][ansi(strfirstof(%3,excolor(%#,MAIN`HEADERDOT,default(u(pco)/COLOR`MAIN`HEADERDOT,hm))),*%B)][if(%1,%0,ansi(strfirstof(%4,excolor(%#,MAIN`HEADERTEXT,default(u(pco)/COLOR`MAIN`HEADERTEXT,hw))),%0))][ansi(strfirstof(%3,excolor(%#,MAIN`HEADERDOT,default(u(pco)/COLOR`MAIN`HEADERDOT,hm))),%B*)][ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),>)]),78,ansi(strfirstof(%2,excolor(%#,MAIN`HEADERLINE,default(u(pco)/COLOR`MAIN`HEADERLINE,m))),-=-))
 
-&GFN`SUBHEADER u(gfo)=center(if(strlen(%0),%b[if(%1,%0,ansi(strfirstof(%4,excolor(%#,MAIN`SUBHEADERTEXT,default(u(pco)/COLOR`MAIN`SUBHEADERTEXT,hw))),%0))]%b),78,ansi(strfirstof(%2,excolor(%#,MAIN`SUBHEADERLINE,default(u(pco)/COLOR`MAIN`SUBHEADERLINE,m))),-=-))
+&GFN`HEADER u(gfo)=if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))[center(if(strlen(%0),ansi(firstcolor(%#,%2,DEFAULT`BORDER),<)[if(pueblo(%#),endtag(a))][ansi(firstcolor(%#,%3,DEFAULT`BORDERDOT),*%B)][if(%1,%0,ansi(firstcolor(%#,%4,DEFAULT`BORDERTEXT),%0))][ansi(firstcolor(%#,%3,DEFAULT`BORDERDOT),%B*)][ansi(firstcolor(%#,%2,DEFAULT`BORDER),>)]),if(%5,sub(width(%#),2),width(%#)),ansi(firstcolor(%#,%2,DEFAULT`BORDER),=))][if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))]
+&GFN`SUBHEADER u(gfo)=if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))[center(if(strlen(%0),%b[if(%1,%0,ansi(firstcolor(%#,%4,DEFAULT`BORDERTEXT),%0))]%b),if(%5,sub(width(%#),2),width(%#)),ansi(firstcolor(%#,%2,DEFAULT`BORDER),=))][if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))]
+&GFN`SEPARATOR u(gfo)=if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))[center(if(strlen(%0),%b[if(%1,%0,ansi(firstcolor(%#,%4,DEFAULT`BORDERTEXT),%0))]%b),if(%5,sub(width(%#),2),width(%#)),ansi(firstcolor(%#,%2,DEFAULT`BORDER),-))][if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))]
+@@ %0 - display text (optional), %1 - no text colors boolean, %2 - headerline color, %3 - headerdot color, %4 - headertext color, %5 = Bordered mode
 
 &GFN`FOOTER u(gfo)=header(%0)
 &GFN`MIDLINE u(gfo)=subheader(%0)

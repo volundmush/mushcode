@@ -6,11 +6,11 @@
 @wait 2=+bblock Admin=ADMIN
 @wait 2=+bblock Admin=ADMIN
 
-@wait 2=+channel/add [ansi(m,Admin)]
-@wait 2=+channel/add [ansi(hr,Staff Reports)]
+@wait 2=+channel/add Admin=hm
+@wait 2=+channel/add **Staff Alerts**=hr
 
 @wait 3=@chan/on Admin
-@wait 3=@chan/on Staff Reports
+@wait 3=@chan/on **Staff Alerts**
 
 @wait 4=+clock Admin=ADMIN
-@wait 4=+clock Staff Reports=ADMIN
+@wait 4=+clock **Staff Alerts**=ADMIN
