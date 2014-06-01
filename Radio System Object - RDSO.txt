@@ -15,7 +15,7 @@
 &VAR`PLAYFLAGS u(rdso)=INIT|RENAME|TOGGLE|FREQ|KEY|WIPE|RECALL|CODENAME|NOSPOOF|TITLE
 &VAR`ADMINFLAGS u(rdso)=LISTFREQ|MONITOR|EMIT
 
-&CMD`+RADIOSHORT u(rdso)=$^(?s)\.(\\w+)(?\: +(.*))?$:@include u(jail)/INC`JAILCHECK;@include u(rdso)/INC`MAIN=%1,%2
+&CMD`+RADIOSHORT u(rdso)=$^(?s)\.(\w+)(?\: +(.*))?$:@include u(jail)/INC`JAILCHECK;@include u(rdso)/INC`MAIN=%1,%2
 @set u(rdso)/CMD`+RADIOSHORT=regexp
 
 &INC`INIT u(rdso)=@include u(rdso)/INC`SLOTNAMECHECK;@break hasattr(%#/D`RADIO`%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: That slot already exists!;@include u(rdso)/INC`FREQCHECK=%1;&D`RADIO`%0 %#=%1;&D`RADIO`%0`NAME %#=%0;@nspemit %#=u(RFN`MSGHEAD) Slot '%0' initialized and tuned to Frequency '%1'.
