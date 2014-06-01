@@ -8,17 +8,25 @@
 &CMD`+WATCH u(wso)=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(wso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(wso)/VAR`ADMINFLAGS)),|,|),|,WATCH,switch,switch;@include u(wso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(wso)/CMD`+WATCH=regexp
 
-&INC`MAIN u(wso)=@assert words(setr(list,filterbool(u(wso)/FILTER_ISOBJID,get(%#/D`WATCH),%B,|)),|)=@nspemit %#=ERROR: You have no friends on watch!;@nspemit %#=header(Your Friends);th iter(lnum(1,ceil(fdiv(words(%q<list>,|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),|,|),ljust(pueblize(name(%i0),finger [name(%i0)]),60)[if(gte(conn(%i0),0),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3)))],|,%R)));@nspemit %#=header();
+&RFN`MSGHEAD u(wso)=msghead(v(VAR`MSGHEAD))
+&VAR`MSGHEAD u(wso)=WATCH
 
-&INC`ADD u(wso)=@assert strlen(%0)=@nspemit %#=ERROR: No player entered to add.;@assert isdbref(setr(p,pmatch(%0)))=@nspemit %#=ERROR: %0 does not match a player.;@break match(get(%#/D`WATCH),objid(%qp))=@nspemit %#=ERROR: They are already a friend.;&D`WATCH %#=filterbool(FILTER_ISOBJID,setunion(get(%#/D`WATCH),objid(%qp)));@nspemit %#=name(%qp) added to your Friends list!
+&INC`MAIN u(wso)=@assert words(setr(list,sort(filterbool(FILTER_ISOBJID,get(%#/D`WATCH)),namei)),|)=@nspemit %#=u(RFN`MSGHEAD) ERROR: You have no friends on watch!;@nspemit %#=header(Your Friends);@dolist/inline %q<list>={@nspemit %#=ljust(pueblize(name(%i0),finger [name(%i0)]),60)[switch(t(conn(%i0))[cor(hidden(%i0),hasflag(%i0,DARK))][isadmin(%#)],10*,ansi(hg,ago(idle(%i0))),110,ansi(hx,elements(get(%i0/LAST),2 3)),111,ansi(hx,ago(idle(%i0))))]};@nspemit %#=header()
 
-&INC`DEL u(wso)=@assert strlen(%0)=@nspemit %#=ERROR: No player entered to remove.;@assert isdbref(setr(p,pmatch(%0)))=@nspemit %#=ERROR: %0 does not match a player.;@assert match(get(%#/D`WATCH),objid(%qp))=@nspemit %#=ERROR: They are not a friend.;&D`WATCH %#=filterbool(FILTER_ISOBJID,setdiff(get(%#/D`WATCH),objid(%qp)));@nspemit %#=name(%qp) removed from your Friends list!
+&INC`ADD u(wso)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No player entered to add.;@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@break match(get(%#/D`WATCH),%q<t1objid>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: They are already a friend.;&D`WATCH %#=filterbool(FILTER_ISOBJID,setunion(get(%#/D`WATCH),%q<t1objid>));@nspemit %#=u(RFN`MSGHEAD) %q<t1name> added to your Friends list!
+
+&INC`DEL u(wso)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No player entered to remove.;@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@assert match(get(%#/D`WATCH),%q<t1objid>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: They are not a friend.;&D`WATCH %#=filterbool(FILTER_ISOBJID,setdiff(get(%#/D`WATCH),%q<t1objid>));@nspemit %#=u(RFN`MSGHEAD) %q<t1name> removed from your Friends list!
 
 &FILTER_ISOBJID u(wso)=isobjid(%0)
 
 &VAR`PLAYFLAGS u(wso)=ADD|DEL
 
-&PLAYER`CONNECT`WATCH u(wso)=@break cor(hasflag(%0,DARK),hidden(%0));@break gt(%1,1);@nspemit/list lsearch(all,eplayer,\[match(get(##/D`WATCH),\%0)\])=announce(FRIEND)%B[name(%0)] has connected.
+&PLAYER`CONNECT`WATCH u(wso)=@break cor(hasflag(%0,DARK),hidden(%0));@break gt(%1,1);@nspemit/list filterbool(#lambda/match(get(\%0/D`WATCH),%0),setunion(lwho(),))=u(RFN`MSGHEAD) [name(%0)] has connected.
 
-&PLAYER`DISCONNECT`WATCH u(wso)=@break cor(hasflag(%0,DARK),hidden(%0));@break gte(%1,1);@nspemit/list lsearch(all,eplayer,\[match(get(##/D`WATCH),\%0)\])=announce(FRIEND)%B[name(%0)] has disconnected.
+&PLAYER`CONNECT`MAIL u(wso)=@wait 2=@pemit %0=[ansi(yh,You have [elements(mail(%0),2)] unread @mail(s) in your inbox)]
 
+&PLAYER`DISCONNECT`WATCH u(wso)=@break cor(hasflag(%0,DARK),hidden(%0));@break gte(%1,1);@nspemit/list filterbool(#lambda/match(get(\%0/D`WATCH),%0),setunion(lwho(),))=u(RFN`MSGHEAD) [name(%0)] has disconnected.
+
+@@ COMMUNITY - WATCH
++help/addmain Community/Watch=[u(wso)]/HLP`WATCH
+&HLP`WATCH u(wso)=The Watch system alerts you as friends connect and disconnect.%R[ansi(hc,Aliases:)] +friend, friend, watch, wf, +wf%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+watch)] - Will display all friends on your list and their status.%R[ansi(h,+watch/add <name>)] - Adds a player to your watch list.%R[ansi(h,+watch/del <name>)] - Removes a player from your watch list.})]

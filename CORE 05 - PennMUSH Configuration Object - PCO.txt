@@ -1,11 +1,11 @@
 @@ DEPENDENCIES - CORE
 
-@switch/inline isdbref(u(pco))=0,{@tel create(PennMUSH Configuration Object <PCO>)=config(master_room)}
-&pco u(coi)=locate(config(master_room),PennMUSH Configuration Object <PCO>,TXxi)
+@switch/inline isdbref(u(pco))=0,{@tel create(PennMUSH Configuration Object <PCO>)=u(coi)}
+&pco u(coi)=locate(u(coi),PennMUSH Configuration Object <PCO>,TXxi)
 @parent u(pco)=u(coi)
 @set u(pco)=WIZARD SAFE
 
-&STARTUP u(pco)=@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc playstatus order SAY_FN NONE_FN={@attribute/access/retroactive %i0=visual};@dolist/inline D JOBSB JOSH={@attribute/access/retroactive %i0=mortal_dark WIZARD};@include u(pco)/STARTUP`EXTRA
+&STARTUP u(pco)=@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc playstatus SAY_FN NONE_FN={@attribute/access/retroactive %i0=visual};@dolist/inline D JOBSB JOSH={@attribute/access/retroactive %i0=mortal_dark WIZARD};@include u(pco)/STARTUP`EXTRA
 
 &PLAYER`DISCONNECT`TELGUEST u(pco)=@break %1;@switch/inline gt(haspower(%0,GUEST),0)=1,{@tel %0=firstof(v(VAR`GUESTROOM),config(player_start),#0)}
 

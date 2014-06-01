@@ -5,30 +5,83 @@
 @parent u(pot)=u(coi)
 @set u(pot)=WIZARD SAFE !NO_COMMAND
 
-&FUN`MAIN u(pot)=null(if(ISIC(%#),attrib_set(%l/[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])]`TYPE,switch(before(%u,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:))[attrib_set(%l/%q<potattr>,after(%u,%B))][attrib_set(%l/%q<potattr>`BY,%#)][attrib_set(%l/%q<potattr>`WHEN,secs())][iter(filterbool(#lambda/gte(sub(secs(),get(%l/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%l/POT`POSES`*)),wipe(%l/%i0))]))
+@switch/inline isdbref(u(potdb))=0,{@tel create(Pose Tracker Database <POTDB>)=u(pot)}
+&potdb u(coi)=locate(u(pot),Pose Tracker Database <POTDB>,TXxi)
+@parent u(potdb)=u(coi)
+@set u(potdb)=WIZARD SAFE !NO_COMMAND
 
-&INC`ALTMAIN u(pot)=@switch/inline not(hastype(%l,ROOM))=1,{@assert isic(%#)};&[setr(potattr,POT`POSES`[nextslot(%l,POT`POSES)])]`TYPE %l=switch(before(%0%1,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:);&%q<potattr> %l=after(%0%1,%B);&%q<potattr>`BY %l=%#;&%q<potattr>`WHEN %l=secs();@switch/inline strmatch(parent(%l),u(vroom))=1,{&%q<potattr>`VLOC %l=get(%l/LOC-%#)}
+@@ &FUN`MAIN u(pot)=null(if(ISIC(%#),attrib_set(setr(potdb,u(potdb))/[setr(potattr,%l`[nextslot(%q<potdb>,%l)])]`TYPE,switch(before(%u,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:))[attrib_set(%q<potdb>/%q<potattr>,after(%u,%B))][attrib_set(%q<potdb>/%q<potattr>`BY,%#)][attrib_set(%q<potdb>/%q<potattr>`WHEN,secs())][iter(filterbool(#lambda/gte(sub(secs(),get(%q<potdb>/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%q<potdb>/%l`*)),wipe(%q<potdb>/%i0))]))
 
-@@ ALTMAin is for Scenesys Compatability.
+&INC`ALTMAIN u(pot)=@assert isic(%#);&[setr(potattr,setr(loc,uldefault(%l/D`CUSTLOC,%l,%#))`[nextslot(setr(potdb,u(potdb)),%q<loc>)])]`TYPE %q<potdb>=switch(before(%0%1,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:);&D`LASTPOSE`TYPE %#=switch(before(%0%1,%B),@EMIT,|,SAY,",SEMIPOSE,;,POSE,:);&%q<potattr> %q<potdb>=after(%0%1,%B);&D`LASTPOSE %#=after(%0%1,%B);&D`LASTPOSE`SUMMARY %#;&%q<potattr>`BY %q<potdb>=%#;&%q<potattr>`WHEN %q<potdb>=secs();&D`LASTPOSE`WHEN %#=secs();@switch/inline gt(nattr(%q<potdb>/%q<loc>`*),300)=1,{@dolist/inline elements(sortkey(#lambda/last(\%0,`),lattr(%q<potdb>/%q<loc>`*),n),lnum(1,sub(%q<count>,300)))=@wipe %q<potdb>/%i0}
+
+@@ ALTMAIN is for Scenesys Compatability.
 
 &GFN`ISIC u(gfo)=t(default(loc(%0)/IC,1))
 
-&CMD`+POT u(pot)=$^(?\:\+)?pot(?\:/(\S+)?)?(?\: +(.+))?(?\:=(.+))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(pot)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(pot)/VAR`ADMINFLAGS)),|,|),|,POT,switch,switch;@include u(pot)/INC`[strfirstof(%1,MAIN)]=%2,%3
+&CMD`+SUMMARY u(pot)=$+summary *:@break gt(strlen(%0),1024)=@pemit %#=ansi(hr,That summary is too long.;@remit %l=ansi(h,>>> SUMMARY - [fullname(%#)] <<< - %0);&D`LASTPOSE`SUMMARY %#=%0
+
+&CMD`+POT u(pot)=$^(?\:\+)?pot(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.+))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(pot)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(pot)/VAR`ADMINFLAGS)),|,|),|,POT,switch,switch;@include u(pot)/INC`[strfirstof(%1,MAIN)]=%2,%3
 @set u(pot)/CMD`+pot=regexp
 
-&SAY_FN u(ap)=color(%!,",MAIN`QUOTE,n)[color(%!,%0,MAIN`SPEECH,n)][color(%!,",MAIN`QUOTE,n)]
+&VAR`PLAYFLAGS u(pot)=LAST|MAX|LIST|SUMMARY|MODE
 
-&INC`MAIN u(pot)=@switch/inline t(strlen(%0))=1,{@assert valnum(%0)=@nspemit %#=announce(POT) ERROR: Last number of poses must be a whole, positive number.};@assert words(setr(poses,revwords(elements(revwords(filterbool(#lambda/cand(lte(sub(secs(),get(%l/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),if(strmatch(parent(%l),u(vroom)),strmatch(get(%l/\%0`VLOC),get(%l/LOC-%#)),1)),sortkey(#lambda/last(\%0,`),lattr(%l/POT`POSES`*)))),lnum(1,firstof(%0,get(%#/POT`MAX),15))))))=@nspemit %#=No recent poses tracked in this location.;@nspemit %#=header(Recent Poses);@dolist/inline %q<poses>={@nspemit %#=subheader(name(get(%l/%i0`BY)) posed [trim(timestring(sub(secs(),get(%l/%i0`WHEN))))] Ago);@nspemit %#=speak(get(%l/%i0`BY),[get(%l/%i0`TYPE)][trim(get(%l/%i0),%R)],says\,,%#/SAY_FN,%#/NONE_FN)};@nspemit %#=header(End of Poses)
+&INC`MAIN u(pot)=@switch/inline default(%#/D`POT`MODE,0)=0,{@include u(pot)/INC`LIST},1,{@include u(pot)/INC`SUMMARY}
 
-&INC`MAX u(pot)=@assert valnum(%0)=@nspemit %#=You must enter a whole number greater than 0 for your maximum poses!;&POT`MAX %#=%0;@nspemit %#=announce(POT) You will now see only the last %0 poses in +pot.
+&INC`SUMMARY u(pot)=
 
-&STARTUP u(pot)=@dolist/inline SAY SEMIPOSE POSE @EMIT={@hook/before %i0=u(pot),FUN`MAIN};@attribute/access/retroactive POT=WIZARD MORTAL_DARK;@trigger u(pot)/TRG`SELFCLEAN
+&INC`LAST u(pot)=@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@assert strmatch(loc(%q<t1>),%l)=@nspemit %#=u(RFn`MSGHEAD) %q<t1name> is not in the room!;@assert cand(hasattrval(%q<t1>/D`LASTPOSE),lte(setr(ago,sub(secs(),get(%q<t1>/D`LASTPOSE`WHEN))),mul(60,60,2)))=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> hasn't posed recently.;@assert strmatch(get(%q<t1>/D`LASTPOSE`WHERE),%l)=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> hasn't posed in this room.;@nspemit %#=header(%q<t1name>'s Last Pose [etime(%q<ago>,3)] Ago);@nspemit %#=u(%#/[switch(get(%q<t1>/D`LASTPOSE`TYPE),",say,|,emit,:,pose,;,semipose)]format,,,,%q<t1name>,trim(get(%q<t1>/D`LASTPOSE),%R));@nspemit %#=header()
 
-&TRG`SELFCLEAN u(pot)=@switch/inline gt(v(VAR`SELFCLEAN),0)=1,{@dolist/inline lsearch(all,eroom,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0;@dolist/inline lsearch(all,ething,\[nattr(##/POT`POSES`*)\])=@trigger u(pot)/TRG`DOCLEAN=%i0};@wait mul(60,v(var`checkminutes))=@trigger u(pot)/TRG`SELFCLEAN
+&INC`MODE u(pot)=&D`POT`MODE %#=setr(mode,if(default(%#/D`POT`MODE,0),0,1));@nspemit %#=u(RFN`MSGHEAD) +pot will now default to +pot/[if(%q<mode>,summary,list)]
 
-&TRG`DOCLEAN u(pot)=@dolist/inline filterbool(#lambda/gte(sub(secs(),get(%0/\%0`WHEN)),mul(3600,v(VAR`TIMEOUTHOURS))),lattr(%0/POT`POSES`*))=@wipe %0/%i0
+&INC`LIST u(pot)=@switch/inline t(strlen(%0))=1,{@assert valnum(%0)=@nspemit %#=announce(POT) ERROR: Last number of poses must be a whole, positive number.};@assert words(setr(poses,revwords(elements(revwords(sortkey(#lambda/last(\%0,`),lattr(u(potdb)/[uldefault(%l/D`CUSTLOC,%#)]`*))),lnum(1,firstof(%0,get(%#/D`POT`MAX),15))))))=@nspemit %#=No recent poses tracked in this location.;@nspemit %#=header(Recent Poses);@dolist %q<poses>={@nspemit %#=separator(u(%#/colornames,name(setr(spk,get(u(potdb)/%i0`BY)))) posed [trim(etime(sub(secs(),get(u(potdb)/%i0`WHEN)),3))] Ago);@nspemit %#=u(%#/[switch(get(u(potdb)/%i0`TYPE),",say,|,emit,:,pose,;,semipose)]format,,,,name(get(u(potdb)/%i0`BY)),trim(get(u(potdb)/%i0),%R));@switch/inline eq(inum(0),words(%q<poses>))=1,{@nspemit %#=header(End of Poses)}}
+
+&INC`MAX u(pot)=@assert valnum(%0)=@nspemit %#=You must enter a whole number greater than 0 for your maximum poses!;&D`POT`MAX %#=%0;@nspemit %#=announce(POT) You will now see only the last %0 poses in +pot.
+
+&TRG`SELFCLEAN u(pot)=@switch/inline gt(v(VAR`SELFCLEAN),0)=1,{@dolist/inline lattr(u(potdb)/*)=@trigger u(pot)/TRG`DOCLEAN=%i0;@wait mul(60,v(var`checkminutes))=@trigger u(pot)/TRG`SELFCLEAN
+
+&TRG`DOCLEAN u(pot)=@dolist/inline filterbool(#lambda/gte(sub(secs(),get(u(potdb)/\%0`WHEN)),mul(60,60,v(VAR`TIMEOUTHOURS))),lattr(u(potdb)/%0`*))=@wipe %0/%i0
 
 &VAR`SELFCLEAN u(pot)=1
-&VAR`PLAYFLAGS u(pot)=MAX
 &VAR`TIMEOUTHOURS u(pot)=2
-&VAR`CHECKMINUTES u(pot)=10
+&VAR`CHECKMINUTES u(pot)=30
+
+&STARTUP u(pot)=@dolist/inline @EMIT POSE SAY SEMIPOSE={@hook/override/inline %i0=u(pot),OVERRIDE`IC};@trigger u(pot)/TRG`SELFCLEAN
+
+&OVERRIDE`IC u(pot)=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@include u(pot)/OVERRIDE`%1=%b%2
+@set u(pot)/OVERRIDE`IC=regexp
+
+&D`CUSTLOC u(vroom)=%!_[default(me/LOC-%0,v(default-startingroom))]
+&D`CUSTRECP u(vroom)=edit(wildgrep(me,LOC-*,default(me/LOC-%0,v(default-startingroom))),LOC-,)
+
+&OVERRIDE`@EMIT u(pot)=$@emit*:@assert cor(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,|%qp)); @include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=@EMIT,%0;@message/spoof uldefault(%l/D`CUSTRECP,lcon(%l),%#)=%qr,emitformat,%0,%#,%n,accname(%#),%qp,%qR,,u(fn`islogged,%N,%:,%qr);@include me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(trimpenn(%qr,%t,r),%r),%:
+
+&OVERRIDE`POSE u(pot)=$pose*:@assert cor(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,:%qp));@include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=POSE,%0;@message/spoof uldefault(%l/D`CUSTRECP,lcon(%l),%#)=%qr,poseformat,%0,%#,%n,accname(%#),%qp,%qr,,u(fn`islogged,%N,%:,%qr); @include me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
+
+&OVERRIDE`SAY u(pot)=$say*:@assert cor(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,%qp));@include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=SAY,%0;@message/spoof uldefault(%l/D`CUSTRECP,lcon(%l),%#)=%qr,sayformat,%0,%#,%n,accname(%#),%qp,%qr,udefault(%#/saymodifier,says,%qp),u(fn`islogged,%N,%:,%qr);@include/nobreak me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
+
+&OVERRIDE`SEMIPOSE u(pot)=$semipose*:@assert or(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th setr(r,speak(&%N,;%qp));@include/nobreak me/include`lastpose`prepose=%qr,%:;@include u(pot)/INC`ALTMAIN=SEMIPOSE,%0;@message/spoof uldefault(%l/D`CUSTRECP,lcon(%l),%#)=%qr,semiposeformat,%0,%#,%n,accname(%#),%qp,%qr,,,u(fn`islogged,%N,%:,%qr);@include/nobreak me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
+
+@@ &INCLUDE`LASTPOSE`PREPOSE u(pot)=@assert isic(%#);@nsremit %l=%B
+
+@@ &INCLUDE`LASTPOSE`POSTPOSE u(pot)=@assert isic(%#);@nsremit %l=%B
+
+&EMITFORMAT u(ap)=colornames(speak(&%3,|%4,says\,,SAY_FN,NONE_FN),%!,lplayers(loc(%!)),IC)
+&LASTPOSE u(ap)=Sets the Header and Footer items to default to 'true' or 'false' (1 or 0), around a pose. See include`lastpose`prepose and include`lastpose`postpose editing them. Or use the POSE/SAY/EMIT/SEMIPOSE-format attributes to prepend %7. We HIGHLY suggest at least one of these is activated in some way or another!
+&LASTPOSE`POST u(ap)=1
+&LASTPOSE`PRE u(ap)=1
+&POSEFORMAT u(ap)=colornames(speak(&%3,:%4,says\,,SAY_FN,NONE_FN),%!,lplayers(loc(%!)),IC)
+&SAY_FN u(ap)=ansi(custcolor(%!,IC`QUOTES),")[ansi(custcolor(%!,IC`SPEECH),colornames(%0,%!,lplayers(loc(%!)),IC))][ansi(custcolor(%!,IC`QUOTES),")]
+&SAYFORMAT u(ap)=colornames(speak(&%3,"%4,says\,,SAY_FN,NONE_FN),%!,lplayers(loc(%!)),IC)
+&SEMIPOSEFORMAT u(ap)=colornames(speak(&%3,;%4,says\,,SAY_FN,NONE_FN),%!,lplayers(loc(%!)),IC)
+
+th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),IC,|,|))
+&VAR`CATEGORIES`IC u(cco-db)=SPEECH|QUOTES|MYNAME|OTHERNAME|SPEAKERNAME
+&COLOR`IC`SPEECH u(pco)=hx
+&COLOR`IC`QUOTES u(pco)=hx
+&COLOR`IC`MYNAME u(pco)=r
+&COLOR`IC`SPEAKERNAME u(pco)=g
+&COLOR`IC`OTHERNAME u(pco)=c
+
+@@ POSE ORDER TRACKER - POT
++help/addmain Communications/+pot=[u(pot)]/HLP`+POT
+&HLP`+POT u(pot)=+pot, or [ansi(h,Po)]se [ansi(h,T)]racker, is a system that stores poses within the room for easy retrieval for review. Sometimes, poses are lost in spam or scroll, or a player enters late and needs to see what's going on, or was disconnected when someone else posed, and that's what this system's here to aid with.%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+pot)] - show the last 15 (or set max) poses.%R[ansi(h,+pot <number>)] - Show a specified amount of poses.%R[ansi(h,+pot/max <number>)] - Set a new default number of poses to show.})]%R%RPOT records to any object that returns 1 on the isic() function. By default, this is locations that have no IC attribute set or those with 'true' attributes. In short, to disable POT in a location you control: &ic here=0

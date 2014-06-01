@@ -9,10 +9,10 @@
 @wipe u(pgo)/FUN`WHO
 @mvattr u(pgo)/VAR`MAXPLAYERS=u(who)/VAR`MAXPLAYERS
 
-&CMD`+WHO u(who)=$^(?\:\+)?who(?\:/(\S+))?$:@switch/inline gt(strlen(%1),0)=1,{@include u(ccs)/INC`PARTIAL=%1,v(DAT`MODES),|,WHO,mode,mode},{th setq(mode,name)};@nspemit %#=header(mudname()'s Online Players);@nspemit %#=trim(iter(u(DAT`FIELDS`%q<mode>),[switch(1,strmatch(elements(%i0,4,~),-),center,strmatch(elements(%i0,4,~),<),ljust,strmatch(elements(%i0,4,~),>),rjust,ljust)](capnames(elements(%i0,2,~)),elements(%i0,3,~)),|,%b));@nspemit %#=subheader();th setq(list,filtervis(%#,setunion(lwho(%#),),WHO));th setq(sort,getstat(u(who)/DAT`MODES`SORT,%q<mode>));th setq(sortlist,sortkey(#lambda/u(FUN`GET,\%0,before(%q<sort>,~)),%q<list>,after(%q<sort>,~)));@dolist/inline %q<sortlist>={@nspemit %#=u(FUN`WHO,%i0,%#,%q<mode>)};@switch/inline gt(setr(max,words(setunion(iter(%q<list>,get(%i0/LASTIP)),))),v(VAR`MAXPLAYERS))=1,{&VAR`MAXPLAYERS u(who)=%q<max>};@nspemit %#=header(words(%q<list>) Characters from %q<max> IPs Connected - Record is [v(VAR`MAXPLAYERS)])
+&CMD`+WHO u(who)=$^(?\:\+)?who(?\:/(\S+))?$:@switch/inline gt(strlen(%1),0)=1,{@include u(ccs)/INC`PARTIAL=%1,v(DAT`MODES),|,WHO,mode,mode},{th setq(mode,name)};@nspemit %#=header(mudname()'s Online Players);@nspemit %#=trim(iter(u(DAT`FIELDS`%q<mode>),[switch(1,strmatch(elements(%i0,4,~),-),center,strmatch(elements(%i0,4,~),<),ljust,strmatch(elements(%i0,4,~),>),rjust,ljust)](capnames(elements(%i0,2,~)),elements(%i0,3,~)),|,%b));@nspemit %#=subheader();th setq(list,filtervis(%#,setunion(lwho(%#),),WHO));th setq(sort,getstat(u(who)/DAT`MODES`SORT,%q<mode>));th setq(sortlist,sortkey(#lambda/u(FUN`GET,\%0,before(%q<sort>,~)),%q<list>,after(%q<sort>,~)));@switch/inline gt(setr(max,words(setunion(iter(%q<list>,get(%i0/LASTIP)),))),v(VAR`MAXPLAYERS))=1,{&VAR`MAXPLAYERS u(who)=%q<max>};@dolist %q<sortlist>={@nspemit %#=u(FUN`WHO,%i0,%#,%q<mode>);@switch/inline eq(inum(0),words(%q<sortlist>))=1,{@nspemit %#=header(words(%q<list>) Characters from %q<max> IPs Connected - Record is [v(VAR`MAXPLAYERS)])}}
 @set u(who)/CMD`+WHO=regexp
 
-&FUN`WHO u(who)=trim(iter(u(DAT`FIELDS`%2),[setq(get,u(FUN`GET[if(hasattr(me,FUN`GET`[elements(%i0,1,~)]`FORMAT),`[elements(%i0,1,~)]`FORMAT)],%0,elements(%i0,1,~),%1,1))][if(elements(%i0,7,~),setq(get,left(%q<get>,elements(%i0,7,~))))][setq(color,color(%1,%q<get>,WHO`[elements(%i0,1,~)],strfirstof(u(DAT`COLOR`[elements(%i0,1,~)],%0),n)))][setq(show,if(hasattr(me,DAT`PUEBLIZE`[elements(%i0,1,~)]),pueblize(%q<color>,u(DAT`PUEBLIZE`[elements(%i0,1,~)],%0)),%q<color>))][ljust([switch(1,strmatch(elements(%i0,6,~),-),center,strmatch(elements(%i0,6,~),<),ljust,strmatch(elements(%i0,6,~),>),rjust,ljust)](%q<show>,elements(%i0,5,~)),elements(%i0,5,~))],|))
+&FUN`WHO u(who)=trim(iter(u(DAT`FIELDS`%2),[setq(get,u(FUN`GET[if(hasattr(me,FUN`GET`[elements(%i0,1,~)]`FORMAT),`[elements(%i0,1,~)]`FORMAT)],%0,elements(%i0,1,~),%1,1))][if(elements(%i0,7,~),setq(get,left(%q<get>,elements(%i0,7,~))))][setq(color,ansi(custcolor(%1,WHO`[elements(%i0,1,~)],strfirstof(u(DAT`COLOR`[elements(%i0,1,~)],%0),n)),%q<get>))][setq(show,if(hasattr(me,DAT`PUEBLIZE`[elements(%i0,1,~)]),pueblize(%q<color>,u(DAT`PUEBLIZE`[elements(%i0,1,~)],%0)),%q<color>))][ljust([switch(1,strmatch(elements(%i0,6,~),-),center,strmatch(elements(%i0,6,~),<),ljust,strmatch(elements(%i0,6,~),>),rjust,ljust)](%q<show>,elements(%i0,5,~)),elements(%i0,5,~))],|))
 
 &FUN`GET u(who)=switch(%1,NAME,name(%0),ALIAS,alias(%0),SEX,switch(get(%0/SEX),M*,Male,F*,Female,N*,Neuter,?),CONN,conn(%0),IDLE,idle(%0),u(FUN`GET`%1,%0))
 &FUN`GET`IDLE`FORMAT u(who)=edit(elements(etimefmt($zxD $zxH $zxM $xS,idle(%0)),1 2),%b,)
@@ -31,3 +31,7 @@
 &DAT`COLOR`CONN u(who)=hg
 
 &STARTUP u(who)=@hook/override WHO=u(who),CMD`+WHO
+
+@@ COMMUNITY - WHO
++help/addmain Community/+who=[u(who)]/HLP`+WHO
+&HLP`+WHO u(who)=[ansi(hc,Aliases:)] who%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+who)] - Show all visible, connected players.})]

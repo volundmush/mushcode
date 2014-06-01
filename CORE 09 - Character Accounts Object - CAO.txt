@@ -12,25 +12,28 @@
 @set u(adb)=WIZARD
 @power u(adb)=many_attribs
 
-&STARTUP u(cao)=@dolist lattr(me/STARTUP`*)=@trigger me/%i0
+@mvattr u(cao)/VAR`STAFF`WIZLIST=u(pco)/WIZLIST
+@wipe u(cao)
+@set u(cao)=SAFE
 
 @@ ****** COMMAND SECTION *******
 &CMD`+ACCOUNT u(cao)=$^(?\:\+)?(account)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`ACCOUNT`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`ACCOUNT`ADMINFLAGS)),|,|),|,ACCOUNT,switch,switch;@include u(cao)/INC`ACCOUNT`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+ACCOUNT=regexp
 
 @@ ****** ACCOUNT SECTION *******
-
 &RFN`ACCOUNT`MSGHEAD u(cao)=msghead(v(VAR`ACCOUNT`MSGHEAD))
 &VAR`ACCOUNT`MSGHEAD u(cao)=ACCOUNT
 
 &RFN`ACCOUNT`HEADER u(cao)=header(%0,,ACCOUNT`BORDER,ACCOUNT`BORDERDOT,ACCOUNT`BORDERTEXT)
 &RFN`ACCOUNT`SEPARATOR u(cao)=separator(%0,,ACCOUNT`BORDER,ACCOUNT`BORDERDOT,ACCOUNT`BORDERTEXT)
+&RFN`ACCOUNT`SUBHEADER u(cao)=subheader(%0,,ACCOUNT`BORDER,ACCOUNT`BORDERDOT,ACCOUNT`BORDERTEXT)
 
 &FILTER`OBJID u(cao)=isobjid(%0)
 
-&FUN`FINDACCOUNT u(cao)=firstof(wildgrepi(u(adb),*,*%0*))
+&FUN`FINDACCOUNT u(cao)=get(%0/D`ACCOUNT)
 
-&GFN`ACCID u(cao)=udefault(u(cao)/FUN`FINDACCOUNT,0,objid(%0))
+&AGFN`ACCID u(cao)=udefault(u(cao)/FUN`FINDACCOUNT,0,objid(pmatch(%0)))
+&AGFN`ALTS u(cao)=filterbool(#lambda/isobjid(\%0),get(u(adb)/[accid(%0)]))
 
 &INC`ACCOUNT`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@switch/inline strlen(%0)=0,{@include u(cao)/INC`ACCOUNT`LIST},{@switch/inline valnum(%0)=1,{@assert hasattr(u(adb)/[setr(accid,%0)])=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: Account ID not found.},{@include u(ccs)/INC`CHECKPC=%0,1,ACCOUNT;@assert gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%q<t1objid>)),0)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: %q<t1name> is not bound to an account.};@include u(cao)/INC`ACCOUNT`SHOW}},{@include u(ccs)/INC`CHECKPC=%#,1,ACCOUNT;@assert gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%q<t1objid>)),0)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: You are not bound to an Account. Please check with an Admin to correct this!;@include u(cao)/INC`ACCOUNT`SHOW}
 
@@ -40,16 +43,16 @@
 
 &INC`ACCOUNT`NEW u(cao)=@break setr(accid,u(u(cao)/FUN`FINDACCOUNT,%:))=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: You are already bound to Account %q<accid>!;&[setr(accid,nextslot(u(adb)))] u(adb)=%:;@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) You are now bound to Account %q<accid>!;@switch/inline gt(v(VAR`ACCOUNT`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ACCOUNT`ALERTSCHANNEL)=%n Bound %oself to new Account: %q<accid>}
 
-&INC`ACCOUNT`BIND u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,ACCOUNT;@switch/inline valnum(%1)=1,{th setq(accid,abs(%1))},{@assert strlen(%1)=u(RFN`ACCOUNT`MSGHEAD) ERROR: Destination Account Empty. It must be an Account ID, player name, or NEW;@switch/inline %1=NEW,{th setq(accid,nextslot(u(adb)))},{@include u(ccs)/INC`CHECKPC=%1,2,ACCOUNT;@assert gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%q<t2objid>)),0)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: That player doesn't have an account.}};@switch/inline gt(setr(oldid,u(u(cao)/FUN`FINDACCOUNT,%q<t1objid>)),0)=1,{&%q<oldid> u(adb)=setdiff(get(u(adb)/%q<oldid>),%q<t1objid>)};&%q<accid> u(adb)=setunion(get(u(adb)/%q<accid>),%q<t1objid>);@nspemit %q<t1>=u(RFN`ACCOUNT`MSGHEAD) You have been Bound to [pueblize(Account %q<accid>,+account %q<accid>)] by %n.;@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) You have Bound %q<t1name> to [pueblize(Account %q<accid>,+account %q<accid>)];@switch/inline gt(v(VAR`ACCOUNT`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ACCOUNT`ALERTSCHANNEL)=%n Bound %q<t1name> to [pueblize(Account %q<accid>,+account %q<accid>)]}
+&INC`ACCOUNT`BIND u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,ACCOUNT;@switch/inline valnum(%1)=1,{th setq(accid,abs(%1))},{@assert strlen(%1)=u(RFN`ACCOUNT`MSGHEAD) ERROR: Destination Account Empty. It must be an Account ID, player name, or NEW;@switch/inline %1=NEW,{th setq(accid,nextslot(u(adb)))},{@include u(ccs)/INC`CHECKPC=%1,2,ACCOUNT;@assert gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%q<t2objid>)),0)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: That player doesn't have an account.}};@switch/inline gt(setr(oldid,u(u(cao)/FUN`FINDACCOUNT,%q<t1objid>)),0)=1,{&%q<oldid> u(adb)=setdiff(get(u(adb)/%q<oldid>),%q<t1objid>)};&%q<accid> u(adb)=setunion(get(u(adb)/%q<accid>),%q<t1objid>);&D`ACCOUNT %q<t1>=%q<accid>;@nspemit %q<t1>=u(RFN`ACCOUNT`MSGHEAD) You have been Bound to [pueblize(Account %q<accid>,+account %q<accid>)] by %n.;@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) You have Bound %q<t1name> to [pueblize(Account %q<accid>,+account %q<accid>)];@switch/inline gt(v(VAR`ACCOUNT`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ACCOUNT`ALERTSCHANNEL)=%n Bound %q<t1name> to [pueblize(Account %q<accid>,+account %q<accid>)]};
 
 &INC`ACCOUNT`UNBIND u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,ACCOUNT;@assert words(setr(accounts,filterbool(#lambda/match(get(u(adb)/\%0),%q<t1objid>),lattr(u(adb)/*))))=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: %q<t1name> is not a member of any accounts.;@dolist %q<accounts>={&%i0 u(adb)=filterbool(#lambda/isobjid(\%0),setdiff(get(u(adb)/%i0),%q<t1objid>,%b,d))};@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) You have removed %q<t1name> from Accounts: [itemize(%q<accounts>,%b,and,\,)];@nspemit %q<t1>=u(RFN`ACCOUNT`MSGHEAD) [ansi(h,%n)] has removed you from Accounts: [itemize(%q<accounts>,%b,and,\,)];@switch/inline gt(v(VAR`ACCOUNT`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ACCOUNT`ALERTSCHANNEL)=%n removed %q<t1name> to from Accounts: [itemize(%q<accounts>,%b,and,\,)]}
 
 &VAR`ACCOUNT`ALERTMODE u(cao)=1
 &VAR`ACCOUNT`ALERTSCHANNEL u(cao)=u(CMO`STAFFREP)
 
-&INC`ACCOUNT`UNBOUND u(cao)=@assert words(setr(unbound,lsearch(all,eplayer,\[not(accid(##))\])))=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) There are no accountless PCs in the Database.;@nspemit %#=u(RFN`ACCOUNT`HEADER,Unbound Characters);@nspemit %#=align(-6 3 3 27 25 9,Dbref,Sta,Alt,Name,IP,Last On);@nspemit %#=u(RFN`ACCOUNT`SEPARATOR);@dolist/inline %q<unbound>={@nspemit %#=align(-6 3 -3 27 25 9,num(%i0),switch(1,isadmin(%i0),ansi(hy,ADM),haspower(%i0,BUILDER),ansi(hm,BUI),approved(%i0),ansi(hg,APP),ansi(hr,---)),default(%i0/D`ALTS,0),pueblize(name(%i0),+finger [name(%i0)]),pueblize(get(%i0/LASTIP),+ip [name(%i0)]),if(gte(conn(%i0),0),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3))))};@nspemit %#=u(RFN`ACCOUNT`HEADER)
+&INC`ACCOUNT`UNBOUND u(cao)=@assert words(setr(unbound,lsearch(all,type,player,elock,!D`ACCOUNT:?*)))=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) There are no accountless PCs in the Database.;@nspemit %#=u(RFN`ACCOUNT`HEADER,Unbound Characters);@nspemit %#=align(-6 3 3 27 25 9,Dbref,Sta,Alt,Name,IP,Last On);@nspemit %#=u(RFN`ACCOUNT`SEPARATOR);@dolist/inline %q<unbound>={@nspemit %#=align(-6 3 -3 27 25 9,num(%i0),switch(1,isadmin(%i0),ansi(hy,ADM),haspower(%i0,BUILDER),ansi(hm,BUI),approved(%i0),ansi(hg,APP),ansi(hr,---)),default(%i0/D`ALTS,0),pueblize(name(%i0),+finger [name(%i0)]),pueblize(get(%i0/LASTIP),+ip [name(%i0)]),if(gte(conn(%i0),0),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3))))};@nspemit %#=u(RFN`ACCOUNT`HEADER)
 
-&INC`ACCOUNT`EMAIL u(cao)=@switch/inline config(player_creation)=Yes,{@assert setr(accid,accid(%q<t1objid>))=@nspemit %#=ERROR: This character is not bound to an Account.;&%q<accid>`EMAIL u(adb)=%0;@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) You have [if(strlen(%0),set your Account email to: %0,unset your Account email.)]},{@assert isadmin(%#)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) Only Staff may set emails!;@include u(ccs)/INC`CHECKPC=%0,1,ACCOUNT;@assert setr(accid,accid(%q<t1objid>))=@nspemit %#=ERROR: %q<t1name> is not bound to an Account.;&%q<accid>`EMAIL u(adb)=%1;@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) %q<t1name>'s Email has been set to: %1}
+&INC`ACCOUNT`EMAIL u(cao)=@switch/inline config(player_creation)=Yes,{@assert setr(accid,accid(%:))=@nspemit %#=ERROR: This character is not bound to an Account.;&%q<accid>`EMAIL u(adb)=%0;@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) You have [if(strlen(%0),set your Account email to: %0,unset your Account email.)]},{@assert isadmin(%#)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) Only Staff may set emails!;@include u(ccs)/INC`CHECKPC=%0,1,ACCOUNT;@assert setr(accid,accid(%q<t1objid>))=@nspemit %#=ERROR: %q<t1name> is not bound to an Account.;&%q<accid>`EMAIL u(adb)=%1;@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) %q<t1name>'s Email has been set to: %1}
 
 &INC`ACCOUNT`DELETE u(cao)=@assert strlen(%0)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: Account ID empty.;@assert valnum(%0)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: Accounts must be whole, positive numbers.;@assert hasattr(u(adb)/%0)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: Account not found.;@include u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will delete Account %0. All records will be deleted. This will not delete any characters! Are you sure? Enter the command again within ten seconds to continue.},ACCOUNT DELETE %0,ACCOUNT;@wipe u(adb)/%0;@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) Account '%0' deleted!;@switch/inline gt(v(VAR`ACCOUNT`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ACCOUNT`ALERTSCHANNEL)=%n deleted Account %0!}
 
@@ -60,11 +63,9 @@
 
 &PLAYER`CONNECT`ACCOUNT u(cao)=@break haspower(%0,GUEST);@assert gt(sub(secs(),csecs(%0)),300);@break accid(%0);@trigger u(cao)/PLAYER`CREATE`ACCOUNT=%0
 
-&STARTUP`CLEANACCOUNTS u(cao)=@trigger u(cao)/TRG`ACCOUNT`CLEANACCOUNTS
+&OBJECT`DESTROY`CLEANACCOUNTS u(cao)=@switch/inline %2=PLAYER,{@assert setr(accid,accid(%0));&%q<accid> u(adb)=filterbool(FILTER`OBJID,get(u(adb)/%q<accid>));@switch/inline gt(words(get(u(adb)/%q<accid>)),0)=0,{@trigger u(cao)/TRG`ACCOUNT`CLEANACCOUNTS`REPORT}}
 
-&TRG`ACCOUNT`CLEANACCOUNTS u(cao)=@dolist filterbool(#lambda/isint(\%0),lattr(u(adb)/*))={&%i0 u(adb)=filterbool(FILTER`OBJID,get(u(adb)/%i0));@switch/inline gt(words(get(u(adb)/%i0)),0)=0,{&VAR`ACCOUNT`DEADACCOUNTS u(cao)=setunion(%i0,v(VAR`ACCOUNT`DEADACCOUNTS),%b,n)}};@wait 20={@trigger u(cao)/TRG`ACCOUNT`CLEANACCOUNTS`REPORT};
-
-&TRG`ACCOUNT`CLEANACCOUNTS`REPORT u(cao)=@switch/inline gt(words(setr(dead,v(VAR`ACCOUNT`DEADACCOUNTS))),0)=1,{@nscemit/noisy u(VAR`ACCOUNT`ALERTSCHANNEL)={ansi(hr,ALERT:) Accounts [itemize(iter(%q<dead>,%i0 ([default(u(adb)/%i0`EMAIL,Email Unset)]),%b,|),|,and,\,)] have no players.[if(v(VAR`ACCOUNT`AUTOWIPE),%bThey have been automatically purged.)]};@switch/inline gt(v(VAR`ACCOUNT`AUTOWIPE),0)=1,{@dolist v(VAR`ACCOUNT`DEADACCOUNTS)=@wipe u(adb)/%i0};@wipe u(cao)/VAR`ACCOUNT`DEADACCOUNTS};@wait 7200=@trigger u(cao)/TRG`ACCOUNT`CLEANACCOUNTS
+&TRG`ACCOUNT`CLEANACCOUNTS`REPORT u(cao)=@switch/inline gt(words(setr(dead,filterbool(#lambda/and(not(strlen(get(u(adb)/\%0))),isint(\%0)),lattr(u(adb)/*)))),0)=1,{@nscemit/noisy u(VAR`ACCOUNT`ALERTSCHANNEL)={ansi(hr,ALERT:) Accounts [itemize(iter(%q<dead>,%i0 ([default(u(adb)/%i0`EMAIL,Email Unset)]),%b,|),|,and,\,)] have no players.[if(v(VAR`ACCOUNT`AUTOWIPE),%bThey have been automatically purged.)]};@switch/inline gt(v(VAR`ACCOUNT`AUTOWIPE),0)=1,{@dolist v(VAR`ACCOUNT`DEADACCOUNTS)=@wipe u(adb)/%i0};@wipe u(cao)/VAR`ACCOUNT`DEADACCOUNTS}
 
 &VAR`ACCOUNT`AUTOWIPE u(cao)=0
 
@@ -95,10 +96,6 @@
 &INC`IP`IP u(cao)=@assert strlen(%0)=@nspemit %#=announce(IP) ERROR: An IP address is required.;@include u(cao)/INC`IP`IPSHOW=%0,1,1
 
 &INC`IP`IPSHOW u(cao)=@assert gt(words(setr(ips,if(%2,%0,setunion(iter(lattr(%0/D`IPLOG`*),get(%0/%i0)),)))),0)=@nspemit %#=announce(IP) ERROR: No IP logs found to match against.;@assert gt(words(setr(pcs,filterbool(#lambda/cand(lt(words(setdiff(setunion(iter(lattr(\%0/D`IPLOG`*),get(\%0/\%i0)),),%q<ips>)),words(setunion(iter(lattr(\%0/D`IPLOG`*),get(\%0/\%i0)),))),if(%1,1,not(haspower(\%0,GUEST)))),lsearch(all,eplayer,\[nattr(##/D`IPLOG`*)\]),%B,|)),|),0)=@nspemit %#=announce(IP) ERROR: No Matching Logs found.;@nspemit %#=header(Site matches for [if(%2,%0,name(%0))][if(%1,%B\(Showing Guests\))]);th iter(lnum(1,ceil(fdiv(words(setr(list,%q<pcs>),|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),%B,|),ljust(ansi(h,pueblize(name(%i0),+finger [name(%i0)])\(%i0\)),50,.)[get(%i0/LAST)]%RRecent Sites: [edit(setunion(iter(lattr(%i0/D`IPLOG`*),get(%i1/%i0)),),get(%i0/LASTIP),ansi(hc,get(%i0/LASTIP)))]%R[ansi(h,Successful Logins:)]%R[iter(filterbool(#lambda/strmatch(SUCCESS,get(%i0/\%0`TYPE)),sort(lattr(%i0/D`IPLOG`*))),From [get(%i1/%i0)] On [convsecs(get(%i1/%i0`WHEN))],%B,%R)]%R[ansi(h,Failed Logins:)]%R[iter(filterbool(#lambda/strmatch(FAILURE,get(%i0/\%0`TYPE)),sort(lattr(%i0/D`IPLOG`*))),From [get(%i1/%i0)] On [convsecs(get(%i1/%i0`WHEN))] Because [get(%i1/%i0`REASON)],%B,%R)]%R,|,%R)));@nspemit %#=header()
-
-&STARTUP`CLEANCONNLOGS u(cao)=@trigger u(cao)/TRG`IP`LOGCLEANER
-
-&TRG`IP`LOGCLEANER u(cao)=@dolist lsearch(all,type,player)=@trigger u(cao)/TRG`IP`CLEANCONNLOGS=%i0;@wait 7200=@trigger u(cao)/TRG`IP`LOGCLEANER
 
 &TRG`IP`CLEANCONNLOGS u(cao)=@assert gt(words(setr(logs,sort(lattr(%0/D`IPLOG`*)))),10);@dolist elements(%q<logs>,1 2)={@wipe %0/%i0}
 
@@ -146,27 +143,28 @@
 
 &VAR`STAFF`ADMINFLAGS u(cao)=ADD|REM|ORDER|ON|OFF|VAC
 
-&INC`STAFF`MAIN u(cao)=@assert words(setr(staff,filterbool(#lambda/isobjid(\%0),iter(sortkey(#lambda/after(\%0,~),get(u(cao)/VAR`STAFF`WIZLIST),n,|,|),before(%i0,~),|,|),|,|)),|)=@nspemit %#=announce(STAFF) ERROR: There are no Staff registered!;@nspemit %#=header(mudname() Staff);@nspemit %#=align(3 13 5 27 12 11,Bit,Name,Alias,Position,Duty,Idle/LastOn);@nspemit %#=SEPARATOR();@dolist/inline/delimit | %q<staff>=@nspemit %#=u(u(cao)/FUN`Staff`WIZLIST,%i0,%#);@nspemit %#=header()
+&INC`STAFF`MAIN u(cao)=@assert words(setr(staff,filterbool(#lambda/isobjid(\%0),iter(sortkey(#lambda/after(\%0,~),get(u(pco)/WIZLIST),n,|,|),before(%i0,~),|,|),|,|)),|)=@nspemit %#=msghead(STAFF) ERROR: There are no Staff registered!;@nspemit %#=header(mudname() Staff);@nspemit %#=align(3 20 3 33 12,Idl,Name,Bit,Position,Duty);@@ @nspemit %#=separator();@dolist/inline/delimit | %q<staff>=@nspemit %#=u(u(cao)/FUN`Staff`WIZLIST,%i0,%#);@switch/inline t(strlen(get(u(pco)/WIZLIST`MSG)))=1,{@nspemit %#=separator();@nspemit %#=u(u(pco)/WIZLIST`MSG)};@nspemit %#=header()
 
-&FUN`STAFF`WIZLIST u(cao)=align(3 13 5 27 12 6 4,switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hb,ROY),hasflag(%0,STAFF),ansi(hg,STF),hasflag(%0,JUDGE),ansi(hy,JDG),ansi(hx,N/A)),left(name(%0),13),left(alias(%0),5),left(default(%0/POSITION,???),27),if(get(%0/VACATION),ansi(c,On Vacation),if(cor(hasflag(%0,DARK),not(hasflag(%0,CONNECTED)),hidden(%0)),ansi(hx,Offline),if(get(%0/duty),ansi(hg,On Duty),ansi(hx,Off Duty)))),lastidle(%0,%1),if(cand(isadmin(%1),cor(hidden(%0),hasflag(%0,DARK))),switch(1,hasflag(%0,DARK),DARK,hidden(%0),HIDE)))
+&FUN`STAFF`WIZLIST u(cao)=align(3 20 3 33 12,switch([gte(conn(%0),0)][cor(hidden(%0),hasflag(%0,DARK))][isadmin(%1)],0*,ansi(hx,Off),111,ansi(hx,etime(idle(%0),4)),10*,ansi(hg,etime(idle(%0),4)),ansi(hx,Off)),name(%0),switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hc,ROY),hasflag(%0,STAFF),ansi(hg,STF),hasflag(%0,JUDGE),ansi(hy,JDG),ansi(hx,N/A)),default(%0/JOB,???),switch(hasflag(%0,VACATION)[gte(conn(%0),0)][cor(hidden(%0),hasflag(%0,DARK))][isadmin(%1)],1*,Vacation,0111,ansi(hx,if(get(%0/duty),On,Off)),0110,ansi(hx,Off),00*,ansi(hx,Off),010*,if(get(%0/duty),ansi(hg,On),ansi(hx,Off))))
 
-&INC`STAFF`ADD u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,STAFF;@break strlen(getstat(u(cao)/VAR`STAFF`WIZLIST,%q<t1objid>))=@nspemit %#=announce(STAFF) ERROR: They are already on the Staff list!;@switch/inline gt(strlen(%1),0)=1,{@assert valnum(%1)=@nspemit %#=announce(STAFF) ERROR: Order Must be a whole positive number.;th setstat(u(cao)/VAR`STAFF`WIZLIST,%q<t1objid>,%1)},0,{th setstat(u(cao)/VAR`STAFF`WIZLIST,%q<t1objid>,setr(order,add(1,iter(get(u(cao)/VAR`STAFF`WIZLIST),last(%i0,~)))))};@nspemit %#=announce(STAFF) You have added %q<t1name> to Staff!;@nspemit %q<t1>=announce(STAFF) You have been added to Staff!;@switch/inline gt(v(VAR`STAFF`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`STAFF`ALERTSCHANNEL)=ansi(h,%n) has added %q<t1name> to Staff!}
+&INC`STAFF`ADD u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,STAFF;@break strlen(getstat(u(pco)/WIZLIST,%q<t1objid>))=@nspemit %#=msghead(STAFF) ERROR: They are already on the Staff list!;@switch/inline gt(strlen(%1),0)=1,{@assert valnum(%1)=@nspemit %#=msghead(STAFF) ERROR: Order Must be a whole positive number.;th setstat(u(pco)/WIZLIST,%q<t1objid>,%1)},0,{th setstat(u(pco)/WIZLIST,%q<t1objid>,setr(order,add(1,iter(get(u(pco)/WIZLIST),last(%i0,~)))))};@nspemit %#=msghead(STAFF) You have added %q<t1name> to Staff!;@nspemit %q<t1>=msghead(STAFF) You have been added to Staff!;@switch/inline gt(v(VAR`STAFF`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`STAFF`ALERTSCHANNEL)=ansi(h,%n) has added %q<t1name> to Staff!}
 
-&INC`STAFF`REM u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,STAFF;@assert strlen(getstat(u(cao)/VAR`STAFF`WIZLIST,%q<t1objid>))=@nspemit %#=announce(STAFF) ERROR: They are not on the Staff list!;@nspemit %#=announce(STAFF) You have removed %q<t1name> from Staff!;@nspemit %q<t1>=announce(STAFF) You have been removed from Staff!;th delstat(u(cao)/VAR`STAFF`WIZLIST,%q<t1objid>);@switch/inline gt(v(VAR`STAFF`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`STAFF`ALERTSCHANNEL)=ansi(h,%n) has removed %q<t1name> from Staff!}
+&INC`STAFF`REM u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,STAFF;@assert strlen(getstat(u(pco)/WIZLIST,%q<t1objid>))=@nspemit %#=msghead(STAFF) ERROR: They are not on the Staff list!;@nspemit %#=msghead(STAFF) You have removed %q<t1name> from Staff!;@nspemit %q<t1>=msghead(STAFF) You have been removed from Staff!;th delstat(u(pco)/WIZLIST,%q<t1objid>);@switch/inline gt(v(VAR`STAFF`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`STAFF`ALERTSCHANNEL)=ansi(h,%n) has removed %q<t1name> from Staff!}
 
-&INC`STAFF`VAC u(cao)=@switch/inline t(default(%#/VACATION,0))=0,{@nspemit %#=announce(STAFF) You go On Vacation!;&vacation %#=1},1,{@nspemit %#=announce(STAFF) You come off Vacation!;&vacation %#=0}
+&INC`STAFF`VAC u(cao)=@switch/inline hasflag(%#,VACATION)=0,{@nspemit %#=msghead(STAFF) You go On Vacation!;@set %#=VACATION},1,{@nspemit %#=msghead(STAFF) You come off Vacation!;@set %#=!VACATION}
 
-&INC`STAFF`ORDER u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,STAFF;@assert strlen(getstat(u(cao)/VAR`STAFF`WIZLIST,%q<t1objid>))=@nspemit %#=announce(STAFF) ERROR: They are not on the Staff list!;@assert strlen(%1)=@nspemit %#=announce(STAFF) ERROR: Order field empty.;@assert valnum(%1)=@nspemit %#=announce(STAFF) ERROR: Order Must be a whole positive number.;th setstat(u(cao)/VAR`STAFF`WIZLIST,%q<t1objid>,%1);@nspemit %#=announce(STAFF) You have set %q<t1name>'s Staff order to %1!;@nspemit %q<t1>=%n has set your Staff order to %1!;@switch/inline gt(v(VAR`STAFF`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`STAFF`ALERTSCHANNEL)=ansi(h,%n) has set %q<t1name>'s Staff order to %1!}
+&INC`STAFF`ORDER u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,STAFF;@assert strlen(getstat(u(pco)/WIZLIST,%q<t1objid>))=@nspemit %#=msghead(STAFF) ERROR: They are not on the Staff list!;@assert strlen(%1)=@nspemit %#=msghead(STAFF) ERROR: Order field empty.;@assert valnum(%1)=@nspemit %#=msghead(STAFF) ERROR: Order Must be a whole positive number.;th setstat(u(pco)/WIZLIST,%q<t1objid>,%1);@nspemit %#=msghead(STAFF) You have set %q<t1name>'s Staff order to %1!;@nspemit %q<t1>=%n has set your Staff order to %1!;@switch/inline gt(v(VAR`STAFF`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`STAFF`ALERTSCHANNEL)=ansi(h,%n) has set %q<t1name>'s Staff order to %1!}
 
-&INC`STAFF`ON u(cao)=@switch/inline t(default(%#/DUTY,0))=1,{@nspemit %#=announce(STAFF) You are already On-duty!},0,{@nspemit %#=announce(STAFF) You are now ON DUTY!;&duty %#=1;@switch/inline nor(hasflag(%#,DARK),hidden(%#))=1,{@nscemit/noisy u(CMO`PUBLIC)=[ansi(h,%n)] is now ON DUTY!}}
+&INC`STAFF`ON u(cao)=@switch/inline t(default(%#/DUTY,0))=1,{@nspemit %#=msghead(STAFF) You are already On-duty!},0,{@nspemit %#=msghead(STAFF) You are now ON DUTY!;&duty %#=1;@@ @switch/inline nor(hasflag(%#,DARK),hidden(%#))=1,{@nscemit/noisy u(CMO`PUBLIC)=[ansi(h,%n)] is now ON DUTY!}}
 
-&INC`STAFF`OFF u(cao)=@switch/inline t(default(%#/DUTY,0))=0,{@nspemit %#=announce(STAFF) You are already Off-duty!},1,{@nspemit %#=announce(STAFF) You are now OFF DUTY!;&duty %#=0;@switch/inline nor(hasflag(%#,DARK),hidden(%#))=1,{@nscemit/noisy u(CMO`PUBLIC)=[ansi(h,%n)] is now OFF DUTY!}}
+&INC`STAFF`OFF u(cao)=@switch/inline t(default(%#/DUTY,0))=0,{@nspemit %#=msghead(STAFF) You are already Off-duty!},1,{@nspemit %#=msghead(STAFF) You are now OFF DUTY!;&duty %#=0;@@ @switch/inline nor(hasflag(%#,DARK),hidden(%#))=1,{@nscemit/noisy u(CMO`PUBLIC)=[ansi(h,%n)] is now OFF DUTY!}}
 
 &VAR`STAFF`ALERTMODE u(cao)=1
 &VAR`STAFF`ALERTSCHANNEL u(cao)=u(CMO`STAFFREP)
 
-&STARTUP`CLEANSTAFF u(cao)=@trigger u(cao)/TRG`STAFF`CLEANSTAFF
-&TRG`STAFF`CLEANSTAFF u(cao)=&VAR`STAFF`WIZLIST u(cao)=filterbool(#lambda/isobjid(before(\%0,~)),get(u(cao)/VAR`STAFF`WIZLIST),|,|);@wait 7200=@trigger u(cao)/TRG`STAFF`CLEANSTAFF
+&OBJECT`DESTROY`CLEANSTAFF u(cao)=@switch/inline %2=PLAYER,{th delstat(u(pco)/WIZLIST,%0)}
+
+&PLAYER`CONNECT`STAFFDUTY u(cao)=@switch/inline t(getstat(u(pco)/WIZLIST,%0))=1,{@wait 3=@nspemit %0=msghead(STAFF) You are [if(hasflag(%0,DARK),DARK,not Dark)], [if(hidden(%0),Hidden,not Hidden)] and [if(hasflag(%0,VACATION),on Vacation,if(default(%0/duty,0),On Duty,Off Duty))].}
 
 @@ ********* BUILDER SECTION ********
 &CMD`+BUILDER u(cao)=$^(?\:\+)?(builder)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`BUILDER`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`BUILDER`ADMINFLAGS)),|,|),|,BUILDER,switch,switch;@include u(cao)/INC`BUILDER`[strfirstof(%q<switch>,MAIN)]=%3,%4

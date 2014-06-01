@@ -1,7 +1,7 @@
 @@ DEPENDENCIES - CORE
 
-@switch/inline isdbref(u(eh))=0,{@tel create(Event Handler <EH>)=config(master_room)}
-&eh u(coi)=locate(config(master_room),Event Handler <EH>,TXxi)
+@switch/inline isdbref(u(eh))=0,{@tel create(Event Handler <EH>)=u(coi)}
+&eh u(coi)=locate(u(coi),Event Handler <EH>,TXxi)
 @parent u(eh)=u(COI)
 @set u(eh)=WIZARD SAFE
 

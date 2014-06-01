@@ -1,14 +1,14 @@
-@@ DEPENDENCIES - PGO SGO
-@@ Player Globals Object <PGO> is needed to have an actual +help command to use.
-@@ Staff Globals Object <SGO> is needed for the same reason as the PGO.
+@@ DEPENDENCIES - CORE
 
-@@ This script will create default commands +help and +shelp and the objects their files will be stored on.
-@@ Though this system is not required for core functionality, it is highly recommended as all other systems have included help files meant to be used with this help system.
-
-@switch/inline isdbref(u(mco))=0,{@tel create(Help System Object <HSO>)=config(master_room)}
-&hso u(coi)=locate(config(master_room),Help System Object <HSO>,TXxi)
+@switch/inline isdbref(u(hso))=0,{@tel create(Help System Object <HSO>)=u(coi)}
+&hso u(coi)=locate(u(coi),Help System Object <HSO>,TXxi)
 @parent u(hso)=u(coi)
 @set u(hso)=WIZARD SAFE !NO_COMMAND
+
+@switch/inline isdbref(u(help))=0,{@tel create(Dynamic Help Database <HELP>)=u(hso)}
+&help u(coi)=locate(u(hso),Dynamic Help Database <HELP>,TXxi)
+@parent u(help)=u(coi)
+@set u(help)=WIZARD SAFE
 
 @switch/inline cand(isdbref(u(hso)),not(isdbref(get(u(hso)/VAR`HELP))))=1,{th attrib_set(u(hso)/VAR`HELP,create(HELP DATABASE));@tel get(u(hso)/VAR`HELP)=u(hso);@set get(u(hso)/VAR`HELP)=SAFE}
 
@@ -34,9 +34,9 @@
 
 &INC`SHOW u(hso)=@switch/inline words(%2,/)=0,{@include u(hso)/INC`SHOW`ALL},1,{@include u(hso)/INC`SHOW`TOPIC},2,{@include u(hso)/INC`SHOW`SUB},{@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: %q<comm> supports only 2 maximum arguments for viewing.}
 
-&INC`SHOW`ALL u(hso)=@nspemit %#=header(%q<disp>);@dolist/inline/delimit | [setunion(setr(list1,ucstr(iter(lattr(%q<db>/*`CATEGORY),get(%q<db>/%i0),%b,|))),%q<list1>,|,|)]={@nspemit %#=separator(capnames(%i0));@nspemit %#=table(iter(sortkey(#lambda/get(%q<db>/\%0`NAME),iter(regrepi(%q<db>,*`CATEGORY,^%i0$),before(%i0,`),%b,|),i,|,|),ljust(pueblize(ansi(h,setr(name,get(%q<db>/%i0`NAME))),[lcstr(%q<comm>)] %q<name>)%B,25,.)[rjust(u(u(hso)/FUN`HAVEREAD,%#,%q<ann>,%i0,%q<db>),1)][timefmt($x,get(%q<db>/%i0`TIMESTAMP))],|,|),37,width(%#),|)};@nspemit %#=[separator()]%R%TFor more information on the listed topics, please use '[ansi(h,lcstr(%7) <topic>)]'[if(isadmin(%#),%R%TWizards\, please see [pueblize(ansi(h,lcstr(%q<comm>)/wizhelp),lcstr(%q<comm>)/wizhelp)] for config information.)];@nspemit %#=header()
+&INC`SHOW`ALL u(hso)=@nspemit %#=header(%q<disp>);@dolist/inline/delimit | [setunion(setr(list1,ucstr(iter(lattr(%q<db>/*`CATEGORY),get(%q<db>/%i0),%b,|))),%q<list1>,|,|)]={@nspemit %#=separator(capnames(%i0));@nspemit %#=table(iter(sortkey(#lambda/get(%q<db>/\%0`NAME),iter(regrepi(%q<db>,*`CATEGORY,^%i0$),before(%i0,`),%b,|),i,|,|),ljust(pueblize(ansi(h,setr(name,get(%q<db>/%i0`NAME))),[lcstr(%q<comm>)] %q<name>)%B,25)[rjust(u(u(hso)/FUN`HAVEREAD,%#,%q<ann>,%i0,%q<db>),1)][timefmt($x,get(%q<db>/%i0`TIMESTAMP))],|,|),37,width(%#),|)};@nspemit %#=[separator()]%R%TFor more information on the listed topics, please use '[ansi(h,lcstr(%7) <topic>)]'[if(isadmin(%#),%R%TWizards\, please see [pueblize(ansi(h,lcstr(%q<comm>)/wizhelp),lcstr(%q<comm>)/wizhelp)] for config information.)];@nspemit %#=header()
 
-&FUN`HAVEREAD u(hso)=switch(1,gt(get(%3/%2`TIMESTAMP),getstat(%0/PDATA`%1`HAVEREAD,%2)),ansi(hr,*),t(words(filterbool(#lambda/gt(get(%3/\%0`TIMESTAMP),getstat(%0/PDATA`%1`HAVEREAD,%2_\[last(\%0,`)])),lattr(%3/%2`SUB`*)))),ansi(y,&),%B)
+&FUN`HAVEREAD u(hso)=switch(1,gt(get(%3/%2`TIMESTAMP),getstat(%0/D`HELPREAD`%1`HAVEREAD,%2)),ansi(hr,*),t(words(filterbool(#lambda/gt(get(%3/\%0`TIMESTAMP),getstat(%0/D`HELPREAD`%1`HAVEREAD,%2_\[last(\%0,`)])),lattr(%3/%2`SUB`*)))),ansi(y,&),%B)
 
 &INC`FINDMAIN u(hso)=@assert strlen(%qa)=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: [capnames(%q<ann>)]file name segment empty.;@include u(ccs)/INC`PARTIAL=%qa,iter(u(u(hso)/FUN`LISTTOP,%q<db>),get(%q<db>/%i0`NAME),%B,|),|,%6,choice,%q<ann>file;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%q<choice>))=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: [capnames(%q<ann>)]file %qa not found!
 
@@ -51,11 +51,11 @@
 &FUN`LISTSUB u(hso)=lattr(%0/%1`SUB`*)
 &FUN`SUBEXIST u(hso)=t(u(u(hso)/FUN`FINDSUB,%0,%1,%2))
 
-&INC`SHOW`TOPIC u(hso)=@include u(hso)/INC`FINDMAIN;@nspemit %#=header(%q<comm>: [setr(name,get(%q<db>/%q<topid>`NAME))]);@switch/inline isdbref(before(first(setr(contents,get(%q<db>/%q<topid>`CONTENTS))),/))=1,{@nspemit %#=u(before(first(setr(contents,get(%q<db>/%q<topid>`CONTENTS))),/)/[after(first(setr(contents,get(%q<db>/%q<topid>`CONTENTS))),/)])},0,{@nspemit %#=%q<contents>};@switch/inline t(setr(count,words(setr(subs,sortkey(#lambda/get(%q<db>/\%0`NAME),lattr(%q<db>/%q<topid>`SUB`*,|),i,|,|)),|)))=1,{@nspemit %#=subheader(Subfiles)%R%TTo read subfiles, use '[ansi(h,%q<comm> %q<name>/<file>)]';@nspemit %#=table(iter(%q<subs>,ljust(pueblize(ansi(h,setr(subname,get(%q<db>/%i0`NAME))),lcstr(%q<comm>) %q<name>/%q<subname>)%B,24,.)[rjust(u(u(hso)/FUN`HAVEREADSUB,%#,q<ann>,%q<db>,%q<topid>,%i0),%B,1)][timefmt($x,get(%q<db>/%i0`TIMESTAMP))],|,|),37,width(%#),|)};@nspemit %#=header();th setstat(%#/PDATA`%q<ann>`HAVEREAD,%q<topid>,secs())
+&INC`SHOW`TOPIC u(hso)=@include u(hso)/INC`FINDMAIN;@nspemit %#=header(%q<comm>: [setr(name,get(%q<db>/%q<topid>`NAME))]);@switch/inline isdbref(before(first(setr(contents,get(%q<db>/%q<topid>`CONTENTS))),/))=1,{@nspemit %#=u(before(first(setr(contents,get(%q<db>/%q<topid>`CONTENTS))),/)/[after(first(setr(contents,get(%q<db>/%q<topid>`CONTENTS))),/)])},0,{@nspemit %#=%q<contents>};@switch/inline t(setr(count,words(setr(subs,sortkey(#lambda/get(%q<db>/\%0`NAME),lattr(%q<db>/%q<topid>`SUB`*,|),i,|,|)),|)))=1,{@nspemit %#=subheader(Subfiles)%R%TTo read subfiles, use '[ansi(h,%q<comm> %q<name>/<file>)]';@nspemit %#=table(iter(%q<subs>,ljust(pueblize(ansi(h,setr(subname,get(%q<db>/%i0`NAME))),lcstr(%q<comm>) %q<name>/%q<subname>)%B,24)[rjust(u(u(hso)/FUN`HAVEREADSUB,%#,q<ann>,%q<db>,%q<topid>,%i0),1)][timefmt($x,get(%q<db>/%i0`TIMESTAMP))],|,|),37,width(%#),|)};@nspemit %#=header();th setstat(%#/D`HELPREAD`%q<ann>`HAVEREAD,%q<topid>,secs())
 
-&FUN`HAVEREADSUB u(hso)=if(gt(get(%2/%4`TIMESTAMP),getstat(%0/PDATA`%1`HAVEREAD,%3_[last(%4,`)])),ansi(hr,*),%B)
+&FUN`HAVEREADSUB u(hso)=if(gt(get(%2/%4`TIMESTAMP),getstat(%0/D`HELPREAD`%1`HAVEREAD,%3_[last(%4,`)])),ansi(hr,*),%B)
 
-&INC`SHOW`SUB u(hso)=@include u(hso)/INC`FINDMAIN;@include u(hso)/INC`FINDSUB;@nspemit %#=header(%q<disp>: [get(%q<db>/%q<topid>`NAME)]/[setr(name,get(%q<db>/%q<topid>`SUB`%q<subid>`NAME))]);@nspemit %#=get(%q<db>/%q<topid>`SUB`%q<subid>`CONTENTS);@nspemit %#=header()
+&INC`SHOW`SUB u(hso)=@include u(hso)/INC`FINDMAIN;@include u(hso)/INC`FINDSUB;@nspemit %#=header(%q<disp>: [get(%q<db>/%q<topid>`NAME)]/[setr(name,get(%q<db>/%q<topid>`SUB`%q<subid>`NAME))]);@switch/inline isdbref(before(get(%q<db>/%q<topid>`SUB`%q<subid>`CONTENTS),/))=1,{@nspemit %#=u(get(%q<db>/%q<topid>`SUB`%q<subid>`CONTENTS))},{@nspemit %#=get(%q<db>/%q<topid>`SUB`%q<subid>`CONTENTS)};@nspemit %#=header()
 
 &INC`ADDMAIN u(hso)=@assert strlen(%qa)=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: Category name empty.;@assert strlen(%qb)=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: Topic name empty.;@switch/inline gt(setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%qb)),0)=1,{@assert strlen(%q<entry>)=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: Contents segment empty.;&%q<topid>`CONTENTS %q<db>=%q<entry>;&%q<topid>`CATEGORY %q<db>=%qa;&%q<topid>`TIMESTAMP %q<db>=secs();@nspemit %#=u(RFN`MSGHEAD,%q<ann>) [capnames(%q<ann>)]file '[get(%q<db>/%q<topid>`NAME)]' edited!},{@assert strlen(%q<entry>)=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: Contents empty!;th setq(attr,setr(n,randword(setdiff(rand(1,9999),u(FUN`LISTTOP,%q<db>)))));&%q<attr>`NAME %q<db>=%qb;&%q<attr>`CATEGORY %q<db>=%qa;&%q<attr>`TIMESTAMP %q<db>=secs();&%q<attr>`CONTENTS %q<db>=%q<entry>;@nspemit %#=u(RFN`MSGHEAD,%q<ann>) %qa / %qb [capnames(%q<ann>)]file created!}
 

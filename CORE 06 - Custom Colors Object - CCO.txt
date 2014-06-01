@@ -13,7 +13,7 @@
 &CMD`+COLOR u(cco)=$^(?s)(?\:\+)?color(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.*?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(cco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(cco)/VAR`ADMINFLAGS)),|,|),|,COLOR,switch,switch;@include u(cco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3,%4
 @set u(cco)/CMD`+COLOR=regexp
 
-&VAR`PLAYFLAGS u(cco)=RESET|INHERIT|ACCOUNT|ACCRESET
+&VAR`PLAYFLAGS u(cco)=RESET|INHERIT|ACCOUNT|ACCRESET|NAMES|ON|OFF
 &VAR`MSGHEAD u(cco)=COLOR
 
 &RFN`MSGHEAD u(cco)=msghead(v(VAR`MSGHEAD))
@@ -21,20 +21,30 @@
 &RFN`SUBHEADER u(cco)=subheader(%0,,COLOR`BORDER,COLOR`BORDERDOT,COLOR`BORDERTEXT)
 &RFN`SEPARATOR u(cco)=separator(%0,,COLOR`BORDER,COLOR`BORDERDOT,COLOR`BORDERTEXT)
 
-&CMD`COLORDEMO u(cco)=$^(?\:\+)?color(s|demo)$:@dolist/inline lnum(97,122)=@nspemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,%i0))],%b,%r)))
+&CMD`COLORDEMO u(cco)=$^(?s)(?\:\+)?color(?\:s|demo)(?\:/(\S+)?)?$:@include u(ccs)/INC`PARTIAL=%1,LONG,|,COLOR,switch,switch;@switch/inline %q<switch>=LONG,{@dolist/inline lnum(97,122)=@nspemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,%i0))],%b,%r)))},{@nspemit %#=iter(lnum(0,255),ansi(+xterm%i0,xterm%i0))}
 @set u(cco)/CMD`COLORDEMO=regexp
 
-&INC`MAIN u(cco)=@select/inline strlen(%1)=0,{@include u(cco)/INC`LIST},{@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Color Category field empty. Your choices are: [itemize(get(u(cco-db)/VAR`CATEGORIES),|,and,\,)];@include u(ccs)/INC`PARTIAL=%0,get(u(cco-db)/VAR`CATEGORIES),|,COLOR,cat,Color Category;@include u(cco)/INC`MODE;@select/inline %q<cat>=CHANNEL,{@include u(cco)/INC`CHANNEL=%1},GROUPCHAN,{@include u(cco)/INC`GROUPCHAN=%1},{@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Color Setting field empty. Please enter a Color Setting! Your choices are: [itemize(get(u(cco-db)/VAR`CATEGORIES`%q<cat>),|,and,\,)];@include u(ccs)/INC`PARTIAL=%1,get(u(cco-db)/VAR`CATEGORIES`%q<cat>),|,COLOR,type,Color Type};@switch/inline t(strlen(%2))=0,{@nspemit %#=u(RFN`MSGHEAD) %q<cat> %q<type> %q<mode> Color Cleared!;&%q<attr>`%q<cat>`[strfirstof(%q<mog>,%q<type>)] %q<target>},1,{@break strmatch(setr(error,ansi(setr(color,trim(%2)),test),#-*))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Entered color codes were not accepted by ansi(). Error was: %q<error>;@nspemit %#=u(RFN`MSGHEAD) %q<cat> %q<type> %q<mode> Color set to %q<color>! It will appear like [ansi(%q<color>,THIS)];&%q<attr>`%q<cat>`[strfirstof(%q<gid1>,%q<mog>,%q<type>)] %q<target>=%q<color>}}
+&INC`MAIN u(cco)=@select/inline strlen(%1)=0,{@include u(cco)/INC`LIST},{@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Color Category field empty. Your choices are: [itemize(get(u(cco-db)/VAR`CATEGORIES),|,and,\,)];@include u(ccs)/INC`PARTIAL=%0,get(u(cco-db)/VAR`CATEGORIES),|,COLOR,cat,Color Category;@include u(cco)/INC`MODE;@select/inline %q<cat>=CHANNEL,{@include u(cco)/INC`CHANNEL=%1},GROUPCHAN,{@include u(cco)/INC`GROUPCHAN=%1},NAME,{@include u(cco)/INC`NAME=%1},{@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Color Setting field empty. Please enter a Color Setting! Your choices are: [itemize(get(u(cco-db)/VAR`CATEGORIES`%q<cat>),|,and,\,)];@include u(ccs)/INC`PARTIAL=%1,get(u(cco-db)/VAR`CATEGORIES`%q<cat>),|,COLOR,type,Color Type};@switch/inline t(strlen(%2))=0,{@nspemit %#=u(RFN`MSGHEAD) %q<cat> %q<type> %q<mode> Color Cleared!;&%q<attr>`%q<cat>`[strfirstof(%q<mog>,%q<type>)] %q<target>},1,{@break strmatch(setr(error,ansi(setr(color,trim(%2)),test),#-*))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Entered color codes were not accepted by ansi(). Error was: %q<error>;@nspemit %#=u(RFN`MSGHEAD) %q<cat> [strfirstof(%q<t1name>,%q<type>)] %q<mode> Color set to %q<color>! It will appear like [ansi(%q<color>,THIS)];&%q<attr>`%q<cat>`[strfirstof(%q<gid1>,%q<mog>,%q<type>)] %q<target>=%q<color>}}
+
+&INC`ON u(cco)=@include u(ccs)/INC`PARTIAL=%0,get(u(cco-db)/VAR`CATEGORIES),|,COLOR,cat,Color Category;@break t(strfirstof(getstat(%#/D`COLOR,%q<cat>),1))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Color for %q<cat> is already on!;th setstat(%#/D`COLOR,%q<cat>,1);@nspemit %#=u(RFN`MSGHEAD) Custom Colors for %q<cat>: enabled.
+
+&INC`OFF u(cco)=@include u(ccs)/INC`PARTIAL=%0,get(u(cco-db)/VAR`CATEGORIES),|,COLOR,cat,Color Category;@assert t(strfirstof(getstat(%#/D`COLOR,%q<cat>),1))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Color for %q<cat> is already off!;th setstat(%#/D`COLOR,%q<cat>,0);@nspemit %#=u(RFN`MSGHEAD) Custom Colors for %q<cat>: disabled.
+
+&INC`NAMES u(cco)=&INC`OFF u(cco)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Names category entered. Your choices are: [itemize(v(VAR`NAMES),|,and,\,)];@include u(ccs)/INC`PARTIAL=%0,v(VAR`NAMES),|,COLOR,cat,Color Category;th setq(set,if(t(strfirstof(get(%#/D`COLORNAMES`%q<cat>),1)),0,1));@nspemit %#=u(RFN`MSGHEAD) You will [if(%q<set>,now,no longer)] see colored names in %q<cat>.;&D`COLORNAMES`%q<cat> %#=%q<set>
+
+&VAR`NAMES u(cco)=PAGES|CHANNELS|GCHANNELS|RADIO|IC|OOC
 
 &INC`ACCOUNT u(cco)=@include u(cco)/INC`MAIN=%0,%1,%2,1
 
 &INC`INHERIT u(cco)=@assert cand(isdbref(u(adb)),isdbref(u(cao)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: The Account system is not installed.;@switch/inline gt(default(%#/D`COLOR,0),0)=1,{@nspemit %#=u(RFN`MSGHEAD) You have disconnected this character from your Account's Color settings.;&D`COLOR %#=0},0,{@assert setr(accid,accid(%:))=@nspemit %#=u(RFN`MSGHEAD) ERROR: You don't have an account! Use +account/new if this is a new character or contact Staff if not.;@nspemit %#=u(RFN`MSGHEAD) You have linked this character to your Account's color settings.;&D`COLOR %#=1}
 
-&INC`LIST u(cco)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Nothing entered to list. Your choices are: [itemize(get(u(cco-db)/VAR`CATEGORIES),|,and,\,)] or ALL.;@switch/inline %0=ALL,{th setq(list,get(u(cco-db)/VAR`CATEGORIES))},{@include u(ccs)/INC`PARTIAL=%0,get(u(cco-db)/VAR`CATEGORIES),|,COLOR,list,Color Category};th setr(accid,accid(%:));@nspemit %#=u(RFN`HEADER,Color Settings);@dolist/inline/delimit | %q<list>={@switch/inline %i0=CHANNEL,{@nspemit %#=u(RFN`SEPARATOR,capnames(%i0));th setq(maxlen,lmath(max,iter(setr(chans,filterbool(#lambda/isdbref(cmogrifier(\%0)),objeval(%#,channels(|)),|,|)),strlen(stripansi(%i0)),|,%b)));th step(FUN`CHANTABLE,%q<chans>,20,|);@@ @dolist/inline/delimit | [setr(chans,filterbool(#lambda/isdbref(cmogrifier(\%0)),objeval(%#,channels(|)),|,|))][setq(maxlen,lmath(max,iter(%q<chans>,strlen(stripansi(%i0)),|,%b)))]={th setq(mog,cmogrifier(%i0));@nspemit %#=rjust(%i0,%q<maxlen>): [default(%#/D`COLOR`%i1`%q<mog>,???)][if(cand(%q<accid>,strlen(get(u(adb)/%q<accid>`COLOR`%i1`%q<mog>))),%b([get(u(adb)/%q<accid>`COLOR`%i1`%q<mog>)]))]}},GROUPCHAN,{@nspemit %#=u(RFN`SEPARATOR,Groupchan);@switch/inline gt(words(setr(groups,filterbool(#lambda/isgroupmember(%:,\%0),sort(u(u(gso)/FUN`LISTGROUPS),namei)))),0)=1,{th setq(maxlen,lmath(max,iter(%q<groups>,strlen(name(%i0)))));th step(FUN`GROUPTABLE,%q<groups>,20)}},{@nspemit %#=u(RFN`SEPARATOR,capnames(%i0));@nspemit %#=table(iter(get(u(cco-db)/VAR`CATEGORIES`%i0),rjust(%i0,10): [default(%#/D`COLOR`%i1`%i0,???)][if(cand(%q<accid>,strlen(get(u(adb)/%q<accid>`COLOR`%i1`%i0))),%b([get(u(adb)/%q<accid>`COLOR`%i1`%i0)]))],|,|),37,width(%#),|)}};@nspemit %#=u(RFN`SUBHEADER,[pueblize(Account Mode is [if(get(%#/D`COLOR),On,Off)],+color/account)]!)
+&INC`LIST u(cco)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Nothing entered to list. Your choices are: [itemize(get(u(cco-db)/VAR`CATEGORIES),|,and,\,)] or ALL.;@switch/inline %0=ALL,{th setq(list,get(u(cco-db)/VAR`CATEGORIES))},{@include u(ccs)/INC`PARTIAL=%0,get(u(cco-db)/VAR`CATEGORIES),|,COLOR,list,Color Category};th setr(accid,accid(%:));@nspemit %#=u(RFN`HEADER,Color Settings);@dolist/inline/delimit | %q<list>={@switch/inline %i0=CHANNEL,{@nspemit %#=u(RFN`SEPARATOR,capnames(%i0) - [if(strfirstof(getstat(%#/D`COLOR,Channels),1),pueblize(On,+color/off %i0),pueblize(Off,+color/on %i0))]);th setq(maxlen,lmath(max,iter(setr(chans,filterbool(#lambda/isdbref(cmogrifier(\%0)),objeval(%#,channels(|)),|,|)),strlen(stripansi(%i0)),|,%b)));th step(FUN`CHANTABLE,%q<chans>,20,|)},GROUPCHAN,{@nspemit %#=u(RFN`SEPARATOR,Groupchan - [if(strfirstof(getstat(%#/D`COLOR,Groupchan),1),pueblize(On,+color/off %i0),pueblize(Off,+color/on %i0))]);@switch/inline gt(words(setr(groups,filterbool(#lambda/isgroupmember(%:,\%0),sort(u(u(gso)/FUN`LISTGROUPS),namei)))),0)=1,{th setq(maxlen,lmath(max,iter(%q<groups>,strlen(name(%i0)))));th step(FUN`GROUPTABLE,%q<groups>,20)}},NAME,{@nspemit %#=u(RFN`SEPARATOR,Name - [if(strfirstof(getstat(%#/D`COLOR,Name),1),pueblize(On,+color/off %i0),pueblize(Off,+color/on %i0))]);@switch/inline gt(words(setr(names,sort(filterbool(#lambda/isdbref(\%0),iter(setunion(lattr(%#/D`COLOR`NAME`*),if(setr(accid,accid(%:)),lattr(u(adb)/%q<accid>`COLOR`NAME`*))),last(%i0,`))),namei))),0)=1,{th setq(maxlen,lmath(max,iter(%q<names>,strlen(name(%i0)))));th step(FUN`NAMETABLE,%q<names>,20)}},{@nspemit %#=u(RFN`SEPARATOR,capnames(%i0) - [if(strfirstof(getstat(%#/D`COLOR,%i0),1),pueblize(On,+color/off %i0),pueblize(Off,+color/on %i0))]);@nspemit %#=table(iter(get(u(cco-db)/VAR`CATEGORIES`%i0),rjust(%i0,10): [default(%#/D`COLOR`%i1`%i0,???)][if(cand(%q<accid>,strlen(get(u(adb)/%q<accid>`COLOR`%i1`%i0))),%b([get(u(adb)/%q<accid>`COLOR`%i1`%i0)]))],|,|),37,width(%#),|)}};@nspemit %#=u(RFN`SUBHEADER,pueblize(Account Mode is [if(get(%#/D`COLOR),pueblize(On,+color/off %i0),pueblize(Off,+color/on %i0))],+color/account)!)
 
 &FUN`CHANTABLE u(cco)=nspemit(%#,table(iter(lnum(0,sub(%+,1)),rjust(v(%i0),%q<maxlen>): [default(%#/D`COLOR`CHANNEL`[setr(mog,cmogrifier(v(%i0)))],???)][if(cand(%q<accid>,strlen(get(u(adb)/%q<accid>`COLOR`CHANNEL`%q<mog>))),%b([get(u(adb)/%q<accid>`COLOR`CHANNEL`%q<mog>)]))],%b,|),add(%q<maxlen>,19),width(%#),|))
 
 &FUN`GROUPTABLE u(cco)=nspemit(%#,table(iter(lnum(0,sub(%+,1)),rjust(ansi(strfirstof(get(v(%i0)/SET`COLOR),n),name(v(%i0))),%q<maxlen>): [default(%#/D`COLOR`GROUPCHAN`[v(%i0)],???)][if(cand(%q<accid>,strlen(get(u(adb)/%q<accid>`COLOR`GROUPCHAN`[v(%i0)]))),%b([get(u(adb)/%q<accid>`COLOR`GROUPCHAN`[v(%i0)])]))],%b,|),add(%q<maxlen>,30),width(%#),|))
+
+&FUN`NAMETABLE u(cco)=nspemit(%#,table(iter(lnum(0,sub(%+,1)),rjust(ansi(strfirstof(get(v(%i0)/SET`COLOR),n),name(v(%i0))),%q<maxlen>): [default(%#/D`COLOR`NAME`[v(%i0)],???)][if(cand(%q<accid>,strlen(get(u(adb)/%q<accid>`COLOR`NAME`[v(%i0)]))),%b([get(u(adb)/%q<accid>`COLOR`NAME`[v(%i0)])]))],%b,|),add(%q<maxlen>,30),width(%#),|))
 
 &INC`MODE u(cco)=@switch/inline if(cand(isdbref(u(cao)),isdbref(u(adb))),if(%3,gt(setr(accid,accid(%:)),0),0),0)=1,{th setq(mode,Account,attr,%q<accid>`COLOR,target,u(adb))},0,{th setq(mode,Personal,attr,D`COLOR,target,%#)}
 
@@ -44,20 +54,30 @@
 
 &INC`CHANNEL u(cco)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No channel entered to color.;@include u(ccs)/INC`PARTIAL=%0,objeval(%#,channels(|)),|,COLOR,channel,channel;@break not(strmatch(parent(setr(mog,cmogrifier(%q<channel>))),u(cdb)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please contact staff.;th setq(type,%q<channel>)
 
+&INC`NAME u(cco)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No player entered to color.;@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);th setq(type,%q<t1>)
+
 &INC`GROUPCHAN u(cco)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Group Channel entered to color.;@assert isdbref(setr(gid1,u(u(gso)/FUN`FINDGROUP,%0)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Group not found.;@assert isgroupmember(%:,%q<gid1>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: You are not a member of that group.;th setq(type,name(%q<gid1>))
 
-&GFN`CUSTCOLOR u(cco)=strfirstof(get(%0/D`COLOR`%1),u(FUN`ACCCOLOR,%0,%1),get(u(pco)/COLOR`%1),%2,if(not(%3),n))
+&GFN`CUSTCOLOR u(cco)=if(strfirstof(getstat(%0/D`COLOR,before(%1,`)),1),strfirstof(get(%0/D`COLOR`%1),u(FUN`ACCCOLOR,%0,%1),get(u(pco)/COLOR`%1),%2,if(not(%3),n)),strfirstof(get(u(pco)/COLOR`%1),%2,if(not(%3),n)))
 
 &GFN`FIRSTCOLOR u(cco)=strfirstof(custcolor(%0,%1,,1),custcolor(%0,%2))
 
 &FUN`ACCCOLOR u(cco)=if(get(%0/D`COLOR),get(u(adb)/[accid(%0)]`COLOR`%1))
 
-th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),DEFAULT|COLOR,|,|))
-&VAR`CATEGORIES`DEFAULT u(cco-db)=BORDER|BORDERTEXT|BORDERDOT|MSG|MSGBORDER|PAGE|OUTPAGE
-&VAR`CATEGORIES`COLOR u(cco-db)=BORDER|BORDERTEXT|BORDERDOT
+&OBJECT`DESTROY`PURGENAMES u(cco)=@switch/inline %2=PLAYER,{@dolist/inline lsearch(all,type,player,lock,D`COLOR`NAME`[before(%0,:)]:*)=@wipe %i0/D`COLOR`NAME`[before(%0,:)];@set u(adb)=!SAFE;@wipe u(adb)/*`COLOR`NAME`[before(%0,:)];@set u(adb)=SAFE},THING,{@dolist/inline lsearch(all,type,player,lock,D`COLOR`GROUPCHAN`[before(%0,:)]:*)=@wipe %i0/D`COLOR`GROUPCHAN`[before(%0,:)];@set u(adb)=!SAFE;@wipe u(adb)/*`COLOR`GROUPCHAN`[before(%0,:)];@set u(adb)=SAFE}
+
+&GFN`COLORNAMES u(cco)=null(setq(names,sortkey(#lambda/strlen(\%0),iter(setr(dbs,setunion(%2,getcolorednames(%1))),name(%i0)|[accname(%i0)]|[first(name(%i0))]|[first(accname(%i0))],%b,|),-n,|,|)))[if(default(%1/D`COLORNAMES`%3,1),regeditalli(%0,\\b\(%q<names>\)\\b,case(setr(fchar,left(setr(fname,$0),1)),capstr(%q<fchar>),switch(1,t(match(first(name(%1))|[name(%1)]|[accname(%1)]|[first(accname(%1))],%q<fname>,|)),ansi(n[custcolor(%1,IC`MYNAME)],%q<fname>),t(match(first(name(firstof(%q<spk>,%#)))|[name(firstof(%q<spk>,%#))]|[accname(firstof(%q<spk>,%#))]|[first(accname(firstof(%q<spk>,%#)))],%q<fname>,|)),ansi(n[firstcolor(%1,NAME`[firstof(locate(%1,stripaccents(%q<fname>),PX),namegrab(%q<dbs>,stripaccents(%q<fname>)))],IC`SPEAKERNAME)],%q<fname>),ansi(n[firstcolor(%1,NAME`[firstof(locate(%1,%q<fname>,PX),namegrab(%q<dbs>,stripaccents(%q<fname>)))],IC`OTHERNAME)],%q<fname>)),%q<fname>)),%0)]
+
+&GFN`GETCOLOREDNAMES u(cco)=filterbool(#lambda/isdbref(\%0),iter(lattr(%0/D`COLOR`NAME`*),last(%i0,`)))
+
+th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),DEFAULT|COLOR|NAME|PAGE,|,|))
+&VAR`CATEGORIES`DEFAULT u(cco-db)=BORDER|BORDERTEXT|BORDERDOT|MSG|MSGBORDER
+&VAR`CATEGORIES`PAGE u(cco-db)=PAGE|OUTPAGE
+&VAR`CATEGORIES`COLOR u(cco-db)=BORDER|BORDERTEXT|BORDERDOT|COLNAME
 
 &COLOR`DEFAULT`BORDER u(pco)=m
 &COLOR`DEFAULT`BORDERTEXT u(pco)=hw
 &COLOR`DEFAULT`BORDERDOT u(pco)=hm
 &COLOR`DEFAULT`MSG u(pco)=hw
 &COLOR`DEFAULT`MSGBORDER u(pco)=hm
+&COLOR`DEFAULT`COLNAME u(pco)=g

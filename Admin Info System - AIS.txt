@@ -1,0 +1,6 @@
+@switch/inline isdbref(u(ais))=0,{@tel create(Admin Info System <AIS>)=config(master_room)}
+&asg u(ais)=locate(config(master_room),Admin Info System <AIS>,TXxi)
+@parent u(ais)=u(coi)
+@set u(ais)=WIZARD SAFE !NO_COMMAND
+@lock/command u(ais)=@[u(sgo)]/Command
+

@@ -29,7 +29,7 @@
 &INC`INIT`GB u(bbs)=@assert isdbref(u(gso))=@nspemit %#=announce(GBS) ERROR: The Group System is not installed!;@include u(gso)/INC`CODE`VALGROUP=switch(%2,rea*,strfirstof(%5,getstat(%#/D`GROUP,Group),0),sca*,strfirstof(%3,getstat(%#/D`GROUP,Group),0),strfirstof(getstat(%#/D`GROUP,Group),0)),1
 
 &FUN`VALIDGROUPS`BB u(bbs)=filterbool(#lambda/u(FUN`CAN%1`BB,%0,\%0,%2),u(FUN`LISTGROUPS`BB))
-&FUN`BBADMIN`BB u(bbs)=cor(isadmin(%0),if(strmatch(lock(%1/Admin),*UNLOCKED*),0,elock(%1/Admin,%0)))
+&FUN`BBADMIN`BB u(bbs)=cor(hasflag(%0,WIZARD),if(strmatch(lock(%1/Admin),*UNLOCKED*),0,elock(%1/Admin,%0)))
 &FUN`CANREAD`BB u(bbs)=cand(cor(elock(%1/Read,%0),u(FUN`BBADMIN`BB,%0,%1)),cor(%2,not(default(%0/D`BB`%1`OMIT,0))))
 &FUN`CANWRITE`BB u(bbs)=cand(cor(elock(%1/Write,%0),u(FUN`BBADMIN`BB,%0,%1)),cor(%2,not(default(%0/D`BB`%1`OMIT,0))))
 

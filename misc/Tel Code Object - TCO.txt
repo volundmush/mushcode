@@ -34,3 +34,9 @@
 &INC`LOCK u(tco)=@assert strlen(%0)=@nspemit %#=ERROR: No location entered.;@assert u(FILTER_ISROOM,setr(0,setr(0,num(%0))))={@nspemit %#=ERROR: %0 is not a valid ROOM DBREF.};@assert strlen(setr(grab,grab(v(VAR`ROOMLIST),%q0~*,|)))=@nspemit %#=ERROR: Location not registered.;@assert getstat(u(tco)/VAR`ROOMLIST,%q0)=@nspemit %#=ERROR: Location is already locked.;th setstat(u(tco)/VAR`ROOMLIST,%q0,0);@nspemit %#=Location locked!
 
 &INC`UNLOCK u(tco)=@assert strlen(%0)=@nspemit %#=ERROR: No location entered.;@assert u(FILTER_ISROOM,setr(0,setr(0,num(%0))))={@nspemit %#=ERROR: %0 is not a valid ROOM DBREF.};@assert strlen(setr(grab,grab(v(VAR`ROOMLIST),%q0~*,|)))=@nspemit %#=ERROR: Location not registered.;@break getstat(u(tco)/VAR`ROOMLIST,%q0)=@nspemit %#=ERROR: Location is not locked.;th setstat(u(tco)/VAR`ROOMLIST,%q0,1);@nspemit %#=Location unlocked!
+
+@@ TEL CODE OBJECT - TCO
+
++help/addmain Navigation/tel=The Tel System allows players and admin to easily navigate the grid.%R%R[ansi(h,tel \[<destination>\])]%RBy itself, lists all available destinations. Given a destination, sends you there. <destination> must be a dbref, such as #100.
+
++shelp/addmain Building/tel=[ansi(h,tel/add)] and [ansi(h,tel/del <destination>)]%RAdds and removes destinations to the tel list. Note that all destinations should have a &district attribute on that DBREF, used for sorting. It should match the category they appear in.%R%R[ansi(h,tel/lock)] and [ansi(h,tel/unlock <destination>)] admin lock destinations so that players cannot see or use them.

@@ -3,7 +3,7 @@
 @parent u(finger)=u(coi)
 @set u(finger)=WIZARD SAFE !NO_COMMAND
 
-&CMD`FINGER u(finger)=$^(?s)(?\:\+)?(oocfinger|finger)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(finger)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(finger)/VAR`%1`ADMINFLAGS)),|,|),|,ucstr(%1),switch,switch;@include u(finger)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`FINGER u(finger)=$^(?s)(?\:\+)?(oocfinger|finger|icfinger)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(finger)/VAR`[edit(%1,ic,)]`PLAYFLAGS),if(isadmin(%#),get(u(finger)/VAR`[edit(%1,ic,)]`ADMINFLAGS)),|,|),|,ucstr([edit(%1,ic,)]),switch,switch;@include u(finger)/INC`[edit(%1,ic,)]`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(finger)/CMD`FINGER=regexp
 
 &VAR`FINGER`PLAYFLAGS u(finger)=SET

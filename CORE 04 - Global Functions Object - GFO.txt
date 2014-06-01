@@ -1,7 +1,7 @@
 @@ DEPENDENCIES - CORE
 
-@switch/inline isdbref(u(gfo))=0,{@tel create(Global Functions Object <GFO>)=config(master_room)}
-&gfo u(coi)=locate(config(master_room),Global Functions Object <GFO>,TXxi)
+@switch/inline isdbref(u(gfo))=0,{@tel create(Global Functions Object <GFO>)=u(coi)}
+&gfo u(coi)=locate(u(coi),Global Functions Object <GFO>,TXxi)
 @parent u(gfo)=u(coi)
 @set u(gfo)=WIZARD SAFE
 
@@ -14,9 +14,9 @@
 
 &GFN`CAPNAMES u(gfo)=regeditall(lcstr(%0),(?<=\[_/-\\s\]|^)(\[a-z\]),capstr($1))
 &GFN`COMMAFY u(gfo)=squish(flip(foreach(#lambda/if(mod(\%1,3),\%0,\\,\%0),flip(%0))),\,)
-&GFN`DELSTAT u(gfo)=attrib_set(%0,setdiff(get(%0),grab(get(%0),%1~*,|),|))
-&GFN`GETSTAT u(gfo)=if(strlen(%2),add(rest(grab(get(%0),%1~*,|),~),rest(grab(get(before(%0,/)/D`%2),%1~*,|),~)),rest(grab(get(%0),%1~*,|),~))
-&GFN`GRABSTAT u(gfo)=rest(grab(%0,%1~*,|),~)
+&AGFN`DELSTAT u(gfo)=attrib_set(%0,setdiff(get(%0),grab(get(%0),%1~*,|),|))
+&AGFN`GETSTAT u(gfo)=if(strlen(%2),add(rest(grab(get(%0),%1~*,|),~),rest(grab(get(before(%0,/)/D`%2),%1~*,|),~)),rest(grab(get(%0),%1~*,|),~))
+&AGFN`GRABSTAT u(gfo)=rest(grab(%0,%1~*,|),~)
 
 &GFN`HEADER u(gfo)=if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))[center(if(strlen(%0),ansi(firstcolor(%#,%2,DEFAULT`BORDER),<)[if(pueblo(%#),endtag(a))][ansi(firstcolor(%#,%3,DEFAULT`BORDERDOT),*%B)][if(%1,%0,ansi(firstcolor(%#,%4,DEFAULT`BORDERTEXT),%0))][ansi(firstcolor(%#,%3,DEFAULT`BORDERDOT),%B*)][ansi(firstcolor(%#,%2,DEFAULT`BORDER),>)]),if(%5,sub(width(%#),2),width(%#)),ansi(firstcolor(%#,%2,DEFAULT`BORDER),=))][if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))]
 &GFN`SUBHEADER u(gfo)=if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))[center(if(strlen(%0),%b[if(%1,%0,ansi(firstcolor(%#,%4,DEFAULT`BORDERTEXT),%0))]%b),if(%5,sub(width(%#),2),width(%#)),ansi(firstcolor(%#,%2,DEFAULT`BORDER),=))][if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))]
@@ -29,9 +29,9 @@
 &GFN`NEXTSLOT u(gfo)=add(1,lmath(max,iter(filterbool(#lambda/isint(last(\%0,`)),lattr(%0/[if(strlen(%1),%1`*,*)])),last(%i0,`))))
 &GFN`NUMTH u(gfo)=%0[switch(right(%0,1),1,st,2,nd,3,rd,th)]
 &GFN`PUEBLIZE u(gfo)=tagwrap(A,XCH_CMD="%1",%0)
-&GFN`SETSTAT u(gfo)=localize(attrib_set(%0,setunion(setdiff(setr(0,get(%0)),grab(%q0,%1~*,|),|),%1~%2,|)))
+&AGFN`SETSTAT u(gfo)=localize(attrib_set(%0,setunion(setdiff(setr(0,get(%0)),grab(%q0,%1~*,|),|),%1~%2,|)))
 &GFN`TIMESTAMP u(gfo)=timefmt($Y-$m-$d $H:$M:$S,firstof(%0,secs()))
-&GFN`UNPRIV u(gfo)=setq(unprivtext,%0)[objeval(get(u(mdo)/VAR`UNPRIV),s(%q<unprivtext>))]
+&AGFN`UNPRIV u(gfo)=setq(unprivtext,%0)[objeval(get(u(mdo)/VAR`UNPRIV),s(%q<unprivtext>))]
 &GFN`VALNUM u(gfo)=cand(isint(%0),gt(%0,0))
 &GFN`WEBLINK u(gfo)=if(strlen(%0),tagwrap(a,href="[setr(webfix,if(not(strmatch(%0,*://*)),http://%0,%0))]",strfirstof(%1,%q<webfix>)))
 
@@ -39,16 +39,11 @@
 
 &GFN`RYG u(gfo)=<[if(gt(%0,50),255,round(mul(255,fdiv(mul(%0,2),100)),0))] [if(gte(%0,50),sub(mul(255,2),round(mul(255,fdiv(mul(%0,2),100)),0)),255)] 0>
 
-&GFN`FILTERVIS u(gfo)=if(isdbref(%0),if(words(%1),if(match(CHANNEL|WHO|FIND,%2,|),u(FUN`FILTERVIS`%2,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),#-1 FILTER MODE NOT SUPPORTED)),#-1 TARGET NOT FOUND)
+&AGFN`FILTERVIS u(gfo)=if(isdbref(%0),if(words(%1),if(match(CHANNEL|WHO|FIND,%2,|),u(FUN`FILTERVIS`%2,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),#-1 FILTER MODE NOT SUPPORTED)),#-1 TARGET NOT FOUND)
 &FUN`FILTERVIS`CHANNEL u(gfo)=switch(0,match(channels(|),%3,|),#-1 CHANNEL NOT FOUND,if(isadmin(%0),%1,filterbool(#lambda/nor(hidden(\%0),match(clflags(%3,\%0),Hide),hasflag(\%0,DARK)),%1)))
 &FUN`FILTERVIS`WHO u(gfo)=if(isadmin(%0),%1,filterbool(#lambda/nor(hidden(\%0),hasflag(\%0,DARK)),%1))
 &FUN`FILTERVIS`FIND u(gfo)=if(isadmin(%0),%1,filterbool(#lambda/nor(hidden(\%0),hasflag(\%0,DARK),hasflag(\%0,UNFINDABLE),hasflag(loc(\%0),UNFINDABLE)),%1))
 @@ %0 - Target, %1 - player list, %2 - mode, %3 - channel name
 
-&GFN`ISIC u(gfo)=switch(type(%0),ROOM,t(default(%0/IC,1)),THING,t(default(%0/IC,0)),PLAYER,isic(loc(%0)))
-
 &GFN`ALIASGRAB u(gfo)=if(match(%0,%1),%1,first(filterbool(#lambda/strmatch(alias(\%0),%1*),sortkey(#lambda/alias(\%0),%0,i))))
 &GFN`ALIASGRABALL u(gfo)=if(match(%0,%1),%1,filterbool(#lambda/strmatch(alias(\%0),%1*),sortkey(#lambda/alias(\%0),%0,i)))
-
-&STARTUP u(gfo)=@dolist/inline get(u(gfo)/VAR`FUNRESTRICT)=@function/restrict %i0=WIZARD LOCALIZE
-&VAR`FUNRESTRICT u(gfo)=GETSTAT SETSTAT DELSTAT GRABSTAT FILTERVIS LASTIDLE

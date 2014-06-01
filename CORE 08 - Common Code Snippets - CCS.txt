@@ -1,7 +1,7 @@
 @@ DEPENDENCIES - CORE
 
-@switch/inline isdbref(u(ccs))=0,{@tel create(Common Code Snippets <CCS>)=config(master_room)}
-&ccs u(coi)=locate(config(master_room),Common Code Snippets <CCS>,TXxi)
+@switch/inline isdbref(u(ccs))=0,{@tel create(Common Code Snippets <CCS>)=u(coi)}
+&ccs u(coi)=locate(u(coi),Common Code Snippets <CCS>,TXxi)
 @parent u(ccs)=u(coi)
 @set u(CCS)=WIZARD
 
@@ -15,7 +15,7 @@
 
 &INC`CPTREE u(ccs)=@switch/inline gte(1008005005,numversion())=1,{@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/%i0=%2/%3`[elements(%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)]}},{th cptree(%0,%1,%2,%3)}
 
-&GFN`CPTREE u(ccs)=null(attrib_set(%2/%3,get(%0/%1))[iter(lattr(%0/%1`**),attrib_set(%2/%3`[elements(%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)],get(%0/%i0)))])
+&AGFN`CPTREE u(ccs)=null(attrib_set(%2/%3,get(%0/%1))[iter(lattr(%0/%1`**),attrib_set(%2/%3`[elements(%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)],get(%0/%i0)))])
 
 @@ CPTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
 

@@ -6,3 +6,5 @@
 @set u(wgo)=WIZARD !NO_COMMAND
 @lock/command u(wgo)=FLAG^WIZARD
 
+&CMD`+DARK u(wgo)=$^(?s)(?\:\+)?dark(?\:/(\S+)?)?$:@include u(ccs)/INC`PARTIAL=%1,ON|OFF,|,DARK,switch,switch;@switch/inline %q<switch>=OFF,{@set %#=!dark;@dolist/inline ports(%#)=@hide/off ##;@pemit %#=Shown.},ON,{@set %#=dark;@dolist/inline ports(%#)=@hide/on ##;@pemit %#=Hidden.},{@include u(wgo)/CMD`+DARK=,if(hasflag(%#,DARK),Off,On)}
+@set u(wgo)/CMD`+DARK=regexp
