@@ -5,7 +5,7 @@
 @parent u(pgo)=u(coi)
 @set u(pgo)=WIZARD !NO_COMMAND
 
-&RFN`MSHEAD u(pgo)=msghead(%0)
+&RFN`MSGHEAD u(pgo)=msghead(%0)
 
 &CMD`CHARSET u(pgo)=$+charset:@nspemit %#=wrap(iter(lnum(32,256),if(comp(first(chr(%i0)),#-1,A),ljust([ljust(%i0:,4)] [ansi(hy,chr(%i0))],7)), ,),78)
 

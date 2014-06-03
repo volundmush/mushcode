@@ -6,7 +6,7 @@
 @set u(sgo)=WIZARD !NO_COMMAND
 @lock/command u(sgo)=ISADMIN/1
 
-&RFN`MSHEAD u(sgo)=msghead(%0)
+&RFN`MSGHEAD u(sgo)=msghead(%0)
 
 &ISADMIN u(sgo)=isadmin(%#)
 

@@ -41,9 +41,20 @@
 &SET`OOC u(gop)=1
 &SET`MAJOR u(gop)=0
 &SET`SYSALERT u(gop)=3
+&SET`SORT u(gop)=99
 
-th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),GROUPCHAN|GROUP,|,|))
-&VAR`CATEGORIES`GROUP u(cco-db)=GWHONAME|BORDER|BORDERTEXT|BORDERDOT
+th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),GROUP,|,|))
+&VAR`CATEGORIES`GROUP u(cco-db)=BORDER|BORDERTEXT|BORDERDOT|ICNAME|OOCNAME|OOCTAG|SYSTAG|ICDIVIDER|OOCDIVIDER|ICEDGE|OOCEDGE
+&VAR`CATEGORIES`GROUPMODE u(cco-db)=NAME|ICNAME|OOCNAME|OOCTAG|SYSTAG|ICDIVIDER|OOCDIVIDER|ICEDGE|OOCEDGE
+
+&COLOR`GROUP`NAME u(pco)=hx
+&COLOR`GROUP`ICNAME u(pco)=hx
+&COLOR`GROUP`OOCNAME u(pco)=hx
+&COLOR`GROUP`ICDIVIDER u(pco)=c
+&COLOR`GROUP`ICEDGE u(pco)=c
+&COLOR`GROUP`OOCDIVIDER u(pco)=c
+&COLOR`GROUP`OOCEDGE u(pco)=c
+&COLOR`GROUP`OOCTAG u(pco)=r
 
 &CMD`+GROUP u(gso)=$^(?s)(?\:\+)?g(roups|roup|who|create|desc|rename|set|option|muzzle|unmuzzle|gag|ungag|title|invite|invites|uninvite|join|refuse|add|leave|kick|addperm|delperm|addpriv|delpriv|privlist|rank|addrank|delrank|namerank|disband|ooc|ic|radio|emit|focus|log|recall)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(gso)/INC`CHOOSE=+g,%1,%2,%3,%4
 @set u(gso)/CMD`+GROUP=regexp
@@ -73,7 +84,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),GR
 
 &FUN`FINDGROUP u(gso)=namegrab(u(u(gso)/FUN`LISTGROUPS),%0)
 
-&FUN`LISTGROUPS u(gso)=sort(filterbool(#lambda/strmatch(parent(\%0),u(gop)),lthings(u(gop))),namei)
+&FUN`LISTGROUPS u(gso)=sort(sort(filterbool(#lambda/strmatch(parent(\%0),u(gop)),lthings(u(gop))),namei),attr:SET`SORT)
 
 &INC`CODE`MAKELOG u(gso)=&[setr(log,LOG`[nextslot(%1,LOG)])] %1=%2;&%q<log>`SUBMITTER %1=%0;&%q<log>`SUBMITTED %1=secs()
 
@@ -111,7 +122,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),GR
 
 &INC`CODE`SWITCH u(gso)=@include u(gso)/INC`CODE`VALGROUP=%0,1;@include u(gso)/INC`CODE`LISTMEMBERS=0,1;@switch/inline cand(isgroupmember(%:,%q<gid1>),not(strmatch(getstat(%#/D`GROUP,Group),%q<gid1>)))=1,{@nspemit %#=u(RFN`MSGHEAD) You are now managing: [ansi(hw,%q<gname1>)];th setstat(%#/D`GROUP,Group,%q<gid1>)}
 
-&INC`CODE`LISTMEMBERS u(gso)=@nspemit %#=header(if(%2,ONLINE%B)MEMBERS: %q<gname1>);@switch/inline cand(not(%2),hasattr(%q<gid1>/DESCRIBE))=1,{@nspemit %#=get(%q<gid1>/DESCRIBE);@nspemit %#=separator()};@switch/inline cand(gt(strlen(setr(type,u(u(gso)/FUN`GETSET,%q<gid1>,TYPE))),0),hasattr(u(gso)/INC`CODE`LISTMEMBERS`%q<type>))=1,{@include u(gso)/INC`CODE`LISTMEMBERS`%q<type>},0,{@nspemit %#=align(20 20 26 10,Name,Rank,Title,Last/Idle)%R[separator()];@dolist/inline sortkey(#lambda/u(FUN`GETRANK,%q<gid1>,\%0,1),if(%2,setinter(filterbool(#lambda/isobjid(\%0),get(%q<gid1>/MEMBERS)),lwhoid(%#),%b,namei),sort(filterbool(#lambda/isobjid(\%0),get(%q<gid1>/MEMBERS)),namei)),n)={@nspemit %#=align(20 20 26 >10,pueblize(ansi(custcolor(%#,GROUP`GWHONAME),name(%i0)),+finger [name(%i0)]),get(%q<gid1>/RANK`[u(FUN`GETRANK,%q<gid1>,%i0,1)]`NAME),get(%i0/D`GROUP`%q<gid1>`TITLE),lastidle(%i0,%#))}};@nspemit %#=header()
+&INC`CODE`LISTMEMBERS u(gso)=@nspemit %#=header(if(%2,ONLINE%B)MEMBERS: %q<gname1>);@switch/inline cand(not(%2),hasattr(%q<gid1>/DESCRIBE))=1,{@nspemit %#=get(%q<gid1>/DESCRIBE);@nspemit %#=separator()};@switch/inline cand(gt(strlen(setr(type,u(u(gso)/FUN`GETSET,%q<gid1>,TYPE))),0),hasattr(u(gso)/INC`CODE`LISTMEMBERS`%q<type>))=1,{@include u(gso)/INC`CODE`LISTMEMBERS`%q<type>},0,{@nspemit %#=align(20 20 25 10,Name,Rank,Title,Last/Idle)%R[separator()];@dolist/inline sortkey(#lambda/u(FUN`GETRANK,%q<gid1>,\%0,1),if(%2,setinter(filterbool(#lambda/isobjid(\%0),get(%q<gid1>/MEMBERS)),lwhoid(%#),%b,namei),sort(filterbool(#lambda/isobjid(\%0),get(%q<gid1>/MEMBERS)),namei)),n)={@nspemit %#=align(20 20 25 >10,pueblize(ansi(custcolor(%#,GROUP`GWHONAME),name(%i0)),+finger [name(%i0)]),get(%q<gid1>/RANK`[u(FUN`GETRANK,%q<gid1>,%i0,1)]`NAME),get(%i0/D`GROUP`%q<gid1>`TITLE),lastidle(%i0,%#))}};@nspemit %#=header()
 
 &INC`CODE`LISTMEMBERS`FACTION u(gso)=@nspemit %#=iter(lnum(1,div(width(%#),38)),Name[space(29)]Rank%B);@nspemit %#=separator();th step(FUN`LISTMEMBERS`FACTION,sortkey(#lambda/u(FUN`GETRANK,%q<gid1>,\%0,1),if(%2,setinter(filterbool(#lambda/isobjid(\%0),get(%q<gid1>/MEMBERS)),lwhoid(%#),%b,namei),sort(filterbool(#lambda/isobjid(\%0),get(%q<gid1>/MEMBERS)),namei)),n),div(width(%#),38))
 
@@ -230,7 +241,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),GR
 &INC`CODE`UNMUZZLE u(gso)=@assert isgroupmember(%:,%q<gid1>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: You are not a member of %q<gname1>.;@assert u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,MODERATE)=@nspemit %#=u(RFN`MSGHEAD) ERROR: You lack permission to do that.;@include u(ccs)/INC`CHECKPC=before(%0,/),1,GROUPS;@assert isgroupmember(%q<t1objid>,%q<gid1>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Must target a group member.;@assert lt(u(u(gso)/FUN`GETRANK,%q<gid1>,%:),u(u(gso)/FUN`GETRANK,%q<gid1>,%q<t1objid>))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Only subordinates may be unmuzzled.;@assert strlen(after(%0,/))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Channel Type Empty. Your choices are IC and OOC!;@include u(ccs)/INC`PARTIAL=after(%0,/),IC|OOC,|,v(VAR`MSGHEAD),chan,Channel Type;@assert gt(get(%q<t1>/D`GROUP`%q<gid1>`MUZZLE`%q<chan>),secs())=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> is not %q<chan> muzzled.;&D`GROUP`%q<gid1>`MUZZLE`%q<chan> %q<t1>;@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{Unmuzzled %q<t1name> from [ucstr(%q<chan>)] channels};@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n unmuzzled %q<t1name> from [ucstr(%q<chan>)] channels},OOC,1
 
 &INC`CHOOSE`+G`SET`MAIN u(gso)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`SET
-&INC`CODE`SET u(gso)=@switch/inline gt(strlen(%0),0)=1,{@assert lte(u(FUN`GETRANK,%q<gid1>,%:),1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: You lack permission to do that.;@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Setting field empty.;@assert match(setr(choices,COLOR|STARTRANK|IC|OOC|COMMAND|CHANNELRANK[if(isadmin(%#),|MAJOR|TYPE)]),setr(c,ucstr(trim(first(%0)))),|)=@nspemit %#=u(RFN`MSGHEAD) ERROR: That is not a valid choice. Your options are: [itemize(%q<choices>,|,and,\,)];@switch/inline t(strlen(%1))=0,{&SET`%qc %q<gid1>;@nspemit %#=u(RFN`MSGHEAD) Option restored to group defaults.},1,{@switch/inline hasattr(u(gso)/INC`CODE`SET`CHECK`%qc)=1,{@include u(gso)/INC`CODE`SET`CHECK`%qc};&SET`%qc %q<gid1>=strfirstof(%q<entry>,%1)};@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{Setting %qc: %1};@nspemit %#=u(RFN`MSGHEAD) You have changed %q<gname1>'s %qc Setting to: %1;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n changed %qc Setting to: %1},OOC,1},0,{@nspemit %#=header(%q<gname1> - Settings);@dolist/inline lattrp(%q<gid1>/SET`*)={@nspemit %#=rjust(last(%i0,`),10): [get(%q<gid1>/%i0)]};@nspemit %#=header()}
+&INC`CODE`SET u(gso)=@switch/inline gt(strlen(%0),0)=1,{@assert lte(u(FUN`GETRANK,%q<gid1>,%:),1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: You lack permission to do that.;@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Setting field empty.;@include u(ccs)/INC`PARTIAL=%0,setr(choices,COLOR|STARTRANK|IC|OOC|COMMAND|CHANNELRANK[if(isadmin(%#),|MAJOR|TYPE|SORT)]),|,GROUPS,c,choice;@switch/inline t(strlen(%1))=0,{&SET`%qc %q<gid1>;@nspemit %#=u(RFN`MSGHEAD) Option restored to group defaults.},1,{@switch/inline hasattr(u(gso)/INC`CODE`SET`CHECK`%qc)=1,{@include u(gso)/INC`CODE`SET`CHECK`%qc};&SET`%qc %q<gid1>=strfirstof(%q<entry>,%1)};@include u(gso)/INC`CODE`MAKELOG=%:,%q<gid1>,{Setting %qc: %1};@nspemit %#=u(RFN`MSGHEAD) You have changed %q<gname1>'s %qc Setting to: %1;@include u(gso)/INC`CODE`CHAT={ansi(hw,ALERT:) %n changed %qc Setting to: %1},OOC,1},0,{@nspemit %#=header(%q<gname1> - Settings);@dolist/inline lattrp(%q<gid1>/SET`*)={@nspemit %#=rjust(last(%i0,`),10): [get(%q<gid1>/%i0)]};@nspemit %#=header()}
 
 &INC`CODE`SET`CHECK`STARTRANK u(gso)=@assert valnum(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: STARTRANK must be a number!;@break lte(%1,2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: STARTRANK may not be higher than 3.;@break lte(%1,u(u(gso)/FUN`GETRANK,%q<gid1>,%:))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Cannot raise STARTRANK beyond your own rank.;@assert hasattrp(%q<gid1>/RANK`[abs(%1)])=@nspemit %#=u(RFN`MSGHEAD) ERROR: Cannot find that rank.;th setq(entry,abs(%1))
 &INC`CODE`SET`CHECK`IC u(gso)=@assert isint(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: IC must be a number!;th setq(entry,t(%1))
@@ -295,7 +306,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),GR
 &INC`CHOOSE`+G`RECALL`MAIN u(gso)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`RECALL
 &INC`CODE`RECALL u(gso)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No chat type entered!;@include u(ccs)/INC`PARTIAL=%0,IC|OOC,|,GROUPS,chat,chat;@switch/inline valnum(%1)=1,{th setq(amt,%1)},{th setq(amt,15)};@nspemit %#=header(%q<gname1> [ucstr(%q<chat>)] Log);@dolist setr(total,revwords(elements(sortkey(#lambda/last(\%0,`),lattr(%q<gid1>/[left(%q<chat>,1)]`?*),-n),lnum(1,%q<amt>))))={@nspemit %#=\[[timefmt($a $b $d $H:$M:$S,get(%q<gid1>/%i0`ON))]\] [u(u(gso)/FUN`CHATFORMAT,%#,get(%q<gid1>/%i0`BY),get(%q<gid1>/%i0),%q<chat>,get(%q<gid1>/%i0`TYPE),%q<gid1>,1,get(%q<gid1>/%i0`AS),get(%q<gid1>/%i0`GEMIT))];@switch/inline eq(inum(0),words(%q<total>))=1,{@nspemit %#=u(RFN`HEADER)}}
 
-&FUN`CHATFORMAT u(gso)=if(cor(%6,%8),,switch(1,hasflag(%0,PARANOID),\[[name(%1)]\(%1\)\],hasflag(%0,NOSPOOF),\[[name(%1)]:\]))[ansi(c,<)][ansi(strfirstof(custcolor(%0,GROUPCHAN`%5),u(u(gso)/FUN`GETSET,%5,COLOR),hx),name(%5))]-[if(cand(%4,not(%8)),ansi(hr,SYS),ansi(hx,ucstr(%3)))][ansi(c,>)]%B[colornames(if(cor(%4,%8),%2,if(u(u(gso)/FUN`GETSET,%5,CHANNELRANK),\[[strfirstof(u(FUN`GETRANK,%5,%1),?)]\]%B)[if(strlen(getstat(%1/D`GROUP`%5,TITLE)),getstat(%1/D`GROUP`%5,TITLE)%B)][speak(if(strlen(%7),&%7,%1),%2)]),%0,setunion(lwhoid(%0),get(%5/MEMBERS)),GCHANNELS)]
+&FUN`CHATFORMAT u(gso)=if(cor(%6,%8),,switch(1,hasflag(%0,PARANOID),\[[name(%1)]\(%1\)\],hasflag(%0,NOSPOOF),\[[name(%1)]:\]))[ansi(firstcolor(%0,%5`%3EDGE,GROUP`%3EDGE),<)][ansi(strfirstof(custcolor(%0,%5`%3NAME,,1),custcolor(%0,%5`NAME,,1),custcolor(%0,GROUP`NAME)),name(%5))][if(cand(%4,not(%8)),ansi(firstcolor(%0,%5`%3DIVIDER,GROUP`%3DIVIDER),-)[ansi(firstcolor(%0,%5`SYSTAG,GROUP`SYSTAG),SYS)],switch(%3,OOC,ansi(firstcolor(%0,%5`%3DIVIDER,GROUP`%3DIVIDER),-)[ansi(firstcolor(%0,%5`OOCTAG,GROUP`OOCTAG),ucstr(%3))],IC,))][ansi(firstcolor(%0,%5`%3EDGE,GROUP`%3EDGE),>)]%B[colornames(if(cor(%4,%8),%2,if(u(u(gso)/FUN`GETSET,%5,CHANNELRANK),\[[strfirstof(u(FUN`GETRANK,%5,%1),?)]\]%B)[if(strlen(getstat(%1/D`GROUP`%5,TITLE)),getstat(%1/D`GROUP`%5,TITLE)%B)][speak(if(strlen(%7),&%7,%1),%2)]),%0,setunion(lwhoid(%0),get(%5/MEMBERS)),GCHANNELS)]
 
 &CMD`CHAT u(gso)=$^(?s)(-|=)(\w+)?(?\:/(\S+)?)?(?\: +(.+))?$:@include u(ccs)/INC`JAILCHECK;@include u(ccs)/INC`PARTIAL=%3,GAG|UNGAG|ON|OFF|RECALL,|,v(VAR`MSGHEAD),switch,switch;th setq(grab,namegrab(filterbool(#lambda/cand(isgroupmember(%:,\%0),if(strlen(%q<switch>),1,strfirstof(get(%#/D`GROUP`\%0`[switch(%1,-,IC,=,OOC,OOC)]),1))),u(u(gso)/FUN`LISTGROUPS)),strfirstof(%2,getstat(%#/D`GROUP,Group))));@include u(gso)/INC`CODE`VALGROUP=%q<grab>,1;th setstat(%#/D`GROUP,Group,%q<gid1>);@switch/inline gt(strlen(%q<switch>),0)=1,{@include u(gso)/INC`CHOOSE`+G`[switch(%1,-,IC,=,OOC,OOC)]`%q<switch>=%4},{@assert strlen(%4)=@nspemit %#=What will you say?;@include u(gso)/INC`CODE`CHAT=%4,switch(%1,-,IC,=,OOC,OOC),0}
 @set u(gso)/CMD`CHAT=regexp

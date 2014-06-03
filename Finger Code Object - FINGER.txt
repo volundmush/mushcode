@@ -41,6 +41,9 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),FI
 &GET`FINGER`DEFAULT`SEX u(finger)=switch(get(%0/SEX),m*,Male,f*,Female,n*,Neuter,???)
 &GET`FINGER`DEFAULT`RACE u(finger)=default(%0/D`FINGER`RACE,Unset)
 &GET`FINGER`DEFAULT`JOB u(finger)=default(%0/D`FINGER`JOB,Wanderer)
+&GET`FINGER`DEFAULT`GROUPS u(finger)=getproperty(%0,groupnames,1)
+&GET`FINGER`DEFAULT`FACTION u(finger)=strfirstof(getproperty(%0,faction,1),Unaffiliated)
+&GET`FINGER`DEFAULT`RANK u(finger)=strfirstof(getproperty(%0,rank),N/A)
 
 &VAR`OOCFINGER`PLAYFLAGS u(finger)=SET
 &VAR`OOCFINGER`ADMINFLAGS u(finger)=
@@ -66,6 +69,38 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),FI
 &GET`OOCFINGER`DEFAULT`EMAIL u(finger)=switch(cor(strmatch(%0,%#),isadmin(%#))[strmatch(get(%0/D`OOCFINGER`EMAIL),!*)],00,get(%0/D`OOCFINGER`EMAIL),11,get(%0/D`OOCFINGER`EMAIL) (private),01,Private,get(%0/D`OOCFINGER`EMAIL))
 &GET`OOCFINGER`DEFAULT`HOMEPAGE u(finger)=weblink(get(%0/D`OOCFINGER`HOMEPAGE))
 &GET`OOCFINGER`DEFAULT`ALTS u(finger)=u(u(cao)/FUN`ALTS`LIST,%0,1)
+
+
+&GFN`GETPROPERTY u(finger)=if(isdbref(%0),u(FUN`GETPROPERTY`%1,%0,%2,%3,%4))
+
+&FUN`GETPROPERTY`GROUPS u(finger)=setinter(get(%0/D`GROUPS),u(u(gso)/FUN`LISTGROUPS),%b,namei)
+
+&FUN`GETPROPERTY`GTITLE u(finger)=get(%0/D`GROUP`[namegrab(u(FUN`GETPROPERTY`GROUPS,%0,%1,%2),%1)]`TITLE)
+
+&FUN`GETPROPERTY`FACTIONDB u(finger)=first(u(FUN`GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))
+
+&FUN`GETPROPERTY`FACTIONSDB u(finger)=sort(filterbool(#lambda/cand(u(u(gso)/FUN`GETSET,\%0,MAJOR),strmatch(u(u(gso)/FUN`GETSET,\%0,TYPE),FACTION)),u(FUN`GETPROPERTY`GROUPS,%0,%1,%2,%3)),attr:SET`SORT)
+
+&FUN`GETPROPERTY`FACTION u(finger)=if(isdbref(setr(fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(FUN`GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
+
+&FUN`GETPROPERTY`FACTIONS u(finger)=if(words(setr(fac,u(FUN`GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))),u(FUN`GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
+
+&FUN`GETPROPERTY`RANK u(finger)=if(isdbref(setr(fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(FUN`GETPROPERTY`RANKS,%0,%1,%q<fac>,%3))
+
+&FUN`GETPROPERTY`RANKS u(finger)=edit(iter(strfirstof(%2,u(FUN`GETPROPERTY`FACTIONSDB,%0,%1,%2,%3)),setr(rank,get(%0/D`GROUP`%i0`RANK))-[strfirstof(get(%0/D`GROUP`%i0`TITLE),get(%i0/RANK`%q<rank>`NAME))],%b,|),|,if(%3,%r,\,%b))
+
+&FUN`GETPROPERTY`GROUPNAMES u(finger)=edit(iter(strfirstof(%2,setdiff(u(FUN`GETPROPERTY`GROUPS,%0,%1,%2,%3),u(FUN`GETPROPERTY`FACTIONSDB,%0,%1,%2,%3),,namei)),if(%1,pueblize(ansi(strfirstof(get(%i0/SET`COLOR),n),name(%i0)),+group [name(%i0)]),ansi(strfirstof(get(%i0/SET`COLOR),n),name(%i0))),%b,|),|,if(%3,%r,\,%b))
+
+&FUN`GETPROPERTY`SPECIES u(finger)=get(%0/SPECIES)
+&FUN`GETPROPERTY`QUOTE u(finger)=get(%0/D`FINGER`QUOTE)
+&FUN`GETPROPERTY`PROFILE u(finger)=get(%0/D`FINGER`PROFILE)
+&FUN`GETPROPERTY`SERIES u(finger)=switch(setr(theme,get(%0/D`THEME)),>0,if(%1,pueblize(get(u(tdb)/%q<theme>),+theme [get(u(tdb)/%q<theme>)]),get(u(tdb)/%q<theme>)),???)
+
+&FUN`GETPROPERTY`FULLHP u(finger)=if(get(%0/adminattrs`noscan),if(cor(isadmin(%#),strmatch(%0,%#)),ansi(hx,rjust(get(%0/HP_NOW),3,0)/[rjust(get(%0/HP_MAX),3,0)]),???/???),ansi(if(get(%0/HP_NOW),n,r),rjust(get(%0/HP_NOW),3,0))/[rjust(get(%0/HP_MAX),0,3)])
+
+&FUN`GETPROPERTY`PL u(finger)=if(get(%0/adminattrs`noscan),if(cor(isadmin(%#),strmatch(%0,%#)),ansi(hx,get(%0/level)),??),get(%0/level))
+
+&GFN`FACTIONS u(finger)=filterbool(#lambda/cand(get(\%0/SET`MAJOR),strmatch(get(\%0/SET`TYPE),Faction)),u(u(gso)/FUN`LISTGROUPS))
 
 @@ HELP SECTION
 +help/addmain Character/+finger=[u(finger)]/HLP`FINGER

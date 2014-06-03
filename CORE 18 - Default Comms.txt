@@ -3,8 +3,8 @@
 +key/make ADMIN
 
 @wait 1=+bbnewgroup Admin
-@wait 2=+bblock Admin=ADMIN
-@wait 2=+bblock Admin=ADMIN
+@wait 2=+bblock Admin/read=ADMIN
+@wait 2=+bblock Admin/write=ADMIN
 
 @wait 2=+channel/add Admin=hm
 @wait 2=+channel/add **Staff Alerts**=hr

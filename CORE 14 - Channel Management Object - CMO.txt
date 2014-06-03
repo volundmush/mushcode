@@ -18,7 +18,7 @@
 @set u(cmo)/CMD`+CHANNEL=regexp
 
 &VAR`CHANNEL`PLAYFLAGS u(cmo)=CODENAME|RECALL|COLOR
-&VAR`CHANNEL`ADMINFLAGS u(cmo)=ADD|DELETE|TAG|RENAME|CONFIG||MOGCONF|INIT
+&VAR`CHANNEL`ADMINFLAGS u(cmo)=ADD|DELETE|STAFFTAG|RENAME|CONFIG||MOGCONF|INIT
 
 &RFN`MSGHEAD u(cmo)=msghead(v(VAR`MSGHEAD))
 &VAR`MSGHEAD u(cmo)=CHANNEL
@@ -64,7 +64,11 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),CH
 
 &INC`CHANNEL`MOGCONF`SHOWCONFIG u(cmo)=@nspemit %#=header(%q<channel>: Mogrifiers);@dolist/inline/delimit | [v(VAR`MOGTYPES)]={@nspemit %#=separator(capnames(%i0));@nspemit %#=Order: [get(%q<mog>/MOGORDER`%i0)] [if(not(hasattr(%q<mog>/MOGORDER`%i0)),(inherited))]%RIn Use: [get(%q<mog>/MOGUSE`%i0)] [if(not(hasattr(%q<mog>/MOGUSE`%i0)),(inherited))];@nspemit %#=* OPTIONS *;@nspemit %#=iter(v(VAR`MOGTYPES`%i0),%i0: [get(%q<mog>/MOGCONF`%i1`%i0)] [if(not(hasattr(%q<mog>/MOGCONF`%i1`%i0)),(inherited))],|,%R)};@nspemit %#=header()
 
-&INC`CHANNEL`CODENAME u(cmo)=@include u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@break not(strmatch(parent(setr(mog,cmogrifier(%q<channel>))),u(cdb)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@assert get(%q<mog>/CONF`CODENAME)=@nspemit %#=u(RFN`MSGHEAD) ERROR: That channel does not use codenames.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Nothing entered for an codename!;@assert cor(valid(playername,stripansi(%1)),if(pmatch(%1),strmatch(%#,pmatch(%1)),0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Codenames must follow the same name rules as names, and cannot match another player's name.;@break words(setr(list,setdiff(lsearch(all,type,player,elock,D`CHANNEL`%q<mog>`CODENAME`NOCOLOR:[stripansi(trim(%1))]),%#)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Cannot use that codename: in use by [itemize(iter(%q<list>,name(%i0),%b,|),|,and,\,)];@nspemit %#=u(RFN`MSGHEAD) Codename set for %q<channel> to: %1 - make sure this is a reasonable codename!;&D`CHANNEL`%q<mog>`CODENAME %#=trim(%1);&D`CHANNEL`%q<mog>`CODENAME`NOCOLOR %#=stripansi(trim(%1))
+&INC`CHANNEL`CODENAME u(cmo)=@include u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@break not(strmatch(parent(setr(mog,cmogrifier(%q<channel>))),u(cdb)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@assert get(%q<mog>/CONF`CODENAME)=@nspemit %#=u(RFN`MSGHEAD) ERROR: That channel does not use codenames.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Nothing entered for an codename!;@break gt(strlen(%1),config(player_name_len))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Codename is beyond the allowed [config(player_name_len)] characters.;@assert cor(valid(playername,stripansi(%1)),if(pmatch(%1),strmatch(%#,pmatch(%1)),0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Codenames must follow the same name rules as names, and cannot match another player's name.;@break words(setr(list,setdiff(lsearch(all,type,player,elock,D`CHANNEL`%q<mog>`CODENAME`NOCOLOR:[stripansi(trim(%1))]),%#)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Cannot use that codename: in use by [itemize(iter(%q<list>,name(%i0),%b,|),|,and,\,)];@nspemit %#=u(RFN`MSGHEAD) Codename set for %q<channel> to: %1 - make sure this is a reasonable codename!;&D`CHANNEL`%q<mog>`CODENAME %#=trim(%1);&D`CHANNEL`%q<mog>`CODENAME`NOCOLOR %#=stripansi(trim(%1))
+
+&INC`CHANNEL`STAFFTAG u(cmo)=@include u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@break not(strmatch(parent(setr(mog,cmogrifier(%q<channel>))),u(cdb)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@switch/inline t(match(get(%q<mog>/VAR`STAFFTAG),%:))=1,{&VAR`STAFFTAG %q<mog>=setdiff(get(%q<mog>/VAR`STAFFTAG),%:);@nspemit %#=u(RFN`MSGHEAD) You will no longer have a Staff tag on %q<channel>},0,{&VAR`STAFFTAG %q<mog>=setunion(get(%q<mog>/VAR`STAFFTAG),%:);@nspemit %#=u(RFN`MSGHEAD) You will now have a Staff tag on %q<channel>}
+
+
 
 @@ MUZZLE SECTION
 &CMD`+MUZZLE u(cmo)=$^(?s)(?\:\+)?(muzzle|unmuzzle)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cmo)/VAR`MUZZLE`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`MUZZLE`ADMINFLAGS)),|,|),|,MUZZLE,switch,switch;@include u(cmo)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4,%5
@@ -124,7 +128,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),CH
 &MOGORDER`TITLE u(cdb)=noansi trim stafftag
 &MOGUSE`TITLE u(cdb)=noansi trim stafftag
 
-&FUN`TITLE`STAFFTAG u(cdb)=if(cand(v(MOGCONF`TITLE`STAFFTAG),isadmin(%#)),\[[ansi(h,Staff)]\][if(strlen(%0),%B%0)],%0)
+&FUN`TITLE`STAFFTAG u(cdb)=if(cand(v(MOGCONF`TITLE`STAFFTAG),match(v(VAR`STAFFTAG),%:),isadmin(%#)),\[[ansi(hR,Staff)]\][if(strlen(%0),%B%0)],%0)
 &MOGCONF`TITLE`STAFFTAG u(cdb)=1
 &FUN`TITLE`NOANSI u(cdb)=stripansi(%0)
 &FUN`TITLE`TRIM u(cdb)=trim(if(v(MOGCONF`TITLE`TRIM),left(%0,v(MOGCONF`TITLE`TRIM)),%0))

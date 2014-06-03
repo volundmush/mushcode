@@ -8,13 +8,13 @@
 @set u(gripe)/CMD`+GRIPE=regexp
 
 &VAR`PLAYFLAGS u(gripe)=
-&VAR`ADMINFLAGS u(gripe)=BOARD|LOCK|MARK
+&VAR`ADMINFLAGS u(gripe)=BOARD|LOCK
 
 &INC`MAIN u(gripe)=@assert setr(accid,accid(%#))=@nspemit %#=Only characters with accounts may use +%2.;@break default(u(adb)/%q<accid>`NO%2,0)=@nspemit %#=u(msg-locked);@assert isdbref(v(VAR`%2))=@nspemit %#=CODE ERROR: +[ucstr(%2)] is not configured properly. Please alert Codestaff immediately!;@include u(gripe)/INC`%2=%0,%1
 
-&INC`FEEDBACK u(gripe)=@assert lte(strlen(%0),24)=@nspemit %#=ansi(r,Feedback title too long. Must be less than 24 characters.);@assert strlen(%1)=@nspemit %#=What do you want to say?;@log/wiz FEEDBACK: %n (#: %# Owner: [owner(%#)] !: %! @: %@): %0 / %1;@nspemit %#=Your feedback has been sent.;@wait rand(30,120)=+bbpost [v(VAR`FEEDBACK)]/Feedback: %0=%1[if(hasattrval(u(adb),%q<accid>`MARKGRIPES),%r%r[ansi(r,Marked)]: %n - Account: %q<accid>)]
+&INC`FEEDBACK u(gripe)=@assert lte(strlen(%0),24)=@nspemit %#=ansi(r,Feedback title too long. Must be less than 24 characters.);@assert strlen(%1)=@nspemit %#=What do you want to say?;@log/wiz FEEDBACK: %n (#: %# Owner: [owner(%#)] !: %! @: %@): %0 / %1;@nspemit %#=Your feedback has been sent.;@wait rand(30,120)=+bbpost [v(VAR`FEEDBACK)]/Feedback: %0=%1
 
-&INC`GRIPE u(gripe)=@include u(ccs)/INC`CHECKPC=%0,1,GRIPE;@assert strlen(%1)=@nspemit %#=What are your griping about?;@log/wiz GRIPE: %n (#: %# Owner: [owner(%#)] !: %! @: %@) for %q<t1name>: %1;@wait rand(30,60)=+bbpost [v(VAR`GRIPE)]/Gripe: %q<t1name>=%1[if(hasattrval(u(adb),%q<accid>`MARKGRIPES),%r%r[ansi(r,Marked)]: %n - Account: %q<accid>)];@pemit %#=Your complaint about %q<t1name> has been sent.%r[ansi(h,{Note that if you did not include a log, we may not be able to do anything about the issue. To add a log, send a new gripe containing both a log and a note that it is a log for the previous gripe.})]
+&INC`GRIPE u(gripe)=@include u(ccs)/INC`CHECKPC=%0,1,GRIPE;@assert strlen(%1)=@nspemit %#=What are your griping about?;@log/wiz GRIPE: %n (#: %# Owner: [owner(%#)] !: %! @: %@) for %q<t1name>: %1;@wait rand(30,60)=+bbpost [v(VAR`GRIPE)]/Gripe: %q<t1name>=%1;@pemit %#=Your complaint about %q<t1name> has been sent.%r[ansi(h,{Note that if you did not include a log, we may not be able to do anything about the issue. To add a log, send a new gripe containing both a log and a note that it is a log for the previous gripe.})]
 
 &INC`REPORT u(gripe)=@assert lte(strlen(%0),24)=@nspemit %#=ansi(r,Report title too long. Must be less than 24 characters.);@assert strlen(%1)=@nspemit %#=What do you want to say?;@log/wiz REPORT: %n (#: %# Owner: [owner(%#)] !: %! @: %@): %0 / %1;@nspemit %#=Your feedback has been sent.;@wait rand(30,120)=+bbpost [v(VAR`REPORT)]/Feedback: %0=%1
 
@@ -22,10 +22,8 @@
 
 &INC`LOCK u(gripe)=@include u(ccs)/INC`CHECKPC=%0,1,%2;@assert setr(accid,accid(%q<t1objid>))=@nspemit %#=msghead(%2) ERROR: %q<t1name> has no account, cannot lock.;&%q<accid>`NO%2 u(adb)=if(setr(already,t(get(u(adb)/%q<accid>`NO%2))),0,1);@nspemit %#=msghead(%2) %q<t1name> may [if(%q<already>,now,no longer)] use [ucstr(%2)].;@nscemit/noisy Wizard={ansi(h,%n) just [if(%q<already>,unlocked,locked)] %q<t1name>'s access to: %2 (Account: %q<accid>)}
 
-&INC`MARK u(gripe)=@assert match(GRIPE FEEDBACK,%2)=@nspemit %#=msghead(%2) This command does not work with +report.;@include u(ccs)/INC`CHECKPC=%0,1,%2;@assert setr(accid,accid(%q<t1objid>))=@nspemit %#=msghead(%2) ERROR: %q<t1name> has no account, cannot mark.;&%q<accid>`MARKGRIPES u(adb)=if(setr(already,t(get(u(adb)/%q<accid>`NO%2))),0,1);@nspemit %#=msghead(%2) %q<t1name> may [if(%q<already>,now,no longer)] use Gripes and Feedbacks anonymously.;@nscemit/noisy Wizard={ansi(h,%n) just [if(%q<already>,restored,stripped)] %q<t1name>'s anonymity on Gripes and Feedbacks. (Account: %q<accid>)}
-
-&MSG-LOCKED u(gripe)=ansi(h,{You have been barred from the use of our anonymous +gripe/+feedback system. This can happen for a variety of reasons: Chiefly, abusing the system or giving us the idea that you're going to abuse the system.%r%rHowever, we do not want to prevent you from complaining legitimately. If you have a legitimate complaint, @mail Reliant, Benediction, Lord English, Dremarian, and Charon.})
+&MSG-LOCKED u(gripe)=ansi(h,{You have been barred from the use of our anonymous +gripe/+feedback system. This can happen for a variety of reasons: Chiefly, abusing the system or giving us the idea that you're going to abuse the system.%r%rHowever, we do not want to prevent you from complaining legitimately. If you have a legitimate complaint, @mail this game's gripestaff.})
 
 +shelp/addmain Administration/+gripe=[u(gripe)]/SHLP`+GRIPE
-&SHLP`+GRIPE u(gripe)=ansi(hc,Wizard Commands)%R[align(5 [sub(width(%#),6)],,{Note: <command> refers to +gripe, +feedback, or +report%R[ansi(h,<command>/board <board number or name>)] - Link a command to post to a certain board.%R[ansi(h,<command>/lock <player>)] - Restrict a player from using a command. Account-wide. use again to undo.%R[ansi(h,<command>/mark <player>)] - Feedback or Gripe only, but affects both. Removes anonymous access, account-wide. use again to toggle off.})]
+&SHLP`+GRIPE u(gripe)=ansi(hc,Wizard Commands)%R[align(5 [sub(width(%#),6)],,{Note: <command> refers to +gripe, +feedback, or +report%R[ansi(h,<command>/board <board number or name>)] - Link a command to post to a certain board.%R[ansi(h,<command>/lock <player>)] - Restrict a player from using a command. Account-wide. use again to undo.})]
 
