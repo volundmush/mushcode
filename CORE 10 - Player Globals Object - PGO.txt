@@ -17,10 +17,10 @@
 &CMD`+OOC u(pgo)=$^(?s)(\+ooc|osay|\+osay)(?\: +(.*))?$:@assert elock(%l/speech,%#)=@nspemit %#=Permission denied.;@assert strlen(%2)=@nspemit %#=What will you say?;@message/spoof lplayers(%l)=%2,u(pgo)/FUN`MSGOOC,%#,##,%2
 @set u(pgo)/CMD`+OOC=regexp
 
-&CMD`QUIT u(pgo)=$^(quit|logoff|logout)$:@switch/inline default(%#/PLAYSTATUS,OOC)=IC,{@nscemit/noisy RP=ansi(w,%n) [ansi(<#848484>,is now)] [ansi(m,Out of Character.)];&PLAYSTATUS %#=OOC};@boot/silent %#
+&CMD`QUIT u(pgo)=$^(quit|logoff|logout)$:@boot/silent %#
 @set u(pgo)/CMD`QUIT=regexp
 
-&FUN`MSGOOC u(pgo)=ansi(custcolor(%1,OOC`BORDER),-<)[ansi(custcolor(%1,OOC`HEADER)],OOC)[ansi(custcolor(%1,OOC`BORDER),>-)]%B[if(isadmin(%0),ansi(h,\[Staff\]%B))][speak(&[ansi(custcolor(%1,OOC`NAME),name(%0))],%2,ansi(custcolor(%1,OOC`SAYSTRING),says\,),#lambda/\[ansi(custcolor(%1,OOC`QUOTES),")\]\[ansi(custcolor(%1,OOC`SPEECH),\%0)\]\[ansi(custcolor(%1,OOC`QUOTES),")\])]
+&FUN`MSGOOC u(pgo)=ansi(custcolor(%1,OOC`BORDER),-<)[ansi(custcolor(%1,OOC`HEADER),OOC)][ansi(custcolor(%1,OOC`BORDER),>-)]%B[if(isadmin(%0),ansi(h,\[Staff\]%B))][speak(&[ansi(custcolor(%1,OOC`NAME),name(%0))],%2,ansi(custcolor(%1,OOC`SAYSTRING),says\,),#lambda/\[ansi(custcolor(%1,OOC`QUOTES),")\]\[ansi(custcolor(%1,OOC`SPEECH),\%0)\]\[ansi(custcolor(%1,OOC`QUOTES),")\])]
 
 th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),OOC,|,|))
 &VAR`CATEGORIES`OOC u(cco-db)=SPEECH|NAME|HEADER|BORDER|QUOTES|SAYSTRING

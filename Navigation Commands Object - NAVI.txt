@@ -15,7 +15,7 @@
 
 &CMD`+OOC u(navi)=$ooc:@assert elock(%l/leave,%#)=@nspemit %#=Permission denied. You do not pass the leave lock.;th setq(dest,v(LOC`OOCNEXUS));@switch/inline isic(%#)=0,{@break strmatch(%l,%q<dest>)=@nspemit %#=You are already in the OOC Nexus.;@nspemit %#=You are already OOC. Returning you to the OOC Nexus.};@switch/inline isic(%#)=1,{&D`ICLOC %#=objid(%l)};@tel[if(hasflag(%#,DARK),/silent)] %#=%q<dest>
 
-&CMD`+NEXUS u(navi)=$+nexus:@break strmatch(%l,setr(m,v(LOC`OOCNEXUS)))=@pemit %#=You are already there.; @assert elock(%l/leave,%#)=@pemit %#=Permission denied. You do not pass the leave lock.;  @assert elock(%qm/teleport,%#)=@pemit %#=Permission denied. You do not pass the teleport lock.; @tel[if(hasflag(%#,DARK),/silent)] %#=%qm
+&CMD`+NEXUS u(navi)=$+nexus:@break strmatch(%l,setr(m,v(LOC`ICNEXUS)))=@pemit %#=You are already there.; @assert elock(%l/leave,%#)=@pemit %#=Permission denied. You do not pass the leave lock.;  @assert elock(%qm/teleport,%#)=@pemit %#=Permission denied. You do not pass the teleport lock.; @tel[if(hasflag(%#,DARK),/silent)] %#=%qm
 
 &CMD`+GOHOME u(navi)=$+gohome:@force/inline %#=home
 &HOOK`IGNORE`HOME u(navi)=if(elock(u(navi)/Command,%#),1,0[nspemit(%#,Permission denied.)])
@@ -24,9 +24,11 @@
 
 &CMD`+PORT u(navi)=$+port *:think setq(l,u(FUN`LISTIC)); @assert setr(m,firstof(grab(%ql,%0),namegraball(%ql,%0)))=@pemit %#=Nothing matches '%0'.; @assert eq(words(%qm),1)=@pemit %#=ansi(h,Multiple matches:)%r[ansi(c,iter(%qm,%b%b[name(%i0)] %([ansi(hx,%i0)]%),,%r))]; @break strmatch(%l,%qm)=@pemit %#=You are already there.; @assert elock(%l/leave,%#)=@pemit %#=Permission denied. You do not pass the leave lock.;  @assert elock(%qm/teleport,%#)=@pemit %#=Permission denied. You do not pass the teleport lock.; @break cor(hasflag(%#,dark),hidden(%#))=@tel/silent %#=%qm; @tel %#=%qm
 
-&CMD`+ROOMLIST u(navi)=$+roomlist:think setq(l,u(FUN`LISTIC)); @pemit %#=header(Grid Rooms );think [setq(w,words(%ql))][case(mod(setr(half,div(%qw,2)),2),1,setq(half,dec(%q<half>)))][setq(rest,sub(%qw,%q<half>))]; think setq(top,extract(%ql,1,%q<half>))[setq(bottom,extract(%ql,inc(%q<half>),inc(%q<rest>)))]; @pemit %#=table(iter(%q<top>,ljust(ansi(c,pueblize(%i0,+port %i0)),6) [ansi(hx,pueblize(name(%i0),+port %i0))],,|),38,width(%#),|); @pemit %#=table(iter(%q<bottom>,pueblize(ljust(ansi(c,%i0),6) [ansi(hx,name(%i0))],+port %i0),,|),38,width(%#),|); @pemit %#=header()
+&CMD`+ROOMLIST u(navi)=$+roomlist:@nspemit %#=header(Grid Rooms);th step(FUN`ROOMLIST,u(FUN`LISTIC),30);@nspemit %#=header()
 
-&CMD`+ROOMLIST`ARG u(navi)=$+roomlist *:think setq(l,u(FUN`LISTIC)); @assert setr(m,firstof(grab(%ql,%0),namegraball(%ql,%0)))=@pemit %#=Nothing matches '%0'.; @pemit %#=header('%0')%r[table(iter(%qm,pueblize(ljust(ansi(c,%i0),6) [ansi(hx,name(%i0))],+port %i0),,|),38,width(%#),|)]%r[header()]
+&CMD`+ROOMLIST`ARG u(navi)=$+roomlist *:think setq(l,u(FUN`LISTIC)); @assert strlen(setr(m,strfirstof(grab(%ql,%0),namegraball(%ql,%0))))=@pemit %#=Nothing matches '%0'.;@nspemit %#=header('%0');th step(FUN`ROOMLIST,%qm,30);@nspemit %#=header()
+
+&FUN`ROOMLIST u(navi)=nspemit(%#,table(iter(lnum(0,sub(%+,1)),ljust(ansi(c,pueblize(v(%i0),+port [v(%i0)])),6) [ansi(hx,pueblize(name(v(%i0)),+port [v(%i0)]))],%b,|),38,width(%#),|))
 
 &STARTUP u(navi)=@hook/ignore home=u(navi),HOOK`IGNORE`HOME;@trigger me/TRG`SELFCLEAN
 &TRG`SELFCLEAN u(navi)=@dolist/inline filterbool(FILTER_TIMEOUT,reglattr(me/^#\\d+`#\\d+$))={@wipe me/%i0};@wait 600=@trigger me/TRG`SELFCLEAN

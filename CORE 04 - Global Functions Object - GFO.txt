@@ -18,9 +18,10 @@
 &AGFN`GETSTAT u(gfo)=if(strlen(%2),add(rest(grab(get(%0),%1~*,|),~),rest(grab(get(before(%0,/)/D`%2),%1~*,|),~)),rest(grab(get(%0),%1~*,|),~))
 &AGFN`GRABSTAT u(gfo)=rest(grab(%0,%1~*,|),~)
 
-&GFN`HEADER u(gfo)=if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))[center(if(strlen(%0),ansi(firstcolor(%#,%2,DEFAULT`BORDER),<)[if(pueblo(%#),endtag(a))][ansi(firstcolor(%#,%3,DEFAULT`BORDERDOT),*%B)][if(%1,%0,ansi(firstcolor(%#,%4,DEFAULT`BORDERTEXT),%0))][ansi(firstcolor(%#,%3,DEFAULT`BORDERDOT),%B*)][ansi(firstcolor(%#,%2,DEFAULT`BORDER),>)]),if(%5,sub(width(%#),2),width(%#)),ansi(firstcolor(%#,%2,DEFAULT`BORDER),=))][if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))]
-&GFN`SUBHEADER u(gfo)=if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))[center(if(strlen(%0),%b[if(%1,%0,ansi(firstcolor(%#,%4,DEFAULT`BORDERTEXT),%0))]%b),if(%5,sub(width(%#),2),width(%#)),ansi(firstcolor(%#,%2,DEFAULT`BORDER),=))][if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))]
-&GFN`SEPARATOR u(gfo)=if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))[center(if(strlen(%0),%b[if(%1,%0,ansi(firstcolor(%#,%4,DEFAULT`BORDERTEXT),%0))]%b),if(%5,sub(width(%#),2),width(%#)),ansi(firstcolor(%#,%2,DEFAULT`BORDER),-))][if(%5,ansi(firstcolor(%#,%2,DEFAULT`BORDER),+))]
+
+&GFN`HEADER u(gfo)=if(%5,ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),+))[center(if(strlen(%0),ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),<)[if(pueblo(firstof(%6,%#)),endtag(a))][ansi(firstcolor(firstof(%6,%#),%3,DEFAULT`BORDERDOT),*%B)][if(%1,%0,ansi(firstcolor(firstof(%6,%#),%4,DEFAULT`BORDERTEXT),%0))][ansi(firstcolor(firstof(%6,%#),%3,DEFAULT`BORDERDOT),%B*)][ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),>)]),if(%5,sub(width(firstof(%6,%#)),2),width(firstof(%6,%#))),ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),=))][if(%5,ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),+))]
+&GFN`SUBHEADER u(gfo)=if(%5,ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),+))[center(if(strlen(%0),%b[if(%1,%0,ansi(firstcolor(firstof(%6,%#),%4,DEFAULT`BORDERTEXT),%0))]%b),if(%5,sub(width(firstof(%6,%#)),2),width(firstof(%6,%#))),ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),=))][if(%5,ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),+))]
+&GFN`SEPARATOR u(gfo)=if(%5,ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),+))[center(if(strlen(%0),%b[if(%1,%0,ansi(firstcolor(firstof(%6,%#),%4,DEFAULT`BORDERTEXT),%0))]%b),if(%5,sub(width(firstof(%6,%#)),2),width(firstof(%6,%#))),ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),-))][if(%5,ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`BORDER),+))]
 @@ %0 - display text (optional), %1 - no text colors boolean, %2 - headerline color, %3 - headerdot color, %4 - headertext color, %5 = Bordered mode
 
 &GFN`FOOTER u(gfo)=header(%0)
@@ -35,7 +36,13 @@
 &GFN`VALNUM u(gfo)=cand(isint(%0),gt(%0,0))
 &GFN`WEBLINK u(gfo)=if(strlen(%0),tagwrap(a,href="[setr(webfix,if(not(strmatch(%0,*://*)),http://%0,%0))]",strfirstof(%1,%q<webfix>)))
 
-&GFN`LASTIDLE u(gfo)=switch(1,cand(isadmin(%1),hasflag(%0,CONNECTED),cor(hidden(%0),hasflag(%0,DARK))),ansi(g,ago(idle(%0))),cor(cand(not(isadmin(%1)),hasflag(%0,CONNECTED),cor(hidden(%0),hasflag(%0,DARK))),not(hasflag(%0,CONNECTED))),ansi(hx,elements(get(%0/last),2 3)),hasflag(%0,CONNECTED),ansi(hg,ago(idle(%0))))
+&GFN`LASTIDLE u(gfo)=switch(1,cand(isadmin(%1),hasflag(%0,CONNECTED),cor(hidden(%0),hasflag(%0,DARK))),ansi(hx,etime(idle(%0),3)),cor(cand(not(isadmin(%1)),hasflag(%0,CONNECTED),cor(hidden(%0),hasflag(%0,DARK))),not(hasflag(%0,CONNECTED))),ansi(hx,elements(get(%0/last),2 3)),hasflag(%0,CONNECTED),ansi(hg,etime(idle(%0),3)))
+
+&GFN`HIDECONN u(gfo)=switch(gte(conn(%0),0)[cor(hidden(%0),hasflag(%0,DARK))][isadmin(%#)],0*,ansi(hx,Off),110,ansi(hx,Off),10*,ansi(hg,etime(conn(%0),3)),111,ansi(hx,etime(conn(%0),3)))
+
+&GFN`HIDEIDLE u(gfo)=switch(gte(idle(%0),0)[cor(hidden(%0),hasflag(%0,DARK))][isadmin(%#)],0*,ansi(hx,Off),110,ansi(hx,Off),10*,ansi(ryg(round(mul(fdiv(bound(idle(%0),0,3600),3600),100),0)),etime(idle(%0),3)),111,ansi(hx,etime(idle(%0),3)))
+
+&GFN`LASTCONN u(gfo)=switch(1,cand(isadmin(%1),hasflag(%0,CONNECTED),cor(hidden(%0),hasflag(%0,DARK))),ansi(hx,etime(conn(%0),3)),cor(cand(not(isadmin(%1)),hasflag(%0,CONNECTED),cor(hidden(%0),hasflag(%0,DARK))),not(hasflag(%0,CONNECTED))),ansi(hx,elements(get(%0/last),2 3)),hasflag(%0,CONNECTED),ansi(hg,etime(conn(%0),3)))
 
 &GFN`RYG u(gfo)=<[if(gt(%0,50),255,round(mul(255,fdiv(mul(%0,2),100)),0))] [if(gte(%0,50),sub(mul(255,2),round(mul(255,fdiv(mul(%0,2),100)),0)),255)] 0>
 

@@ -12,26 +12,32 @@
 &RFN`MSGHEAD u(who)=msghead(%0)
 &RFN`HEADER u(who)=header(%0)
 
-&CMD`+WHO u(who)=$^(?\:\+)?who(?\:/(\S+))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(who)/VAR`WHO`PLAYFLAGS),if(isadmin(%#),get(u(who)/VAR`WHO`ADMINFLAGS)),|,|),|,v(VAR`WHO`MSGHEAD),switch,switch;@include u(who)/INC`WHO`[strfirstof(%q<switch>,MAIN)]=%q<switch>
+&CMD`+WHO u(who)=$^(?\:\+)?who(?\:/(\S+))?(?\: +(.+?))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(who)/VAR`WHO`PLAYFLAGS),if(isadmin(%#),get(u(who)/VAR`WHO`ADMINFLAGS)),|,|),|,v(VAR`WHO`MSGHEAD),switch,switch;@include u(who)/INC`WHO`[strfirstof(%q<switch>,MAIN)]=%q<switch>,%2
+@set u(who)/CMD`+WHO=regexp
 
 &VAR`WHO`PLAYFLAGS u(who)=IDLE
 
-&INC`WHO`MAIN u(who)=@include u(who)/INC`WHO`SORT`MAIN;@include u(who)/INC`WHO`LIST
+&INC`WHO`MAIN u(who)=@include u(who)/INC`WHO`SORT`MAIN;@switch/inline gt(strlen(%1),0)=1,{@include u(who)/INC`WHO`SEARCH=%1};@include u(who)/INC`WHO`LIST=,%1
 
-&FUN`WHO`MAIN u(who)=setunion(mwho(),,,namei)
+&FUN`WHO`MAIN u(who)=setunion(lwho(%#),,,namei)
 
 &INC`WHO`SORT`MAIN u(who)=@assert words(setr(who,u(FUN`WHO`MAIN)))=@nspemit %#=u(RFN`MSGHEAD,WHO) No players to show!
 
-&INC`WHO`IDLE u(who)=@include u(who)/INC`WHO`SORT`IDLE;@include u(who)/INC`WHO`LIST=Idle
+&INC`WHO`SEARCH u(who)=@assert words(setr(who,namegraball(%q<who>,%0)))=@nspemit %#=u(RFN`MSGHEAD,WHO) Search for '%0' turned up with nothing.
+
+&INC`WHO`IDLE u(who)=@include u(who)/INC`WHO`SORT`IDLE;@switch/inline gt(strlen(%1),0)=1,{@include u(who)/INC`WHO`SEARCH=%1};@include u(who)/INC`WHO`LIST=Idle,%1
 &INC`WHO`SORT`IDLE u(who)=@assert words(setr(who,sortkey(#lambda/idle(\%0),u(FUN`WHO`MAIN),-n)))=@nspemit %#=u(RFN`MSGHEAD,WHO) No players to show!
 
-&INC`WHO`LIST u(who)=@nspemit %#=u(RFN`HEADER,Who[if(strlen(%0),%b-%b%0)]);@include u(who)/INC`WHO`HEADER`[strfirstof(%0,MAIN)];@nspemit %#=separator();@dolist %q<who>={@nspemit %#=u(FUN`WHO`PLAYERLINE`[strfirstof(%0,MAIN)],%i0);@switch/inline eq(inum(0),words(%q<who>))=1,{&VAR`MAXPLAYERS u(pco)=setr(max,max(get(u(pco)/VAR`MAXPLAYERS),words(%q<who>)));@nspemit %#=u(RFN`HEADER,words(%q<who>) Characters from [words(%q<who>)] IPs Connected - Record is %q<max>)}}
+&INC`WHO`LIST u(who)=@nspemit %#=u(RFN`HEADER,Who[if(strlen(%0),%b-%b%0)]);@include u(who)/INC`WHO`HEADER`[strfirstof(%0,MAIN)];@nspemit %#=separator();@dolist %q<who>={@nspemit %#=u(FUN`WHO`PLAYERLINE`[strfirstof(%0,MAIN)],%i0);@switch/inline eq(inum(0),words(%q<who>))=1,{&VAR`MAXPLAYERS u(pco)=setr(max,max(get(u(pco)/VAR`MAXPLAYERS),words(%q<who>)));@nspemit %#=u(RFN`HEADER,words(%q<who>) Characters from [words(setunion(iter(%q<who>,get(%i0/LASTSITE),,|),,|),|)] IPs Connected - Record is %q<max>)}}
 
 &INC`WHO`HEADER`MAIN u(who)=@nspemit %#=ansi(custcolor(%#,DEFAULT`COLNAME),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location))
 &INC`WHO`HEADER`IDLE u(who)=@include u(who)/INC`WHO`HEADER`MAIN
 
-&FUN`WHO`PLAYERLINE`MAIN u(who)=align(20 11 -3 >4 >4 1 29,pueblize(name(%0),+finger [name(%0)]),alias(%0),strfirstof(switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hb,ROY)),left(getproperty(%0,faction),3),ansi(hx,N/A)),ansi(ryg(round(mul(fdiv(bound(idle(%0),0,3600),3600),100),0)),etime(idle(%0),4)),ansi(hg,etime(conn(%0),4)),ucstr(left(default(%0/sex,?),1)),switch(isic(%0)[strmatch(type(loc(%0)),ROOM)],11,pueblize(name(loc(%0)),+port [loc(%0)]),name(loc(%0))))
+&FUN`WHO`PLAYERLINE`MAIN u(who)=align(20 11 -3 >4 >4 1 [sub(width(%#),49)],pueblize(if(cor(hidden(%0),hasflag(%0,DARK)),ansi(hx,name(%0)),name(%0)),+finger [name(%0)]),alias(%0),strfirstof(getproperty(%0,FACABBR),ansi(hx,N/A)),hideidle(%0),hideconn(%0),ucstr(left(default(%0/sex,?),1)),if(cor(hasflag(%0,UNFINDABLE),hasflag(loc(%0),UNFINDABLE)),*UNFINDABLE*,switch(isic(%0)[strmatch(type(loc(%0)),ROOM)],11,pueblize(left(name(loc(%0)),sub(width(%#),49)),+port [loc(%0)]),left(name(loc(%0)),sub(width(%#),49)))))
 &FUN`WHO`PLAYERLINE`IDLE u(who)=u(FUN`WHO`PLAYERLINE`MAIN,%0)
+
+
+
 
 @@ &STARTUP u(who)=@hook/override WHO=u(who),CMD`+WHO
 
@@ -42,7 +48,7 @@
 &CMD`+WHERE u(who)=$^(?\:\+)?where(?\:/(\S+)?)?(?\: +(.+?))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(who)/VAR`WHERE`PLAYFLAGS),if(isadmin(%#),get(u(who)/VAR`WHERE`ADMINFLAGS)),|,|),|,v(VAR`WHO`MSGHEAD),switch,switch;@include u(who)/INC`WHERE`[strfirstof(%q<switch>,MAIN)]=%2
 @set u(who)/CMD`+WHERE=regexp
 
-&INC`WHERE`MAIN u(who)=@switch/inline strlen(%0)=0,{@nspemit %#=u(RFN`HEADER,Where);@nspemit %#=align(30 1 [sub(width(%#),33)],Location,,Players);@nspemit %#=separator();@dolist setr(where,sort(filterbool(#lambda/isic(room(\%0)),setunion(iter(mwho(),loc(%i0)),)),namei))={@nspemit %#=u(FUN`WHERELINE,%i0);@switch/inline eq(inum(0),words(%q<where>))=1,{@nspemit %#=u(RFn`HEADER)}}},{@include u(ccs)/INC`CHECKPC=%0,1,WHERE;@assert cand(conn(%q<t1>),nor(hasflag(%q<t1>,DARK),hidden(%q<t1>)))=@nspemit %#=u(RFN`MSGHEAD,WHERE) %q<t1name> is not online!;@assert isic(%q<t1>)=@nspemit %#=u(RFN`MSGHEAD,WHERE) %q<t1name> is not IC.;@nspemit %#=u(RFN`HEADER,Where - %q<t1name>);@nspemit %#=align(30 1 [sub(width(%#),33)],Location,,Players);@nspemit %#=separator();@nspemit %#=u(FUN`WHERELINE,loc(%q<t1>));@nspemit %#=u(RFN`HEADER)}
+&INC`WHERE`MAIN u(who)=@switch/inline strlen(%0)=0,{@nspemit %#=u(RFN`HEADER,Where);@nspemit %#=align(30 1 [sub(width(%#),33)],Location,,Players);@nspemit %#=separator();@dolist setr(where,sort(filterbool(#lambda/cand(isic(room(\%0)),cor(nor(hasflag(loc(\%0),UNFINDABLE),hasflag(\%0,UNFINDABLE)),isadmin(%#))),setunion(iter(mwho(),loc(%i0)),)),namei))={@switch/inline gt(words(filterbool(#lambda/cor(not(hasflag(\%0,UNFINDABLE)),isadmin(%#)),lvplayers(%i0))),0)=1,{@nspemit %#=u(FUN`WHERELINE,%i0)};@switch/inline eq(inum(0),words(%q<where>))=1,{@nspemit %#=u(RFn`HEADER)}}},{@include u(ccs)/INC`CHECKPC=%0,1,WHERE;@assert cand(conn(%q<t1>),nor(hasflag(%q<t1>,DARK),hidden(%q<t1>)))=@nspemit %#=u(RFN`MSGHEAD,WHERE) %q<t1name> is not online!;@assert isic(%q<t1>)=@nspemit %#=u(RFN`MSGHEAD,WHERE) %q<t1name> is not IC.;@assert cor(nor(hasflag(%q<t1>,UNFINDABLE),hasflag(loc(%q<t1>),UNFINDABLE)),isadmin(%#))=@nspemit %#=u(RFn`MSGHEAD) %q<t1name> or their location is set UNFINDABLE.;@nspemit %#=u(RFN`HEADER,Where - %q<t1name>);@include u(who)/INC`WHO`HEADER`MAIN;@nspemit %#=separator();@dolist/inline filterbool(#lambda/cor(not(hasflag(\%0,UNFINDABLE)),isadmin(%#)),setinter(lwho(%#),lcon(loc(%q<t1>)),,namei))={@nspemit %#=u(FUn`WHO`PLAYERLINE`MAIN,%i0)};@@ @nspemit %#=u(FUN`WHERELINE,loc(%q<t1>));@nspemit %#=u(RFN`HEADER)}
 
-&FUN`WHERELINE u(who)=align(30 1 [sub(width(%#),33)],switch(isic(%0)[strmatch(type(%0),ROOM)],11,pueblize(name(%0),+port %0),name(%0)),ansi(custcolor(%#,DEFAULT`BORDER),-),itemize(iter(sort(lvplayers(%0),namei),pueblize(name(%i0),+finger [name(%i0)]),,|),|,and,\,))
+&FUN`WHERELINE u(who)=align(30 1 [sub(width(%#),33)],switch(isic(%0)[strmatch(type(%0),ROOM)],11,pueblize(name(%0),+port %0),name(%0)),ansi(custcolor(%#,DEFAULT`BORDER),-),itemize(iter(sort(filterbool(#lambda/cor(not(hasflag(\%0,UNFINDABLE)),isadmin(%#)),lvplayers(%0)),namei),pueblize(name(%i0),+finger [name(%i0)])[if(hasflag(%i0,UNFINDABLE),\(Unfindable\))],,|),|,and,\,))
 
