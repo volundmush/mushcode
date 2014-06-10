@@ -155,7 +155,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),CH
 &MOGORDER`MESSAGE u(cdb)=url
 &MOGUSE`MESSAGE u(cdb)=url
 
-&FUN`MESSAGE`URL u(cdb)=regeditalli(%0,v(VAR`REGEXP`WWW),weblink(strfirstof($<2>,http://,$<1>)$<3>,$<1>))
-&VAR`REGEXP`WWW u(cdb)=(?P<1>(?P<2>((http|https|ftp))\://)?(?P<3>(((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])|([a-zA-Z0-9_\-\.])+\.(com|net|org|edu|int|mil|gov|arpa|biz|aero|name|coop|info|pro|museum|uk|me))((:[a-zA-Z0-9]*)?/?([a-zA-Z0-9\-\._\?\,\'/\\\+&amp;%\$#\=~])*)))
+&FUN`MESSAGE`URL u(cdb)=regeditalli(%0,v(VAR`REGEXP`WWW),weblink($0,$0))
+&VAR`REGEXP`WWW u(cdb)=\w+\://\S+
 
 &TRG`CLEANME u(cdb)=@dolist/inline/nobreak lattr(me/MUZZLE`*)={@switch/inline cor(not(isobjid(v(%i0))),lte(v(%i0`DURATION),secs()))=1,{@wipe me/%i0}};@dolist/inline/nobreak lattr(me/ACCMUZZLE`*)={@switch/inline cor(not(words(get(u(adb)/[last(%i0,`)]))),lte(v(%i0),secs()))=1,{@wipe me/%i0}}

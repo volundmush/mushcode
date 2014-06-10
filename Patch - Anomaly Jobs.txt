@@ -9,7 +9,7 @@
 
 @parent get(u(job)/vb)=u(coi)
 @set get(u(job)/vb)=WIZARD
-&HOOK_APR locate(get(u(job)/vc),APPS,TXxi)=@force %1={+approve [setr(by,get(%0/OPENED_BY))];+info/approve %q<by>/[iter(lattr(%q<by>/D`INFOFILE`*),get(%q<by>/%i0),%B,|)];@@ @switch/inline t(strlen(setr(chans,switch(getsphere(%q<by>),RACE1,Channel|List,Race2,Channel|list))))=1,{@dolist/inline/delimit | %q<chans>={@chan/on %i0=%q<by>}}}
+&HOOK_APR locate(get(u(job)/vc),APPS,TXxi)=@force %1={+approve [setr(by,get(%0/OPENED_BY))];+info/lock %q<by>/[iter(lattr(%q<by>/D`INFOFILE`*),get(%q<by>/%i0),%B,|)];@@ @switch/inline t(strlen(setr(chans,switch(getsphere(%q<by>),RACE1,Channel|List,Race2,Channel|list))))=1,{@dolist/inline/delimit | %q<chans>={@chan/on %i0=%q<by>}}}
 
 &JOBS u(ap)=BOTDAS
 &JOBSN u(ap)=1

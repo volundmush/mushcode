@@ -14,7 +14,7 @@
 
 &VAR`PLAYFLAGS u(wso)=ADD|DEL|LIST|HIDE|MUTE
 
-&INC`MAIN u(wso)=@assert words(filterbool(#lambda/isobjid(\%0),get(%#/D`WATCH)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: You have no friends on watch!;@assert words(setr(list,setinter(lwhoid(%#),get(%#/D`WATCH),,namei)))=@nspemit %#=u(RFN`MSGHEAD) No friends are online.;@nspemit %#=u(RFN`HEADER,Online Friends);@nspemit %#=ansi(custcolor(%#,DEFAULT`COLNAME),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location));@dolist/inline %q<list>={@nspemit %#=u(u(who)/FUN`WHO`PLAYERLINE`MAIN,%i0)};@nspemit %#=u(RFN`HEADER)
+&INC`MAIN u(wso)=@assert words(filterbool(#lambda/isobjid(\%0),get(%#/D`WATCH)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: You have no friends on watch!;@assert words(setr(list,setinter(lwhoid(%#),get(%#/D`WATCH),,-idle)))=@nspemit %#=u(RFN`MSGHEAD) No friends are online.;@nspemit %#=u(RFN`HEADER,Online Friends);@nspemit %#=ansi(custcolor(%#,DEFAULT`COLNAME),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location));@dolist/inline %q<list>={@nspemit %#=u(u(who)/FUN`WHO`PLAYERLINE`MAIN,%i0)};@nspemit %#=u(RFN`HEADER)
 
 &INC`LIST u(wso)=@assert words(filterbool(#lambda/isobjid(\%0),get(%#/D`WATCH)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: You have no friends on watch!;th setr(list,filterbool(#lambda/isobjid(\%0),setinter(get(%#/D`WATCH),get(%#/D`WATCH),,namei)));@nspemit %#=u(RFN`HEADER,Your Friends List);@nspemit %#=ansi(custcolor(%#,DEFAULT`COLNAME),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location));@dolist/inline %q<list>={@nspemit %#=u(u(who)/FUN`WHO`PLAYERLINE`MAIN,%i0)};@nspemit %#=u(RFN`HEADER,)
 

@@ -83,7 +83,9 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),FI
 
 &FUN`GETPROPERTY`FACTION u(finger)=if(isdbref(setr(fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(FUN`GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
 
-&FUN`GETPROPERTY`FACABBR u(finger)=switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hb,ROY),if(isdbref(setr(fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),get(%q<fac>/SET`ABBREVIATION)))
+&FUN`GETPROPERTY`FACABBR u(finger)=switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hb,ROY),if(isdbref(setr(fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(strfirstof(custcolor(%#,%q<fac>`NAME,,1),get(%q<fac>/SET`COLOR),n),get(%q<fac>/SET`ABBREVIATION))))
+
+&FUN`GETPROPERTY`FACLETTER u(finger)=switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hb,ROY),if(isdbref(setr(fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(strfirstof(custcolor(%#,%q<fac>`NAME,,1),get(%q<fac>/SET`COLOR),n),strfirstof(get(%q<fac>/SET`LETTER),left(get(%q<fac>/SET`ABBREVIATION),1)))))
 
 &FUN`GETPROPERTY`FACTIONS u(finger)=if(words(setr(fac,u(FUN`GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))),u(FUN`GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
 
@@ -95,6 +97,8 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),FI
 
 &FUN`GETPROPERTY`QUOTE u(finger)=get(%0/D`FINGER`QUOTE)
 &FUN`GETPROPERTY`PROFILE u(finger)=get(%0/D`FINGER`PROFILE)
+
+&GFN`LISTPROPERTIES u(finger)=trim(iter(lattr(u(finger)/FUN`GETPROPERTY`*),last(%i0,`)))
 
 &GFN`FACTIONS u(finger)=filterbool(#lambda/cand(get(\%0/SET`MAJOR),strmatch(get(\%0/SET`TYPE),Faction)),u(u(gso)/FUN`LISTGROUPS))
 
