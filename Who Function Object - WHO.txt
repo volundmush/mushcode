@@ -33,11 +33,8 @@
 &INC`WHO`HEADER`MAIN u(who)=@nspemit %#=ansi(custcolor(%#,DEFAULT`COLNAME),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location))
 &INC`WHO`HEADER`IDLE u(who)=@include u(who)/INC`WHO`HEADER`MAIN
 
-&FUN`WHO`PLAYERLINE`MAIN u(who)=align(20 11 -3 >4 >4 1 [sub(width(%#),49)],pueblize(if(cor(hidden(%0),hasflag(%0,DARK)),ansi(hx,name(%0)),name(%0)),+finger [name(%0)]),alias(%0),strfirstof(getproperty(%0,FACABBR),ansi(hx,N/A)),hideidle(%0),hideconn(%0),ucstr(left(default(%0/sex,?),1)),if(cor(hasflag(%0,UNFINDABLE),hasflag(loc(%0),UNFINDABLE)),*UNFINDABLE*,switch(isic(%0)[strmatch(type(loc(%0)),ROOM)],11,pueblize(left(name(loc(%0)),sub(width(%#),49)),+port [loc(%0)]),left(name(loc(%0)),sub(width(%#),49)))))
+&FUN`WHO`PLAYERLINE`MAIN u(who)=align(20 11 -3 >4 >4 1 [sub(width(%#),49)],pueblize(if(cor(hidden(%0),hasflag(%0,DARK)),ansi(hx,name(%0)),name(%0)),+finger [name(%0)]),alias(%0),strfirstof(getproperty(%0,FACABBR),ansi(hx,N/A)),hideidle(%0),hideconn(%0),ucstr(left(default(%0/sex,?),1)),if(cand(cor(hasflag(%0,UNFINDABLE),hasflag(loc(%0),UNFINDABLE)),not(isadmin(%#))),*UNFINDABLE*,switch(isic(%0)[strmatch(type(loc(%0)),ROOM)],11,pueblize(left(name(loc(%0)),sub(width(%#),49)),+port [loc(%0)]),left(name(loc(%0)),sub(width(%#),49)))))
 &FUN`WHO`PLAYERLINE`IDLE u(who)=u(FUN`WHO`PLAYERLINE`MAIN,%0)
-
-
-
 
 @@ &STARTUP u(who)=@hook/override WHO=u(who),CMD`+WHO
 

@@ -73,14 +73,15 @@
 
 &OBJECT`DESTROY`PURGENAMES u(cco)=@switch/inline %2=PLAYER,{@dolist/inline lsearch(all,type,player,lock,D`COLOR`NAME`[before(%0,:)]:*)=@wipe %i0/D`COLOR`NAME`[before(%0,:)];@set u(adb)=!SAFE;@wipe u(adb)/*`COLOR`NAME`[before(%0,:)];@set u(adb)=SAFE},THING,{@dolist/inline lsearch(all,type,player,lock,D`COLOR`[before(%0,:)]:*)=@wipe %i0/D`COLOR`[before(%0,:)];@set u(adb)=!SAFE;@wipe u(adb)/*`COLOR`[before(%0,:)];@set u(adb)=SAFE}
 
-&GFN`COLORNAMES u(cco)=null(setq(names,sortkey(#lambda/strlen(\%0),iter(setr(dbs,setunion(%2,getcolorednames(%1))),name(%i0)|[accname(%i0)]|[first(name(%i0))]|[first(accname(%i0))],%b,|),-n,|,|)))[if(default(%1/D`COLORNAMES`%3,0),regeditalli(%0,\(?<!\[=:;\]|\[:;\]-\)\\b\(%q<names>\)\\b,case(setr(fchar,left(setr(fname,$0),1)),capstr(%q<fchar>),switch(1,t(match(first(name(%1))|[name(%1)]|[accname(%1)]|[first(accname(%1))],%q<fname>,|)),ansi(n[custcolor(%1,IC`MYNAME)],%q<fname>),t(match(first(name(firstof(%q<spk>,%#)))|[name(firstof(%q<spk>,%#))]|[accname(firstof(%q<spk>,%#))]|[first(accname(firstof(%q<spk>,%#)))],%q<fname>,|)),ansi(n[firstcolor(%1,NAME`[firstof(locate(%1,stripaccents(%q<fname>),PX),namegrab(%q<dbs>,stripaccents(%q<fname>)))],IC`SPEAKERNAME)],%q<fname>),ansi(n[firstcolor(%1,NAME`[firstof(locate(%1,%q<fname>,PX),namegrab(%q<dbs>,stripaccents(%q<fname>)))],IC`OTHERNAME)],%q<fname>)),%q<fname>)),%0)]
+&GFN`COLORNAMES u(cco)=null(setq(names,sortkey(#lambda/strlen(\%0),iter(setr(dbs,setunion(%2,getcolorednames(%1))),name(%i0)|[accname(%i0)],%b,|),-n,|,|)))[if(default(%1/D`COLORNAMES`%3,0),regeditalli(%0,\(?<!\[=:;\]|\[:;\]-\)\\b\(%q<names>\)\\b,case(setr(fchar,left(setr(fname,$0),1)),capstr(%q<fchar>),switch(1,t(match(name(%1)|[accname(%1)],%q<fname>,|)),ansi(n[custcolor(%1,NAMES`MINE)],%q<fname>),t(match(name(firstof(%q<spk>,%#))|[accname(firstof(%q<spk>,%#))],%q<fname>,|)),ansi(n[firstcolor(%1,NAME`[firstof(locate(%1,stripaccents(%q<fname>),PX),namegrab(%q<dbs>,stripaccents(%q<fname>)))],NAMES`SPEAKER)],%q<fname>),ansi(n[firstcolor(%1,NAME`[firstof(locate(%1,%q<fname>,PX),namegrab(%q<dbs>,stripaccents(%q<fname>)))],NAMES`OTHER)],%q<fname>)),%q<fname>)),%0)]
 
 &GFN`GETCOLOREDNAMES u(cco)=filterbool(#lambda/isdbref(\%0),iter(lattr(%0/D`COLOR`NAME`*),last(%i0,`)))
 
-th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),DEFAULT|COLOR|NAME|PAGE,|,|))
+th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),DEFAULT|COLOR|NAME|NAMES|PAGE,|,|))
 &VAR`CATEGORIES`DEFAULT u(cco-db)=BORDER|BORDERTEXT|BORDERDOT|MSG|MSGBORDER
 &VAR`CATEGORIES`PAGE u(cco-db)=PAGE|OUTPAGE
 &VAR`CATEGORIES`COLOR u(cco-db)=BORDER|BORDERTEXT|BORDERDOT|COLNAME
+&VAR`CATEGORIES`NAMES u(cco-db)=MINE|SPEAKER|OTHER
 
 &COLOR`DEFAULT`BORDER u(pco)=m
 &COLOR`DEFAULT`BORDERTEXT u(pco)=hw
@@ -88,3 +89,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),DE
 &COLOR`DEFAULT`MSG u(pco)=hw
 &COLOR`DEFAULT`MSGBORDER u(pco)=hm
 &COLOR`DEFAULT`COLNAME u(pco)=g
+
+&COLOR`NAMES`MINE u(pco)=r
+&COLOR`NAMES`SPEAKER u(pco)=g
+&COLOR`NAMES`OTHER u(pco)=c

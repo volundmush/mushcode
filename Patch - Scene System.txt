@@ -5,6 +5,9 @@
 &scenesys u(coi)=locate(config(master_room),Scene System,TXxi)
 @parent u(scenesys)=u(coi)
 
+@@ Give players the ability to see their own CharID
+&CMD`+CHARID u(scenesys)=$+charid:@assert setr(id,sql(SELECT player_id from scene_players where player_objid="%:"))=@nspemit %#=msghead(SCENESYS) You do not have a Char ID. Use +scene/setup to acquire one!;@nspemit %#=msghead(SCENESYS) Your unique Char_id is: [ansi(h,%q<id>)]
+
 @@ Automatically setup new players!
 &PLAYER`CREATE`SCENESYS u(scenesys)=+scene/setup %0
 
@@ -23,43 +26,26 @@
 &DATA`URL`VIEW u(scenesys)=view.php?id=
 
 @@ Some function stuff for it to work.
-&FN`IS`STAFF u(scenesys)=switch([isadmin(%0)],#-1 FUNCTION *,orflags(%0,Wr),stext(0))
+&FN`IS`STAFF u(scenesys)=switch(isadmin(%0),#-1 FUNCTION *,orflags(%0,Wr),stext(0))
 
-@@ A patch for the Ancestor Player to use this code system's color code!
-&SAY_FN u(ap)=color(%!,",IC`QUOTES,n)[color(%!,%0,IC`SPEECH,n)][color(%!,",IC`QUOTES,n)]
-th attrib_set(u(cco)/VAR`CATEGORIES,setunion(get(u(cco)/VAR`CATEGORIES),IC,|,|))
-&VAR`CATEGORIES`IC u(cco)=SPEECH|QUOTES
-&D`
 
-@@ Do you think the pose headers/footers are obnoxious? Here's a slimmer alternative.
-&INCLUDE`LASTPOSE`PREPOSE u(scenesys)=@assert u(fn`is`ic,%1);@dolist/inline [lockfilter(lastpose`pre:1,lvplayers(%L))]=@nspemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)][ansi(+white,accname(%1))] has posed%b>,78)
 
-&INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);@dolist/inline [lockfilter(lastpose`post:1,lvplayers(%L))]=@pemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)]End of [ansi(hw,accname(%1))]'s pose%b>,78);&lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
 
-@@ This version will only show the slim headers when <player> is in an active scene!
-&INCLUDE`LASTPOSE`PREPOSE u(scenesys)=@assert u(fn`is`ic,%1);@assert u(fn`get`activescene,u(fn`get`playerid,%1))=@nsremit %l=%B;@dolist/inline [lockfilter(lastpose`pre:1,lvplayers(%L))]=@nspemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)][ansi(+white,accname(%1))] has posed%b>,78)
+&INCLUDE`OVERRIDE u(scenesys)=@dol/inline @emit pose say semipose=@hook/override/inline %i0=me,override`ic
 
-&INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);@assert u(fn`get`activescene,u(fn`get`playerid,%1))=@nsremit %l=%B;;@dolist/inline [lockfilter(lastpose`post:1,lvplayers(%L))]=@pemit ##=center(<%b[u(fn`islogged,name(%1),%1,%0)]End of [ansi(hw,accname(%1))]'s pose%b>,78);&lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
+&OVERRIDE`IC u(scenesys)=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@assert strlen(%2)=@nspemit %#=Huh?  (Type "help" for help.);th setq(r,speak(%#,switch(%1,pose,:,semipose,;,say,",@emit,|)%2));@include/nobreak me/include`lastpose`prepose=%qr,%:;@include/nobreak u(pot)/INC`ALTMAIN=%1,%2;@message/spoof uldefault(%l/D`CUSTRECP,lcon(%l),%#)=POSE FORMATTER FAIL!,u(pot)/FUN`FORMATPOSE,##,%#,switch(%1,pose,:,semipose,;,say,",@emit,|),%2;@include me/include`lastpose`postpose=%qr,%:;@include me/include`lastpose`catchpose=trimpenn(trimpenn(%qr,%t,r),%r),%:
+@set u(scenesys)/OVERRIDE`IC=regexp
 
-&FN`ISLOGGED u(scenesys)=if(and(not(u(fn`is`exitsimilar,%0,loc(%1))),not(u(fn`is`oocchatter,%2)),setr(PlayerID,u(fn`get`playerid,%1)),gte(words(%2),u(data`minposewords)),not(u(fn`is`exitsimilar,%0,loc(%1))),setr(SceneID,u(fn`get`activescene,%q<PlayerID>)),not(u(fn`is`spam,%q<SceneID>,%1,%q<PlayerID>))),\[[ansi(hg,LOG: %q<SceneID>)]\]%b)[if(setr(LocalScene,u(fn`get`scene`recentatloc,objid(loc(%1)),1)),[switch(%q<LocalScene>,u(fn`get`activescene,u(fn`get`playerid,%1)),,%b[ansi(hw,\[[ansi(hr,X)]\])]%b)])]
+&FN`ISLOGGEDBOOL u(scenesys)=if(setr(LocalScene,u(fn`get`scene`recentatloc,objid(loc(%1)),1)),1,0)
 
-@@ This removes them entirely...
-&INCLUDE`LASTPOSE`PREPOSE u(scenesys)
+&INCLUDE`LASTPOSE`CATCHPOSE u(scenesys)=@assert u(fn`is`ic,%1);@trig me/include`pose=[u(fn`get`name,%1)] , %1 , %0 , [u(fn`sql`timeformat)]
 
-&INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);&lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
+&INCLUDE`LASTPOSE`POSTPOSE u(scenesys)=@assert u(fn`is`ic,%1);@dolist/inline lockfilter(D`POT`FOOTER:1,uldefault(%l/D`CUSTRECP,lcon(%l),%#))=@pemit ##=header(<%b[u(fn`islogged,name(%1),%1,%0)]End of [ansi(hw,accname(%1))]'s pose%b>,,,,,,%i0) ; &lastpose %#=%qR ; &lastpose`secs %#=[secs()] ; &observe %1=0
 
-@@ This is a patch for making SceneSys get along with my +pot and the Exalted Weekly XP Code
-&OVERRIDE`@EMIT u(scenesys)=$@emit*:@assert cor(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th [setr(r,speak(&%N,|%qp))] ;@include/nobreak u(pot)/INC`ALTMAIN=@EMIT,%0;@include/nobreak u(wxc)/INC`CHECKIC=%0; @include/nobreak me/include`lastpose`prepose=%qr,%:; @message/spoof/remit %l=%qr,emitformat,%0,%#,%n,[accname(%#)],%qp,%qR,,u(fn`islogged,%N,%:,%qr) ; @include me/include`lastpose`postpose=%qr,%: ; @include me/include`lastpose`catchpose=trimpenn(trimpenn(%qr,%t,r),%r),%:
-
-&OVERRIDE`POSE u(scenesys)=$pose*:@assert cor(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th [setr(r,speak(&%N,:%qp))] ;@include/nobreak u(pot)/INC`ALTMAIN=POSE,%0;@include/nobreak u(wxc)/INC`CHECKIC=%0; @include/nobreak me/include`lastpose`prepose=%qr,%: ; @message/spoof/remit %l=%qr,poseformat,%0,%#,%n,[accname(%#)],%qp,%qr,,u(fn`islogged,%N,%:,%qr) ; @include me/include`lastpose`postpose=%qr,%: ; @include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
-
-&OVERRIDE`SAY u(scenesys)=$say*:@assert cor(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th [setr(r,speak(&%N,%qp))] ;@include/nobreak u(pot)/INC`ALTMAIN=SAY,%0;@include/nobreak u(wxc)/INC`CHECKIC=%0; @include/nobreak me/include`lastpose`prepose=%qr,%: ; @message/spoof/remit %l=%qr,sayformat,%0,%#,%n,[accname(%#)],%qp,%qr,[udefault(%#/saymodifier,says,%qp)],u(fn`islogged,%N,%:,%qr) ; @include/nobreak me/include`lastpose`postpose=%qr,%: ; @include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
-
-&OVERRIDE`SEMIPOSE u(scenesys)=$semipose*:@assert cor(not(%0),regmatch(%0,(?s)^\\s(.+), s p))=@nspemit %#=Huh?  (Type "help" for help.); th [setr(r,speak(&%N,;%qp))] ; @include/nobreak me/include`lastpose`prepose=%qr,%: ;@include/nobreak u(pot)/INC`ALTMAIN=SEMIPOSE,%0;@include/nobreak u(wxc)/INC`CHECKIC=%0; @message/spoof/remit %l=%qr,semiposeformat,%0,%#,%n,[accname(%#)],%qp,%qr,,,u(fn`islogged,%N,%:,%qr) ; @include/nobreak me/include`lastpose`postpose=%qr,%: ; @include me/include`lastpose`catchpose=trimpenn(%qr,%r),%:
-
+&INCLUDE`LASTPOSE`PREPOSE u(scenesys)=@assert u(fn`is`ic,%1) ; @dol/inline if(setr(logged,u(fn`isloggedbool,name(%1),%1,%0)),uldefault(%l/D`CUSTRECP,lcon(%l),%#),lockfilter(D`POT`HEADER:1,uldefault(%l/D`CUSTRECP,lcon(%l),%#)))=@nspemit ##=if(cand(%q<logged>,nor(get(%i0/D`POT`HEADER),get(%i0/D`POT`FOOTER))),center(<%b[u(fn`islogged,name(%1),%1,%0)][ansi(+white,accname(%1))] has posed%b>,width(%i0)),header(<%b[u(fn`islogged,name(%1),%1,%0)][ansi(+white,accname(%1))] has posed%b>,,,,,,%i0))
 
 
 
 @@ HELPFILE - SCENESYS
-+help/addmain Roleplaying/+scene=This MUSH uses Scenesys by Mercutio @ M*U*S*H. SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki.%R[ansi(hc,See Also:)] [pueblize(+scene/help,+scene/help)]%R[ansi(hc,Pose Recording Requirements:)] To be recorded in a joined scene, a pose must be at least ten words long, be made in a location with an exit leading to it and back, and may not contain 'OOC' in its first five characters. The pose headers/footers will alert you if a pose was or wasn't recorded.%R%R[ansi(hc,Running/Logging Commands)]%RThese commands are for anyone who wants to start and manage a scene.%R[align(5 72,,{[ansi(h,+scene/create title="<title text>")] - Begins a new scene.%R[ansi(h,+scene/create title="<title text>" announce="<announce text>")] - Like above but announces it to others.%R[ansi(h,+scene/title <id>=<text>)] - Changes a scene's title.%R[ansi(h,+scene/desc <id>=<text>)] - Gives a scene a description/short summary.%R[ansi(h,+scene/finish \[<id>\])] - Finishes a scene. ID will be current scene if not specified.%R[ansi(h,+scene/config <id>/scene_state=<#>)] - Changes scene state if necessary. 0 = Active. 1 = Paused. 2 = Unfinished. 3 = Finished.%R[ansi(h,+scene/config <id>/private=<#>)] - Changes a scene's private status. If 1, it won't appear on the website. 0 is public.})]%R%R[ansi(hc,Participant Commands)]%R[align(5 72,,{[ansi(h,+scene/join \[<id>\])] - Joins a scene. Your poses will then be recorded. ID is unneeded if the scene just began in your current location.%R[ansi(h,+scene/deactivate \[<id>\])] - Stops your poses from being logged. If ID is empty it will assume your current scene.%R[ansi(h,+scene/activate \[<id>\])] - Sets your poses to record once more.%R[ansi(h,+scene/undo)] - Marks your last post to be ignored by the logger so it won't make it to the wiki. Used to fix poses made in error, typos, etc. See also [pueblize(+scene/help move,+scene/help move)]%R[ansi(h,+scene/recall <#>)] - Displays the last <#> of recorded poses in your current scene.})]%R%R[ansi(hc,Listing Commands)]%R[align(5 72,,{[ansi(h,+scene)] - Displays all scenes you are currently participating in.%R[ansi(h,+scene <id>)] - Show details of a particular scene.%R[ansi(h,+scene/mine/finished)] - Show all of the finished scenes you've been in.%R[ansi(h,+scene/mine/unfinished)] - Show all of the unfinished scenes you're in.})]
++help/addmain Roleplaying/+scene=This MUSH uses Scenesys by Mercutio @ M*U*S*H. SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki.%R[ansi(hc,See Also:)] [pueblize(+scene/help,+scene/help)]%R[ansi(hc,Pose Recording Requirements:)] To be recorded in a joined scene, a pose must be at least ten words long, be made in a location with an exit leading to it and back, and may not contain 'OOC' in its first five characters. The pose headers/footers will alert you if a pose was or wasn't recorded.%R%R[ansi(hc,Running/Logging Commands)]%RThese commands are for anyone who wants to start and manage a scene.%R[align(5 72,,{[ansi(h,+scene/create title="<title text>")] - Begins a new scene.%R[ansi(h,+scene/create title="<title text>" announce="<announce text>")] - Like above but announces it to others.%R[ansi(h,+scene/title <id>=<text>)] - Changes a scene's title.%R[ansi(h,+scene/desc <id>=<text>)] - Gives a scene a description/short summary.%R[ansi(h,+scene/finish \[<id>\])] - Finishes a scene. ID will be current scene if not specified.%R[ansi(h,+scene/config <id>/scene_state=<#>)] - Changes scene state if necessary. 0 = Active. 1 = Paused. 2 = Unfinished. 3 = Finished.%R[ansi(h,+scene/config <id>/scene_private=<#>)] - Changes a scene's private status. If 1, it won't appear on the website. 0 is public.})]%R%R[ansi(hc,Participant Commands)]%R[align(5 72,,{[ansi(h,+scene/join \[<id>\])] - Joins a scene. Your poses will then be recorded. ID is unneeded if the scene just began in your current location.%R[ansi(h,+scene/deactivate \[<id>\])] - Stops your poses from being logged. If ID is empty it will assume your current scene.%R[ansi(h,+scene/activate \[<id>\])] - Sets your poses to record once more.%R[ansi(h,+scene/undo)] - Marks your last post to be ignored by the logger so it won't make it to the wiki. Used to fix poses made in error, typos, etc. See also [pueblize(+scene/help move,+scene/help move)]%R[ansi(h,+scene/recall <#>)] - Displays the last <#> of recorded poses in your current scene.})]%R%R[ansi(hc,Listing Commands)]%R[align(5 72,,{[ansi(h,+scene)] - Displays all scenes you are currently participating in.%R[ansi(h,+scene <id>)] - Show details of a particular scene.%R[ansi(h,+scene/mine/finished)] - Show all of the finished scenes you've been in.%R[ansi(h,+scene/mine/unfinished)] - Show all of the unfinished scenes you're in.})]
 

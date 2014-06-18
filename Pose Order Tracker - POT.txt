@@ -49,7 +49,7 @@
 &VAR`TIMEOUTHOURS u(pot)=2
 &VAR`CHECKMINUTES u(pot)=30
 
-&STARTUP u(pot)=@dolist/inline @EMIT POSE SAY SEMIPOSE={@hook/override/inline %i0=u(pot),OVERRIDE`IC};@trigger u(pot)/TRG`SELFCLEAN
+&STARTUP u(pot)=@trigger u(pot)/TRG`SELFCLEAN;@break cand(isdbref(u(scenesys)),not(hasflag(u(scenesys),HALT)));@dolist/inline @EMIT POSE SAY SEMIPOSE={@hook/override/inline %i0=u(pot),OVERRIDE`IC}
 
 &OVERRIDE`IC u(pot)=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@assert strlen(%2)=@nspemit %#=Huh?  (Type "help" for help.);@include/nobreak me/include`lastpose`prepose;@include/nobreak u(pot)/INC`ALTMAIN=%1,%2;@message/spoof uldefault(%l/D`CUSTRECP,lcon(%l),%#)=POSE FORMATTER FAIL!,u(pot)/FUN`FORMATPOSE,##,%#,switch(%1,pose,:,semipose,;,say,",@emit,|),%2;@include me/include`lastpose`postpose;@@ @include me/include`lastpose`catchpose=trimpenn(trimpenn(%qr,%t,r),%r),%:
 @set u(pot)/OVERRIDE`IC=regexp
@@ -76,12 +76,10 @@
 &SEMIPOSEFORMAT u(ap)=colornames(speak(&%3,;%0,says\,,SAY_FN,NONE_FN),%!,lplayers(loc(%!)),IC)
 
 th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),IC,|,|))
-&VAR`CATEGORIES`IC u(cco-db)=SPEECH|QUOTES|MYNAME|OTHERNAME|SPEAKERNAME
+&VAR`CATEGORIES`IC u(cco-db)=SPEECH|QUOTES
 &COLOR`IC`SPEECH u(pco)=h
 &COLOR`IC`QUOTES u(pco)=h
-&COLOR`IC`MYNAME u(pco)=r
-&COLOR`IC`SPEAKERNAME u(pco)=g
-&COLOR`IC`OTHERNAME u(pco)=c
+
 
 @@ POSE ORDER TRACKER - POT
 +help/addmain Communications/+pot=[u(pot)]/HLP`+POT
