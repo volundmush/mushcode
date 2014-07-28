@@ -8,6 +8,8 @@
 @@ Give players the ability to see their own CharID
 &CMD`+CHARID u(scenesys)=$+charid:@assert setr(id,sql(SELECT player_id from scene_players where player_objid="%:"))=@nspemit %#=msghead(SCENESYS) You do not have a Char ID. Use +scene/setup to acquire one!;@nspemit %#=msghead(SCENESYS) Your unique Char_id is: [ansi(h,%q<id>)]
 
+&CMD`+CHARID`OTHER u(sgo)=$+charid *:@include u(ccs)/INC`CHECKPC=%0,1,CHARID;@assert setr(id,sql(SELECT player_id from scene_players where player_objid="%q<t1objid>"))=@nspemit %#=msghead(SCENESYS) %q<t1name> does not have a Char ID.;@nspemit %#=msghead(SCENESYS) %q<t1name>'s unique Char_id is: [ansi(h,%q<id>)]
+
 @@ Automatically setup new players!
 &PLAYER`CREATE`SCENESYS u(scenesys)=+scene/setup %0
 
@@ -27,9 +29,6 @@
 
 @@ Some function stuff for it to work.
 &FN`IS`STAFF u(scenesys)=switch(isadmin(%0),#-1 FUNCTION *,orflags(%0,Wr),stext(0))
-
-
-
 
 &INCLUDE`OVERRIDE u(scenesys)=@dol/inline @emit pose say semipose=@hook/override/inline %i0=me,override`ic
 

@@ -28,6 +28,8 @@
 
 &INC`MAIN u(hso)=@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(hso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(hso)/VAR`ADMINFLAGS)),|,|),|,%6,switch,switch;th iter(%2,setq(chr(add(inum(0),64)),%i0),/);@assert isdbref(setr(db,get(u(hso)/VAR`%4)))=@pemit %#=u(RFN`MSGHEAD,%6) ERROR: %6 Database object not found.;th setq(entry,%3);th setq(disp,%5);th setq(ann,%6);th setq(comm,%7);@include u(hso)/INC`[strfirstof(%q<switch>,SHOW)]
 
+&VAR`PLAYFLAGS u(hso)=SEARCH
+
 &VAR`ADMINFLAGS u(hso)=WIZHELP|ADDMAIN|EDITMAIN|RENMAIN|DELMAIN|CHCAT|VIEWCODE|ADDSUB|EDITSUB|RENSUB|DELSUB
 
 &RFN`MSGHEAD u(hso)=msghead(%0)
@@ -39,6 +41,8 @@
 &FUN`HAVEREAD u(hso)=switch(1,gt(get(%3/%2`TIMESTAMP),getstat(%0/D`HELPREAD`%1`HAVEREAD,%2)),ansi(hr,*),t(words(filterbool(#lambda/gt(get(%3/\%0`TIMESTAMP),getstat(%0/D`HELPREAD`%1`HAVEREAD,%2_\[last(\%0,`)])),lattr(%3/%2`SUB`*)))),ansi(y,&),%B)
 
 &INC`FINDMAIN u(hso)=@assert strlen(%qa)=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: [capnames(%q<ann>)]file name segment empty.;@include u(ccs)/INC`PARTIAL=%qa,iter(u(u(hso)/FUN`LISTTOP,%q<db>),get(%q<db>/%i0`NAME),%B,|),|,%6,choice,%q<ann>file;@assert setr(topid,u(u(hso)/FUN`FINDTOP,%q<db>,%q<choice>))=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: [capnames(%q<ann>)]file %qa not found!
+
+&INC`SEARCH u(hso)=@assert words(setr(results,iter(grepi(%q<db>,*`CONTENTS,%qa[if(strlen(%qb),/%qb)]),before(%i,`))))=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) Sorry, no results for '%qa[if(strlen(%qb),/%qb)]';
 
 &FUN`FINDTOP u(hso)=before(first(wildgrepi(%0,*`NAME,%1)),`)
 &FUN`LISTTOP u(hso)=lattr(%0/*)

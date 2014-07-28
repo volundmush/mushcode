@@ -21,13 +21,13 @@
 &RFN`HEADER u(pot)=header(%0,,POT`BORDER,POT`BORDERDOT,POT`BORDERTEXT,,%1)
 &RFN`SUBHEADER u(pot)=subheader(%0,,POT`BORDER,POT`BORDERDOT,POT`BORDERTEXT,,%1)
 &RFN`SEPARATOR u(pot)=separator(%0,,POT`BORDER,POT`BORDERDOT,POT`BORDERTEXT,,%1)
-&VAR`MSHEAD u(pot)=POT
+&VAR`MSGHEAD u(pot)=POT
 
 &INC`MAIN u(pot)=@switch/inline default(%#/D`POT`MODE,0)=0,{@include u(pot)/INC`LIST},1,{@include u(pot)/INC`BRIEF}
 
 &INC`BRIEF u(pot)=@assert words(setr(posers,sort(filterbool(#lambda/strmatch(get(\%0/D`LASTPOSE`WHERE),%l),lvplayers(%l)),attr:D`LASTPOSE`WHEN)))=@nspemit %#=u(RFN`MSGHEAD) No active RP in the room!;@nspemit %#=u(RFN`HEADER,RP Activity for [name(%l)]);@nspemit %#=ansi(firstcolor(%#,POT`COLNAME,DEFAULT`COLNAME),align(20 4 4 [sub(width(%#),31)],Name,Pose,Idle,Summary));@nspemit %#=separator();@dolist/inline %q<posers>=@nspemit %#=align(20 4 4 [sub(width(%#),31)],pueblize(name(%i0),+pot/last [name(%i0)]),ansi(ryg(round(mul(fdiv(bound(sub(secs(),get(%i0/D`LASTPOSE`WHEN)),0,3600),3600),100),0)),etime(sub(secs(),get(%i0/D`LASTPOSE`WHEN)),4)),ansi(ryg(round(mul(fdiv(bound(idle(%i0),0,3600),3600),100),0)),etime(idle(%i0),4)),get(%i0/D`LASTPOSE`SUMMARY));@nspemit %#=u(RFN`HEADER)
 
-&INC`LAST u(pot)=@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@assert strmatch(loc(%q<t1>),%l)=@nspemit %#=u(RFn`MSGHEAD) %q<t1name> is not in the room!;@assert cand(hasattrval(%q<t1>/D`LASTPOSE),lte(setr(ago,sub(secs(),get(%q<t1>/D`LASTPOSE`WHEN))),mul(60,60,2)))=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> hasn't posed recently.;@assert strmatch(get(%q<t1>/D`LASTPOSE`WHERE),%l)=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> hasn't posed in this room.;@nspemit %#=header(%q<t1name>'s Last Pose [etime(%q<ago>,3)] Ago);@nspemit %#=u(u(pot)/FUN`FORMATPOSE,%#,%q<t1>,get(%q<t1>/D`LASTPOSE`TYPE),trim(get(%q<t1>/D`LASTPOSE),%R));@nspemit %#=header()
+&INC`LAST u(pot)=@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@assert strmatch(loc(%q<t1>),%l)=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> is not in the room!;@assert cand(hasattrval(%q<t1>/D`LASTPOSE),lte(setr(ago,sub(secs(),get(%q<t1>/D`LASTPOSE`WHEN))),mul(60,60,2)))=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> hasn't posed recently.;@assert strmatch(get(%q<t1>/D`LASTPOSE`WHERE),%l)=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> hasn't posed in this room.;@nspemit %#=header(%q<t1name>'s Last Pose [etime(%q<ago>,3)] Ago);@nspemit %#=u(u(pot)/FUN`FORMATPOSE,%#,%q<t1>,get(%q<t1>/D`LASTPOSE`TYPE),trim(get(%q<t1>/D`LASTPOSE),%R));@nspemit %#=header()
 
 &INC`MODE u(pot)=&D`POT`MODE %#=setr(mode,if(default(%#/D`POT`MODE,0),0,1));@nspemit %#=u(RFN`MSGHEAD) +pot will now default to +pot/[if(%q<mode>,summary,list)]
 
@@ -49,13 +49,15 @@
 &VAR`TIMEOUTHOURS u(pot)=2
 &VAR`CHECKMINUTES u(pot)=30
 
-&STARTUP u(pot)=@trigger u(pot)/TRG`SELFCLEAN;@break cand(isdbref(u(scenesys)),not(hasflag(u(scenesys),HALT)));@dolist/inline @EMIT POSE SAY SEMIPOSE={@hook/override/inline %i0=u(pot),OVERRIDE`IC}
+&STARTUP u(pot)=@trigger u(pot)/TRG`SELFCLEAN;@break cand(isdbref(u(scene)),not(hasflag(u(scene),HALT)));@dolist/inline @EMIT POSE SAY SEMIPOSE={@hook/override/inline %i0=u(pot),OVERRIDE`IC}
 
 &OVERRIDE`IC u(pot)=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@assert strlen(%2)=@nspemit %#=Huh?  (Type "help" for help.);@include/nobreak me/include`lastpose`prepose;@include/nobreak u(pot)/INC`ALTMAIN=%1,%2;@message/spoof uldefault(%l/D`CUSTRECP,lcon(%l),%#)=POSE FORMATTER FAIL!,u(pot)/FUN`FORMATPOSE,##,%#,switch(%1,pose,:,semipose,;,say,",@emit,|),%2;@include me/include`lastpose`postpose;@@ @include me/include`lastpose`catchpose=trimpenn(trimpenn(%qr,%t,r),%r),%:
 @set u(pot)/OVERRIDE`IC=regexp
 
-&FUN`FORMATPOSE u(pot)=colornames(speak(%1,%2%3,says\,,%0/SAY_FN,%0/NONE_FN),%0,lplayers(loc(%0)),IC)
+&FUN`FORMATPOSE u(pot)=colornames(speak(%1,%2%3,says\,,%0/SAY_FN,%0/NONE_FN),firstof(%4,%0),lplayers(loc(%0)),IC)
 &SAY_FN u(ap)=ansi(custcolor(%!,IC`QUOTES),")[ansi(custcolor(%!,IC`SPEECH),colornames(%0,%!,lplayers(loc(%!)),IC))][ansi(custcolor(%!,IC`QUOTES),")]
+
+&SAY_FN u(at)=ansi(custcolor(%!,IC`QUOTES),")[ansi(custcolor(%!,IC`SPEECH),colornames(%0,%!,lplayers(loc(%!)),IC))][ansi(custcolor(%!,IC`QUOTES),")]
 
 &INC`ALTMAIN u(pot)=@assert cor(isic(%#),get(%l/POT));&[setr(potattr,setr(loc,uldefault(%l/D`CUSTLOC,%l,%#))`[nextslot(setr(potdb,u(potdb)),%q<loc>)])]`TYPE %q<potdb>=switch(%0,@EMIT,|,SAY,",SEMIPOSE,;,POSE,:);&D`LASTPOSE`TYPE %#=switch(%0,@EMIT,|,SAY,",SEMIPOSE,;,POSE,:);&%q<potattr> %q<potdb>=%1;&D`LASTPOSE %#=%1;&D`LASTPOSE`SUMMARY %#;&%q<potattr>`BY %q<potdb>=%#;&%q<potattr>`WHEN %q<potdb>=secs();&D`LASTPOSE`WHEN %#=secs();&D`LASTPOSE`WHERE %#=%l;@switch/inline gt(nattr(%q<potdb>/%q<loc>`*),300)=1,{@dolist/inline elements(sortkey(#lambda/last(\%0,`),lattr(%q<potdb>/%q<loc>`*),n),lnum(1,sub(%q<count>,300)))=@wipe %q<potdb>/%i0}
 
@@ -65,15 +67,6 @@
 &INCLUDE`LASTPOSE`PREPOSE u(pot)=@assert isic(%#);@dolist/inline filterbool(#lambda/get(\%0/D`POT`HEADER),uldefault(%l/D`CUSTRECP,lcon(%l),%#))={@nspemit %i0=u(RFN`HEADER,%n has Posed,%i0)}
 
 &INCLUDE`LASTPOSE`POSTPOSE u(pot)=@assert isic(%#);@dolist/inline filterbool(#lambda/get(\%0/D`POT`FOOTER),uldefault(%l/D`CUSTRECP,lcon(%l),%#))={@nspemit %i0=u(RFN`SUBHEADER,End of %n's Pose,%i0)}
-
-&EMITFORMAT u(ap)=colornames(speak(&%3,|%0,says\,,SAY_FN,NONE_FN),%!,lplayers(loc(%!)),IC)
-&LASTPOSE u(ap)=Sets the Header and Footer items to default to 'true' or 'false' (1 or 0), around a pose. See include`lastpose`prepose and include`lastpose`postpose editing them. Or use the POSE/SAY/EMIT/SEMIPOSE-format attributes to prepend %7. We HIGHLY suggest at least one of these is activated in some way or another!
-&LASTPOSE`POST u(ap)=1
-&LASTPOSE`PRE u(ap)=1
-&POSEFORMAT u(ap)=colornames(speak(&%3,:%0,says\,,SAY_FN,NONE_FN),%!,lplayers(loc(%!)),IC)
-&SAY_FN u(ap)=ansi(custcolor(%!,IC`QUOTES),")[ansi(custcolor(%!,IC`SPEECH),colornames(%0,%!,lplayers(loc(%!)),IC))][ansi(custcolor(%!,IC`QUOTES),")]
-&SAYFORMAT u(ap)=colornames(speak(&%3,"%0,says\,,SAY_FN,NONE_FN),%!,lplayers(loc(%!)),IC)
-&SEMIPOSEFORMAT u(ap)=colornames(speak(&%3,;%0,says\,,SAY_FN,NONE_FN),%!,lplayers(loc(%!)),IC)
 
 th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),IC,|,|))
 &VAR`CATEGORIES`IC u(cco-db)=SPEECH|QUOTES

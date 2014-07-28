@@ -5,16 +5,16 @@
 @set u(ex-sso)=WIZARD !NO_COMMAND
 @parent u(ex-sso)=u(coi)
 
-&CMD`+SHEET u(ex-sso)=$^\+sheet(?\:/(\S+))?(?\: +(.*))?:@include u(ccs)/INC`PARTIAL=%1,setunion(v(VAR`PLAYFLAGS),if(isadmin(%#),v(VAR`ADMINFLAGS)),|,|),|,SHEET,choice;@switch/inline strlen(%2)=0,{@include u(ex-sso)/INC`[strfirstof(%q<choice>,MAIN)]=%#,getsplat(%#)},{@include u(ccs)/INC`CHECKPC=%2,1,SHEET;@assert or(isadmin(%#),gt(get(%q<t1>/SHEETPUBLIC),0),strmatch(%q<t1>,%#))=@nspemit %#=announce(SHEET) ERROR: %q<t1name>'s Sheet is not public.;@include u(ex-sso)/INC`[strfirstof(%q<choice>,MAIN)]=%q<t1>,getsplat(%q<t1>)}
+&CMD`+SHEET u(ex-sso)=$^\+sheet(?\:/(\S+))?(?\: +(.*))?:@include u(ccs)/INC`PARTIAL=%1,setunion(v(VAR`PLAYFLAGS),if(isadmin(%#),v(VAR`ADMINFLAGS)),|,|),|,SHEET,choice;@switch/inline strlen(%2)=0,{@include u(ex-sso)/INC`[strfirstof(%q<choice>,MAIN)]=%#,getsplat(%#)},{@include u(ccs)/INC`CHECKPC=%2,1,SHEET;@assert or(isadmin(%#),gt(get(%q<t1>/SHEETPUBLIC),0),strmatch(%q<t1>,%#))=@nspemit %#=msghead(SHEET) ERROR: %q<t1name>'s Sheet is not public.;@include u(ex-sso)/INC`[strfirstof(%q<choice>,MAIN)]=%q<t1>,getsplat(%q<t1>)}
 @set u(ex-sso)/CMD`+SHEET=regexp
 
 &VAR`PLAYFLAGS u(ex-sso)=EXTRA|STYLE|PUBLIC
 
 &FUN`COLOR u(ex-sso)=ansi(strfirstof(v(VAR`COLOR`%0`%1),v(VAR`COLOR`DEFAULT`%1),n),%2)
 
-&INC`STYLE u(ex-sso)=@switch/inline t(default(%#/SHEETSTYLE,0))=0,{@nspemit %#=announce(SHEET) Charms and Spells will now display in an alternate style!;&SHEETSTYLE %#=1},1,{@nspemit %#=announce(SHEET) Charms and Spells will now display in ordinary style!;&SHEETSTYLE %#=0}
+&INC`STYLE u(ex-sso)=@switch/inline t(default(%#/SHEETSTYLE,0))=0,{@nspemit %#=msghead(SHEET) Charms and Spells will now display in an alternate style!;&SHEETSTYLE %#=1},1,{@nspemit %#=msghead(SHEET) Charms and Spells will now display in ordinary style!;&SHEETSTYLE %#=0}
 
-&INC`PUBLIC u(ex-sso)=@switch/inline t(default(%#/SHEETPUBLIC,0))=0,{@nspemit %#=announce(SHEET) Your sheet is now shared publically!;&SHEETPUBLIC %#=1},1,{@nspemit %#=announce(SHEET) Your sheet is now private!;&SHEETPUBLIC %#=0}
+&INC`PUBLIC u(ex-sso)=@switch/inline t(default(%#/SHEETPUBLIC,0))=0,{@nspemit %#=msghead(SHEET) Your sheet is now shared publically!;&SHEETPUBLIC %#=1},1,{@nspemit %#=msghead(SHEET) Your sheet is now private!;&SHEETPUBLIC %#=0}
 
 &INC`EXTRA u(ex-sso)=@nspemit %#=repeat(u(FUN`COLOR,%1,BORDER,-),0)%R%b%b%b[ansi(strfirstof(v(VAR`COLOR`%1`ATTRNAME),n),--------------------<-)][ansi(strfirstof(v(VAR`COLOR`%1`PSM),n),Merits)][ansi(strfirstof(v(VAR`COLOR`%1`ATTRNAME),n),->----------------)][if(words(setr(merits,get(%0/D`MERITS)),|),%R%b%b%b- [iter(%q<merits>,ansi(strfirstof(v(VAR`COLOR`%1`SKILLNAME),n),elements(%i0,1,~))[repeat(ansi(strfirstof(v(VAR`COLOR`%1`SKILLLINE),n),_),sub(43,strlen(elements(%i0,1,~)),strlen(elements(%i0,2,~))))][ansi(strfirstof(v(VAR`COLOR`%1`SKILLDOT),n),elements(%i0,2,~))],|,%R%b%b%b-%b )])]%r%r;@nspemit %#=[ansi(strfirstof(v(VAR`COLOR`%1`ATTRNAME),n),%b%b%b-----------------<-)][ansi(strfirstof(v(VAR`COLOR`%1`PSM),n),Specialties)][ansi(strfirstof(v(VAR`COLOR`%1`ATTRNAME),n),->--------------)][if(words(setr(specialties,get(%0/D`SPECIALTIES)),|),%R%b%b%b- [iter(%q<specialties>,ansi(strfirstof(v(VAR`COLOR`%1`SKILLNAME),n),capnames(elements(%i0,1,~))\,%B[elements(%i0,2,~)])[repeat(ansi(strfirstof(v(VAR`COLOR`%1`SKILLLINE),n),_),sub(41,strlen(elements(%i0,1,~)),strlen(elements(%i0,2,~)),strlen(elements(%i0,3,~))))][ansi(strfirstof(v(VAR`COLOR`%1`SKILLDOT),n),elements(%i0,3,~))],|,%R%b%b%b-%b)])]%r%r;@nspemit %#=[ansi(strfirstof(v(VAR`COLOR`%1`ATTRNAME),n),%b%b%b--------------------<-)][ansi(strfirstof(v(VAR`COLOR`%1`PSM),n),Notes)][ansi(strfirstof(v(VAR`COLOR`%1`ATTRNAME),n),->-----------------)][if(words(setr(notes,lattr(%0/D`NOTES`*,|)),|),%R%b%b%b-[iter(%q<notes>,rjust(inum(0),2).%B[get(%0/%i0)],|,%R%b%b%b-)])][u(FUN`COLOR,%1,BORDER,)]%R[repeat(u(FUN`COLOR,%1,BORDER,-),0)]
 

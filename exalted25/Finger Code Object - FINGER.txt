@@ -14,4 +14,3 @@
 &GET`FINGER`EXALTED`TYPE u(finger)=capnames(getsplat(%0))
 &GET`FINGER`EXALTED`CASTE u(finger)=capnames(getstat(%0/D`INFO,Caste))
 &GET`FINGER`EXALTED`ESSENCE u(finger)=bound(getstat(%0/D`INFO,Essence),1,10)
-

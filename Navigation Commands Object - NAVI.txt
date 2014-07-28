@@ -11,11 +11,11 @@
 &LOC`ICNEXUS u(navi)=
 &LOC`OOCNEXUS u(navi)=
 
-&CMD`+IC u(navi)=$ic:@break isic(%#)=@nspemit %#=ansi(h,You're already IC.);@switch/inline cand(isobjid(setr(dest,get(%#/D`ICLOC))),isic(%q<dest>))=0,{@nspemit %#=ansi(h,Your last IC location is no longer valid. Choose a new one from the exits in the starting nexus.);th setq(dest,v(LOC`ICNEXUS))};@tel[if(hasflag(%#,DARK),/silent)] %#=%q<dest>;@switch/inline hasflag(%#,DARK)=0,{@nsremit %q<dest>=%N arrives from the OOC Nexus.}
+&CMD`+IC u(navi)=$ic:@break isic(%#)=@nspemit %#=ansi(h,You're already IC.);@assert approved(%#)=@nspemit %#=u(RFN`MSGHEAD) You are not approved!;@switch/inline cand(isobjid(setr(dest,get(%#/D`ICLOC))),isic(%q<dest>))=0,{@nspemit %#=ansi(h,Your last IC location is no longer valid. Choose a new one from the exits in the starting nexus.);th setq(dest,v(LOC`ICNEXUS))};@tel[if(hasflag(%#,DARK),/silent)] %#=%q<dest>;@switch/inline hasflag(%#,DARK)=0,{@nsremit %q<dest>=%N arrives from the OOC Nexus.}
 
 &CMD`+OOC u(navi)=$ooc:@assert elock(%l/leave,%#)=@nspemit %#=Permission denied. You do not pass the leave lock.;th setq(dest,v(LOC`OOCNEXUS));@switch/inline isic(%#)=0,{@break strmatch(%l,%q<dest>)=@nspemit %#=You are already in the OOC Nexus.;@nspemit %#=You are already OOC. Returning you to the OOC Nexus.};@switch/inline isic(%#)=1,{&D`ICLOC %#=objid(%l)};@tel[if(hasflag(%#,DARK),/silent)] %#=%q<dest>
 
-&CMD`+NEXUS u(navi)=$+nexus:@break strmatch(%l,setr(m,v(LOC`ICNEXUS)))=@pemit %#=You are already there.; @assert elock(%l/leave,%#)=@pemit %#=Permission denied. You do not pass the leave lock.;  @assert elock(%qm/teleport,%#)=@pemit %#=Permission denied. You do not pass the teleport lock.; @tel[if(hasflag(%#,DARK),/silent)] %#=%qm
+&CMD`+NEXUS u(navi)=$+nexus:@assert approved(%#)=@nspemit %#=u(RFN`MSGHEAD) You are not approved!;@break strmatch(%l,setr(m,v(LOC`ICNEXUS)))=@pemit %#=You are already there.;@assert elock(%l/leave,%#)=@pemit %#=Permission denied. You do not pass the leave lock.;@assert elock(%qm/teleport,%#)=@pemit %#=Permission denied. You do not pass the teleport lock.;@tel[if(hasflag(%#,DARK),/silent)] %#=%qm
 
 &CMD`+GOHOME u(navi)=$+gohome:@force/inline %#=home
 &HOOK`IGNORE`HOME u(navi)=if(elock(u(navi)/Command,%#),1,0[nspemit(%#,Permission denied.)])

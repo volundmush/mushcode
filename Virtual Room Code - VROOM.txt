@@ -1,0 +1,396 @@
+@switch/inline isdbref(u(vroom))=0,{@tel create(Virtual Room Parent V2.0)=u(coi)}
+&vroom u(coi)=locate(u(coi),Virtual Room Parent V2.0,TXxi)
+@parent u(vroom)=u(coi)
+@set u(vroom)=LINK_OK VISUAL SAFE HALT NO_COMMAND
+
+&AENTER u(vroom)=think [if(hasattr(me,loc-%#),,set(me,loc-%#:[u(default-startingroom)]))][pemit(%#,u(format-enter))]
+@set u(vroom)/AENTER=no_command prefixmatch
+&ALEAVE u(vroom)=think wipe(me/loc-%#)
+@set u(vroom)/ALEAVE=no_command prefixmatch
+&CMD-ADDOWNER u(vroom)=$addowner *:@select/inline strmatch(owner(me),%#)=1,{ @select/inline isdbref(setr(p,pmatch(%0)))=1,{@select/inline u(ufunc-controls,%qp)=0,{ @pemit/silent %#=u(message-success,[name(%qp)] added to the owners list.)[set(me,owners:[setunion(v(owners),%qp)])] },{@pemit/silent %#=u(message-error,[name(%qp)] is already an owner.)}},{@pemit/silent %#=u(message-error,Could not find %0 or it's not a valid player.)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-CONVERT u(vroom)=$+convert:@select/inline strmatch(%#,owner(me))=1,{ @switch/inline 1=hasattrp(me,default-place),{@pemit/silent %#=u(message-success,Default place set.)[u(ufunc-convert-defaultplace)]},t(words(setr(r,u(ufunc-convert-listoldrooms)))),{@pemit/silent %#=u(message-success,Rooms created and exits linked.)[u(ufunc-convert-oldrooms)]},1,{ @select/inline [null(iter(lattr(me/loc-*),if(words(setr(e,regrepi(me,name-*,^[edit(v(##),_,%b)]$))),set(me,##:[first(after(%qe,-))])[setq(t,1)])))]%qt=1,{@pemit/silent %#=u(message-success,Player locations updated.)} },1,{@pemit/silent %#=u(message-success,Conversion finished.)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-CONVERT-OTHER u(vroom)=$+convert *:@select/inline strmatch(%#,owner(me))=1,{ @select/inline strmatch(parent(setr(o,%0)),#2378)=0,{@pemit/silent %#=u(message-error,You must specify an object that is parented to version 1.0.)},{@switch/inline 1=hasattrp(%qo,default-place),{@pemit/silent %#=u(message-success,Default place set.)[u(ufunc-convert-defaultplace,%qo)]},t(words(setr(r,u(ufunc-convert-listoldrooms,%qo)))),{@pemit/silent %#=u(message-success,Rooms created and exits linked.)[u(ufunc-convert-oldrooms,%qo)]},1,{ @select/inline [null(iter(lattr(%qo/loc-*),if(words(setr(e,regrepi(me,name-*,^[edit(get(%qo/##),_,%b)]$))),set(me,##:[first(after(%qe,-))])[setq(t,1)])))]%qt=1,{@pemit/silent %#=u(message-success,Player locations updated.)} },1,{@pemit/silent %#=u(message-success,Conversion finished. %qo)}} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-DESC1 u(vroom)=$^desc(/(here))? (([^=]+)(=(.*))?)$:@select/inline u(ufunc-controls,%#)=1,{@select/inline 1=cor(strmatch(%2,here)[setq(d,%3)],strmatch(%5,),strmatch(%4,here)[setq(d,%6)]),{@select/inline u(loc-%#)=#*,{@pemit/silent %#=u(message-success,Description set.)[if(strmatch(%qd,),wipe(me/desc-[u(loc-%#)]),set(me,desc-[u(loc-%#)]:%qd)[set(me/desc-[u(loc-%#)],no_command)])]},{@pemit/silent %#=u(message-error,Invalid location.)}},{ @switch/inline words(setr(r,u(ufunc-findrooms,%4)))=1,{@pemit/silent %#=u(message-success,Description set.)[if(strmatch(%6,),wipe(me/desc-%qr),set(me,desc-%qr:%6))]},>1,{@pemit/silent %#=u(message-error,Too many matches.)},{@pemit/silent %#=u(message-error,Could not find %4.)} }},{@pemit/silent %#=u(message-error,Permission denied.)}
+@set u(vroom)/CMD-DESC1=regexp
+&CMD-DESTROY u(vroom)=$^destroy(/(room))? (.+)?$:@select/inline u(ufunc-controls,%#)=1,{ @select/inline 1[setq(r,switch(%3,here,u(loc-%#),%3))]=strmatch(%qr,#0),{@pemit/silent %#=u(message-error,You can not destroy room #0.)},regmatch(%qr,^#%\d+$),{@pemit/silent %#=u(message-success,Destroying room %qr. This message will be displayed even if the room does not exist.)[u(ufunc-destroyroom,%qr)][switch(%2,room,[u(ufunc-destroyexitsto,%qr)],[u(ufunc-unlinkexitsto,%qr)])]},cor(words(setr(e,[u(ufunc-findexitat,u(loc-%#),%3)])),words([u(ufunc-findexitsat,u(loc-%#),%3)])),{ @select/inline 1=strmatch(%qe,),{@pemit/silent %#=u(message-error,Too many matches.)},cand(strmatch(%2,room),not(regmatch(%qe,:#%\d+))),{@pemit/silent %#=u(message-error,That exit is unlinked. Perhaps you meant 'destroy %3' instead.)},cand(strmatch(%2,room),strmatch(rest(%qe,:),#0)),{@pemit/silent %#=u(message-error,You can not destroy room #0.)},{ @pemit/silent %#=u(message-success,[switch(%2,room,Destroyed room [setr(r,rest(%qe,:))].[wipe(me/name-%qr)][wipe(me/desc-%qr)][wipe(me/exits-%qr)][u(ufunc-destroyexitsto,%qr)],Closed exit [before(%qe,:)].[u(ufunc-closeexit,u(loc-%#),%qe)])]) } } },{@pemit/silent %#=u(message-error,Permission denied.)}
+@set u(vroom)/CMD-DESTROY=regexp
+&CMD-DIG u(vroom)=$^dig(/(tel|tele|teleport))? ([^=]+)(=([^,]+)(,(.+))?)?$:@select/inline u(ufunc-controls,%#)=1,{ @pemit/silent %#=u(ufunc-digerror,[udefault(loc-%#,#0)],%3,if(strlen(%5),%5,u(ufunc-makeexitname,%3)),if(strlen(%7),%7,u(ufunc-makeexitname,get(me/name-[udefault(loc-%#,#0)]))),if(strlen(%2),1,0)) },{@pemit/silent %#=u(message-error,Permission denied.)}
+@set u(vroom)/CMD-DIG=regexp
+&CMD-EMIT u(vroom)=$+emit *:think u(ufunc-emit,%0,1)
+&CMD-EMIT-ALL u(vroom)=$+emit/all *:think u(ufunc-emitall,%0,1)
+&CMD-ENTERLOCK u(vroom)=$+enterlock *:@select/inline u(ufunc-controls,%#)=1,{ @switch/inline %0=on,{@pemit/silent %#=u(message-success,Locked.)[set(me,enter-ok:0)]},off,{@pemit/silent %#=u(message-success,Unlocked.)[set(me,enter-ok:1)]},{@pemit/silent %#=u(message-error,Unknown option. Use either 'on' or 'off')} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-EXITSHORTCUT u(vroom)=$+exitshortcut *:@select/inline u(ufunc-controls,%#)=1,{ @switch/inline %0=on,{ @pemit/silent %#=u(message-success,Exit shortcuts enabled. +go is no longer necessary before the exit name.)[wipe(me/cmd-go-2)]},off,{ @pemit/silent %#=u(message-success,Exit shortcuts without using +go disabled.)[set(me,cmd-go-2:)] },{@pemit/silent %#=ansi(hr,Unknown option. Use either 'on' or 'off')} },{@pemit/silent %#=ansi(hr,Permission denied.)}
+&CMD-GETDESC u(vroom)=$getdesc:@select/inline u(ufunc-controls,%#)=1,{ @select/inline hasattr(me,desc-[u(loc-%#)])=1,{@pemit/silent %#=u(message-success,Room description:)%r%r[v(desc-[u(loc-%#)])]%r},{@pemit/silent %#=u(message-error,That room has no description.)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-GETDESC-ESCAPE u(vroom)=$getdesc/escape:@select/inline u(ufunc-controls,%#)=1,{ @select/inline hasattr(me,desc-[u(loc-%#)])=1,{@pemit/silent %#=u(message-success,Room description:)%r%r[escape(v(desc-[u(loc-%#)]))]%r},{@pemit/silent %#=u(message-error,That room has no description.)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-GETDESC-OTHER u(vroom)=$getdesc *:@select/inline u(ufunc-controls,%#)=1,{ @select/inline if(words(setr(r,u(ufunc-findroom,%0))),1,words(u(ufunc-findrooms,%0)))=1,{@select/inline hasattr(me,desc-%qr)=1,{@pemit/silent %#=u(message-success,Room description:)%r%r[v(desc-%qr)]%r},{@pemit/silent %#=u(message-error,That room has no description.)}},>1,{@pemit/silent %#=u(message-error,Too many matches.)},{@pemit/silent %#=u(message-error,Room not found.)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-GETDESC-OTHER-ESCAPE u(vroom)=$getdesc/escape *:@select/inline u(ufunc-controls,%#)=1,{ @select/inline if(words(setr(r,u(ufunc-findroom,%0))),1,words(u(ufunc-findrooms,%0)))=1,{@select/inline hasattr(me,desc-%qr)=1,{@pemit/silent %#=u(message-success,Room description:)%r%r[escape(v(desc-%qr))]%r},{@pemit/silent %#=u(message-error,That room has no description.)}},>1,{@pemit/silent %#=u(message-error,Too many matches.)},{@pemit/silent %#=u(message-error,Room not found.)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-GO u(vroom)=$+go *:@switch/inline 1=cor(eq(words(setr(e,u(ufunc-findexitat,u(loc-%#),%0)),|),1),eq(words(setr(e,u(ufunc-findexitsat,u(loc-%#),%0)),|),1)),{@switch/inline words(setr(r,after(%qe,:)))=1,{ @select/inline strmatch(u(loc-%#),%qr)=1,{@pemit/silent %#=u(message-error,You are already there.)},{think u(ufunc-move,%#,%qr,go)} },{@pemit/silent %#=u(message-error,That exit is unlinked.)} },gt(words(%qe,|),1),{@pemit/silent %#=u(message-error,Too many matches.)},{@pemit/silent %#=u(message-error,u(format-notfound,%0,exit))}
+&CMD-GO-2 u(vroom)=$^(.+)$:@switch/inline strmatch(lock(me/use),)=1,{@lock/use me=lock-use/1;@lock/speech me=lock-speech/1; @lock/enter me=lock-enter/1; @lock me=lock-basic/1;@set me=enter_ok;think [switch(hasattr(me,name-#0),0,set(me,name-#0:[v(name-#0)]))]};@assert [v(cmds`count`%#)]; @select/inline words(setr(e,[u(ufunc-findexitat,u(loc-%#),%1)]),|)=1,{ @switch/inline words(setr(r,after(%qe,:)))=1,{ @select/inline strmatch(u(loc-%#),%qr)=1,{@pemit/silent %#=u(message-error,You are already there.)},{think u(ufunc-move,%#,%qr,go)} },{@pemit/silent %#=u(message-error,That exit is unlinked.)} },>1,{@pemit/silent %#=u(message-error,Too many matches.)},{@pemit/silent %#=u(message-error,Could not find an exit named %1.)}
+@set u(vroom)/CMD-GO-2=regexp
+&CMD-LINK u(vroom)=$link *=*:@select/inline u(ufunc-controls,%#)=1,{ @switch/inline 1=cor(eq(words(setr(e,u(ufunc-findexitat,u(loc-%#),%0)),|),1),eq(words(setr(e,u(ufunc-findexitsat,u(loc-%#),%0)),|),1)),{ @switch/inline words(setr(d,u(ufunc-findrooms,%1)))=1,{@pemit/silent %#=u(message-success,Exit re-linked.)[u(ufunc-linkexit,u(loc-%#),%qe,%qd)]},>1,{@pemit/silent %#=u(message-error,Too many destination matches.)},{@pemit/silent %#=u(message-error,Destination not found.)} },gt(words(%qe,|),1),{@pemit/silent %#=u(message-error,Too many matches.)},{@pemit/silent %#=u(message-error,Exit not found.)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-LISTFLOATING u(vroom)=$listfloating:@select/inline words(setr(l,u(ufunc-floatingrooms)))=0,{@pemit/silent %#=u(message-success,No floating rooms found.)},{@pemit/silent %#=u(message-success,The following rooms have no exits linking to them:)%r[setq(0,ulocal(ufunc-color,roomname))][setq(1,ulocal(ufunc-color,roomname-bracket))][setq(2,ulocal(ufunc-color,roomname-dbref))][table(iter(%ql,[space(2)][ljust([ansi(%q1,<)][ansi(%q2,##)][ansi(%q1,>)],8)][ansi(%q0,v(name-##))],,|),38,78,|)]%r}
+&CMD-LISTOWNERS u(vroom)=$listowners:@select/inline u(ufunc-controls,%#)=1,{ @pemit/silent %#=u(message-success,Owners:)%r[setq(0,u(ufunc-playername))][table(iter([owner(me)] [setdiff(v(owners),owner(me))],[ansi(%q0,name(##))],,|),37,80,|)]%r },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-LISTROOMS u(vroom)=$listrooms:@select/inline words(setr(l,u(ufunc-listrooms)))=0,{@pemit/silent %#=u(message-success,No rooms found.)},{@pemit/silent %#=u(message-success,All rooms:)%r[setq(0,ulocal(ufunc-color,roomname))][setq(1,ulocal(ufunc-color,roomname-bracket))][setq(2,ulocal(ufunc-color,roomname-dbref))][table(iter(%ql,[space(2)][ljust([ansi(%q1,<)][ansi(%q2,##)][ansi(%q1,>)],8)][ansi(%q0,v(name-##))],,|),38,78,|)]%r}
+&CMD-NAME u(vroom)=$^name(/(here))? (([^=]+)(=(.+))?)$:@select/inline u(ufunc-controls,%#)=1,{ @select/inline 1=cor(strmatch(%2,here)[setq(r,u(loc-%#))][setq(n,%3)],strmatch(%6,),strmatch(%4,here)[setq(n,%6)],regmatch(%4,^#%\d+$)[setq(r,%4)]),{@select/inline hasattrp(me,name-%qr)=1,{@pemit/silent %#=u(message-success,Name changed.)[set(me,name-%qr:%qn)][set(me/name-%qr,no_command)]},{@pemit/silent %#=u(message-error,Invalid location.)}},cand(strlen(%4),cor(eq(words(setr(e,u(ufunc-findexitat,u(loc-%#),%4)),|),1),gt(words(u(ufunc-findexitsat,u(loc-%#),%4),|),1))),{ @pemit/silent %#=u(ufunc-renameexiterror,u(loc-%#),%qe,%6) },{ @switch/inline words(setr(r,u(ufunc-findrooms,%4)))=1,{@pemit/silent %#=u(message-success,Name changed.)[set(me,name-%qr:%6)]},>1,{@pemit/silent %#=u(message-error,Too many matches.)},{@pemit/silent %#=u(message-error,Could not find %4.)} } },{@pemit/silent %#=u(message-error,Permission denied.)}
+@set u(vroom)/CMD-NAME=regexp
+&CMD-OOC u(vroom)=$+ooc *:think u(ufunc-ooc,%N[switch(mid(%0,0,1),;,delete(%0,0,1),:,%b[delete(%0,0,1)],%bsays\, "%0")])
+&CMD-OOC-ALL u(vroom)=$+ooc/all *:think u(ufunc-ooc,%N[regedit(%0,^%(?s%)%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])],all)
+&CMD-OOC-ALL-NOEVAL u(vroom)=$^(?s)\+ooc(/noeval/all|/all/noeval) .*$:think u(ufunc-ooc,%N[regedit(rest(default(cmds`last`%#,%0)),^%(?s%)%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])],all)[null(wipe(me/cmds`last`%#))]
+@set u(vroom)/CMD-OOC-ALL-NOEVAL=regexp
+&CMD-OOC-GAG u(vroom)=$+ooc/gag:@select/inline u(ufunc-controls,%#)=1,{@pemit/silent %#=u(message-success,OOC gagged.)[set(me,option-oocgag:1)]},{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-OOC-HERE u(vroom)=$+ooc/here *:think u(ufunc-ooc,%N[regedit(%0,^%(?s%)%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])],here)
+&CMD-OOC-HERE-NOEVAL u(vroom)=$^(?s)\+ooc(/noeval/here|/here/noeval) .*$:think u(ufunc-ooc,%N[regedit(rest(default(cmds`last`%#,%0)),^%(?s%)%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])],here)[null(wipe(me/cmds`last`%#))]
+@set u(vroom)/CMD-OOC-HERE-NOEVAL=regexp
+&CMD-OOC-NOEVAL u(vroom)=$^(?s)\+ooc/noeval .*$:think u(ufunc-ooc,%N[regedit(rest(default(cmds`last`%#,%0)),^%(?s%)%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])])[null(wipe(me/cmds`last`%#))]
+@set u(vroom)/CMD-OOC-NOEVAL=regexp
+&CMD-OOC-UNGAG u(vroom)=$+ooc/ungag:@select/inline u(ufunc-controls,%#)=1,{@pemit/silent %#=u(message-success,OOC ungagged.)[wipe(me/option-oocgag)]},{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-OPEN u(vroom)=$^open ([^=]+)(=([^,]+)(,(.+))?)?$:@select/inline u(ufunc-controls,%#)=1,{ @select/inline [words(setr(r,u(ufunc-findrooms,%3)))][strmatch(%3,)]=00,{@pemit/silent %#=u(message-error,Destination not found.)},>10,{@pemit/silent %#=u(message-error,Too many matches.)},{@pemit/silent %#=u(ufunc-openerror,u(loc-%#),%qr,%1,%5)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+@set u(vroom)/CMD-OPEN=regexp
+&CMD-PORT u(vroom)=$+vrport *:@select/inline 1=cor(words(setr(r,u(ufunc-findroom,%0))),eq(words(setr(r,u(ufunc-findrooms,%0))),1)),{ @select/inline strmatch(u(loc-%#),%qr)=1,{@pemit/silent %#=u(message-error,You are already there.)},{think u(ufunc-move,%#,%qr,tport)} },gt(words(%qr),1),{@pemit/silent %#=u(message-error,Too many results.)},{@pemit/silent %#=u(message-error,u(format-notfound,%0,room))}
+&CMD-POSE u(vroom)=$+pose *:think u(ufunc-emit,%~ %0)
+&CMD-POSE-ALL u(vroom)=$+pose/all *:think u(ufunc-emitall,%~ %0)
+&CMD-POSE-NOSPACE u(vroom)=$^\+(pose/nospace|semipose) (.+)$:think u(ufunc-emit,%~%2)
+@set u(vroom)/CMD-POSE-NOSPACE=regexp
+&CMD-POSE-NOSPACE-ALL u(vroom)=$^\+(pose/nospace/all|semipose/all|pose/all/nospace) (.+)$:think u(ufunc-emitall,%~%2)
+@set u(vroom)/CMD-POSE-NOSPACE-ALL=regexp
+&CMD-REMOWNER u(vroom)=$remowner *:@select/inline strmatch(owner(me),%#)=1,{ @select/inline isdbref(setr(p,pmatch(%0)))=1,{@select/inline cand(not(strmatch(%qp,owner(me))),u(ufunc-controls,%qp))=1,{ @pemit/silent %#=u(message-error,[name(%qp)] removed from owners list.)[set(me,owners:[setdiff(v(owners),%qp)])] },{@pemit/silent %#=u(message-error,[name(%qp)] is not an owner or can not be removed.)}},{@pemit/silent %#=u(message-error,Could not find %0 or it's not a valid player.)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-RESETOWNER u(vroom)=$resetowners:@select/inline strmatch(owner(me),%#)=1,{ @pemit/silent %#=u(message-success,Owners reset.)[wipe(me/owners)] },{@pemit/silent %#=u(message-error,Could not find %0 or it's not a valid player.)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-SAY u(vroom)=$+say *:think u(ufunc-emit,%~[regedit(%0,^%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])])
+&CMD-SAY-ALL u(vroom)=$+say/all *:think u(ufunc-emitall,%~[regedit(%0,^%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])])
+&CMD-SETLOC u(vroom)=$setloc *=*:@select/inline cor(strmatch(%#,owner(setr(p,locate(me,%0,TPia)))),u(ufunc-controls,%#))=1,{ @select/inline 1=not(isdbref(%qp)),{@pemit/silent %#=u(message-error,Could not find %0.)},not(strmatch(loc(%qp),num(me))),{@pemit/silent %#=u(message-error,[name(%qp)] is not here.)},cor(words(setr(r,u(ufunc-findroom,%1))),eq(words(setr(r,u(ufunc-findrooms,%1))),1)),{ @select/inline strmatch(u(loc-%qp),%qr)=1,{@pemit/silent %#=u(message-error,[name(%qp)] is already there.)},{think u(ufunc-move,%qp,%qr,tport)} },gt(words(%qr),1),{@pemit/silent %#=u(message-error,Too many results.)},strmatch(%1,),{@pemit/silent %#=u(message-success,Cleared [name(%qp)]'s location.)[wipe(me/loc-%qp)]},{@pemit/silent %#=u(message-error,u(format-notfound,%1,room))} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-SETLOC-ALL u(vroom)=$setloc/all *:@select/inline u(ufunc-controls,%#)=1,{ @select/inline 1=cor(words(setr(r,u(ufunc-findroom,%0))),eq(words(setr(r,u(ufunc-findrooms,%0))),1)),{ @dolist/notify filter(#lambda/cand(not(hastype(%%0,thing)),not(strmatch(u(loc-%%0),%qr))),lcon(me))={think u(ufunc-move,##,%qr,quiet)};@wait me=think u(ufunc-emit,u(format-setloc-all,%qr)) },gt(words(%qr),1),{@pemit/silent %#=u(message-error,Too many results.)},{@pemit/silent %#=u(message-error,u(format-notfound,%1,room))} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-SETUP u(vroom)=$+setup:@select/inline strmatch(%#,owner(me))=1,{@lock/use me=lock-use/1;@lock/speech me=lock-speech/1; @lock/enter me=lock-enter/1; @lock me=lock-basic/1;@set me=enter_ok;@pemit/silent %#=u(message-success,Setup complete.)[switch(hasattr(me,name-#0),0,set(me,name-#0:[v(name-#0)]))]},{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-SPEECHLOCK u(vroom)=$+speechlock *:@select/inline u(ufunc-controls,%#)=1,{ @switch/inline %0=on,{@lock/speech me=lock-speech/1; @pemit/silent %#=ansi(h,Locked. Text players send will not be evaluated%, though colors with %[ansi%(%)%] mostly work.)},off,{@unlock/speech me; @pemit/silent %#=ansi(h,Unlocked. Normal speech is now allowed.)},{@pemit/silent %#=ansi(hr,Unknown option. Use either 'on' or 'off')} },{@pemit/silent %#=ansi(hr,Permission denied.)}
+&CMD-UNLINK u(vroom)=$unlink *:@select/inline u(ufunc-controls,%#)=1,{ @switch/inline 1=cor(eq(words(setr(e,u(ufunc-findexitat,u(loc-%#),%0)),|),1),eq(words(setr(e,u(ufunc-findexitsat,u(loc-%#),%0)),|),1)),{ @pemit/silent %#=u(message-success,Exit re-linked.)[u(ufunc-linkexit,u(loc-%#),%qe)] },gt(words(%qe,|),1),{@pemit/silent %#=u(message-error,Too many matches.)},{@pemit/silent %#=u(message-error,Exit not found.)} },{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-VRHELP u(vroom)=$vrhelp:@switch/inline words(lattrp(me/vrhelp-*))=0,{@pemit/silent %#=u(message-error,No help available.)},{@pemit/silent %#=u(format-vrhelp)}
+&CMD-VRHELP-TOPIC u(vroom)=$vrhelp *:@switch/inline 1=cor(hasattrp(me,setr(a,vrhelp-[edit(%0,%b,_)])),eq(words(setr(a,lattrp(me/vrhelp-*[edit(%0,%b,_)]*))),1)),{ @pemit/silent %#=[u(format-vrhelp-topic,%qa,ulocal(%qa),v(%qa))] },gt(words(%qa),1),{@pemit/silent %#=u(message-error,Multiple matches found:)%r[space(4)][iter(%qa,ansi(r,lcstr(edit(after(##,-),_,%b))),,ansi(h,%,%b))]},{@pemit/silent %#=u(message-error,Topic not found.)}
+&CMD-VRJOIN u(vroom)=$+vrjoin *:@select/inline 0=cor(isdbref(setr(p,pmatch(%0))),isdbref(setr(p,locate(me,%0,TPia)))),{@pemit/silent %#=u(message-error,%0 not found.)},strmatch(loc(%qp),num(me)),{@pemit/silent %#=u(message-error,[accname(%qp)] is not here.)},not(strmatch(u(loc-%#),setr(r,u(loc-%qp)))),{@pemit/silent %#=u(message-error,You are already there.)},strmatch(%qr,#*),{@pemit/silent %#=u(message-error,Invalid destination.)},{think u(ufunc-move,%#,%qr,tport)}
+&CMD-VRWHERE u(vroom)=$vrwhere:@pemit/silent %#=u(message-success,Where List:)%r[setq(0,ulocal(ufunc-color,roomname-bracket))][setq(1,ulocal(ufunc-color,roomname))][setq(2,ulocal(ufunc-color,playername))][setq(3,ulocal(ufunc-color,thingname))][iter(sortby(sortby-loc,filter(filter-lcon,lcon(me))),ljust([space(2)][ansi(if(hastype(##,thing),%q3,%q2),name(##))],38)[ljust(rjust([ansi(%q0,<)][ansi(%q1,[udefault(loc-##,??)])][ansi(%q0,>)],6),10)][ansi(%q1,v(name-[u(loc-##)]))],,%r)]%r
+&CMD-VRWHERE-ALL u(vroom)=$vrwhere/all:@pemit/silent %#=u(message-success,Where List:)%r[setq(0,ulocal(ufunc-color,roomname-bracket))][setq(1,ulocal(ufunc-color,roomname))][setq(2,ulocal(ufunc-color,playername))][setq(3,ulocal(ufunc-color,thingname))][iter(sortby(sortby-loc,lcon(me)),ljust([space(2)][ansi(if(hastype(##,thing),%q3,%q2),name(##))],38)[ljust(rjust([ansi(%q0,<)][ansi(%q1,[udefault(loc-##,??)])][ansi(%q0,>)],6),10)][ansi(%q1,v(name-[u(loc-##)]))],,%r)]%r
+&CMD-VRWHO u(vroom)=$vrwho:@pemit/silent %#=u(message-success,Who List:)%r[setq(0,ulocal(ufunc-color,roomname-bracket))][setq(1,ulocal(ufunc-color,roomname))][setq(2,ulocal(ufunc-color,playername))][setq(3,ulocal(ufunc-color,thingname))][table(iter(sortby(sortby-loc,filter(filter-lcon,lcon(me))),[ljust(rjust([ansi(%q0,<)][ansi(%q1,[udefault(loc-##,??)])][ansi(%q0,>)],6),10)][ansi(if(hastype(##,thing),%q3,%q2),name(##))],,|),37,80,|)]%r
+&CMD-VRWHO-ALL u(vroom)=$vrwho/all:@pemit/silent %#=u(message-success,Who List:)%r[setq(0,ulocal(ufunc-color,roomname-bracket))][setq(1,ulocal(ufunc-color,roomname))][setq(2,ulocal(ufunc-color,playername))][setq(3,ulocal(ufunc-color,thingname))][table(iter(sortby(sortby-loc,lcon(me)),[ljust(rjust([ansi(%q0,<)][ansi(%q1,[udefault(loc-##,??)])][ansi(%q0,>)],6),10)][ansi(if(hastype(##,thing),%q3,%q2),name(##))],,|),37,80,|)]%r
+&CMD-WIPEROOMS u(vroom)=$wiperooms:@select/inline strmatch(owner(me),%#)=1,{ @pemit/silent %#=[u(message-success,All rooms cleared.)][u(ufunc-wiperooms)] },{@pemit/silent %#=u(message-error,Permission denied.)}
+&COLOR-CONHEADER u(vroom)=hr
+@set u(vroom)/COLOR-CONHEADER=no_command
+&COLOR-DESC u(vroom)=c
+@set u(vroom)/COLOR-DESC=no_command
+&COLOR-DESC-SEPERATOR u(vroom)=hb
+@set u(vroom)/COLOR-DESC-SEPERATOR=no_command
+&COLOR-EMITBRACKET u(vroom)=c
+@set u(vroom)/COLOR-EMITBRACKET=no_command
+&COLOR-EMITNAME u(vroom)=hx
+@set u(vroom)/COLOR-EMITNAME=no_command
+&COLOR-ERROR u(vroom)=hr
+@set u(vroom)/COLOR-ERROR=no_command
+&COLOR-EXITBRACKET u(vroom)=m
+@set u(vroom)/COLOR-EXITBRACKET=no_command
+&COLOR-EXITDB u(vroom)=c
+@set u(vroom)/COLOR-EXITDB=no_command
+&COLOR-EXITNAME-LINKED u(vroom)=r
+@set u(vroom)/COLOR-EXITNAME-LINKED=no_command
+&COLOR-EXITNAME-REAL u(vroom)=g
+@set u(vroom)/COLOR-EXITNAME-REAL=no_command
+&COLOR-EXITNAME-UNLINKED u(vroom)=y
+@set u(vroom)/COLOR-EXITNAME-UNLINKED=no_command
+&COLOR-OOCBRACKET u(vroom)=h
+@set u(vroom)/COLOR-OOCBRACKET=no_command
+&COLOR-OOCHEADER u(vroom)=hr
+@set u(vroom)/COLOR-OOCHEADER=no_command
+&COLOR-PLAYERNAME u(vroom)=c
+@set u(vroom)/COLOR-PLAYERNAME=no_command
+&COLOR-PLAYERNAME-DESCBRACKET u(vroom)=r
+@set u(vroom)/COLOR-PLAYERNAME-DESCBRACKET=no_command
+&COLOR-PLAYERNAME-DESCNAME u(vroom)=hx
+@set u(vroom)/COLOR-PLAYERNAME-DESCNAME=no_command
+&COLOR-ROOMNAME u(vroom)=c
+@set u(vroom)/COLOR-ROOMNAME=no_command
+&COLOR-ROOMNAME-BRACKET u(vroom)=hm
+@set u(vroom)/COLOR-ROOMNAME-BRACKET=no_command
+&COLOR-ROOMNAME-DBREF u(vroom)=h
+@set u(vroom)/COLOR-ROOMNAME-DBREF=no_command
+&COLOR-ROOMNAME-OBJNAME u(vroom)=y
+@set u(vroom)/COLOR-ROOMNAME-OBJNAME=no_command
+&COLOR-ROOMNAME-SEP u(vroom)=h
+@set u(vroom)/COLOR-ROOMNAME-SEP=no_command
+&COLOR-SUCCESS u(vroom)=h
+@set u(vroom)/COLOR-SUCCESS=no_command
+&COLOR-THINGNAME u(vroom)=hx
+@set u(vroom)/COLOR-THINGNAME=no_command
+&CONFORMAT u(vroom)=[setq(p,if(isdbref(%1),%1,%#))][setq(0,ulocal(ufunc-color,playername,%qp))][setq(1,ulocal(ufunc-color,thingname,%qp))][setq(2,ulocal(ufunc-color,exitname-linked,%qp))][setq(3,ulocal(ufunc-color,exitname-unlinked,%qp))][setq(4,ulocal(ufunc-color,exitbracket,%qp))][setq(5,ulocal(ufunc-color,exitdb,%qp))][setq(6,ulocal(ufunc-color,conheader,%qp))][setq(7,ulocal(ufunc-color,playername-descbracket,%qp))][setq(8,ulocal(ufunc-color,playername-descname,%qp))][setq(9,ulocal(ufunc-color,exitname-real,%qp))][setq(l,u(loc-%qp))][setq(e,v(exits-%ql))][u(format-contents,sortby(sortby-type,filter(filter-nearby,lcon(me))),sortby(#lambda/comp(words(%%1,:)%%0,words(%%0,:)%%1),%qe,|)[switch(lexits(me),#-1,,[if(words(%qe,|),|)][iter(lexits(me),##;[loc(##)]:RE,,|)])],%0)]
+@set u(vroom)/CONFORMAT=no_command prefixmatch
+&CREDITS u(vroom)=Original Author: Sora (AKA Xiph Theora and Shemune) of DR. Virtual Room Parent Version 2.0.
+@set u(vroom)/CREDITS=visual
+&D u(vroom)=
+@set u(vroom)/D=wizard mortal_dark
+&D`CUSTLOC u(vroom)=%!_[default(me/LOC-%0,v(default-startingroom))]
+&D`CUSTRECP u(vroom)=setinter(edit(wildgrep(me,LOC-*,default(me/LOC-%0,v(default-startingroom))),LOC-,),lcon(me))
+&DEFAULT-STARTINGROOM u(vroom)=#0
+@set u(vroom)/DEFAULT-STARTINGROOM=no_command
+&DESCFORMAT u(vroom)=[switch(type(me),room,ulocal(idescformat,u(idescribe)),[setq(p,if(isdbref(%1),%1,%#))][setq(0,ulocal(ufunc-color,desc-seperator,%qp))][setq(1,ulocal(ufunc-color,desc,%qp))][u(format-desc,%0)])]
+@set u(vroom)/DESCFORMAT=no_command prefixmatch
+&DESCRIBE u(vroom)=This is the outside description.
+@set u(vroom)/DESCRIBE=visual
+&ENTER u(vroom)=[set(me,loc-%#:[u(default-startingroom)])]
+@set u(vroom)/ENTER=no_command prefixmatch
+&ENTER-OK u(vroom)=1
+&EXITFORMAT u(vroom)=[u(format-exits,lexits(me))]
+@set u(vroom)/EXITFORMAT=no_command prefixmatch
+&FILTER-CONNECTED u(vroom)=neq(conn(%0),-1)
+@set u(vroom)/FILTER-CONNECTED=no_command
+&FILTER-EMIT u(vroom)=switch(%qt,ooc,not(u(ufunc-checkoption,%0,gagooc)),1)
+@set u(vroom)/FILTER-EMIT=no_command
+&FILTER-LCON u(vroom)=cor(hastype(%0,thing),neq(conn(%0),-1))
+@set u(vroom)/FILTER-LCON=no_command
+&FILTER-NEARBY u(vroom)=cand(strmatch(u(loc-%#),u(loc-%0)),cor(hastype(%0,thing),neq(conn(%0),-1)))
+@set u(vroom)/FILTER-NEARBY=no_command
+&FILTER-NEARBYQ0 u(vroom)=cand(ulocal(filter-emit,%0),strmatch(%q0,u(loc-%0)),cor(hastype(%0,thing),neq(conn(%0),-1)))
+@set u(vroom)/FILTER-NEARBYQ0=no_command
+&FILTER-NOTPLAYER u(vroom)=not(hastype(%0,player))
+@set u(vroom)/FILTER-NOTPLAYER=no_command
+&FORMAT-CONTENTS u(vroom)=if(strmatch(%l,num(me)),[setq(s,39)][setq(f,sub(%qs,2))][ansi(%q6,ljust([ljust(Contents[switch(setr(count,words(setdiff(filter(filter-connected,lcon(me)),%0))),1,%b%(1 player not shown%),>1,%b%(%q<count> players not shown%))],%qs)]Exits,78))]%r[iter(lnum(1,max(words(%0),words(%1,|))),[ljust(ansi([if(hastype(elements(%0,##),thing),%q1,%q0)],left(if(setr(p,elements(%0,##)),[name(%qp)][if(cand(hasattr(%qp,desc_curr),strlen(get(%qp/desc_curr))),%b[ansi(%q7,<)][ansi(%q8,get(%qp/desc_curr))][ansi(%q7,>)])]),%qf)),%qs)][setq(t,regedit(setr(x,elements(%1,##,|)),:%(%[^:%]+%)$,))][setq(u,switch(%qx,*:RE,%q9[setq(t,ulocal(format-realexit,%qt))],*:#*,%q2[switch(%qt,*;*,,*;,,setq(t,%qt;[last(%qx,:)]))],%q3[switch(%qt,*;*,,*;,,setq(t,%qx;))]))][ulocal(format-exitname,%qx,%qt,elements(%qt,2,%;),before(%qt,;),%q4,%q5,%qu,after(%qx,:))],,%r)]%r,if(words(%2),[ansi(%q6,Contents:)]%r[iter(sortby(sortby-type,filter(filter-connected,%2)),ansi(if(hastype(##,thing),%q1,%q0),space(4)[name(##)][if(cand(hasattr(##,desc_curr),strlen(get(##/desc_curr))),%b[ansi(%q7,<)][ansi(%q8,get(##/desc_curr))][ansi(%q7,>)])]),,%r)]%r))
+@set u(vroom)/FORMAT-CONTENTS=no_command
+&FORMAT-DESC u(vroom)=[ansi(%q0,repeat(-,78))]%r%r[space(4)][ansi(%q1,if(ulocal(ufunc-checkoption,%#,wordwrap),iter(wrap(regeditall(%0,%\t,space(4)),76,72,chr(124)),%b[itext(0)],chr(124),%r),regeditall(%0,%\t,space(4))))]%r%r[ansi(%q0,repeat(-,78))]
+@set u(vroom)/FORMAT-DESC=no_command
+&FORMAT-DESC_CURR u(vroom)=[if(cand(hasattr(%0,desc_curr),strlen(get(%0/desc_curr))),%b[ansi(%1,<)][ansi(%2,get(%0/desc_curr))][ansi(%1,>)])]
+@set u(vroom)/FORMAT-DESC_CURR=no_command
+&FORMAT-ENTER u(vroom)=[u(message-success,Type 'vrhelp' for help. Specifically 'vrhelp movement'.)]
+@set u(vroom)/FORMAT-ENTER=no_command
+&FORMAT-EXITNAME u(vroom)=[ljust(switch(%1,*;,,*;*,[ansi(%4,<)][ansi(%5,trim(left(%2,5)))][ansi(%4,>)]),8)][ansi(%6,%3)]
+@set u(vroom)/FORMAT-EXITNAME=no_command
+&FORMAT-EXITS u(vroom)=[@@(Unused)]
+@set u(vroom)/FORMAT-EXITS=no_command
+&FORMAT-GO-ARRIVE u(vroom)=[ulocal(format-move,%2,arrives from:,%3,%4,%5,%6)]
+@set u(vroom)/FORMAT-GO-ARRIVE=no_command
+&FORMAT-GO-DROP u(vroom)=[if(ulocal(ufunc-checkoption,%#,dodrop),ulocal(format-move,You,arrive at:,%3,%5,%5,%6))]
+@set u(vroom)/FORMAT-GO-DROP=no_command
+&FORMAT-GO-LEAVE u(vroom)=[ulocal(format-move,%2,heads toward:,%3,%4,%5,%6)]
+@set u(vroom)/FORMAT-GO-LEAVE=no_command
+&FORMAT-GO-SUCC u(vroom)=[if(ulocal(ufunc-checkoption,%#,dosucc),ulocal(format-move,You,head towards:,%3,%5,%5,%6))]
+@set u(vroom)/FORMAT-GO-SUCC=no_command
+&FORMAT-MOVE u(vroom)=[ansi(%3,%0)] [ansi(%4,%1)] [ansi(%5,%2)][ansi(%4,.)]
+@set u(vroom)/FORMAT-MOVE=no_command
+&FORMAT-NAME u(vroom)=[ansi(%1,%0)] [ansi(%2,-)] [ansi(%3,<)][ansi(%4,name(me))][ansi(%3,>)] [if(hasattr(me,loc-%#),ansi(%5,%(Location [u(loc-%#)]%)))]
+@set u(vroom)/FORMAT-NAME=no_command
+&FORMAT-NOTFOUND u(vroom)=Could not find [switch(%1,,,%1%b)]%0.
+@set u(vroom)/FORMAT-NOTFOUND=no_command
+&FORMAT-OENTER u(vroom)=[ansi(if(hastype(%#,thing),u(color-thingname),u(color-playername)),%N)] [ansi(u(color-success),arrives in:)] [ansi(u(color-roomname),v(name-[u(loc-%#)]))][ansi(u(color-success),.)]
+@set u(vroom)/FORMAT-OENTER=no_command
+&FORMAT-OLEAVE u(vroom)=ansi(if(hastype(%#,thing),u(color-thingname),u(color-playername)),%N) [ansi(u(color-success),has left.)]
+@set u(vroom)/FORMAT-OLEAVE=no_command
+&FORMAT-OOC u(vroom)=[ansi(ulocal(ufunc-color,oocbracket),<)][ansi(if(isadmin(%#),hb,ulocal(ufunc-color,oocheader)),OOC[switch(%1,#*,-[u(loc-%1)],,-[u(loc-%#)])])][ansi(ulocal(ufunc-color,oocbracket),>)] %0
+@set u(vroom)/FORMAT-OOC=no_command
+&FORMAT-REALEXIT u(vroom)=[switch(after(%0,;),#-1,Unlinked %([before(%0,;)]%),#*,name(after(%0,;)),after(%0,;))];[extract(fullname(before(%0,;)),2,1,;)]
+@set u(vroom)/FORMAT-REALEXIT=no_command
+&FORMAT-SETLOC-ALL u(vroom)=[ansi(u(color-success),Everyone has been moved to:)] [ansi(u(color-roomname),default(name-%0,Unknown))][ansi(u(color-success),.)]
+@set u(vroom)/FORMAT-SETLOC-ALL=no_command
+&FORMAT-TPORT-ARRIVE u(vroom)=[ulocal(format-move,%2,ports in from:,%3,%4,%5,%6)]
+@set u(vroom)/FORMAT-TPORT-ARRIVE=no_command
+&FORMAT-TPORT-DROP u(vroom)=[if(ulocal(ufunc-checkoption,%#,dodrop),ulocal(format-move,You,arrive at:,%3,%5,%5,%6))]
+@set u(vroom)/FORMAT-TPORT-DROP=no_command
+&FORMAT-TPORT-LEAVE u(vroom)=[ulocal(format-move,%2,ports to:,%3,%4,%5,%6)]
+@set u(vroom)/FORMAT-TPORT-LEAVE=no_command
+&FORMAT-TPORT-SUCC u(vroom)=[if(ulocal(ufunc-checkoption,%#,dosucc),ulocal(format-move,You,port to:,%3,%5,%5,%6))]
+@set u(vroom)/FORMAT-TPORT-SUCC=no_command
+&FORMAT-VRHELP u(vroom)=%r[ansi(r,repeat(-,78))]%r[ansi(r,|)][center(ansi(h,Virtual Room Help),76)][ansi(r,|)]%r[ansi(r,|[repeat(-,76)]|)]%r[ansi(r,|[ljust(,76)]|)]%r[iter(table(sort(lcstr(iter(lattrp(me/vrhelp-*),[edit(after(##,-),_,%b)],,|)),A,|),18,78,|),[ansi(r,|)][ljust([space(3)][ansi(c,left(itext(0),70))],76)][ansi(r,|)],%r,%r)]%r[ansi(r,|[ljust(,76)]|%r[repeat(-,78)])]%r
+@set u(vroom)/FORMAT-VRHELP=no_command
+&FORMAT-VRHELP-TOPIC u(vroom)=%r%b[ansi(h,edit([after(ucstr(%0),VRHELP-)],_,%b))]%r%r[if(words(first(%1,|)),%b[ansi(h,Syntax:)] [ansi(r,iter(first(%2,|),[switch(inum(0),>1,space(9))][edit(##,&comma%;,%,)],%,,%r))]%r%r)][iter([setq(s,edit([space(4)][elements(%1,2,|)],%t,space(4)))][if(hasflag(me/%qa,case),%qs,wrap(%qs,76,72,chr(124)))],%b[itext(0)],chr(124),%r)][switch(words(%1,|),3,%r%r%b[ansi(h,See also:)] [itemize(iter(last(%1,|),ansi(r,##),%,,|),|,ansi(h,and),ansi(h,%,))])]%r
+@set u(vroom)/FORMAT-VRHELP-TOPIC=no_command
+&IDESCFORMAT u(vroom)=[setq(p,if(isdbref(%1),%1,%#))][setq(0,ulocal(ufunc-color,desc-seperator,%qp))][setq(1,ulocal(ufunc-color,desc,%qp))][u(format-desc,if(strmatch(loc(%qp),num(me)),udefault(desc-[u(loc-%qp)],%0),u(describe)))]
+@set u(vroom)/IDESCFORMAT=no_command prefixmatch
+&IDESCRIBE u(vroom)=This is the default room description.%r%rTo see how to change it, type 'vrhelp desc'.
+@set u(vroom)/IDESCRIBE=no_command prefixmatch
+&LOCK-BASIC u(vroom)=u(ufunc-controls,%#)
+@set u(vroom)/LOCK-BASIC=no_command
+&LOCK-ENTER u(vroom)=cor(u(ufunc-controls,%#),u(ufunc-canenter,%#),u(enter-ok,%#))
+@set u(vroom)/LOCK-ENTER=no_command
+&LOCK-SPEECH u(vroom)=cand([u(ufunc-setpdf,%#)]1,not(strmatch(%l,num(me))),hastype(%#,thing room exit))
+@set u(vroom)/LOCK-SPEECH=no_command
+&LOCK-USE u(vroom)=[attrib_set(me/cmds`count`%#)][switch(1,not(strmatch(%l,num(me))),0,hasattrpval(me,cmd-go-2),if(setr(0,ulocal(ufunc-hascmd,%c)),1,[switch(ulocal(ufunc-findexitat,u(loc-%#),%c),,0,[set(me,cmds`count`%#:1)]1)]),hasattr(me,cmd-go-2),1)][null(switch(1,words(setinter(first(%c),noeval,/)),set(me,cmds`last`%#:%c),hasattr(me,cmds`last`%#),wipe(me/cmds`last`%#)))]
+@set u(vroom)/LOCK-USE=no_command
+&MESSAGE-ERROR u(vroom)=ansi(u(color-error),%0)
+@set u(vroom)/MESSAGE-ERROR=no_command
+&MESSAGE-SUCCESS u(vroom)=ansi(u(color-success),%0)
+@set u(vroom)/MESSAGE-SUCCESS=no_command
+&NAME-#0 u(vroom)=Starting Room
+@set u(vroom)/NAME-#0=no_command
+&NAMEFORMAT u(vroom)=[setq(p,if(isdbref(%1),%1,%#))][if(cor(hasattr(me,loc-%qp),not(strmatch(%l,num(me)))),,set(me,loc-%qp:[u(default-startingroom)])[pemit(setdiff(lcon(me),%qp),[u(format-oenter)])])][u(format-name,udefault(name-[u(loc-%qp)],name(me)),ulocal(ufunc-color,roomname,%qp),ulocal(ufunc-color,roomname-sep,%qp),ulocal(ufunc-color,roomname-bracket,%qp),ulocal(ufunc-color,roomname-objname,%qp),ulocal(ufunc-color,roomname-dbref,%qp))]
+@set u(vroom)/NAMEFORMAT=no_command prefixmatch
+&OENTER u(vroom)=[if(hasattr(me,loc-%#),,set(me,loc-%#:[u(default-startingroom)]))][u(format-oenter)]
+@set u(vroom)/OENTER=no_command prefixmatch noname nospace
+&OLEAVE u(vroom)=[u(format-oleave)]
+@set u(vroom)/OLEAVE=no_command prefixmatch noname nospace
+&OPTION-DODROP u(vroom)=0
+@set u(vroom)/OPTION-DODROP=no_command
+&OPTION-DOSUCC u(vroom)=0
+@set u(vroom)/OPTION-DOSUCC=no_command
+&OPTION-WORDWRAP u(vroom)=1
+@set u(vroom)/OPTION-WORDWRAP=no_command
+&REGEXP-ANSI u(vroom)=\[ansi\(([^,\[\]()]+),(.+?)\)\]
+@set u(vroom)/REGEXP-ANSI=no_command
+&REGEXP-COMMANDS u(vroom)=^(\+|-|.?who|where|wf|ooc|ic|#(?:[^\d]+|\d+\s|$)|news|help|mn(help|world|list|info|who|pwho|mail|credits|page|finger|search|staff)|mushbasic\d*)
+@set u(vroom)/REGEXP-COMMANDS=no_command
+&REGEXP-MYCOMMANDS u(vroom)=^(name|desc|dig|open|destroy|vrhelp|vrwho|vrwhere|link|unlink|wiperooms|listfloating|listrooms|setloc|\+|getdesc|addowner|remowner|resetowners|listowners)
+@set u(vroom)/REGEXP-MYCOMMANDS=no_command
+&REGEXP-PLUSCOMMANDS u(vroom)=^\+(?:ooc(?:(?:/noeval)?(?:/(?:here|all))?|/(?:here|all)(?:/noeval)?)? |ooc/(?:un)?gag|pose(?:(?:/all|/nospace)+)? |say(?:/all)? |emit(?:/all)? |speechlock (?:on|off)|enterlock (?:on|off)|port |go |convert$|convert |setup|exitshortcut (?:on|off)|semipose |vrjoin)
+@set u(vroom)/REGEXP-PLUSCOMMANDS=no_command
+&SORTBY-EXITS u(vroom)=switch(comp([words(%1,:)],[words(%0,:)]),0,comp(%0,%1),#$)
+@set u(vroom)/SORTBY-EXITS=no_command
+&SORTBY-LOC u(vroom)=comp(udefault(loc-%0,X)[type(%0)][name(%0)],udefault(loc-%1,X)[type(%1)][name(%1)])
+@set u(vroom)/SORTBY-LOC=no_command
+&SORTBY-TYPE u(vroom)=comp(type(%0)[name(%0)],type(%1)[name(%1)])
+@set u(vroom)/SORTBY-TYPE=no_command
+&SPEECH u(vroom)=
+&SPEECH_LOCK u(vroom)=
+&SPEECH_LOCK`FAILURE u(vroom)=[u(ufunc-emitspeech,speakpenn(%#,setr(e,regediti(%u,^%(%[^ %]+%)/noeval,$1,^SAY%b,",^POSE%b,:,^POSE/NOSPACE%b,;,^SEMIPOSE%b,;,^@EMIT%(?:/SPOOF%)?%b,|[setq(1,1)]))),%q1,%qn)]
+&UFUNC-CANENTER u(vroom)=t(member(u(canenter),%0))
+@set u(vroom)/UFUNC-CANENTER=no_command
+&UFUNC-CHECKOPTION u(vroom)=default(%0/option-%1,v(option-%1))
+@set u(vroom)/UFUNC-CHECKOPTION=no_command
+&UFUNC-CLOSEEXIT u(vroom)=@@(Close exit %1 at %0)[set(me,exits-%0:[trim(squish(regediti(v(exits-%0),%(?<=^|%\|%)%\Q%1%\E%(:#%\d+|%)%(?=%\||$%),),|),|)])]
+@set u(vroom)/UFUNC-CLOSEEXIT=no_command
+&UFUNC-COLOR u(vroom)=default([switch(%1,,%#,%1)]/color-%0,u(color-%0,%1))
+@set u(vroom)/UFUNC-COLOR=no_command
+&UFUNC-CONTROLS u(vroom)=cor(strmatch(%0,owner(me)),t(member(u(owners),%0)))
+@set u(vroom)/UFUNC-CONTROLS=no_command
+&UFUNC-CONVERT-DEFAULTPLACE u(vroom)=[setq(o,if(isdbref(%0),%0,num(me)))][if(hasattr(%qo,default-place),set(me,name-#0:[default(%qo/name-[get(%qo/default-place)],edit(get(%qo/default-place),_,%b))]))]
+@set u(vroom)/UFUNC-CONVERT-DEFAULTPLACE=no_command
+&UFUNC-CONVERT-LISTOLDROOMS u(vroom)=[setq(o,if(isdbref(%0),%0,num(me)))][setunion(setr(l,iter(regraballi([lattrp(%qo/*-*)],^%(?:name|exits|desc%)-%[^#%].*$),after(##,-))),%ql)]
+@set u(vroom)/UFUNC-CONVERT-LISTOLDROOMS=no_command
+&UFUNC-CONVERT-OLDROOMS u(vroom)=[setq(o,if(isdbref(%0),%0,num(me)))][null(iter(setr(l,[edit(default(%qo/default-place,Virtual Room #0),%b,_)] [setdiff(ucstr(ulocal(ufunc-convert-listoldrooms,%qo)),ucstr(edit(get(%qo/default-place),%b,_)))]),[setq(n,default(%qo/name-##,[capstr(lcstr(edit(##,_,%b)))]))][set(me,name-[setr(d,#[dec(inum(0))])]:%qn)][if(hasattrp(%qo,desc-##),set(me,desc-%qd:[get(%qo/desc-##)]))]))][null(iter(%ql,if(hasattrp(%qo,exits-##),set(me,exits-#[dec(inum(0))]:[iter(get(%qo/exits-##),[itext(0)][switch(match(%ql,edit(itext(0),%b,_)),>0,:#[dec(#$)])],|,|)]))))][if(hasattr(%qo,describe),set(me,describe:[get(%qo/describe)]))][if(hasattr(%qo,idescribe),set(me,idescribe:[get(%qo/idescribe)]))]
+@set u(vroom)/UFUNC-CONVERT-OLDROOMS=no_command
+&UFUNC-DESTROYEXITSTO u(vroom)=[null(iter(u(ufunc-entrances,%0),set(me,exits-##:[trim(squish(regedit(v(exits-##),%(?<=^|%\|%)%[^:|%]+:%0%(?=%\||$%),),|),|)])))]
+@set u(vroom)/UFUNC-DESTROYEXITSTO=no_command
+&UFUNC-DESTROYROOM u(vroom)=[wipe(me/name-%0)][wipe(me/desc-%0)][wipe(me/exits-%0)][wipe(me/exitalias-%0)]
+@set u(vroom)/UFUNC-DESTROYROOM=no_command
+&UFUNC-DIGERROR u(vroom)=@@(Dig a new room named %1 from %0 with exit going to it called %2, and return exit %3. %4 - teleport)[switch(1,regmatch(%2%3,%[:%\%\%\|%]),u(message-error,Exit names can not contain :%, |%, or %\.),regmatchi(v(exits-%0),%(?:^|%\|%)%\Q%2%\E%(?::#%\d+|%)%(?:%\||$%)),u(message-error,That exit already exists.),u(message-success,Room created.)[set(me,name-[setr(d,ulocal(ufunc-nextroomdbref))]:%1)][set(me/name-%qd,no_command)] [ulocal(ufunc-openerror,%0,%qd,%2,%3)][if(%4,ulocal(ufunc-move,%#,%qd,go))])]
+@set u(vroom)/UFUNC-DIGERROR=no_command
+&UFUNC-EMIT u(vroom)=ulocal(ufunc-emitto,u(loc-%#),%0,%1)
+@set u(vroom)/UFUNC-EMIT=no_command
+&UFUNC-EMITALL u(vroom)=[switch(%1,1,[setq(1,ulocal(ufunc-color,emitname))][setq(2,ulocal(ufunc-color,emitbracket))][null(iter(lcon(me),pemit(##,if(hasflag(##,safe),[ansi(%q2,%[)][ansi(%q1,%N)][ansi(%q2,%])]%b)%0)))][u(ufunc-fwdlist,%#,,%1,%0)],[null(iter(filter(filter-emit,lcon(me)),pemit(##,%0)))][u(ufunc-fwdlist,%#,,%1,%0)])]
+@set u(vroom)/UFUNC-EMITALL=no_command
+&UFUNC-EMITSPEECH u(vroom)=ulocal(ufunc-emitto,u(loc-%#),if(%2,%0,regeditalli(udefault(ufunc-filterspeech,%0,%0),%%%(%[n#brtopals~%]%),setq(s,$1)[case(%qs,n,%n,N,%N,#,%#,b,%b,B,%b,r,%r,R,%r,t,%t,T,%t,o,%o,O,%O,p,%p,P,%P,s,%s,S,%S,a,%a,A,%A,l,%l,L,%l,~,%~)])),%1)
+@set u(vroom)/UFUNC-EMITSPEECH=no_command
+&UFUNC-EMITTO u(vroom)=setq(0,%0)[switch(%2,1,[setq(1,ulocal(ufunc-color,emitname))][setq(2,ulocal(ufunc-color,emitbracket))][null(iter(filter(filter-nearbyq0,lcon(me)),pemit(%i0,if(hasflag(%i0,safe),[ansi(%q2,%[)][ansi(%q1,%N)][ansi(%q2,%])]%b)%1)))][u(ufunc-fwdlist,%#,%0,%2,%1)],[null(iter(filter(filter-nearbyq0,lcon(me)),pemit(%i0,%1)))][u(ufunc-fwdlist,%#,%0,%2,%1)])]
+@set u(vroom)/UFUNC-EMITTO=no_command
+&UFUNC-ENTRANCES u(vroom)=setunion(setr(l,iter(regrepi(me,exits-*,:%0(%\||$)),after(##,-))),%ql)
+@set u(vroom)/UFUNC-ENTRANCES=no_command
+&UFUNC-ESCAPE u(vroom)=%\Q[regedit(escape(%0),^%\%\%(%[^%\%\%]%),$1)]%\E
+@set u(vroom)/UFUNC-ESCAPE=no_command
+&UFUNC-FINDEXITAT u(vroom)=switch(1,words(setr(l,u(ufunc-findexitsat,%0,%1)),|),%ql,words(setr(e,regrabi(%ql,^[setr(x,ulocal(ufunc-escape,%1))](?:;.+?)?(?::#%\d+)?$,|)),|),%qe,words(setr(e,regrabi(%ql,^.*?;%qx(?:;|:|$),|)),|),%qe,words(setr(e,regrabi(%ql,^.*:%qx$,|)),|),%qe)
+@set u(vroom)/UFUNC-FINDEXITAT=no_command
+&UFUNC-FINDEXITS u(vroom)=iter(regrepi(me,exits-*,%(^|%\|%)%[^:%]+:[ulocal(ufunc-escape,%1)]%(%\||$%)),after(##,-))
+@set u(vroom)/UFUNC-FINDEXITS=no_command
+&UFUNC-FINDEXITSAT u(vroom)=regraballi(v(exits-%0),^.*?[ulocal(ufunc-escape,%1)].*?$,|)
+@set u(vroom)/UFUNC-FINDEXITSAT=no_command
+&UFUNC-FINDROOM u(vroom)=switch(1,hasattrp(me,name-%0),%0,words(grepi(me,name-#*,%0)),after(regrabi(grepi(me,name-*,%0),^name-#%\d+$),-),words(regrepi(me,name-#*,^%0$)),after(regrepi(me,name-#*,^%0$),-))
+@set u(vroom)/UFUNC-FINDROOM=no_command
+&UFUNC-FINDROOMS u(vroom)=switch(1,hasattrp(me,name-%0),%0,cand(words(%0),t(words(grepi(me,name-#*,%0)))),iter(regraballi(grepi(me,name-#*,%0),^name-#%\d+$),after(##,-)))
+@set u(vroom)/UFUNC-FINDROOMS=no_command
+&UFUNC-FLOATINGROOMS u(vroom)=trim(squish([iter(regraballi(lattr(me/name-*),^name-#%\d+$),switch(words(regrep(me,exits-*,:[after(##,-)]%(%\||$%))),0,[after(##,-)]))]))
+@set u(vroom)/UFUNC-FLOATINGROOMS=no_command
+&UFUNC-FWDLIST u(vroom)=if(hasattr(me,fwdlist),pemit(u(fwdlist),[switch(%1,,%[[ansi(xh,num(me))]%]%b,%[[ansi(hx,num(me))]:[ansi(hx,%1)]%]%b)][switch(%2,1,%([ansi(hx,name(%0))]%)%b)]%3))
+@set u(vroom)/UFUNC-FWDLIST=no_command
+&UFUNC-HASCMD u(vroom)=regmatchi(%0,iter(filter(#lambda/not(hasflag(me/%%0,no_command)),setdiff(iter(lparent(me),regrep(##,**,^%\$%[^:%]+:)),CMD-GO-2)),%(?:[if(hasflag(me/##,regexp),after(first(v(##),:),$),[ulocal(ufunc-reescape,after(first(v(##),:),$))])]%),,|))
+@set u(vroom)/UFUNC-HASCMD=no_command
+&UFUNC-LINKEXIT u(vroom)=@@(Link exit %1 in %0 to %2)[set(me,exits-%0:[regediti(v(exits-%0),%(?<=^|%\|%)%([switch(escape(before(%1,:)),%\%\,escape(before(%1,:)),after(escape(before(%1,:)),%\))]%)%(?::#%\d+|%)%(?=%\||$%),$1[if(words(%2),:%2)])])]
+@set u(vroom)/UFUNC-LINKEXIT=no_command
+&UFUNC-LISTROOMS u(vroom)=sort(iter(regraballi(lattr(me/name-*),^name-#%\d+$),after(##,-)))
+@set u(vroom)/UFUNC-LISTROOMS=no_command
+&UFUNC-MAKEEXITNAME u(vroom)=edit(edit(%0,:,-),%\,)
+@set u(vroom)/UFUNC-MAKEEXITNAME=no_command
+&UFUNC-MOVE u(vroom)=@@(Port %0 to %1, %2 must be tport, go, or quiet)[setq(0,u(loc-%0))][switch(%2,quiet,,ulocal(ufunc-emitto,%1,ulocal(format-%2-arrive,%0,%q0,[name(%0)],[default(name-%q0,Unknown)],[setr(1,if(hastype(%0,thing),u(color-thingname),u(color-playername)))],[setr(2,u(color-success))],[setr(3,u(color-roomname))],%q0,%1)))][set(me,loc-%0:%1)][switch(%2,quiet,,ulocal(ufunc-emitto,%q0,ulocal(format-%2-leave,%0,%1,[name(%0)],[default(name-%1,Unknown)],%q1,%q2,%q3,%q0,%1)))][pemit(%0,ulocal(format-%2-succ,%0,%1,[name(%0)],[default(name-%1,Unknown)],%q1,%q2,%q3,%q0,%1))][pemit(%0,[ulocal(nameformat,,%0)])][pemit(%0,[ulocal(idescformat,u(idescribe),%0)])][pemit(%0,[ulocal(conformat,,%0)])][pemit(%0,ulocal(format-%2-drop,%0,%1,[name(%0)],[default(name-%1,Unknown)],%q1,%q2,%q3,%q0,%1))]
+@set u(vroom)/UFUNC-MOVE=no_command
+&UFUNC-NEXTROOMDBREF u(vroom)=#[switch(setr(0,first(setdiff([switch(setr(l,sort(iter(lattr(me/name-*),after(##,#)))),0*,rest(%ql),%ql)] [inc(if(strlen(%ql),last(%ql),0))],lnum(1,last(%ql))))),,1,%q0)]
+@set u(vroom)/UFUNC-NEXTROOMDBREF=no_command
+&UFUNC-OOC u(vroom)=ifelse(cand(not(isadmin(%#)),cor(v(option-oocgag),u(ufunc-checkoption,%#,gagooc))),pemit(%#,u(message-error,[ifelse(u(ufunc-checkoption,%#,gagooc),Your%b,)]OOC is currently gagged.)),setq(t,ooc)[switch(cor(strmatch(%1,all),elock(me/speech,%#)),1,u(ufunc-emitall,[u(format-ooc,%0,1)]),u(ufunc-emit,[u(format-ooc,%0)]))])
+@set u(vroom)/UFUNC-OOC=no_command
+&UFUNC-OPEN u(vroom)=@@(Open an exit named %1 in %0 to %2)[set(me,exits-%0:[setunion(v(exits-%0),%1[if(words(%2),:%2)],|)])][set(me/exits-%0,no_command)]
+@set u(vroom)/UFUNC-OPEN=no_command
+&UFUNC-OPENERROR u(vroom)=@@(Open exit in %0 to %1 named %2 and has a return exit of %3)[switch(1,strmatch(%2,),u(message-error,No exit name supplied.),regmatch(%2%3,%[:%\%\%\|%]),u(message-error,Exit names can not contain :%, |%, or %\.),regmatchi(v(exits-%0),%(?:^|%\|%)%\Q%2%\E%(?::#%\d+|%)%(?:%\||$%)),u(message-error,That exit already exists.),cand(words(%1),regmatchi(v(exits-%1),%(?:^|%\|%)%\Q%3%\E%(?::#%\d+|%)%(?:%\||$%))),u(message-error,The destination exit already exists.),u(message-success,Exit opened.)[u(ufunc-open,%0,%2,%1)][if(cand(strlen(%3),strlen(%1)),u(ufunc-open,%1,%3,%0))])]
+@set u(vroom)/UFUNC-OPENERROR=no_command
+&UFUNC-REESCAPE u(vroom)=^%\Q[regedit(regeditall(escape(%0),%\*,%\E.+%\Q),^%\%\%(%[^%\%\%]%),$1)]%\E$
+@set u(vroom)/UFUNC-REESCAPE=no_command
+&UFUNC-RENAMEEXITERROR u(vroom)=@@(Rename exit %1 at %0 to %2)[switch(1,strmatch(%1,),u(message-error,Too many matches.),regmatch(%2,%[:%\%\%\|%]),u(message-error,Exit names can not contain :%, |%, or %\.),cand(not(strmatch(first(%1,:),%2)),regmatchi(v(exits-%0),%(?:^|%\|%)%\Q%2%\E%(?::#%\d+|%)%(?:%\||$%))),u(message-error,That exit already exists.),u(message-success,Exit renamed.)[set(me,exits-%0:[regediti(v(exits-%0),%(?<=^|%\|%)%([switch(escape(%1),%\%\,escape(%1),after(escape(%1),%\))]%)%(?=(?:%\||$)%),%2[if(strmatch(%1,*:*),:[after(%1,:)])])])])]
+@set u(vroom)/UFUNC-RENAMEEXITERROR=no_command
+&UFUNC-SETPDF u(vroom)=[@@(Set players default location)][if(cand(hasattr(me,loc-%0),strmatch(loc(%0),num(me))),,set(me,loc-%0:[u(default-startingroom)]))]
+@set u(vroom)/UFUNC-SETPDF=no_command
+&UFUNC-UNLINKEXITSTO u(vroom)=[null(iter(u(ufunc-entrances,%0),set(me,exits-##:[regedit(v(exits-##),:%0%(?=%\||$%),)])))]
+@set u(vroom)/UFUNC-UNLINKEXITSTO=no_command
+&UFUNC-WIPEROOMS u(vroom)=[u(ufunc-destroyroom,#*)]
+@set u(vroom)/UFUNC-WIPEROOMS=no_command
+&VRHELP-ADDOWNER u(vroom)=addowner <player>|Adds a new player to the owner list. You must be the original object owner to use this command.|remowner,resetowners,listowners,owners
+@set u(vroom)/VRHELP-ADDOWNER=no_command
+&VRHELP-CHANGES u(vroom)=|%r- /noeval now works on most commands. The +pose/say/emit commands don't work with it, though. Check out 'vrhelp ooc' and 'vrhelp speech examples'%r- Check out 'vrhelp ooc gag'. Some other vrhelps have been rewritten or added to.%r- New format for the room.%r%b%b* Only displays players/objects at that location.%r%b%b* Wordwrapped description by default.%r%b%b* Exits without exit aliases show the DB number of where they lead and no longer make note of +go.%r- Movement through exits can be done by just typing the exit name, if exitshortcut is enabled. See 'vrhelp exitshortcut'%r- Redid vrhelp format, much more useful now.%r- Changed the way you create rooms and do other building to match the same format (nearly) that the MUSH building commands use.%r- Things are now shown if you are in the same virtual room they are. Their location can be set using 'setloc'%r- Added 'owners' so that multiple people can build/etc%r- Rooms now have DB numbers, and exits link to the DB number, so exits no longer need to be the same name as their destination.%r- Exits can have no destination. Not very useful, though.%r- Speech lock is on by default, but players can still talk/etc with it.%r%b%b* Anything they say goes to their current location.%r%b%b* If the speech lock is on, +ooc acts like +ooc/here, if it's off, it acts like +ooc/all%r- Speech uses %%~ instead of %%N%r- Players can customize their own colors, see player options%r- Various other minor changes.%r- The vrhelp 'everything' topic was removed.
+@set u(vroom)/VRHELP-CHANGES=no_command
+&VRHELP-COLOR_SETUP u(vroom)=|There are a number of colors that can be set to customize the look of the rooms. Unless you know how to examine and set attributes, I recommend not changing the colors. To see the default colors, use:%r%t[ansi(r,examine/parent <object>/color-*)]%rAnd to change a color, simply set the color- attribute for that color on your object.%r%rFor example, to set the desc color for your object to blue:%r%r[ansi(r,&color-desc here=b)]%r%rAnd the same, but to set it only for yourself (This will override colors set on objects, even in ones you don't own):%r%r[ansi(r,&color-desc me=b%r@set me/color-desc=visual)]|+setup,wordwrap
+@set u(vroom)/VRHELP-COLOR_SETUP=no_command
+&VRHELP-CONVERT u(vroom)=+convert|This command converts version 1.0 objects to 2.0. I HIGHLY recommend you use this command as follows:%r%r%t[ansi(r,@parent <virtual room>=#2609)]%r%t[ansi(r,@create object)]%r%t[ansi(r,@parent object=<virtual room>)]%r%t[ansi(r,@set object=!no_command)]%r%t[ansi(r,enter object)]%r%t[ansi(r,+setup)]%r%t[ansi(r,+convert)]%r%t[ansi(r,@parent here=#2609)]%r%rThe reason that I recommend you do it this way is that it doesn't leave around any unused attributes, which may or may not cause a problem (They generally won't). If you're confused by how to do this, or need assistance, please talk to me (Shemune or Xiph) and I'll guide you through it.|+setup
+@set u(vroom)/VRHELP-CONVERT=no_command
+&VRHELP-CREDITS u(vroom)=|[u(credits)]|#2378 for v1.0
+@set u(vroom)/VRHELP-CREDITS=no_command
+&VRHELP-DESC u(vroom)=desc%[/here%] <description>,desc <room>=<description>|The first form of this command redescribes your current location to <description>. If <description> has an = in it you can use the /here switch and it'll be considered part of the description.%r%tThe second form of this command redescribes a room if it finds one by that name. You can also use the room DB number (IE #0, #1, etc) as the room to rename.|dig,description,open,link,unlink,destroy,wordwrap
+@set u(vroom)/VRHELP-DESC=no_command
+&VRHELP-DESCRIPTION u(vroom)=@idescribe <object>=<default room description>,@describe <object>=<outside description>|Use these to set the default description for rooms you haven't set a description for, or for the description when you look at the object from the outside.|desc
+@set u(vroom)/VRHELP-DESCRIPTION=no_command
+&VRHELP-DESTROY u(vroom)=destroy%[/room%] <exit name&comma%; room DB&comma%; or 'here'>|This command will get rid of the exit or room you provide. If you do not provide the /room switch and destroy an exit, the room that exit links to will not be destroyed. If you destroy an exit without the /room switch, all exits to that room will become unlinked but not be destroyed. If you do provide the /room switch, however, when destroying an exit it will destroy the room as well as any exits to that room. If the /room switch is provided when destroying a room, all exits linking to that room will also be destroyed.%r%r%tNote, you can not destroy a room by using its name, you need to use it's DB number (see 'listrooms') or 'here' if you're standing in the room. This is a safety feature to prevent screwups and not a limitation of the code. Note that using 'destroy/room <exitname>' will destroy the room that exit links to as well, as stated above.|dig,name,desc,open,link,unlink
+@set u(vroom)/VRHELP-DESTROY=no_command
+&VRHELP-DIG u(vroom)=dig%[/teleport%] <room name>%[=<exit name>%[&comma;<exit name>%]%]|This command is basically just like @dig and is used for creating new rooms off of your current room. The exit names are optional, however if you don't specify them they will be 'intelligently' created by using the room name you provided and the room name of your current location. If you use the /teleport switch you'll be put in that room once it's created.|name,desc,open,link,unlink,destroy
+@set u(vroom)/VRHELP-DIG=no_command
+&VRHELP-EMIT_SPOOFING u(vroom)=@set me=safe,@set me=!safe|Since using the nospoof command becomes useless when using +say/+pose/+emit in the virtual rooms, you can set yourself 'safe' to see who it is that is using those pesky +emit's.|speech
+@set u(vroom)/VRHELP-EMIT_SPOOFING=no_command
+&VRHELP-EXITSHORTCUT u(vroom)=+exitshortcut <on/off>|This lets you turn on or off the exit shortcuts. If it's on you can just type the exit name to go through that exit, otherwise you need to use +go.|movement
+@set u(vroom)/VRHELP-EXITSHORTCUT=no_command
+&VRHELP-GETDESC u(vroom)=getdesc %[roomname%],getdesc/escape %[roomname%]|This returns the description, unevaluated, for your current room or a room you provide. Use the /escape flag if the description contains %%r/t/N/etc, functions, or similar and you want to just copy/paste the description then set it with desc. The reason for this is because the 'desc' recieves what you want to set the description as already evaluated, so it won't preserve any escapes.|desc
+@set u(vroom)/VRHELP-GETDESC=no_command
+&VRHELP-LINK u(vroom)=link <exit>=<room>|This command is like @link and will link or relink <exit> to <room>.|dig,name,desc,open,unlink,destroy
+@set u(vroom)/VRHELP-LINK=no_command
+&VRHELP-LISTFLOATING u(vroom)=listfloating|A floating room is one that has no exits linking to it. Basically it's a room you can't get to without using +port. This command lists all rooms found that are floating.|listrooms
+@set u(vroom)/VRHELP-LISTFLOATING=no_command
+&VRHELP-LISTOWNERS u(vroom)=listowners|Lists all owners of the object. You must be an owner to use this command.|addowner,remowner,resetowners,owners
+@set u(vroom)/VRHELP-LISTOWNERS=no_command
+&VRHELP-LISTROOMS u(vroom)=listrooms|This command gives a simple list of all the rooms in your object as well as their DB number. The list is sorted by the DB number.|listfloating
+@set u(vroom)/VRHELP-LISTROOMS=no_command
+&VRHELP-MOVEMENT u(vroom)=+go <exit>,+vrport <room>,+vrjoin <player/thing>,<exit name&comma; alias or room number>|The +go command corresponds to the 'go' and 'move' command for normal rooms. It does do partial matches on the exits in your room.%r%t+port is like @teleport.%r%t+vrjoin will port you to the room <player/thing> is in.%r%r%tIf you type just the exit name, alias, or the room DB number of the exits location it will act as if you typed +go before hand and you'll go through the exit.
+@set u(vroom)/VRHELP-MOVEMENT=no_command
+&VRHELP-NAME u(vroom)=name%[/here%] <room name>,name <exit or room>=<name>|The first form of this command renames your current location to <room name>. If <room name> has an = in it you can use the /here switch and it'll be considered part of the room name.%r%rThe second form of this command renames an exit or room to the name you provide. It will match exits before it looks for rooms with that name. You can also use the room DB number (IE #0, #1, etc) as the room to rename. Note that using the number is only to rename rooms, not exits. You must use the exit name to rename the exit.%r%rThis command acts like @name does when it comes to exit names, so if you want to change the exit shortcut (What is shown in the <>'s), use something like the following:%r%r%t[ansi(r,name <exit>=<exitname>;<exitshortcut>)]%r%rYou can have multple exit shortcuts, but only the first will be displayed inside of the <>'s.|dig,desc,open,link,unlink,destroy,help @name
+@set u(vroom)/VRHELP-NAME=no_command
+&VRHELP-OOC u(vroom)=+ooc/here <text>,+ooc/here :<pose>,+ooc/here ;<pose>|This command does an OOC message only to the people in the room you're currently in, otherwise this command is identicle to +ooc.%r%rOther valid flags include: [ansi(r,all, noeval)]%r%rFor example:%r%r%t[ansi(r,+ooc/noeval Testing%%r%%t 123)]%r%t[ansi(r,+ooc/noeval/all Testing%%r%%t 123)]%r%t[ansi(r,+ooc/here/noeval ;Testing%%r%%t 123)]%r%rProduces:%r%r%t[ansi(h,<)][ansi(hr,OOC-[u(loc-%#)])][ansi(h,>)] [name(%#)] says, "Testing%%r%%t 123"%r%t[ansi(h,<)][ansi(hr,OOC)][ansi(h,>)] [name(%#)] says, "Testing%%r%%t 123"%r%t[ansi(h,<)][ansi(hr,OOC-[u(loc-%#)])][ansi(h,>)] [name(%#)]Testing%%r%%t 123%r%r%rThere is one oddity, though, that with the current version of PennMUSH MVC runs off of can't be fixed. Here's an example:%r%r%t[ansi(r,+ooc/noeval :tests%[pemit(%%#,time())%]%%r%%t stuff)]%r%rNow, the actual output from this is:%r%r%t[time()]%r%t[ansi(h,<)][ansi(hr,OOC-[u(loc-%#)])][ansi(h,>)] [name(%#)] tests%[pemit(%%#,time())%]%%r%%t stuff%r%rSo, as you can see, it mostly works, but will still evaluate things, so don't use any code in it that modifies something you don't want it to.%r[ansi(h,The speech commands are NOT plagued by this bug.)]|speech,+help +ooc
+@set u(vroom)/VRHELP-OOC=no_command
+&VRHELP-OOC_GAG u(vroom)=+ooc/gag,+ooc/ungag|This command will let you gag or ungag +ooc for large scenes when ooc gets to be too spammy. Recommend the use of the Spam channel or similar instead.%r%rYou can also gag OOC channels for only yourself by doing the following:%r%r[ansi(r,&option-gagooc me=1%r@set me/option-gagooc=visual)]%r%rTo ungag, simply type:%r%r[ansi(r,&option-gagooc me=0)]|ooc,player options
+@set u(vroom)/VRHELP-OOC_GAG=no_command
+&VRHELP-OPEN u(vroom)=open <exit>%[=<room>%[&comma;<exit name>%]%]|This command opens a new exit called <exit>. If you provide <room> it will link that exit to that room. If you provide a return <exit name> as well, an exit will be opened in the desination room leading to your current room with that name. This command is basically the equivalent of @open.|dig,name,desc,link,unlink,destroy
+@set u(vroom)/VRHELP-OPEN=no_command
+&VRHELP-OWNERS u(vroom)=|Owners are people who can use the various commands that change the object. This includes the dig commands and lock commands. Only the original owner can use the setup/convert/wiperooms commands.|addowner,remowner,resetowners,listowners
+@set u(vroom)/VRHELP-OWNERS=no_command
+&VRHELP-PLAYER_OPTIONS u(vroom)=|It's possible to define certain options on yourself (The player) and have them override the default ones on the object. This is more of a convenience for people who like things to look a certain way. For example, you can disable the wordwrap by typing:%r%r[ansi(r,&option-wordwrap me=0)]%r[ansi(r,@set me/option-wordwrap=visual)]%r%rColors can be done the same way. For example:%r%r[ansi(r,&color-desc me=r)]%r[ansi(r,@set me/color-desc=visual)]%r%rFor a list of colors see color setup.%r%rTwo other options are 'option-dosucc' and 'option-dodrop' that enable success and drop messages (see @success and @drop) when set to 1.%r%rAn option to gag OOC has also been added. See 'vrhelp ooc gag' for details.|color setup,wordwrap,ooc gag
+@set u(vroom)/VRHELP-PLAYER_OPTIONS=no_command
+&VRHELP-REMOWNER u(vroom)=remowner <player>|Removes a player from the owner list. You must be the original object owner to use this command.|addowner,resetowners,listowners,owners
+@set u(vroom)/VRHELP-REMOWNER=no_command
+&VRHELP-RESETOWNERS u(vroom)=resetowners|Resets the objects owners. You must be the original object owner to use this command.|addowner,remowner,listowners,owners
+@set u(vroom)/VRHELP-RESETOWNERS=no_command
+&VRHELP-SETLOC u(vroom)=setloc%[/all%] <player or thing>=<room>|This command sets the location of something to <room>. You must either be an owner of the current room, or own <player or thing> to use this command. This command is particularly useful for when you have objects in the location and want them to be listed in the contents of a certain virtual room. The optional /all switch causes everything in the VR room to be moved.|movement
+@set u(vroom)/VRHELP-SETLOC=no_command
+&VRHELP-SETUP u(vroom)=+setup|This sets the object enter_ok, uselocks it so commands only work from inside, and speech locks it so the normal say/"/@emit commands only display text to those in the virtual room you're in.|color setup,speech lock,convert
+@set u(vroom)/VRHELP-SETUP=no_command
+&VRHELP-SPEECH u(vroom)=+pose%[/all%] <text>,+pose/nospace%[/all%] <text>,+semipose%[/all%] <text>,+say%[/all%] <text>,+emit%[/all%] <text>|These commands are somewhat deprecated, but still have their uses. If the object is speechlocked, normal 'say' 'pose' and '@emit' commands will work as expected - well, nearly. They won't evaluate anything EXCEPT %[ansi%(%)%] tags due to limitations of the server. These versions of the commands though will evaluate the input.%r%r%tThey are straightforward and mimic pose/semipose/say/@emit respectively, except for +say. +say is somewhat special as you can prefix <text> with : or ; to make it a pose or pose/nospace respectively.%r%r%tIf you provide the /all flag, the emit/say/etc will be global across all rooms.|emit spoofing,speech lock,ooc,speech examples
+@set u(vroom)/VRHELP-SPEECH=no_command
+&VRHELP-SPEECH_EXAMPLES u(vroom)=say Testing 1 2 3,pose Testing 1 2 3,pose/nospace Testing 1 2 3,say/noeval Testing%%r%%t %[pemit(%%#&comma;time())%] 123,pose/noeval Testing%%r%%t 123,@emit/noeval Testing%%r%%t 123|[ansi(h,Produces:)]%r%r%t[name(%#)] says, "Testing 1 2 3"%r%t[name(%#)] Testing 1 2 3%r%t[name(%#)]Testing 1 2 3%r%t[name(%#)] says, "Testing%%r%%t %[pemit(%%#,time())%] 123"%r%t[name(%#)] Testing%%r%%t 123%r%tTesting%%r%%t 123%r|speech
+@set u(vroom)/VRHELP-SPEECH_EXAMPLES=no_command
+&VRHELP-SPEECH_LOCK u(vroom)=+speechlock <on/off>|In version 2.0, unlike 1.0, the speech lock does not prevent you from being able to talk, thus it's turned on by default when you use +setup. All speech will only be sent to your current virtual room when the speech lock is turned on. It is recommended to leave it on. Some minor notes - when the speech lock is on, code is not evaluated EXCEPT for %[ansi()%] and substitutions like %%N, %%P, %%S, etc.|speech,+setup
+@set u(vroom)/VRHELP-SPEECH_LOCK=no_command
+&VRHELP-STARTING_ROOM u(vroom)=&DEFAULT-STARTINGROOM here=<room DB number>|This will set the starting room for when people enter the object. The default is #0 and generally never needs to be anything else. If you use a room name here it will NOT work. You need to use the #<number> format and that room must exist.|listrooms
+@set u(vroom)/VRHELP-STARTING_ROOM=no_command
+&VRHELP-SUCCESS_AND_DROP u(vroom)=&option-succ <object>=1,&option-succ <object>=0,,&option-drop <object>=1,&option-drop <object>=0|Enable or disable success and drop messages. See 'help @success' and 'help @drop' for more information. These are off by default.
+@set u(vroom)/VRHELP-SUCCESS_AND_DROP=no_command
+&VRHELP-TIPS_AND_TRICKS u(vroom)=|[iter(wrap(There are a few neat things you can do with the speech lock. I won't go into it with too much detail%, but I'll provide at least this one example that makes all text inside of <>'s or ""'s colored with 'hx':,76,72,chr(124)),%b[itext(0)],chr(124),%r)]%r%r&UFUNC-FILTERSPEECH here=edit\(regeditall\(regeditall\(\%0\,"\%\(\%\[\^"\%\]+\%\)"\,setq\(m\,\$1\)\[chr\(254\)\]\[ansi\(hx\,\%qm\)\]\[chr\(254\)\]\)\,\%\(?<=<\%\)\(\%\[\^>\%\]+\)\%\(?=>\%\)\,setq\(m\,\$1\)\[ansi\(hx\,\%qm\)\]\)\,chr\(254\)\,"\)%r%rTo unset it, just type:%r%r&UFUNC-FILTERSPEECH here%r
+@set u(vroom)/VRHELP-TIPS_AND_TRICKS=no_command case
+&VRHELP-UNLINK u(vroom)=unlink <exit>|This command is like @unlink and will unlink <exit>. You can not go through unlinked exits.|dig,name,desc,open,link,destroy
+@set u(vroom)/VRHELP-UNLINK=no_command
+&VRHELP-VRWHERE u(vroom)=vrwhere,vrwhere/all|Vrwhere is used to list everyone/everything in the object you're in. This list, unlike vrwho, also displays the name of the players location.|vrwho
+@set u(vroom)/VRHELP-VRWHERE=no_command
+&VRHELP-VRWHO u(vroom)=vrwho,vrwho/all|Vrwho is used to list everyone/everything in the object you're in. The list is compact, only showing the room number they are in and their names. Use the /all switch to include offline players.|vrwhere
+@set u(vroom)/VRHELP-VRWHO=no_command
+&VRHELP-WIPEROOMS u(vroom)=wiperooms|This can only be used if you own the object, unlike other commands that require you either own it or pass it's basic lock. This completely clears the object of all rooms/exits/etc.
+@set u(vroom)/VRHELP-WIPEROOMS=no_command
+&VRHELP-WORDWRAP u(vroom)=&option-wordwrap <object>=1,&option-wordwrap <object>=0|Enabled or disabled wordwrap on descriptions. This is enabled by default.|color setup
+@set u(vroom)/VRHELP-WORDWRAP=no_command

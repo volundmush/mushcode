@@ -24,3 +24,9 @@
 
 &INC`PARTIAL u(ccs)=@switch/inline cor(not(strlen(%0)),match(%1,setr(strfirstof(%4,choice),%0),strfirstof(%2,%b)))=0,{@assert words(setr(strfirstof(%4,choice),graball(%1,%0*,strfirstof(%2,%b),strfirstof(%2,%b))))=@nspemit %#=msghead(%3) ERROR: Invalid %5! Valid choices are: [itemize(%1,strfirstof(%2,%b))];@break gt(words(r(strfirstof(%4,choice)),strfirstof(%2,%b)),1)=@nspemit %#=msghead(%3) ERROR: %0 matched [itemize(r(strfirstof(%4,choice)),strfirstof(%2,%b),and,\,)]. Please be more specific.}
 @@ PARTIAL %0 = entry, %1 = choices, %2 = delimiter, %3 = announce, %4 = register name, %5 = topic name
+
+&INC`MSG u(ccs)=@assert strlen(%0);@assert strlen(%2);@message strfirstof(%1,%#)=%2,u(ccs)/FUN`MSG,%0,%1,%2,##
+&INC`RMSG u(ccs)=@assert strlen(%0);@assert strlen(%2);@message strfirstof(%1,%#)=%2,u(ccs)/FUN`RMSG,%0,%1,%2,##
+
+&FUN`MSG u(ccs)=msghead(%0,,,,,,%3) %2
+&FUN`RMSG u(ccs)=msgheadroom(%0,,,,,,%3) %2
