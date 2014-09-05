@@ -12,6 +12,12 @@
 @set u(adb)=WIZARD
 @power u(adb)=many_attribs
 
+@switch/inline isdbref(u(ipdb))=0,{@switch/inline isdbref(u(cao))=1,{@tel create(IP Database <IPDB>)=u(cao)}}
+&ipdb u(coi)=locate(u(cao),IP Database <IPDB>,TXxi)
+@parent u(ipdb)=u(coi)
+@set u(ipdb)=WIZARD
+@power u(ipdb)=many_attribs
+
 @mvattr u(cao)/VAR`STAFF`WIZLIST=u(pco)/WIZLIST
 @wipe u(cao)
 @set u(cao)=SAFE
@@ -94,20 +100,23 @@
 
 &INC`IP`GUESTS u(cao)=@switch/inline isadmin(%#)=0,{@include u(cao)/INC`IP`IPSHOW=%#,1},{@include u(ccs)/INC`CHECKPC=%0,1,IP;@include u(cao)/INC`IP`IPSHOW=%q<t1>,1}
 
-&INC`IP`IP u(cao)=@assert strlen(%0)=@nspemit %#=announce(IP) ERROR: An IP address is required.;@include u(cao)/INC`IP`IPSHOW=%0,1,1
+&INC`IP`IP u(cao)=@assert strlen(%0)=@nspemit %#=msghead(IP) ERROR: An IP address is required.;@include u(cao)/INC`IP`IPSHOW=%0,1,1
 
-&INC`IP`IPSHOW u(cao)=@assert gt(words(setr(ips,if(%2,%0,setunion(iter(lattr(%0/D`IPLOG`*),get(%0/%i0)),)))),0)=@nspemit %#=announce(IP) ERROR: No IP logs found to match against.;@assert gt(words(setr(pcs,filterbool(#lambda/cand(lt(words(setdiff(setunion(iter(lattr(\%0/D`IPLOG`*),get(\%0/\%i0)),),%q<ips>)),words(setunion(iter(lattr(\%0/D`IPLOG`*),get(\%0/\%i0)),))),if(%1,1,not(haspower(\%0,GUEST)))),lsearch(all,eplayer,\[nattr(##/D`IPLOG`*)\]),%B,|)),|),0)=@nspemit %#=announce(IP) ERROR: No Matching Logs found.;@nspemit %#=header(Site matches for [if(%2,%0,name(%0))][if(%1,%B\(Showing Guests\))]);th iter(lnum(1,ceil(fdiv(words(setr(list,%q<pcs>),|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),%B,|),ljust(ansi(h,pueblize(name(%i0),+finger [name(%i0)])\(%i0\)),50,.)[get(%i0/LAST)]%RRecent Sites: [edit(setunion(iter(lattr(%i0/D`IPLOG`*),get(%i1/%i0)),),get(%i0/LASTIP),ansi(hc,get(%i0/LASTIP)))]%R[ansi(h,Successful Logins:)]%R[iter(filterbool(#lambda/strmatch(SUCCESS,get(%i0/\%0`TYPE)),sort(lattr(%i0/D`IPLOG`*))),From [get(%i1/%i0)] On [convsecs(get(%i1/%i0`WHEN))],%B,%R)]%R[ansi(h,Failed Logins:)]%R[iter(filterbool(#lambda/strmatch(FAILURE,get(%i0/\%0`TYPE)),sort(lattr(%i0/D`IPLOG`*))),From [get(%i1/%i0)] On [convsecs(get(%i1/%i0`WHEN))] Because [get(%i1/%i0`REASON)],%B,%R)]%R,|,%R)));@nspemit %#=header()
+&INC`IP`IPSHOW u(cao)=@assert gt(words(setr(ips,if(%2,%0,setunion(iter(filterbool(#lambda/strmatch(get(u(ipdb)/\%0`TYPE),SUCCESS),lattr(u(ipdb)/%0`*)),get(u(ipdb)/%i0)),)))),0)=@nspemit %#=msghead(IP) ERROR: No IP logs found to match against.;th setq(pcs,filterbool(#lambda/hastype(\%0,PLAYER),unique(iter(filterbool(#lambda/strmatch(get(u(ipdb)/\%0`TYPE),SUCCESS),iter(%q<ips>,grepi(u(ipdb),*`*,%i0))),first(%i0,`)),namei)));@switch/inline %1=0,{th setq(pcs,filterbool(#lambda/not(haspower(\%0,GUEST)),%q<pcs>))};@assert words(%q<pcs>)=@nspemit %#=msghead(IP) ERROR: No Matching Logs found.;@nspemit %#=header(Site matches for [if(%2,%0,name(%0))][if(%1,%B\(Showing Guests\))]);th iter(lnum(1,ceil(fdiv(words(setr(list,%q<pcs>),|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),%B,|),ljust(ansi(h,pueblize(name(%i0),+finger [name(%i0)])\(%i0\)),50,.)[get(%i0/LAST)]%RRecent Sites: [edit(setunion(iter(lattr(u(ipdb)/%i0`*),get(u(ipdb)/%i0)),),get(%i0/LASTIP),ansi(hc,get(%i0/LASTIP)))]%R[ansi(h,Successful Logins:)]%R[iter(filterbool(#lambda/strmatch(SUCCESS,get(u(ipdb)/\%0`TYPE)),sort(lattr(u(ipdb)/%i0`*))),From [get(u(ipdb)/%i0)] On [convsecs(get(u(ipdb)/%i0`WHEN))],%B,%R)]%R[ansi(h,Failed Logins:)]%R[iter(filterbool(#lambda/strmatch(FAILURE,get(u(ipdb)/\%0`TYPE)),sort(lattr(u(ipdb)/%i0`*))),From [get(u(ipdb)/%i0)] On [convsecs(get(u(ipdb)/%i0`WHEN))] Because [get(u(ipdb)/%i0`REASON)],%B,%R)]%R,|,%R)));@nspemit %#=header()
 
-&TRG`IP`CLEANCONNLOGS u(cao)=@assert gt(words(setr(logs,sort(lattr(%0/D`IPLOG`*)))),10);@dolist elements(%q<logs>,1 2)={@wipe %0/%i0}
+&TRG`IP`CLEANCONNLOGS u(cao)=@assert gt(words(setr(logs,sortkey(#lambda/last(\%0,`),lattr(u(ipdb)/[num(%0)]`*),n))),10);@dolist elements(%q<logs>,1 2)={@wipe u(ipdb)/%i0}
 
-&PLAYER`CONNECT`IPLOG u(cao)=&[setr(iplog,D`IPLOG`[nextslot(%0,D`IPLOG)])] %0=get(%0/LASTIP);&%q<iplog>`WHEN %0=secs();&%q<iplog>`TYPE %0=SUCCESS;&%q<iplog>`SITE %0=get(%0/LASTSITE);@trigger u(cao)/TRG`IP`CLEANCONNLOGS=%0
+&PLAYER`CONNECT`IPLOG u(cao)=&[setr(iplog,num(%0)`[nextslot(u(ipdb),num(%0))])] u(ipdb)=get(%0/LASTIP);&%q<iplog>`WHEN u(ipdb)=secs();&%q<iplog>`TYPE u(ipdb)=SUCCESS;&%q<iplog>`SITE u(ipdb)=get(%0/LASTSITE);@trigger u(cao)/TRG`IP`CLEANCONNLOGS=%0
 
-&SOCKET`LOGINFAIL`IPLOG u(cao)=@switch/inline isdbref(%4)=1,{&[setr(iplog,D`IPLOG`[nextslot(%4,D`IPLOG)])] %4=%1;&%q<iplog>`WHEN %4=secs();&%q<iplog>`TYPE %4=FAILURE;&%q<iplog>`SITE %4=host(%0);&%q<iplog>`REASON %4=%3;@trigger u(cao)/TRG`IP`CLEANCONNLOGS=%4};@select/inline 1=strmatch(#1,%4),{@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)=ansi(hrf,WARNING:) 'IP %1 (descriptor: %0) - Host [host(%0)]' attempted and failed to login to the God (#1) Character!;@pemit/port %0={ansi(hrf,WARNING:) Unauthorized access attempt for an admin character detected. This action has been logged.}},isadmin(%4),{@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)=ansi(hrf,WARNING:) 'IP %1 (descriptor: %0) - Host [host(%0)]' attempted and failed to login to ADMIN %4 [pueblize(name(%4),+ip [name(%4)])]!;@pemit/port %0={ansi(hrf,WARNING:) Unauthorized access attempt for an admin character detected. This action has been logged.}},isdbref(%4),{@switch/inline gt(v(VAR`IP`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)=ansi(hr,WARNING:) [pueblize(name(%4),+ip [name(%4)])] has failed to login %2 times. Reason: %3. [if(strmatch(get(%4/LASTSITE),host(%0)),,ansi(hr,ALERT:) Connection attempt does not match previous LASTSITE. Descriptor: %0. IP: %1. HOST: [host(%0)])]}}
+&SOCKET`LOGINFAIL`IPLOG u(cao)=@switch/inline isdbref(%4)=1,{&[setr(iplog,num(%4)`[nextslot(u(ipdb),num(%4))])] u(ipdb)=%1;&%q<iplog>`WHEN u(ipdb)=secs();&%q<iplog>`TYPE u(ipdb)=FAILURE;&%q<iplog>`SITE u(ipdb)=host(%0);&%q<iplog>`REASON u(ipdb)=%3;@trigger u(cao)/TRG`IP`CLEANCONNLOGS=%4};@select/inline 1=strmatch(#1,%4),{@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)=ansi(hrf,WARNING:) 'IP %1 (descriptor: %0) - Host [host(%0)]' attempted and failed to login to the God (#1) Character!;@pemit/port %0={ansi(hrf,WARNING:) Unauthorized access attempt for an admin character detected. This action has been logged.}},isadmin(%4),{@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)=ansi(hrf,WARNING:) 'IP %1 (descriptor: %0) - Host [host(%0)]' attempted and failed to login to ADMIN %4 [pueblize(name(%4),+ip [name(%4)])]!;@pemit/port %0={ansi(hrf,WARNING:) Unauthorized access attempt for an admin character detected. This action has been logged.}},isdbref(%4),{@switch/inline gt(v(VAR`IP`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)=ansi(hr,WARNING:) [pueblize(name(%4),+ip [name(%4)])] has failed to login %2 times. Reason: %3. [if(strmatch(get(%4/LASTSITE),host(%0)),,ansi(hr,ALERT:) Connection attempt does not match previous LASTSITE. Descriptor: %0. IP: %1. HOST: [host(%0)])]}}
 
 &VAR`IP`ALERTMODE u(cao)=1
 &VAR`IP`ALERTSCHANNEL u(cao)=u(CMO`STAFFREP)
 
 &VAR`IP`ADMINFLAGS u(cao)=GUESTS|IP
+
+@@ Convert from old Ip to new IP.
+@@ @dolist lsearch(all,eplayer,\[words(lattr(##/D`IPLOG`*))\])={@include/nobreak u(ccs)/INC`MVTREE=%i0,D`IPLOG,u(ipdb),%i0}
 
 @@ ****** APPROVAL SECTION *********
 &CMD`+APPROVE u(cao)=$^(?\:\+)?(approve|unapprove)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
@@ -115,12 +124,12 @@
 
 &PLAYER`CREATE`UNREGISTER u(cao)=@set %0=UNREGISTERED
 
-&INC`APPROVE`MAIN u(cao)=@switch/inline cand(isadmin(%#),strlen(%0))=1,{@include u(ccs)/INC`CHECKPC=%0,1,APPROVE;@break approved(%q<t1>)=@nspemit %#=announce(APPROVE) ERROR: They are already approved!;@include u(cao)/INC`APPROVE`DOAPPROVE=%q<t1>;@nspemit %#=announce(APPROVE) You have approved %q<t1name> for play!;@switch/inline gt(v(VAR`APPROVE`ALERTMODE),0)={@nscemit/noisy u(VAR`APPROVE`ALERTSCHANNEL)=%n has approved %q<t1name> for play!;@force/inline %q<t1>=+recall;@nscemit/noisy u(VAR`APPROVE`ANNOUNCECHANNEL)=ansi(h,%n) just approved %q<t1name> for play!}},{@nspemit %#=announce(APPROVE) You [if(approved(%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
+&INC`APPROVE`MAIN u(cao)=@switch/inline cand(isadmin(%#),strlen(%0))=1,{@include u(ccs)/INC`CHECKPC=%0,1,APPROVE;@break approved(%q<t1>)=@nspemit %#=msghead(APPROVE) ERROR: They are already approved!;@include u(cao)/INC`APPROVE`DOAPPROVE=%q<t1>;@nspemit %#=msghead(APPROVE) You have approved %q<t1name> for play!;@switch/inline gt(v(VAR`APPROVE`ALERTMODE),0)={@nscemit/noisy u(VAR`APPROVE`ALERTSCHANNEL)=%n has approved %q<t1name> for play!;@force/inline %q<t1>=+recall;@nscemit/noisy u(VAR`APPROVE`ANNOUNCECHANNEL)=ansi(h,%n) just approved %q<t1name> for play!}},{@nspemit %#=msghead(APPROVE) You [if(approved(%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
 
 &INC`APPROVE`DOAPPROVE u(cao)=@set %0=!UNREGISTERED
 &INC`APPROVE`DOUNAPPROVE u(cao)=@set %0=UNREGISTERED
 
-&INC`UNAPPROVE`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@include u(ccs)/INC`CHECKPC=%0,1,APPROVE;@assert approved(%q<t1>)=@nspemit %#=announce(APPROVE) ERROR: They are not approved!;@include u(cao)/INC`APPROVE`DOUNAPPROVE=%q<t1>;@nspemit %#=announce(APPROVE) You have unapproved %q<t1name> for play!;@switch/inline gt(v(VAR`APPROVE`ALERTMODE),0)={@nscemit/noisy u(VAR`APPROVE`ALERTSCHANNEL)=%n has unapproved %q<t1name> for play!}},{@nspemit %#=announce(APPROVE) You [if(approved(%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
+&INC`UNAPPROVE`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@include u(ccs)/INC`CHECKPC=%0,1,APPROVE;@assert approved(%q<t1>)=@nspemit %#=msghead(APPROVE) ERROR: They are not approved!;@include u(cao)/INC`APPROVE`DOUNAPPROVE=%q<t1>;@nspemit %#=msghead(APPROVE) You have unapproved %q<t1name> for play!;@switch/inline gt(v(VAR`APPROVE`ALERTMODE),0)={@nscemit/noisy u(VAR`APPROVE`ALERTSCHANNEL)=%n has unapproved %q<t1name> for play!}},{@nspemit %#=msghead(APPROVE) You [if(approved(%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
 
 &GFN`APPROVED u(cao)=cor(not(hasflag(%0,UNREGISTERED)),isadmin(%0))
 
@@ -168,14 +177,23 @@
 &PLAYER`CONNECT`STAFFDUTY u(cao)=@switch/inline t(getstat(u(pco)/WIZLIST,%0))=1,{@wait 3=@nspemit %0=msghead(STAFF) You are [if(hasflag(%0,DARK),DARK,not Dark)], [if(hidden(%0),Hidden,not Hidden)] and [if(hasflag(%0,VACATION),on Vacation,if(default(%0/duty,0),On Duty,Off Duty))].}
 
 @@ ********* BUILDER SECTION ********
+@switch/inline isdbref(u(build))=0,{@tel pcreate(Buildstaff,digest(md5,secs()))=u(cao)}
+&build u(coi)=locate(u(cao),Buildstaff,PXxi)
+@lock/zone u(build)=POWER^BUILDER
+@set u(build)=!UNREGISTERED SHARED
+@power u(build)=builder no_pay no_quota
+@lset u(build)/zone=v
+
+&OBJECT`CREATE`BUILDER u(cao)=@assert hastype(%0,ROOM EXIT);@assert haspower(owner(%0),BUILDER);@chown/preserve %0=u(build)
+
 &CMD`+BUILDER u(cao)=$^(?\:\+)?(builder)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`BUILDER`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`BUILDER`ADMINFLAGS)),|,|),|,BUILDER,switch,switch;@include u(cao)/INC`BUILDER`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+BUILDER=regexp
 
-&INC`BUILDER`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@switch/inline strlen(%0)=0,{@assert words(setr(build,lsearch(all,eplayer,\[haspower(##,BUILDER)\])))=@nspemit %#=announce(BUILDER) There are no Builder Characters.;@nspemit %#=header(mudname() Builder Characters);@nspemit %#=iter(%q<build>,ansi(h,%i0 - [name(%i0)]) - [powers(%i0)],%b,%R);@nspemit %#=header()},{@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@nspemit %#=header(%q<t1name>'s Belongings);@dolist/inline THING ROOM EXIT=@switch/inline gt(words(setr(search,lsearch(%q<t1>,type,%i0))),0)=1,{@nspemit %#=subheader(Type: %i0);@dolist/inline %q<search>=@nspemit %#=[rjust(pueblize(%i0,brief %i0),7)] - [name(%i0)]};@nspemit %#=header()}},0,{@nspemit %#=announce(BUILDER) You [if(haspower(%#,BUILDER),ansi(hg,are),ansi(hr,are not))] A Builder!}
+&INC`BUILDER`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@switch/inline strlen(%0)=0,{@assert words(setr(build,lsearch(all,eplayer,\[haspower(##,BUILDER)\])))=@nspemit %#=msghead(BUILDER) There are no Builder Characters.;@nspemit %#=header(mudname() Builder Characters);@nspemit %#=iter(%q<build>,ansi(h,%i0 - [name(%i0)]) - [powers(%i0)],%b,%R);@nspemit %#=header()},{@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@nspemit %#=header(%q<t1name>'s Belongings);@dolist/inline THING ROOM EXIT=@switch/inline gt(words(setr(search,lsearch(%q<t1>,type,%i0))),0)=1,{@nspemit %#=subheader(Type: %i0);@dolist/inline %q<search>=@nspemit %#=[rjust(pueblize(%i0,brief %i0),7)] - [name(%i0)]};@nspemit %#=header()}},0,{@nspemit %#=msghead(BUILDER) You [if(haspower(%#,BUILDER),ansi(hg,are),ansi(hr,are not))] A Builder!}
 
-&INC`BUILDER`ADD u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@break haspower(%q<t1>,BUILDER)=@nspemit %#=announce(BUILDER) ERROR: They are already a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=builder no_quota tel_anywhere open_anywhere link_anywhere;give %q<t1>=100000;@nspemit %#=announce(BUILDER) You have made %q<t1name> a Builder.;@nspemit %q<t1>=announce(BUILDER) %n has granted you Builder powers.;@switch/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy u(VAR`BUILDER`ALERTSCHANNEL)=%n has made %q<t1name> a Builder.}
+&INC`BUILDER`ADD u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@break haspower(%q<t1>,BUILDER)=@nspemit %#=msghead(BUILDER) ERROR: They are already a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=builder no_quota tel_anywhere open_anywhere link_anywhere;give %q<t1>=100000;@nspemit %#=msghead(BUILDER) You have made %q<t1name> a Builder.;@nspemit %q<t1>=msghead(BUILDER) %n has granted you Builder powers.;@switch/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy u(VAR`BUILDER`ALERTSCHANNEL)=%n has made %q<t1name> a Builder.}
 
-&INC`BUILDER`REM u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@assert haspower(%q<t1>,BUILDER)=@nspemit %#=announce(BUILDER) ERROR: They are not a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=!builder !no_quota !tel_anywhere !open_anywhere !link_anywhere;@switch/inline lt(money(%q<t1>),100000)=1,{give %q<t1>=100000};give %q<t1>=-99000;@nspemit %#=announce(BUILDER) You have revoked %q<t1name>'s Builder powers.;@nspemit %q<t1>=announce(BUILDER) %n has revoked your Builder powers.;@switch/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy u(VAR`BUILDER`ALERTSCHANNEL)=%n has revoked %q<t1name>'s Builder powers.}
+&INC`BUILDER`REM u(cao)=@include u(ccs)/INC`CHECKPC=%0,1,BUILDER;@assert haspower(%q<t1>,BUILDER)=@nspemit %#=msghead(BUILDER) ERROR: They are not a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=!builder !no_quota !tel_anywhere !open_anywhere !link_anywhere;@switch/inline lt(money(%q<t1>),100000)=1,{give %q<t1>=100000};give %q<t1>=-99000;@nspemit %#=msghead(BUILDER) You have revoked %q<t1name>'s Builder powers.;@nspemit %q<t1>=msghead(BUILDER) %n has revoked your Builder powers.;@switch/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy u(VAR`BUILDER`ALERTSCHANNEL)=%n has revoked %q<t1name>'s Builder powers.}
 
 &VAR`BUILDER`ADMINFLAGS u(cao)=ADD|REM
 
@@ -186,7 +204,7 @@
 &CMD`+IDLERS u(cao)=$^(?\:\+)?(idlers)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+IDLERS=regexp
 
-&INC`IDLERS`MAIN u(cao)=@switch/inline gt(strlen(%0),0)=1,{@assert valnum(setr(days,%0))=@nspemit %#=announce(IDLERS) ERROR: Day field must be a whole, positive integer!},{th setq(days,30)};@assert words(setr(idlers,sortkey(#lambda/convtime(get(\%0/LASTLOGOUT)),setdiff(lsearch(all,eplayer,\[cand(gt(sub(secs(),convtime(get(##/LASTLOGOUT))),mul(86400,%q<days>)),not(haspower(##,GUEST)),not(isadmin(##)))\]),u(ap)),n,%b,|)))=@nspemit %#=announce(IDLERS) Nobody's been offline longer than %q<days>.;@nspemit %#=header(Players over %q<days> Idle)%R[ljust(DBREF,7)][ljust(NAME,30)][ljust(STATUS,10)][ljust(IP,22)]LAST ON%R[subheader()];th iter(lnum(1,ceil(fdiv(words(setr(list,%q<idlers>),|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),|,|),rjust(num(%i0),5) %B[ljust(pueblize(name(%i0),+finger [name(%i0)]),30)][ljust(if(isadmin(%i0),ansi(hy,ADM),if(approved(%i0),ansi(hg,APP),ansi(hr,UNAPP))),10)][ljust(pueblize(get(%i0/LASTIP),+ip [name(%i0)]),22)][if(gte(conn(%i0),0),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3)))],|,%R)));@nspemit %#=header()
+&INC`IDLERS`MAIN u(cao)=@switch/inline gt(strlen(%0),0)=1,{@assert valnum(setr(days,%0))=@nspemit %#=msghead(IDLERS) ERROR: Day field must be a whole, positive integer!},{th setq(days,30)};@assert words(setr(idlers,sortkey(#lambda/convtime(get(\%0/LASTLOGOUT)),setdiff(lsearch(all,eplayer,\[cand(gt(sub(secs(),convtime(get(##/LASTLOGOUT))),mul(86400,%q<days>)),not(haspower(##,GUEST)),not(isadmin(##)))\]),u(ap)),n,%b,|)))=@nspemit %#=msghead(IDLERS) Nobody's been offline longer than %q<days>.;@nspemit %#=header(Players over %q<days> Idle)%R[ljust(DBREF,7)][ljust(NAME,30)][ljust(STATUS,10)][ljust(IP,22)]LAST ON%R[subheader()];th iter(lnum(1,ceil(fdiv(words(setr(list,%q<idlers>),|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),|,|),rjust(num(%i0),5) %B[ljust(pueblize(name(%i0),+finger [name(%i0)]),30)][ljust(if(isadmin(%i0),ansi(hy,ADM),if(approved(%i0),ansi(hg,APP),ansi(hr,UNAPP))),10)][ljust(pueblize(get(%i0/LASTIP),+ip [name(%i0)]),22)][if(gte(conn(%i0),0),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3)))],|,%R)));@nspemit %#=header()
 
 &VAR`IDLERS`ADMINFLAGS u(cao)=
 &VAR`IDLERS`PLAYFLAGS u(cao)=

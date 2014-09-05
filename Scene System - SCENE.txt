@@ -10,7 +10,7 @@
 &VAR`SCENE`PLAYFLAGS u(scene)=SETUP|CHARID|JOIN|LEAVE|TITLE|DESC|CREATE|LOUDCREATE|RECALL|FINISH|PAUSE|CONTINUE|UNDO|REDO|SPOOF|MOVE|PLOT|OLD
 &VAR`SCENE`ADMINFLAGS u(scene)=DELETE|INSTALL|MERGE
 
-&VAR`SCENES`PLAYFLAGS u(scene)=ADD|DELETE|RESCHEDULE|DESC|TITLE|PLOT
+&VAR`SCENES`PLAYFLAGS u(scene)=ADD|DELETE|RESCHEDULE|DESC|TITLE|PLOT|TAG|UNTAG
 &VAR`SCENES`ADMINFLAGS u(scene)=
 
 &VAR`PLOT`PLAYFLAGS u(scene)=ALL
@@ -21,12 +21,13 @@
 &VAR`URL`PHP u(scene)=/scene/view.php?id=
 &VAR`SQL`PREFIX u(scene)=scene_
 &VAR`SQL`DATABASE u(scene)=multiver_scenesys
-&VAR`SQL`TABLES u(scene)=PLAYERS|PLOTS|SCENES|POSES|SCHEDULE
+&VAR`SQL`TABLES u(scene)=PLAYERS|PLOTS|SCENES|POSES|SCHEDULE|TAGS
 &VAR`SQL`TABLE`SCENES u(scene)=scenes
 &VAR`SQL`TABLE`PLAYERS u(scene)=players
 &VAR`SQL`TABLE`POSES u(scene)=poses
 &VAR`SQL`TABLE`SCHEDULE u(scene)=schedule
 &VAR`SQL`TABLE`PLOTS u(scene)=plots
+&VAR`SQL`TABLE`TAGS u(scene)=tags
 
 &RFN`HEADER u(scene)=header(%0,,SCENESYS`BORDER,SCENESYS`BORDERDOT,SCENESYS`BORDERTEXT)
 &RFN`SUBHEADER u(scene)=subheader(%0,,SCENESYS`BORDER,SCENESYS`BORDERDOT,SCENESYS`BORDERTEXT)
@@ -89,7 +90,7 @@
 &SQL`SET`PLAYERID u(scene)=UPDATE $DATABASE$.$PLAYERS$ SET objid=?, player_name=? WHERE player_id=?
 
 &INC`SCENE`LOUDCREATE u(scene)=@include u(scene)/INC`SCENE`CREATE=%0,%1,1
-&INC`SCENE`CREATE u(scene)=th setq(title,%0[if(strlen(%1),=%1)]);@include u(scene)/INC`USERCHECK=%:;@include u(scene)/INC`DOSQL=INIT`SCENE,%q<pid>,%q<title>,objid(%l),name(%l),uldefault(%l/D`CUSTLOC,%l,%#);@assert gt(setr(scene,u(sql,get`newsceneid,%q<pid>)),0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Scene could not be created.;@nspemit/list uldefault(%l/D`CUSTRECP,lcon(%l),%#)=u(RFN`ROOMMSGHEAD) [ansi(h,%n)] created a new scene here: Scene %q<scene>[if(strlen(%q<title>),%b-%b%q<title>)]. Use [pueblize(+scene/join %q<scene>,+scene/join %q<scene>)] to join it!;@switch/inline t(%2)=1,{@nscemit/noisy u(cmo`rp)=ansi(h,%n) created a Scene at [if(match(u(u(navi)/FUN`LISTIC),%l),pueblize(%l - [name(%l)],+port %l),name(%l))]: Scene %q<scene>[if(strlen(%q<title>),%b-%b%q<title>)]};@include u(scene)/INC`SCENE`JOIN=%q<scene>
+&INC`SCENE`CREATE u(scene)=@assert approved(%#)=@nspemit %#=u(RFN`MSGHEAD) You are not approved!;th setq(title,%0[if(strlen(%1),=%1)]);@include u(scene)/INC`USERCHECK=%:;@include u(scene)/INC`DOSQL=INIT`SCENE,%q<pid>,%q<title>,objid(%l),name(%l),uldefault(%l/D`CUSTLOC,%l,%#);@assert gt(setr(scene,u(sql,get`newsceneid,%q<pid>)),0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Scene could not be created.;@nspemit/list uldefault(%l/D`CUSTRECP,lcon(%l),%#)=u(RFN`ROOMMSGHEAD) [ansi(h,%n)] created a new scene here: Scene %q<scene>[if(strlen(%q<title>),%b-%b%q<title>)]. Use [pueblize(+scene/join %q<scene>,+scene/join %q<scene>)] to join it!;@switch/inline t(%2)=1,{@nscemit/noisy u(cmo`rp)=ansi(h,%n) created a Scene at [if(match(u(u(navi)/FUN`LISTIC),%l),pueblize(%l - [name(%l)],+port %l),name(%l))]: Scene %q<scene>[if(strlen(%q<title>),%b-%b%q<title>)]};@include u(scene)/INC`SCENE`JOIN=%q<scene>
 
 &SQL`INIT`SCENE u(scene)=INSERT INTO $DATABASE$.$SCENES$ (player_id,scene_title,room_objid,room_name,room_custloc,creation_date) VALUES (?,?,?,?,?,UTC_TIMESTAMP())
 &SQL`GET`NEWSCENEID u(scene)=SELECT max(scene_id) from $DATABASE$.$SCENES$ WHERE player_id=?
@@ -98,7 +99,7 @@
 
 &INC`MSGSCENE u(scene)=@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),setunion(lockfilter(D`SCENE`ACTIVE:%0,setunion(%:,u(sql,get`objidsinscene,%0))),%:),{%1}
 
-&INC`SCENE`JOIN u(scene)=@include u(scene)/INC`USERCHECK=%:;@switch/inline gt(strlen(setr(scene,%0)),0)=1,{@assert valnum(%q<scene>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Scenes must be addressed by their IDs.;@assert setr(scene,u(sql,get`scenewhereidandstate,%q<scene>,0))=@nspemit %#=u(RFN`MSGHEAD) Scene '%0' does not exist or is not Active.},0,{@assert gt(setr(scene,u(sql,GET`SCENEHERE,objid(%l),uldefault(%l/D`CUSTLOC,%l,%#))),0)=@nspemit %#=u(RFN`MSGHEAD) There are no recent scenes here to join!};&D`SCENE`ACTIVE %#=%q<scene>;@include u(scene)/INC`MESSAGE=%q<scene>,%n joined Scene %q<scene>!;@switch/inline t(get(%#/D`SCENE`SPOOF))=1,{@nspemit %#=u(RFN`MSGHEAD) ALERT: You are currently set to Spoof as: [name(get(%#/D`SCENE`SPOOF))].}
+&INC`SCENE`JOIN u(scene)=@assert approved(%#)=@nspemit %#=u(RFN`MSGHEAD) You are not approved!;@include u(scene)/INC`USERCHECK=%:;@switch/inline gt(strlen(setr(scene,%0)),0)=1,{@assert valnum(%q<scene>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Scenes must be addressed by their IDs.;@assert setr(scene,u(sql,get`scenewhereidandstate,%q<scene>,0))=@nspemit %#=u(RFN`MSGHEAD) Scene '%0' does not exist or is not Active.},0,{@assert gt(setr(scene,u(sql,GET`SCENEHERE,objid(%l),uldefault(%l/D`CUSTLOC,%l,%#))),0)=@nspemit %#=u(RFN`MSGHEAD) There are no recent scenes here to join!};&D`SCENE`ACTIVE %#=%q<scene>;@include u(scene)/INC`MESSAGE=%q<scene>,%n joined Scene %q<scene>!;@switch/inline t(get(%#/D`SCENE`SPOOF))=1,{@nspemit %#=u(RFN`MSGHEAD) ALERT: You are currently set to Spoof as: [name(get(%#/D`SCENE`SPOOF))].}
 
 &SQL`GET`SCENEHERE u(scene)=SELECT max(scene_id) from $DATABASE$.$SCENES$ WHERE room_objid=? AND room_custloc=? AND scene_state='0' AND creation_date >= date_sub(UTC_TIMESTAMP(),INTERVAL 1 HOUR)
 &SQL`GET`SCENEWHEREIDANDSTATE u(scene)=SELECT scene_id from $DATABASE$.$SCENES$ WHERE scene_id=? AND scene_state='?'
@@ -154,17 +155,18 @@
 
 &FUN`SCENEMINE u(scene)=nspemit(%#,align(4 43 20 8,pueblize(%1,+scene %1),%2,%3,switch(%4,0,Active,1,Paused,2,Unfinished,3,Finished,???)))
 
-&SQL`GET`SCENEMINE u(scene)=SELECT DISTINCT scene_id FROM $DATABASE$.$SCENES$ NATURAL LEFT JOIN $DATABASE$.$POSES$ WHERE ($DATABASE$.$POSES$.player_id=? OR $DATABASE$.$SCENES$.player_id=?) AND CONVERT(scene_state,UNSIGNED)<3
-&SQL`GET`SCENEMINE4 u(scene)=SELECT DISTINCT scene_id FROM $DATABASE$.$SCENES$ NATURAL LEFT JOIN $DATABASE$.$POSES$ WHERE ($DATABASE$.$POSES$.player_id=? OR $DATABASE$.$SCENES$.player_id=?) AND CONVERT(scene_state,UNSIGNED)=3
+&SQL`GET`SCENEMINE u(scene)=SELECT DISTINCT scenes.scene_id FROM $DATABASE$.$SCENES$ AS scenes LEFT JOIN $DATABASE$.$POSES$ AS poses ON scenes.scene_id=poses.scene_id WHERE (scenes.player_id=? OR poses.player_id=?) AND scene_state!='3'
+&SQL`GET`SCENEMINE4 u(scene)=SELECT DISTINCT scenes.scene_id FROM $DATABASE$.$SCENES$ AS scenes LEFT JOIN $DATABASE$.$POSES$ AS poses ON scenes.scene_id=poses.scene_id WHERE (scenes.player_id=? OR poses.player_id=?) AND scene_state='3'
+
 &SQL`GET`SCENEMINE3 u(scene)=SELECT scene_id,scene_title,player_name,scene_state FROM $DATABASE$.$SCENES$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE scene_id=?
 
-
-&INC`SCENE`DETAILS u(scene)=@include u(scene)/INC`VALSCENE=%0;th setq(ownerid,u(sql,get`ownerid,%q<scene>));@nspemit %#=u(RFN`HEADER,Scene %q<scene>[if(strlen(setr(title,u(sql,get`scenetitle,%q<scene>))),:%B%q<title>)]);@nspemit %#=ansi(h,Started:) [fancytime(convtime(u(sql,get`scenedate,%q<scene>),%#),%#)]%R[ansi(h,Description:)] [u(sql,get`scenedesc,%q<scene>)]%R[ansi(h,Owner:)]%B[u(sql,get`playername,%q<ownerid>)]%R[if(strlen(setr(tp,u(sql,get`tinyplot,%q<scene>))),ansi(h,Tinyplot:) %q<tp>%R)][ansi(h,Status:)] [switch(u(sql,get`scenestate,%q<scene>),0,Active,1,Paused,2,Unfinished,3,Finished)];@nspemit %#=u(RFN`SEPARATOR,Players);@nspemit %#=align(30 30 15,ansi(h,Name),ansi(h,Status),ansi(h,Poses));@nspemit %#=u(RFN`SEPARATOR);@dolist/inline/delimit | [sql(u(FUN`SQLFORMAT,GET`PLAYERCOUNT,%q<scene>),|,~)]={@nspemit %#=align(30 30 15,elements(%i0,2,~),if(eq(%q<scene>,get(elements(%i0,1,~)/D`SCENE`ACTIVE)),Active,Inactive),setr(total,add(%q<total>,u(sql,get`playerposecount,%q<scene>,elements(%i0,3,~)))))};@switch/inline gt(%q<total>,0)=1,{@nspemit %#=align(30 >30 15,,Total:,%q<total>)};@nspemit %#=u(RFN`SEPARATOR);@nspemit %#=ansi(h,URL:) [weblink(http://[v(VAR`URL`DOMAIN)][u(VAR`URL`PHP)]%q<scene>)];@nspemit %#=u(RFN`HEADER)
+&INC`SCENE`DETAILS u(scene)=@include u(scene)/INC`VALSCENE=%0;th setq(ownerid,u(sql,get`ownerid,%q<scene>));@nspemit %#=u(RFN`HEADER,Scene %q<scene>[if(strlen(setr(title,u(sql,get`scenetitle,%q<scene>))),:%B%q<title>)]);@nspemit %#=ansi(h,Started:) [fancytime(convtime(u(sql,get`scenedate,%q<scene>),%#),%#)]%R[ansi(h,Description:)] [u(sql,get`scenedesc,%q<scene>)]%R[ansi(h,Owner:)]%B[u(sql,get`playername,%q<ownerid>)]%R[if(strlen(setr(tp,u(sql,get`tinyplot,%q<scene>))),ansi(h,Tinyplot:) %q<tp>%R)][ansi(h,Status:)] [switch(u(sql,get`scenestate,%q<scene>),0,Active,1,Paused,2,Unfinished,3,Finished)];@nspemit %#=u(RFN`SEPARATOR,Players);@nspemit %#=align(30 30 15,ansi(h,Name),ansi(h,Status),ansi(h,Poses));@nspemit %#=u(RFN`SEPARATOR);@dolist/inline/delimit | [sql(u(FUN`SQLFORMAT,GET`PLAYERCOUNT,%q<scene>),|,~)]={@nspemit %#=align(30 30 15,elements(%i0,2,~),if(eq(%q<scene>,get(elements(%i0,1,~)/D`SCENE`ACTIVE)),Active,Inactive),u(sql,get`playerposecount,%q<scene>,elements(%i0,3,~)))};@switch/inline gt(setr(total,u(sql,get`sceneposecount,%q<scene>)),0)=1,{@nspemit %#=align(30 >30 15,,Total:,%q<total>)};@nspemit %#=u(RFN`SEPARATOR);@nspemit %#=ansi(h,URL:) [weblink(http://[v(VAR`URL`DOMAIN)][u(VAR`URL`PHP)]%q<scene>)];@nspemit %#=u(RFN`HEADER)
 
 &SQL`GET`SCENEDESC u(scene)=SELECT scene_desc FROM $DATABASE$.$SCENES$ WHERE scene_id=?
 &SQL`GET`SCENEDATE u(scene)=SELECT creation_date FROM $DATABASE$.$SCENES$ WHERE scene_id=?
 &SQL`GET`PLAYERNAME u(scene)=SELECT player_name from $DATABASE$.$PLAYERS$ WHERE player_id=?
 &SQL`GET`PLAYERPOSECOUNT u(scene)=SELECT count(pose_id) FROM $DATABASE$.$POSES$ WHERE scene_id=? and player_id=?
+&SQL`GET`SCENEPOSECOUNT u(scene)=SELECT count(pose_id) FROM $DATABASE$.$POSES$ WHERE scene_id=?
 &SQL`GET`TINYPLOT u(scene)=SELECT plot_title FROM $DATABASE$.$SCENES$ NATURAL LEFT JOIN $DATABASE$.$PLOTS$ WHERE scene_id=?
 
 &SQL`GET`PLAYERCOUNT u(scene)=SELECT DISTINCT Objid,player_name,$PLAYERS$.player_id FROM $DATABASE$.$PLAYERS$ NATURAL LEFT JOIN $DATABASE$.$POSES$ WHERE scene_id=? ORDER BY player_name
@@ -179,7 +181,12 @@
 
 &INC`SCENES`ADD u(scene)=@include u(scene)/INC`USERCHECK=%:;@include u(scene)/INC`CHECKTIME=trim(before(%0,/));@assert strlen(setr(title,trim(after(%0,/))))=@nspemit %#=u(RFN`MSGHEAD) You need to give the scene a title!;@break charin(%q<title>,/ %r %t)=@nspemit %#=u(RFN`MSGHEAD) The following characters are not permitted in titles: /, \%r, \%t.;@assert strlen(setr(desc,%1))=@nspemit %#=u(RFN`MSGHEAD) Your scene needs a description!;@include u(scene)/INC`DOSQL=INSERT`NEWSCHEDULE,%q<pid>,trim(trim(%q<title>,%r),%t),trim(trim(%q<desc>,%r),%t),%q<time>;th setq(schedid,u(sql,get`newschedule,%q<pid>));@trigger/spoof u(bbs)/INC`POST=BB,v(VAR`BBS`RPBBDBREF),#%q<schedid>: %q<title>,u(FUN`FORMATPOST,%q<title>,%n,fancytime(%q<time>,u(scene)),%q<desc>);@nspemit %#=u(RFN`MSGHEAD) You schedule a new scene- Scenes %q<schedid>: %q<title> on [fancytime(%q<time>,%#)];@wait 1={@include u(scene)/INC`DOSQL=SET`SCHEDULEBB,setr(postid,before(first(wildgrepi(v(VAR`BBS`RPBBDBREF),*`HDR,#%q<schedid>:*)),`)),%q<schedid>}
 
+&INC`SCENES`TAG u(scene)=@include u(scene)/INC`USERCHECK=%:;@include u(scene)/INC`VALSCHED=%0;@break u(sql,get`tagcheck,%q<schedule>,%q<pid>)=@nspemit %#=u(RFN`MSGHEAD) You are already signed up for that scene.;@include u(scene)/INC`DOSQL=INSERT`NEWTAG,%q<pid>,%q<schedule>;@nspemit %#=u(RFN`MSGHEAD) You have tagged Scheduled Scene %0!
 
+&INC`SCENES`UNTAG u(scene)=@include u(scene)/INC`USERCHECK=%:;@include u(scene)/INC`VALSCHED=%0;@assert u(sql,get`tagcheck,%q<schedule>,%q<pid>)=@nspemit %#=u(RFN`MSGHEAD) You are not signed up for that scene.;@include u(scene)/INC`DOSQL=DELETE`TAG,%q<pid>,%q<schedule>;@nspemit %#=u(RFN`MSGHEAD) You have untagged Scheduled Scene %0!
+&SQL`INSERT`NEWTAG u(scene)=INSERT INTO $DATABASE$.$TAGS$ (player_id,schedule_id) VALUES (?,?)
+&SQL`DELETE`TAG u(scene)=DELETE FROM $DATABASE$.$TAGS$ WHERE player_id=? AND schedule_id=?
+&SQL`GET`TAGCHECK u(scene)=SELECT tag_id from $DATABASE$.$TAGS$ WHERE schedule_id=? AND player_id=?
 
 &SQL`INSERT`NEWSCHEDULE u(scene)=INSERT INTO $DATABASE$.$SCHEDULE$ (player_id,schedule_title,schedule_desc,schedule_date) VALUES (?,?,?,FROM_UNIXTIME('?'))
 &SQL`GET`NEWSCHEDULE u(scene)=SELECT max(schedule_id) FROM $DATABASE$.$SCHEDULE$ WHERE player_id=?
@@ -191,7 +198,15 @@
 
 &INC`SCENES`MAIN u(scene)=@switch/inline gt(strlen(%0),0)=1,{@include u(scene)/INC`SCENES`DETAILS},0,{@include u(scene)/INC`SCENES`LIST}
 
-&INC`SCENES`LIST u(scene)=@nspemit %#=u(RFN`HEADER,Current Schedule - [timefmt($Z,,%#)]);th setq(target,%#);th mapsql(u(scene)/FUN`FORMATSCHEDULE,u(FUN`SQLFORMAT,get`fullschedule));@nspemit %#=u(RFN`HEADER)
+&INC`SCENES`LIST u(scene)=@include u(scene)/INC`USERCHECK=%:;@nspemit %#=u(RFN`HEADER,Current Schedule - [timefmt($Z,,%#)]);@dolist/inline u(sql,GET`UPCOMING)={@switch/inline not(strmatch(%q<last>,setr(last,timefmt($a $b $d $Y $Z,setr(time,u(sql,get`scheduletime,%i0)),%#))))=1,{@nspemit %#=u(RFN`HEADER,%q<last>)};@nspemit %#=u(FUN`FORMATSCHEDULE2,%q<pid>,%i0,u(sql,get`scheduletitle,%i0),u(sql,get`scheduleplayername,%i0),%q<time>,u(sql,get`schedownerid,%i0))};@nspemit %#=u(RFN`HEADER)
+
+&FUN`FORMATSCHEDULE2 u(scene)=align(2 4 43 20 7,if(cor(eq(%0,%5),isadmin(%#)),u(sql,get`tagcount,%1),if(u(sql,get`tagcheck,%1,%0),ansi(hr,*))),pueblize(%1,+scenes %1),%2,%3,elements(fancytime(%4,%q<target>),3))
+
+&SQL`GET`TAGCOUNT u(scene)=SELECT count(tag_id) FROM $DATABASE$.$TAGS$ WHERE schedule_id=?
+
+@@ th mapsql(u(scene)/FUN`FORMATSCHEDULE,u(FUN`SQLFORMAT,get`fullschedule));@nspemit %#=u(RFN`HEADER)
+
+&SQL`GET`UPCOMING u(scene)=SELECT schedule_id FROM $DATABASE$.$SCHEDULE$ WHERE schedule_date >= UTC_TIMESTAMP() - INTERVAL 10 HOUR ORDER by schedule_date
 
 &SQL`GET`FULLSCHEDULE u(scene)=SELECT schedule_id,schedule_title,player_name,UNIX_TIMESTAMP(schedule_date) FROM $DATABASE$.$SCHEDULE$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE schedule_date >= UTC_TIMESTAMP() - INTERVAL 10 HOUR ORDER BY schedule_date
 
@@ -204,7 +219,10 @@
 &INC`OWNSCHED u(scene)=@assert cor(isadmin(%#),eq(u(sql,get`schedownerid,%0),%1),if(%2,eq(u(sql,get`plotrunner,%2),%0)))=@nspemit %#=u(RFN`MSGHEAD) Permission denied.
 &SQL`GET`SCHEDOWNERID u(scene)=SELECT player_id from $DATABASE$.$SCHEDULE$ WHERE schedule_id=?
 
-&INC`SCENES`DETAILS u(scene)=@include u(scene)/INC`VALSCHED=%0;@nspemit %#=u(RFN`HEADER,Scheduled ID %q<schedule>: [u(sql,get`scheduletitle,%q<schedule>)]);@nspemit %#=ansi(h,Owner:) [u(sql,get`scheduleplayername,%q<schedule>)]%R[u(sql,get`scheduledesc,%q<schedule>)];@nspemit %#=u(RFN`SEPARATOR,Scheduled Time);@nspemit %#=align(-38 -38,fancytime(setr(time,u(sql,get`scheduletime,%q<schedule>)),UTC),fancytime(%q<time>,%#));@nspemit %#=u(RFN`HEADER)
+&INC`SCENES`DETAILS u(scene)=@include u(scene)/INC`USERCHECK=%:;@include u(scene)/INC`VALSCHED=%0;@nspemit %#=u(RFN`HEADER,Scheduled ID %q<schedule>: [u(sql,get`scheduletitle,%q<schedule>)]);@nspemit %#=ansi(h,Owner:) [u(sql,get`scheduleplayername,%q<schedule>)]%R[u(sql,get`scheduledesc,%q<schedule>)];@nspemit %#=u(RFN`SEPARATOR,Scheduled Time);@nspemit %#=align(-38 -38,fancytime(setr(time,u(sql,get`scheduletime,%q<schedule>)),UTC),fancytime(%q<time>,%#));@switch/inline cand(u(sql,get`tagcount,%q<schedule>),cor(isadmin(%#),eq(u(sql,get`schedownerid,%q<schedule>),%q<pid>)))=1,{@nspemit %#=u(RFN`SEPARATOR,Interested Players);th mapsql(FUN`INTERESTPLAY,u(FUN`SQLFORMAT,get`interest,%q<schedule>))};@nspemit %#=u(RFN`HEADER)
+
+&FUN`INTERESTPLAY u(scene)=nspemit(%#,%1)
+&SQL`GET`INTEREST u(scene)=SELECT player_name from $DATABASE$.$TAGS$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE schedule_id=?
 
 &SQL`GET`SCHEDULETITLE u(scene)=SELECT schedule_title FROM $DATABASE$.$SCHEDULE$ WHERE schedule_id=?
 &SQL`GET`SCHEDULEDESC u(scene)=SELECT schedule_desc FROM $DATABASE$.$SCHEDULE$ WHERE schedule_id=?
@@ -297,6 +315,8 @@
 
 &SQL`INSTALL`SCHEDULE u(scene)=CREATE TABLE IF NOT EXISTS $DATABASE$.$SCHEDULE$ (schedule_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,player_id BIGINT(31) UNSIGNED NOT NULL,schedule_title VARCHAR(255),schedule_desc text,schedule_date DATETIME,post_id varchar(10),plot_id BIGINT(31),PRIMARY KEY(schedule_id),FOREIGN KEY(player_id) REFERENCES $PLAYERS$(player_id) ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
 
+&SQL`INSTALL`TAGS u(scene)=CREATE TABLE IF NOT EXISTS $DATABASE$.$TAGS$ (tag_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,schedule_id BIGINT(31) UNSIGNED NOT NULL,player_id BIGINT(31) UNSIGNED NOT NULL,PRIMARY KEY(tag_id),FOREIGN KEY(player_id) REFERENCES $PLAYERS$(player_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(schedule_id) REFERENCES $SCHEDULE$(schedule_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
 +help/addmain Roleplaying/+scene=[u(scene)]/HLP`+SCENE
 &HLP`+SCENE u(scene)=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H and some of his code remains - credits are due.%R%R[ansi(hc,Setting up)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scene/setup)] - Get your own unique Char_id.%R[ansi(h,+scene/charid)] - Show your own unique Char_id.%RChar_id is used by the wiki log viewer and must be on your character's wiki page.})]%R%R[ansi(hc,Running/Logging Commands)]%RThese commands are for anyone who wants to start and manage a scene.%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scene/create <title text>)] - Begins a new scene.%R[ansi(h,+scene/loudcreate <title text>)] - Like /create but announces it on the RP channel.%R[ansi(h,+scene/title <id>=<text>)] - Changes a scene's title.%R[ansi(h,+scene/desc <id>=<text>)] - Gives a scene a description/short summary.%R[ansi(h,+scene/plot <id>=<plot id>)] - Links a scene to a plot, if you own the scene or run the plot. Set plot to 0 to remove it from any plots.%R[ansi(h,+scene/finish \[<id>\])] - Finishes a scene. ID will be current scene if not specified.%R[ansi(h,+scene/pause \[<id>\])] - Pauses a scene. ID will be current scene if not specified.%R[ansi(h,+scene/continue \[<id>\])] - Resumes a scene that was paused or finished. ID will be current scene if not specified.%R[ansi(h,+scene/move <id>)] - Relocate a scene to your current location, including virtual room locations.})]%R%R[ansi(hc,Participant Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scene/join \[<id>\])] - Joins a scene. Your poses will then be recorded. ID is unneeded if the scene just began in your current location.%R[ansi(h,+scene/leave)] - Stops your poses from being logged.%R[ansi(h,+scene/undo)] - Marks your last post to be ignored by the logger so it won't make it to the wiki. Used to fix poses made in error, typos, etc.%R[ansi(h,+scene/recall <id>=<# of lines>)] - Displays previous recorded poses from a scene.%RTo be recorded, you must be joined to a scene and A) Your pose must be in the location the scene is set to, B) Your pose must be at least ten words long. C) The scene must be not be paused or finished.})]%R%R[ansi(hc,Listing Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scene)] - Displays all scenes you are currently participating in or running that aren't finished.%R[ansi(h,+scene/old)] - Show all of the finished scenes you've been in or run.%R[ansi(h,+scene <id>)] - Show details of a particular scene.})]
 
@@ -304,7 +324,7 @@
 &SHLP`+SCENE u(scene)=
 
 +help/addmain Roleplaying/+scenes=[u(scene)]/HLP`+SCENES
-&HLP`+SCENES u(scene)=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H and some of his code remains - credits are due.%R[ansi(hc,See Also:)] [pueblize(+help +scene,+help +scene)], [pueblize(help @tz,help @tz)], [pueblize(help convtime(),convtime())]%R%R[ansi(hc,Scheduling Commands)]%RThese commands are for anyone who wants to schedule and manage a scene.%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scenes/add <time>/<title>=<description>)] - Schedules a scene. <time> must be in a format accepted by the convtime() function, and is from the perspective of your @tz setting. As an example, now would be: [timefmt($b $d $H:$M,,%#)].%R[ansi(h,+scenes/reschedule <id>=<time>)] - Changes a scene's scheduled time. <time> is same as adding.%R[ansi(h,+scenes/delete <id>)] - Remove a scheduled scene.%R[ansi(h,+scenes/title <id>=<text>)] - Changes a Scheduled scene's title.%R[ansi(h,+scenes/desc <id>=<text>)] - Changes a scheduled scene's description/short summary.%R[ansi(h,+scenes/plot <id>=<plot id>)] - Links a scene to a plot. Set plot to 0 to remove it from any plots.%R%RAll changes made to the +scenes data will be reflected in the announcement post automatically. Deleting the scene will also delete the respective post.})]%R%R[ansi(hc,General Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scenes)] - Views a list of scheduled scenes. This uses your @tz settings to show them in your own Timezone.%R[ansi(h,+scenes <id>)] - View details about a scheduled Scene.})]
+&HLP`+SCENES u(scene)=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H and some of his code remains - credits are due.%R[ansi(hc,See Also:)] [pueblize(+help +scene,+help +scene)], [pueblize(help @tz,help @tz)], [pueblize(help convtime(),convtime())]%R%R[ansi(hc,Scheduling Commands)]%RThese commands are for anyone who wants to schedule and manage a scene.%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scenes/add <time>/<title>=<description>)] - Schedules a scene. <time> must be in a format accepted by the convtime() function, and is from the perspective of your @tz setting. As an example, now would be: [timefmt($b $d $H:$M,,%#)].%R[ansi(h,+scenes/reschedule <id>=<time>)] - Changes a scene's scheduled time. <time> is same as adding.%R[ansi(h,+scenes/delete <id>)] - Remove a scheduled scene.%R[ansi(h,+scenes/title <id>=<text>)] - Changes a Scheduled scene's title.%R[ansi(h,+scenes/desc <id>=<text>)] - Changes a scheduled scene's description/short summary.%R[ansi(h,+scenes/plot <id>=<plot id>)] - Links a scene to a plot. Set plot to 0 to remove it from any plots.%R%RAll changes made to the +scenes data will be reflected in the announcement post automatically. Deleting the scene will also delete the respective post.})]%R%R[ansi(hc,General Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scenes)] - Views a list of scheduled scenes. This uses your @tz settings to show them in your own Timezone. A red * means you tagged the scene. If you own the scene, the displayed number shows number of taggers.%R[ansi(h,+scenes <id>)] - View details about a scheduled Scene. If you're the owner, it also shows players who've tagged your scene.%R[ansi(h,+scenes/tag <id>)] - 'Tag' a scene to show your interest.%R[ansi(h,+scenes/untag <id>)] - Remove your tag from a scene.})]
 
 +help/addmain Roleplaying/+plot=[u(scene)]/HLP`+PLOT
 &HLP`+PLOT u(scene)=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H and some of his code remains - credits are due.%R[ansi(hc,See Also:)] [pueblize(+help +scene,+help +scene)]%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+plot)] - Show all current plots.%R[ansi(h,+plot/all)] - Show all plots in the system.%R[ansi(h,+plot <id>)] - Show a plot's details.})]

@@ -1,7 +1,7 @@
 @@ DEPENDENCIES - CORE
 
-@switch/inline isdbref(u(mcron))=0,{@tel create(Myrddin's MUSH CRON <MCRON>)=config(master_room)}
-&MCRON u(coi)=locate(config(master_room),Myrddin's MUSH CRON <MCRON>,TXxi)
+@switch/inline isdbref(u(mcron))=0,{@tel create(Myrddin's MUSH CRON <MCRON>)=u(coi)}
+&MCRON u(coi)=locate(u(coi),Myrddin's MUSH CRON <MCRON>,TXxi)
 @parent u(MCRON)=u(coi)
 @set u(MCRON)=WIZARD !NO_COMMAND
 

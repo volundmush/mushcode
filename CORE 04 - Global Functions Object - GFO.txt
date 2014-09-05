@@ -13,7 +13,8 @@
 
 &GFN`MSGHEAD u(gfo)=ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`MSGBORDER),-=<)[ansi(firstcolor(firstof(%6,%#),%4,DEFAULT`MSG),ucstr(%0))][ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`MSGBORDER),>=-)]
 &GFN`MSGHEADROOM u(gfo)=ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`MSGBORDER),-=<*)[ansi(firstcolor(firstof(%6,%#),%4,DEFAULT`MSG),ucstr(%0))][ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`MSGBORDER),*>=-)]
-
+&GFN`ANNOUNCE u(gfo)=msghead(%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
+&GFN`ROOMANNOUNCE u(gfo)=msgheadroom(%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
 
 &GFN`CAPNAMES u(gfo)=regeditall(lcstr(%0),(?<=\[_/\\-\\s\]|^)(\[a-z\]),capstr($1))
 &GFN`COMMAFY u(gfo)=squish(flip(foreach(#lambda/if(mod(\%1,3),\%0,\\,\%0),flip(%0))),\,)

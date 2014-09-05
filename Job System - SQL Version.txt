@@ -1,0 +1,247 @@
+@switch/inline isdbref(u(jobsys))=0,{@tel create(Job System)=config(master_room)}
+&jobsys u(coi)=locate(#2,Job System,TXxi)
+@parent u(jobsys)=u(coi)
+@set u(jobsys)=WIZARD !NO_COMMAND
+
+@switch/inline isdbref(u(jobsys))=1,{@switch/inline isdbref(u(jobdb))=0,{@tel create(Jobs Database <JOBDB>)=u(jobsys)}}
+&jobdb u(coi)=locate(u(jobsys),Jobs Database <JOBDB>,TXxi)
+@set u(jobdb)=WIZARD
+
+&CMD`+JOB u(jobsys)=$^(?s)(?\:\+)?(job|jobs|myjobs|myjob)(?\:/(\S+)?)?(?\: +(.*?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(jobsys)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(jobsys)/VAR`ADMINFLAGS)),|,|),|,v(VAR`MSGHEAD),switch,switch;th setq(mode,switch(%1,myjob*,MYJOBS,job*,JOBS));@include u(jobsys)/INC`PLAYERID=%:;@include u(jobsys)/INC`[strfirstof(%q<switch>,MAIN)]=trim(%3),trim(%4)
+@set u(jobsys)/CMD`+JOB=regexp
+
+&RFN`HEADER u(jobsys)=header(%0,,JOBS`BORDER,JOBS`BORDERDOT,JOBS`BORDERTEXT)
+&RFN`SUBHEADER u(jobsys)=subheader(%0,,JOBS`BORDER,JOBS`BORDERDOT,JOBS`BORDERTEXT)
+&RFN`SEPARATOR u(jobsys)=separator(%0,,JOBS`BORDER,JOBS`BORDERDOT,JOBS`BORDERTEXT)
+&RFN`MSGHEAD u(jobsys)=msghead(v(VAR`MSGHEAD))
+&VAR`MSGHEAD u(jobsys)=JOBS
+&VAR`PLAYFLAGS u(jobsys)=REPLY|OLD|APPROVE|DENY|CANCEL|REVIVE|COMMENT|DUE|CLAIM|UNCLAIM|ATTN|SCAN
+&VAR`ADMINFLAGS u(jobsys)=INSTALL|NEWCATEGORY|DELCATEGORY|RENCATEGORY|LOCKCATEGORY|UNLOCKCATEGORY|CATEGORY|CONFIG|DESC
+
+&CMD`+REQUEST u(jobsys)=$^(?s)\+request(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setr(valcats,iter(u(FUN`VALIDCATS,%#,POST),name(%i0),%b,|)),|,v(VAR`MSGHEAD),Category,Category;@include u(jobsys)/INC`REQUEST=trim(%2),trim(%3),%q<category>
+@set u(jobsys)/CMD`+REQUEST=regexp
+
+&INC`REQUEST u(jobsys)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) Available Job categories: [itemize(%q<valcats>,|,and,\,)];@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) The Request text field is empty! What are you asking staff?;@include u(jobsys)/INC`PLAYERID=%:;@switch/inline t(%2)=1,{@include u(jobsys)/INC`FINDCAT=%2};@include u(jobsys)/INC`DOSQL=NEW`REQUEST,%q<pid>,%q<cat>,%0,%1,add(secs(),u(FUN`CONF,%q<cat>,DUE));th setr(jid,u(u(jobsys)/sql,get`newjob,%q<pid>));@include u(jobsys)/INC`MSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] has been created[if(%q<cat>,%bunder '%q<catname>')] by [u(FUN`MASKNAME,%q<cat>)].};@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+
+&INC`PLAYERID u(jobsys)=@assert objid(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Invalid Objid!;@switch/inline gt(setr(pid%1,u(sql,get`playerid,%0)),0)=0,{@include u(jobsys)/INC`DOSQL=NEW`PLAYERID,%0,name(%0);@include u(jobsys)/INC`PLAYERID=%0,%1}
+
+&SQL`GET`PLAYERID u(jobsys)=SELECT player_id FROM $DATABASE$.$PLAYERS$ WHERE objid=?
+&SQL`NEW`PLAYERID u(jobsys)=INSERT INTO $DATABASE$.$PLAYERS$ (objid,player_name) VALUES (?,?)
+&SQL`NEW`REQUEST u(jobsys)=INSERT INTO $DATABASE$.$JOBS$ (player_id,job_objid,job_title,job_text,due_date,job_status,submit_date,job_activity,job_pactivity) VALUES (?,?,?,?,FROM_UNIXTIME('?'),'0',UTC_TIMESTAMP(),UTC_TIMESTAMP(),UTC_TIMESTAMP())
+&SQL`GET`NEWJOB u(jobsys)=SELECT max(job_id) FROM $DATABASE$.$JOBS$ WHERE player_id=?
+&SQL`SET`CHECKDATE u(jobsys)=INSERT INTO $DATABASE$.$CHECK$ (job_id,player_id,check_date) VALUES (?,?,UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE check_date=UTC_TIMESTAMP()
+
+&INC`LOCKCATEGORY u(jobsys)=@include u(jobsys)/INC`LOCK;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No lock string entered. See [pueblize(+help +key)] for more information.;@include u(kls)/INC`DOLOCK=%q<cat>,user:%q<lock>,%1,v(VAR`MSGHEAD)
+&INC`UNLOCKCATEGORY u(jobsys)=@include u(jobsys)/INC`LOCK;@unlock/user:%q<lock> %q<cat>;@nspemit %#=u(RFN`MSGHEAD) You release the %q<lock> lock on %q<catname>;@nscemit/noisy u(cmo`staffrep)={ansi(h,%n) released the %q<lock> Lock on Job Category %q<catname>}
+
+&INC`LOCK u(jobsys)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission Denied. This command is Wizard-only.;@include u(jobsys)/INC`FINDCAT=before(%0,/);@assert strlen(after(%0,/))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Lock Type field empty.;@include u(ccs)/INC`PARTIAL=after(%0,/),POST|ADMIN,|,v(VAR`MSGHEAD),lock,lock
+
+&INC`DESC u(jobsys)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission Denied. This command is Wizard-only.;@include u(jobsys)/INC`FINDCAT=%0;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Description field empty.;@describe %q<cat>=%1;@nspemit %#=u(RFN`MSGHEAD) Description for %q<catname> set!
+
+&INC`CONFIG u(jobsys)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission Denied. This command is Wizard-only.;@include u(jobsys)/INC`FINDCAT=before(%0,/);@assert strlen(after(%0,/))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Config Type field empty.;@include u(ccs)/INC`PARTIAL=after(%0,/),DUE|ANONYMOUS,|,v(VAR`MSGHEAD),type,type;@include u(jobsys)/INC`CONFIG`CHECK`%q<type>;&%q<type> %q<cat>=%q<entry>;@nspemit %#=u(RFN`MSGHEAD) You change Category %q<catname>'s %q<type> setting to: [strfirstof(%q<display>,%1)];@nscemit/noisy u(cmo`staffrep)={ansi(h,%n) changed job Category %q<catname>'s %q<type> setting to: [strfirstof(%q<display>,%1)]}
+
+&INC`CONFIG`CHECK`DUE u(jobsys)=@assert gt(setr(entry,stringsecs(%1)),0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: '%1' was not accepted by stringsecs().;th setq(display,etime(%q<entry>))
+&INC`CONFIG`CHECK`ANONYMOUS u(jobsys)=@assert match(0 1 2 3,%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: The Anonymous setting must be 0, 1, 2 or 3.;th setq(entry,%1)
+
+&FUN`CONF u(jobsys)=if(isobjid(%0),switch(%1,DUE,firstof(get(%0/DUE),stringsecs(7d)),ANONYMOUS,strfirstof(get(%0/ANONYMOUS),0)),switch(%1,DUE,stringsecs(7d),ANONYMOUS,0))
+
+&INC`MSGJOB u(jobsys)=@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),u(FUN`MSGLIST,%0,%2),{%1}
+&INC`AMSGJOB u(jobsys)=@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),u(FUN`AMSGLIST,%0,%2),{%1}
+
+&FUN`MSGLIST u(jobsys)=setunion(setunion(setunion(%:,u(u(jobsys)/sql,get`claimobjids,%0)),filterbool(#lambda/u(FUN`PERMCHECK,%1,ADMIN,\%0),lwhoid())),u(u(jobsys)/SQL,get`ownerobjid,%0))
+&FUN`AMSGLIST u(jobsys)=setunion(setunion(%:,u(u(jobsys)/sql,get`claimobjids,%0)),filterbool(#lambda/u(FUN`PERMCHECK,%1,ADMIN,\%0),lwhoid()))
+
+&INC`PERMCHECKCAT u(jobsys)=@assert u(FUN`PERMCHECK,%2,%1,%#)=@nspemit %#=u(RFN`MSGHEAD) You do not have %1 Permission for [name(%2)].
+&FUN`PERMCHECK u(jobsys)=if(isobjid(%0),switch(%1,ADMIN,if(strmatch(lock(%0/%1),*UNLOCKED*),isadmin(%2),elock(%0/%1,%2)),POST,if(strmatch(lock(%0/%1),*UNLOCKED*),1,elock(%0/%1,%2))),switch(%1,ADMIN,isadmin(%2),POST,1))
+
+&SQL`GET`CLAIMOBJIDS u(jobsys)=SELECT objid FROM $DATABASE$.$PLAYERS$ NATURAL LEFT JOIN $DATABASE$.$CLAIM$ WHERE $CLAIM$.job_id=?
+&SQL`GET`OWNEROBJID u(jobsys)=SELECT objid FROM $DATABASE$.$PLAYERS$ NATURAL LEFT JOIN $DATABASE$.$JOBS$ WHERE $JOBS$.job_id=?
+
+&INC`INSTALL u(jobsys)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Wizard Only command.;@include u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will install JobSys' SQL tables. It will have no effect if they already exist. Enter the same command again within ten seconds to continue.},SETUP JOBSYS,v(VAR`MSGHEAD);@dolist/inline/delimit | [v(VAR`SQL`TABLES)]={@include u(jobsys)/INC`DOSQL=INSTALL`%i0};@nspemit %#=u(RFN`MSGHEAD) Installation complete!
+
+&INC`DOSQL u(jobsys)=@break strmatch(setr(errcheck,u(sql,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)=@nspemit %#=u(RFN`MSGHEAD) SQL ERROR: %q<errcheck>
+
+&INC`NEWCATEGORY u(jobsys)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) Permission Denied: Wizard only.;@include u(jobsys)/INC`CATNAMECHECK=%0;@include u(jobsys)/INC`CATEXIST=%0;@tel setr(cat,create(%0))=u(jobdb);@set %q<cat>=WIZARD SAFE;@parent %q<cat>=u(jobdb);@nspemit %#=u(RFN`MSGHEAD) Category '%0' created! Make sure to use +job/lockcategory to restrict it!;@include u(jobsys)/INC`REPORT={[ansi(h,%n)] created a new Job Category: %0}
+
+&INC`CATNAMECHECK u(jobsys)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) You must enter the new category name!;@assert cand(valid(name,%0),regmatchi(%0,^\\S+$),lte(strlen(%0),8))=@nspemit %#=u(RFN`MSGHEAD) '%0' is not a valid category name. Categories must be valid object names, contain no spaces, and be 8 characters or less.
+
+&INC`CATEXIST u(jobsys)=@break or(isdbref(namegrab(u(FUN`LISTCATS),%0)),strmatch(%0,None))=@nspemit %#=u(RFN`MSGHEAD) A Category by that name already exists!
+
+&INC`FINDCAT u(jobsys)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) No Category Name entered!;@switch/inline %0=None,{},{@assert words(setr(cats,u(FUN`LISTCATS)))=@nspemit %#=u(RFN`MSGHEAD) There are no Categories.;@assert isdbref(setr(cat,objid(namegrab(%q<cats>,%0))))=@nspemit %#=u(RFN`MSGHEAD) Category '%0' not found.;th setq(catname,name(%q<cat>))}
+
+&FUN`LISTCATS u(jobsys)=iter(sort(filterbool(#lambda/strmatch(u(jobdb),parent(\%0)),lthings(u(jobdb))),namei),objid(%i0))
+
+&FUN`VALIDCATS u(jobsys)=filterbool(#lambda/u(FUN`PERMCHECK,\%0,%1,%0),u(FUN`LISTCATS))
+
+&INC`RENCATEGORY u(jobsys)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) Permission Denied: Wizard only.;@include u(jobsys)/INC`FINDCAT=%0;@include u(jobsys)/INC`CATNAMECHECK=%1;@include u(jobsys)/INC`CATEXIST=%1
+
+&INC`DELCATEGORY u(jobsys)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) Permission Denied: Wizard only.;@include u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will delete Job Category '%q<catname>'. All jobs in that category will become categoryless, though not deleted. Are you sure you want to do this? Enter the same command again within ten seconds to verify!},DELETE %q<cat>,v(VAR`MSGHEAD);@nspemit %#=u(RFN`MSGHEAD) Category '%0' Deleted!;@include u(jobsys)/INC`REPORT={ansi(h,%n) just deleted Job Category '%q<catname>'!};@set %q<cat>=!SAFE;@nuke %q<cat>;@nuke %q<cat>
+
+&INC`MAIN u(jobsys)=@select/inline 1=isint(%0),{@include u(jobsys)/INC`DISPLAYJOB=%0},t(strlen(%0)),{@include u(jobsys)/INC`DISPLAYCAT=%0,%1},{@select/inline %q<mode>=MYJOBS,{@include u(jobsys)/INC`MYJOBS`LIST},{@include u(jobsys)/INC`CATLIST}}
+
+&INC`CATLIST u(jobsys)=@nspemit %#=u(RFN`HEADER,mudname() Jobs);@nspemit %#=align(8 34 4 4 4 4 4 4 4,Name,Description,Pen,App,Dny,Cnc,Over,Due,Anon);@dolist/inline u(FUN`LISTCATS)={@nspemit %#=u(FUN`CATEGORYLINE,%i0)};@nspemit %#=u(FUN`CATEGORYLINE);@nspemit %#=u(RFN`HEADER)
+
+&FUN`CATEGORYLINE u(jobsys)=align(8 34 4 4 4 4 4 4 4,if(strlen(%0),pueblize(name(%0),+[lcstr(%q<mode>)] [name(%0)]),pueblize(None,+jobs None)),if(strlen(%0),get(%0/describe),For all uncategorized jobs.),u(SQL,GET`STATUSCOUNT,0,%0),u(SQL,GET`STATUSCOUNT,1,%0),u(SQL,GET`STATUSCOUNT,2,%0),u(SQL,GET`STATUSCOUNT,3,%0),u(SQL,GET`OVERDUE,%0),etime(u(FUN`CONF,%0,DUE)),u(FUN`CONF,%0,ANONYMOUS))
+
+&SQL`GET`STATUSCOUNT u(jobsys)=SELECT count(job_id) FROM $DATABASE$.$JOBS$ where job_status=? AND job_objid=?
+&SQL`GET`OVERDUE u(jobsys)=SELECT count(job_id) FROM $DATABASE$.$JOBS$ WHERE job_status=0 AND job_objid=? AND due_date<NOW()
+
+&INC`OLD u(jobsys)=th setq(old,OLD);@include u(jobsys)/INC`MAIN
+
+&INC`DISPLAYCAT u(jobsys)=@switch/inline %0=None,{@assert isadmin(%#)=@nspemit %#=u(RFN`MSGHEAD) Permission denied.},{@include u(jobsys)/INC`FINDCAT=%0;@include u(jobsys)/INC`PERMCHECKCAT=%#,ADMIN,%q<cat>};th setq(total,u(SQL,GET`JOBLISTCATCOUNT%q<old>,%q<cat>));@switch/inline valnum(%1)=1,{th setq(page,bound(%1,1,setr(max,ceil(fdiv(%q<total>,30)))))},{th setq(page,1,max,ceil(fdiv(%q<total>,30)))};@nspemit %#=u(RFN`HEADER,mudname() - [strfirstof(%q<catname>,Uncategorized)] Jobs);@nspemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline revwords(u(SQL,GET`JOBLISTCAT%q<old>,%q<cat>,mul(30,sub(%q<page>,1))))={@nspemit %#=u(FUN`LISTJOBSTAFF,%i0)};@nspemit %#=u(RFN`HEADER,if(gt(%q<page>,1),ansi(hg,pueblize(<,+job[if(strlen(%q<old>),/old)] [strfirstof(%q<catname>,None)]=[sub(%q<page>,1)])),ansi(hx,<))%BPage %q<page> of %q<max>%B[if(lt(%q<page>,%q<max>),ansi(hg,pueblize(>,+job[if(strlen(%q<old>),/old)] [strfirstof(%q<catname>,None)]=[add(%q<page>,1)])),ansi(hx,>))])
+
+&INC`SCAN u(jobsys)=@assert setr(cats,trim(u(FUN`VALIDCATS,%#,ADMIN)[if(u(FUN`PERMCHECK,None,Admin,%#),%b1)]))=@nspemit %#=u(RFN`MSGHEAD) Permission denied.;@dolist/inline setr(maincount,filterbool(#lambda/u(sql,GET`NEWJOBSCATCOUNT,if(isint(\%0),,\%0)),%q<cats>))={th setq(had,1);@nspemit %#=u(RFN`HEADER,mudname() - New [if(isobjid(%i0),name(%i0),Uncategorized)] Jobs);@nspemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline u(sql,GET`NEWJOBSCAT,if(isint(%i0),,%i0))={@nspemit %#=u(FUN`LISTJOBSTAFF,%i0)};@switch/inline eq(inum(0),words(%q<maincount>))=1,{@nspemit %#=u(RFN`HEADER)}};@switch/inline not(%q<had>)=1,{@nspemit %#=u(RFN`MSGHEAD) There are no new jobs in the system!}
+
+&SQL`GET`NEWJOBSCATCOUNT u(jobsys)=SELECT count(job_id) FROM $DATABASE$.$JOBS$ WHERE job_objid=? AND submit_date > UTC_TIMESTAMP() - INTERVAL 1 WEEK
+&SQL`GET`NEWJOBSCAT u(jobsys)=SELECT job_id FROM $DATABASE$.$JOBS$ WHERE job_objid=? AND submit_date > UTC_TIMESTAMP() - INTERVAL 1 WEEK ORDER BY  job_id DESC
+
+&INC`MYJOBS`LIST u(jobsys)=th set(valcats,u(FUN`VALIDCATS,%#,ADMIN));th setq(total,u(SQL,GET`MYJOBLISTCOUNT%q<old>,%q<pid>,%q<pid>));@switch/inline valnum(%1)=1,{th setq(page,bound(%1,1,setr(max,ceil(fdiv(%q<total>,30)))))},{th setq(page,1,max,ceil(fdiv(%q<total>,30)))};@nspemit %#=u(RFN`HEADER,mudname() - Your Jobs);@nspemit %#=align(2 >4 8 15 15 5 9 5 6,*,ID,Category,Submitter,Title,Due,Claimed,Upd,Attn);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline revwords(u(SQL,GET`MYJOBLIST%q<old>,%q<pid>,%q<pid>,mul(30,sub(%q<page>,1))))={@nspemit %#=u(FUN`MYLIST,%i0)};@nspemit %#=u(RFN`HEADER,if(gt(%q<page>,1),ansi(hg,pueblize(<,+myjob[if(strlen(%q<old>),/old)] =[sub(%q<page>,1)])),ansi(hx,<))%BPage %q<page> of %q<max>%B[if(lt(%q<page>,%q<max>),ansi(hg,pueblize(>,+myjob[if(strlen(%q<old>),/old)] =[add(%q<page>,1)])),ansi(hx,>))])
+
+&SQL`GET`MYJOBLISTCOUNT u(jobsys)=SELECT count(DISTINCT $JOBS$.job_id) FROM $DATABASE$.$JOBS$ LEFT JOIN $DATABASE$.$CLAIM$ ON $DATABASE$.$JOBS$.job_id=$DATABASE$.$CLAIM$.job_id WHERE (job_status=0 OR close_date > NOW() - INTERVAL 1 WEEK) AND ($JOBS$.player_id=? OR $CLAIM$.player_id=?)
+&SQL`GET`MYJOBLISTCOUNTOLD u(jobsys)=SELECT count(DISTINCT $JOBS$.job_id) FROM $DATABASE$.$JOBS$ LEFT JOIN $DATABASE$.$CLAIM$ ON $DATABASE$.$JOBS$.job_id=$DATABASE$.$CLAIM$.job_id WHERE job_status>0 AND ($JOBS$.player_id=? OR $CLAIM$.player_id=?)
+&SQL`GET`MYJOBLIST u(jobsys)=SELECT DISTINCT $JOBS$.job_id FROM $DATABASE$.$JOBS$ LEFT JOIN $DATABASE$.$CLAIM$ ON $DATABASE$.$JOBS$.job_id=$DATABASE$.$CLAIM$.job_id WHERE (job_status=0 OR close_date > NOW() - INTERVAL 1 WEEK) AND ($JOBS$.player_id=? OR $CLAIM$.player_id=?) ORDER BY $JOBS$.job_id DESC LIMIT 30 OFFSET ?
+&SQL`GET`MYJOBLISTOLD u(jobsys)=SELECT DISTINCT $JOBS$.job_id FROM $DATABASE$.$JOBS$ LEFT JOIN $DATABASE$.$CLAIM$ ON $DATABASE$.$JOBS$.job_id=$DATABASE$.$CLAIM$.job_id WHERE job_status>0 AND ($JOBS$.player_id=? OR $CLAIM$.player_id=?) ORDER BY $JOBS$.job_id DESC LIMIT 30 OFFSET ?
+
+&FUN`LISTJOBSTAFF u(jobsys)=align(2 >4 15 15 5 16 5 6,strfirstof(u(FUN`LIST`UNREAD,%0),%b)[u(FUN`LIST`STATUS,%0)],pueblize(%0,+job %0),u(FUN`LIST`OWNERNAME,%0),u(FUN`LIST`JOBTITLE,%0),u(FUN`LIST`JOBDUE,%0),strfirstof(u(FUN`LIST`CLAIMERS,%0),---),u(FUN`LIST`JOBACTIVITY,%0),u(FUN`LIST`JOBATTN,%0))
+&FUN`MYLIST u(jobsys)=align(2 >4 8 15 15 5 9 5 6,strfirstof(u(FUN`LIST`UNREAD,%0),%b)[u(FUN`LIST`STATUS,%0)],pueblize(%0,+myjob %0),u(FUN`LIST`CATEGORY,%0),u(FUN`LIST`OWNERNAME,%0),u(FUN`LIST`JOBTITLE,%0),u(FUN`LIST`JOBDUE,%0),strfirstof(u(FUN`LIST`CLAIMERS2,%0),---),u(FUN`LIST`JOBACTIVITY,%0),u(FUN`LIST`JOBATTN,%0))
+
+&FUN`LIST`UNREAD u(jobsys)=if(gt(u(SQL,GET`LAST[if(isadmin(%#),P)]ACTIVITY,%0),u(SQL,GET`LASTCHECKDATE,%0,%q<pid>)),ansi(hr,*))
+&SQL`GET`LASTACTIVITY u(jobsys)=SELECT UNIX_TIMESTAMP(job_activity) FROM $DATABASE$.$JOBS$ WHERE job_id=?
+&SQL`GET`LASTPACTIVITY u(jobsys)=SELECT UNIX_TIMESTAMP(job_pactivity) FROM $DATABASE$.$JOBS$ WHERE job_id=?
+&SQL`GET`LASTCHECKDATE u(jobsys)=SELECT UNIX_TIMESTAMP(check_date) FROM $DATABASE$.$CHECK$ WHERE job_id=? AND player_id=?
+
+&FUN`LIST`CATEGORY u(jobsys)=if(isobjid(setr(catobj,u(SQL,GET`JOBCAT,%0))),name(%q<catobj>),None)
+
+&FUN`LIST`STATUS u(jobsys)=switch(u(SQL,GET`JOBSTATUS,%0),0,P,1,A,2,D,3,C)
+&FUN`LIST`STATUS2 u(jobsys)=switch(u(SQL,GET`JOBSTATUS,%0),0,Pending,1,Approved,2,Denied,3,Canceled)
+&SQL`GET`JOBSTATUS u(jobsys)=SELECT job_status FROM $DATABASE$.$JOBS$ WHERE job_id=?
+
+&FUN`LIST`CLAIMERS u(jobsys)=if(cand(gte(u(FUN`CONF,u(SQL,GET`JOBCAT,%0),ANONYMOUS),2),not(u(FUN`PERMCHECK,u(SQL,GET`JOBCAT,%0),ADMIN,%#))),Anonymous,itemize(sql(u(FUN`SQLFORMAT,GET`CLAIMNAMES,%0),|),|,and,\,))
+&FUN`LIST`CLAIMERS2 u(jobsys)=if(cand(gte(u(FUN`CONF,u(SQL,GET`JOBCAT,%0),ANONYMOUS),2),not(u(FUN`PERMCHECK,u(SQL,GET`JOBCAT,%0),ADMIN,%#))),Anonymous,iter(sql(u(FUN`SQLFORMAT,GET`CLAIMNAMES,%0),|),%i0,|,%R))
+
+&SQL`GET`CLAIMNAMES u(jobsys)=SELECT player_name FROM $DATABASE$.$PLAYERS$ NATURAL LEFT JOIN $DATABASE$.$CLAIM$ WHERE $CLAIM$.job_id=?
+
+&FUN`LIST`JOBACTIVITY u(jobsys)=timefmt($m/$d,max(u(SQL,GET`LASTPACTIVITY,%0),if(isadmin(%#),u(SQL,GET`LASTACTIVITY,%0))))
+
+&FUN`LIST`OWNERNAME u(jobsys)=if(strmatch(u(SQL,GET`OWNEROBJID,%0),%:),u(SQL,GET`OWNERNAME,%0),switch(u(FUN`CONF,u(SQL,GET`JOBCAT,%0),ANONYMOUS),0,u(SQL,GET`OWNERNAME,%0),1,Anonymous,3,Anonymous,u(SQL,GET`OWNERNAME,%0)))
+
+&SQL`GET`OWNEROBJID u(jobsys)=SELECT objid FROM $DATABASE$.$PLAYERS$ NATURAL JOIN $DATABASE$.$JOBS$ WHERE job_id=?
+&SQL`GET`OWNERNAME u(jobsys)=SELECT player_name FROM $DATABASE$.$PLAYERS$ NATURAL JOIN $DATABASE$.$JOBS$ WHERE job_id=?
+
+&FUN`LIST`JOBTITLE u(jobsys)=u(SQL,GET`JOBTITLE,%0)
+&SQL`GET`JOBTITLE u(jobsys)=SELECT job_title FROM $DATABASE$.$JOBS$ WHERE job_id=?
+
+&FUN`LIST`JOBDUE u(jobsys)=if(setr(due,u(SQL,GET`JOBDUEDATE,%0)),switch(%q<due>,<[secs()],ansi(hr,timefmt($m/$d,%q<due>)),timefmt($m/$d,%q<due>)),---)
+&FUN`LIST`JOBDUE2 u(jobsys)=if(setr(due,u(SQL,GET`JOBDUEDATE,%0)),switch(%q<due>,<[secs()],ansi(hr,timefmt($x,%q<due>)),timefmt($x,%q<due>)),---)
+&SQL`GET`JOBDUEDATE u(jobsys)=SELECT UNIX_TIMESTAMP(due_date) FROM $DATABASE$.$JOBS$ WHERE job_id=?
+
+&FUN`LIST`JOBATTN u(jobsys)=if(u(SQL,GET`JOBATTN,%0),Player,Staff)
+&SQL`GET`JOBATTN u(jobsys)=SELECT job_attn FROM $DATABASE$.$JOBS$ WHERE job_id=?
+
+&SQL`GET`JOBLISTCAT u(jobsys)=SELECT job_id from $DATABASE$.$JOBS$ WHERE job_objid=? AND (job_status=0 OR close_date > NOW() - INTERVAL 1 WEEK) ORDER BY job_id DESC LIMIT 30 OFFSET ?
+&SQL`GET`JOBLISTCATCOUNT u(jobsys)=SELECT count(job_id) from $DATABASE$.$JOBS$ WHERE job_objid=? AND (job_status=0 OR close_date > NOW() - INTERVAL 1 WEEK)
+
+&SQL`GET`JOBLISTCATOLD u(jobsys)=SELECT job_id from $DATABASE$.$JOBS$ WHERE job_objid=? AND job_status>0 ORDER BY job_id ASC LIMIT 30 OFFSET ?
+&SQL`GET`JOBLISTCATCOUNTOLD u(jobsys)=SELECT count(job_id) from $DATABASE$.$JOBS$ WHERE job_objid=? AND job_status>0
+
+&FUN`LIST`SUBMIT2 u(jobsys)=u(SQL,GET`JOBSUBMITDATE,%0)
+&SQL`GET`JOBSUBMITDATE u(jobsys)=SELECT UNIX_TIMESTAMP(submit_date) FROM $DATABASE$.$JOBS$ WHERE job_id=?
+
+&FUN`LIST`TEXT u(jobsys)=u(SQL,GET`JOBTEXT,%0)
+&SQL`GET`JOBTEXT u(jobsys)=SELECT job_text FROM $DATABASE$.$JOBS$ WHERE job_id=?
+
+&FUN`MASKNAME u(jobsys)=switch(u(FUN`CONF,%0,ANONYMOUS),0,%n,1,if(strmatch(%:,u(SQL,GET`OWNEROBJID,%q<jid>)),Anonymous,%n),2,if(isadmin(%#),Anonymous,%n),3,Anonymous)
+
+&INC`DISPLAYJOB u(jobsys)=@assert setr(jid,u(SQL,GET`JOBID,%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Job %0 not found.;@assert or(strmatch(setr(ownobj,u(SQL,GET`OWNEROBJID,%q<jid>)),%:),setr(catadmview,or(match(setr(claimobj,u(SQL,GET`CLAIMOBJIDS,%q<jid>)),%:),u(FUN`PERMCHECK,setr(cat,u(SQL,GET`JOBCAT,%q<jid>)),ADMIN,%#))))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission Denied.;@nspemit %#=u(RFN`HEADER,mudname() Jobs - Job %q<jid>);@nspemit %#=align(36 36,ljust(rjust(ansi(h,Category:),10),10) [u(FUN`LIST`CATEGORY,%q<jid>)],ljust(rjust(ansi(h,Due:),10),10) [strfirstof(u(FUN`LIST`JOBDUE2,%q<jid>),---)]);@nspemit %#=align(36 36,ljust(rjust(ansi(h,Title:),10),10) [u(FUN`LIST`JOBTITLE,%q<jid>)],ljust(rjust(ansi(h,Status:),10),10) [u(FUN`LIST`STATUS2,%q<jid>)]);@nspemit %#=u(RFN`SEPARATOR);@nspemit %#=ansi(h,u(FUN`LIST`OWNERNAME,%q<jid>) Opened on [fancytime(u(FUN`LIST`SUBMIT2,%q<jid>),%#)] with:);@nspemit %#=u(FUN`LIST`TEXT,%q<jid>);th setq(anon,u(FUN`CONF,%q<cat>,ANONYMOUS));th mapsql(FUN`COMMENTS,u(FUN`SQLFORMAT,GET`COMMENTS[if(cor(u(FUN`PERMCHECK,%q<cat>,ADMIN,%#),match(u(SQL,GET`CLAIMOBJIDS,%q<jid>),%:)),ALL)],%q<jid>));@nspemit %#=u(RFN`HEADER);@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+
+&SQL`SET`CHECKDATE u(jobsys)=INSERT INTO $DATABASE$.$CHECK$ (job_id,player_id,check_date) VALUES (?,?,UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE check_date=UTC_TIMESTAMP()
+
+&SQL`GET`COMMENTS u(jobsys)=SELECT player_name,UNIX_TIMESTAMP(comment_date),comment_type,comment_text,objid FROM $DATABASE$.$COMMENTS$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE job_id=? AND comment_type=0 ORDER BY comment_id
+&SQL`GET`COMMENTSALL u(jobsys)=SELECT player_name,UNIX_TIMESTAMP(comment_date),comment_type,comment_text,objid FROM $DATABASE$.$COMMENTS$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE job_id=? ORDER BY comment_id
+
+&FUN`COMMENTS u(jobsys)=setq(catadmcomm,cor(u(FUN`PERMCHECK,%q<cat>,ADMIN,%5),match(%q<claimobj>,%5)))[nspemit(%#,u(RFN`SEPARATOR)%R[ansi(h,if(strmatch(%5,%:),%1,switch(%q<anon>,0,%1,1,if(strmatch(%5,%q<ownobj>),Anonymous,%1),2,if(cand(%q<catadmcomm>,not(%q<catadmview>)),Anonymous,%1),3,if(cor(strmatch(%5,%q<ownobj>),cand(%q<catadmcomm>,not(%q<catadmview>))),Anonymous,%1))))] [if(%3,ansi(hr,COMMENTED),ansi(h,Replied))] on [fancytime(%2,%#)] with:)][nspemit(%#,%4)]
+
+&INC`CLAIM u(jobsys)=@include u(jobsys)/INC`JOBCHECK=%0;@include u(jobsys)/INC`PERMCHECKCAT=%#,ADMIN,setr(cat,u(SQL,GET`JOBCAT,%q<jid>));@assert eq(u(SQL,GET`JOBSTATUS,%q<jid>),0)=@nspemit %#=u(RFN`MSGHEAD) The job is already finished.;@include u(ccs)/INC`CHECKPC=strfirstof(%1,%#),1,v(VAR`MSGHEAD);@include u(jobsys)/INC`PLAYERID=%q<t1objid>,1;@break match(u(SQL,GET`HANDLERIDS,%q<jid>),%q<pid1>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> is already handling Job %q<jid>.;@include u(jobsys)/INC`DOSQL=ADD`CLAIM,%q<jid>,%q<pid1>,%q<pid>;@include u(jobsys)/INC`AMSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] has been assigned to: %q<t1name>, by [u(FUN`MASKNAME,%q<cat>)].},%q<cat>;@include u(jobsys)/INC`UPDJOB=1,%q<jid>;@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+
+&INC`UNCLAIM u(jobsys)=@include u(jobsys)/INC`JOBCHECK=%0;@include u(jobsys)/INC`PERMCHECKCAT=%#,ADMIN,setr(cat,u(SQL,GET`JOBCAT,%q<jid>));@assert eq(u(SQL,GET`JOBSTATUS,%q<jid>),0)=@nspemit %#=u(RFN`MSGHEAD) The job is already finished.;@include u(ccs)/INC`CHECKPC=strfirstof(%1,%#),1,v(VAR`MSGHEAD);@include u(jobsys)/INC`PLAYERID=%q<t1objid>,1;@assert match(u(SQL,GET`HANDLERIDS,%q<jid>),%q<pid1>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> is not handling Job %q<jid>.;@include u(jobsys)/INC`DOSQL=DEL`CLAIM,%q<jid>,%q<pid1>;@include u(jobsys)/INC`AMSGJOB=%q<jid>,{%q<t1name> is no longer handling [u(FUN`JOBNAME,%q<jid>,%q<cat>)], by [u(FUN`MASKNAME,%q<cat>)].},%q<cat>;@include u(jobsys)/INC`UPDJOB=1,%q<jid>;@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+
+&INC`JOBCHECK u(jobsys)=@assert valnum(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Jobs must be addressed by IDs.;@assert setr(jid,u(SQL,GET`JOBID,%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Job %0 not found.
+
+&SQL`ADD`CLAIM u(jobsys)=INSERT INTO $DATABASE$.$CLAIM$ (job_id,player_id,claim_by,claim_date) VALUES (?,?,?,UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE claim_date=UTC_TIMESTAMP()
+&SQL`DEL`CLAIM u(jobsys)=DELETE FROM $DATABASE$.$CLAIM$ WHERE job_id=? AND player_id=?
+&SQL`GET`HANDLERIDS u(jobsys)=SELECT DISTINCT player_id from $DATABASE$.$CLAIM$ WHERE job_id=?
+&SQL`GET`JOBID u(jobsys)=SELECT job_id FROM $DATABASE$.$JOBS$ WHERE job_id=?
+&SQL`GET`JOBCAT u(jobsys)=SELECT job_objid FROM $DATABASE$.$JOBS$ WHERE job_id=?
+
+&INC`CATEGORY u(jobsys)=@include u(jobsys)/INC`JOBCHECK;@assert isadmin(%#)=@nspemit %#=u(RFN`MSGHEAD) Permission denied.;@include u(jobsys)/INC`FINDCAT=%1;@include u(jobsys)/INC`PERMCHECKCAT=%#,ADMIN,%q<cat>;@include u(jobsys)/INC`DOSQL=SET`JOBCAT,%q<cat>,%q<jid>;@include u(jobsys)/INC`AMSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)]'s Category was changed to %q<catname>, by [u(FUN`MASKNAME,%q<cat>)]},%q<cat>
+&SQL`SET`JOBCAT u(jobsys)=UPDATE $DATABASE$.$JOBS$ SET job_objid=? WHERE job_id=?
+
+&INC`REPLY u(jobsys)=@assert setr(jid,u(SQL,GET`JOBID,%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Job %0 not found.;@assert or(strmatch(u(SQL,GET`OWNEROBJID,%q<jid>),%:),match(u(SQL,GET`CLAIMOBJIDS,%q<jid>),%:),u(FUN`PERMCHECK,setr(cat,u(SQL,GET`JOBCAT,%q<jid>)),ADMIN,%#))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission Denied.;@assert eq(u(SQL,GET`JOBSTATUS,%q<jid>),0)=@nspemit %#=u(RFN`MSGHEAD) The job is already finished.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) What will you say?;@include u(jobsys)/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,%1;@include u(jobsys)/INC`MSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a reply in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].};@include u(jobsys)/INC`UPDJOB=0,%q<jid>;@include u(jobsys)/INC`DOSQL=SET`JOBATTN,not(strmatch(u(SQL,GET`OWNEROBJID,%q<jid>),%:)),%q<jid>;@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+&INC`COMMENT u(jobsys)=@include u(jobsys)/INC`JOBCHECK=%0;@include u(jobsys)/INC`PERMCHECKCAT=%#,ADMIN,setr(cat,u(SQL,GET`JOBCAT,%q<jid>));@assert eq(u(SQL,GET`JOBSTATUS,%q<jid>),0)=@nspemit %#=u(RFN`MSGHEAD) The job is already finished.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) What will you say?;@include u(jobsys)/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,1,%1;@include u(jobsys)/INC`AMSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] added a STAFF COMMENT to [u(FUN`JOBNAME,%q<jid>,%q<cat>)].};@include u(jobsys)/INC`UPDJOB=1,%q<jid>;@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+
+&INC`ATTN u(jobsys)=@include u(jobsys)/INC`JOBCHECK=%0;@include u(jobsys)/INC`PERMCHECKCAT=%#,ADMIN,setr(cat,u(SQL,GET`JOBCAT,%q<jid>));@assert eq(u(SQL,GET`JOBSTATUS,%q<jid>),0)=@nspemit %#=u(RFN`MSGHEAD) The job is already finished.;@include u(jobsys)/INC`DOSQL=SET`JOBATTN,setr(attn,not(u(SQL,GET`JOBATTN,%q<jid>))),%q<jid>;@include u(jobsys)/INC`AMSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] was switched to ATTN: [if(%q<attn>,Player,Staff)], by [u(FUN`MASKNAME,%q<cat>)]};@include u(jobsys)/INC`UPDJOB=1,%q<jid>
+
+&FUN`JOBNAME u(jobsys)=pueblize(if(isobjid(%1),ucstr(name(%1)),Uncategorized) Job %0 '[u(FUN`LIST`JOBTITLE,%0)]',+job %0)
+
+&INC`UPDJOB u(jobsys)=@include u(jobsys)/INC`DOSQL=SET`JOBACTIVITY%0,%q<jid>
+&SQL`SET`JOBACTIVITY0 u(jobsys)=UPDATE $DATABASE$.$JOBS$ SET job_pactivity=UTC_TIMESTAMP(),job_activity=UTC_TIMESTAMP() WHERE job_id=?
+&SQL`SET`JOBACTIVITY1 u(jobsys)=UPDATE $DATABASE$.$JOBS$ SET job_activity=UTC_TIMESTAMP() WHERE job_id=?
+
+&SQL`ADD`COMMENT u(jobsys)=INSERT INTO $DATABASE$.$COMMENTS$ (job_id,player_id,comment_type,comment_text,comment_date) VALUES (?,?,?,?,UTC_TIMESTAMP())
+
+&INC`APPROVE u(jobsys)=@include u(jobsys)/INC`FINISH;@include u(jobsys)/INC`DOFINISH=%0,%1,Approved,1
+&INC`DENY u(jobsys)=@include u(jobsys)/INC`FINISH;@include u(jobsys)/INC`DOFINISH=%0,%1,Denied,2
+&INC`CANCEL u(jobsys)=@include u(jobsys)/INC`FINISH;@include u(jobsys)/INC`DOFINISH=%0,%1,Canceled,3
+&INC`REVIVE u(jobsys)=@include u(jobsys)/INC`FINISH=%0,%1,1;@include u(jobsys)/INC`DOFINISH=%0,%1,Revived,0
+
+&INC`FINISH u(jobsys)=@assert setr(jid,u(SQL,GET`JOBID,%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Job %0 not found.;@assert or(match(u(SQL,GET`CLAIMOBJIDS,%q<jid>),%:),u(FUN`PERMCHECK,setr(cat,u(SQL,GET`JOBCAT,%q<jid>)),ADMIN,%#))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission Denied.;@assert cor(eq(u(SQL,GET`JOBSTATUS,%q<jid>),0),%2)=@nspemit %#=u(RFN`MSGHEAD) That job is already finished.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) What will you say?
+
+&INC`DOFINISH u(jobsys)=@include u(jobsys)/INC`DOSQL=SET`JOBSTATUS,%3,%q<jid>;@include u(jobsys)/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,{The Job was %2.%R%R%1};@include u(jobsys)/INC`MSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] was %2 by [u(FUN`MASKNAME,%q<cat>)]!};@include u(jobsys)/INC`DOSQL=SET`JOBATTN,1,%q<jid>;@trigger/spoof %q<cat>/%2=%q<jid>;@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+
+&SQL`SET`JOBATTN u(jobsys)=UPDATE $DATABASE$.$JOBS$ SET job_attn=? WHERE job_id=?
+
+&SQL`SET`JOBSTATUS u(jobsys)=UPDATE $DATABASE$.$JOBS$ SET job_status=?,close_date=UTC_TIMESTAMP(),job_activity=UTC_TIMESTAMP(),job_pactivity=UTC_TIMESTAMP() WHERE job_id=?
+
+&FUN`SQLFORMAT u(jobsys)=localize(regeditalli(v(SQL`%0),\\$DATABASE\\$,v(VAR`SQL`DATABASE),\\$PREFIX\\$,v(VAR`SQL`PREFIX),\\$([v(VAR`SQL`TABLES)])\\$,u(FUN`SQL`TABLENAME,$1),\\?,if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,'[sqlescape(%q<set>)]')))
+
+&SQL u(jobsys)=if(hasattr(me/SQL`%0),sql(u(FUN`SQLFORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-1 SQL QUERY DATA NOT FOUND)
+
+&FUN`SQL`TABLENAME u(jobsys)=v(VAR`SQL`PREFIX)[v(VAR`SQL`TABLE`%0)]
+
+&SQL`INSTALL`PLAYERS u(jobsys)=CREATE TABLE IF NOT EXISTS $DATABASE$.$PLAYERS$ (player_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,objid VARCHAR(30) NOT NULL,player_name VARCHAR(60) NOT NULL DEFAULT 'Unset',PRIMARY KEY(player_id),UNIQUE KEY player_objid (objid)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
+&SQL`INSTALL`JOBS u(jobsys)=CREATE TABLE IF NOT EXISTS $DATABASE$.$JOBS$ (job_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,player_id BIGINT(31) UNSIGNED NOT NULL,job_objid VARCHAR(30),submit_date DATETIME,due_date DATETIME,close_date DATETIME,job_title varchar(40) NOT NULL,job_text text NOT NULL,job_status tinyint NOT NULL DEFAULT '0',job_attn BOOL NOT NULL DEFAULT FALSE,job_activity DATETIME,job_pactivity DATETIME,PRIMARY KEY(job_id),FOREIGN KEY(player_id) REFERENCES $DATABASE$.$PLAYERS$(player_id) ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
+&SQL`INSTALL`CLAIM u(jobsys)=CREATE TABLE IF NOT EXISTS $DATABASE$.$CLAIM$ (claim_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,job_id BIGINT(31) UNSIGNED NOT NULL,player_id BIGINT(31) UNSIGNED NOT NULL,claim_date DATETIME,claim_by BIGINT(31) UNSIGNED NOT NULL,PRIMARY KEY(claim_id),FOREIGN KEY(job_id) REFERENCES $DATABASE$.$JOBS$(job_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(player_id) REFERENCES $DATABASE$.$PLAYERS$(player_id) ON UPDATE CASCADE,FOREIGN KEY(claim_by) REFERENCES $DATABASE$.$PLAYERS$(player_id) ON UPDATE CASCADE,UNIQUE KEY player_claim (job_id,player_id)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
+&SQL`INSTALL`COMMENTS u(jobsys)=CREATE TABLE IF NOT EXISTS $DATABASE$.$COMMENTS$ (comment_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,job_id BIGINT(31) UNSIGNED NOT NULL,player_id BIGINT(31) UNSIGNED NOT NULL,comment_date DATETIME NOT NULL,comment_text text NOT NULL,comment_type TINYINT UNSIGNED NOT NULL DEFAULT '0',PRIMARY KEY(comment_id),FOREIGN KEY(job_id) REFERENCES $DATABASE$.$JOBS$(job_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(player_id) REFERENCES $DATABASE$.$PLAYERS$(player_id) ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
+&SQL`INSTALL`LOGS u(jobsys)=CREATE TABLE IF NOT EXISTS $DATABASE$.$LOGS$ (log_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,job_id BIGINT(31) UNSIGNED NOT NULL,player_id BIGINT(31) UNSIGNED NOT NULL,log_date DATETIME NOT NULL,log_text text NOT NULL,PRIMARY KEY(log_id),FOREIGN KEY(job_id) REFERENCES $DATABASE$.$JOBS$(job_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(player_id) REFERENCES $DATABASE$.$PLAYERS$(player_id) ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
+&SQL`INSTALL`CHECK u(jobsys)=CREATE TABLE IF NOT EXISTS $DATABASE$.$CHECK$ (check_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,job_id BIGINT(31) UNSIGNED NOT NULL,player_id BIGINT(31) UNSIGNED NOT NULL,check_date DATETIME,PRIMARY KEY(check_id),FOREIGN KEY(job_id) REFERENCES $DATABASE$.$JOBS$(job_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(player_id) REFERENCES $DATABASE$.$PLAYERS$(player_id) ON UPDATE CASCADE,UNIQUE KEY player_check (player_id,job_id)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
+&VAR`SQL`PREFIX u(jobsys)=jobsys_
+&VAR`SQL`DATABASE u(jobsys)=multiver_scenesys
+&VAR`SQL`TABLES u(jobsys)=PLAYERS|JOBS|CLAIM|COMMENTS|LOGS|CHECK
+&VAR`SQL`TABLE`PLAYERS u(jobsys)=players
+&VAR`SQL`TABLE`JOBS u(jobsys)=jobs
+&VAR`SQL`TABLE`CLAIM u(jobsys)=claim
+&VAR`SQL`TABLE`COMMENTS u(jobsys)=comments
+&VAR`SQL`TABLE`LOGS u(jobsys)=logs
+&VAR`SQL`TABLE`CHECK u(jobsys)=check
+
+&TRG`CONVERT u(jobsys)=@dolist revwords(sortkey(#lambda/last(\%0),lthings(#1136),n))={@wait inum(0)=@trigger u(jobsys)/TRG`DOCONVERT=%i0,inum(0)}
+
+&TRG`DOCONVERT u(jobsys)=@include u(jobsys)/INC`PLAYERID=objid(first(get(%0/OPENED_BY))),1;th setq(openedon,get(%0/OPENED_ON),activity,firstof(get(%0/MODIFIED_ON),secs()),assigned,filterbool(#lambda/isobjid(\%0),iter(get(%0/ASSIGNED_TO),objid(%i0))))[setq(cat,namegrab(u(FUN`LISTCATS),name(parent(%0))),title,get(%0/TITLE),text,after(get(%0/COMMENT_1),elements(get(%0/COMMENT_1),1 2 3 4,|,|)|))];@include u(jobsys)/INC`DOSQL=NEW`CONVERTJOB,%1,%q<pid1>,%q<cat>,%q<title>,%q<text>,add(%q<openedon>,u(FUN`CONF,%q<cat>,DUE)),%q<openedon>,%q<activity>,%q<activity>;@dolist/inline/nobreak %q<assigned>={@include u(jobsys)/INC`PLAYERID=%i0,2;@include u(jobsys)/INC`DOSQL=ADD`CLAIM,%1,%q<pid2>,%q<pid2>};@dolist/inline/nobreak filterbool(#lambda/cor(strmatch(get(%0/\%0),ADD*),strmatch(get(%0/\%0),MAI*)),sortkey(#lambda/after(\%0,_),lattr(%0/COMMENT_*)))={@include u(jobsys)/INC`PLAYERID=objid(elements(get(%0/%i0),3,|)),3;@include u(jobsys)/INC`DOSQL=NEW`CONVCOMMENT,%1,%q<pid3>,switch(elements(get(%0/%i0,1,|)),MAI,0,ADD,if(cand(isadmin(elements(get(%0/%i0,1,|))),not(hasflag(%0/%i0,no_inherit))),1,0),0),after(get(%0/%i0),elements(get(%0/%i0),1 2 3 4,|,|)|),elements(get(%0/%i0),2,|)}
+
+&SQL`NEW`CONVERTJOB u(jobsys)=INSERT INTO $DATABASE$.$JOBS$ (job_id,player_id,job_objid,job_title,job_text,due_date,job_status,submit_date,job_activity,job_pactivity) VALUES (?,?,?,?,?,FROM_UNIXTIME(?),0,FROM_UNIXTIME(?),FROM_UNIXTIME(?),FROM_UNIXTIME(?))
+
+&SQL`NEW`CONVCOMMENT u(jobsys)=INSERT INTO $DATABASE$.$COMMENTS$ (job_id,player_id,comment_type,comment_text,comment_date) VALUES (?,?,?,?,FROM_UNIXTIME(?))
+
+&PLAYER`CONNECT`MYJOBS u(jobsys)=@assert isadmin(%0);@wait 2=@force/inline %0=+myjobs
+
++help/addmain Communications/+job=[u(jobsys)]/HLP`+JOB
+&HLP`+JOB u(jobsys)=+job is used to create 'trouble tickets,' requests to the Storytellers.%R[ansi(hc,Aliases:)] request%R%R[ansi(hc,Creating Jobs)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+request)] - Show all Job categories.%R[ansi(h,+request <title>=<text>)] - creates a new UNCATEGORIZED job.%R[ansi(h,+request/<category> <title>=<text>)] - Creates a new job in a specific category})]%R%R[ansi(hc,Tracking Jobs)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+myjobs)] - Display all pending jobs you've submitted or have been appointed to handle.%R[ansi(h,+myjobs/old)] - As above, but shows only jobs that are finished.%R[ansi(h,+myjob <id>)] - Shows details about a job.%R[ansi(h,+myjob/reply <id>=<text>)] - Add a new message to your job.})]%R%R[ansi(hc,Handling Jobs)]%RThe following commands are for staff and priveleged players.%R[align(5 [sub(width(%#),6)],,{[ansi(h,+jobs)] - List all job categories and stats related to them.%R[ansi(h,+jobs <category>)] - List all pending jobs in a category.%R[ansi(h,+jobs/old <category>)] - Show all finished jobs in a category.%R(use =<page> to show different pages, such as +jobs/old xp=3 to view the third page.)%R[ansi(h,+job <id>)] - Display a job's details.%R[ansi(h,+job/reply <id>=<text>)] - Reply to a job.%R[ansi(h,+job/comment <id>=<text>)] - Add notes to a job that only category handlers and staff can see.%R[ansi(h,+job/attn <id>)] - Change whether a job is marked as waiting for staff or the player.%R[ansi(h,+job/claim <id>)] - Claim a job. Many can claim the same job. Use [ansi(h,+job/claim <id>=<target>)] to add someone else.%R[ansi(h,+job/unclaim <id>)] - As /claim. Removes a handler.%R[ansi(h,+job/approve <id>=<text>)] - Closes a job and sends an approval message.%R[ansi(h,+job/deny <id>=<text>)] - As /approve.%R[ansi(h,+job/cancel <id>=<text>)] - As /approve.%R[ansi(h,+job/revive <id>=<text>)] - Restores a closed job to pending status.%R[ansi(h,+job/due <id>=<newdate>)] - Sets a new due date for a job. Can be a +1d or similar (adds to current due date using value from a [ansi(h,stringsecs\(\))] function - check the helpfile for stringsecs) or a specific date using [ansi(h,convtime\(\))]. As an example: +job/due x=+5d or +job/due x=[timefmt($b $d $H:$M,,%#)]%R[ansi(h,+job/scan)] - List all jobs posted within the last week, regardless of status.})]
+
++shelp/addmain Communications/+job=[u(jobsys)]/SHLP`+JOB
+&SHLP`+JOB u(jobsys)=[ansi(hc,Staff Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+job/category <id>=<category>)] - Moves a job to a new category.})]%R%R[ansi(hc,Wizard Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+jobs/install)] - Installs the SQL tables the +job system uses. Does nothing if they are already installed.%R[ansi(h,+job/newcategory <name>)] - Creates a new category.%R[ansi(h,+job/delcategory <name>)] - Deletes a category.%R[ansi(h,+job/rencategory <name>=<newname>)] - Renames a category.%R[ansi(h,+job/desc <name>=<description>)] - Set a category's description in +job%R[ansi(h,+job/lockcategory <name>/<lock>=<lockstring>)] - Lock a category. <lock> can be ADMIN or POST for who can administrate a category and who can +request to it. See +help +key for more information on <lockstrings>.%R[ansi(h,+job/unlockcategory <category>/<lock>)] - As above. Unlocks.%R[ansi(h,+job/config <category>/<option>=<value>)] - Sets a category's config. <option> can be Anon or Due.%R[ansi(h,DUE)] - Set to a value acceptable by stringsecs such as 5d or 50m. This is added to submit date to create the due date.%R[ansi(h,ANON)] - Modes 0-3. Mode 0 is fully transparent. Mode 1 hides submitter from staff. Mode 2 hides staff from submitter. Mode 3 is 1+2 combined.})]
