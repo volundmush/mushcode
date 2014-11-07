@@ -6,7 +6,7 @@
 &CMD`FINGER u(finger)=$^(?s)(?\:\+)?(oocfinger|finger|icfinger)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(finger)/VAR`[edit(%1,ic,)]`PLAYFLAGS),if(isadmin(%#),get(u(finger)/VAR`[edit(%1,ic,)]`ADMINFLAGS)),|,|),|,ucstr([edit(%1,ic,)]),switch,switch;@include u(finger)/INC`[edit(%1,ic,)]`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(finger)/CMD`FINGER=regexp
 
-&VAR`FINGER`PLAYFLAGS u(finger)=SET
+&VAR`FINGER`PLAYFLAGS u(finger)=SET|GET
 &VAR`FINGER`ADMINFLAGS u(finger)=
 
 &RFN`MSGHEAD u(finger)=msghead(v(VAR`MSGHEAD))
@@ -22,6 +22,8 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),FI
 
 &INC`FINGER`SET u(finger)=@include u(ccs)/INC`CHECKPC=if(cand(isadmin(%#),strmatch(%0,*/*)),before(%0,/),%#),1,FINGER;@include u(ccs)/INC`PARTIAL=if(cand(isadmin(%#),strmatch(%0,*/*)),after(%0,/),%0),setunion(get(u(finger)/VAR`FINGER`[default(me/VAR`FINGER`MODE,DEFAULT)]`PLAYERSET),if(isadmin(%#),get(u(finger)/VAR`FINGER`[default(me/VAR`FINGER`MODE,DEFAULT)]`ADMINSET)),|,|),|,FINGER,field,field;@switch/inline strlen(%1)=0,{@include u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR FINGER %q<field>,FINGER};th u(u(finger)/SET`FINGER`[default(me/VAR`FINGER`MODE,DEFAULT)],%q<t1>,%q<field>,trimpenn(%1));@nspemit %#=u(RFN`MSGHEAD,FINGER) You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [capnames(%q<field>)] Finger Field to: %1;@switch/inline strmatch(%#,%q<t1>)=0,{@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),%q<t1>,{[ansi(h,%n)] set your [capnames(%q<field>)] Finger Field to: %1}}
 
+&INC`FINGER`GET u(finger)=@include u(ccs)/INC`CHECKPC=if(strmatch(%0,*/*),before(%0,/),%#),1,FINGER;@include u(ccs)/INC`PARTIAL=if(strmatch(%0,*/*),after(%0,/),%0),setunion(get(u(finger)/VAR`FINGER`[setr(mode,default(me/VAR`FINGER`MODE,DEFAULT))]`PLAYERSET),get(u(finger)/VAR`FINGER`%q<mode>`ADMINSET),|,|),|,FINGER,field,field;@nspemit %#=u(GET`FINGER`%q<mode>,%q<t1>,%q<field>)
+
 &VAR`FINGER`MODE u(finger)=DEFAULT
 &VAR`FINGER`DEFAULT`COLUMN1 u(finger)=SEX~Sex|RACE~Race
 &VAR`FINGER`DEFAULT`COLUMN2 u(finger)=JOB~Job
@@ -36,7 +38,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),FI
 &GET`FINGER`DEFAULT u(finger)=edit(if(hasattr(u(finger)/GET`FINGER`DEFAULT`%1),u(u(finger)/GET`FINGER`DEFAULT`%1,%0),get(%0/D`FINGER`%1)),%t,space(8))
 
 &GET`FINGER`DEFAULT`NAME u(finger)=name(%0)
-&GET`FINGER`DEFAULT`SEX u(finger)=switch(get(%0/SEX),m*,Male,f*,Female,n*,Neuter,???)
+&GET`FINGER`DEFAULT`SEX u(finger)=capstr(get(%0/SEX))
 &GET`FINGER`DEFAULT`RACE u(finger)=default(%0/D`FINGER`RACE,Unset)
 &GET`FINGER`DEFAULT`JOB u(finger)=default(%0/D`FINGER`JOB,Wanderer)
 &GET`FINGER`DEFAULT`GROUPS u(finger)=getproperty(%0,groupnames,1)
@@ -63,7 +65,8 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),FI
 
 &GET`OOCFINGER`DEFAULT`ALIAS u(finger)=fullalias(%0)
 &GET`OOCFINGER`DEFAULT`MAIL u(finger)=elements(mail(%0),2) Unread Messages
-&GET`OOCFINGER`DEFAULT`LAST u(finger)=if(gt(conn(%0),0),ansi(hg,Connected!),get(%0/LAST))
+&GET`OOCFINGER`DEFAULT`LAST u(finger)=if(isadmin(%#),if(gt(conn(%0),0),ansi(hg,Connected!)[if(cor(hasflag(%0,DARK),hidden(%0)),%b\(Hiding\))],get(%0/LAST)),if(cand(gt(conn(%0),0),nor(hidden(%0),hasflag(%0,DARK))),ansi(hg,Connected!),get(%0/LAST)))
+
 &GET`OOCFINGER`DEFAULT`EMAIL u(finger)=switch(cor(strmatch(%0,%#),isadmin(%#))[strmatch(get(%0/D`OOCFINGER`EMAIL),!*)],00,get(%0/D`OOCFINGER`EMAIL),11,get(%0/D`OOCFINGER`EMAIL) (private),01,Private,get(%0/D`OOCFINGER`EMAIL))
 &GET`OOCFINGER`DEFAULT`HOMEPAGE u(finger)=weblink(get(%0/D`OOCFINGER`HOMEPAGE))
 &GET`OOCFINGER`DEFAULT`ALTS u(finger)=u(u(cao)/FUN`ALTS`LIST,%0,1)

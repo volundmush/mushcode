@@ -115,6 +115,8 @@
 
 &VAR`IP`ADMINFLAGS u(cao)=GUESTS|IP
 
+&OBJECT`DESTROY`IPLOGS u(cao)=@switch/inline %2=PLAYER,{@wipe u(ipdb)/[before(%i0,:)]}
+
 @@ Convert from old Ip to new IP.
 @@ @dolist lsearch(all,eplayer,\[words(lattr(##/D`IPLOG`*))\])={@include/nobreak u(ccs)/INC`MVTREE=%i0,D`IPLOG,u(ipdb),%i0}
 

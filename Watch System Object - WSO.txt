@@ -32,7 +32,12 @@
 
 &PLAYER`CONNECT`MAIL u(wso)=@wait 2=@pemit %0=[ansi(yh,You have [elements(mail(%0),2)] unread @mail(s) in your inbox)]
 
-&PLAYER`DISCONNECT`WATCH u(wso)=@break cor(hasflag(%0,DARK),hidden(%0));@break gte(%1,1);@break t(get(%0/D`WATCH`HIDE));@nspemit/list filterbool(#lambda/cand(match(get(\%0/D`WATCH),%0),default(\%0/D`WATCH`MUTE,1)),setunion(lwhoid(),))=u(RFN`MSGHEAD) [name(%0)] has disconnected.
+&PLAYER`DISCONNECT`WATCH u(wso)=&IDLERS u(wso)=setdiff(get(u(wso)/IDLERS),%0);@break cor(hasflag(%0,DARK),hidden(%0));@break gte(%1,1);@break t(get(%0/D`WATCH`HIDE));@nspemit/list filterbool(#lambda/cand(match(get(\%0/D`WATCH),%0),default(\%0/D`WATCH`MUTE,1)),setunion(lwhoid(),))=u(RFN`MSGHEAD) [name(%0)] has disconnected.
+
+&STARTUP u(wso)=@trigger u(wso)/TRG`INDEXIDLE
+
+&TRG`INDEXIDLE u(wso)=th setq(idlers,filterbool(#lambda/gt(idle(\%0),mul(60,60)),setr(who,setunion(lwhoid(),lwhoid()))));@dolist setdiff(get(u(wso)/IDLERS),%q<idlers>)={@nspemit/list filterbool(#lambda/cand(match(get(\%0/D`WATCH),%i0),default(\%0/D`WATCH`MUTE,1),isadmin(\%0)),%q<who>)=u(RFN`MSGHEAD) [name(%i0)] is no longer idle.};&IDLERS u(wso)=%q<idlers>;@wait 60=@trigger u(wso)/TRG`INDEXIDLE
+
 
 @@ COMMUNITY - WATCH
 +help/addmain Community/Watch=[u(wso)]/HLP`WATCH

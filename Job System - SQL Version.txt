@@ -21,7 +21,7 @@
 &CMD`+REQUEST u(jobsys)=$^(?s)\+request(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setr(valcats,iter(u(FUN`VALIDCATS,%#,POST),name(%i0),%b,|)),|,v(VAR`MSGHEAD),Category,Category;@include u(jobsys)/INC`REQUEST=trim(%2),trim(%3),%q<category>
 @set u(jobsys)/CMD`+REQUEST=regexp
 
-&INC`REQUEST u(jobsys)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) Available Job categories: [itemize(%q<valcats>,|,and,\,)];@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) The Request text field is empty! What are you asking staff?;@include u(jobsys)/INC`PLAYERID=%:;@switch/inline t(%2)=1,{@include u(jobsys)/INC`FINDCAT=%2};@include u(jobsys)/INC`DOSQL=NEW`REQUEST,%q<pid>,%q<cat>,%0,%1,add(secs(),u(FUN`CONF,%q<cat>,DUE));th setr(jid,u(u(jobsys)/sql,get`newjob,%q<pid>));@include u(jobsys)/INC`MSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] has been created[if(%q<cat>,%bunder '%q<catname>')] by [u(FUN`MASKNAME,%q<cat>)].};@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+&INC`REQUEST u(jobsys)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) Available Job categories: [itemize(%q<valcats>,|,and,\,)];@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) The Request text field is empty! What are you asking staff?;@include u(jobsys)/INC`PLAYERID=%:;@switch/inline t(%2)=1,{@include u(jobsys)/INC`FINDCAT=%2};@include u(jobsys)/INC`DOSQL=NEW`REQUEST,%q<pid>,%q<cat>,%0,%1,add(secs(),u(FUN`CONF,%q<cat>,DUE));th setr(jid,u(u(jobsys)/sql,get`newjob,%q<pid>));@include u(jobsys)/INC`AMSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] has been created[if(%q<cat>,%bunder '%q<catname>')] by [u(FUN`MASKNAME,%q<cat>)].};@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
 
 &INC`PLAYERID u(jobsys)=@assert objid(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Invalid Objid!;@switch/inline gt(setr(pid%1,u(sql,get`playerid,%0)),0)=0,{@include u(jobsys)/INC`DOSQL=NEW`PLAYERID,%0,name(%0);@include u(jobsys)/INC`PLAYERID=%0,%1}
 
@@ -48,11 +48,11 @@
 &INC`MSGJOB u(jobsys)=@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),u(FUN`MSGLIST,%0,%2),{%1}
 &INC`AMSGJOB u(jobsys)=@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),u(FUN`AMSGLIST,%0,%2),{%1}
 
-&FUN`MSGLIST u(jobsys)=setunion(setunion(setunion(%:,u(u(jobsys)/sql,get`claimobjids,%0)),filterbool(#lambda/u(FUN`PERMCHECK,%1,ADMIN,\%0),lwhoid())),u(u(jobsys)/SQL,get`ownerobjid,%0))
+&FUN`MSGLIST u(jobsys)=setunion(u(FUN`AMSGLIST,%0,%1),u(u(jobsys)/SQL,get`ownerobjid,%0))
 &FUN`AMSGLIST u(jobsys)=setunion(setunion(%:,u(u(jobsys)/sql,get`claimobjids,%0)),filterbool(#lambda/u(FUN`PERMCHECK,%1,ADMIN,\%0),lwhoid()))
 
 &INC`PERMCHECKCAT u(jobsys)=@assert u(FUN`PERMCHECK,%2,%1,%#)=@nspemit %#=u(RFN`MSGHEAD) You do not have %1 Permission for [name(%2)].
-&FUN`PERMCHECK u(jobsys)=if(isobjid(%0),switch(%1,ADMIN,if(strmatch(lock(%0/%1),*UNLOCKED*),isadmin(%2),elock(%0/%1,%2)),POST,if(strmatch(lock(%0/%1),*UNLOCKED*),1,elock(%0/%1,%2))),switch(%1,ADMIN,isadmin(%2),POST,1))
+&FUN`PERMCHECK u(jobsys)=if(isdbref(%0),switch(%1,ADMIN,if(strmatch(lock(%0/%1),*UNLOCKED*),isadmin(%2),elock(%0/%1,%2)),POST,if(strmatch(lock(%0/%1),*UNLOCKED*),1,elock(%0/%1,%2))),switch(%1,ADMIN,isadmin(%2),POST,1))
 
 &SQL`GET`CLAIMOBJIDS u(jobsys)=SELECT objid FROM $DATABASE$.$PLAYERS$ NATURAL LEFT JOIN $DATABASE$.$CLAIM$ WHERE $CLAIM$.job_id=?
 &SQL`GET`OWNEROBJID u(jobsys)=SELECT objid FROM $DATABASE$.$PLAYERS$ NATURAL LEFT JOIN $DATABASE$.$JOBS$ WHERE $JOBS$.job_id=?
@@ -173,7 +173,7 @@
 &SQL`GET`JOBID u(jobsys)=SELECT job_id FROM $DATABASE$.$JOBS$ WHERE job_id=?
 &SQL`GET`JOBCAT u(jobsys)=SELECT job_objid FROM $DATABASE$.$JOBS$ WHERE job_id=?
 
-&INC`CATEGORY u(jobsys)=@include u(jobsys)/INC`JOBCHECK;@assert isadmin(%#)=@nspemit %#=u(RFN`MSGHEAD) Permission denied.;@include u(jobsys)/INC`FINDCAT=%1;@include u(jobsys)/INC`PERMCHECKCAT=%#,ADMIN,%q<cat>;@include u(jobsys)/INC`DOSQL=SET`JOBCAT,%q<cat>,%q<jid>;@include u(jobsys)/INC`AMSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)]'s Category was changed to %q<catname>, by [u(FUN`MASKNAME,%q<cat>)]},%q<cat>
+&INC`CATEGORY u(jobsys)=@include u(jobsys)/INC`JOBCHECK;@assert isadmin(%#)=@nspemit %#=u(RFN`MSGHEAD) Permission denied.;th setq(oldcat,u(sql,GET`JOBCAT,%q<jid>));@include u(jobsys)/INC`FINDCAT=%1;@include u(jobsys)/INC`PERMCHECKCAT=%#,ADMIN,%q<cat>;@include u(jobsys)/INC`AMSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<oldcat>)]'s Category was changed to [strfirstof(%q<catname>,Uncategorized)], by [u(FUN`MASKNAME,%q<cat>)]},%q<cat>;@include u(jobsys)/INC`DOSQL=SET`JOBCAT,%q<cat>,%q<jid>
 &SQL`SET`JOBCAT u(jobsys)=UPDATE $DATABASE$.$JOBS$ SET job_objid=? WHERE job_id=?
 
 &INC`REPLY u(jobsys)=@assert setr(jid,u(SQL,GET`JOBID,%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Job %0 not found.;@assert or(strmatch(u(SQL,GET`OWNEROBJID,%q<jid>),%:),match(u(SQL,GET`CLAIMOBJIDS,%q<jid>),%:),u(FUN`PERMCHECK,setr(cat,u(SQL,GET`JOBCAT,%q<jid>)),ADMIN,%#))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission Denied.;@assert eq(u(SQL,GET`JOBSTATUS,%q<jid>),0)=@nspemit %#=u(RFN`MSGHEAD) The job is already finished.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) What will you say?;@include u(jobsys)/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,%1;@include u(jobsys)/INC`MSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a reply in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].};@include u(jobsys)/INC`UPDJOB=0,%q<jid>;@include u(jobsys)/INC`DOSQL=SET`JOBATTN,not(strmatch(u(SQL,GET`OWNEROBJID,%q<jid>),%:)),%q<jid>;@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
@@ -191,10 +191,10 @@
 
 &INC`APPROVE u(jobsys)=@include u(jobsys)/INC`FINISH;@include u(jobsys)/INC`DOFINISH=%0,%1,Approved,1
 &INC`DENY u(jobsys)=@include u(jobsys)/INC`FINISH;@include u(jobsys)/INC`DOFINISH=%0,%1,Denied,2
-&INC`CANCEL u(jobsys)=@include u(jobsys)/INC`FINISH;@include u(jobsys)/INC`DOFINISH=%0,%1,Canceled,3
+&INC`CANCEL u(jobsys)=@include u(jobsys)/INC`FINISH=%0,%1,Canceled,3;@include u(jobsys)/INC`DOFINISH=%0,%1,Canceled,3
 &INC`REVIVE u(jobsys)=@include u(jobsys)/INC`FINISH=%0,%1,1;@include u(jobsys)/INC`DOFINISH=%0,%1,Revived,0
 
-&INC`FINISH u(jobsys)=@assert setr(jid,u(SQL,GET`JOBID,%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Job %0 not found.;@assert or(match(u(SQL,GET`CLAIMOBJIDS,%q<jid>),%:),u(FUN`PERMCHECK,setr(cat,u(SQL,GET`JOBCAT,%q<jid>)),ADMIN,%#))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission Denied.;@assert cor(eq(u(SQL,GET`JOBSTATUS,%q<jid>),0),%2)=@nspemit %#=u(RFN`MSGHEAD) That job is already finished.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) What will you say?
+&INC`FINISH u(jobsys)=@assert setr(jid,u(SQL,GET`JOBID,%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Job %0 not found.;@assert or(match(u(SQL,GET`CLAIMOBJIDS,%q<jid>),%:),u(FUN`PERMCHECK,setr(cat,u(SQL,GET`JOBCAT,%q<jid>)),ADMIN,%#),if(eq(%3,3),strmatch(%:,u(SQL,GET`OWNEROBJID,%q<jid>))))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission Denied.;@assert cor(eq(u(SQL,GET`JOBSTATUS,%q<jid>),0),%2)=@nspemit %#=u(RFN`MSGHEAD) That job is already finished.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) What will you say?
 
 &INC`DOFINISH u(jobsys)=@include u(jobsys)/INC`DOSQL=SET`JOBSTATUS,%3,%q<jid>;@include u(jobsys)/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,{The Job was %2.%R%R%1};@include u(jobsys)/INC`MSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] was %2 by [u(FUN`MASKNAME,%q<cat>)]!};@include u(jobsys)/INC`DOSQL=SET`JOBATTN,1,%q<jid>;@trigger/spoof %q<cat>/%2=%q<jid>;@include u(jobsys)/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
 

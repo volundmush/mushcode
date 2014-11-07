@@ -9,6 +9,7 @@
 &potdb u(coi)=locate(u(pot),Pose Tracker Database <POTDB>,TXxi)
 @parent u(potdb)=u(coi)
 @set u(potdb)=WIZARD SAFE !NO_COMMAND
+@power u(potdb)=many_attribs
 
 &CMD`+SUMMARY u(pot)=$+summary *:@break gt(strlen(%0),1024)=@pemit %#=ansi(hr,That summary is too long.);@remit %l=ansi(h,>>> SUMMARY - [fullname(%#)] <<< - %0);&D`LASTPOSE`SUMMARY %#=%0;@assert cor(isic(%#),get(%l/POT));&[setr(potattr,setr(loc,uldefault(%l/D`CUSTLOC,%l,%#))`[nextslot(setr(potdb,u(potdb)),%q<loc>)])]`TYPE %q<potdb>=SUMMARY;&%q<potattr> %q<potdb>=%0;&%q<potattr>`BY %q<potdb>=%#;&%q<potattr>`WHEN %q<potdb>=secs();@switch/inline gt(nattr(%q<potdb>/%q<loc>`*),300)=1,{@dolist/inline elements(sortkey(#lambda/last(\%0,`),lattr(%q<potdb>/%q<loc>`*),n),lnum(1,sub(%q<count>,300)))=@wipe %q<potdb>/%i0}
 
