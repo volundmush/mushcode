@@ -105,7 +105,8 @@
 &FUN`LISTJOBSTAFF u(jobsys)=align(2 >4 15 15 5 16 5 6,strfirstof(u(FUN`LIST`UNREAD,%0),%b)[u(FUN`LIST`STATUS,%0)],pueblize(%0,+job %0),u(FUN`LIST`OWNERNAME,%0),u(FUN`LIST`JOBTITLE,%0),u(FUN`LIST`JOBDUE,%0),strfirstof(u(FUN`LIST`CLAIMERS,%0),---),u(FUN`LIST`JOBACTIVITY,%0),u(FUN`LIST`JOBATTN,%0))
 &FUN`MYLIST u(jobsys)=align(2 >4 8 15 15 5 9 5 6,strfirstof(u(FUN`LIST`UNREAD,%0),%b)[u(FUN`LIST`STATUS,%0)],pueblize(%0,+myjob %0),u(FUN`LIST`CATEGORY,%0),u(FUN`LIST`OWNERNAME,%0),u(FUN`LIST`JOBTITLE,%0),u(FUN`LIST`JOBDUE,%0),strfirstof(u(FUN`LIST`CLAIMERS2,%0),---),u(FUN`LIST`JOBACTIVITY,%0),u(FUN`LIST`JOBATTN,%0))
 
-&FUN`LIST`UNREAD u(jobsys)=if(gt(u(SQL,GET`LAST[if(isadmin(%#),P)]ACTIVITY,%0),u(SQL,GET`LASTCHECKDATE,%0,%q<pid>)),ansi(hr,*))
+&FUN`LIST`UNREAD u(jobsys)=if(gt(max(u(SQL,GET`LASTACTIVITY,%0),if(isadmin(%#),u(SQL,GET`LASTPACTIVITY,%0))),u(SQL,GET`LASTCHECKDATE,%0,%q<pid>)),ansi(hr,*))
+
 &SQL`GET`LASTACTIVITY u(jobsys)=SELECT UNIX_TIMESTAMP(job_activity) FROM $DATABASE$.$JOBS$ WHERE job_id=?
 &SQL`GET`LASTPACTIVITY u(jobsys)=SELECT UNIX_TIMESTAMP(job_pactivity) FROM $DATABASE$.$JOBS$ WHERE job_id=?
 &SQL`GET`LASTCHECKDATE u(jobsys)=SELECT UNIX_TIMESTAMP(check_date) FROM $DATABASE$.$CHECK$ WHERE job_id=? AND player_id=?
@@ -185,7 +186,7 @@
 
 &INC`UPDJOB u(jobsys)=@include u(jobsys)/INC`DOSQL=SET`JOBACTIVITY%0,%q<jid>
 &SQL`SET`JOBACTIVITY0 u(jobsys)=UPDATE $DATABASE$.$JOBS$ SET job_pactivity=UTC_TIMESTAMP(),job_activity=UTC_TIMESTAMP() WHERE job_id=?
-&SQL`SET`JOBACTIVITY1 u(jobsys)=UPDATE $DATABASE$.$JOBS$ SET job_activity=UTC_TIMESTAMP() WHERE job_id=?
+&SQL`SET`JOBACTIVITY1 u(jobsys)=UPDATE $DATABASE$.$JOBS$ SET job_pactivity=UTC_TIMESTAMP() WHERE job_id=?
 
 &SQL`ADD`COMMENT u(jobsys)=INSERT INTO $DATABASE$.$COMMENTS$ (job_id,player_id,comment_type,comment_text,comment_date) VALUES (?,?,?,?,UTC_TIMESTAMP())
 
