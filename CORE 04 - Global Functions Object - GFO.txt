@@ -33,6 +33,7 @@
 &GFN`LISTMAX u(gfo)=lmath(max,iter(%0,strlen(%i0),|,|),|)
 &GFN`NEXTSLOT u(gfo)=add(1,lmath(max,iter(filterbool(#lambda/isint(last(\%0,`)),lattr(%0/[if(strlen(%1),%1`*,*)])),last(%i0,`))))
 &GFN`NUMTH u(gfo)=%0[switch(%0,11,th,12,th,13,th,switch(right(%0,1),1,st,2,nd,3,rd,th))]
+
 &GFN`PUEBLIZE u(gfo)=tagwrap(A,XCH_CMD="%1",%0)
 &AGFN`SETSTAT u(gfo)=localize(attrib_set(%0,setunion(setdiff(setr(0,get(%0)),grab(%q0,%1~*,|),|),%1~%2,|)))
 &GFN`TIMESTAMP u(gfo)=timefmt($Y-$m-$d $H:$M:$S,firstof(%0,secs()))
