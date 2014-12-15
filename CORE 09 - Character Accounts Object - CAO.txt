@@ -18,6 +18,12 @@
 @set u(ipdb)=WIZARD
 @power u(ipdb)=many_attribs
 
+@switch/inline isdbref(u(bandb))=0,{@switch/inline isdbref(u(cao))=1,{@tel create(Ban Database <BANDB>)=u(cao)}}
+&bandb u(coi)=locate(u(cao),Ban Database <BANDB>,TXxi)
+@parent u(bandb)=u(coi)
+@set u(bandb)=WIZARD
+@power u(bandb)=many_attribs
+
 @mvattr u(cao)/VAR`STAFF`WIZLIST=u(pco)/WIZLIST
 @wipe u(cao)
 @set u(cao)=SAFE
@@ -119,6 +125,57 @@
 
 @@ Convert from old Ip to new IP.
 @@ @dolist lsearch(all,eplayer,\[words(lattr(##/D`IPLOG`*))\])={@include/nobreak u(ccs)/INC`MVTREE=%i0,D`IPLOG,u(ipdb),%i0}
+
+@@ ***** BANLIST SECTION *******
+&RFN`BANLIST`MSGHEAD u(cao)=msghead(v(VAR`BANLIST`MSGHEAD))
+&VAR`BANLIST`MSGHEAD u(cao)=BANLIST
+
+&RFN`BANLIST`HEADER u(cao)=header(%0,,BANLIST`BORDER,BANLIST`BORDERDOT,BANLIST`BORDERTEXT)
+&RFN`BANLIST`SEPARATOR u(cao)=separator(%0,,BANLIST`BORDER,BANLIST`BORDERDOT,BANLIST`BORDERTEXT)
+&RFN`BANLIST`SUBHEADER u(cao)=subheader(%0,,BANLIST`BORDER,BANLIST`BORDERDOT,BANLIST`BORDERTEXT)
+
+&CMD`+BANLIST u(cao)=$^(?\:\+)?(banlist)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@assert isadmin(%#)=@force/inline %#=HUH_COMMAND;@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`BANLIST`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`BANLIST`ADMINFLAGS)),|,|),|,BANLIST,switch,switch;@include u(cao)/INC`BANLIST`[strfirstof(%q<switch>,MAIN)]=trim(%3),trim(%4)
+@set u(cao)/CMD`+BANLIST=regexp
+
+&VAR`BANLIST`ADMINFLAGS u(cao)=BANIP|BANPLAYER|DELETE|DURATION|COMMENT|MESSAGE
+
+&INC`BANLIST`MAIN u(cao)=@switch/inline t(strlen(%0))=0,{@include u(cao)/INC`BANLIST`LIST},1,{@include u(cao)/INC`BANLIST`DETAILS}
+
+&INC`BANLIST`ID u(cao)=@assert valnum(%0)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) Entry must be in ID number format.;@assert hasattr(u(bandb)/%0)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) Entry '%0' not found.;
+
+&INC`BANLIST`LIST u(cao)=@nspemit %#=u(RFN`BANLIST`HEADER,mudname() Ban List);@nspemit %#=align(4 21 25 25,ID,IP,Affected,Until);@dolist/inline setr(list,sort(reglattr(u(bandb)/^\\d+$)))={@nspemit %#=align(4 21 25 25,%i0,get(u(bandb)/%i0),get(u(bandb)/%i0`AFFNAMES),setq(col,if(gte(get(u(bandb)/%i0`UNTIL),secs()),n,hr))[ansi(%q<col>,convsecs(get(u(bandb)/%i0`UNTIL)))])};@nspemit %#=u(RFN`BANLIST`SUBHEADER,words(%q<list>) Entries)
+
+&INC`BANLIST`DETAILS u(cao)=@include u(cao)/INC`BANLIST`ID;@nspemit %#=u(RFN`BANLIST`HEADER,Banlist Entry %0);@nspemit %#=IP: [get(u(bandb)/%0)];@nspemit %#=AFFECTED: [get(u(bandb)/%0`AFFNAMES)];@nspemit %#=Set by [name(get(u(bandb)/%0`SETBY))] on [convsecs(get(u(bandb)/%0`SETON))];@dolist/inline sortkey(#lambda/last(\%0,`),lattr(u(bandb)/%0`COMMENT`*))={@nspemit %#=u(RFN`BANLIST`SEPARATOR,Comment [last(%i0,`)]);@nspemit %#=name(get(u(bandb)/%i0`BY)) commented on [convsecs(get(u(bandb)/%i0`ON))]:%R[get(u(bandb)/%i0)]};@nspemit %#=u(RFN`BANLIST`HEADER)
+
+&INC`BANLIST`BANIP u(cao)=@assert hasflag(%#,Wizard)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) Permission denied.;@assert strlen(setr(ip,%0))=@nspemit %#=u(RFN`BANLIST`MSGHEAD) ERROR: No IP entered to ban.;@include u(cao)/INC`BANLIST`BAN=%0,trim(before(%1,/)),trim(after(%1,/))
+
+&INC`BANLIST`BANPLAYER u(cao)=@assert hasflag(%#,Wizard)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) Permission denied.;@include u(ccs)/INC`CHECKPC=%0,1,BANLIST;th setq(ip,get(%q<t1>/lastip));@include u(cao)/INC`BANLIST`BAN=%0,trim(before(%1,/)),trim(after(%1,/))
+
+&INC`BANLIST`BAN u(cao)=@include u(cao)/INC`BANLIST`BADMATCH=%q<ip>;@break words(setr(banned,u(FUN`CHECKBAN,%q<ip>)))=@nspemit %#=u(RFn`BANLIST`MSGHEAD) The IP matches (without wildcards) existing entries in the Ban Database: [itemize(%q<banned>)];@assert strlen(%1)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) ERROR: Duration value empty.;@assert isint(setr(dur,stringsecs(%1)))=@nspemit %#=u(RFN`BANLIST`MSGHEAD) ERROR: Duration did not compute to a time value. see help stringsecs() for proper syntax.;@assert strlen(%2)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) ERROR: A comment is necessary to apply a ban.;th setq(affects,u(FUN`BANAFFECTS,%q<ip>));@include u(ccs)/INC`VERIFY={WARNING: This will affect sites used by [setr(affnames,strfirstof(itemize(iter(%q<affects>,name(%i0),%b,|),|,and,\,),<nobody>))] for [etime(%q<dur>)]. These characters will be @booted upon completion. Are you sure? Enter again within ten seconds to verify.},BAN %q<affects> %q<dur>,BANLIST;&[setr(banid,nextslot(u(bandb)))] u(bandb)=%q<ip>;@include u(cao)/INC`BANLIST`COMMENT`MAKE=%q<banid>,%2;&%q<banid>`AFFECTED u(bandb)=%q<affects>;&%q<banid>`AFFNAMES u(bandb)=%q<affnames>;&%q<banid>`UNTIL u(bandb)=setr(end,add(secs(),%q<dur>));&%q<banid>`SETON u(bandb)=secs();&%q<banid>`SETBY u(bandb)=%:;@dolist/inline filterbool(#lambda/conn(\%0),%q<affects>)={@nspemit %i0=You have been banned from [mudname()] until [convsecs(%q<end>)].;@boot %i0};@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)={[ansi(h,\[%n\])] banned %q<ip> ([ansi(h,%q<affnames>)]) until [convsecs(%q<end>)] for: %2};@nspemit %#=u(RFN`BANLIST`MSGHEAD) Banned.
+
+&INC`BANLIST`BADMATCH u(cao)=th foreach(#lambda/setr(quest,add(%q<quest>,strmatch(?,\%0))),%0);@break %q<quest>=@nspemit %#=u(RFn`BANLIST`MSGHEAD) ERROR: Question marks are not allowed in IP entries.;th foreach(#lambda/setr(aster,add(%q<aster>,strmatch(*,\%0))),%0);@break gt(%q<aster>,1)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) ERROR: no more than one asterisk per match.;@break cor(strmatch(*.,%0),strmatch(*.,%0))=@nspemit %#=u(RFN`BANLIST`MSGHEAD) ERROR: That would ban EVERYONE.;@break and(%q<aster>,not(strmatch(*,right(%0,1))))=@nspemit %#=u(RFN`BANLIST`MSGHEAD) ERROR: Asterisks may only be at the end of an IP entry.
+
+&INC`BANLIST`DELETE u(cao)=@assert hasflag(%#,Wizard)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) Permission denied.;@include u(cao)/INC`BANLIST`ID;@include u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will delete Banlist entry %0. Are you sure? Enter again within ten seconds to verify.},BANLIST DELETE %0,BANLIST;@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)={[ansi(h,\[%n\])] lifted BanID %0: [get(u(bandb)/%0)] ([get(u(bandb)/%0`AFFNAMES)]).};@nspemit %#=u(RFN`BANLIST`MSGHEAD) Unbanned.;@wipe u(bandb)/%0
+
+&INC`BANLIST`DURATION u(cao)=@assert hasflag(%#,Wizard)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) Permission denied.;@include u(cao)/INC`BANLIST`ID;@assert strlen(%1)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) ERROR: Duration value empty.;@assert isint(setr(dur,stringsecs(%1)))=@nspemit %#=u(RFN`BANLIST`MSGHEAD) ERROR: Duration did not compute to a time value. see help stringsecs() for proper syntax.;@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)={[ansi(h,\[%n\])] reset ban duration for BanID %0: [get(u(bandb)/%0)] ([get(u(bandb)/%0`AFFNAMES)]) to [etime(%q<dur>)] - until [convsecs(add(secs(),%q<dur>))]};&%0`UNTIL u(bandb)=add(secs(),%q<dur>);@nspemit %#=u(RFN`BANLIST`MSGHEAD) Duration reset.
+
+&INC`BANLIST`COMMENT u(cao)=@include u(cao)/INC`BANLIST`ID;@assert strlen(%1)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) Comment text field empty.;@include u(cao)/INC`BANLIST`COMMENT`MAKE;@nspemit %#=u(RFN`BANLIST`MSGHEAD) Comment posted.;@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)={[ansi(h,\[%n\])] new comment posted to [pueblize(+banlist %0,+banlist %0)]}
+
+&INC`BANLIST`COMMENT`MAKE u(cao)=&[setr(attr,%0`COMMENT`[nextslot(u(bandb),%0`COMMENT)])] u(bandb)=%1;&%q<attr>`ON u(bandb)=secs();&%q<attr>`BY u(bandb)=%:
+
+&INC`BANLIST`MESSAGE u(cao)=@assert hasflag(%#,Wizard)=@nspemit %#=u(RFN`BANLIST`MSGHEAD) Permission denied.;@include u(cao)/INC`BANLIST`ID;
+
+&FUN`BANAFFECTS u(cao)=setunion(iter(wildgrepi(u(ipdb),*`*,%0),first(%i0,`)),,,namei)
+
+&FUN`CHECKBAN u(cao)=filterbool(#lambda/eq(comp(%0,get(u(bandb)/\%0),I),0),reglattr(u(bandb)/^\\d+$))
+
+&FUN`CHECKLOGINS u(cao)=filterbool(#lambda/strmatch(%0,get(u(bandb)/\%0)),reglattr(u(bandb)/^\\d+$))
+
+&SOCKET`CONNECT`BANLIST u(cao)=@assert setr(banid,first(u(FUN`CHECKLOGINS,%1)));@switch/inline gt(secs(),get(u(bandb)/%q<banid>`UNTIL))=1,{@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) EXPIRED Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) has connected.}},0,{@nspemit/port %0=setr(message,strfirstof(get(u(bandb)/%q<banid>`MESSAGE),u(VAR`BANLIST`MESSAGE)));@boot/port %0;@nscemit/noisy u(VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) attempted to connect. Message sent to them: '%q<message>'}}
+
+&VAR`BANLIST`MESSAGE u(cao)=Your site has been banned from [mudname()]. Contact staff at [v(VAR`BANLIST`EMAIL)] with any inquiries.
+
+&VAR`BANLIST`EMAIL u(cao)=mcmush@gmail.com
 
 @@ ****** APPROVAL SECTION *********
 &CMD`+APPROVE u(cao)=$^(?\:\+)?(approve|unapprove)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;@include u(cao)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4

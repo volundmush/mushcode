@@ -13,6 +13,10 @@
 
 &SOCKET`LOGINFAIL u(eh)=@dolist/inline/nobreak setdiff(filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0))),u(eh))={@dolist/inline/nobreak lattr(%i0/SOCKET`LOGINFAIL`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
 
+&SOCKET`CONNECT u(eh)=@assert setr(banid,first(u(u(cao)/FUN`CHECKLOGINS,%1)));@switch/inline gt(secs(),get(u(bandb)/%q<banid>`UNTIL))=1,{@nscemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) EXPIRED Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) has connected.}},0,{@pemit/port %0=setr(message,strfirstof(get(u(bandb)/%q<banid>`MESSAGE),u(u(cao)/VAR`BANLIST`MESSAGE)));@boot/port %0;@nscemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) attempted to connect. Message sent to them: '%q<message>'}}
+
+@@ @dolist/inline/nobreak setdiff(filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0))),u(eh))={@dolist/inline/nobreak lattr(%i0/SOCKET`CONNECT`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+
 &OBJECT`RENAME u(eh)=@dolist/inline/nobreak setdiff(filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0))),u(eh))={@dolist/inline/nobreak lattr(%i0/OBJECT`RENAME`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
 
 &OBJECT`DESTROY u(eh)=@dolist/inline/nobreak setdiff(filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0))),u(eh))={@dolist/inline/nobreak lattr(%i0/OBJECT`DESTROY`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
