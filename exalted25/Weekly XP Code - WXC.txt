@@ -7,11 +7,11 @@
 
 &INC`CHECKIC u(wxc)=@assert approved(%#);@assert isic(%#);@assert gte(words(%0),10);@assert gte(words(filterbool(#lambda/approved(\%0),lvplayers(%l))),2);@switch/inline gt(get(%#/D`LASTIC),get(u(wxc)/VAR`LASTCHECK))=0,{@nspemit %#=msghead(XP) IC activity detected. You will receive Participation XP!};&D`LASTIC %#=secs();@switch/inline default(%#/PLAYSTATUS,OOC)=OOC,{@nscemit/noisy RP Alerts=ansi(w,%n) [ansi(<#848484>,is now)] [ansi(m,In Character.)];&PLAYSTATUS %#=IC;@nsremit %l=ansi(hg,%n goes IC!)}
 
-&TRG`WEEKLY u(wxc)=&VAR`WEEKS me=add(1,default(me/VAR`WEEKS,0));&VAR`HIGHEST u(wxc)=bound(lmath(max,iter(setr(list2,lsearch(all,eplayer,\[and(not(haspower(##,GUEST)),not(isadmin(##)),approved(##))\])),u(u(xp)/FUN`COUNT,%i0,G))),0,600);@assert words(setr(list,sql(SELECT DISTINCT player_objid FROM scene_players LEFT JOIN scene_poses ON scene_players.player_id=scene_poses.poser_id WHERE pose_time >= now() - INTERVAL 1 WEEK)));th setq(list3,filterbool(#lambda/gte(u(u(xp)/FUN`COUNT,\%0,G),600),%q<list1>));@dolist/inline setunion(%q<list>,%q<list2>)={@trigger me/TRG`AWARD=%i0,%q<list>,%q<list2>,%q<list3>}
+&TRG`WEEKLY u(wxc)=&VAR`WEEKS me=add(1,default(me/VAR`WEEKS,0));&VAR`HIGHEST u(wxc)=bound(lmath(max,iter(setr(list2,lsearch(all,eplayer,\[and(not(haspower(##,GUEST)),not(isadmin(##)),approved(##))\])),u(u(xp)/FUN`COUNT,%i0,G))),0,600);@assert words(setr(list,sql(SELECT DISTINCT player_objid FROM scene_players LEFT JOIN scene_poses ON scene_players.player_id=scene_poses.poser_id WHERE pose_time >= now() - INTERVAL 1 WEEK)));th setq(list3,filterbool(#lambda/gte(u(u(xp)/FUN`COUNT,\%0,G),600),%q<list1>));@dolist/inline setunion(%q<list>,%q<list2>)={@trigger me/TRG`AWARD=%i0,%q<list>,%q<list2>,%q<list3>,default(me/VAR`PARTICIPATION,8)}
 
-&TRG`AWARD u(wxc)=@switch/inline gt(match(%1,%0),0)[gte(u(u(xp)/FUN`COUNT,%0,G),600)]=0*,{@@ @nspemit %0=msghead(XP) You did not receive participation XP this week, but did gain 4 base XP.},11,{@@ @nspemit %0=msghead(XP) You no longer receive participation XP, but did gain 4 base XP.},10,{@force/inline v(VAR`FORCECHAR)={+xp/award %0=[mul(default(me/VAR`PARTICIPATION,6),if(lte(u(u(xp)/FUN`COUNT,%0,G),sub(v(VAR`HIGHEST),default(me/VAR`CATCHUPTHRESHOLD,50))),default(me/VAR`CATCHUPMUL,2),1))]/Weekly XP};@@ @nspemit %0=msghead(XP) You also receive 4 base Xp!}
+&TRG`AWARD u(wxc)=@switch/inline gte(u(u(xp)/FUN`COUNT,%0,G),600)=0,{@force/inline v(VAR`FORCECHAR)={+xp/award %0=%4/Weekly XP}}
 
-&FUN`EXTRA`GAINED u(xp)=230
+&FUN`EXTRA`GAINED u(xp)=100
 
 @@ u(u(wxc)/FUN`STARTING)
 &FUN`EXTRA`SPENT u(xp)=0
@@ -22,6 +22,6 @@
 
 &VAR`STARTING u(wxc)=50
 &VAR`WEEKLY u(wxc)=4
-&VAR`PARTICIPATION u(wxc)=6
+&VAR`PARTICIPATION u(wxc)=8
 &VAR`CATCHUPMUL u(wxc)=2
 &VAR`CATCHUPTHRESHOLD u(wxc)=50

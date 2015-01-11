@@ -5,7 +5,7 @@
 @set u(ex-sso)=WIZARD !NO_COMMAND
 @parent u(ex-sso)=u(coi)
 
-&CMD`+SHEET u(ex-sso)=$^\+sheet(?\:/(\S+))?(?\: +(.*))?:@include u(ccs)/INC`PARTIAL=%1,setunion(v(VAR`PLAYFLAGS),if(isadmin(%#),v(VAR`ADMINFLAGS)),|,|),|,SHEET,choice;@switch/inline strlen(%2)=0,{@include u(ex-sso)/INC`[strfirstof(%q<choice>,MAIN)]=%#,getsplat(%#)},{@include u(ccs)/INC`CHECKPC=%2,1,SHEET;@assert or(isadmin(%#),gt(get(%q<t1>/SHEETPUBLIC),0),strmatch(%q<t1>,%#))=@nspemit %#=msghead(SHEET) ERROR: %q<t1name>'s Sheet is not public.;@include u(ex-sso)/INC`[strfirstof(%q<choice>,MAIN)]=%q<t1>,getsplat(%q<t1>)}
+&CMD`+SHEET u(ex-sso)=$^\+sheet(?\:/(\S+))?(?\: +(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(v(VAR`PLAYFLAGS),if(isadmin(%#),v(VAR`ADMINFLAGS)),|,|),|,SHEET,choice;@switch/inline strlen(%2)=0,{@include u(ex-sso)/INC`[strfirstof(%q<choice>,MAIN)]=%#,getsplat(%#)},{@include u(ccs)/INC`CHECKPC=%2,1,SHEET;@assert or(isadmin(%#),gt(get(%q<t1>/SHEETPUBLIC),0),strmatch(%q<t1>,%#))=@nspemit %#=msghead(SHEET) ERROR: %q<t1name>'s Sheet is not public.;@include u(ex-sso)/INC`[strfirstof(%q<choice>,MAIN)]=%q<t1>,getsplat(%q<t1>)}
 @set u(ex-sso)/CMD`+SHEET=regexp
 
 &VAR`PLAYFLAGS u(ex-sso)=EXTRA|STYLE|PUBLIC
