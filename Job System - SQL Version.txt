@@ -203,6 +203,10 @@
 
 &SQL`SET`JOBSTATUS u(jobsys)=UPDATE $DATABASE$.$JOBS$ SET job_status=?,close_date=UTC_TIMESTAMP(),job_activity=UTC_TIMESTAMP(),job_pactivity=UTC_TIMESTAMP() WHERE job_id=?
 
+&OBJECT`RENAME`CHARID u(jobsys)=@switch/inline type(%0)=PLAYER,{@assert setr(pid,u(sql,get`playerid,%0));th u(sql,rename`player,%1,%0)}
+
+&SQL`RENAME`PLAYER u(jobsys)=UPDATE $DATABASE$.$PLAYERS$ SET player_name=? WHERE objid=?
+
 &FUN`SQLFORMAT u(jobsys)=localize(regeditalli(v(SQL`%0),\\$DATABASE\\$,v(VAR`SQL`DATABASE),\\$PREFIX\\$,v(VAR`SQL`PREFIX),\\$([v(VAR`SQL`TABLES)])\\$,u(FUN`SQL`TABLENAME,$1),\\?,if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,'[sqlescape(%q<set>)]')))
 
 &SQL u(jobsys)=if(hasattr(me/SQL`%0),sql(u(FUN`SQLFORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-1 SQL QUERY DATA NOT FOUND)

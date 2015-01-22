@@ -1,6 +1,0 @@
-@@ These are some recommended defaults to run after installing all the Core stuff!
-
-+key/make ADMIN
-+bbnewgroup Admin
-+bblock Admin/Read=ADMIN
-+bblock Admin/Write=ADMIN
