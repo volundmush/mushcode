@@ -4,7 +4,7 @@
 	$database="your_database";
 	$site="example.com";
 	$posecount = 0;
-
+	
 	$db_prefix = "scene_";
 	$db_players = "players";
 	$db_scenes = "scenes";
