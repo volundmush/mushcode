@@ -75,7 +75,7 @@
 
 &INC`RENCATEGORY u(jobsys)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) Permission Denied: Wizard only.;@include u(jobsys)/INC`FINDCAT=%0;@include u(jobsys)/INC`CATNAMECHECK=%1;@include u(jobsys)/INC`CATEXIST=%1
 
-&INC`DELCATEGORY u(jobsys)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) Permission Denied: Wizard only.;@include u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will delete Job Category '%q<catname>'. All jobs in that category will become categoryless, though not deleted. Are you sure you want to do this? Enter the same command again within ten seconds to verify!},DELETE %q<cat>,v(VAR`MSGHEAD);@nspemit %#=u(RFN`MSGHEAD) Category '%0' Deleted!;@include u(jobsys)/INC`REPORT={ansi(h,%n) just deleted Job Category '%q<catname>'!};@set %q<cat>=!SAFE;@nuke %q<cat>;@nuke %q<cat>
+&INC`DELCATEGORY u(jobsys)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) Permission Denied: Wizard only.;@include u(jobsys)/INC`FINDCAT=%0;@include u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will delete Job Category '%q<catname>'. All jobs in that category will become categoryless, though not deleted. Are you sure you want to do this? Enter the same command again within ten seconds to verify!},DELETE %q<cat>,v(VAR`MSGHEAD);@nspemit %#=u(RFN`MSGHEAD) Category '%0' Deleted!;@include u(jobsys)/INC`REPORT={ansi(h,%n) just deleted Job Category '%q<catname>'!};@set %q<cat>=!SAFE;@nuke %q<cat>;@nuke %q<cat>
 
 &INC`MAIN u(jobsys)=@select/inline 1=isint(%0),{@include u(jobsys)/INC`DISPLAYJOB=%0},t(strlen(%0)),{@include u(jobsys)/INC`DISPLAYCAT=%0,%1},{@select/inline %q<mode>=MYJOBS,{@include u(jobsys)/INC`MYJOBS`LIST},{@include u(jobsys)/INC`CATLIST}}
 

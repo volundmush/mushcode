@@ -27,6 +27,9 @@
 
 &INC`MSG u(ccs)=@assert strlen(%0);@assert strlen(%2);@message strfirstof(%1,%#)=%2,u(ccs)/FUN`MSG,%0,%1,%2,##
 &INC`RMSG u(ccs)=@assert strlen(%0);@assert strlen(%2);@message strfirstof(%1,%#)=%2,u(ccs)/FUN`RMSG,%0,%1,%2,##
+&INC`CMSG u(ccs)=@nscemit/noisy strfirstof(%3,u(cmo`staffrep))={ansi(h,\[[name(strfirstof(%1,%#))]\]) [if(cand(strlen(strfirstof(%2,v(VAR`MSGHEAD))),not(%4)),strfirstof(%2,v(VAR`MSGHEAD)):%b)]%0}
+&INC`SCMSG u(ccs)=@nscemit/noisy strfirstof(%3,u(cmo`staffrep))={ansi(h,\[[strfirstof(%1,SYSTEM)]\]) [if(cand(strlen(strfirstof(%2,v(VAR`MSGHEAD))),not(%4)),strfirstof(%2,v(VAR`MSGHEAD)):%b)]%0}
+
 
 &FUN`MSG u(ccs)=msghead(%0,,,,,,%3) %2
 &FUN`RMSG u(ccs)=msgheadroom(%0,,,,,,%3) %2
