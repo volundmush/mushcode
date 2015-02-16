@@ -186,6 +186,10 @@
 &SQL`SET`SCENEPLOT u(scene)=UPDATE $DATABASE$.$SCENES$ SET plot_id=? WHERE scene_id=?
 &SQL`SET`NOSCENEPLOT u(scene)=UPDATE $DATABASE$.$SCENES$ SET plot_id=NULL WHERE scene_id=?
 
+&INC`SCENE`DELETE u(scene)=@include u(scene)/INC`USERCHECK=%:;@include u(scene)/INC`VALSCENE=%0;@assert isadmin(%#)=@nspemit %#=u(RFN`MSGHEAD) Permission denied.;@include u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will delete Scene %q<scene>. All poses will be lost. This will not affect the Wiki's copy. Are you sure? Enter the same command to verify.},DELETE SCENE %q<scene>,v(VAR`MSGHEAD);@include u(scene)/INC`MESSAGE=%q<scene>,{%n has deleted Scene %q<scene>.};@include u(scene)/INC`DOSQL=DELETE`SCENE,%q<scene>;
+
+&SQL`DELETE`SCENE u(scene)=DELETE FROM $DATABASE$.$SCENES$ WHERE scene_id=?
+
 &INC`SCENES`ADD u(scene)=@include u(scene)/INC`USERCHECK=%:;@include u(scene)/INC`CHECKTIME=trim(before(%0,/));@assert strlen(setr(title,trim(after(%0,/))))=@nspemit %#=u(RFN`MSGHEAD) You need to give the scene a title!;@break charin(%q<title>,/ %r %t)=@nspemit %#=u(RFN`MSGHEAD) The following characters are not permitted in titles: /, \%r, \%t.;@assert strlen(setr(desc,%1))=@nspemit %#=u(RFN`MSGHEAD) Your scene needs a description!;@include u(scene)/INC`DOSQL=INSERT`NEWSCHEDULE,%q<pid>,trim(trim(%q<title>,%r),%t),trim(trim(%q<desc>,%r),%t),%q<time>;th setq(schedid,u(sql,get`newschedule,%q<pid>));@trigger/spoof u(bbs)/INC`POST=BB,v(VAR`BBS`RPBBDBREF),#%q<schedid>: %q<title>,u(FUN`FORMATPOST,%q<title>,%n,fancytime(%q<time>,u(scene)),%q<desc>),1;@nspemit %#=u(RFN`MSGHEAD) You schedule a new scene- Scenes %q<schedid>: %q<title> on [fancytime(%q<time>,%#)];@wait 1={@include u(scene)/INC`DOSQL=SET`SCHEDULEBB,setr(postid,before(first(wildgrepi(v(VAR`BBS`RPBBDBREF),*`HDR,#%q<schedid>:*)),`)),%q<schedid>}
 
 &INC`SCENES`TAG u(scene)=@include u(scene)/INC`USERCHECK=%:;@include u(scene)/INC`VALSCHED=%0;@break u(sql,get`tagcheck,%q<schedule>,%q<pid>)=@nspemit %#=u(RFN`MSGHEAD) You are already signed up for that scene.;@include u(scene)/INC`DOSQL=INSERT`NEWTAG,%q<pid>,%q<schedule>;@nspemit %#=u(RFN`MSGHEAD) You have tagged Scheduled Scene %0!
@@ -207,7 +211,7 @@
 
 &INC`SCENES`LIST u(scene)=@include u(scene)/INC`USERCHECK=%:;@nspemit %#=u(RFN`HEADER,Current Schedule - [timefmt($Z,,%#)]);@dolist/inline u(sql,GET`UPCOMING)={@switch/inline not(strmatch(%q<last>,setr(last,timefmt($a $b $d $Y $Z,setr(time,u(sql,get`scheduletime,%i0)),%#))))=1,{@nspemit %#=u(RFN`HEADER,%q<last>)};@nspemit %#=u(FUN`FORMATSCHEDULE2,%q<pid>,%i0,u(sql,get`scheduletitle,%i0),u(sql,get`scheduleplayername,%i0),%q<time>,u(sql,get`schedownerid,%i0))};@nspemit %#=u(RFN`HEADER)
 
-&FUN`FORMATSCHEDULE2 u(scene)=align(3 4 42 20 7,ljust(switch(1,eq(%0,%5),ansi(hg,*),t(words(setinter(u(sql,get`playerobjid,%5),alts(%:)))),ansi(hg,*),t(u(sql,get`tagcheck,%1,%0)),ansi(hr,*),t(words(setinter(u(sql,get`tagobjids,%1),alts(%:)))),ansi(c,*)),1)[u(sql,get`tagcount,%1)],pueblize(%1,+scenes %1),%2,%3,elements(fancytime(%4,%q<target>),3))
+&FUN`FORMATSCHEDULE2 u(scene)=align(3 4 40 20 7,ljust(switch(1,eq(%0,%5),ansi(hg,*),t(words(setinter(u(sql,get`playerobjid,%5),alts(%:)))),ansi(hg,*),t(u(sql,get`tagcheck,%1,%0)),ansi(hr,*),t(words(setinter(u(sql,get`tagobjids,%1),alts(%:)))),ansi(c,*)),1)[u(sql,get`tagcount,%1)],pueblize(%1,+scenes %1),%2,%3,elements(fancytime(%4,%q<target>),3))
 
 &SQL`GET`TAGCOUNT u(scene)=SELECT count(tag_id) FROM $DATABASE$.$TAGS$ WHERE schedule_id=?
 &SQL`GET`TAGOBJIDS u(scene)=SELECT DISTINCT objid from $DATABASE$.$TAGS$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE schedule_id=?

@@ -23,6 +23,9 @@
 
 &OBJECT`CREATE u(eh)=@dolist/inline/nobreak setdiff(filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0))),u(eh))={@dolist/inline/nobreak lattr(%i0/OBJECT`CREATE`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
 
+&OBJECT`MOVE u(eh)=@dolist/inline/nobreak setdiff(filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0))),u(eh))={@dolist/inline/nobreak lattr(%i0/OBJECT`MOVE`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+
+
 &SQL`CONNECT u(eh)=@sql SET time_zone = '+00:00';@nscemit/noisy u(cmo`staffrep)=SQL server connect: %0
 &SQL`CONNECTFAIL u(eh)=@nscemit/noisy u(cmo`staffrep)=SQL server connect fail: %0
 &SQL`DISCONNECT u(eh)=@nscemit/noisy u(cmo`staffrep)=SQL server disconnect: %0

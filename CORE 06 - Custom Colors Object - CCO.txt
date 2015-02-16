@@ -19,6 +19,7 @@
 &RFN`HEADER u(cco)=header(%0,,COLOR`BORDER,COLOR`BORDERDOT,COLOR`BORDERTEXT)
 &RFN`SUBHEADER u(cco)=subheader(%0,,COLOR`BORDER,COLOR`BORDERDOT,COLOR`BORDERTEXT)
 &RFN`SEPARATOR u(cco)=separator(%0,,COLOR`BORDER,COLOR`BORDERDOT,COLOR`BORDERTEXT)
+&RFN`MSGHEAD u(cco)=msghead(v(VAR`MSGHEAD))
 
 &CMD`COLORDEMO u(cco)=$^(?s)(?\:\+)?color(?\:s|demo)(?\:/(\S+)?)?$:@include u(ccs)/INC`PARTIAL=%1,LONG,|,COLOR,switch,switch;@switch/inline %q<switch>=LONG,{@dolist/inline lnum(97,122)=@nspemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,%i0))],%b,%r)))},{@nspemit %#=iter(lnum(0,255),ansi(+xterm%i0,xterm%i0))}
 @set u(cco)/CMD`COLORDEMO=regexp

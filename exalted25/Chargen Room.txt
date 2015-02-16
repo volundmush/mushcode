@@ -45,7 +45,7 @@
 &2`INFERNAL u(cg)=Infernals receive 8/6/4 Attribute points.
 &2`JADEBORN u(cg)=Enlightened Jadeborn receive 16/13/10, mininum 3 in each Attribute, maximum 7.%r%tUnenlightened Jadeborn receive 8/4/3 Attribute Points.
 &2`LUNAR u(cg)=Lunars receive 8/6/4 Attribute points, and may add 1 additional point to any Caste or Favored Attribute.%r%tTattooed Lunars receive 3 Caste Attributes and 1 Favored Attribute. Casteless Receive only 2 Favored Attributes.%r%r%t[ansi(h,+castefavattr)] to set your Caste Favored Attributes%r%t[ansi(h,+favattr <attribute>)] to set your Favored Attribute(s).%r%t[ansi(h,+unfavattr <attribute>)] to unset your Favored Attribute(s).
-&2`MORTAL u(cg)=Mortals receive 6/4/3 Attribute points.
+&2`MORTAL u(cg)=Mortals receive 8/6/4 Attribute points.
 &2`RAKSHA u(cg)=Noble Raksha receive 16/13/10, mininum 3 in each Attribute, maximum 7.%r%tCommoner Raksha begin with 0 in each Attribute, receive 10/7/4, and may not raise them above 4.
 &2`SIDEREAL u(cg)=Sidereals receive 8/6/4 Attribute points.
 &2`SOLAR u(cg)=Solars receive 8/6/4 Attribute points.

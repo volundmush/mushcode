@@ -1,9 +1,9 @@
 @@ DEPENDENCIES - Core
 @switch/inline isdbref(u(ar))=0,{th attrib_set(u(coi)/AR,dig(Ancestor Room))}
 
-&RFN`HEADER u(ar)=header(%0,%1,ROOM`BORDER,ROOM`BORDERDOT,ROOM`BORDERTEXT)
-&RFN`SEPARATOR u(ar)=separator(%0,,ROOM`BORDER,ROOM`BORDERDOT,ROOM`BORDERTEXT)
-&RFN`SUBHEADER u(ar)=subheader(%0,,ROOM`BORDER,ROOM`BORDERDOT,ROOM`BORDERTEXT)
+&RFN`HEADER u(ar)=header(%0,%1,ROOM`BORDER,ROOM`BORDERDOT,ROOM`BORDERTEXT,%2)
+&RFN`SEPARATOR u(ar)=separator(%0,%1,ROOM`BORDER,ROOM`BORDERDOT,ROOM`BORDERTEXT,%2)
+&RFN`SUBHEADER u(ar)=subheader(%0,%1,ROOM`BORDER,ROOM`BORDERDOT,ROOM`BORDERTEXT,%2)
 
 &NAMEFORMAT u(ar)=endtag(a)[u(RFN`HEADER,pueblize(moniker(%0)[if(cor(controls(%#,me),isadmin(%#)),%([num(%0)][flags(%0)]%))],look),1)]
 
@@ -22,7 +22,7 @@
 &FUN`EXITFORMAT`DEFAULT u(ar)=u(RFN`SEPARATOR,Exits)%R[table(iter(sortkey(#lambda/default(\%0/ORDER,0),sort(lvexits(me),namei)),ljust(if(strlen(alias(%i0)),<[ansi(custcolor(%#,ROOM`EXITALIAS),pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(custcolor(%#,ROOM`EXITNAME),pueblize(name(%i0),name(%i0)))] to [ansi(custcolor(%#,ROOM`EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))],%b,|),37,width(%#),|)]%R[u(RFN`HEADER)]
 
 th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),ROOM,|,|))
-&VAR`CATEGORIES`ROOM u(cco-db)=OOC1|OOC2|IC1|IC2|PLAYERNAME|THINGNAME|EXITNAME|EXITALIAS|COLNAME
+&VAR`CATEGORIES`ROOM u(cco-db)=PLAYERNAME|THINGNAME|EXITNAME|EXITALIAS|EXITDEST|COLUMNNAME|BORDER
 &COLOR`ROOM`EXITALIAS u(pco)=hx
 
 @switch/inline isdbref(u(ae))=0,{th attrib_set(u(coi)/AE,open(Ancestor Exit,#0,u(ar)))}
