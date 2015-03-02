@@ -1,0 +1,23 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(wac))=0,{@tel create(Weekly Award Code <WAC>)=config(master_room)}
+&WAC u(coi)=locate(config(master_room),Weekly Award Code <WAC>,TXxi)
+@parent u(wac)=u(coi)
+@set u(wac)=WIZARD !NO_COMMAND
+
+&TRG`WEEKLY u(wac)=&VAR`WEEKS me=add(1,default(me/VAR`WEEKS,0));@assert words(setr(list,sql(SELECT DISTINCT player_objid FROM scene_players LEFT JOIN scene_poses ON scene_players.player_id=scene_poses.poser_id WHERE pose_time >= NOW() - INTERVAL 1 WEEK)));@force/inline v(VAR`FORCECHAR)={+xp/award %q<list>=[default(me/VAR`WEEKLY,8)]/Weekly XP};@wait 1=@dolist %q<list>=@trigger me/INC`CATCHUP=%i0
+
+&TRG`AWARD u(wac)=@force/inline v(VAR`FORCECHAR)={+xp/award %i0=[default(me/VAR`WEEKLY,8)]/Weekly XP};@wait 2={@trigger me/INC`CATCHUP=%0}
+
+&INC`CATCHUP u(wac)=@assert lt(setr(curxp,u(u(xp)/FUN`COUNT,%0,G)),u(FUN`STANDARD));@switch/inline gt(setr(diff,sub(u(FUN`STANDARD),%q<curxp>)),mul(default(me/VAR`CATCHUPMUL,0),default(me/VAR`WEEKLY,0)))=1,{@force/inline v(VAR`FORCECHAR)={+xp/award %0=[mul(default(me/VAR`CATCHUPMUL,0),default(me/VAR`WEEKLY,0))]/Weekly Catchup}},0,{@force/inline v(VAR`FORCECHAR)={+xp/award %0=%q<diff>/Weekly Catchup}}
+
+
+
+&FUN`STARTING u(wac)=add(default(me/VAR`STARTING,0),div(mul(default(me/VAR`WEEKLY,8),default(u(wac)/VAR`WEEKS,0)),3))
+&FUN`STANDARD u(wac)=add(default(me/VAR`STARTING,0),mul(default(me/VAR`WEEKLY,8),default(u(wac)/VAR`WEEKS,0)))
+
+&VAR`FORCECHAR u(wac)=#156
+&VAR`WEEKS u(wac)=0
+&VAR`STARTING u(wac)=125
+&VAR`WEEKLY u(wac)=8
+&VAR`CATCHUPMUL u(wac)=3

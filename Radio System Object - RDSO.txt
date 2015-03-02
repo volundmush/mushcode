@@ -18,7 +18,7 @@
 &CMD`+RADIO u(rdso)=$^(?s)(?\:\+)?(?\:radio|freq)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(rdso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(rdso)/VAR`ADMINFLAGS)),|,|),|,RADIO,switch,switch;@include u(rdso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(rdso)/CMD`+RADIO=regexp
 
-&VAR`PLAYFLAGS u(rdso)=INIT|RENAME|TOGGLE|FREQ|KEY|WIPE|RECALL|CODENAME|NOSPOOF|TITLE|NSRECALL|WHO|COLOR
+&VAR`PLAYFLAGS u(rdso)=INIT|RENAME|TOGGLE|FREQ|KEY|WIPE|RECALL|CODENAME|NOSPOOF|TITLE|NSRECALL|WHO|COLOR|GAG|UNGAG
 &VAR`ADMINFLAGS u(rdso)=LISTFREQ|MONITOR|EMIT
 
 &CMD`+RADIOSHORT u(rdso)=$^(?s)\.(\w+)(?\:/(\S+)?)?(?\: +(.*))?$:@include u(rdso)/CMD`+RADIO=%0,%2,%1,%3
@@ -28,7 +28,7 @@
 
 &INC`FREQCHECK u(rdso)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No frequency entered for the new Radio slot!;@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Frequency Field empty.;@assert regmatchi(%0,\[0-9\]+\\.\[0-9\]+)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Frequencies must be in the form of (number).(number), example 105.32
 
-&INC`MAIN u(rdso)=@switch/inline strlen(%0)=0,{@include u(rdso)/INC`LIST},{@include u(jail)/INC`JAILCHECK;@include u(rdso)/INC`CHECKSLOT;@assert strlen(get(%#/%q<slot>))=@nspemit %#=u(RFN`MSGHEAD) ERROR: That Slot has no Frequency set!;@assert match(get(u(radb)/%q<log>`MEMBERS),%:)=@nspemit %#=u(RFN`MSGHEAD) That Slot is turned off.;@include u(rdso)/INC`BROADCAST}
+&INC`MAIN u(rdso)=@switch/inline strlen(%0)=0,{@include u(rdso)/INC`LIST},{@include u(jail)/INC`JAILCHECK;@include u(rdso)/INC`CHECKSLOT;@assert strlen(get(%#/%q<slot>))=@nspemit %#=u(RFN`MSGHEAD) ERROR: That Slot has no Frequency set!;@assert match(get(u(radb)/%q<log>`MEMBERS),%:)=@nspemit %#=u(RFN`MSGHEAD) That Slot is turned off.;@break match(getstat(%#/D`RADIO,GAG),%q<log>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Slot is gagged.;@include u(rdso)/INC`BROADCAST}
 
 &INC`LIST u(rdso)=@nspemit %#=header(Your Radio Config);@nspemit %#=ansi(firstcolor(%#,RADIO`COLNAME,DEFAULT`COLNAME),align(14 8 19 18 11 3,Name,Freq,Codename,Title,Encrypt,Sta));@nspemit %#=separator();@dolist/inline sortkey(#lambda/last(\%0,`),lattr(%#/D`RADIO`*))={th setq(log,u(FUN`FINDFREQ,get(%#/%i0)));@nspemit %#=align(14 8 19 18 11 3,default(%#/%i0`NAME,last(%i0,`)),get(%#/%i0),get(%#/%i0`CODENAME),get(%#/%i0`TITLE),default(%#/%i0`KEY,--None--),if(match(get(u(radb)/%q<log>`MEMBERS),%:),On,Off))};@nspemit %#=header()
 
@@ -52,6 +52,10 @@
 
 &INC`TOGGLE u(rdso)=@include u(rdso)/INC`CHECKSLOT;@switch/inline t(match(get(u(radb)/%q<log>`MEMBERS),%:))=1,{@nspemit %#=u(RFN`MSGHEAD) You switch off %q<slotname>.;@include u(rdso)/INC`DISABLE=%:,%q<freq>},0,{@nspemit %#=u(RFN`MSGHEAD) You switch on %q<slotname>.;@include u(rdso)/INC`ENABLE=%:,%q<freq>}
 
+&INC`GAG u(rdso)=@include u(rdso)/INC`CHECKSLOT;@break match(getstat(%#/D`RADIO,GAG),%q<log>)=@nspemit %#=u(RFN`MSGHEAD) Already gagging %q<slotname>.;@nspemit %#=u(RFN`MSGHEAD) Frequency gagged.;@include u(rdso)/INC`DISABLE`GAG=%:,%q<freq>
+
+&INC`UNGAG u(rdso)=@include u(rdso)/INC`CHECKSLOT;@assert match(getstat(%#/D`RADIO,GAG),%q<log>)=@nspemit %#=u(RFN`MSGHEAD) Not gagging %q<slotname>.;@nspemit %#=u(RFN`MSGHEAD) Frequency ungagged.;@include u(rdso)/INC`ENABLE`GAG=%:,%q<freq>
+
 &INC`MONITOR u(rdso)=@switch/inline t(getstat(%#/D`RADIO,Monitor))=1,{@nspemit %#=u(RFN`MSGHEAD) You switch off Monitoring.;th setstat(%#/D`RADIO,Monitor,0)},0,{@nspemit %#=u(RFN`MSGHEAD) You switch on Monitoring.;th setstat(%#/D`RADIO,Monitor,1)}
 
 &INC`NOSPOOF u(rdso)=@switch/inline t(getstat(%#/D`RADIO,Nospoof))=1,{@nspemit %#=u(RFN`MSGHEAD) You switch off Nospoof mode.;th setstat(%#/D`RADIO,Nospoof,0)},0,{@nspemit %#=u(RFN`MSGHEAD) You switch on Nospoof.;th setstat(%#/D`RADIO,Nospoof,1)}
@@ -63,7 +67,11 @@
 &INC`ENABLE u(rdso)=@switch/inline t(setr(log,u(FUN`FINDFREQ,%1)))=0,{&[setr(log,nextslot(u(radb)))] u(radb)=%1};&%q<log>`MEMBERS u(radb)=setunion(get(u(radb)/%q<log>`MEMBERS),%0)
 &INC`DISABLE u(rdso)=@switch/inline t(setr(log,u(FUN`FINDFREQ,%1)))=0,{&[setr(log,nextslot(u(radb)))] u(radb)=%1};&%q<log>`MEMBERS u(radb)=setdiff(get(u(radb)/%q<log>`MEMBERS),%0)
 
-&INC`BROADCAST u(rdso)=@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Nothing entered to say!;@break strmatch(left(%1,1),|)=@nspemit %#=u(RFN`MSGHEAD) ERROR: The Emit feature is disabled.;@assert strlen(%q<freq>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Frequency invalid.;@message setdiff(setinter(setr(who,lwhoid()),get(u(radb)/[if(%2,setr(log,u(FUN`FINDFREQ,%q<freq>)),%q<log>)]`MEMBERS)),setr(monitor,filterbool(#lambda/getstat(\%0/D`RADIO,Monitor),%q<who>)))=<unset>,u(rdso)/FUN`FORMATBROADCAST,%#,##,%q<freq>,%1,get(%#/%q<slot>`KEY),get(%#/%q<slot>`CODENAME),get(%#/%q<slot>`TITLE),%2;@message setunion(%q<monitor>,if(%2,%#))=<unset>,u(rdso)/FUN`FORMATMONITOR,%#,##,%q<freq>,%1,get(%#/%q<slot>`KEY),get(%#/%q<slot>`CODENAME),get(%#/%q<slot>`TITLE),%2;@include u(rdso)/INC`LOGRADIO=%#,%q<freq>,%1,get(%#/%q<slot>`KEY),get(%#/%q<slot>`CODENAME),get(%#/%q<slot>`TITLE),%2;@switch/inline cand(%2,not(match(%q<monitor>,%:)))=1,{@nspemit %#=u(RFN`MSGHEAD) WARNING: Your Emit was sent to %q<freq>, but you must either set a slot to that frequency or toggle [pueblize(+radio/monitor,+radio/monitor)] to hear replies!}
+&INC`ENABLE`GAG u(rdso)=@switch/inline t(setr(log,u(FUN`FINDFREQ,%1)))=0,{&[setr(log,nextslot(u(radb)))] u(radb)=%1};&%q<log>`GAGGED u(radb)=setdiff(get(u(radb)/%q<log>`GAGGED),%0);th setstat(%0/D`RADIO,GAG,setdiff(getstat(%0/D`RADIO,Gag),%q<log>))
+
+&INC`DISABLE`GAG u(rdso)=@switch/inline t(setr(log,u(FUN`FINDFREQ,%1)))=0,{&[setr(log,nextslot(u(radb)))] u(radb)=%1};&%q<log>`GAGGED u(radb)=setunion(get(u(radb)/%q<log>`GAGGED),%0);th setstat(%0/D`RADIO,GAG,setunion(getstat(%0/D`RADIO,Gag),%q<log>))
+
+&INC`BROADCAST u(rdso)=@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Nothing entered to say!;@break strmatch(left(%1,1),|)=@nspemit %#=u(RFN`MSGHEAD) ERROR: The Emit feature is disabled.;@assert strlen(%q<freq>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Frequency invalid.;@message setdiff(setinter(setr(who,lwhoid()),setdiff(get(u(radb)/[if(%2,setr(log,u(FUN`FINDFREQ,%q<freq>)),%q<log>)]`MEMBERS),get(u(radb)/[if(%2,setr(log,u(FUN`FINDFREQ,%q<freq>)),%q<log>)]`GAGGED))),setr(monitor,filterbool(#lambda/getstat(\%0/D`RADIO,Monitor),%q<who>)))=<unset>,u(rdso)/FUN`FORMATBROADCAST,%#,##,%q<freq>,%1,get(%#/%q<slot>`KEY),get(%#/%q<slot>`CODENAME),get(%#/%q<slot>`TITLE),%2;@message setunion(%q<monitor>,if(%2,%#))=<unset>,u(rdso)/FUN`FORMATMONITOR,%#,##,%q<freq>,%1,get(%#/%q<slot>`KEY),get(%#/%q<slot>`CODENAME),get(%#/%q<slot>`TITLE),%2;@include u(rdso)/INC`LOGRADIO=%#,%q<freq>,%1,get(%#/%q<slot>`KEY),get(%#/%q<slot>`CODENAME),get(%#/%q<slot>`TITLE),%2;@switch/inline cand(%2,not(match(%q<monitor>,%:)))=1,{@nspemit %#=u(RFN`MSGHEAD) WARNING: Your Emit was sent to %q<freq>, but you must either set a slot to that frequency or toggle [pueblize(+radio/monitor,+radio/monitor)] to hear replies!}
 @@ %0 - Enactor, %1 - recipient, %2 - frequency, %3 - message, %4 - key, %5 - codename, %6 - title, %7 -  emit mode
 
 &INC`WHO u(rdso)=@include u(rdso)/INC`CHECKSLOT;@assert words(setr(listen,setdiff(setinter(setr(who,lwhoid()),get(u(radb)/%q<log>`MEMBERS)),setr(monitor,filterbool(#lambda/getstat(\%0/D`RADIO,Monitor),%q<who>)),,namei)))=@nspemit %#=u(RFN`MSGHEAD) Nobody is listening to %q<freq>.;@nspemit %#=u(RFN`MSGHEAD) Listeners for %q<slotname> are: [itemize(iter(%q<listen>,name(%i0),,|),|,and,\,)]
@@ -87,6 +95,8 @@
 @@ %0 - Enactor, %1 - recipient, %2 - frequency, %3 - message, %4 - key, %5 - alias
 
 &STARTUP u(rdso)=@trigger u(rdso)/TRG`CLEANLOGS
+
+&PLAYER`DISCONNECT`UNGAGRADIO u(rdso)=@break %1;@dolist/inline getstat(%0/D`RADIO,GAG)={&%i0`GAGGED u(radb)=setdiff(get(u(radb)/%i0`GAGGED),%0)};th delstat(%0/D`RADIO,GAG)
 
 &TRG`CLEANLOGS u(rdso)=@dolist reglattr(u(radb)/^\\d+$)={@dolist/inline filterbool(#lambda/gt(sub(secs(),get(u(radb)/\%0`ON)),mul(60,60,24,14)),reglattr(u(radb)/^%i0`\\d+$))={@wipe u(radb)/%i0}};@wait mul(60,60,24)=@trigger me/TRG`CLEANLOGS
 

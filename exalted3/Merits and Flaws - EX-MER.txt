@@ -1,0 +1,71 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(ex-mer))=0,{@tel create(Merits and Flaws <EX-MER>)=config(master_room)}
+&ex-mer u(coi)=locate(config(master_room),Merits and Flaws <EX-MER>,TXxi)
+@parent u(ex-mer)=u(coi)
+@set u(ex-mer)=WIZARD !NO_COMMAND
+
+&CMD`+MERITS u(ex-mer)=$^(?s)(?\:\+)?(merits|flaws)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(ex-mer)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ex-mer)/VAR`ADMINFLAGS)),|,|),|,INFO,switch,switch;@include u(ex-mer)/INC`[strfirstof(%q<switch>,MAIN)]=squish(trim(%3)),trim(%4),%1,switch(%1,merits,Merit,flaws,Flaw)
+@set u(ex-mer)/CMD`+MERITS=regexp
+
+&VAR`PLAYFLAGS u(ex-mer)=ADD|RANK|GET|DESC|CONTEXT|DELETE
+&VAR`ADMINFLAGS u(ex-mer)=
+
+&RFN`HEADER u(ex-mer)=header(%0,,MERITS`BORDER,MERITS`BORDERDOT,MERITS`BORDERTEXT)
+&RFN`SUBHEADER u(ex-mer)=subheader(%0,,MERITS`BORDER,MERITS`BORDERDOT,MERITS`BORDERTEXT)
+&RFN`SEPARATOR u(ex-mer)=separator(%0,,MERITS`BORDER,MERITS`BORDERDOT,MERITS`BORDERTEXT)
+&RFN`MSGHEAD u(ex-mer)=msghead(v(VAR`MSGHEAD))
+&VAR`MSGHEAD u(ex-mer)=MERITS
+
+&VAR`MERITS u(ex-mer)=ALLIES|AMBIDEXTROUS|ARTIFACT|BACKING|BOUNDLESS ENDURANCE|COMMAND|CONTACTS|CULT|DANGER SENSE|DEMESNE|DIRECTION SENSE|EIDETIC MEMORY|FAMILIAR|FAST REFLEXES|FLEET OF FOOT|FOLLOWERS|GIANT|HEARTHSTONE|HIDEOUS|INFLUENCE|IRON STOMACH|LANGUAGE|MANSE|MENTOR|MARTIAL ARTIST|MIGHTY THEW|NATURAL IMMUNITY|PAIN TOLERANCE|QUICK DRAW|RETAINERS|RESOURCES|RESOURCES|SELECTIVE CONTRACEPTION|STRONG LUNGS|TEMPERED BY THE ELEMENTS|TOXIN RESISTANCE|CHAMELEON|CLAWS|FANGS|HOOVES|HORNS|ENHANCED SENSE|EXALTED HEALING|EXTRA LIMBS|GILLS|POISONED BODY|QUILLS|SUBTLETY|TAIL|THAUMATURGIST|UNUSUAL HIDE|VENOMOUS|WALL WALKING|WINGS
+
+&VAR`FLAWS u(ex-mer)=ADDICTION|AMPUTEE|BLIND|DEAF|DERANGEMENT|MUTE|STERILE|WYLD MUTANT
+
+th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),MERITS,|,|))
+&VAR`CATEGORIES`MERITS u(cco-db)=BORDER|BORDERDOT|BORDERTEXT|PRIVATE
+&COLOR`MERITS`PRIVATE u(pco)=hx
+
+&DO`ANNOUNCE u(ex-mer)=@switch/inline t(strlen(%1))=1,{@include u(ccs)/INC`CMSG=%1,%#,v(VAR`MSGHEAD),u(cmo`staffrep)};@switch/inline strmatch(%#,%0)=0,{@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),%0,%2;@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),%#,%3},1,{@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),%0,%2}
+@@ %0 - player being modified. %1 - message for admin channel. %2 - message for player. %3 - message for admin.
+
+&INC`TARGET u(ex-mer)=@switch/inline strmatch(%0,*/*)=1,{@include u(ccs)/INC`CHECKPC=before(%0,/),1,v(VAR`MSGHEAD);th setq(target,%q<t1>,filename,after(%0,/))},0,{th setq(target,%#,filename,%0)}
+
+&INC`MERNAME u(ex-mer)=@assert strlen(before(%0,:))=@nspemit %#=u(RFN`MSGHEAD) ERROR: [capstr(%3)] field empty.;@include u(ccs)/INC`PARTIAL=before(%0,:),v(VAR`%2),|,v(VAR`MSGHEAD),merit,%3;th setq(context,squish(trim(after(%0,:))));@break charin(%q<context>,| ~)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Contexts may not contain a ~ or |.
+
+&FUN`FINDMER u(ex-mer)=first(filterbool(#lambda/strmatch(%3,get(%0/\%0`CONTEXT)),u(FUN`FILTERMER,%0,%1,%2)))
+&FUN`PARTCON u(ex-mer)=localize(if(match(setr(cons,iter(u(FUN`FILTERMER,%0,%1,%2),get(%0/%i0`CONTEXT),%b,|)),%3,|),if(strlen(%3),grab(%q<cons>,%3*,|))))
+&FUN`FILTERMER u(ex-mer)=filterbool(#lambda/strmatch(%2,get(%0/\%0)),lattr(%0/D`%1`*))
+
+&FUN`MERNAME u(ex-mer)=localize(capnames(get(%0/%1)[if(strlen(setr(context,get(%0/%1`CONTEXT))),:%b%q<context>)]))
+
+&INC`BEGIN u(ex-mer)=@include u(ex-mer)/INC`TARGET;@switch/inline strmatch(%#,%q<target>)=0,{@assert isadmin(%#)=@nspemit %#=u(RFN`MSGHEAD) Permission denied.};@break cand(approved(%q<target>),not(isadmin(%#)))=@nspemit %#=u(RFN`MSGHEAD) Permission denied.;@include u(ex-mer)/INC`MERNAME;
+
+&INC`ADD u(ex-mer)=@include u(ex-mer)/INC`BEGIN;@break strlen(u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<context>))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Conflicting Merit. Contexts must be unique.;th setq(attr,D`%2`[nextslot(%q<target>,D`%2)]);@assert cand(isint(%1),gte(%1,0))=@nspemit %#=u(RFN`MSGHEAD) [capstr(%2)] must have a rank. Ranks must be 0 or greater.;@include u(ex-mer)/DO`ADD=%q<attr>,%q<target>,%q<merit>,%q<context>,%1;th setq(msg,gained a new %3: [u(FUN`MERNAME,%q<target>,%q<attr>)] (%1));@switch/inline strmatch(%#,%q<target>)=0,{th setq(amsg,ansi(h,name(%q<target>)) %q<msg>)};@include u(ex-mer)/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{ansi(h,name(%q<target>)) %q<msg>}
+
+&DO`ADD u(ex-mer)=&%0 %1=%2;&%0`CONTEXT %1=%3;&%0`RANK %1=%4;@include u(ex-mer)/DO`UPD=%0,%1
+
+&DO`UPD u(ex-mer)=&%0`ON %1=secs();&%0`BY %1=%n;&%0`BYDB %1=%:;&%0`ON %1=secs()
+
+&INC`DELETE u(ex-mer)=@include u(ex-mer)/INC`BEGIN;@assert strlen(setr(attr,u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<context>)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Merit not found.;@include u(ccs)/INC`VERIFY={ansi(hr,WARNING:)%BDeleting the [u(FUN`MERNAME,%q<target>,%q<attr>)] %3. Are you sure? Enter the same command again within ten seconds to verify.},%3 DELETE %q<attr>,v(VAR`MSGHEAD);th setq(msg,lost a %3: [u(FUN`MERNAME,%q<target>,%q<attr>)] ([get(%q<target>/%q<attr>`RANK)]));@switch/inline strmatch(%#,%q<target>)=0,{th setq(amsg,ansi(h,name(%q<target>)) %q<msg>)};@include u(ex-mer)/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{ansi(h,name(%q<target>)) %q<msg>};@wipe %q<target>/%q<attr>
+
+&INC`RANK u(ex-mer)=@include u(ex-mer)/INC`BEGIN;@assert strlen(setr(attr,u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<context>)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Merit not found.;@assert cand(isint(%1),gte(%1,0))=@nspemit %#=u(RFN`MSGHEAD) [capstr(%2)] must have a rank. Ranks must be 0 or greater.;&%q<attr>`RANK %q<target>=%1;@include u(ex-mer)/DO`UPD=%q<target>,%q<attr>;th setq(msg,had a %3 Rank Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to [ansi(h,%1)]);@switch/inline strmatch(%#,%q<target>)=0,{th setq(amsg,ansi(h,name(%q<target>)) %q<msg>)};@include u(ex-mer)/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{ansi(h,name(%q<target>)) %q<msg>}
+
+&INC`CONTEXT u(ex-mer)=@include u(ex-mer)/INC`BEGIN;@assert strlen(setr(attr,u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<context>)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Merit not found.;@assert strlen(setr(newcon,squish(trim(%1)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Context empty.;@break strlen(u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<newcon>))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Conflicting Merit. Contexts must be unique.;;&%q<attr>`CONTEXT %q<target>=%q<newcon>;@include u(ex-mer)/DO`UPD=%q<target>,%q<attr>;th setq(msg,had a %3 Context Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to %q<newcon>);@switch/inline strmatch(%#,%q<target>)=0,{th setq(amsg,ansi(h,name(%q<target>)) %q<msg>)};@include u(ex-mer)/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{ansi(h,name(%q<target>)) %q<msg>}
+
+&INC`DESC u(ex-mer)=@include u(ex-mer)/INC`BEGIN;@assert strlen(setr(attr,u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<context>)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Merit not found.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Desc empty!;&%q<attr>`DESC %q<target>=%1;@include u(ex-mer)/DO`UPD=%q<target>,%q<attr>;th setq(msg,had a %3 Desc Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to %1);@switch/inline strmatch(%#,%q<target>)=0,{th setq(amsg,ansi(h,name(%q<target>)) %q<msg>)};@include u(ex-mer)/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{ansi(h,name(%q<target>)) %q<msg>}
+
+&INC`GET u(ex-mer)=@include u(ex-mer)/INC`TARGET;@include u(ex-mer)/INC`MERNAME;@assert strlen(setr(attr,u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<context>)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Merit not found.;@nspemit %#=u(RFN`HEADER,name(%q<target>)'s [u(FUN`MERNAME,%q<target>,%q<attr>)] Desc);@nspemit %#=decompile(get(%q<target>/%q<attr>`DESC));@nspemit %#=u(RFN`MSGHEAD)
+
+&INC`MAIN u(ex-mer)=@include u(ex-mer)/INC`TARGET;@switch/inline t(strlen(%0))=1,{@include u(ex-mer)/INC`MERNAME;@include u(ex-mer)/INC`DISPLAY},0,{@include u(ex-mer)/INC`LIST}
+
+&INC`LIST u(ex-mer)=@nspemit %#=u(RFN`HEADER,name(%q<target>)'s [capstr(%2)]);@nspemit %#=align(30 30 8,Name,Desc,Rank);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline/delimit | [sortkey(#lambda/u(FUN`MERNAME,%q<target>,\%0),lattr(%q<target>/D`%2`*),i,%b,|)]={@nspemit %#=align(30 30 8,pueblize(u(FUN`MERNAME,%q<target>,%i0),+%2 [name(%q<target>)]/[u(FUN`MERNAME,%q<target>,%i0)]),left(get(%q<target>/%i0`DESC),20),repeat(*,get(%q<target>/%i0`RANK)))};@nspemit %#=u(RFN`HEADER)
+
+&INC`DISPLAY u(ex-mer)=@assert strlen(setr(attr,u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<context>)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Merit not found.;@nspemit %#=u(RFN`HEADER,name(%q<target>)'s %3: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@nspemit %#=get(%q<target>/%q<attr>`DESC);@nspemit %#=u(RFN`SEPARATOR);@nspemit %#=align(20 20,Setby,Seton);@nspemit %#=align(20 20,get(%q<target>/%q<attr>`BY),fancytime(get(%q<target>/%q<attr>`ON),%#));@nspemit %#=u(RFN`HEADER)
+
+
+@@ CHARACTER - +INFO
++help/addmain Character/+info=[u(ex-mer)]/HLP`+INFO
+&HLP`+INFO u(ex-mer)=The Info system allows Players to store notes about their character. These notes can be used for a number of things, such as tracking details of resources, backgrounds, cheat sheets, or other notes that might be several paragraphs in length. By default they are visible to all players.%R%R[ansi(hc,Concepts)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,infonames)] - Info files can't be very long, may not contain special characters, and are not case sensitive.%R[ansi(h,filelists)] - Some commands let you specify a list of files. Seperate their names with | symbols, such as file1|file2.%R[ansi(h,private)] - Private files are visible only to you and staff.%R[ansi(h,locked)] - Locked files have been verified by staff and are read-only.})]%R%R[ansi(hc,Managing Infos)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+info <infoname>=<text>)] - Creates or replaces an info file.%R[ansi(h,+info/delete <filelist>)] - Deletes a file or series of files.%R[ansi(h,+info/rename <infoname>=<newname>)] - Renames Info files.%R[ansi(h,+info/private <filelist>)] - Hides (or reveals hidden) info files.})]%R%R[ansi(hc,Viewing Infos)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+info)] - Show all of your Info files.%R[ansi(h,+info <filelist>)] - Display an info's contents.%R[ansi(h,+info <player>/)] - Show a player's visible files. The / distinguishes between filename and playername!%R[ansi(h,+info <player>/<filelist>)] - Display a player's info contents.%RUse the /get switch as you would reading files to retrieve a decompile'd version for easy editing.})]
+
++shelp/addmain Character/+info=[u(ex-mer)]/SHLP`+INFO
+&SHLP`+INFO u(ex-mer)=Staff have many additional abilities with +info. For starters, Staff may target ANY info command on ANY player by using <player>/<infoname> where a player would just use <infoname>, and can see every Info file - hidden or not. This means staff can create and edit info files, hide them, delete them, etc. In addition, Staff see extra information regarding who set and locked info files when they view them and can use the following commands:%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+info/lock <player>/<filelist>)] - Lock one or more info files.%R[ansi(h,+info/unlock <player>/<filelist>)] - Unlock one or more info files.%R[ansi(h,+info/hide <player>/<filelist>)] - Hide one or more info files so players can't see them. use again to unhide.%R[ansi(h,+info/lset <player>/<file>=<text>)] - Set and lock a file simultaneously.%R[ansi(h,+info/lhset <player>/<file>=<text>)] - Set, lock, and hide a file simultaneously.%R%RHidden files cannot be seen or targeted by players. If they attempt to set one's text by luck or other means, they will receive a mysterious error message.})]

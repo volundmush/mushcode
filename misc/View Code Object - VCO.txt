@@ -3,7 +3,7 @@
 @parent u(vco)=u(coi)
 @set u(vco)=WIZARD SAFE !NO_COMMAND
 
-&CMD`VIEW u(vco)=$^(?s)(?\:\+)?(view|views)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(vco)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(vco)/VAR`%1`ADMINFLAGS)),|,|),|,VIEW,switch,switch;@include u(vco)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`VIEW u(vco)=$^(?s)(?\:\+)?(view|lore)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(vco)/VAR`VIEW`PLAYFLAGS),if(isadmin(%#),get(u(vco)/VAR`VIEW`ADMINFLAGS)),|,|),|,VIEW,switch,switch;@include u(vco)/INC`VIEW`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(vco)/CMD`VIEW=regexp
 
 &VAR`VIEW`ADMINFLAGS u(vco)=ADD|SET|DEL|REN
@@ -12,9 +12,7 @@
 
 &FUN`FINDVIEW u(vco)=sortkey(#lambda/get(%l/\%0),wildgrepi(%0,VIEW`*,%1*),i)
 
-&INC`VIEWS`MAIN u(vco)=@assert words(views(%l),|)=@nspemit %#=There's nothing here to view.;@nspemit %#=You can view the following: [itemize(iter(views(%l),pueblize(%i0,view %i0),|,|),|,and,\,)]
-
-&INC`VIEW`MAIN u(vco)=@assert strlen(%0)=@nspemit %#=What will you view?;@assert words(setr(views,u(FUN`FINDVIEW,%l,%0)))=@nspemit %#=There's no view named %0 here.;@break gt(words(%q<views>),1)=@nspemit %#=That view name is ambiguous. Please be more specific in the view name.;@nspemit %#=header(View: [get(%l/%q<views>)]);@nspemit %#=u(%l/%q<views>`DESC);@nspemit %#=header()
+&INC`VIEW`MAIN u(vco)=@assert strlen(%0)=@nspemit %#=You can view the following: [itemize(iter(views(%l),pueblize(%i0,view %i0),|,|),|,and,\,)];@assert words(setr(views,u(FUN`FINDVIEW,%l,%0)))=@nspemit %#=There's no view named %0 here.;@break gt(words(%q<views>),1)=@nspemit %#=That view name is ambiguous. Please be more specific in the view name.;@nspemit %#=header(View: [get(%l/%q<views>)]);@nspemit %#=u(%l/%q<views>`DESC);@nspemit %#=header()
 
 &INC`VIEW`ADD u(vco)=@assert strlen(%0)=@nspemit %#=msghead(VIEW) ERROR: View name empty.;@break words(grepi(%l,VIEW`*,%0))=@nspemit %#=msghead(VIEW) ERROR: There is already a View here by that name. Use /set to change its contents, /ren to rename it, or /del to remove it.;@assert strlen(%1)=@nspemit %#=msghead(VIEW) ERROR: View text empty.;&[setr(attr,VIEW`[nextslot(%l,VIEW)])] %l=%0;&%q<attr>`DESC %l=%1;@nspemit %#=msghead(VIEW) View set!
 

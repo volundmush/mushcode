@@ -53,10 +53,10 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),FI
 &INC`OOCFINGER`SET u(finger)=@include u(ccs)/INC`CHECKPC=if(cand(isadmin(%#),strmatch(%0,*/*)),before(%0,/),%#),1,OOCFINGER;@include u(ccs)/INC`PARTIAL=if(cand(isadmin(%#),strmatch(%0,*/*)),after(%0,/),%0),setunion(get(u(finger)/VAR`OOCFINGER`[default(me/VAR`OOCFINGER`MODE,DEFAULT)]`PLAYERSET),if(isadmin(%#),get(u(finger)/VAR`OOCFINGER`[default(me/VAR`OOCFINGER`MODE,DEFAULT)]`ADMINSET)),|,|),|,OOCFINGER,field,field;@switch/inline strlen(%1)=0,{@include u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR OOCFINGER %q<field>,OOCFINGER};th u(u(finger)/SET`OOCFINGER`[default(me/VAR`OOCFINGER`MODE,DEFAULT)],%q<t1>,%q<field>,%1);@nspemit %#=u(RFN`MSGHEAD,OOCFINGER) You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [capnames(%q<field>)] Finger Field to: %1;@switch/inline strmatch(%#,%q<t1>)=0,{@include u(ccs)/INC`MSG=OOCFINGER,%q<t1>,{[ansi(h,%n)] set your [capnames(%q<field>)] Finger Field to: %1}}
 
 &VAR`OOCFINGER`MODE u(finger)=DEFAULT
-&VAR`OOCFINGER`DEFAULT`COLUMN u(finger)=ALIAS~Alias|MAIL~Mush Mail|LAST~Last On|EMAIL~Email|CONTACT~Contact|HOMEPAGE~Homepage|THEME~Theme Song|ALTS~Alts|VOICEACTOR~Voice Actor
+&VAR`OOCFINGER`DEFAULT`COLUMN u(finger)=ALIAS~Alias|MAIL~Mush Mail|LAST~Last On|EMAIL~Email|CONTACT~Contact|HOMEPAGE~Homepage|THEME~Theme Song|ALTS~Alts|OTHER~Other|VOICEACTOR~Voice Actor
 &VAR`OOCFINGER`DEFAULT`COLUMN`WIDTH u(finger)=11
 &VAR`OOCFINGER`DEFAULT`EXTRA u(finger)=NOTES
-&VAR`OOCFINGER`DEFAULT`PLAYERSET u(finger)=EMAIL|CONTACT|HOMEPAGE|THEME|ALTS|VOICEACTOR|NOTES
+&VAR`OOCFINGER`DEFAULT`PLAYERSET u(finger)=EMAIL|CONTACT|HOMEPAGE|THEME|ALTS|OTHER|VOICEACTOR|NOTES
 &VAR`OOCFINGER`DEFAULT`ADMINSET u(finger)=
 
 &SET`OOCFINGER`DEFAULT u(finger)=if(strlen(%2),if(hasattr(u(finger)/SET`OOCFINGER`DEFAULT`%1),u(u(finger)/SET`OOCFINGER`DEFAULT`%1,%0,%2),attrib_set(%0/D`OOCFINGER`%1,%2)),if(hasattr(u(finger)/SET`OOCFINGER`DEFAULT`%1`CLEAR),u(u(finger)/SET`OOCFINGER`DEFAULT`%1`CLEAR,%0),attrib_set(%0/D`OOCFINGER`%1)))
