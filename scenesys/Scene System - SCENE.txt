@@ -4,13 +4,13 @@
 @set u(scene)=WIZARD !NO_COMMAND
 @TZ u(scene)=UTC
 
-&CMD`+SCENE u(scene)=$^(?s)(?\:\+)?(scene|scenes|plot)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(scene)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(scene)/VAR`%1`ADMINFLAGS)),|,|),|,v(VAR`MSGHEAD),switch,switch;@include u(scene)/INC`%1`[strfirstof(%q<switch>,MAIN)]=trim(%3),trim(%4)
+&CMD`+SCENE u(scene)=$^(?s)(?\:\+)?(scene|scenes|plot|schedule)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:th setq(mode,switch(%1,scene,scene,scenes,scenes,schedule,scenes,plot,plot));@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(scene)/VAR`%q<mode>`PLAYFLAGS),if(isadmin(%#),get(u(scene)/VAR`%q<mode>`ADMINFLAGS)),|,|),|,v(VAR`MSGHEAD),switch,switch;@include u(scene)/INC`%q<mode>`[strfirstof(%q<switch>,MAIN)]=trim(%3),trim(%4)
 @set u(scene)/CMD`+scene=regexp
 
 &VAR`SCENE`PLAYFLAGS u(scene)=SETUP|CHARID|JOIN|LEAVE|TITLE|DESC|CREATE|LOUDCREATE|RECALL|FINISH|PAUSE|CONTINUE|UNDO|REDO|SPOOF|MOVE|PLOT|OLD
 &VAR`SCENE`ADMINFLAGS u(scene)=DELETE|INSTALL|MERGE
 
-&VAR`SCENES`PLAYFLAGS u(scene)=ADD|DELETE|RESCHEDULE|DESC|TITLE|PLOT|TAG|UNTAG|MAIL
+&VAR`SCENES`PLAYFLAGS u(scene)=ADD|DELETE|RESCHEDULE|DESC|TITLE|PLOT|TAG|UNTAG|MAIL|MINE
 &VAR`SCENES`ADMINFLAGS u(scene)=
 
 &VAR`PLOT`PLAYFLAGS u(scene)=ALL
@@ -101,7 +101,8 @@
 
 &INC`MSGSCENE u(scene)=@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),setunion(lockfilter(D`SCENE`ACTIVE:%0,setunion(%:,u(sql,get`objidsinscene,%0))),%:),{%1}
 
-&INC`SCENE`JOIN u(scene)=@assert approved(%#)=@nspemit %#=u(RFN`MSGHEAD) You are not approved!;@include u(scene)/INC`USERCHECK=%:;@switch/inline gt(strlen(setr(scene,%0)),0)=1,{@assert valnum(%q<scene>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Scenes must be addressed by their IDs.;@assert setr(scene,u(sql,get`scenewhereidandstate,%q<scene>,0))=@nspemit %#=u(RFN`MSGHEAD) Scene '%0' does not exist or is not Active.},0,{@assert gt(setr(scene,u(sql,GET`SCENEHERE,objid(%l),uldefault(%l/D`CUSTLOC,%l,%#))),0)=@nspemit %#=u(RFN`MSGHEAD) There are no recent scenes here to join!};&D`SCENE`ACTIVE %#=%q<scene>;@include u(scene)/INC`MESSAGE=%q<scene>,%n joined Scene %q<scene>!;@switch/inline t(get(%#/D`SCENE`SPOOF))=1,{@nspemit %#=u(RFN`MSGHEAD) ALERT: You are currently set to Spoof as: [name(get(%#/D`SCENE`SPOOF))].}
+&INC`SCENE`JOIN u(scene)=@assert approved(%#)=@nspemit %#=u(RFN`MSGHEAD) You are not approved!;@include u(scene)/INC`USERCHECK=%:;@switch/inline gt(strlen(setr(scene,%0)),0)=1,{@switch/inline valnum(%q<scene>)=0,{@include u(ccs)/INC`CHECKPC=%q<scene>,2,v(VAR`MSGHEAD);@assert valnum(setr(scene,get(%q<t2>/D`SCENE`ACTIVE)))=@nspemit %#=u(RFN`MSGHEAD) %q<t2name> is not joined to a scene.},1,{@assert setr(scene,u(sql,get`scenewhereidandstate,%q<scene>,0))=@nspemit %#=u(RFN`MSGHEAD) Scene '%0' does not exist or is not Active.}},0,{@assert gt(setr(scene,u(sql,GET`SCENEHERE,objid(%l),uldefault(%l/D`CUSTLOC,%l,%#))),0)=@nspemit %#=u(RFN`MSGHEAD) There are no recent scenes here to join!};&D`SCENE`ACTIVE %#=%q<scene>;@include u(scene)/INC`MESSAGE=%q<scene>,%n joined Scene %q<scene>!;@switch/inline t(get(%#/D`SCENE`SPOOF))=1,{@nspemit %#=u(RFN`MSGHEAD) ALERT: You are currently set to Spoof as: [name(get(%#/D`SCENE`SPOOF))].}
+
 
 &SQL`GET`SCENEHERE u(scene)=SELECT max(scene_id) from $DATABASE$.$SCENES$ WHERE room_objid=? AND room_custloc=? AND scene_state='0' AND creation_date >= date_sub(UTC_TIMESTAMP(),INTERVAL 1 HOUR)
 &SQL`GET`SCENEWHEREIDANDSTATE u(scene)=SELECT scene_id from $DATABASE$.$SCENES$ WHERE scene_id=? AND scene_state='?'
@@ -209,7 +210,9 @@
 
 &INC`SCENES`MAIN u(scene)=@switch/inline gt(strlen(%0),0)=1,{@include u(scene)/INC`SCENES`DETAILS},0,{@include u(scene)/INC`SCENES`LIST}
 
-&INC`SCENES`LIST u(scene)=@include u(scene)/INC`USERCHECK=%:;@nspemit %#=u(RFN`HEADER,Current Schedule - [timefmt($Z,,%#)]);@dolist/inline u(sql,GET`UPCOMING)={@switch/inline not(strmatch(%q<last>,setr(last,timefmt($a $b $d $Y $Z,setr(time,u(sql,get`scheduletime,%i0)),%#))))=1,{@nspemit %#=u(RFN`HEADER,%q<last>)};@nspemit %#=u(FUN`FORMATSCHEDULE2,%q<pid>,%i0,u(sql,get`scheduletitle,%i0),u(sql,get`scheduleplayername,%i0),%q<time>,u(sql,get`schedownerid,%i0))};@nspemit %#=u(RFN`HEADER)
+&INC`SCENES`MINE u(scene)=@include u(scene)/INC`SCENES`LIST=1
+
+&INC`SCENES`LIST u(scene)=@include u(scene)/INC`USERCHECK=%:;@nspemit %#=u(RFN`HEADER,if(%0,Your%b)Current Schedule - [timefmt($Z,,%#)]);@dolist/inline if(%0,filterbool(#lambda/cor(t(words(setinter(u(sql,get`SCHEDOWNEROBJ,\%0),alts(%:)))),t(words(setinter(u(sql,get`tagobjids,\%0),alts(%:))))),u(sql,GET`UPCOMING)),u(sql,GET`UPCOMING))={@switch/inline not(strmatch(%q<last>,setr(last,timefmt($a $b $d $Y $Z,setr(time,u(sql,get`scheduletime,%i0)),%#))))=1,{@nspemit %#=u(RFN`HEADER,%q<last>)};@nspemit %#=u(FUN`FORMATSCHEDULE2,%q<pid>,%i0,u(sql,get`scheduletitle,%i0),u(sql,get`scheduleplayername,%i0),%q<time>,u(sql,get`schedownerid,%i0))};@nspemit %#=u(RFN`HEADER)
 
 &FUN`FORMATSCHEDULE2 u(scene)=align(3 4 40 20 7,ljust(switch(1,eq(%0,%5),ansi(hg,*),t(words(setinter(u(sql,get`playerobjid,%5),alts(%:)))),ansi(hg,*),t(u(sql,get`tagcheck,%1,%0)),ansi(hr,*),t(words(setinter(u(sql,get`tagobjids,%1),alts(%:)))),ansi(c,*)),1)[u(sql,get`tagcount,%1)],pueblize(%1,+scenes %1),%2,%3,elements(fancytime(%4,%q<target>),3))
 
@@ -230,6 +233,7 @@
 
 &INC`OWNSCHED u(scene)=@assert cor(isadmin(%#),eq(u(sql,get`schedownerid,%0),%1),if(%2,eq(u(sql,get`plotrunner,%2),%0)))=@nspemit %#=u(RFN`MSGHEAD) Permission denied.
 &SQL`GET`SCHEDOWNERID u(scene)=SELECT player_id from $DATABASE$.$SCHEDULE$ WHERE schedule_id=?
+&SQL`GET`SCHEDOWNEROBJID u(scene)=SELECT player_id from $DATABASE$.$SCHEDULE$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE schedule_id=?
 
 &INC`SCENES`DETAILS u(scene)=@include u(scene)/INC`USERCHECK=%:;@include u(scene)/INC`VALSCHED=%0;@nspemit %#=u(RFN`HEADER,Scheduled ID %q<schedule>: [u(sql,get`scheduletitle,%q<schedule>)]);@nspemit %#=ansi(h,Owner:) [u(sql,get`scheduleplayername,%q<schedule>)]%R[u(sql,get`scheduledesc,%q<schedule>)];@nspemit %#=u(RFN`SEPARATOR,Scheduled Time);@nspemit %#=align(-38 -38,fancytime(setr(time,u(sql,get`scheduletime,%q<schedule>)),UTC),fancytime(%q<time>,%#));@switch/inline cand(u(sql,get`tagcount,%q<schedule>),cor(isadmin(%#),eq(u(sql,get`schedownerid,%q<schedule>),%q<pid>)))=1,{@nspemit %#=u(RFN`SEPARATOR,Interested Players);th mapsql(FUN`INTERESTPLAY,u(FUN`SQLFORMAT,get`interest,%q<schedule>))};@nspemit %#=u(RFN`HEADER)
 
@@ -267,13 +271,13 @@
 
 &INC`PLOT`ALL u(scene)=@include u(scene)/INC`PLOT`LIST=%0,1
 
-&INC`PLOT`LIST u(scene)=@nspemit %#=u(RFN`HEADER,if(%1,All,Current) Plots);@nspemit %#=align(4 20 20 20 10,ID,Title,Runner,Schedule,Type);th setq(target,%#);th mapsql(u(scene)/FUN`FORMATPLOT,u(FUN`SQLFORMAT,if(%1,get`allplots,get`runningplots)));@nspemit %#=u(RFN`HEADER)
+&INC`PLOT`LIST u(scene)=@nspemit %#=u(RFN`HEADER,if(%1,All,Current) Plots);@nspemit %#=align(4 25 20 20 6,ID,Title,Runner,Schedule,Type);th setq(target,%#);th mapsql(u(scene)/FUN`FORMATPLOT,u(FUN`SQLFORMAT,if(%1,get`allplots,get`runningplots)));@nspemit %#=u(RFN`HEADER)
 
 &SQL`GET`ALLPLOTS u(scene)=SELECT plot_id,plot_title,player_name,UNIX_TIMESTAMP(start_date),UNIX_TIMESTAMP(end_date),plot_type FROM $DATABASE$.$PLOTS$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$
 
 &SQL`GET`RUNNINGPLOTS u(scene)=SELECT plot_id,plot_title,player_name,UNIX_TIMESTAMP(start_date),UNIX_TIMESTAMP(end_date),plot_type FROM $DATABASE$.$PLOTS$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE end_date > NOW()
 
-&FUN`FORMATPLOT u(scene)=nspemit(%q<target>,align(4 20 20 20 10,pueblize(%1,+plot %1),%2,%3,elements(fancytime(%4,%q<target>),1 2) - [elements(fancytime(%5,%q<target>),1 2)],%6))
+&FUN`FORMATPLOT u(scene)=nspemit(%q<target>,align(4 25 20 20 6,pueblize(%1,+plot %1),%2,%3,elements(fancytime(%4,%q<target>),1 2) - [elements(fancytime(%5,%q<target>),1 2)],%6))
 
 &INC`VALPLOT u(scene)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) Plot ID field empty.;@assert valnum(%0)=@nspemit %#=u(RFN`MSGHEAD) Plots must be addressed by their IDs.;@assert gt(setr(plot,u(sql,get`plotcheck,%0)),0)=@nspemit %#=u(RFN`MSGHEAD) Plot '%0' could not be found.
 &SQL`GET`PLOTCHECK u(scene)=SELECT plot_id FROM $DATABASE$.$PLOTS$ WHERE plot_id=?
@@ -340,7 +344,7 @@
 &SHLP`+SCENE u(scene)=
 
 +help/addmain Roleplaying/+scenes=[u(scene)]/HLP`+SCENES
-&HLP`+SCENES u(scene)=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H and some of his code remains - credits are due.%R[ansi(hc,See Also:)] [pueblize(+help +scene,+help +scene)], [pueblize(help @tz,help @tz)], [pueblize(help convtime(),convtime())]%R%R[ansi(hc,Scheduling Commands)]%RThese commands are for anyone who wants to schedule and manage a scene.%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scenes/add <time>/<title>=<description>)] - Schedules a scene. <time> must be in a format accepted by the convtime() function, and is from the perspective of your @tz setting. As an example, now would be: [timefmt($b $d $H:$M,,%#)]. It will default to the current year if none is provided.%R[ansi(h,+scenes/reschedule <id>=<time>)] - Changes a scene's scheduled time. <time> is same as adding.%R[ansi(h,+scenes/delete <id>)] - Remove a scheduled scene.%R[ansi(h,+scenes/title <id>=<text>)] - Changes a Scheduled scene's title.%R[ansi(h,+scenes/desc <id>=<text>)] - Changes a scheduled scene's description/short summary.%R[ansi(h,+scenes/plot <id>=<plot id>)] - Links a scene to a plot. Set plot to 0 to remove it from any plots.%R[ansi(h,+scenes/mail <id>=<message>)] - @mails all who have tagged a scene.%R%RAll changes made to the +scenes data will be reflected in the announcement post automatically. Deleting the scene will also delete the respective post.})]%R%R[ansi(hc,General Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scenes)] - Views a list of scheduled scenes. This uses your @tz settings to show them in your own Timezone. A red * means you tagged the scene. If you own the scene, the displayed number shows number of taggers.%R[ansi(h,+scenes <id>)] - View details about a scheduled Scene. If you're the owner, it also shows players who've tagged your scene.%R[ansi(h,+scenes/tag <id>)] - 'Tag' a scene to show your interest.%R[ansi(h,+scenes/untag <id>)] - Remove your tag from a scene.})]
+&HLP`+SCENES u(scene)=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H and some of his code remains - credits are due.%R[ansi(hc,See Also:)] [pueblize(+help +scene,+help +scene)], [pueblize(help @tz,help @tz)], [pueblize(help convtime(),convtime())]%R[ansi(hc,Aliases:)] +schedule%R%R[ansi(hc,Scheduling Commands)]%RThese commands are for anyone who wants to schedule and manage a scene.%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scenes/add <time>/<title>=<description>)] - Schedules a scene. <time> must be in a format accepted by the convtime() function, and is from the perspective of your @tz setting. As an example, now would be: [timefmt($b $d $H:$M,,%#)]. It will default to the current year if none is provided.%R[ansi(h,+scenes/reschedule <id>=<time>)] - Changes a scene's scheduled time. <time> is same as adding.%R[ansi(h,+scenes/delete <id>)] - Remove a scheduled scene.%R[ansi(h,+scenes/title <id>=<text>)] - Changes a Scheduled scene's title.%R[ansi(h,+scenes/desc <id>=<text>)] - Changes a scheduled scene's description/short summary.%R[ansi(h,+scenes/plot <id>=<plot id>)] - Links a scene to a plot. Set plot to 0 to remove it from any plots.%R[ansi(h,+scenes/mail <id>=<message>)] - @mails all who have tagged a scene.%R%RAll changes made to the +scenes data will be reflected in the announcement post automatically. Deleting the scene will also delete the respective post.})]%R%R[ansi(hc,General Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+scenes)] - Views a list of scheduled scenes. This uses your @tz settings to show them in your own Timezone. A red * means you tagged the scene. If you own the scene, the displayed number shows number of taggers.%R[ansi(h,+scenes <id>)] - View details about a scheduled Scene. If you're the owner, it also shows players who've tagged your scene.%R[ansi(h,+scenes/tag <id>)] - 'Tag' a scene to show your interest.%R[ansi(h,+scenes/untag <id>)] - Remove your tag from a scene.})]
 
 +help/addmain Roleplaying/+plot=[u(scene)]/HLP`+PLOT
 &HLP`+PLOT u(scene)=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H and some of his code remains - credits are due.%R[ansi(hc,See Also:)] [pueblize(+help +scene,+help +scene)]%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+plot)] - Show all current plots.%R[ansi(h,+plot/all)] - Show all plots in the system.%R[ansi(h,+plot <id>)] - Show a plot's details.})]

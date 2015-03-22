@@ -16,8 +16,9 @@
 &GFN`ANNOUNCE u(gfo)=msghead(%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
 &GFN`ROOMANNOUNCE u(gfo)=msgheadroom(%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
 
-&GFN`CAPNAMES u(gfo)=regeditalli(lcstr(%0),v(REG`CAPNAMES),capstr($1),\\b(of|the|a)\\b,lcstr($0))
+&GFN`CAPNAMES u(gfo)=regeditalli(lcstr(%0),v(REG`CAPNAMES),capstr($1),\\b(of|the|a)\\b,lcstr($0),v(REG`CAPNAMES2),$1[capstr($2)])
 &REG`CAPNAMES u(gfo)=(?:^|(?<=[_\/\-\|\s()\+]))([a-z]+)
+&REG`CAPNAMES2 u(gfo)=(^|(?<=[(]))(of|the|a)
 &GFN`COMMAFY u(gfo)=squish(flip(foreach(#lambda/if(mod(\%1,3),\%0,\\,\%0),flip(%0))),\,)
 &AGFN`DELSTAT u(gfo)=attrib_set(%0,setdiff(get(%0),grab(get(%0),%1~*,|),|))
 &AGFN`GETSTAT u(gfo)=if(strlen(%2),add(rest(grab(get(%0),%1~*,|),~),rest(grab(get(before(%0,/)/D`%2),%1~*,|),~)),rest(grab(get(%0),%1~*,|),~))
@@ -37,12 +38,12 @@
 &GFN`NEXTSLOT u(gfo)=add(1,lmath(max,iter(filterbool(#lambda/isint(last(\%0,`)),lattr(%0/[if(strlen(%1),%1`*,*)])),last(%i0,`))))
 &GFN`NUMTH u(gfo)=%0[switch(%0,11,th,12,th,13,th,switch(right(%0,1),1,st,2,nd,3,rd,th))]
 
-&GFN`PUEBLIZE u(gfo)=tagwrap(A,XCH_CMD="[strfirstof(%1,%0)]",%0)
+&GFN`PUEBLIZE u(gfo)=tagwrap(A,XCH_CMD="[render(strfirstof(%1,%0),html)]",%0)
 &AGFN`SETSTAT u(gfo)=localize(attrib_set(%0,setunion(setdiff(setr(0,get(%0)),grab(%q0,%1~*,|),|),%1~%2,|)))
 &GFN`TIMESTAMP u(gfo)=timefmt($Y-$m-$d $H:$M:$S,firstof(%0,secs()))
 &AGFN`UNPRIV u(gfo)=setq(unprivtext,%0)[objeval(get(u(mdo)/VAR`UNPRIV),s(%q<unprivtext>))]
 &GFN`VALNUM u(gfo)=cand(isint(%0),gt(%0,0))
-&GFN`WEBLINK u(gfo)=if(strlen(%0),tagwrap(a,href="[setr(webfix,if(not(strmatch(%0,*://*)),http://%0,%0))]",strfirstof(%1,%q<webfix>)))
+&GFN`WEBLINK u(gfo)=if(strlen(%0),tagwrap(a,href="[render(setr(webfix,if(not(strmatch(%0,*://*)),http://%0,%0)),html)]",strfirstof(%1,%q<webfix>)))
 
 &GFN`LASTIDLE u(gfo)=switch(1,cand(isadmin(%1),hasflag(%0,CONNECTED),cor(hidden(%0),hasflag(%0,DARK))),ansi(hx,etime(idle(%0),3)),cor(cand(not(isadmin(%1)),hasflag(%0,CONNECTED),cor(hidden(%0),hasflag(%0,DARK))),not(hasflag(%0,CONNECTED))),ansi(hx,elements(get(%0/last),2 3)),hasflag(%0,CONNECTED),ansi(hg,etime(idle(%0),3)))
 

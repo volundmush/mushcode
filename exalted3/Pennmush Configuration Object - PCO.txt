@@ -2,8 +2,9 @@
 
 &STARTUP`EXTRA u(pco)=@dolist/inline jobsb jobsh LAST_CONN={@attribute/access/retroactive %i0=wizard mortal_dark}
 
+&PLAYER`CREATE`JOINCHAN u(pco)=@chan/on Public=%0;@chan/on Newbie=%0
 &PLAYER`CREATE`SCENESYS u(pco)=+scene/setup %0
-&PLAYER`CONNECT`GUESTANN u(pco)=@assert haspower(%0,GUEST);@nscemit/noisy Newbie=ansi(h,name(%0)) has connected to [mudname()]!
+&PLAYER`CONNECT`GUESTANN u(pco)=@assert haspower(%0,GUEST);@nscemit/noisy Newbie=ansi(h,name(%0)) has connected to [mudname()]!;@nspemit %0=Welcome to [mudname()], [name(%0)]! You may speak on the Guest Channel using [ansi(h,+n)]. For example, [ansi(h,+n Hello!)]. If you are new to MUSHing, looking at [ansi(h,+help basic)] may also be useful.
 &PLAYER`DISCONNECT`GUESTANN u(pco)=@assert haspower(%0,GUEST);@break %1;@nscemit/noisy Newbie=ansi(h,name(%0)) has disconnected from [mudname()]!
 
 &OBJECT`RENAME`SCENESYS u(pco)=@assert hastype(%0,PLAYER);@assert isdbref(u(scenesys));@sql UPDATE scene_players SET player_initname="[sqlescape(%1)]" WHERE player_objid="%0"

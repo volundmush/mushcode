@@ -11,7 +11,7 @@
 
 &FUN`CONFORMAT`PLAYERS`DEFAULT u(ar)=u(RFN`SEPARATOR,Players)%R[align(19,Name)]%R[trim(iter(sort(lvplayers(me),namei),align(19,pueblize(ansi(custcolor(%#,ROOM`PLAYERNAME),name(%i0)),look [name(%i0)])),%b,%R),%r)]
 
-&FUN`CONFORMAT`THINGS`DEFAULT u(ar)=u(RFN`SEPARATOR,Things)%R[align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter))]%R[trim(iter(sort(lvthings(me),namei),align(40 28 8,pueblize(name(%i0),look [name(%i0)]),pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(isadmin(%#)[hasflag(%i0,ENTER_OK)][elock(%i0/enter,%#)],111,pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),011,pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R),%r)]
+&FUN`CONFORMAT`THINGS`DEFAULT u(ar)=u(RFN`SEPARATOR,Things)%R[align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter))]%R[trim(iter(sort(lvthings(me),namei),align(40 28 8,pueblize(name(%i0),look [name(%i0)]),pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(isadmin(%#)[hasflag(%i0,ENTER_OK)],11,pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R),%r)]
 
 &FUN`CONFORMAT`EXTRA u(ar)=if(cor(nattr(me/VIEW`*),nattr(me/MUSIC`*)),separator(Extra)%R[iter(filterbool(#lambda/nattr(me/\%0`*),VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)
 &FUN`EXTRA`VIEW u(ar)=This room has views! Type [pueblize(ansi(h,views),views)] to list!

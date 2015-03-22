@@ -36,7 +36,7 @@
 
 &INC`DESCCIRCLE u(rumor)=@assert hasflag(%#,WIZARD)=@nspemit %#=u(RFN`MSGHEAD) Permission Denied: Wizard only.;@include u(rumor)/INC`FINDCIRCLE=%0;@assert strlen(%2)=@nspemit %#=u(RFn`MSGHEAD) ERROR: No description entered!;@nspemit %#=u(RFN`MSGHEAD) Desc set.;@describe %q<cat>=%2
 
-&INC`CIRCLES u(rumor)=@nspemit %#=u(RFN`HEADER,Rumor Circles);@nspemit %#=align(10 9 57,Name,Lock,Description);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline u(FUN`VALIDCIRCLES,%#,Post)={@nspemit %#=align(10 9 57,name(%i0),strfirstof(if(u(FUN`PERMCHECK,%i0,ADMIN,%#),ADMIN),if(u(FUN`PERMCHECK,%i0,POST,%#),POST),if(u(FUN`PERMCHECK,%i0,READ,%#),READ)),get(%i0/DESCRIBE))};@nspemit %#=u(RFN`HEADER)
+&INC`CIRCLES u(rumor)=@nspemit %#=u(RFN`HEADER,Rumor Circles);@nspemit %#=align(10 9 57,Name,Access,Description);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline u(FUN`VALIDCIRCLES,%#,Post)={@nspemit %#=align(10 9 57,name(%i0),strfirstof(if(u(FUN`PERMCHECK,%i0,ADMIN,%#),ADMIN),if(u(FUN`PERMCHECK,%i0,POST,%#),POST),if(u(FUN`PERMCHECK,%i0,READ,%#),READ)),get(%i0/DESCRIBE))};@nspemit %#=u(RFN`HEADER)
 
 &INC`FINDCIRCLE u(rumor)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) No Category Name entered!;@assert words(setr(cats,if(strlen(%1),u(FUN`VALIDCIRCLES,%#,%1),u(FUN`LISTCIRCLES))))=@nspemit %#=u(RFN`MSGHEAD) There are no Categories.;@assert isdbref(setr(cat,objid(namegrab(%q<cats>,%0))))=@nspemit %#=u(RFN`MSGHEAD) Category '%0' not found.;th setq(catname,name(%q<cat>))
 

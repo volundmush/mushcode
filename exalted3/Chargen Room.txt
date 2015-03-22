@@ -14,9 +14,16 @@
 &RFN`SEPARATOR u(cg)=separator(%0,,CHARGEN`BORDER,CHARGEN`BORDERDOT,CHARGEN`BORDERTEXT,1)
 &RFN`SUBHEADER u(cg)=subheader(%0,,CHARGEN`BORDER,CHARGEN`BORDERDOT,CHARGEN`BORDERTEXT,1)
 
-@desc u(cg)=%TWelcome to [mudname()] Chargen! In this room you will setup your sheet and other aspects and prepare for admin review for approval. Remember to check out any House Rules at [weblink(mudurl(),mudurl())]%R%R%TTo see your sheet, type [ansi(h,+sheet)]%R%R[u(strfirstof(getstat(%#/D`CHARGEN,Page),1),getsplat(%#))]%R%R%TNote that many options such as Splat, Caste, Attribute, and Ability names support partial matching!%R%R%TYou are currently viewing Page [ansi(h,strfirstof(getstat(%#/D`CHARGEN,Page),1))] of [ansi(h,lmath(max,filterbool(#lambda/isnum(\%0),lattr(me/*))))]. To change pages, type [ansi(h,+page <number>)] (example: +page 2)%R%R%TIf you'd like to undo certain steps, use [ansi(h,+reset)] to view your options.
+@desc u(cg)=%TWelcome to [mudname()] Chargen! In this room you will setup your sheet and other aspects and prepare for admin review for approval. Remember to check out any House Rules at [weblink(mudurl(),mudurl())]%R%R%TTo see your sheet, type [ansi(h,+sheet)]%R[u(strfirstof(getstat(%#/D`CHARGEN,Page),1),getsplat(%#))]%R[u(RFN`SEPARATOR,Chargen)]%RViewing Page [ansi(h,strfirstof(getstat(%#/D`CHARGEN,Page),1))] of [ansi(h,lmath(max,filterbool(#lambda/isnum(\%0),lattr(me/*))))]. Use [ansi(h,+page <number>)] to change. For example, +page 2.%RIf you'd like to undo certain steps, use [ansi(h,+reset)] to view your options.%R[u(FUN`STATS,%#)]
 
-&1 u(cg)=ansi(h,+splat <type>)%R%TYour choices are: [itemize(get(u(ex-cdo)/VAR`SPLATS),|,and,\,)][if(strlen(getstat(%#/D`INFO,Splat)),%R%R[ansi(h,+caste <type>)] to set your [if(strmatch(getsplat(%#),Dragon-Blooded),Aspect,Caste)]%R%TYour choices are: [itemize(get(u(ex-cdo)/VAR`SPLATS`[getsplat(%#)]),|,and,\,)][if(hasattr(me/1`[getsplat(%#)]),%R%R[u(1`[getsplat(%#)])])])]%R%R[ansi(h,&sex me=<gender>)] to set your Gender (Male, Female, or None)%R%R[ansi(h,+xp)] to view starting XP.
+&FUN`STATS u(cg)=[u(RFN`SEPARATOR,Progress)]%R[ansi(h,ATTRIBUTES:)] [rjust(u(FUN`COUNT,%#,ATTRIBUTES),2,0)]. Physical/Social/Mental: [rjust(add(getstat(%#/D`ATTRIBUTES,Strength),getstat(%#/D`ATTRIBUTES,Dexterity),getstat(%#/D`ATTRIBUTES,Stamina)),2,0)]/[rjust(add(getstat(%#/D`ATTRIBUTES,Charisma),getstat(%#/D`ATTRIBUTES,Manipulation),getstat(%#/D`ATTRIBUTES,Appearance)),2,0)]/[rjust(add(getstat(%#/D`ATTRIBUTES,Perception),getstat(%#/D`ATTRIBUTES,Intelligence),getstat(%#/D`ATTRIBUTES,Wits)),2,0)]%R[ansi(h,ABILITIES:)] [rjust(add(u(FUN`COUNT,%#,ABILITIES),u(FUN`COUNT,%#,STYLES),u(FUN`COUNT,%#,CRAFTS)),2,0)]/[rjust(strfirstof(v(MAX`ABILITIES`[setr(sph,getsplat(%#))]),??),2,0)]%R[ansi(h,MERITS:)] [rjust(u(FUN`COUNT`MERITS,%#),2,0)]/[rjust(strfirstof(v(MAX`MERITS`%q<sph>),??),2,0)]%R[ansi(h,CHARMS:)] [rjust(add(u(FUN`COUNT`CHARMS,%#),u(FUN`COUNT`SPELLS,%#)),2,0)]/[rjust(strfirstof(v(MAX`CHARMS`%q<sph>),??),2,0)]
+
+&FUN`COUNT u(cg)=lmath(add,iter(get(%0/D`%1),last(%i0,~),|,%b))
+&FUN`COUNT`MERITS u(Cg)=lmath(add,iter(lattr(%0/D`MERITS`*`RANK),get(%0/%i0)))
+&FUN`COUNT`CHARMS u(cg)=lmath(add,iter(lattr(%0/D`CHARMS`*`*),words(get(%0/%i0),|)))
+&FUN`COUNT`SPELLS u(cg)=lmath(add,iter(lattr(%0/D`SPELLS`*),words(get(%0/%i0),|)))
+
+&1 u(cg)=[u(RFN`SEPARATOR,Step 1: Concept and Caste)]%R[ansi(h,+splat <type>)]%R%TYour choices are: [itemize(get(u(ex-cdo)/VAR`SPLATS),|,and,\,)][if(strlen(getstat(%#/D`INFO,Splat)),%R%R[ansi(h,+caste <type>)] to set your [if(strmatch(getsplat(%#),Dragon-Blooded),Aspect,Caste)]%R%TYour choices are: [itemize(get(u(ex-cdo)/VAR`SPLATS`[getsplat(%#)]),|,and,\,)][if(hasattr(me/1`[getsplat(%#)]),%R%R[u(1`[getsplat(%#)])])])]%R%R[ansi(h,&sex me=<gender>)] to set your Gender (Male, Female, or None)%R%R[ansi(hr,IMPORTANT NOTES:)]%RWhen undergoing Chargen, you will be spending 30XP instead of 18BP using our house rules. Double check the rules at:%R[weblink(http://adreamingsea.com/wiki/index.php?title=Character_Creation)]%Rand%R[weblink(http://adreamingsea.com/wiki/index.php?title=Advancement)]%RAn +info file (see [ansi(h,+help +info)]) detailing how you spent this XP will be required to finish chargen. Set your sheet to what it would be with these points spent.
 
 &1`SOLAR u(cg)
 &1`LUNAR u(cg)=u(1`SOLAR)%R%R[ansi(h,+totem <animal>)] to set your Spirit Shape.
@@ -40,12 +47,12 @@
 &CMD`INFOSET u(cg)=$^\+(flawedvirtue|doom|liege|lure|totem|urge|house|yozi|nation)(?\: +(.+))?$:th setq(type,switch(%1,flawedvirtue,Flawed Virtue,virtueflaw,Virtue Flaw,doom,Doom,liege,Liege,lure,Lure,totem,Totem Animal,urge,Urge,house,House,yozi,Favored Yozi,nation,Nation));@assert strlen(%2)=@nspemit %#=u(RFN`MSGHEAD) What will your %q<type> be?;@nspemit %#=u(RFN`MSGHEAD) Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Race!;th setstat(%#/D`INFO,%q<type>,%2)
 @set u(cg)/CMD`INFOSET=regexp
 
-&2 u(cg)=%tTo set an attribute:%r%r[ansi(h,%t+attr <attribute>=<value>)] (<attribute> may be a partial match. <value> must be 0 or greater.)%R%TYour choices are: [itemize(get(u(ex-cdo)/VAR`ATTRIBUTES),|,and,\,)]%R%R%TAll Attributes begin with 1 dot free, unless otherwise stated for your Splat.%r%r%tIn order of Primary/Secondary/Tertiary...[udefault(2`[getsplat(%#)],Your Splat appears unset or has no data entered.)]
+&2 u(cg)=[u(RFN`SEPARATOR,Step 2: Attributes)]%R%tTo set an attribute:%r%r[ansi(h,%t+attr <attribute>=<value>)] (<attribute> may be a partial match. <value> must be 0 or greater.)%R%TYour choices are: [itemize(get(u(ex-cdo)/VAR`ATTRIBUTES),|,and,\,)]%R%R%TAll Attributes begin with 1 dot free, unless otherwise stated for your Splat.%r%r%tIn order of Primary/Secondary/Tertiary...[udefault(2`[getsplat(%#)],Your Splat appears unset or has no data entered.)]
 
-&2`MORTAL u(cg)=Mortals receive 6/4/3 Attribute points.
-&2`SOLAR u(cg)=Solars receive 8/6/4 Attribute points.
-&2`INFERNAL u(cg)=Infernals receive 8/6/4 Attribute points.
-&2`ABYSSAL u(cg)=Abyssals receive 8/6/4 Attribute points.
+&2`MORTAL u(cg)=Mortals receive 6/4/3 Attribute points for Primary/Secondary/Social. Remember all Attributes begin at 1 before distributing these.
+&2`SOLAR u(cg)=Solars receive 8/6/4 Attribute points for Primary/Secondary/Social. Remember all Attributes begin at 1 before distributing these.
+&2`INFERNAL u(cg)=Infernals receive 8/6/4 Attribute points for Primary/Secondary/Social. Remember all Attributes begin at 1 before distributing these.
+&2`ABYSSAL u(cg)=Abyssals receive 8/6/4 Attribute points for Primary/Secondary/Social. Remember all Attributes begin at 1 before distributing these.
 
 &2`ALCHEMICAL u(cg)=Alchemicals receive 8 Attribute Points for their Caste Attributes, minimum 2 each, 6 Attribute points in their Favored Attributes, and 4 Attribute points to be used freely.%r%tIn addition they receive 1 extra point for a Caste or Favored Attribute.%r%r%t[ansi(h,+castefavattr)] to set your Caste Favored Attributes%r%t[ansi(h,+favattr <attribute>)] to set your Favored Attribute(s).%r%t[ansi(h,+unfavattr <attribute>)] to unset your Favored Attribute(s).
 &2`DRAGON-BLOODED u(cg)=Dragon-Blooded receive 8/6/4 Attribute Points.
@@ -81,10 +88,20 @@
 &DAT`2`FAVORED`WANING_MOON u(cg)=Dexterity|Manipulation|Wits
 &DAT`2`FAVORED`WAXING_MOON u(cg)=Charisma|Manipulation|Appearance
 
-&3 u(cg)=%t[ansi(h,+abil <ability>=<value>)] to set an Ability (<Ability> may be a partial match, <value> must be a number 0 or higher.)%R%T[ansi(h,+style <style>=<value>)] to set points in a Martial Arts style. Be sure you have the merit!%R%T[ansi(h,+craft <field>=<value>)] to set points in various Crafts, such as Weaponry or Carpentry.%r%t[ansi(h,+spec <ability or attribute>/<specialization>=<points>)] to set a Specialty.%R%R%TYour Ability choices are: [itemize(capnames(setdiff(u(u(ex-cdo)/FUN`GET`ABILITIES),CRAFT,|,i,|)),|,and,\,)]%R%R%TYour Style choices are: [itemize(capnames(u(u(ex-cdo)/FUN`GET`STYLES)),|,and,\,)]%r%r%tSetting an ability or specialization to 0 will remove it. Setting "Craft" Favored automatically favors all Crafts.[if(and(strlen(getsplat(%#)),hasattr(me/3`[getsplat(%#)])),%R%R%T[u(3`[getsplat(%#)])])]
+&3 u(cg)=[u(RFN`SEPARATOR,Step 3: Abilities)]%R[if(and(strlen(getsplat(%#)),hasattr(me/3`[getsplat(%#)])),[u(3`[getsplat(%#)])])]%R%RSetting any stat to 0 will remove it.
 
-&3`MORTAL u(cg)=Mortals receive 28 Ability points.
-&3`SOLAR u(cg)=Solars receive 5 Caste Abilities and 5 Favored Abilities.%R%tSolars may choose 1 Caste Ability as Supernal.%r%tSolars receive 28 ability points, minimum 10 among Caste and Favored Abilities, and receive 4 Specialty points.%r%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.%r%r%t[ansi(h,+supabil <Ability>)] to set an Ability as Supernal.%r%t[ansi(h,+unsupabil <ability>)] to unset a Supernal Ability.
+&3`MORTAL u(cg)=Mortals receive 28 Ability points.%R%r[u(3`ABILITY)]%R%r[u(3`CRAFT)]%R%r[u(3`STYLE)]
+&3`SOLAR u(cg)=Solars receive 5 Caste Abilities and 5 Favored Abilities.%RSolars may choose 1 Caste Ability as Supernal.%rSolars receive 28 ability points, minimum 10 among Caste and Favored Abilities, and receive 4 Specialty points.%R%R[u(3`ABILITY)]%r%r[u(3`FAVORED)]%R%r[u(3`SUPERNAL)]%R%r[u(3`CRAFT)]%R%r[u(3`STYLE)]
+
+&3`ABILITY u(cg)=%t[ansi(h,+abil <ability>=<value>)] to set an Ability (<Ability> may be a partial match, <value> must be a number 0 or higher.)%R%t[ansi(h,+spec <ability or attribute>/<specialization>=<points>)] to set a Specialty. (Set to 1, no higher.)%R%TYour Ability choices are: [itemize(capnames(setdiff(u(u(ex-cdo)/FUN`GET`ABILITIES),CRAFT,|,i,|)),|,and,\,)]
+
+&3`FAVORED u(cg)=%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored (also use this for Caste ones).%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored/Caste Ability.%R%TSetting "Craft" or "Martial Arts" Favored automatically favors all Crafts/Styles, respectively.
+
+&3`SUPERNAL u(cg)=%t[ansi(h,+supabil <Ability>)] to set an Ability as Supernal.%r%t[ansi(h,+unsupabil <ability>)] to unset a Supernal Ability.
+
+&3`STYLE u(cg)=%T[ansi(h,+style <style>=<value>)] to set points in a Martial Arts style.%R%TYour Style choices are: [itemize(capnames(u(u(ex-cdo)/FUN`GET`STYLES)),|,and,\,)]
+
+&3`CRAFT u(cg)=%T[ansi(h,+craft <field>=<value>)] to set points in various Crafts, such as Weaponry or Carpentry.
 
 &3`ABYSSAL u(cg)=Abyssals note their 5 Caste Abilities, and choose 5 Favored Abilities.%r%tAbyssals receive 28 ability points, minimum 10 among caste and favored, and receive 4 Specialty points.%r%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
 
@@ -111,7 +128,7 @@
 &CMD`+CRAFT u(cg)=$^\+craft(?\: +(.+?))?(?\:=(.+))?$:@include u(ex-cdo)/DO`SET`CRAFTS=%#,%1,if(eq(%2,0),,%2);@nspemit %#=u(RFN`MSGHEAD) [if(%2,You set [ansi(h,capnames(%q<find>))] to %2,You remove [ansi(h,capnames(%q<find>))])]. You have spent [ansi(h,lmath(add,iter(setunion(get(%#/D`CRAFTS),setunion(get(%#/D`ABILITIES),get(%#/D`STYLES),|,i,|),|,i,|),last(%i0,~),|)))] Ability dots!
 @set u(cg)/CMD`+CRAFT=regexp
 
-&CMD`+FAVABIL u(cg)=$^\+(un)?(fav|sup)abil(?\: +(.+))?$:th switch(%1,un,setq(mode,rem),setq(mode,add));th setq(mode2,switch(%2,fav,FAVORED,sup,SUPERNAL));@include u(ex-cdo)/DO`%q<mode>`%q<mode2>=%#,ABILITIES,%3;@nspemit %#=u(RFN`MSGHEAD) You [switch(%q<mode>,add,now,no longer)] [switch(%q<mode2>,SUPERNAL,Supernal Ability,Ability)] Favor [itemize(iter(%q<entry>,ansi(h,capnames(%i0)),|,|),|,and,\,)]. Current [switch(%q<mode2>,SUPERNAL,Supernal Ability,Ability)] Favors: [words(get(%0/D`%q<mode2>`ABILITIES),|)]
+&CMD`+FAVABIL u(cg)=$^\+(un)?(fav|sup)abil(?\: +(.+))?$:th switch(%1,un,setq(mode,rem),setq(mode,add));th setq(mode2,switch(%2,fav,FAVORED,sup,SUPERNAL));@include u(ex-cdo)/DO`%q<mode>`%q<mode2>=%#,ABILITIES,%3;@nspemit %#=u(RFN`MSGHEAD) You [switch(%q<mode>,add,now,no longer)] [switch(%q<mode2>,SUPERNAL,Supernal Ability,Ability)] Favor [itemize(iter(%q<entry>,ansi(h,capnames(%i0)),|,|),|,and,\,)]. Current [switch(%q<mode2>,SUPERNAL,Supernal Ability,Ability)] Favors: [words(get(%#/D`%q<mode2>`ABILITIES),|)]
 @set u(cg)/CMD`+FAVABIL=regexp
 
 @@ &CMD`+CASTEFAVORED u(cg)=$+castefavored:@assert strlen(getstat(%#/D`INFO,Caste))=@nspemit %#=You do not have a Caste set!;@assert strlen(setr(newfavored,unique(iter(v(DAT`3`FAVORED`[edit(getstat(%#/D`INFO,Caste),%B,_)]),capnames(%i0),|,|),i,|,|)))=@nspemit %#=Your Caste does not have any listed Favored Abilities.;@nspemit %#=You set your Favored Abilities to those of the [ansi(h,getstat(%#/D`INFO,Caste))] Caste.;th attrib_set(%#/D`ABILITIES`FAVORED,setunion(get(%#/D`ABILITIES`FAVORED),%q<newfavored>,|,|))
@@ -164,15 +181,39 @@
 &DAT`3`FAVORED`JUGGERNAUT u(cg)=Athletics|Presence|Resistance|Integrity|Martial_Arts
 &DAT`3`FAVORED`DELUGE u(cg)=Athletics|Survival|Sail|Investigation|Occult
 
-&4 u(cg)=ansi(h,+addcharm <category>=<charm1>|<charm2>|<charm3>|etc) to add native Charms.%R[ansi(h,+delcharm <category>=<charm1|<charm2>|<charm3>|etc)] to delete native Charms.%RCategories for your character type's Native Charms: [itemize(get(u(ex-cdo)/FUN`GET`CHARMTYPES`[charmtype(%#)]),|,and,\,)]%R%R[ansi(h,+addocharm <splat>/<category>=<charm1>|<charm2>|<charm3>|etc)] to add Other Splat Charms.%R[ansi(h,+delocharm <splat>/<category>=<charm1|<charm2>|<charm3>|etc)] to delete Other Splat Charms.%R%R[ansi(h,+addmacharm <style>=<charm1>|<charm2>|<charm3>|etc)] to add Martial Arts Charms.%R[ansi(h,+delmacharm <style>=<charm1|<charm2>|<charm3>|etc)] to delete Martial Arts Charms.%R[ansi(h,+setma <tier>/<slot number>=<name>)] to set the name of the style in slot <number>.%R%R[ansi(h,+addspell <circle>=<spell1>|<spell2>|<spell3>|etc)] to add Sorcery or Necromancy spells.%R[ansi(h,+delspell <circle>=<spell1|<spell2>|<spell3>|etc)] to delete Sorcery or Necromancy spells.[if(and(strlen(getsplat(%#)),hasattr(me/4`[getsplat(%#)])),%R%R[u(4`[getsplat(%#)])])]
+&4 u(cg)=[u(RFN`SEPARATOR,Step 4: Merits and Flaws)]%R[ansi(h,+help +merits)] to see how to set your Merits and Flaws. Make sure to give them descriptions and contexts as appropriate![if(and(strlen(getsplat(%#)),hasattr(me/4`[getsplat(%#)])),%R%R%T[u(4`[getsplat(%#)])])]
 
-&4`ALCHEMICAL u(cg)=ansi(h,+addproto <tier>=<protocol1>|<protocol2>|<protocol3>|etc) to add Weaving Protocols.%R[ansi(h,+delproto <tier>=<protocol1>|<protocol2>|<protocol3>|etc)] to delete Weaving Protocols.%R%R[ansi(h,+slots <type>=<number>)] to set Charm Slots.
+&4`MORTAL u(cg)=Mortals receive 7 dots to spend on Merits.
+&4`SOLAR u(cg)=Solars receive 10 dots to spend on merits.
 
-&4`DRAGON-KING u(cg)=ansi(h,+breedfavpath) to set your Breed Favored Paths%r[ansi(h,+path <path>=<value>)] to set how your Path points.%r%tYour choices are: [itemize(get(u(ex-cdo)/VAR`PATHS),|,and,\,)]%r%R[ansi(h,+favpath <path>)] to set a Favored Path%r[ansi(h,+unfavpath <path>)] to remove a Favored Path
+&MAX`MERITS`MORTAL u(cg)=7
+&MAX`MERITS`SOLAR u(cg)=10
 
-&4`SIDEREAL u(cg)=ansi(h,+maidenfavcoll) to set your Caste Colleges.%R%T[ansi(h,+college <college>=<value>)] to set Astrology.%r%tYour choices are: [itemize(get(u(ex-cdo)/VAR`COLLEGES),|,and,\,)]
+&5 u(cg)=[u(RFN`SEPARATOR,Step 5: Charms and Other Powers)]%RThis room's contents change based on previous choices. If you want Martial Arts Charms you must buy the style, Evocations require an Artifact, etc.[if(and(strlen(getsplat(%#)),hasattr(me/5`[getsplat(%#)])),%R%R[u(5`[getsplat(%#)])])]
 
-&4`SPIRIT u(cg)=Please consult with staff if designing a Spirit!
+&MAX`CHARMS`MORTAL u(cg)=0
+&MAX`CHARMS`SOLAR u(cg)=15
+
+&5`MORTAL u(cg)=Mortals cannot learn Charms, but may learn Sorcery up to the Terrestrial Circle.[if(cor(words(wildgrepi(%#,D`MERITS`*,TERRESTIAL CIRCLE SORCERY)),wildgrepi(%#,D`MERITS`*,SHAPING RITUAL)),%R%R[u(5`SORCERY)])]
+&5`SOLAR u(cg)=Solars begin play with 15 Charms/Spells.%R%R[u(5`NATIVECHARMS)][if(strmatch(Eclipse,getstat(%#/D`INFO,Caste)),%R%R[u(5`OTHERCHARMS)])][if(strlen(get(%#/D`STYLES)),%R%R[u(5`MACHARMS)])][if(words(wildgrepi(%#,D`MERITS`*,ARTIFACT)),%R%R[u(5`EVOCATIONS)])][if(words(graball(get(%#/D`CHARMS`SOLAR`OCCULT),* CIRCLE SORCERY,|,|),|),%R%R[u(5`SORCERY)])]
+
+&5`NATIVECHARMS u(cg)=[ansi(h,+addcharm <category>=<charm1|charm2|charm3|etc>) to add native Charms.]%R[ansi(h,+delcharm <category>=<charm1|charm2|charm3|etc>)] to delete native Charms.%RCategories for your character type's Native Charms: [itemize(u(u(ex-cdo)/FUN`GET`CHARMTYPES`[charmtype(%#)]),|,and,\,)]
+
+&5`OTHERCHARMS u(cg)=[ansi(h,+addocharm <splat>/<category>=<charm1|charm2|charm3|etc>)] to add Other Splat Charms.%R[ansi(h,+delocharm <splat>/<category>=<charm1|charm2|charm3|etc>)] to delete Other Splat Charms.
+
+&5`MACHARMS u(cg)=[ansi(h,+addmacharm <style>=<charm1|charm2|charm3|etc>)] to add Martial Arts Charms.%R[ansi(h,+delmacharm <style>=<charm1|charm2|charm3|etc>)] to delete Martial Arts Charms.
+
+&5`EVOCATIONS u(cg)=[ansi(h,+addevocation <artifact>=<charm1|charm2|charm3|etc>)] to add Evocation Charms.%R[ansi(h,+delevocation <artifact>=<charm1|charm2|charm3|etc>)] to delete Evocation Charms.
+
+&5`SORCERY u(cg)=[ansi(h,+addspell <circle>=<spell1|spell2|spell3|etc>)] to add Sorcery or Necromancy spells.%R[ansi(h,+delspell <circle>=<spell1|spell2|spell3|etc>] to delete Sorcery or Necromancy spells.%R(Prefix control spells with a + to mark them. Such as: +Stormwind Rider)
+
+&5`ALCHEMICAL u(cg)=ansi(h,+addproto <tier>=<protocol1>|<protocol2>|<protocol3>|etc) to add Weaving Protocols.%R[ansi(h,+delproto <tier>=<protocol1>|<protocol2>|<protocol3>|etc)] to delete Weaving Protocols.%R%R[ansi(h,+slots <type>=<number>)] to set Charm Slots.
+
+&5`DRAGON-KING u(cg)=ansi(h,+breedfavpath) to set your Breed Favored Paths%r[ansi(h,+path <path>=<value>)] to set how your Path points.%r%tYour choices are: [itemize(get(u(ex-cdo)/VAR`PATHS),|,and,\,)]%r%R[ansi(h,+favpath <path>)] to set a Favored Path%r[ansi(h,+unfavpath <path>)] to remove a Favored Path
+
+&5`SIDEREAL u(cg)=ansi(h,+maidenfavcoll) to set your Caste Colleges.%R%T[ansi(h,+college <college>=<value>)] to set Astrology.%r%tYour choices are: [itemize(get(u(ex-cdo)/VAR`COLLEGES),|,and,\,)]
+
+&5`SPIRIT u(cg)=Please consult with staff if designing a Spirit!
 
 @@ &CMD`+CASTEFAVOREDBREEDMAIDEN u(cg)=$^\+(breedfavpath|maidenfavcoll)$:@assert strlen(getstat(%#/D`INFO,Caste))=@nspemit %#=u(RFN`MSGHEAD) You do not have a Caste set!;@assert strlen(setr(newfavored,v(DAT`4`FAVORED`[if(strmatch(%1,breedfavpath),PATHS,COLLEGES)]`[edit(getstat(%#/D`INFO,Caste),%B,_)])))=@nspemit %#=u(RFN`MSGHEAD) Your Caste does not have any listed Favored [if(strmatch(%1,breedfavpath),Paths,Colleges)].;@nspemit %#=u(RFN`MSGHEAD) You set your Favored [if(strmatch(%1,breedfavpath),Paths,Colleges)] to those of the [ansi(h,getstat(%#/D`INFO,Caste))] Caste.;@cpattr me/D`[if(strmatch(%1,breedfavpath),PATHS,COLLEGES)]_FAVORED=%#/D`[if(strmatch(%1,breedfavpath),PATHS,COLLEGES)]_FAVORED
 
@@ -190,6 +231,9 @@
 
 &CMD`+MACHARM u(cg)=$^\+(add|del)macharm(?\: +(.+?))?(?\:=(.+))?$:th setq(mode,switch(%1,add,ADD,del,REM));@include u(ex-cdo)/DO`%q<mode>`MACHARM=%#,%2,%3;th setq(have,ansi(h,capnames(%q<style>)) Charms [itemize(iter(%q<entry>,ansi(h,capnames(%i0)),|,|),|,and,\,)]);@nspemit %#=u(RFN`MSGHEAD) You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
 @set u(cg)/CMD`+MACHARM=regexp
+
+&CMD`+EVOCATION u(cg)=$^\+(add|del)evocation(?\: +(.+?))?(?\:=(.+))?$:th setq(mode,switch(%1,add,ADD,del,REM));@include u(ex-cdo)/DO`%q<mode>`EVOCATION=%#,%2,%3;th setq(have,ansi(h,capnames(%q<style>)) Evocations [itemize(iter(%q<entry>,ansi(h,capnames(%i0)),|,|),|,and,\,)]);@nspemit %#=u(RFN`MSGHEAD) You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
+@set u(cg)/CMD`+EVOCATION=regexp
 
 @@ &CMD`+PATHCOLLEGE u(cg)=$^\+(path|college)(?\: +(.+?))?(?\:=(.+?))?$:@assert strlen(%2)=@nspemit %#=u(RFN`MSGHEAD) What [capnames(%1)] will you set?;@include u(ccs)/INC`PARTIAL=%2,get(u(ex-cdo)/VAR`%1S),|,CHARGEN,choice,capnames(%1);@assert and(not(lt(%3,0)),isint(%3))=@nspemit %#=u(RFN`MSGHEAD) [capnames(%1)]s must be whole numbers 0 or greater!;@nspemit %#=u(RFN`MSGHEAD) [if(%3,You set [ansi(h,capnames(%q<choice>))] to %3,You remove [ansi(h,capnames(%q<choice>))])].;th [if(%3,set,del)]stat(%#/D`%1S,capnames(%q<choice>),%3)
 @set u(cg)/CMD`+PATHCOLLEGE=regexp
@@ -210,14 +254,25 @@
 &DAT`4`FAVORED`PATHS`PTEROK u(cg)=Celestial_Air|Clear_Air
 &DAT`4`FAVORED`PATHS`RAPTOK u(cg)=Yielding_Earth|Growing_Wood
 
-&5 u(cg)=[ansi(h,+help +merits)] to see how to set your Merits and Flaws. Make sure to give them descriptions and contexts as appropriate!%R%R[ansi(h,+wp <value>)] to set your willpower.%r[ansi(h,+ess <value>)] to set your permanent essence.%r%r[ansi(h,+hl <Health level list>)] to set your health levels. If you lack extra levels, use "+hl -0 -1 -1 -2 -2 -4 I". The system will sort for you if you goof!%r%r[ansi(h,+help +intimacy)] for instructions on setting your Intimacies.%r%rTo remove a background, merit, flaw, or similar, set it to zero.%R%RCheck [ansi(h,+help +info)] to see how to add additional information - you should make a file for each relevant character detail such as Limit Trigger. A Chargen (detailing how you spent points) and BGStory (detailing the character's origins, in brief) are mandatory!%R%RWhen complete, paste the following command to your client: %r%t[ansi(h,+request/apps Finished with chargen!=Look me over please!)]
+&6 u(cg)=[u(RFN`SEPARATOR,Step 6: Finishing Touches)][if(and(strlen(getsplat(%#)),hasattr(me/6`[getsplat(%#)])),%R[u(6`[getsplat(%#)])])]
+
+&6`MORTAL u(cg)=[u(6`ESSENCE)]%RMortals begin with Essence 1.%R%R[u(6`WILLPOWER)]%RMortals begin with 3 Willpower.%R%R[u(6`INTIMACY)]%R%R[u(6`HEALTH)]%R%R[u(6`BGSTORY)]%R%R[u(6`CHARGENXP)]%R%R[u(6`FINISH)]
+&6`SOLAR u(cg)=[u(6`ESSENCE)]%RSolars begin with Essence 1.%R%R[u(6`WILLPOWER)]%RSolars begin with 5 Willpower.%R%R[u(6`INTIMACY)]%R%R[u(6`HEALTH)]%R%R[ansi(h,+info Trigger=<limit trigger>)] to set your Limit Trigger.%R%R[u(6`BGSTORY)]%R%R[u(6`CHARGENXP)]%R%R[u(6`FINISH)]
+
+&6`INTIMACY u(cg)=[ansi(h,+help +intimacy)] for instructions on setting your Intimacies.%RChoose at least 4 intimacies. At least one must be Defining, one must be Major, one must be positive, one must be negative.
+&6`HEALTH u(cg)=[ansi(h,+hl <Health level list>)] to set your health levels. If you lack extra levels, use "+hl -0 -1 -1 -2 -2 -4 I". The system will sort for you if you goof!
+&6`WILLPOWER u(cg)=[ansi(h,+wp <value>)] to set your willpower.
+&6`ESSENCE u(cg)=[ansi(h,+ess <value>)] to set your Essence rating.
+&6`BGSTORY u(cg)=[ansi(h,+info BGStory=<story>)] to set your background story. A few paragraphs will do. The file has a limit of 4kb of text, use BGStory2, 3, etc, if necessary. \%R can linebreak, \%T indents. Readability counts!
+&6`CHARGENXP u(cg)=As mentioned in page 1, mark down how much XP you spent (and what on) in an +info using [ansi(h,+info Chargen=<description of XP spent>)]. Your +sheet should reflect the final result.
+&6`FINISH u(cg)=When complete, paste the following command to your client: %r%t[ansi(h,+request/apps Finished with chargen!=Look me over please!)]
 
 @@ &CMD`+BACKGROUNDS u(cg)=$^\+(background|merit|flaw|posmutation|neumutation|negmutation|warmutation|ragemutation)(?\: (.+?))?(?\:=(.+?))?$:th setq(0,squish(%2),1,%3,2,switch(%1,background,backgrounds,merit,merits,flaw,flaws,posmutation,positive_mutations,neumutation,neutral_mutations,negmutation,negative_mutations,warmutation,warform_mutations,ragemutation,rage_mutations,ERROR),3,switch(%1,background,Background,merit,Merit,flaw,Flaw,posmutation,Positive Mutation,neumutation,Neutral Mutation,negmutation,Negative Mutation,warmutation,Warform Mutation,ragemutation,By Rage Recast Mutation,ERROR));@assert strlen(%q0)=@nspemit %#=u(RFN`MSGHEAD) What %3 will you set?;@assert and(not(lt(%q1,0)),isint(%q1))=@nspemit %#=u(RFN`MSGHEAD) %3 must be whole numbers 0 or greater!;@nspemit %#=u(RFN`MSGHEAD) [if(%q1,You set your %q0 %q3 to %q1,You remove your %q0 %q3)].;th [if(%q1,set,del)]stat(%#/D`%q2,%q0,%q1)
 @set u(cg)/CMD`+BACKGROUNDS=regexp
 
 &CMD`+ESS u(cg)=$+ess *:@include u(ex-cdo)/DO`SET`ESSENCE=%#,,%0;@nspemit %#=u(RFN`MSGHEAD) You set your permanent Essence to %0.
 
-&CMD`+HL u(cg)=$+hl *:@wipe %#/D`HEALTH;@include u(ex-cdo)/DO`ADD`HEALTH=%#,,%0;@nspemit %#=u(RFN`MSGHEAD) You set your health level progression to '[get(%#/D`HEALTH)]'. Don't forget your (stamina) dying Health Levels!
+&CMD`+HL u(cg)=$+hl *:@wipe %#/D`HEALTH;@include u(ex-cdo)/DO`ADD`HEALTH=%#,,%0;@nspemit %#=u(RFN`MSGHEAD) You set your health level progression to '[get(%#/D`HEALTH)]'.
 
 @@ &CMD`+VIRTUES u(cg)=$^\+(virtue|Grace)(?\: (.+?))?(?\:=(.+?))?$:@assert strlen(%2)=@nspemit %#=u(RFN`MSGHEAD) What [capnames(%1)] will you set?;@include u(ccs)/INC`PARTIAL=%2,get(u(ex-cdo)/VAR`[if(strmatch(%1,virtue),VIRTUES,GRACES)]),|,CHARGEN,choice,capnames(%1);@assert and(not(lt(%3,0)),isint(%3))=@nspemit %#=u(RFN`MSGHEAD) [capnames(%1)]s must be whole numbers 0 or greater!;@nspemit %#=u(RFN`MSGHEAD) [if(%3,You set [ansi(h,capnames(%q<choice>))] to %3,You remove [ansi(h,capnames(%q<choice>))])].;th [if(%3,set,del)]stat(%#/D`[capnames(%1)]S,capnames(%q<choice>),%3)
 @set u(cg)/CMD`+VIRTUES=regexp

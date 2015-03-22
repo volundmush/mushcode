@@ -1,0 +1,58 @@
+@switch/inline isdbref(u(grid))=0,{@tel create(Grid Management System <GRID>)=config(master_room)}
+&grid u(coi)=locate(config(master_room),Grid Management System <GRID>,TXxi)
+@parent u(grid)=u(coi)
+@set u(grid)=WIZARD SAFE !NO_COMMAND
+
+&RFN`HEADER u(grid)=header(%0,,GRID`BORDER,GRID`BORDERDOT,GRID`BORDERTEXT)
+&RFN`SUBHEADER u(grid)=subheader(%0,,GRID`BORDER,GRID`BORDERDOT,GRID`BORDERTEXT)
+&RFN`SEPARATOR u(grid)=separator(%0,,GRID`BORDER,GRID`BORDERDOT,GRID`BORDERTEXT)
+&RFN`MSGHEAD u(grid)=msghead(v(VAR`MSGHEAD))
+&VAR`MSGHEAD u(grid)=GRID
+
+@switch/inline isdbref(u(district))=0,{@tel create(District Parent <DISTRICT>)=u(grid)}
+&district u(coi)=locate(u(grid),District Parent <DISTRICT>,TXxi)
+@parent u(district)=u(ar)
+
+@lock/enter u(district)=FUN`ENTER/1
+@lset u(district)/enter=!no_inherit
+&FUN`ENTER u(district)=cand(approved(%#),not(hasflag(%#,JAILED)))
+
+@lock/teleport u(district)=FUN`TELEPORT/1
+@lset u(district)/teleport=!no_inherit
+&FUN`TELEPORT u(district)=cand(approved(%#),not(hasflag(%#,JAILED)))
+
+&CMD`+GRID u(grid)=$^(?s)(?\:\+)?(district|dig|open|convert)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(grid)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(grid)/VAR`%1`ADMINFLAGS)),|,|),|,v(VAR`MSGHEAD),switch,switch;@include u(grid)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+@set u(grid)/CMD`+GRID=regexp
+
+&VAR`DISTRICT`PLAYFLAGS u(grid)=LOCK|UNLOCK|DESCRIBE
+&VAR`DISTRICT`ADMINFLAGS u(grid)=CREATE|RENAME|ORDER
+
+&VAR`DIG`PLAYFLAGS u(grid)=TELEPORT
+
+&FUN`LISTDISTRICTS u(grid)=sort(sort(children(u(district)),namei),attri:ORDER)
+
+&INC`DISTRICT`MAIN u(grid)=@switch/inline strlen(%0)=>0,{@include u(grid)/INC`DISTRICT`CHOOSE},{@include u(grid)/INC`DISTRICT`LIST}
+
+&INC`DISTRICT`LIST u(grid)=@nspemit %#=u(RFN`HEADER,mudname() District Parents);@nspemit %#=align(5 20 9 41,DBREF,Name,Rooms,Description);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline u(FUN`LISTDISTRICTS)={@nspemit %#=align(5 20 9 41,pueblize(ansi(if(controls(%#,%i0),hg,hr),%i0),+district %i0),pueblize(name(%i0),+district %i0),nchildren(%i0),default(%i0/DESCRIBE,???))};@nspemit %#=u(RFN`HEADER)
+
+&INC`DISTRICT`CHOOSE u(grid)=@include u(grid)/INC`FINDDIST;@assert controls(%#,%q<dist>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@nspemit %#=u(RFN`MSGHEAD) Now managing district %q<distname>.;&D`DISTRICT %#=%q<dist>
+
+&INC`DISTRICT`CREATE u(grid)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: District name empty.;@assert valid(name,%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: '%0' is not a valid object name.;@break locate(u(district),%0,TXxi)=@nspemit %#=u(RFn`MSGHEAD) ERROR: A District already uses that name.;@assert setr(dist,create(%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Could not create district.;@tel %q<dist>=u(district);@parent %q<dist>=u(district);@nspemit %#=u(RFN`MSGHEAD) District Created! You have been set to managing it.;&D`DISTRICT %#=%q<dist>;@include u(ccs)/INC`CMSG={Created District %q<dist> '[name(%q<dist>)]'}
+
+&INC`DISTRICT`RENAME u(grid)=@include u(grid)/INC`FINDDIST;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: New name empty.;@assert valid(name,%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: '%1' is not a valid object name.;@break cand(setr(found,locate(u(district),%1,TXxi)),not(strmatch(%q<found>,%q<dist>)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: A District already uses that name.;@nspemit %#=u(RFN`MSGHEAD) District Renamed!;@include u(ccs)/INC`CMSG={Renamed District %q<dist> '%q<distname>' to '%1'}
+
+&INC`DISTRICT`DESCRIBE u(grid)=@include u(grid)/INC`FINDDIST;@assert controls(%#,%q<dist>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Nothing entered for the description!;@nspemit %#=u(RFN`MSGHEAD) Description set.;@desc %q<dist>=%1;@include u(ccs)/INC`CMSG={Changed Description for %q<dist> '%q<distname>'}
+
+&INC`DISTRICT`ORDER u(grid)=@include u(grid)/INC`FINDDIST;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Order value empty.;@assert valnum(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Order values must be whole, positive numbers.;&ORDER %q<dist>=%1;@set %q<dist>/ORDER=no_inherit;@nspemit %#=u(RFN`MSGHEAD) Order set.;@include u(ccs)/INC`CMSG={Changed order for %q<dist> '%q<distname>'}
+
+&INC`FINDDIST u(grid)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No District entered to check.;@assert words(setr(dist,namegraball(u(FUN`LISTDISTRICTS),%0)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: District '%0' not found.;@break gt(words(%q<dist>),1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: '%0' matched [itemize(iter(%q<dist>,pueblize(name(%i0),+district %i0),%b,|),|,and,\,)]. Please be more specific!;th setq(distname,name(%q<dist>))
+
+&INC`DISTRICT`LOCK u(grid)=@include u(grid)/INC`FINDDIST=before(%0,/);@assert controls(%#,%q<dist>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@include u(kls)/INC`DOLOCK=%q<dist>,after(%0,/),%1,v(VAR`MSGHEAD),1
+&INC`DISTRICT`UNLOCK u(grid)=@nspemit %#=u(RFN`MSGHEAD) To Unlock, use the @unlock command directly.
+
+&INC`DISTCHECK u(grid)=@assert strlen(setr(dist,get(%#/D`DISTRICT)))=@nspemit %#=u(RFN`MSGHEAD) Please choose a District using +district <name>.;@assert match(u(FUN`LISTDISTRICTS),%q<dist>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: District no longer valid. Please choose a District using +district <name>.;@assert controls(%#,%q<dist>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;th setq(distname,name(%q<dist>))
+
+&INC`DIG`TELEPORT u(grid)=@include u(grid)/INC`DIG`MAIN=%0,%1,1
+&INC`DIG`MAIN u(grid)=@include u(grid)/INC`DISTCHECK;@assert hastype(%l,ROOM)=@nspemit %#=u(RFN`MSGHEAD) ERROR: +dig can only be used from a proper room.;@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No room name entered.;@assert valid(name,%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: '%0' is not a good name for a Room.;@assert setr(room,dig(%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Could not create room.;th setq(source,%l);@parent %q<room>=%q<dist>;@nspemit %#=u(RFN`MSGHEAD) Room created successfully!;@switch/inline strlen(setr(exname,before(%1,\,)))=>0,{@switch/inline isdbref(setr(there,open(%q<exname>,%q<room>,%q<source>)))=1,{@nspemit %#=u(RFN`MSGHEAD) Exit to new room created successfully!},0,{@nspemit %#=u(RFN`MSGHEAD) ERROR: Exit to new room creation failed.}};@switch/inline strlen(setr(exname,after(%1,\,)))=>0,{@switch/inline isdbref(setr(back,open(%q<exname>,%q<source>,%q<room>)))=1,{@nspemit %#=u(RFN`MSGHEAD) Exit from new room created successfully!},0,{@nspemit %#=u(RFN`MSGHEAD) ERROR: Exit from new room creation failed.}};@switch/inline %2=1,{@teleport %#=%q<room>};@include u(ccs)/INC`CMSG={Room %q<room> '%0' created for %q<dist> '%q<distname>'}
+
+&INC`CONVERT`MAIN u(grid)=@include u(grid)/INC`DISTCHECK;@assert hastype(%l,ROOM)=@nspemit %#=u(RFN`MSGHEAD) ERROR: +convert can only be used from a proper room.;@parent %l=%q<dist>;@assert controls(%#,%l)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@parent %l=%q<dist>;@nspemit %#=u(RFN`MSGHEAD) Room converted to %q<dist> '%q<distname>'.;@include u(ccs)/INC`CMSG={Room %l '[name(%l)]' converted to %q<dist> '%q<distname>'}

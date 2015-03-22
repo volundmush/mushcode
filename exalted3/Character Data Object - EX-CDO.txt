@@ -78,7 +78,7 @@
 
 &INC`SET`ABILITY u(ex-cdo)=@include u(ex-cdo)/DO`SET`ABILITY=%0,elements(%1,2,|),%2;@switch/inline t(strlen(%q<entry>))=0,{@include u(ex-cdo)/DO`ANNOUNCE=%0,{ansi(h,name(%0))'s [setr(msg,'[ansi(h,capnames(%q<find>))]' Ability was cleared.)]},{Your %q<msg>},{ansi(h,name(%0))'s %q<msg>}},1,{@include u(ex-cdo)/DO`ANNOUNCE=%0,{ansi(h,name(%0))'s [setr(msg,'[ansi(h,capnames(%q<find>))]' Ability was set to: [ansi(h,%q<entry>)].)]},{Your %q<msg>},{ansi(h,name(%0))'s %q<msg>}}
 
-&DO`VAL`ABILITY u(ex-cdo)=@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Ability name entered.;@include u(ccs)/INC`PARTIAL=%1,setdiff(u(u(ex-cdo)/FUN`GET`ABILITIES),CRAFT,|,i,|),|,EDITCHAR,find,ability;@switch/inline t(strlen(setr(entry,%2)))=1,{@assert valnum(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Styles must be positive integers.}
+&DO`VAL`ABILITY u(ex-cdo)=@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Ability name entered.;@include u(ccs)/INC`PARTIAL=%1,u(u(ex-cdo)/FUN`GET`ABILITIES),|,EDITCHAR,find,ability;@switch/inline t(strlen(setr(entry,%2)))=1,{@assert valnum(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Styles must be positive integers.}
 &DO`SET`ABILITY u(ex-cdo)=@include u(ex-cdo)/DO`VAL`ABILITY;@switch/inline strlen(%q<entry>)=0,{th delstat(%0/D`ABILITIES,ucstr(%q<find>))},{th setstat(%0/D`ABILITIES,ucstr(%q<find>),%q<entry>)}
 
 &FUN`GET`ABILITIES u(ex-cdo)=get(u(ex-cdo)/VAR`ABILITIES)
@@ -95,16 +95,19 @@
 
 &INC`SET`CRAFTS u(ex-cdo)=@include u(ex-cdo)/DO`SET`CRAFTS=%0,elements(%1,2,|),%2;@switch/inline t(strlen(%q<entry>))=0,{@include u(ex-cdo)/DO`ANNOUNCE=%0,{ansi(h,name(%0))'s [setr(msg,'[ansi(h,capnames(%q<find>))]' Craft was cleared.)]},{Your %q<msg>},{ansi(h,name(%0))'s %q<msg>}},1,{@include u(ex-cdo)/DO`ANNOUNCE=%0,{ansi(h,name(%0))'s [setr(msg,'[ansi(h,capnames(%q<find>))]' Craft was set to: [ansi(h,%q<entry>)].)]},{Your %q<msg>},{ansi(h,name(%0))'s %q<msg>}}
 
-&DO`VAL`CRAFTS u(ex-cdo)=@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Craft name entered.;th setq(find,%1);@switch/inline t(strlen(setr(entry,%2)))=1,{@assert valnum(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Crafts must be positive integers.}
+&DO`VAL`CRAFTS u(ex-cdo)=@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Craft name entered.;@include u(ccs)/INC`PARTIAL=%1,u(u(ex-cdo)/FUN`GET`CRAFTS),|,EDITCHAR,find,Craft;@switch/inline t(strlen(setr(entry,%2)))=1,{@assert valnum(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Crafts must be positive integers.}
 &DO`SET`CRAFTS u(ex-cdo)=@include u(ex-cdo)/DO`VAL`CRAFTS;@switch/inline strlen(%q<entry>)=0,{th delstat(%0/D`CRAFTS,ucstr(%q<find>))},{th setstat(%0/D`CRAFTS,ucstr(%q<find>),%q<entry>)}
 
 &FUN`RET`CRAFTS u(ex-cdo)=iter(ucstr(get(%0/D`CRAFTS)),before(%i0,~),|,|)
+
+&FUN`GET`CRAFTS u(ex-cdo)=v(VAL`CRAFTS)
+&VAL`CRAFTS u(ex-cdo)=ARTIFACTS|GEOMANCY|FIRST AGE ARTIFICE
 
 @@ Specialties
 
 &INC`SET`SPECIALTY u(ex-cdo)=@include u(ex-cdo)/Do`SET`SPECIALTY=%0,elements(%1,2,|),%2;@switch/inline t(%q<entry>)=1,{@include u(ex-cdo)/DO`ANNOUNCE=%0,{setr(msg,ansi(h,name(%0)) now has the [setr(have,ansi(h,capnames(%q<find>/%q<spec>)) Specialty at [ansi(h,%q<entry>)])] )},{You now have the %q<have>},{%q<msg>}},0,{@include u(ex-cdo)/DO`ANNOUNCE=%0,{setr(msg,ansi(h,name(%0)) has lost the [setr(have,ansi(h,capnames(%q<find>/%q<spec>)) Specialty)] )},{You have lost the %q<have>},{%q<msg>}}
 
-&DO`VAL`SPECIALTY u(ex-cdo)=@assert strlen(setr(enstat,before(%1,/)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: No stat entered to specialize in.;@include u(ccs)/INC`PARTIAL=%q<enstat>,setunion(u(u(ex-cdo)/FUN`GET`ABILITIES),u(u(ex-cdo)/FUN`GET`ATTRIBUTES),|,i,|),|,EDITCHAR,find,stat;@assert strlen(setr(spec,after(%1,/)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Specialty name entered.;@switch/inline t(strlen(setr(entry,%2)))=1,{@assert valnum(%q<entry>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Specialty values must be integers.}
+&DO`VAL`SPECIALTY u(ex-cdo)=@assert strlen(setr(enstat,before(%1,/)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: No stat entered to specialize in.;@include u(ccs)/INC`PARTIAL=%q<enstat>,setunion(setunion(u(u(ex-cdo)/FUN`GET`ABILITIES),MARTIAL ARTS,|,i,|),u(u(ex-cdo)/FUN`GET`ATTRIBUTES),|,i,|),|,EDITCHAR,find,stat;@assert strlen(setr(spec,after(%1,/)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Specialty name entered.;@switch/inline t(strlen(setr(entry,%2)))=1,{@assert valnum(%q<entry>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Specialty values must be integers.}
 &DO`SET`SPECIALTY u(ex-cdo)=@include u(ex-cdo)/DO`VAL`SPECIALTY;@switch/inline t(%q<entry>)=0,{th delstat(%0/D`SPECIALTIES,ucstr(%q<find>/%q<spec>))},1,{th setstat(%0/D`SPECIALTIES,ucstr(%q<find>/%q<spec>),%q<entry>)}
 
 &FUN`RET`SPECIALTIES u(ex-cdo)=iter(ucstr(get(%0/D`SPECIALTIES)),before(%i0,~),|,|)
@@ -169,6 +172,19 @@
 &FUN`RET`STYLES u(ex-cdo)=iter(ucstr(get(%0/D`STYLES)),before(%i0,~),|,|)
 &FUN`RET`STYLENAME u(ex-cdo)=capnames(default(%0/D`CHARMS`MACHARMS`%1`NAME,Unnamed Style))
 
+@@ Evocations
+&INC`ADD`EVOCATION u(ex-cdo)=@include u(ex-cdo)/DO`ADD`EVOCATION=%0,elements(%1,2,|),%2;@include u(ex-cdo)/DO`ANNOUNCE=%0,{[ansi(h,name(%0))] [setr(have,gained [ansi(h,u(u(ex-cdo)/FUN`RET`EVOCNAME,%0,%q<slot>))] Evocations: [itemize(iter(%q<entry>,ansi(h,capnames(%i0)),|,|),|,and,\,)])]},{You %q<have>},{ansi(h,name(%0)) gained %q<have>}
+
+&INC`REM`EVOCATION u(ex-cdo)=@include u(ex-cdo)/DO`REM`EVOCATION=%0,elements(%1,2,|),%2;@include u(ex-cdo)/DO`ANNOUNCE=%0,{[ansi(h,name(%0))] [setr(have,lost [ansi(h,u(u(ex-cdo)/FUN`RET`EVOCNAME,%0,%q<slot>))] Evocations: [itemize(iter(%q<entry>,ansi(h,capnames(%i0)),|,|),|,and,\,)])]},{You %q<have>},{ansi(h,name(%0)) lost %q<have>}
+
+&DO`VAL`EVOCATION u(ex-cdo)=@assert strlen(setr(style,%1))=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Style entered.;th setq(slot,strfirstof(elements(first(wildgrepi(%0,D`CHARMS`EVOCATIONS`*`NAME,%q<style>)),4,`,`),nextslot(%0,D`CHARMS`EVOCATIONS)));@assert strlen(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Charms entered.;@assert strlen(setr(entry,filterbool(#lambda/strlen(\%0),%2,|,|)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Charm entries invalid.
+
+&DO`ADD`EVOCATION u(ex-cdo)=@include u(ex-cdo)/DO`VAL`EVOCATION;@break words(setr(conflict,setinter(setr(oldcharms,ucstr(get(%0/D`CHARMS`EVOCATIONS`%q<slot>))),ucstr(%q<entry>),|,i,|)),|)=@nspemit %#=u(RFN`MSGHEAD) [switch(%0,%#,You already have,name(%0) already has)] [u(u(ex-cdo)/FUN`RET`EVOCATIONS,%0,%q<slot>)] Charms [itemize(capnames(%q<conflict>),|,and,\,)].;&D`CHARMS`EVOCATIONS`%q<slot> %0=setr(newcharms,setunion(%q<oldcharms>,ucstr(%q<entry>),|,i,|));&D`CHARMS`EVOCATIONS`%q<slot>`NAME %0=ucstr(%q<style>)
+
+&DO`REM`EVOCATION u(ex-cdo)=@include u(ex-cdo)/DO`VAL`EVOCATION;@break words(setr(conflict,setdiff(ucstr(%q<entry>),setr(oldcharms,ucstr(get(%0/D`CHARMS`EVOCATIONS`%q<slot>))),|,i,|)),|)=@nspemit %#=u(RFN`MSGHEAD) [switch(%0,%#,You don't have have,name(%0) doesn't have)] [u(u(ex-cdo)/FUN`RET`EVOCNAME,%0,%q<slot>)] Charms [itemize(capnames(%q<conflict>),|,and,\,)].;&D`CHARMS`EVOCATIONS`%q<slot> %0=setr(newcharms,setdiff(get(%0/D`CHARMS`EVOCATIONS`%q<slot>),ucstr(%q<entry>),|,i,|));@switch/inline strlen(%q<newcharms>)=0,{@wipe %0/D`CHARMS`EVOCATIONS`%q<slot>}
+
+&FUN`RET`EVOCNAME u(ex-cdo)=capnames(default(%0/D`CHARMS`EVOCATIONS`%1`NAME,Unnamed Artifact))
+
 @@ Health
 
 &INC`ADD`HEALTH u(ex-cdo)=@include u(ex-cdo)/DO`ADD`HEALTH;th setq(have,additional Health Levels: [sortby(u(ex-cdo)/FUN`HEALTHSORT,ucstr(%2))]);@include u(ex-cdo)/DO`ANNOUNCE=%0,{ansi(h,name(%0)) has gained %q<have>},{You have gained %q<have>},{[ansi(h,name(%0))] has gained %q<have>}
@@ -225,3 +241,5 @@
 &FUN`GET`SUPERNAL u(ex-cdo)=ATTRIBUTES|ABILITIES
 &FUN`GET`SUPERNAL`ATTRIBUTES u(ex-cdo)=u(FUN`GET`ATTRIBUTES)
 &FUN`GET`SUPERNAL`ABILITIES u(ex-cdo)=setunion(u(FUN`GET`ABILITIES),MARTIAL ARTS,|,i,|)
+
++shelp/addmain Characters/+editchar=+editchar is used to modify all parts of a character's +sheet!%R%R[ansi(h,+editchar/<flag> <player>|<categories|and|objects>\[=<modification>\])]%r%r[ansi(h,FLAG: SET)]%r[ansi(h,Splat)]%t%t=<splat>%r[ansi(h,Caste)]%T%T=<caste>%R[ansi(h,Essence)]%t%t=<value>%R[ansi(h,Willpower)]%t=<value>%R[ansi(h,Attribute)]%t<attribute>=<value>%r[ansi(h,Ability)]%t%t<ability>=<value>%r[ansi(h,Specialty)]%t<ability or attribute>/<specialty>=<value>%R[ansi(h,Style)]%t%t<style>=<value>%r[ansi(h,Craft)]%t%t<field>=<value> (Weaponsmithing, etc)%r%r[ansi(h,FLAG: ADD & REM)]%r[ansi(h,Charm)]%t%t<category>=<charm1>|<charm2>|etc (Native Charms)%r[ansi(h,MACharm)]%t%t<style>=<charm1>|<charm2>|etc (Martial Arts Charms)%r[ansi(h,Evocation)]%t<artifact>=<charm1>|<charm2>|etc (Evocations)%r[ansi(h,OCharm)]%t%t<splat>|<category>=<charm1>|<charm2>|etc (Cross-Splat Charms)%r[ansi(h,Spell)]%t%t<circle>=<spell1>|<spell2>|etc%r[ansi(h,Favored)]%t%t<Attribute/Ability>=<Item1>|<Item2>|etc%r[ansi(h,Supernal)]%t<Attribute/Ability>=<Item1>|<Item2>|etc%r[ansi(h,Health)]%t%t=<level1> <level2> etc (must be -0, -1, D, etc)%r%r[ansi(h,EXAMPLES)]%r%r[ansi(h,+editchar/set Isidoros|Attribute|Dexterity=4)]%r%tSets Isidoros' Dexterity to 4%r[ansi(h,+editchar/rem Isidoros|Health=-0 -1)]%r%tRemoves one -0 and one -1 from Isidoros' permanent Health Pool%R%R[ansi(h,CLEARING VALUES)]%RLeaves Values absolutely clear to remove them entirely! Example:%R+editchar/set Isidoros|Attribute|Dexterity=

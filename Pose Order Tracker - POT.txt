@@ -55,7 +55,7 @@
 &OVERRIDE`IC u(pot)=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@assert strlen(%2)=@nspemit %#=Huh?  (Type "help" for help.);@include/nobreak me/include`lastpose`prepose;@include/nobreak u(pot)/INC`ALTMAIN=%1,%2;@message/spoof uldefault(%l/D`CUSTRECP,lcon(%l),%#)=POSE FORMATTER FAIL!,u(pot)/FUN`FORMATPOSE,##,%#,switch(%1,pose,:,semipose,;,say,",@emit,|),%2;@include me/include`lastpose`postpose;@@ @include me/include`lastpose`catchpose=trimpenn(trimpenn(%qr,%t,r),%r),%:
 @set u(pot)/OVERRIDE`IC=regexp
 
-&FUN`FORMATPOSE u(pot)=colornames(speak(%1,%2%3,says\,,%0/SAY_FN,%0/NONE_FN),firstof(%4,%0),lplayers(loc(%0)),IC)
+&FUN`FORMATPOSE u(pot)=edit(colornames(speak(%1,%2%3,says\,,%0/SAY_FN,%0/NONE_FN),firstof(%4,%0),lplayers(loc(%0)),IC),"","%b")
 &SAY_FN u(ap)=ansi(custcolor(%!,IC`QUOTES),")[ansi(custcolor(%!,IC`SPEECH),colornames(%0,%!,lplayers(loc(%!)),IC))][ansi(custcolor(%!,IC`QUOTES),")]
 
 &SAY_FN u(at)=ansi(custcolor(%!,IC`QUOTES),")[ansi(custcolor(%!,IC`SPEECH),colornames(%0,%!,lplayers(loc(%!)),IC))][ansi(custcolor(%!,IC`QUOTES),")]

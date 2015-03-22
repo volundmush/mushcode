@@ -26,7 +26,11 @@
 
 &TRG`WEEKLY u(wvc)=@dolist/inline filterbool(#lambda/and(nor(isadmin(\%0),haspower(\%0,GUEST)),approved(\%0)),lsearch(all,type,player,elock,D`VOTE`COUNT:>0))={@trigger u(wvc)/INC`PROCESS=%i0}
 
-&INC`PROCESS u(wvc)=@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@assert [setr(v,get(%q<t1>/D`VOTE`COUNT))][setq(c,switch(%qv,0,0,1,2,2,4,>2,6))]=@nspemit %#=That player has no votes.;@force/inline %#=+extraxp/award %q<t1>/%qc=%qv votes for [time()] from [setr(voters,itemize(get(%q<t1>/D`VOTE`VOTERS),|,and,\,))];&D`VOTE`COUNT %q<t1>=0;@wipe %q<t1>/D`VOTE`LAST;@wipe %q<t1>/D`VOTE`VOTERS
+&VAR`FORCECHAR u(wvc)=#163
+
+&INC`PROCESS u(wvc)=@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@assert [setr(v,get(%q<t1>/D`VOTE`COUNT))]=@nspemit %#=That player has no votes.;th setq(c,switch(%qv,0,0,1,2,2,4,>2,6));@force/inline v(VAR`FORCECHAR)=+extraxp/award %q<t1>=%qc/%qv votes for [time()] from [setr(voters,itemize(get(%q<t1>/D`VOTE`VOTERS),|,and,\,))];&D`VOTE`COUNT %q<t1>=0;@wipe %q<t1>/D`VOTE`LAST;@wipe %q<t1>/D`VOTE`VOTERS
+
+&INC`AWARD u(wvc)=@force/inline %0=+extraxp/award %1/%2=%3;
 
 &VAR`HOURS u(wvc)=8
 

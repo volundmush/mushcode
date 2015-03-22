@@ -25,3 +25,10 @@
 &INC`WEAKEN u(ex-ito)=@include u(ex-ito)/INC`CHECKINT;@break lt(get(%1/D`INTIMACIES`%0`CUR),4)=@nspemit %#=u(RFN`MSGHEAD) Intimacies cannot be weakened past Minor. Use /lose for that.;&D`INTIMACIES`%0`CUR %1=setr(new,sub(get(%1/D`INTIMACIES`%0`CUR),2));@nspemit %#=u(RFN`MSGHEAD) You weakened your '[get(%1/D`INTIMACIES`%0)]' Intimacy to [switch(%q<new>,2,Minor,4,Major,6,Defining)].
 
 &INC`MAIN u(ex-ito)=@nspemit %#=u(RFN`HEADER,+intimacies for [name(%1)]);@nspemit %#=align(2 60 15,ID,NAME,STATUS);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline sortkey(#lambda/last(\%0,`),lattr(%1/D`INTIMACIES`*),n)=@nspemit %#=align(2 60 15,last(%i0,`),get(%1/%i0),switch(get(%1/%i0`CUR),2,Minor,4,Major,6,Defining));@nspemit %#=u(RFN`HEADER)
+
+@@ ROLEPLAYING - +INTIMACY
++help/addmain Roleplaying/+intimacy=[u(ex-ito)]/HLP`+INTIMACY
+&HLP`+INTIMACY u(ex-ito)=The Intimacy system keeps track of all your intimacies!%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+intimacy)] - Lists current Intimacies.%R[ansi(h,+intimacy/gain <text>)] - Gain a new Intimacy.%R[ansi(h,+intimacy/lose <id>)] - Lose a specified Intimacy.%R[ansi(h,+intimacy/strengthen <id>)] - Raise Intimacy status to next stage.%R[ansi(h,+intimacy/weaken <id>)] - Erode Intimacy status by one stage.})]
+
++shelp/addmain Characters/+intimacy=[u(ex-ito)]/SHLP`+INTIMACY
+&SHLP`+INTIMACY u(ex-ito)=[ansi(hc,Staff Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+intimacy <player>)] - Shows a player's Intimacy information.})]

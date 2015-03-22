@@ -18,14 +18,14 @@
 &FUN`XPATTR u(exp)=switch(%0,EXTRA,EXP,S,SXP,G,GXP,W,WXP,XP)
 &FUN`TYPENAME u(exp)=switch(%0,Extra,Extra,S,Silver,G,Gold,W,White)
 &FUN`TYPENAME2 u(exp)=localize(if(strlen(setr(typname,u(FUN`TYPENAME,%0))),%q<typname> XP,XP))
-&FUN`ANNNAME u(exp)=switch(%0,EXTRA,EXTRA,S,SILVER,G,GOLD,W,WHITE,XP)
+&FUN`ANNNAME u(exp)=XP
 
 &DO`ANNOUNCE u(exp)=@include u(ccs)/INC`CMSG=%1,%#,u(FUN`ANNNAME,%q<mode>),u(cmo`staffrep);@switch/inline t(strmatch(%0,%#))=0,{@include u(ccs)/INC`MSG=u(FUN`ANNNAME,%q<mode>),%0,%2;@include u(ccs)/INC`MSG=u(FUN`ANNNAME,%q<mode>),%#,%3},1,{@include u(ccs)/INC`MSG=u(FUN`ANNNAME,%q<mode>),%0,%2}
 @@ %0 = list of players to message. %1 = message to admin. %2 = message to players. %3 = message to enactor.
 
 &INC`EARN u(exp)=@include u(exp)/INC`CRAFT=%#,%0,%1,AWARD,1
 &INC`USE u(exp)=@include u(exp)/INC`CRAFT=%#,%0,%1,SPEND,1
-&INC`CRAFT u(exp)=@assert match(S|G|W,%q<mode>,|)=@nspemit %#=u(RFN`MSGHEAD) You can only [switch(%3,AWARD,earn,use)] Crafting XP.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) Need to specify a reason!;@include u(exp)/INC`MARKXP
+&INC`CRAFT u(exp)=@assert match(S|G|W,%q<mode>,|)=@nspemit %#=u(RFN`MSGHEAD) You can only [switch(%3,AWARD,earn,use)] Crafting XP.;@assert strlen(%2)=@nspemit %#=u(RFN`MSGHEAD) Need to specify a reason!;@include u(exp)/INC`MARKXP
 
 &INC`AWARD u(exp)=@include u(exp)/INC`MARKXP=%0,%1,%2,AWARD
 &INC`SPEND u(exp)=@include u(exp)/INC`MARKXP=%0,%1,%2,SPEND
@@ -49,3 +49,8 @@
 
 &INC`TOTALS u(exp)=@nspemit %#=header(mudname() [u(FUN`TYPENAME2,%q<mode>)] Totals);@nspemit %#=ansi(hc,Name[space(29)]Gained [u(FUN`TYPENAME,%q<mode>)] XP[space(3)]Splat);@dolist/inline sortkey(#lambda/u(u(exp)/FUN`COUNT,\%0,G,%q<mode>),lsearch(all,eplayer,\[and(u(u(exp)/FUN`COUNT,##,G,%q<mode>),not(isadmin(##)),approved(##))\]),n)=ljust(left(name(%i0)),33)[ljust(rjust(u(u(exp)/FUN`COUNT,%%i0,G,%q<mode>),6),12)][getsphere(%i0)];@nspemit %#=header()
 
++help/addmain Roleplaying/+xp=[u(exp)]/HLP`+XP
+&HLP`+XP u(exp)=[ansi(hc,Aliases:)] xp%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+xp)] - Show how much XP you have.%R[ansi(h,+xp/gained)] - Show details on your gained XP.%R[ansi(h,+xp/spent)] - Show details on your XP spends.})]%R%R[ansi(hc,Alt Modes)]%R+xp can also be used as +extraxp, +sxp (silver xp), +gxp (gold xp), and +wxp (white xp) to address different kinds of XP. When used with any of the Crafting XP modes, the following switches become avaialable:%R%R[align(5 [sub(width(%#),6)],,{[ansi(h,+xp/earn <amount>=<reason>)] - Gain crafting XP.%R[ansi(h,+xp/use <amount>=<reason>)] - Use crafting XP.})]
+
++shelp/addmain Character/+xp=[u(exp)]/SHLP`+XP
+&SHLP`+XP u(exp)=[ansi(hc,Viewing Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+xp <name>)] - check a player's XP totals.%R[ansi(h,+xp/gained <name>)] - Check a player's gained XP details.%R[ansi(h,+xp/spent <name>)] - Check a player's XP spend details.})]%R%R[ansi(hc,Managing Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+xp/delgained <name>=<#>)] - Remove a player's gained entry.%R[ansi(h,+xp/delspent <name>=<#>)] - Remove a player's spent entry.%R[ansi(h,+xp/award <list of player>=<amount>/<reason>)] - Awards XP to one or more players. Reason is optional.%R[ansi(h,+xp/spend <list of players>=<amount>/<reason>)] - Spend one or more players' XP. Reason is optional.%R%RNOTE: 'Current XP' is defined as 'gained - spent' while 'Total' is 'total gained ever.' To 'refund' XP, don't award it - delete the relevant spend records then make new ones.})]%R%RNOTE: R+xp can also be used as +extraxp, +sxp (silver xp), +gxp (gold xp), and +wxp (white xp) to address different kinds of +XP.
