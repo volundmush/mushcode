@@ -25,7 +25,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),IN
 
 &INC`FILENAME u(ifo)=th setq(filename,if(strmatch(%0,*/*),trim(after(%0,/)),trim(%0)))
 
-&FUN`LIST u(ifo)=if(words(setr(fulllist,filterbool(#lambda/cand(if(getstat(%0/\%0`FLAGS,Private),cor(strmatch(%0,%#),isadmin(%#)),1),if(getstat(%0/\%0`FLAGS,Hidden),isadmin(%#),1)),lattr(%0/D`INFOFILE`*),%b,|)),|),if(%1,sort(iter(%q<fulllist>,get(%0/%i0),|,|),i,|,|),sortkey(#lambda/last(%0,`),%q<fulllist>,i,|,|)))
+&FUN`LIST u(ifo)=if(words(setr(fulllist,filterbool(#lambda/cand(if(getstat(%0/\%0`FLAGS,Private),cor(strmatch(%0,%#),isadmin(%#)),1),if(getstat(%0/\%0`FLAGS,Hidden),isadmin(%#),1)),lattr(%0/D`INFOFILE`*),%b,|)),|),switch(%1,1,sort(iter(%q<fulllist>,get(%0/%i0),|,|),i,|,|),2,sortkey(#lambda/get(%0/\%0),%q<fulllist>,i,|,|),sortkey(#lambda/last(%0,`),%q<fulllist>,i,|,|)))
 
 &FUN`FINDFILE u(ifo)=first(filterbool(#lambda/strmatch(%1,get(%0/\%0)),lattr(%0/D`INFOFILE`*)))
 
@@ -46,7 +46,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),IN
 
 &INC`LIST u(ifo)=@include u(ifo)/INC`FILENAME;@switch/inline gt(strlen(%q<filename>),0)=1,{@include u(ifo)/INC`LIST`CONTENTS},0,{@include u(ifo)/INC`LIST`FILES}
 
-&INC`LIST`FILES u(ifo)=@nspemit %#=u(RFN`HEADER,name(%q<target>)'s Info Files);@nspemit %#=table(iter(u(u(ifo)/FUN`LIST,%q<target>),pueblize(left(switch(1,t(getstat(%q<target>/%i0`FLAGS,Hidden)),ansi(hr,get(%q<target>/%i0)),t(getstat(%q<target>/%i0`FLAGS,Private)),ansi(custcolor(%#,INFO`PRIVATE),get(%q<target>/%i0)),get(%q<target>/%i0)),18),+info [if(strmatch(%#,%q<target>),get(%q<target>/%i0),[name(%q<target>)]/[get(%q<target>/%i0)])])[if(getstat(%q<target>/%i0`FLAGS,Locked),\([ansi(hw,+)]\))],|,|),24,width(%#),|);@nspemit %#=u(RFN`HEADER,Legend: + - Locked)
+&INC`LIST`FILES u(ifo)=@nspemit %#=u(RFN`HEADER,name(%q<target>)'s Info Files);@nspemit %#=table(iter(u(u(ifo)/FUN`LIST,%q<target>,2),pueblize(left(switch(1,t(getstat(%q<target>/%i0`FLAGS,Hidden)),ansi(hr,get(%q<target>/%i0)),t(getstat(%q<target>/%i0`FLAGS,Private)),ansi(custcolor(%#,INFO`PRIVATE),get(%q<target>/%i0)),get(%q<target>/%i0)),18),+info [if(strmatch(%#,%q<target>),get(%q<target>/%i0),[name(%q<target>)]/[get(%q<target>/%i0)])])[if(getstat(%q<target>/%i0`FLAGS,Locked),\([ansi(hw,+)]\))],|,|),24,width(%#),|);@nspemit %#=u(RFN`HEADER,Legend: + - Locked)
 
 &INC`LIST`CONTENTS u(ifo)=@dolist/inline/nobreak/delimit | %q<filename>={@include u(ifo)/INC`PARTIALMATCH=%i0;@nspemit %#=u(RFN`HEADER,name(%q<target>)'s [get(%q<target>/%q<attr>)] +info);@nspemit %#=get(%q<target>/%q<attr>`CONTENTS);@switch/inline isadmin(%#)=1,{@nspemit %#=separator(Admin Info)%R[ansi(h,Last set by:)] [name(getstat(%q<target>/%q<attr>`FLAGS,SetBy))] [ansi(h,On:)] [convsecs(getstat(%q<target>/%q<attr>`FLAGS,SetOn))];@switch/inline gt(setr(locked,getstat(%q<target>/%q<attr>`FLAGS,Locked)),0)=1,{@nspemit %#=ansi(h,Locked by:) [name(getstat(%q<target>/%q<attr>`FLAGS,LockedBy))] [ansi(h,On:)] [convsecs(getstat(%q<target>/%q<attr>`FLAGS,LockedOn))]};@switch/inline gt(setr(hidden,getstat(%q<target>/%q<attr>`FLAGS,Hidden)),0)=1,{@nspemit %#=ansi(h,Hidden by:) [name(getstat(%q<target>/%q<attr>`FLAGS,HiddenBy))] [ansi(h,On:)] [convsecs(getstat(%q<target>/%q<attr>`FLAGS,HiddenOn))]}};@nspemit %#=u(RFN`HEADER,if(%q<locked>,Admin Locked File))}
 

@@ -29,11 +29,11 @@
 
 &VAR`DIG`PLAYFLAGS u(grid)=TELEPORT
 
-&FUN`LISTDISTRICTS u(grid)=sort(sort(children(u(district)),namei),attri:ORDER)
+&FUN`LISTDISTRICTS u(grid)=sortkey(#lambda/get(\%0/ORDER),sort(children(u(district)),namei))
 
 &INC`DISTRICT`MAIN u(grid)=@switch/inline strlen(%0)=>0,{@include u(grid)/INC`DISTRICT`CHOOSE},{@include u(grid)/INC`DISTRICT`LIST}
 
-&INC`DISTRICT`LIST u(grid)=@nspemit %#=u(RFN`HEADER,mudname() District Parents);@nspemit %#=align(5 20 9 41,DBREF,Name,Rooms,Description);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline u(FUN`LISTDISTRICTS)={@nspemit %#=align(5 20 9 41,pueblize(ansi(if(controls(%#,%i0),hg,hr),%i0),+district %i0),pueblize(name(%i0),+district %i0),nchildren(%i0),default(%i0/DESCRIBE,???))};@nspemit %#=u(RFN`HEADER)
+&INC`DISTRICT`LIST u(grid)=@nspemit %#=u(RFN`HEADER,mudname() District Parents);@nspemit %#=align(5 20 9 41,DBREF,Name,Rooms,Description);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline u(FUN`LISTDISTRICTS)={@nspemit %#=align(5 20 9 41,pueblize(ansi(if(controls(%#,%i0),hg,hr),%i0),+district %i0),pueblize(name(%i0),+district %i0),nchildren(%i0),default(%i0/DESCRIBE,???))};@nspemit %#=u(RFN`SUBHEADER)
 
 &INC`DISTRICT`CHOOSE u(grid)=@include u(grid)/INC`FINDDIST;@assert controls(%#,%q<dist>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@nspemit %#=u(RFN`MSGHEAD) Now managing district %q<distname>.;&D`DISTRICT %#=%q<dist>
 

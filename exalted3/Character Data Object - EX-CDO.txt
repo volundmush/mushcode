@@ -78,7 +78,7 @@
 
 &INC`SET`ABILITY u(ex-cdo)=@include u(ex-cdo)/DO`SET`ABILITY=%0,elements(%1,2,|),%2;@switch/inline t(strlen(%q<entry>))=0,{@include u(ex-cdo)/DO`ANNOUNCE=%0,{ansi(h,name(%0))'s [setr(msg,'[ansi(h,capnames(%q<find>))]' Ability was cleared.)]},{Your %q<msg>},{ansi(h,name(%0))'s %q<msg>}},1,{@include u(ex-cdo)/DO`ANNOUNCE=%0,{ansi(h,name(%0))'s [setr(msg,'[ansi(h,capnames(%q<find>))]' Ability was set to: [ansi(h,%q<entry>)].)]},{Your %q<msg>},{ansi(h,name(%0))'s %q<msg>}}
 
-&DO`VAL`ABILITY u(ex-cdo)=@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Ability name entered.;@include u(ccs)/INC`PARTIAL=%1,u(u(ex-cdo)/FUN`GET`ABILITIES),|,EDITCHAR,find,ability;@switch/inline t(strlen(setr(entry,%2)))=1,{@assert valnum(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Styles must be positive integers.}
+&DO`VAL`ABILITY u(ex-cdo)=@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No Ability name entered.;@include u(ccs)/INC`PARTIAL=%1,u(u(ex-cdo)/FUN`GET`ABILITIES),|,EDITCHAR,find,ability;@switch/inline t(strlen(setr(entry,%2)))=1,{@assert valnum(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Abilities must be positive integers.}
 &DO`SET`ABILITY u(ex-cdo)=@include u(ex-cdo)/DO`VAL`ABILITY;@switch/inline strlen(%q<entry>)=0,{th delstat(%0/D`ABILITIES,ucstr(%q<find>))},{th setstat(%0/D`ABILITIES,ucstr(%q<find>),%q<entry>)}
 
 &FUN`GET`ABILITIES u(ex-cdo)=get(u(ex-cdo)/VAR`ABILITIES)

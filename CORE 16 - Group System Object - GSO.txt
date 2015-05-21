@@ -319,7 +319,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),GR
 @set u(gso)/CMD`CHAT=regexp
 
 @@ MAINTENANCE
-&PLAYER`CONNECT`GROUPCHECK u(gso)=@wait 2=@dolist filterbool(#lambda/match(get(\%0/INVITES),%0),u(u(gso)/FUN`LISTGROUPS))={@nspemit %#=u(RFN`MSGHEAD) The [name(%i0)] have invited you to join their group! To accept, type [pueblize(ansi(h,+gjoin [name(%i0)]),+gjoin [name(%i0)])]}
+&PLAYER`CONNECT`GROUPCHECK u(gso)=@wait 2=@dolist filterbool(#lambda/match(get(\%0/INVITES),%0),u(u(gso)/FUN`LISTGROUPS))={@nspemit %0=u(RFN`MSGHEAD) The [name(%i0)] have invited you to join their group! To accept, type [pueblize(ansi(h,+gjoin [name(%i0)]),+gjoin [name(%i0)])]}
 
 &OBJECT`DESTROY`CLEANUP u(gso)=@switch/inline %2=PLAYER,{@dolist/inline groups(%0)={@include u(gso)/INC`CODE`REMFROMGROUP=%i0,%0}}
 

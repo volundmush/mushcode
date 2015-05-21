@@ -22,7 +22,7 @@
 &1`MORTAL u(cg)=Mortals have nothing race-specific to set!
 &1`JADEBORn u(cg)=This covers both Enlightened and Unenlightened!
 
-&CMD`+SPLAT u(cg)=$^\+splat(?\: +(.+))?$:@assert strlen(%1)=@nspemit %#=msghead(CHARGEN) What Splat will you be?;@include u(ccs)/INC`PARTIAL=%1,setdiff(get(u(ex-cdo)/VAR`SPLATS),RAKSHA|GOD-BLOODED|JADEBORN|ALCHEMICAL|DRAGON-KING,|),|,CHARGEN,choice,Splat;th setstat(%#/D`INFO,Splat,capnames(%q<choice>));@force/inline %#=look;@nspemit %#=msghead(CHARGEN) You are now a [ansi(h,capnames(%q<choice>))].
+&CMD`+SPLAT u(cg)=$^\+splat(?\: +(.+))?$:@assert strlen(%1)=@nspemit %#=msghead(CHARGEN) What Splat will you be?;@include u(ccs)/INC`PARTIAL=%1,setdiff(get(u(ex-cdo)/VAR`SPLATS),GOD-BLOODED|JADEBORN|ALCHEMICAL|DRAGON-KING,|),|,CHARGEN,choice,Splat;th setstat(%#/D`INFO,Splat,capnames(%q<choice>));@force/inline %#=look;@nspemit %#=msghead(CHARGEN) You are now a [ansi(h,capnames(%q<choice>))].
 @set here/CMD`+SPLAT=regexp
 
 &CMD`+CASTE u(cg)=$^\+caste(?\: +(.+))?$:@assert match(get(u(ex-cdo)/VAR`SPLATS),setr(splat,getstat(%#/D`INFO,Splat)),|)=@nspemit %#=msghead(CHARGEN) ERROR: You do not have a valid Splat set! Please use +splat to set one.;@assert strlen(setr(castes,get(u(ex-cdo)/VAR`SPLATS`%q<splat>)))=@nspemit %#=msghead(CHARGEN) Your Splat has no Castes entered.;@assert strlen(%1)=@nspemit %#=msghead(CHARGEN) What Caste will you use?;@include u(CCS)/INC`PARTIAL=%1,%q<castes>,|,CHARGEN,choice,Caste;@nspemit %#=msghead(CHARGEN) Your Caste is now [ansi(h,capnames(%q<choice>))].;th setstat(%#/D`INFO,Caste,capnames(%q<choice>))

@@ -11,7 +11,7 @@
 
 &TRG`AWARD u(wxc)=@switch/inline gte(u(u(xp)/FUN`COUNT,%0,G),600)=0,{@force/inline v(VAR`FORCECHAR)={+xp/award %0=%4/Weekly XP}}
 
-&FUN`EXTRA`GAINED u(xp)=100
+&FUN`EXTRA`GAINED u(xp)=50
 
 @@ u(u(wxc)/FUN`STARTING)
 &FUN`EXTRA`SPENT u(xp)=0
@@ -22,6 +22,7 @@
 
 &VAR`STARTING u(wxc)=50
 &VAR`WEEKLY u(wxc)=4
-&VAR`PARTICIPATION u(wxc)=8
+&VAR`PARTICIPATION u(wxc)=5
 &VAR`CATCHUPMUL u(wxc)=2
 &VAR`CATCHUPTHRESHOLD u(wxc)=50
+&VAR`WEEKS u(wxc)=0

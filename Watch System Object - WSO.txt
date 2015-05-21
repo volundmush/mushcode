@@ -36,7 +36,10 @@
 
 &STARTUP u(wso)=@trigger u(wso)/TRG`INDEXIDLE
 
-&TRG`INDEXIDLE u(wso)=th setq(idlers,filterbool(#lambda/gt(idle(\%0),mul(60,60)),setr(who,setunion(lwhoid(),lwhoid()))));@dolist setdiff(get(u(wso)/IDLERS),%q<idlers>)={@nspemit/list filterbool(#lambda/cand(match(get(\%0/D`WATCH),%i0),default(\%0/D`WATCH`MUTE,1),isadmin(\%0)),%q<who>)=u(RFN`MSGHEAD) [name(%i0)] is no longer idle.};&IDLERS u(wso)=%q<idlers>;@wait 60=@trigger u(wso)/TRG`INDEXIDLE
+&TRG`INDEXIDLE u(wso)=th setq(idlers,filterbool(#lambda/gt(idle(\%0),mul(60,60)),setr(who,setunion(lwhoid(),lwhoid()))));@dolist setdiff(get(u(wso)/IDLERS),%q<idlers>)={@nspemit/list filterbool(#lambda/cand(match(get(\%0/D`WATCH),%i0),default(\%0/D`WATCH`MUTE,1),isadmin(\%0)),%q<who>)=u(RFN`MSGHEAD) [name(%i0)] is no longer idle.;@switch/inline cand(gt(getstat(u(wso)/IDLERS`TIMES,%i0),stringsecs(config(idle_timeout))),hidden(%i0))=1,{@switch/inline hasflag(%i0,DARK)=1,{@nspemit %i0=u(RFN`MSGHEAD) You are both Hidden and Dark.},0,{@nspemit %i0=u(RFN`MSGHEAD) Coming out of @hide from unidling.;@hide/off %i0}}};&IDLERS u(wso)=%q<idlers>;&IDLERS`TIMES u(wso)=iter(%q<idlers>,%i0~[idle(%i0)],%b,|);@wait 60=@trigger u(wso)/TRG`INDEXIDLE
+
+
+
 
 
 @@ COMMUNITY - WATCH
