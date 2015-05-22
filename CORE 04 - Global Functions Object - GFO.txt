@@ -11,6 +11,8 @@
 
 &GFN`AGO u(gfo)=switch(1,lt(%0,60),%0s,lt(%0,3600),div(%0,60)m,lt(%0,86400),div(%0,3600)h,div(%0,86400)d)
 
+&GFN`ANNOUNCE u(gfo)=msghead(%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
+&GFN`ROOMANNOUNCE u(gfo)=msgheadroom(%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
 &GFN`MSGHEAD u(gfo)=ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`MSGBORDER),-=<)[ansi(firstcolor(firstof(%6,%#),%4,DEFAULT`MSG),ucstr(%0))][ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`MSGBORDER),>=-)]
 &GFN`MSGHEADROOM u(gfo)=ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`MSGBORDER),-=<*)[ansi(firstcolor(firstof(%6,%#),%4,DEFAULT`MSG),ucstr(%0))][ansi(firstcolor(firstof(%6,%#),%2,DEFAULT`MSGBORDER),*>=-)]
 &GFN`ANNOUNCE u(gfo)=msghead(%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
@@ -63,3 +65,5 @@
 
 &GFN`ALIASGRAB u(gfo)=if(match(%0,%1),%1,first(filterbool(#lambda/strmatch(alias(\%0),%1*),sortkey(#lambda/alias(\%0),%0,i))))
 &GFN`ALIASGRABALL u(gfo)=if(match(%0,%1),%1,filterbool(#lambda/strmatch(alias(\%0),%1*),sortkey(#lambda/alias(\%0),%0,i)))
+
+
