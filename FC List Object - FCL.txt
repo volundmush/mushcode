@@ -11,7 +11,8 @@
 @set u(fcdb)=WIZARD SAFE
 @power u(fcdb)=many_attribs
 
-@switch/inline gt(words(lattr(u(fcl)/DAT*)),0)=1,{@dolist/inline sortkey(#lambda/last(\%0,`),lattr(u(fcl)/DAT`*))={@include u(ccs)/INC`CPTREE=u(fcl),%i0,u(fcdb),last(%i0,`)}}
+@@ @switch/inline gt(words(lattr(u(fcl)/DAT*)),0)=1,{@dolist/inline/nobreak sortkey(#lambda/last(\%0,`),lattr(u(fcl)/DAT`*))={@break hasattr(u(fcdb)/[last(%i0,`)]);@include u(ccs)/INC`CPTREE=u(fcl),%i0,u(fcdb),last(%i0,`)}}
+@@ Use this only if switching from the old version of FClist!
 
 &CMD`+FCLIST u(fcl)=$^(?s)(?\:\+)?(fclist|themes)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(fcl)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(fcl)/VAR`ADMINFLAGS)),|,|),|,v(VAR`MSGHEAD),switch,switch;th setq(com,lcstr(+%1));@include u(fcl)/INC`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(fcl)/CMD`+FCLIST=regexp
