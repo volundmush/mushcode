@@ -93,10 +93,13 @@
 
 &INC`DISPLAYCAT u(jobsys)=@switch/inline %0=None,{@assert isadmin(%#)=@nspemit %#=u(RFN`MSGHEAD) Permission denied.},{@include u(jobsys)/INC`FINDCAT=%0;@include u(jobsys)/INC`PERMCHECKCAT=%#,ADMIN,%q<cat>};th setq(total,u(SQL,GET`JOBLISTCATCOUNT%q<old>,%q<cat>));@switch/inline valnum(%1)=1,{th setq(page,bound(%1,1,setr(max,ceil(fdiv(%q<total>,30)))))},{th setq(page,1,max,ceil(fdiv(%q<total>,30)))};@nspemit %#=u(RFN`HEADER,mudname() - [strfirstof(%q<catname>,Uncategorized)] Jobs);@nspemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline revwords(u(SQL,GET`JOBLISTCAT%q<old>,%q<cat>,mul(30,sub(%q<page>,1))))={@nspemit %#=u(FUN`LISTJOBSTAFF,%i0)};@nspemit %#=u(RFN`HEADER,if(gt(%q<page>,1),ansi(hg,pueblize(<,+job[if(strlen(%q<old>),/old)] [strfirstof(%q<catname>,None)]=[sub(%q<page>,1)])),ansi(hx,<))%BPage %q<page> of %q<max>%B[if(lt(%q<page>,%q<max>),ansi(hg,pueblize(>,+job[if(strlen(%q<old>),/old)] [strfirstof(%q<catname>,None)]=[add(%q<page>,1)])),ansi(hx,>))])
 
-&INC`SCAN u(jobsys)=@assert setr(cats,trim(u(FUN`VALIDCATS,%#,ADMIN)[if(u(FUN`PERMCHECK,None,Admin,%#),%b1)]))=@nspemit %#=u(RFN`MSGHEAD) Permission denied.;@dolist/inline setr(maincount,filterbool(#lambda/u(sql,GET`NEWJOBSCATCOUNT,if(isint(\%0),,\%0)),%q<cats>))={th setq(had,1);@nspemit %#=u(RFN`HEADER,mudname() - New [if(isobjid(%i0),name(%i0),Uncategorized)] Jobs);@nspemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline u(sql,GET`NEWJOBSCAT,if(isint(%i0),,%i0))={@nspemit %#=u(FUN`LISTJOBSTAFF,%i0)};@switch/inline eq(inum(0),words(%q<maincount>))=1,{@nspemit %#=u(RFN`HEADER)}};@switch/inline not(%q<had>)=1,{@nspemit %#=u(RFN`MSGHEAD) There are no new jobs in the system!}
+&INC`SCAN u(jobsys)=@assert setr(cats,trim(u(FUN`VALIDCATS,%#,ADMIN)[if(u(FUN`PERMCHECK,None,Admin,%#),%b1)]))=@nspemit %#=u(RFN`MSGHEAD) Permission denied.;@dolist/inline setr(maincount,filterbool(#lambda/u(sql,GET`NEWJOBSCATCOUNT,%q<pid>,if(isint(\%0),,\%0),%q<pid>),%q<cats>))={th setq(had,1);@nspemit %#=u(RFN`HEADER,mudname() - New [if(isobjid(%i0),name(%i0),Uncategorized)] Jobs);@nspemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline u(sql,GET`NEWJOBSCAT,%q<pid>,if(isint(%i0),,%i0),%q<pid>)={@nspemit %#=u(FUN`LISTJOBSTAFF,%i0)};@switch/inline eq(inum(0),words(%q<maincount>))=1,{@nspemit %#=u(RFN`SUBHEADER,Showing 20 Per Category)}};@switch/inline not(%q<had>)=1,{@nspemit %#=u(RFN`MSGHEAD) There are no new jobs in the system!}
 
-&SQL`GET`NEWJOBSCATCOUNT u(jobsys)=SELECT count(job_id) FROM $DATABASE$.$JOBS$ WHERE job_objid=? AND submit_date > UTC_TIMESTAMP() - INTERVAL 1 WEEK
-&SQL`GET`NEWJOBSCAT u(jobsys)=SELECT job_id FROM $DATABASE$.$JOBS$ WHERE job_objid=? AND submit_date > UTC_TIMESTAMP() - INTERVAL 1 WEEK ORDER BY  job_id DESC
+&SQL`GET`NEWJOBSCAT u(jobsys)=SELECT jobs.job_id FROM $DATABASE$.$JOBS$ as jobs LEFT JOIN $DATABASE$.$CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) AND NOT (jobs.job_status>0 AND jobs.close_date <= UTC_TIMESTAMP() - INTERVAL 14 DAY) order by jobs.job_id ASC LIMIT 20
+&SQL`GET`NEWJOBSCATCOUNT u(jobsys)=SELECT count(jobs.job_id) FROM $DATABASE$.$JOBS$ as jobs LEFT JOIN $DATABASE$.$CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) AND NOT (jobs.job_status>0 AND jobs.close_date <= UTC_TIMESTAMP() - INTERVAL 14 DAY) order by jobs.job_id
+
+&SQL`GET`NEWJOBSCAT u(jobsys)=(SELECT DISTINCT jobs.job_id FROM $DATABASE$.$JOBS$ as jobs LEFT JOIN $DATABASE$.$CHECK$ as readtime ON jobs.job_id=readtime.check_id WHERE jobs.job_objid=? AND readtime.player_id IS NULL) UNION ALL (SELECT DISTINCT jobs.job_id FROM $DATABASE$.$JOBS$ as jobs RIGHT JOIN $DATABASE$.$CHECK$ as readtime ON jobs.job_id=readtime.check_id WHERE jobs.job_objid=? AND readtime.player_id IS NULL) LIMIT 20
+
 
 &INC`MYJOBS`LIST u(jobsys)=th set(valcats,u(FUN`VALIDCATS,%#,ADMIN));th setq(total,u(SQL,GET`MYJOBLISTCOUNT%q<old>,%q<pid>,%q<pid>));@switch/inline valnum(%1)=1,{th setq(page,bound(%1,1,setr(max,ceil(fdiv(%q<total>,30)))))},{th setq(page,1,max,ceil(fdiv(%q<total>,30)))};@nspemit %#=u(RFN`HEADER,mudname() - Your Jobs);@nspemit %#=align(2 >4 8 15 15 5 9 5 6,*,ID,Category,Submitter,Title,Due,Claimed,Upd,Attn);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline revwords(u(SQL,GET`MYJOBLIST%q<old>,%q<pid>,%q<pid>,mul(30,sub(%q<page>,1))))={@nspemit %#=u(FUN`MYLIST,%i0)};@nspemit %#=u(RFN`HEADER,if(gt(%q<page>,1),ansi(hg,pueblize(<,+myjob[if(strlen(%q<old>),/old)] =[sub(%q<page>,1)])),ansi(hx,<))%BPage %q<page> of %q<max>%B[if(lt(%q<page>,%q<max>),ansi(hg,pueblize(>,+myjob[if(strlen(%q<old>),/old)] =[add(%q<page>,1)])),ansi(hx,>))])
 
@@ -135,9 +138,11 @@
 &FUN`LIST`JOBTITLE u(jobsys)=u(SQL,GET`JOBTITLE,%0)
 &SQL`GET`JOBTITLE u(jobsys)=SELECT job_title FROM $DATABASE$.$JOBS$ WHERE job_id=?
 
-&FUN`LIST`JOBDUE u(jobsys)=if(setr(due,u(SQL,GET`JOBDUEDATE,%0)),switch(%q<due>,<[secs()],ansi(hr,timefmt($m/$d,%q<due>)),timefmt($m/$d,%q<due>)),---)
-&FUN`LIST`JOBDUE2 u(jobsys)=if(setr(due,u(SQL,GET`JOBDUEDATE,%0)),switch(%q<due>,<[secs()],ansi(hr,timefmt($x,%q<due>)),timefmt($x,%q<due>)),---)
+&FUN`LIST`JOBDUE u(jobsys)=if(setr(due,u(SQL,GET`JOBDUEDATE,%0)),switch(%q<due>,<[secs()],ansi(if(u(SQL,GET`JOBSTATUS,%0),n,hr),timefmt($m/$d,%q<due>)),timefmt($m/$d,%q<due>)),---)
+&FUN`LIST`JOBDUE2 u(jobsys)=if(setr(due,u(SQL,GET`JOBDUEDATE,%0)),switch(%q<due>,<[secs()],ansi(if(u(SQL,GET`JOBSTATUS,%0),n,hr),timefmt($x,%q<due>)),timefmt($x,%q<due>)),---)
 &SQL`GET`JOBDUEDATE u(jobsys)=SELECT UNIX_TIMESTAMP(due_date) FROM $DATABASE$.$JOBS$ WHERE job_id=?
+
+
 
 &FUN`LIST`JOBATTN u(jobsys)=if(u(SQL,GET`JOBATTN,%0),Player,Staff)
 &SQL`GET`JOBATTN u(jobsys)=SELECT job_attn FROM $DATABASE$.$JOBS$ WHERE job_id=?

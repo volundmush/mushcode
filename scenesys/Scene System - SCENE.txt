@@ -17,10 +17,10 @@
 &VAR`PLOT`ADMINFLAGS u(scene)=ADD|DESC|TITLE|START|END|TYPE|RUNNER|STATUS|DELETE
 
 &VAR`BBS`RPBBDBREF u(scene)=#560
-&VAR`URL`DOMAIN u(scene)=multiversemush.com
-&VAR`URL`PHP u(scene)=/scene/view.php?id=
+&VAR`URL`DOMAIN u(scene)=phantasmgames.org
+&VAR`URL`PHP u(scene)=/ex/scene/view.php?id=
 &VAR`SQL`PREFIX u(scene)=scene_
-&VAR`SQL`DATABASE u(scene)=multiver_scenesys
+&VAR`SQL`DATABASE u(scene)=lights_mushjobs
 &VAR`SQL`TABLES u(scene)=PLAYERS|PLOTS|SCENES|POSES|SCHEDULE|TAGS
 &VAR`SQL`TABLE`SCENES u(scene)=scenes
 &VAR`SQL`TABLE`PLAYERS u(scene)=players
@@ -52,9 +52,11 @@
 &INC`RECPOSE u(scene)=@assert %1;@assert setr(pid,u(sql,get`playerid,objid(firstof(get(%0/D`SCENE`SPOOF),%0))));@include u(scene)/INC`DOSQL=SET`NEWPOSE,%q<pid>,%1,%2
 &SQL`SET`NEWPOSE u(scene)=INSERT INTO $DATABASE$.$POSES$ (player_id,scene_id,pose,pose_time) VALUES (?,?,?,UTC_TIMESTAMP())
 
-&INCLUDE`LASTPOSE`POSTPOSE u(scene)=@assert isic(%:);@dolist/inline lockfilter(D`POT`FOOTER:1,uldefault(%l/D`CUSTRECP,lcon(%l),%#))=@pemit %i0=header(if(%0,\[[ansi(hg,LOG: %0)]\]%B,if(u(sql,get`recentposeat,%l,uldefault(%l/D`CUSTLOC,%l,%#)),\[[ansi(hr,X)]\]%B))End of [ansi(hw,accname(%:))]'s pose[if(setr(spoof,get(%#/D`SCENE`SPOOF)),%B\(as [accname(%q<spoof>)]\))]%b,,,,,,%i0)
+&INCLUDE`LASTPOSE`PREPOSE u(scene)=@assert isic(%:);th setq(locid,objid(%l),custloc,uldefault(%l/D`CUSTLOC,%l,%#));th setq(sceneactive,u(sql,get`activehere,%q<locid>,%q<custloc>),custrecp,uldefault(%l/D`CUSTRECP,lcon(%l),%#));@dolist/inline if(words(%q<sceneactive>),%q<custrecp>,lockfilter(D`POT`HEADER:1,%q<custrecp>))={@select/inline 1=not(words(%q<sceneactive>)),{th setq(disp,ansi(+white,accname(%:)) has posed[if(setr(spoof,get(%#/D`SCENE`SPOOF)),%B\(as [accname(%q<spoof>)]\))]%b);@nspemit %i0=switch(1,nor(get(%i0/D`POT`HEADER),get(%i0/D`POT`FOOTER)),center(%q<disp>,width(%i0)),t(get(%i0/D`POT`HEADER)),header(%q<disp>,,,,,,%i0))},cand(words(%q<sceneactive>),not(%q<logged>)),{th setq(disp,\[[ansi(hr,NO LOG: [lmath(max,%q<sceneactive>)])]\]%B[ansi(+white,accname(%:))] has posed[if(setr(spoof,get(%#/D`SCENE`SPOOF)),%B\(as [accname(%q<spoof>)]\))]%b);@nspemit %i0=switch(1,nor(get(%i0/D`POT`HEADER),get(%i0/D`POT`FOOTER)),center(%q<disp>,width(%i0)),t(get(%i0/D`POT`HEADER)),header(%q<disp>,,,,,,%i0))},t(match(%q<sceneactive>,%q<logged>)),{th setq(disp,\[[ansi(hg,LOG: [lmath(max,%q<sceneactive>)])]\]%B[ansi(+white,accname(%:))] has posed[if(setr(spoof,get(%#/D`SCENE`SPOOF)),%B\(as [accname(%q<spoof>)]\))]%b);@nspemit %i0=switch(1,nor(get(%i0/D`POT`HEADER),get(%i0/D`POT`FOOTER)),center(%q<disp>,width(%i0)),t(get(%i0/D`POT`HEADER)),header(%q<disp>,,,,,,%i0))}}
 
-&INCLUDE`LASTPOSE`PREPOSE u(scene)=@assert isic(%:);@dolist/inline if(%0,uldefault(%l/D`CUSTRECP,lcon(%l),%#),lockfilter(D`POT`HEADER:1,uldefault(%l/D`CUSTRECP,lcon(%l),%#)))=@nspemit %i0=if(cand(%q<logged>,nor(get(%i0/D`POT`HEADER),get(%i0/D`POT`FOOTER))),center(if(%0,\[[ansi(hg,LOG: %0)]\]%B,if(u(sql,get`recentposeat,%l,uldefault(%l/D`CUSTLOC,%l,%#)),\[[ansi(hr,X)]\]%B))[ansi(+white,accname(%:))] has posed[if(setr(spoof,get(%#/D`SCENE`SPOOF)),%B\(as [accname(%q<spoof>)]\))]%b,width(%i0)),header(if(%0,\[[ansi(hg,LOG: %0)]\]%B,if(u(sql,get`recentposeat,%l,uldefault(%l/D`CUSTLOC,%l,%#)),\[[ansi(hr,X)]\]%B))[ansi(+white,accname(%:))] has posed[if(setr(spoof,get(%#/D`SCENE`SPOOF)),%B\(as [accname(%q<spoof>)]\))]%b,,,,,,%i0))
+&INCLUDE`LASTPOSE`POSTPOSE u(scene)=@assert isic(%:);@dolist/inline lockfilter(D`POT`FOOTER:1,%q<custrecp>)={@select/inline 1=not(words(%q<sceneactive>)),{th setq(disp,End of [ansi(+white,accname(%:))]'s pose[if(setr(spoof,get(%#/D`SCENE`SPOOF)),%B\(as [accname(%q<spoof>)]\))]%b);@nspemit %i0=subheader(%q<disp>,,,,,,%i0)},cand(words(%q<sceneactive>),not(%q<logged>)),{th setq(disp,\[[ansi(hr,NO LOG: [lmath(max,%q<sceneactive>)])]\]%BEnd of [ansi(+white,accname(%:))]'s pose[if(setr(spoof,get(%#/D`SCENE`SPOOF)),%B\(as [accname(%q<spoof>)]\))]%b);@nspemit %i0=subheader(%q<disp>,,,,,,%i0)},t(match(%q<sceneactive>,%q<logged>)),{th setq(disp,\[[ansi(hg,LOG: [lmath(max,%q<sceneactive>)])]\]%BEnd of [ansi(+white,accname(%:))]'s pose[if(setr(spoof,get(%#/D`SCENE`SPOOF)),%B\(as [accname(%q<spoof>)]\))]%b);@nspemit %i0=subheader(%q<disp>,,,,,,%i0)}}
+
+&SQL`GET`ACTIVEHERE u(scene)=SELECT scene_id from $DATABASE$.$SCENES$ WHERE room_objid=? AND room_custloc=? AND scene_state='0'
 
 &FUN`ISLOGGED u(scene)=localize(if(setr(pid,u(sql,get`playerid,%0)),if(setr(scene,get(%0/D`SCENE`ACTIVE)),if(cand(gte(words(%1),10),eq(u(sql,get`scenestate,%q<scene>),0),strmatch(u(sql,get`sceneloc,%q<scene>),objid(%l)),strmatch(u(sql,get`scenecustloc,%q<scene>),uldefault(%l/D`CUSTLOC,%l,%#))),%q<scene>))))
 
