@@ -33,12 +33,15 @@
 &FUN`CANREAD`BB u(bbs)=cand(cor(elock(%1/Read,%0),u(FUN`BBADMIN`BB,%0,%1)),cor(%2,not(u(FUN`GETOMIT,%0,%1))))
 &FUN`CANWRITE`BB u(bbs)=cand(cor(elock(%1/Write,%0),u(FUN`BBADMIN`BB,%0,%1)),cor(%2,not(u(FUN`GETOMIT,%0,%1))))
 
-
-
 &FUN`VALIDGROUPS`GB u(bbs)=filterbool(#lambda/u(FUN`CAN%1`GB,%0,\%0,%2,strfirstof(%3,%q<gid1>)),u(FUN`LISTGROUPS`GB,strfirstof(%3,%q<gid1>)))
 &FUN`BBADMIN`GB u(bbs)=u(u(gso)/FUN`GRPPERM,objid(%0),%1,MODERATE,GROUP)
 &FUN`CANREAD`GB u(bbs)=cand(cor(u(FUN`BBADMIN`GB,%0,%3),if(strlen(get(u(bbs-db)/BB`%1`GREAD)),lte(u(u(gso)/FUN`GETRANK,%3,objid(%0)),get(u(bbs-db)/BB`%1`GREAD)),1)),cor(%2,not(u(FUN`GETOMIT,%0,%1))))
 &FUN`CANWRITE`GB u(bbs)=cand(cor(u(FUN`BBADMIN`GB,%0,%3),if(strlen(get(u(bbs-db)/BB`%1`GWRITE)),lte(u(u(gso)/FUN`GETRANK,%3,objid(%0)),get(u(bbs-db)/BB`%1`GWRITE)),1)),cor(%2,not(u(FUN`GETOMIT,%0,%1))))
+
+&GFN`BBSPRIORITY u(bbs)=[setq(max,lmath(max,iter(setr(passed,iter(filterbool(#lambda/u(FUN`CANREAD`BB,\%0,%2,,),filterbool(#lambda/hasflag(\%0,CONNECTED),alts(if(isadmin(%#),%0,%#)))),%i0~[default(%i0/D`ALTS`PRIORITY,0)],%b,|)),after(%i0,~),|,%b)))][iter(filterbool(#lambda/eq(after(\%0,~),%q<max>),%q<passed>,|,|),before(%i0,~),|,%b)]
+
+
+@@ setunion(iter(filterbool(#lambda/u(FUN`CANREAD`BB,\%0,%2,,),setunion(lwho(),)),strfirstof(filterbool(#lambda/u(FUN`CANREAD`BB,\%0,%2,,),priorityother(%i0)),objid(%i0))),)
 
 &INC`CHECK u(bbs)=@switch/inline t(default(%#/D`BB`CHECK,1))=1,{@nspemit %#=u(RFN`MSGHEAD,%q<ann>) You will no longer +bbscan on connect!;&D`BB`CHECK %#=0},0,{@nspemit %#=u(RFN`MSGHEAD,%q<ann>) You will now +bbscan on connect!;&D`BB`CHECK %#=1}
 
@@ -84,6 +87,8 @@
 &FUN`SETREAD u(bbs)=localize(switch(cand(setr(accid,accid(%0)),not(haspower(%0,GUEST))),>0,attrib_set(u(adb)/%q<accid>`BB`%1`READ,setunion(setinter(u(FUN`GETREAD,%0,%1),u(FUN`LISTPOSTS,%1)),%2)),attrib_set(%0/D`BB`%1`READ,setunion(setinter(u(FUN`GETREAD,%0,%1),u(FUN`LISTPOSTS,%1)),%2))))
 
 &INC`ALERT u(bbs)=@switch/inline %0=BB,{th setq(members,filterbool(#lambda/u(FUN`CANREAD`BB,\%0,%2,,),setunion(lwho(),)))},GB,{th setq(members,filterbool(#lambda/cand(isgroupmember(\%0,%q<gid1>),u(FUN`CANREAD`GB,\%0,%2,,%q<gid1>)),setunion(lwho(),)))};@nspemit/list %q<members>=%3
+
+&INC`ALERT u(bbs)=@switch/inline %0=BB,{th setq(members,setunion(iter(filterbool(#lambda/u(FUN`CANREAD`BB,\%0,%2,,),setunion(lwho(),)),strfirstof(filterbool(#lambda/u(FUN`CANREAD`BB,\%0,%2,,),priorityother(%i0)),objid(%i0))),))},GB,{th setq(members,filterbool(#lambda/cand(isgroupmember(\%0,%q<gid1>),u(FUN`CANREAD`GB,\%0,%2,,%q<gid1>)),setunion(lwho(),)))};@nspemit/list %q<members>=%3
 @@ %0 - Mode, GB or BB. %1 - Board number. %2 - Board DBREF. %3 - Message.
 
 &INC`NEWGROUP u(bbs)=@assert strlen(%1%2)=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: No name entered for the new board!;@assert valid(name,%1%2)=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: That is not a suitable name for a board.;@break gte(strlen(%1%2),29)=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: Board names must be 29 characters long or less.;@break isdbref(locate(switch(%0,BB,u(bbs-db),GB,%q<gid1>),trim(%1%2),TXxi))=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) ERROR: A board already has that name.;@tel setr(bb,create(trim(%1%2)))=switch(%0,BB,u(bbs-db),GB,%q<gid1>);@power %q<bb>=many_attribs;@switch/inline %0=BB,{&groups u(bbs-db)=trim(cat(get(u(bbs-db)/groups),%q<bb>))},GB,{&BOARDS %q<gid1>=trim(cat(get(%q<gid1>/BOARDS),%q<bb>))};@set %q<bb>=SAFE;@nspemit %#=u(RFN`MSGHEAD,%q<ann>) Board '[trim(%1%2)]' created!;th setq(bbnum,match(u(FUN`LISTGROUPS`%0),%q<bb>))

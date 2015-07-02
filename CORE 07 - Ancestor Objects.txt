@@ -13,9 +13,10 @@
 
 &FUN`CONFORMAT`THINGS`DEFAULT u(ar)=u(RFN`SEPARATOR,Things)%R[align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter))]%R[trim(iter(sort(lvthings(me),namei),align(40 28 8,pueblize(name(%i0),look [name(%i0)]),pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(isadmin(%#)[hasflag(%i0,ENTER_OK)],11,pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R),%r)]
 
-&FUN`CONFORMAT`EXTRA u(ar)=if(cor(nattr(me/VIEW`*),nattr(me/MUSIC`*)),separator(Extra)%R[iter(filterbool(#lambda/nattr(me/\%0`*),VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)
+&FUN`CONFORMAT`EXTRA u(ar)=if(cor(nattr(me/VIEW`*),nattr(me/MUSIC`*),nattr(me/PLACE`*)),separator(Extra)%R[iter(filterbool(#lambda/nattr(me/\%0`*),PLACE VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)
 &FUN`EXTRA`VIEW u(ar)=This room has views! Type [pueblize(ansi(h,views),views)] to list!
 &FUN`EXTRA`MUSIC u(ar)=[ansi(hc,This room has a soundtrack! Type)] [pueblize(ansi(h,soundtrack),soundtrack)] [ansi(hc,to list!)]
+&FUN`EXTRA`PLACE u(ar)=This room has places! Type [pueblize(ansi(h,places),places)] to list!
 
 &EXITFORMAT u(ar)=if(words(lvexits(me)),u(FUN`EXITFORMAT`[if(cand(strlen(setr(mode,v(VAR`MODE))),hasattrp(me/FUN`EXITFORMAT`%q<mode>)),%q<mode>,DEFAULT)]),u(RFN`HEADER))
 
@@ -34,7 +35,8 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),RO
 @tel u(ap)=u(ar)
 @pageformat u(ap)=ansi(custcolor(%@,PAGE`PAGE),colornames(%4,%!,lwho(%!),PAGES))
 @outpageformat u(ap)=ansi(custcolor(%@,PAGE`OUTPAGE),colornames(%4,%!,lwho(%!),PAGES))
-@chatformat u(ap)=if(strlen(setr(color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[colornames(after(%5,>),%!,lwho(%!),CHANNELS)],<%1>[colornames(after(%5,>),%!,lwho(%!),CHANNELS)])
+
+@chatformat u(ap)=if(match(chanpriority(%!,%1),objid(me)),if(strlen(setr(color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[colornames(after(%5,>),%!,lwho(%!),CHANNELS)],<%1>[colornames(after(%5,>),%!,lwho(%!),CHANNELS)]))
 
 @switch/inline isdbref(u(at))=0,{th attrib_set(u(coi)/AT,create(Ancestor Thing <AT>))}
 @tel u(at)=u(ar)

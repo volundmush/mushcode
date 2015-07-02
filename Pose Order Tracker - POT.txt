@@ -13,7 +13,7 @@
 
 &CMD`+SUMMARY u(pot)=$+summary *:@break gt(strlen(%0),1024)=@pemit %#=ansi(hr,That summary is too long.);@nspemit/list uldefault(%l/D`CUSTRECP,lcon(%l),%#)=ansi(h,>>> SUMMARY - [fullname(%#)] <<< - %0);&D`LASTPOSE`SUMMARY %#=%0;@assert cor(isic(%#),get(%l/POT));&[setr(potattr,setr(loc,uldefault(%l/D`CUSTLOC,%l,%#))`[nextslot(setr(potdb,u(potdb)),%q<loc>)])]`TYPE %q<potdb>=SUMMARY;&%q<potattr> %q<potdb>=%0;&%q<potattr>`BY %q<potdb>=%#;&%q<potattr>`WHEN %q<potdb>=secs();@switch/inline gt(nattr(%q<potdb>/%q<loc>`*),300)=1,{@dolist/inline elements(sortkey(#lambda/last(\%0,`),lattr(%q<potdb>/%q<loc>`*),n),lnum(1,sub(%q<count>,300)))=@wipe %q<potdb>/%i0}
 
-&CMD`+POT u(pot)=$^(?\:\+)?pot(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.+))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(pot)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(pot)/VAR`ADMINFLAGS)),|,|),|,POT,switch,switch;@include u(pot)/INC`[strfirstof(%1,MAIN)]=%2,%3
+&CMD`+POT u(pot)=$^(?\:\+)?pot(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.+))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(pot)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(pot)/VAR`ADMINFLAGS)),|,|),|,POT,switch,switch;@include u(pot)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(pot)/CMD`+pot=regexp
 
 &VAR`PLAYFLAGS u(pot)=LAST|MAX|LIST|BRIEF|MODE|SUMMARY|HEADER|FOOTER
@@ -42,7 +42,7 @@
 &INC`FOOTER u(pot)=@include u(pot)/INC`CHHEAD=FOOTER
 &INC`CHHEAD u(pot)=th setq(change,if(t(get(%#/D`POT`%0)),0,1));@nspemit %#=u(RFN`MSGHEAD) You will [if(%q<change>,now see,no longer see)] a %0 for all poses!;&D`POT`%0 %#=%q<change>
 
-&TRG`SELFCLEAN u(pot)=@switch/inline gt(v(VAR`SELFCLEAN),0)=1,{@dolist/inline lattr(u(potdb)/*)=@trigger u(pot)/TRG`DOCLEAN=%i0;@wait mul(60,v(var`checkminutes))=@trigger u(pot)/TRG`SELFCLEAN
+&TRG`SELFCLEAN u(pot)=@switch/inline gt(v(VAR`SELFCLEAN),0)=1,{@dolist/inline lattr(u(potdb)/*)=@trigger u(pot)/TRG`DOCLEAN=%i0};@wait mul(60,v(var`checkminutes))=@trigger u(pot)/TRG`SELFCLEAN
 
 &TRG`DOCLEAN u(pot)=@dolist/inline filterbool(#lambda/gte(sub(secs(),get(u(potdb)/\%0`WHEN)),mul(60,60,v(VAR`TIMEOUTHOURS))),lattr(u(potdb)/%0`*))=@wipe u(potdb)/%i0
 

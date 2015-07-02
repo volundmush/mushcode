@@ -52,7 +52,7 @@
 &INC`RECPOSE u(scene)=@assert isint(%1);@assert setr(pid,u(sql,get`playerid,objid(firstof(get(%0/D`SCENE`SPOOF),%0))));@include u(scene)/INC`DOSQL=SET`NEWPOSE,%q<pid>,%1,%2
 &SQL`SET`NEWPOSE u(scene)=INSERT INTO $DATABASE$.$POSES$ (player_id,scene_id,pose,pose_time) VALUES (?,?,?,UTC_TIMESTAMP())
 
-&INC`POSEERROR u(scene)=@switch/inline strmatch(%0,#-*)=1,{@nspemit %#=u(RFN`MSGHEAD) ERROR: [rest(%0)]}
+&INC`POSEERROR u(scene)=@assert words(%q<sceneactive>);@switch/inline strmatch(%0,#-*)=1,{@nspemit %#=u(RFN`MSGHEAD) ERROR: [rest(%0)]}
 
 &FUN`ISLOGGED u(scene)=if(cand(not(%3),words(%4)),#-1 SCENE NOT JOINED,if(not(match(%4,%3)),#-2 JOINED SCENE (%3) NOT PRESENT,if(u(sql,get`scenestate,%3),#-3 SCENE (%3) IS NOT ACTIVE,if(lt(words(%2),10),#-4 INSUFFICIENT WORD COUNT,%3))))
 
@@ -106,9 +106,9 @@
 &SQL`INIT`SCENE u(scene)=INSERT INTO $DATABASE$.$SCENES$ (player_id,scene_title,room_objid,room_name,room_custloc,creation_date) VALUES (?,?,?,?,?,UTC_TIMESTAMP())
 &SQL`GET`NEWSCENEID u(scene)=SELECT max(scene_id) from $DATABASE$.$SCENES$ WHERE player_id=?
 
-&INC`MESSAGE u(scene)=@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),setunion(lockfilter(D`SCENE`ACTIVE:%0,setunion(iter(uldefault(%l/D`CUSTRECP,lcon(%l),%#),objid(%i0)),u(sql,get`objidsinscene,%0))),%:),{%1}
+&INC`MESSAGE u(scene)=@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),setunion(setunion(lockfilter(D`SCENE`ACTIVE:%0,u(sql,get`objidsinscene,%0)),%:),iter(uldefault(%l/D`CUSTRECP,lcon(%l),%#),objid(%i0))),{%1}
 
-&INC`MSGSCENE u(scene)=@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),setunion(lockfilter(D`SCENE`ACTIVE:%0,setunion(%:,u(sql,get`objidsinscene,%0))),%:),{%1}
+&INC`MSGSCENE u(scene)=@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),setunion(setunion(lockfilter(D`SCENE`ACTIVE:%0,setunion(%:,u(sql,get`objidsinscene,%0))),%:),iter(uldefault(%l/D`CUSTRECP,lcon(%l),%#),objid(%i0))),{SCENE %0: %1}
 
 &INC`SCENE`JOIN u(scene)=@assert approved(%#)=@nspemit %#=u(RFN`MSGHEAD) You are not approved!;@include u(scene)/INC`USERCHECK=%:;@switch/inline gt(strlen(setr(scene,%0)),0)=1,{@switch/inline valnum(%q<scene>)=0,{@include u(ccs)/INC`CHECKPC=%q<scene>,2,v(VAR`MSGHEAD);@assert valnum(setr(scene,get(%q<t2>/D`SCENE`ACTIVE)))=@nspemit %#=u(RFN`MSGHEAD) %q<t2name> is not joined to a scene.},1,{@assert setr(scene,u(sql,get`scenewhereidandstate,%q<scene>,0))=@nspemit %#=u(RFN`MSGHEAD) Scene '%0' does not exist or is not Active.}},0,{@assert gt(setr(scene,u(sql,GET`SCENEHERE,objid(%l),uldefault(%l/D`CUSTLOC,%l,%#))),0)=@nspemit %#=u(RFN`MSGHEAD) There are no recent scenes here to join!};&D`SCENE`ACTIVE %#=%q<scene>;@include u(scene)/INC`MESSAGE=%q<scene>,%n joined Scene %q<scene>!;@switch/inline t(get(%#/D`SCENE`SPOOF))=1,{@nspemit %#=u(RFN`MSGHEAD) ALERT: You are currently set to Spoof as: [name(get(%#/D`SCENE`SPOOF))].}
 
