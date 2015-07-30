@@ -46,6 +46,7 @@
 
 &AGFN`ACCID u(cao)=udefault(u(cao)/FUN`FINDACCOUNT,0,if(%1,%0,objid(pmatch(%0))),%1)
 &AGFN`ALTS u(cao)=filterbool(#lambda/isobjid(\%0),get(u(adb)/[if(valnum(%0),%0,accid(%0))]))
+&GFN`PALTS u(cao)=alts(%@)
 
 &INC`ACCOUNT`MAIN u(cao)=@switch/inline isadmin(%#)=1,{@switch/inline strlen(%0)=0,{@include u(cao)/INC`ACCOUNT`LIST},{@switch/inline valnum(%0)=1,{@assert hasattr(u(adb)/[setr(accid,%0)])=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: Account ID not found.},{@include u(ccs)/INC`CHECKPC=%0,1,ACCOUNT;@assert gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%q<t1objid>)),0)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: %q<t1name> is not bound to an account.};@include u(cao)/INC`ACCOUNT`SHOW}},{@include u(ccs)/INC`CHECKPC=%#,1,ACCOUNT;@assert gt(setr(accid,u(u(cao)/FUN`FINDACCOUNT,%q<t1objid>)),0)=@nspemit %#=u(RFN`ACCOUNT`MSGHEAD) ERROR: You are not bound to an Account. Please check with an Admin to correct this!;@include u(cao)/INC`ACCOUNT`SHOW}
 

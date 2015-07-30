@@ -21,7 +21,7 @@
 @lset u(district)/teleport=!no_inherit
 &FUN`TELEPORT u(district)=cand(approved(%#),not(hasflag(%#,JAILED)))
 
-&CMD`+GRID u(grid)=$^(?s)(?\:\+)?(district|dig|open|convert)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(grid)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(grid)/VAR`%1`ADMINFLAGS)),|,|),|,v(VAR`MSGHEAD),switch,switch;@include u(grid)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+&CMD`+GRID u(grid)=$^(?s)\+(district|dig|open|convert)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(grid)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(grid)/VAR`%1`ADMINFLAGS)),|,|),|,v(VAR`MSGHEAD),switch,switch;@include u(grid)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(grid)/CMD`+GRID=regexp
 
 &VAR`DISTRICT`PLAYFLAGS u(grid)=LOCK|UNLOCK|DESCRIBE

@@ -16,7 +16,7 @@
 &RFN`SUBHEADER u(bbs)=subheader(%0,,BBS`BORDER,BBS`BORDERDOT,BBS`BORDERTEXT)
 &RFN`SEPARATOR u(bbs)=separator(%0,,BBS`BORDER,BBS`BORDERDOT,BBS`BORDERTEXT)
 
-&CMD`BB u(bbs)=$^(?s)(?\:\+)?(bb|gb)(\S+)(?\: +(.+?))?(?\:/(.+?)?)?(?\:=(.*))?$:@include u(bbs)/INC`INIT`%1;@include u(ccs)/INC`PARTIAL=%2,setunion(setunion(v(VAR`BB`PLAYCOMMS),if(setr(isadmin,switch(%1,bb,isadmin(%#),gb,u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,GBADMIN))),v(VAR`BB`ADMINCOMMS)),|,|),if(hasflag(%#,WIZARD),v(VAR`BB`WIZCOMMS)),|,|),|,setr(ann,ucstr(%1S)),command,command;@include u(bbs)/INC`[strfirstof(%q<command>,WRITE)]=ucstr(%1),%3,%4,%5
+&CMD`BB u(bbs)=$^(?s)\+(bb|gb)(\S+)(?\: +(.+?))?(?\:/(.+?)?)?(?\:=(.*))?$:@include u(bbs)/INC`INIT`%1;@include u(ccs)/INC`PARTIAL=%2,setunion(setunion(v(VAR`BB`PLAYCOMMS),if(setr(isadmin,switch(%1,bb,isadmin(%#),gb,u(u(gso)/FUN`GRPPERM,%:,%q<gid1>,GBADMIN))),v(VAR`BB`ADMINCOMMS)),|,|),if(hasflag(%#,WIZARD),v(VAR`BB`WIZCOMMS)),|,|),|,setr(ann,ucstr(%1S)),command,command;@include u(bbs)/INC`[strfirstof(%q<command>,WRITE)]=ucstr(%1),%3,%4,%5
 @set u(bbs)/CMD`BB=regexp
 
 &CMD`BBWRITE u(bbs)=$^(?s)\+(bb|gb)(?\: +(.*))?$:th setq(ann,ucstr(%1S));@include u(bbs)/INC`INIT`%1;@include u(bbs)/INC`WRITE=ucstr(%1),%2
@@ -141,7 +141,7 @@
 &FUN`GETOMIT u(bbs)=default(%0/D`BB`%1`OMIT,0)
 &FUN`SETOMIT u(bbs)=attrib_set(%0/D`BB`%1`OMIT,%2)
 
-&INC`SCAN u(bbs)=@include/nobreak u(bbs)/INC`SCAN`DOSCAN;@switch %0=BB,{@include u(bbs)/INC`SCAN`GROUPSCAN}
+&INC`SCAN u(bbs)=@include/nobreak u(bbs)/INC`SCAN`DOSCAN;@switch %0=BB,{@assert words(getproperty(%#,groups));@include u(bbs)/INC`SCAN`GROUPSCAN}
 
 &INC`SCAN`DOSCAN u(bbs)=@assert words(setr(groups,filterbool(#lambda/words(iter(lattr(\%0/*),u(u(bbs)/FUN`MSGFLAG,%#,\%0,\%i0))),u(FUN`VALIDGROUPS`%0,%#,READ))))=@nspemit %#=u(RFN`MSGHEAD,%q<ann>) There are no unread postings on the [switch(%0,GB,%q<gname1> GBS,BBS)].;th setq(listgroups,u(FUN`LISTGROUPS`%0));@dolist %q<groups>={@switch/inline inum(0)=1,{@nspemit %#=u(RFN`HEADER,u(FUN`NAME,%0,,%q<gid1>) - Unread Postings)};th setq(posts,u(FUN`LISTPOSTS,%i0));@nspemit %#=pueblize(name(%i0) (#[setr(bbnum,match(%q<listgroups>,%i0))]),+[lcstr(%0)]read %q<bbnum>[if(strmatch(%0,GB),=%q<gid1>)]): [setr(num,words(setr(unread,filterbool(#lambda/match(U C,u(u(bbs)/FUN`MSGFLAG,%#,%i0,\%0)),%q<posts>))))] unread ([itemize(iter(%q<unread>,pueblize(setr(postnum,match(%q<posts>,%i0)),+[lcstr(%0)]read %q<bbnum>/%q<postnum>[if(strmatch(%0,GB),=%q<gid1>)])),%b,and,\,)]);&D`BBTOTAL %#=add(%q<num>,get(%#/D`BBTOTAL));@switch/inline eq(words(%q<groups>),inum(0))=1,{@nspemit %#=u(RFN`HEADER,Total Unread: [get(%#/D`BBTOTAL)]);@wipe %#/D`BBTOTAL}}
 

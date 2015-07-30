@@ -30,7 +30,7 @@
 
 &PLAYER`CONNECT`WATCH u(wso)=@break cor(hasflag(%0,DARK),hidden(%0));@break gt(%1,1);@break t(get(%0/D`WATCH`HIDE));@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),filterbool(#lambda/cand(match(get(\%0/D`WATCH),%0),default(\%0/D`WATCH`MUTE,1)),setunion(lwhoid(),)),{[name(%0)] has connected.}
 
-&PLAYER`CONNECT`MAIL u(wso)=@break haspower(%0,GUEST);@wait 2={@switch/inline t(setr(accid,accid(%0)))=1,{th setq(ualts,filterbool(#lambda/elements(mail(\%0),2),alts(%0)));@nspemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(sort(%q<ualts>,namei),ansi(h,name(%i0)) ([elements(mail(%i0),2)]),%b,\,%b)]},0,{@pemit %0=[ansi(yh,You have [elements(mail(%0),2)] unread @mail(s) in your inbox)]}}
+&PLAYER`CONNECT`MAIL u(wso)=@break haspower(%0,GUEST);@wait 2={@switch/inline t(setr(accid,accid(%0)))=1,{th setq(ualts,filterbool(#lambda/elements(mail(\%0),2),alts(%0)));@switch/inline t(words(%q<ualts>))=1,{@nspemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(sort(%q<ualts>,namei),ansi(h,name(%i0)) ([elements(mail(%i0),2)]),%b,\,%b)]},0,{@nspemit %0=ansi(hy,You have no unread mail.)}},0,{@pemit %0=[ansi(yh,You have [elements(mail(%0),2)] unread @mail(s) in your inbox)]}}
 
 &PLAYER`DISCONNECT`WATCH u(wso)=&IDLERS u(wso)=setdiff(get(u(wso)/IDLERS),%0);@break cor(hasflag(%0,DARK),hidden(%0));@break gte(%1,1);@break t(get(%0/D`WATCH`HIDE));@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),filterbool(#lambda/cand(match(get(\%0/D`WATCH),%0),default(\%0/D`WATCH`MUTE,1)),setunion(lwhoid(),)),{[name(%0)] has disconnected.}
 

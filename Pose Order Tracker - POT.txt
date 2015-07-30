@@ -11,7 +11,8 @@
 @set u(potdb)=WIZARD SAFE !NO_COMMAND
 @power u(potdb)=many_attribs
 
-&CMD`+SUMMARY u(pot)=$+summary *:@break gt(strlen(%0),1024)=@pemit %#=ansi(hr,That summary is too long.);@nspemit/list uldefault(%l/D`CUSTRECP,lcon(%l),%#)=ansi(h,>>> SUMMARY - [fullname(%#)] <<< - %0);&D`LASTPOSE`SUMMARY %#=%0;@assert cor(isic(%#),get(%l/POT));&[setr(potattr,setr(loc,uldefault(%l/D`CUSTLOC,%l,%#))`[nextslot(setr(potdb,u(potdb)),%q<loc>)])]`TYPE %q<potdb>=SUMMARY;&%q<potattr> %q<potdb>=%0;&%q<potattr>`BY %q<potdb>=%#;&%q<potattr>`WHEN %q<potdb>=secs();@switch/inline gt(nattr(%q<potdb>/%q<loc>`*),300)=1,{@dolist/inline elements(sortkey(#lambda/last(\%0,`),lattr(%q<potdb>/%q<loc>`*),n),lnum(1,sub(%q<count>,300)))=@wipe %q<potdb>/%i0}
+&CMD`+SUMMARY u(pot)=$^\+summary(?\:/(\S+)?)?(?\: +(.*))?$:@include u(ccs)/INC`PARTIAL=%1,SILENT,|,POT,switch,switch;@break gt(strlen(%2),1024)=@pemit %#=ansi(hr,That summary is too long.);@switch/inline %q<switch>=SILENT,{@nspemit %#=ansi(hx,>>> SILENT SUMMARY: [fullname(%#)] - %2)},{@nspemit/list uldefault(%l/D`CUSTRECP,lcon(%l),%#)=ansi(h,>>> SUMMARY - [fullname(%#)] <<< - %2)};&D`LASTPOSE`SUMMARY %#=%2;@assert cor(isic(%#),get(%l/POT));&[setr(potattr,setr(loc,uldefault(%l/D`CUSTLOC,%l,%#))`[nextslot(setr(potdb,u(potdb)),%q<loc>)])]`TYPE %q<potdb>=SUMMARY;&%q<potattr> %q<potdb>=%2;&%q<potattr>`BY %q<potdb>=%#;&%q<potattr>`WHEN %q<potdb>=secs();@switch/inline gt(nattr(%q<potdb>/%q<loc>`*),300)=1,{@dolist/inline elements(sortkey(#lambda/last(\%0,`),lattr(%q<potdb>/%q<loc>`*),n),lnum(1,sub(%q<count>,300)))=@wipe %q<potdb>/%i0}
+@set u(pot)/CMD`+SUMMARY=regexp
 
 &CMD`+POT u(pot)=$^(?\:\+)?pot(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.+))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(pot)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(pot)/VAR`ADMINFLAGS)),|,|),|,POT,switch,switch;@include u(pot)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(pot)/CMD`+pot=regexp

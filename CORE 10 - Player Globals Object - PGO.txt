@@ -14,6 +14,8 @@
 
 &CMD`+FLIP u(pgo)=$+flip:th setq(roll,rand(0,100));@switch/inline %q<roll>=50,{@include u(ccs)/INC`RMSG=FLIP,lplayers(%l),{[ansi(h,%n)] flipped a coin: [switch(rand(1,6),1,it landed on its side!,2,a Demon grabbed it!,3,it never comes back down...,4,when it lands\, both sides are blank.,5,Reality Error 404: Coin not found!,6,it's drawn into a parallel universe!)]}},>50,{@include u(ccs)/INC`RMSG=FLIP,lplayers(%l),{[ansi(h,%n)] flipped a coin: Heads!}},{@include u(ccs)/INC`RMSG=FLIP,lplayers(%l),{[ansi(h,%n)] flipped a coin: Tails!}}
 
+&CMD`+TZ u(pgo)=$+tz *:@assert setr(accid,accid(%#))=@nspemit %#=u(RFN`MSGHEAD,TZ) ERROR: You have no account set.;@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD,TZ) ERROR: No Timezone field entered!;@break regmatchi(%0,^#\\d+)=@nspemit %#=u(RFN`MSGHEAD,TZ) ERROR: None of that chicanery, please.;@break strmatch(time(%0),#-*)=@nspemit %#=u(RFN`MSGHEAD,TZ) ERROR: Entered time zone was not recognized. Timezone entries are case sensitive and can be found in help timezones.;@nspemit %#=u(RFN`MSGHEAD,TZ) Your account Timezone was set to: %0;&%q<accid>`TZ u(adb)=%0
+
 &CMD`+OOC u(pgo)=$^(?s)(\+ooc|osay|\+osay)(?\: +(.*))?$:@assert elock(%l/speech,%#)=@nspemit %#=Permission denied.;@assert strlen(%2)=@nspemit %#=What will you say?;@break strmatch(left(%2,1),|)=@nspemit %#=msghead(CHAT) Emit feature is disabled.;@message lplayers(%l)=%2,u(pgo)/FUN`MSGOOC,%#,##,%2
 @set u(pgo)/CMD`+OOC=regexp
 

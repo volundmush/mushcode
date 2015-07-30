@@ -36,7 +36,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),RO
 @pageformat u(ap)=ansi(custcolor(%@,PAGE`PAGE),colornames(%4,%!,lwho(%!),PAGES))
 @outpageformat u(ap)=ansi(custcolor(%@,PAGE`OUTPAGE),colornames(%4,%!,lwho(%!),PAGES))
 
-@chatformat u(ap)=if(chanpriority(%!,%1,objid(me)),if(strlen(setr(color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[colornames(after(%5,>),%!,lwho(%!),CHANNELS)],<%1>[colornames(after(%5,>),%!,lwho(%!),CHANNELS)]))
+@chatformat u(ap)=if(cor(chanpriority(%1),strmatch(%#,%!)),if(strlen(setr(color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[colornames(after(%5,>),%!,lwho(%!),CHANNELS)],<%1>[colornames(after(%5,>),%!,lwho(%!),CHANNELS)]))
 
 @switch/inline isdbref(u(at))=0,{th attrib_set(u(coi)/AT,create(Ancestor Thing <AT>))}
 @tel u(at)=u(ar)
