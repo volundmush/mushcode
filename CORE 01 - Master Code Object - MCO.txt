@@ -40,7 +40,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
 &STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin sortname color mxpmenu pueblize={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof={@function/privileged %d0=%!/%d0}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table={@function/privileged %d0=%!/%d0}
+
+&STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`[v(game)];@include/nobreak %!/STARTUP`MAIN`EXTRA
+
+&STARTUP`MAIN`PENNMUSH [u(cobj,mco)]=@command/disable kill;@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc playstatus={@attribute/access/retroactive %i0=visual};@dolist/inline D={@attribute/access/retroactive %i0=mortal_dark WIZARD}
 
 @DESCRIBE [u(cobj,mco)]=This is Code Wizard territory. No touching!
 
@@ -400,6 +404,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 @@ Color and Configuration
 
 &GAME_CONFIG [u(cobj,mco)]=u(strfirstof,if(hasattr(u(cobj,config)/RETRIEVE`%0`%1),u(u(cobj,config)/RETRIEVE`%0`%1)),get(u(cobj,config)/CONFIG`%0`%1),get(u(cobj,config)/DEFAULT`%0`%1))
+
+&PLAYER_CONFIG [u(cobj,mco)]=u(strfirstof,if(hasattr(u(cobj,pconf)/RETRIEVE`%1`%2),u(u(cobj,pconf)/RETRIEVE`%1`%2,%0)),get(%0/D`CONFIG`%1`%2),get(u(cobj,pconf)/DEFAULT`%1`%2))
 
 &ISAPPROVED [u(cobj,mco)]=if(u(game_config,SYSTEM,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1)
 

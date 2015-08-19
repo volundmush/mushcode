@@ -1,0 +1,19 @@
+@@ DEPENDENCIES - CORE
+@@ RECOMMENDED: Character Account System. This will allow settings to be stored per account.
+
+th u(NEWCOBJ,Player Configuration SYSTEM <PCS>,pcs,u(cobj,mco),,,WIZARD SAFE,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Player Configuration Data Storage <PCONF>,pconf,u(cobj,pcs),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
+@@ %0 - @name. %1 - alias. %2 - location to store. %3 - parent, defaults to MCO. %4 - No parent. %5 - PennMUSH flags. %6 - RhostMUSH flags.
+
+&CMD`+CONFIG`PENNMUSH [u(cobj,gcs)]=$^(?\:\+)?config(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+CONFIG`MAIN
+@set [u(cobj,gcs)]/CMD`+CONFIG`PENNMUSH=regexp
+&CMD`+CONFIG`RHOSTMUSH [u(cobj,gcs)]=$^(?\:\+)?config(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GAMECONFIG`MAIN
+@set [u(cobj,gcs)]/CMD`+CONFIG`RHOSTMUSH=regexp
+&CMD`+CONFIG`MAIN [u(cobj,gcs)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,%4
+@set [u(cobj,gcs)]/CMD`+GAMECONFIG`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&SWITCHES`PLAYER [u(cobj,gcs)]=
+&SWITCHES`ADMIN [u(cobj,gcs)]=
+&SYSTEM`NAME [u(cobj,gcs)]=GAMECONFIG
+
+&INC`MAIN [u(cobj,gcs)]=@switch/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`SET}

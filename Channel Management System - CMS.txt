@@ -175,3 +175,4 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),CH
 &VAR`REGEXP`WWW u(cdb)=\w+\://\S+
 
 &TRG`CLEANME u(cdb)=@dolist/inline/nobreak u(lattr,me/MUZZLE`*)={@switch/first/inline cor(not(isobjid(v(%i0))),lte(v(%i0`DURATION),secs()))=1,{@wipe me/%i0}};@dolist/inline/nobreak u(lattr,me/ACCMUZZLE`*)={@switch/first/inline cor(not(words(get(u(adb)/[last(%i0,`)]))),lte(v(%i0),secs()))=1,{@wipe me/%i0}}
+

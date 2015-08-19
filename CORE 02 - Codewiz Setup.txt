@@ -5,6 +5,6 @@
 
 &STARTUP %#=@include me/STARTUP`[v(game)]
 
-&STARTUP`PENNMUSH %#=@assert/inline strmatch(u(game),PennMUSH);@command/restrict @command=#TRUE;@command/alias @include=@attach;@config/save event_handler=u(cobj,mco);@dolist/inline/nobreak room exit thing player={@config/save ancestor_%i0=u(cobj,ancestor_%i0)}
+&STARTUP`PENNMUSH %#=@assert/inline strmatch(u(game),PennMUSH);@command/restrict @command=#TRUE;@command/alias @include=@attach;@command/alias @break=@stop;@command/alias @assert=@check;@config/save event_handler=u(cobj,mco);@dolist/inline/nobreak room exit thing player={@config/save ancestor_%i0=u(cobj,ancestor_%i0)}
 
-&STARTUP`RHOSTMUSH %#=@assert/inline strmatch(u(game),RhostMUSH);@admin alias=@attach @attach/override;@admin alias=@select @switch/first;@admin tree_character=`';@admin penn_switches=1;@admin atrperms=D`:5:5;@aflags/perm;@dolist/inline/nobreak room thing player exit={@admin global_parent_##=[u(cobj,a_%d0)]};@dolist/inline/nobreak name contents exits=@admin format_##=1;@admin access=+help ignore;@admin access=+shelp ignore;@admin mux_lcon_compat=1;@admin hook_obj=[after(u(cobj,gco),#)]
+&STARTUP`RHOSTMUSH %#=@assert/inline strmatch(u(game),RhostMUSH);@admin alias=@attach @attach/override;@admin alias=@stop @break/inline;@admin alias=@check @assert/inline;@admin alias=@select @switch/first;@admin tree_character=`;@admin penn_switches=1;@admin atrperms=D`:5:5;@aflags/perm;@dolist/inline/nobreak room thing player exit={@admin global_parent_##=[u(cobj,a_%d0)]};@dolist/inline/nobreak name contents exits=@admin format_##=1;@admin access=+help ignore;@admin access=+shelp ignore;@admin mux_lcon_compat=1;@admin hook_obj=[after(u(cobj,gco),#)]
