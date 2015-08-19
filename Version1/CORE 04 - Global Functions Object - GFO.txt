@@ -5,7 +5,7 @@
 @parent u(gfo)=u(coi)
 @set u(gfo)=WIZARD SAFE
 
-&GFN`CHANPRIORITY u(gfo)=[setq(max,lmath(max,iter(setr(passed,iter(filterbool(#lambda/strmatch(cstatus(%0,\%0),On),filterbool(#lambda/hasflag(\%0,CONNECTED),setr(alts,alts(%@)))),%i0~[default(%i0/D`ALTS`PRIORITY,0)],%b,|)),after(%i0,~),|,%b)))][match(iter(filterbool(#lambda/eq(after(\%0,~),%q<max>),%q<passed>,|,|),before(%i0,~),|,%b),objid(%@))]
+&GFN`CHANPRIORITY u(gfo)=[setq(max,lmath(max,iter(setr(passed,iter(filterbool(#lambda/strmatch(cstatus(%0,\%0),On),filterbool(#lambda/hasflag(\%0,CONNECTED),setr(alts,alts(%@)))),%i0~[default(%i0/D`ALTS`PRIORITY,0)],%b,|)),after(%i0,~),|,%b)))][if(words(%q<alts>),match(iter(filterbool(#lambda/eq(after(\%0,~),%q<max>),%q<passed>,|,|),before(%i0,~),|,%b),objid(%@)),1)]
 
 &GFN`FANCYTIME u(gfo)=timefmt($b $d $I:$M$p $Z,%0,strfirstof(gettz(%1),gettz(%#)))
 

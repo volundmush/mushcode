@@ -1,0 +1,31 @@
+@@ DEPENDENCIES - CORE
+
+@switch/first/inline isdbref(u(pgo))=0,{@tel create(Player Globals Object <PGO>)=config(master_room)}
+&pgo u(coi)=locate(config(master_room),Player Globals Object <PGO>,TXxi)
+@parent u(pgo)=u(coi)
+@set u(pgo)=WIZARD !NO_COMMAND
+
+&RFN`MSGHEAD u(pgo)=msghead(%0)
+
+&CMD`CHARSET u(pgo)=$+charset:@pemit %#=wrap(iter(lnum(32,256),if(comp(first(chr(%i0)),#-1,A),ljust([ljust(%i0:,4)] [ansi(hy,chr(%i0))],7)), ,),78)
+
+&CMD`+BEEP u(pgo)=$^(?\:\+)beep(?\: +(.*))?$:@attach u(ccs)/INC`JAILCHECK;@attach u(ccs)/INC`CHECKPC=%1,1,BEEP;@assert/inline hasflag(%q<t1>,CONNECTED)=@pemit %#=That player is offline.;@pemit %q<t1>=beep()[ansi(hr,%n wishes for your attention! BEEP!)];@pemit %#=You have sent %q<t1name> a beep!
+@set u(pgo)/CMD`+BEEP=regexp
+
+&CMD`+FLIP u(pgo)=$+flip:th u(setq,roll,rand(0,100));@switch/first/inline %q<roll>=50,{@attach u(ccs)/INC`RMSG=FLIP,lplayers(%l),{[ansi(h,%n)] flipped a coin: [switch(rand(1,6),1,it landed on its side!,2,a Demon grabbed it!,3,it never comes back down...,4,when it lands\, both sides are blank.,5,Reality Error 404: Coin not found!,6,it's drawn into a parallel universe!)]}},>50,{@attach u(ccs)/INC`RMSG=FLIP,lplayers(%l),{[ansi(h,%n)] flipped a coin: Heads!}},{@attach u(ccs)/INC`RMSG=FLIP,lplayers(%l),{[ansi(h,%n)] flipped a coin: Tails!}}
+
+&CMD`+TZ u(pgo)=$+tz *:@assert/inline u(setr,accid,accid(%#))=@pemit %#=u(RFN`MSGHEAD,TZ) ERROR: You have no account set.;@assert/inline strlen(%0)=@pemit %#=u(RFN`MSGHEAD,TZ) ERROR: No Timezone field entered!;@break/inline regmatchi(%0,^#\\d+)=@pemit %#=u(RFN`MSGHEAD,TZ) ERROR: None of that chicanery, please.;@break/inline strmatch(time(%0),#-*)=@pemit %#=u(RFN`MSGHEAD,TZ) ERROR: Entered time zone was not recognized. Timezone entries are case sensitive and can be found in help timezones.;@pemit %#=u(RFN`MSGHEAD,TZ) Your account Timezone was set to: %0;&%q<accid>`TZ u(adb)=%0
+
+&CMD`+OOC u(pgo)=$^(?s)(\+ooc|osay|\+osay)(?\: +(.*))?$:@assert/inline elock(%l/speech,%#)=@pemit %#=Permission denied.;@assert/inline strlen(%2)=@pemit %#=What will you say?;@break/inline strmatch(left(%2,1),|)=@pemit %#=msghead(CHAT) Emit feature is disabled.;@message lplayers(%l)=%2,u(pgo)/FUN`MSGOOC,%#,##,%2
+@set u(pgo)/CMD`+OOC=regexp
+
+&CMD`QUIT u(pgo)=$^(quit|logoff|logout)$:@boot/silent %#
+@set u(pgo)/CMD`QUIT=regexp
+
+&FUN`MSGOOC u(pgo)=ansi(custcolor(%1,OOC`BORDER),-<)[ansi(custcolor(%1,OOC`HEADER),OOC)][ansi(custcolor(%1,OOC`BORDER),>-)]%B[if(isadmin(%0),ansi(h,\[Staff\]%B))][speak(&[ansi(custcolor(%1,OOC`NAME),name(%0))],%2,ansi(custcolor(%1,OOC`SAYSTRING),says\,),#lambda/\[ansi(custcolor(%1,OOC`QUOTES),")\]\[ansi(custcolor(%1,OOC`SPEECH),\%0)\]\[ansi(custcolor(%1,OOC`QUOTES),")\])]
+
+th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),OOC,|,|))
+&VAR`CATEGORIES`OOC u(cco-db)=SPEECH|NAME|HEADER|BORDER|QUOTES|SAYSTRING
+
+&COLOR`OOC`BORDER u(pco)=hx
+&COLOR`OOC`HEADER u(pco)=hr

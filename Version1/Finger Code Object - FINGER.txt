@@ -38,7 +38,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),FI
 
 &GET`FINGER`DEFAULT u(finger)=edit(if(hasattr(u(finger)/GET`FINGER`DEFAULT`%1),u(u(finger)/GET`FINGER`DEFAULT`%1,%0),get(%0/D`FINGER`%1)),%t,space(8))
 
-&GET`FINGER`DEFAULT`NAME u(finger)=name(%0)
+&GET`FINGER`DEFAULT`NAME u(finger)=name(%0)[if(alias(%0),%b([alias(%0)]))]
 &GET`FINGER`DEFAULT`SEX u(finger)=capstr(get(%0/SEX))
 &GET`FINGER`DEFAULT`RACE u(finger)=default(%0/D`FINGER`RACE,Unset)
 &GET`FINGER`DEFAULT`JOB u(finger)=default(%0/D`FINGER`JOB,Wanderer)

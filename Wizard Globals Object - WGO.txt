@@ -1,0 +1,10 @@
+@@ DEPENDENCIES - CORE
+
+@switch/first/inline isdbref(u(wgo))=0,{@tel create(Wizard Globals Object <WGO>)=config(master_room)}
+&wgo u(coi)=locate(config(master_room),Wizard Globals Object <WGO>,TXxi)
+@parent u(wgo)=u(coi)
+@set u(wgo)=WIZARD !NO_COMMAND
+@lock/command u(wgo)=FLAG^WIZARD
+
+&CMD`+DARK u(wgo)=$^(?s)(?\:\+)?dark(?\:/(\S+)?)?$:@attach u(ccs)/INC`PARTIAL=%1,ON|OFF,|,DARK,switch,switch;@switch/first/inline haspower(%#,can_dark)=0,{@power %#=can_dark};@switch/first/inline %q<switch>=OFF,{@set %#=!dark;@dolist/inline ports(%#)=@hide/off %i0;@pemit %#=Shown.},ON,{@set %#=dark;@dolist/inline ports(%#)=@hide/on %i0;@pemit %#=Hidden.},{@attach u(wgo)/CMD`+DARK=,if(hasflag(%#,DARK),Off,On)}
+@set u(wgo)/CMD`+DARK=regexp

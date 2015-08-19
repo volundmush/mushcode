@@ -1,0 +1,47 @@
+@@ DEPENDENCIES - Core
+
+@switch/inline isdbref(u(wso))=0,{@tel create(Watch System Object <WSO>)=config(master_room)}
+&wso u(coi)=locate(config(master_room),Watch System Object <WSO>,TXxi)
+@parent u(wso)=u(coi)
+@set u(wso)=WIZARD !NO_COMMAND
+
+&CMD`+WATCH u(wso)=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(wso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(wso)/VAR`ADMINFLAGS)),|,|),|,WATCH,switch,switch;@include u(wso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set u(wso)/CMD`+WATCH=regexp
+
+&RFN`HEADER u(wso)=header(%0)
+&RFN`MSGHEAD u(wso)=msghead(v(VAR`MSGHEAD))
+&VAR`MSGHEAD u(wso)=WATCH
+
+&VAR`PLAYFLAGS u(wso)=ADD|DEL|LIST|HIDE|MUTE
+
+&INC`MAIN u(wso)=@assert words(filterbool(#lambda/isobjid(\%0),get(%#/D`WATCH)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: You have no friends on watch!;@assert words(setr(list,setinter(lwhoid(%#),get(%#/D`WATCH),,-idle)))=@nspemit %#=u(RFN`MSGHEAD) No friends are online.;@nspemit %#=u(RFN`HEADER,Online Friends);@nspemit %#=ansi(custcolor(%#,DEFAULT`COLNAME),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location));@dolist/inline %q<list>={@nspemit %#=u(u(who)/FUN`WHO`PLAYERLINE`MAIN,%i0)};@nspemit %#=u(RFN`HEADER)
+
+&INC`LIST u(wso)=@assert words(filterbool(#lambda/isobjid(\%0),get(%#/D`WATCH)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: You have no friends on watch!;th setr(list,filterbool(#lambda/isobjid(\%0),setinter(get(%#/D`WATCH),get(%#/D`WATCH),,namei)));@nspemit %#=u(RFN`HEADER,Your Friends List);@nspemit %#=ansi(custcolor(%#,DEFAULT`COLNAME),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location));@dolist/inline %q<list>={@nspemit %#=u(u(who)/FUN`WHO`PLAYERLINE`MAIN,%i0)};@nspemit %#=u(RFN`HEADER,)
+
+&INC`ADD u(wso)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No player entered to add.;@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@break match(get(%#/D`WATCH),%q<t1objid>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: They are already a friend.;&D`WATCH %#=filterbool(FILTER_ISOBJID,setunion(get(%#/D`WATCH),%q<t1objid>));@nspemit %#=u(RFN`MSGHEAD) %q<t1name> added to your Friends list!
+
+&INC`DEL u(wso)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No player entered to remove.;@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@assert match(get(%#/D`WATCH),%q<t1objid>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: They are not a friend.;&D`WATCH %#=filterbool(FILTER_ISOBJID,setdiff(get(%#/D`WATCH),%q<t1objid>));@nspemit %#=u(RFN`MSGHEAD) %q<t1name> removed from your Friends list!
+
+&INC`HIDE u(wso)=th setq(choose,if(t(get(%#/D`WATCH`HIDE)),0,1));@nspemit %#=u(RFN`MSGHEAD) Okay! Your connects and disconnects will [if(%q<choose>,now,no longer)] alert anyone who has you on their friends list.;&D`WATCH`HIDE %#=%q<choose>
+
+&INC`MUTE u(wso)=th setq(choose,if(t(get(%#/D`WATCH`MUTE)),0,1));@nspemit %#=u(RFN`MSGHEAD) Okay! You will [if(%q<choose>,now,no longer)] be alerted when your friends connect or disconnect.;&D`WATCH`MUTE %#=%q<choose>
+
+&FILTER_ISOBJID u(wso)=isobjid(%0)
+
+&PLAYER`CONNECT`WATCH u(wso)=@break cor(hasflag(%0,DARK),hidden(%0));@break gt(%1,1);@break t(get(%0/D`WATCH`HIDE));@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),filterbool(#lambda/cand(match(get(\%0/D`WATCH),%0),default(\%0/D`WATCH`MUTE,1)),setunion(lwhoid(),)),{[name(%0)] has connected.}
+
+&PLAYER`CONNECT`MAIL u(wso)=@break haspower(%0,GUEST);@wait 2={@switch/inline t(setr(accid,accid(%0)))=1,{th setq(ualts,filterbool(#lambda/elements(mail(\%0),2),alts(%0)));@switch/inline t(words(%q<ualts>))=1,{@nspemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(sort(%q<ualts>,namei),ansi(h,name(%i0)) ([elements(mail(%i0),2)]),%b,\,%b)]},0,{@nspemit %0=ansi(hy,You have no unread mail.)}},0,{@pemit %0=[ansi(yh,You have [elements(mail(%0),2)] unread @mail(s) in your inbox)]}}
+
+&PLAYER`DISCONNECT`WATCH u(wso)=&IDLERS u(wso)=setdiff(get(u(wso)/IDLERS),%0);@break cor(hasflag(%0,DARK),hidden(%0));@break gte(%1,1);@break t(get(%0/D`WATCH`HIDE));@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),filterbool(#lambda/cand(match(get(\%0/D`WATCH),%0),default(\%0/D`WATCH`MUTE,1)),setunion(lwhoid(),)),{[name(%0)] has disconnected.}
+
+&STARTUP u(wso)=@trigger u(wso)/TRG`INDEXIDLE
+
+&TRG`INDEXIDLE u(wso)=th setq(idlers,filterbool(#lambda/gt(idle(\%0),mul(60,60)),setr(who,setunion(lwhoid(),lwhoid()))));@dolist setdiff(get(u(wso)/IDLERS),%q<idlers>)={@nspemit/list filterbool(#lambda/cand(match(get(\%0/D`WATCH),%i0),default(\%0/D`WATCH`MUTE,1),isadmin(\%0)),%q<who>)=u(RFN`MSGHEAD) [name(%i0)] is no longer idle.;@switch/inline cand(gt(getstat(u(wso)/IDLERS`TIMES,%i0),stringsecs(config(idle_timeout))),hidden(%i0))=1,{@switch/inline hasflag(%i0,DARK)=1,{@nspemit %i0=u(RFN`MSGHEAD) You are both Hidden and Dark.},0,{@nspemit %i0=u(RFN`MSGHEAD) Coming out of @hide from unidling.;@hide/off %i0}}};&IDLERS u(wso)=%q<idlers>;&IDLERS`TIMES u(wso)=iter(%q<idlers>,%i0~[idle(%i0)],%b,|);@wait 60=@trigger u(wso)/TRG`INDEXIDLE
+
+
+
+
+
+@@ COMMUNITY - WATCH
++help/addmain Community/Watch=[u(wso)]/HLP`WATCH
+&HLP`WATCH u(wso)=The Watch system alerts you as friends connect and disconnect.%R[ansi(hc,Aliases:)] +friend, friend, watch, wf, +wf%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+watch)] - Will display online friends on your list and their status.%R[ansi(h,+watch/list)] - Will display your entire list, even offline friends.%R[ansi(h,+watch/add <name>)] - Adds a player to your watch list.%R[ansi(h,+watch/del <name>)] - Removes a player from your watch list.%R[ansi(h,+watch/hide)] - Toggle whether your disconnects and connects will show to anyone who added you to their friends list.%R[ansi(h,+watch/mute)] - Toggle whether you will hear when friends connect or disconnect.})]

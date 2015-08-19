@@ -1,0 +1,16 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(ex-cco))=0,{@tel create(Census Code Object <ex-cco>)=config(master_room)}
+&ex-cco u(coi)=locate(config(master_room),Census Code Object <ex-cco>,TXxi)
+@set u(ex-cco)=WIZARD !NO_COMMAND
+@parent u(ex-cco)=u(coi)
+
+&CMD`+CENSUS u(ex-cco)=$^\+census(?\:/(\S+))?(?\: +(.*))?$:@assert words(setr(list,sort(lsearch(all,eplayer,\[and(not(haspower(##,GUEST)),not(isadmin(##)),approved(##))\]),namei)))=@nspemit %#=msghead(CENSUS) No active players in the +census!;@include u(ex-cco)/INC`[if(strlen(%2),SUB,MAIN)]=%2
+@set u(ex-cco)/CMD`+CENSUS=regexp
+
+&INC`MAIN u(ex-cco)=@nspemit %#=header(mudname() Census Data);@dolist/inline/delimit | [get(u(ex-cdo)/VAR`SPLATS)]={@switch/inline gt(words(setr(racelist,filterbool(#lambda/strmatch(%i0,getstat(\%0/D`INFO,Splat)),%q<list>))),0)=1,{@nspemit %#=ljust(ansi(h,pueblize(capnames(%i0),+census [capnames(%i0)])),70,.)[rjust(words(%q<racelist>),2,0)];@switch/inline words(%q<racelist>)=0,{},{@nspemit %#=itemize(iter(%q<racelist>,name(%i0),%b,|),|,and,\,)%R}}};@nspemit %#=header(Total Player Characters: [words(%q<list>)])
+
+&INC`SUB u(ex-cco)=@include u(ccs)/INC`PARTIAL=%0,get(u(ex-cdo)/VAR`SPLATS),|,CENSUS,choice,Splat;@assert words(setr(racelist,filterbool(#lambda/strmatch(%q<choice>,getstat(\%0/D`INFO,Splat)),%q<list>)))=@nspemit %#=msghead(CENSUS) No active [capnames(%q<choice>)] Players!;@nspemit %#=header(mudname() Census Data);@dolist/inline/delimit | [get(u(ex-cdo)/VAR`SPLATS`%q<choice>)]={@switch/inline gt(words(setr(castelist,filterbool(#lambda/strmatch(%i0,getstat(\%0/D`INFO,Caste)),%q<racelist>))),0)=1,{@nspemit %#=ljust(ansi(h,capnames(%i0)),70,.)[rjust(words(%q<castelist>),2,0)];@switch/inline words(%q<castelist>)=0,{},{@nspemit %#=itemize(iter(%q<castelist>,name(%i0),%b,|),|,and,\,)%R}}};@nspemit %#=header(Total [capnames(%q<splat>)] Player Characters: [words(%q<racelist>)])
+
++help/addmain Community/+census=[u(ex-cco)]/HLP`+CENSUS
+&HLP`+CENSUS u(ex-cco)=[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+census)] - Shows all approved players by Splat.%R[ansi(h,+census <splat>)] - Shows all players in a splat by Caste/Aspect/etc.})]

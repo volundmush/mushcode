@@ -1,0 +1,30 @@
+@switch/inline isdbref(u(mco))=0,{@tel create(Meet Code Object <MCO>)=config(master_room)}
+&mco u(coi)=locate(config(master_room),Meet Code Object <MCO>,TXxi)
+@parent u(mco)=u(coi)
+@set u(mco)=WIZARD SAFE !NO_COMMAND
+@lock/command u(mco)=!POWER^GUEST&!FLAG^JAILED
+
+&CMD`MEETME u(mco)=$^(?s)(?\:\+)?(meet|meetme|invite|join|mjoin|summon|msummon)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(mco)/INC`%1=%3,%4
+@set u(mco)/CMD`MEETME=regexp
+
+&INC`INVITE u(mco)=@include u(mco)/INC`MEETME
+&INC`MEET u(mco)=@include u(mco)/INC`MEETME
+&INC`MEETME u(mco)=@include u(ccs)/INC`CHECKPC=%0,1,MEET;@break strmatch(%#,%q<t1>)=@nspemit %#=announce(MEET) ERROR: You can't Meet yourself.;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=announce(MEET) ERROR: %q<t1name> is not online.;@break haspower(%q<t1>,GUEST)=@nspemit %#=announce(MEET) ERROR: Guests cannot be invited.;@break strmatch(%l,loc(%q<t1>))=@nspemit %#=announce(MEET) ERROR: You are already there!;@break lte(sub(secs(),get(u(mco)/%#`%q<t1>)),600)=@nspemit %#=announce(MEET) An invitation to %q<t1name> is already pending.;@nspemit %q<t1>=header(Meetme);@nspemit %q<t1>=%n sent you a Meetme request. You have about 10 minutes to respond.%r%rTo join %n, use '[pueblize(ansi(h,join %n),join %n)]'%rTo bring %n to you, use '[pueblize(ansi(h,summon %n),summon %n)]'%rTo decline the request you needn't do a thing.;@nspemit %q<t1>=header();@nspemit %#=announce(MEET) You have sent %q<t1name> a Meetme request.;&%#`%q<t1> me=secs()
+
+&INC`JOIN u(mco)=@include u(mco)/INC`MJOIN
+&INC`MJOIN u(mco)=@assert approved(%#)=@nspemit %#=Permission denied.;@include u(ccs)/INC`CHECKPC=%0,1,MEET;@break strmatch(%#,%q<t1>)=@nspemit %#=announce(MEET) You can't Meet yourself.;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=announce(MEET) %q<t1name> is not online.;@assert cor(hasattr(u(mco)/%q<t1>`%#),isadmin(%#),isic(%q<t1>))=@pemit %#=announce(MEET) %q<t1name> has not sent you a meetme request.;@break strmatch(loc(%q<t1>),%l)=@nspemit %#=announce(MEET) You are both here!;@wipe me/%q<t1>`%#;@nsremit/list loc(%q<t1>) %l=roomannounce(MEET) [ansi(h,%n)] has joined %q<t1name>!;@switch/inline isic(%#)=1,{&D`RETURNTO %#=%l};@tel %#=loc(%q<t1>);@nspemit %#=announce(MEET) You join %q<t1name>
+
+&INC`SUMMON u(mco)=@include u(mco)/INC`MSUMMON
+&INC`MSUMMON u(mco)=@include u(ccs)/INC`CHECKPC=%0,1,MEET;@break strmatch(%#,%q<t1>)=@nspemit %#=announce(MEET) You can't Meet yourself.;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=announce(MEET) %q<t1name> is not online.;@assert cor(hasattr(u(mco)/%q<t1>`%#),isadmin(%#))=@nspemit %#=announce(MEET) %q<t1name> has not sent you a meetme request.;@break strmatch(loc(%q<t1>),%l)=@nspemit %#=announce(MEET) You are both here!;@wipe me/%q<t1>`%#;@nsremit/list loc(%q<t1>) %l=roomannounce(MEET) [ansi(h,%q<t1name>)] is drawn away by %n's Summons;@switch/inline isic(%q<t1>)=1,{&D`RETURNTO %q<t1>=loc(%q<t1>)};@tel %q<t1>=%l;@nspemit %#=announce(MEET) You summon %q<t1name>.
+
+&INC`RETURN u(mco)=$+return:@assert isdbref(setr(l,get(%#/D`RETURNTO)))=@pemit %#=ansi(r,You have nowhere to return to.); @break cand(not(isadmin(%#)),cor(hasflag(%ql,no_tel),hasflag(%l,no_tel)))=@pemit %#=ansi(r,You can not do that.); @assert cor(isic(%ql),isadmin(%#))=@pemit %#=ansi(r,You can not return to a non-IC location.);@wipe %#/D`RETURNTO;@tel[if(hasflag(%#,DARK),/silent)] %#=%ql;@pemit %#=ansi(h,You return to your previous location.)
+&CMD`+RETURN`OTHER u(mco)=$+return *:@break haspower(%#,guest)=@pemit %#=ansi(r,You can not use this.); @assert isadmin(%#)=@pemit %#=ansi(r,You can not do that.); @break findplayer(%0); @assert isdbref(setr(l,get(%qp/D`RETURNTO)))=@pemit %#=ansi(r,ansi(nc,name(%qp)) has nowhere to return to.);@wipe %qp/D`RETURNTO;@tel %qp=%ql; @pemit %#=ansi(h,ansi(nc,name(%qp)) has been returned to [ansi(nc,name(%ql))].); @pemit %qp=ansi(h,You've been returned to your previous location[if(cor(isadmin(%qp),not(hasflag(%#,dark))),%bby [ansi(nc,%N)])].)
+
+&FILTER_TIMEOUT u(mco)=gt(sub(secs(),v(%0)),600)
+&STARTUP u(mco)=@dolist/inline filterbool(FILTER_TIMEOUT,reglattr(me/^#\\d+`#\\d+$))={@wipe me/%i0};@wait 600=@trigger me/STARTUP
+
+&OBJECT`DESTROY`PURGE u(mco)=@switch/inline %2=PLAYER,{@wipe u(mco)/[before(%0,:)]`*;@wipe u(mco)/*`[before(%0,:)]}
+
+@@ NAVIGATION - MEET
++help/addmain Navigation/+meetme=[u(mco)]/HLP`MEETME
+&HLP`MEETME u(mco)=The [ansi(h,+meetme)] system lets players warp across the game to directly join other players no matter where they are.%R[ansi(hc,Meetme Aliases:)] Meetme, +meetme, meet, +meet, invite, +invite%R[ansi(hc,Join aliases:)] Join, +join, mjoin, +mjoin%R[ansi(hc,Summon Aliases:)] Summon, +msummon, msummon%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+meetme <player>)] - Extends an invitation for another player to +join or +summon you. Invites expire after 10 minutes.%R[ansi(h,+join <player>)] - Warp to a player.%R[ansi(h,+summon <player>)] - Bring <player> to you.%R%RStaff can skip the invite process and simply join or summon players. However they can still extend invites.})]

@@ -1,0 +1,177 @@
+@@ DEPENDENCIES: CORE, PennMUSH
+@@ RECOMMENDED: KLS (Key Lock System)
+@@ Without the KLS, LOCK/UNLOCK switches will have only basic functionality.
+
+@switch/first/inline isdbref(u(cmo))=0,{@tel create(Channel Management Object <CMO>)=config(master_room)}
+&cmo u(coi)=locate(config(master_room),Channel Management Object <CMO>,TXxi)
+@parent u(cmo)=u(coi)
+@set u(cmo)=WIZARD !NO_COMMAND
+&cmo`staffrep u(coi)=**Staff Alerts**
+&cmo`public u(coi)=Public
+&cmo`roll u(coi)=Dice Log
+&cmo`rp u(coi)=RP
+
+@switch/first/inline isdbref(u(cmo))=1,{@switch/first/inline isdbref(u(cdb))=0,{@tel create(Channel Database Object <CDB>)=u(cmo)}}
+&cdb u(coi)=locate(u(cmo),Channel Database Object <CDB>,TXxi)
+@parent u(cdb)=u(coi)
+@set u(cmo)=WIZARD !NO_COMMAND
+
+&CMD`+CHANNEL u(cmo)=$^(?s)(?\:\+)?(?\:channel|chan)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.*?))?(?\:=(.*))?$:@attach u(ccs)/INC`PARTIAL=%1,setunion(get(u(cmo)/VAR`CHANNEL`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`CHANNEL`ADMINFLAGS)),|,|),|,CHANNEL,switch,switch;@attach u(cmo)/INC`CHANNEL`[strfirstof(%q<switch>,MAIN)]=%2,%4,%3
+@set u(cmo)/CMD`+CHANNEL=regexp
+
+&VAR`CHANNEL`PLAYFLAGS u(cmo)=CODENAME|RECALL|COLOR
+&VAR`CHANNEL`ADMINFLAGS u(cmo)=ADD|DELETE|STAFFTAG|RENAME|CONFIG||MOGCONF|INIT
+
+&RFN`MSGHEAD u(cmo)=msghead(v(VAR`MSGHEAD))
+&VAR`MSGHEAD u(cmo)=CHANNEL
+&RFN`MSGHEAD u(cdb)=msghead(v(VAR`MSGHEAD))
+&VAR`MSGHEAD u(cdb)=CHANNEL
+
+th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),CHANNEL,|,|))
+
+&INC`CHANNEL`MAIN u(cmo)=@switch/first/inline strlen(%0)=0,{@pemit %#=header(mudname() Channel Status);@pemit %#=align(3 20 9 41,ON?,NAME,USERS,DESCRIPTION);@dolist/inline/delimit | [objeval(%#,channels(|))]={th u(setq,id,u(u(cmo)/FUN`FINDCHANNEL,%i0));@pemit %#=align(3 20 9 41,rjust(cstatus(%i0,%#),3),ljust(pueblize(%i0,+channel [stripansi(%i0)]),31),ljust(rjust(words(filtervis(%#,cwho(%i0,on),CHANNEL,%i0)),3,0)/[rjust(words(filtervis(%#,cwho(%i0,all),CHANNEL,%i0)),3,0)],8),cdesc(%i0))};@pemit %#=header()},{@attach u(ccs)/INC`PARTIAL=%0,objeval(%#,channels(|)),|,CHANNEL,channel,channel;@pemit %#=header(Channel Info for: %q<channel>);@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@pemit %#=OWNER: [name(cowner(%q<channel>))]%RBUFFER: [cbuffer(%q<channel>)] - [cmsgs(%q<channel>)] Messages stored!%RFLAGS: [clflags(%q<channel>)]%RDESC: [cdesc(%q<channel>)];@switch/first/inline t(get(%q<mog>/CONF`CODENAME))=0,{@pemit %#=ansi(hg,ONLINE USERS:) [words(filtervis(%#,cwho(%q<channel>,on),CHANNEL,%q<channel>))] - [itemize(iter(filtervis(%#,cwho(%q<channel>,on),CHANNEL,%q<channel>),if(valnum(conn(%i0)),name(%i0),ansi(hx,name(%i0)))[if(strlen(clflags(%q<channel>,%i0)),\([clflags(%q<channel>,%i0)]\))],%b,|),|,and,\,)]%R;@pemit %#=ansi(hx,OFFLINE USERS:) [words(filtervis(%#,cwho(%q<channel>,off),CHANNEL,%q<channel>))] - [itemize(iter(filtervis(%#,cwho(%q<channel>,off),CHANNEL,%q<channel>),name(%i0)[if(strlen(clflags(%q<channel>,%i0)),\([clflags(%q<channel>,%i0)]\))],%b,|),|,and,\,)]},1,{@pemit %#=ONLINE USERS (ALIAS): [words(filtervis(%#,cwho(%q<channel>,all),CHANNEL,%q<channel>))] - [itemize(iter(filtervis(%#,cwho(%q<channel>,all),CHANNEL,%q<channel>),strfirstof(get(%i0/D`CHANNEL`%q<mog>`CODENAME),name(%i0))[if(strlen(clflags(%q<channel>,%i0)),\([clflags(%q<channel>,%i0)]\))],%b,|),|,and,\,)];@switch/first/inline isadmin(%#)=1,{@pemit %#=subheader(Staff Only Section);@pemit %#=USERS: [words(cwho(%q<channel>,all))] - [itemize(iter(cwho(%q<channel>,all),if(valnum(conn(%i0)),name(%i0),ansi(hx,name(%i0)))[if(strlen(get(%i0/D`CHANNEL`%q<mog>`CODENAME)),([get(%i0/D`CHANNEL`%q<mog>`CODENAME)]))][if(strlen(clflags(%q<channel>,%i0)),\([clflags(%q<channel>,%i0)]\))],%b,|),|,and,\,)]}};@pemit %#=header()}
+
+&INC`CHANNEL`RECALL u(cmo)=@assert/inline strlen(%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: No channel entered to recall.;@attach u(ccs)/INC`PARTIAL=%0,objeval(%#,channels(|)),|,CHANNEL,channel,channel;@force/inline %#=@chan/recall %q<channel>=sub(secs(),convtime(get(%#/lastlogout)))s
+
+&INC`CHANNEL`COLOR u(cmo)=@force/inline %#=+color/channel %0=%1
+
+&INC`CHANNEL`ADD u(cmo)=@assert/inline strlen(%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel name empty!;@assert/inline valid(channel,%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel name was not accepted. A channel of that name already exists or the entered name was too long or had unacceptable characters.;@switch/first/inline t(strlen(%1))=1,{@break/inline strmatch(ansi(%1,test),u(setr,error,#-*))=@pemit %#=u(RFN`MSGHEAD) ERROR: '%1' was not accepted by ansi()! Error returned: %q<error>};@channel/add if(strlen(%1),ansi(%1,%0),%0)=v(VAR`CHANNEL`DEFAULTPRIVS);@attach u(cmo)/INC`CHANNEL`INIT;@pemit %#=u(RFN`MSGHEAD) Channel [if(strlen(%1),ansi(%1,%0),%0)] created!;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) has created the [if(strlen(%1),ansi(%1,%0),%0)] channel!}
+
+&INC`CHANNEL`INIT u(cmo)=@assert/inline match(stripansi(objeval(%#,channels(|))),%0,|)=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel not found.;th u(setq,mog,firstof(locate(u(cdb),MOG-[stripansi(%0)],TXxi),create(MOG-[stripansi(%0)])));@set %q<mog>=WIZARD;@tel %q<mog>=u(cdb);@parent %q<mog>=u(cdb);@channel/buffer %0=10;@channel/mogrifier %0=%q<mog>;@switch/first/inline %q<switch>=INIT,{@pemit %#=u(RFN`MSGHEAD) Channel initiation of '%0' complete!}
+
+&VAR`CHANNEL`DEFAULTPRIVS u(cmo)=PQ
+
+&INC`CHANNEL`DELETE u(cmo)=@attach u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@attach u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)] This will delete channel %q<name>. Are you sure? Enter the same command within ten seconds to continue!},CHANNEL DELETE %q<channel>,CHANNEL;@switch/first/inline isdbref(u(setr,mog,cmogrifier(%q<channel>)))=1,{@set %q<mog>=!SAFE;@nuke %q<mog>;@nuke %q<mog>};@channel/delete %q<channel>;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) has deleted the %q<channel> channel!}
+
+&INC`CHANNEL`RENAME u(cmo)=@attach u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@assert/inline cor(isadmin(%#),objeval(%#,testlock(clock(%q<channel>/Mod),%#)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@assert/inline strlen(%1)=@pemit %#=u(RFN`MSGHEAD) ERROR: New Name field Empty.;@assert/inline valid(channel,stripansi(%1),%q<channel>)=@pemit %#=u(RFN`MSGHEAD) ERROR: Either a channel by that name already exists, or the entered new name wasn't an acceptable channel name.;@channel/name %q<channel>=trim(%1);@pemit %#=u(RFN`MSGHEAD) You have renamed channel %q<channel> to: [trim(%1)]!;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) has renamed the %q<name> channel to [trim(%1)]!}
+
+&INC`CHANNEL`CONFIG u(cmo)=@attach u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@assert/inline cor(isadmin(%#),objeval(%#,testlock(clock(%q<channel>/Mod),%#)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@attach u(ccs)/INC`PARTIAL=%2,CODENAME,|,CHANNEL,parameter,parameter;@switch/first/inline strlen(%1)=0,{&CONF`%q<parameter> %q<mog>;@pemit %#=u(RFN`MSGHEAD) You cleared Channel %q<channel>'s %q<parameter> Setting.},{@attach u(cmo)/INC`CHANNEL`CONFIG`%q<parameter>;&CONF`%q<parameter> %q<mog>=%q<entry>;@pemit %#=u(RFN`MSGHEAD) You set Channel %q<channel>'s %q<parameter> Setting to: %q<entry>};@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) [if(strlen(%1),set,cleared)] the %q<channel> Channel's %q<parameter> Setting[if(strlen(%1),%bto %1!,.)]}
+
+&INC`CHANNEL`CONFIG`CODENAME u(cmo)=th u(setq,entry,t(%1))
+
+&INC`CHANNEL`MOGCONF u(cmo)=@attach u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@assert/inline cor(isadmin(%#),objeval(%#,testlock(clock(%q<channel>/Mod),%#)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@switch/first/inline gt(strlen(before(%2,/)),0)=0,{@attach u(cmo)/INC`CHANNEL`MOGCONF`SHOWCONFIG},1,{@attach u(ccs)/INC`PARTIAL=before(%2,/),v(VAR`MOGTYPES),|,CHANNEL,mogrifier,mogrifier;@switch/first/inline gt(strlen(after(%2,/)),0)=1,{@attach u(cmo)/INC`CHANNEL`MOGCONF`SUBCONFIG},0,{@attach u(cmo)/INC`CHANNEL`MOGCONF`MAINCONFIG}}
+
+&INC`CHANNEL`MOGCONF`MAINCONFIG u(cmo)=@switch/first/inline strlen(%1)=0,{@attach u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will clear the Channel %q<channel> %q<mogrifier> Mogrifier List, which is currently [u(setr,msg,'[get(%q<mog>/MOGUSE`%q<mogrifier>)]'[if(not(hasattr(%q<mog>/MOGUSE`%q<mogrifier>)),%b(inherited))].)] Are you sure? Enter the same command again within ten seconds to continue!},CLEAR %q<mog> %q<mogrifier>,CHANNEL;&MOGCONF`%q<mogrifier> %q<mog>;@pemit %#=announce(CHANNELS) You clear Channel %q<channel>'s Mogrifier list.;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) cleared Channel '%q<channel>''s Mogrifier list, which was %q<msg>}},{@assert/inline lmath(min,iter(lcstr(%1),match(lcstr(get(%q<mog>/MOGORDER`%q<mogrifier>)),%i0)))=@pemit %#=u(RFN`MSGHEAD) ERROR: One or more of the entered mogrifier types was not recognized.;th u(setq,oldmog,get(%q<mog>/MOGUSE`%q<mogrifier>),inherited,hasattr(%q<mog>/MOGUSE`%q<mogrifier>));&MOGUSE`%q<mogrifier> %q<mog>=u(setr,newmog,filterbool(#lambda/match(lcstr(%1),\%0),lcstr(get(%q<mog>/MOGORDER`%q<mogrifier>))));@pemit %#=announce(CHANNELS) You set Channel %q<channel>'s Mogrifier list to: %q<newmog>;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) set Channel '%q<channel>''s Mogrifier list, which was '%q<oldmog>'[if(not(%q<inherited>),%b(inherited))], to: %q<newmog>}
+
+&INC`CHANNEL`MOGCONF`SUBCONFIG u(cmo)=@attach u(ccs)/INC`PARTIAL=after(%2,/),v(VAR`MOGTYPES`%q<mogrifier>),|,CHANNEL,parameter,parameter;@switch/first/inline strlen(%1)=0,{&MOGCONF`%q<mogrifier>`%q<parameter> %q<mog>;@pemit %#=u(RFN`MSGHEAD) You cleared Channel %q<channel>'s %q<mogrifier> Mogrifier %q<parameter> Setting.},{@attach u(cmo)/INC`CHANNEL`MOGCONF`%q<mogrifier>`%q<parameter>;&MOGCONF`%q<mogrifier>`%q<parameter> %q<mog>=%q<entry>;@pemit %#=u(RFN`MSGHEAD) You set Channel %q<channel>'s %q<mogrifier> Mogrifier %q<parameter> Setting to: %q<entry>};@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) [if(strlen(%1),set,cleared)] the %q<channel> Channel's %q<mogrifier> Mogrifier %q<parameter> Setting[if(strlen(%1),%bto %1!,.)]}
+
+&INC`CHANNEL`MOGCONF`TITLE`TRIM u(cmo)=@assert/inline cand(isint(%1),gte(%1,0))=@pemit %#=u(RFN`MSGHEAD) ERROR: Trim length Mogrifier setting must be a whole number 0 or greater.;th u(setq,entry,abs(%1))
+&INC`CHANNEL`MOGCONF`TITLE`STAFFTAG u(cmo)=@assert/inline cand(isint(%1),gte(%1,0))=@pemit %#=u(RFN`MSGHEAD) ERROR: Stafftag Mogrifier setting must be boolean 1 or 0.;th u(setq,entry,t(%1))
+
+&VAR`MOGTYPES u(cmo)=BLOCK|CHANNAME|TITLE|PLAYERNAME|SPEECHTEXT|MESSAGE
+&VAR`MOGTYPES`BLOCK u(cmo)=BADWORDS
+&VAR`MOGTYPES`CHANNAME u(cmo)=
+&VAR`MOGTYPES`TITLE u(cmo)=TRIM|STAFFTAG
+&VAR`MOGTYPES`PLAYERNAME u(cmo)=
+&VAR`MOGTYPES`SPEECHTEXT u(cmo)=
+&VAR`MOGTYPES`MESSAGE u(cmo)=
+
+&INC`CHANNEL`MOGCONF`SHOWCONFIG u(cmo)=@pemit %#=header(%q<channel>: Mogrifiers);@dolist/inline/delimit | [v(VAR`MOGTYPES)]={@pemit %#=separator(capnames(%i0));@pemit %#=Order: [get(%q<mog>/MOGORDER`%i0)] [if(not(hasattr(%q<mog>/MOGORDER`%i0)),(inherited))]%RIn Use: [get(%q<mog>/MOGUSE`%i0)] [if(not(hasattr(%q<mog>/MOGUSE`%i0)),(inherited))];@pemit %#=* OPTIONS *;@pemit %#=iter(v(VAR`MOGTYPES`%i0),%i0: [get(%q<mog>/MOGCONF`%i1`%i0)] [if(not(hasattr(%q<mog>/MOGCONF`%i1`%i0)),(inherited))],|,%R)};@pemit %#=header()
+
+&INC`CHANNEL`CODENAME u(cmo)=@attach u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@assert/inline get(%q<mog>/CONF`CODENAME)=@pemit %#=u(RFN`MSGHEAD) ERROR: That channel does not use codenames.;@assert/inline strlen(%1)=@pemit %#=u(RFN`MSGHEAD) ERROR: Nothing entered for an codename!;@break/inline gt(strlen(%1),config(player_name_len))=@pemit %#=u(RFN`MSGHEAD) ERROR: Codename is beyond the allowed [config(player_name_len)] characters.;@assert/inline cor(valid(playername,stripansi(%1)),if(pmatch(%1),strmatch(%#,pmatch(%1)),0))=@pemit %#=u(RFN`MSGHEAD) ERROR: Codenames must follow the same name rules as names, and cannot match another player's name.;@break/inline words(u(setr,list,setdiff(lsearch(all,type,player,elock,D`CHANNEL`%q<mog>`CODENAME`NOCOLOR:[stripansi(trim(%1))]),%#)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Cannot use that codename: in use by [itemize(iter(%q<list>,name(%i0),%b,|),|,and,\,)];@pemit %#=u(RFN`MSGHEAD) Codename set for %q<channel> to: %1 - make sure this is a reasonable codename!;&D`CHANNEL`%q<mog>`CODENAME %#=trim(%1);&D`CHANNEL`%q<mog>`CODENAME`NOCOLOR %#=stripansi(trim(%1))
+
+&INC`CHANNEL`STAFFTAG u(cmo)=@attach u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@switch/first/inline t(match(get(%q<mog>/VAR`STAFFTAG),%:))=1,{&VAR`STAFFTAG %q<mog>=setdiff(get(%q<mog>/VAR`STAFFTAG),%:);@pemit %#=u(RFN`MSGHEAD) You will no longer have a Staff tag on %q<channel>},0,{&VAR`STAFFTAG %q<mog>=setunion(get(%q<mog>/VAR`STAFFTAG),%:);@pemit %#=u(RFN`MSGHEAD) You will now have a Staff tag on %q<channel>}
+
+
+
+@@ MUZZLE SECTION
+&CMD`+MUZZLE u(cmo)=$^(?s)(?\:\+)?(muzzle|unmuzzle)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach u(ccs)/INC`PARTIAL=%2,setunion(get(u(cmo)/VAR`MUZZLE`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`MUZZLE`ADMINFLAGS)),|,|),|,MUZZLE,switch,switch;@attach u(cmo)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4,%5
+@set u(cmo)/CMD`+MUZZLE=regexp
+
+&VAR`MUZZLE`ADMINFLAGS u(cmo)=ACCOUNT
+
+&INC`MUZZLE`MAIN u(cmo)=@attach u(cmo)/INC`MUZZLE`START=%0,%1,%2,0
+&INC`MUZZLE`ACCOUNT u(cmo)=@attach u(cmo)/INC`MUZZLE`START=%0,%1,%2,1
+&INC`UNMUZZLE`MAIN u(cmo)=@attach u(cmo)/INC`MUZZLE`START=%0,%1,%2,0,1
+&INC`UNMUZZLE`ACCOUNT u(cmo)=@attach u(cmo)/INC`MUZZLE`START=%0,%1,%2,0,1
+
+&INC`MUZZLE`START u(cmo)=@switch/first/inline strlen(%0)=0,{@attach u(cmo)/INC`MUZZLE`SHOW},{}
+
+@switch/first/inline t(%3)=1,{@switch/first/inline valnum(%0)=1,{@assert/inline hasattr(u(adb)/u(setr,accid,trim(%0)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Account not found.},0,{@attach u(ccs)/INC`CHECKPC=%0,1,CHANNEL;@break/inline isadmin(%q<t1>)=@pemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> is staff.;@assert/inline u(setr,accid,accid(%q<t1>))=@pemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> has no account to Muzzle!}},0,{@attach u(ccs)/INC`CHECKPC=%0,1,CHANNEL;@break/inline isadmin(%q<t1>)=@pemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> is staff.};@switch/first/inline %1=ALL,{@assert/inline isadmin(%#)=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;th u(setq,allmode,1)},{@attach u(ccs)/INC`PARTIAL=%1,objeval(%#,channels(|)),|,CHANNEL,channel,channel;@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@assert/inline cor(isadmin(%#),elock(%q<mog>/Muzzle,%#))=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.};@switch/first/inline t(%3)=0,{@assert/inline strlen(%2)=@pemit %#=u(RFN`MSGHEAD) ERROR: No Muzzle duration entered.;@assert/inline gt(stringsecs(%2),0)=@pemit %#=u(RFN`MSGHEAD) ERROR: Invalid duration entered. Please see [pueblize(help stringsecs(),help stringsecs())] for more information.}
+
+
+
+
+&INC`MUZZLE`MAIN u(cmo)=@switch/first/inline strlen(%0)=0,{@attach u(cmo)/INC`MUZZLE`SHOWALL},{@attach u(ccs)/INC`CHECKPC=%0,1,CHANNEL;@break/inline isadmin(%q<t1>)=@pemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> is staff.;@attach u(ccs)/INC`PARTIAL=%1,objeval(%#,channels(|)),|,CHANNEL,channel,channel;@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@assert/inline cor(isadmin(%#),elock(%q<mog>/Muzzle,%#))=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@break/inline gt(u(u(cmo)/FUN`GETMUZZLE,%q<mog>,%q<t1objid>),0)=@pemit %#=msghead(ERROR) %q<t1name> is already Muzzled from %q<channel>.;@assert/inline strlen(%2)=@pemit %#=u(RFN`MSGHEAD) ERROR: No Muzzle duration entered.;@assert/inline gt(stringsecs(%2),0)=@pemit %#=u(RFN`MSGHEAD) ERROR: Invalid duration entered. Please see [pueblize(help stringsecs(),help stringsecs())] for more information.;&[u(setr,attr,MUZZLE`[nextslot(%q<mog>,MUZZLE)])] %q<mog>=%q<t1objid>;&%q<attr>`DURATION %q<mog>=add(secs(),stringsecs(%2));@pemit %#=u(RFN`MSGHEAD) You have Muzzled %q<t1name> from %q<channel> for [timestring(stringsecs(%2))] - Until [convsecs(add(secs(),stringsecs(%2)))].;@attach u(ccs)/INC`MSG=v(VAR`MSGHEAD),%q<t1>,{You have been Muzzled from %q<channel> for [timestring(stringsecs(%2))] - Until [convsecs(add(secs(),stringsecs(%2)))].};@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=[ansi(h,%n)] has Muzzled %q<t1name> from %q<channel> for [timestring(stringsecs(%2))] - Until [convsecs(add(secs(),stringsecs(%2)))].}}
+
+&INC`MUZZLE`ACCOUNT u(cmo)=@switch/first/inline strlen(%0)=0,{@attach u(cmo)/INC`MUZZLE`SHOWALL`ACCOUNT},{@attach u(ccs)/INC`CHECKPC=%0,1,CHANNEL;@break/inline isadmin(%q<t1>)=@pemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> is staff.;@assert/inline u(setr,accid,accid(%q<t1>))=@pemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> has no account to Muzzle!;@attach u(ccs)/INC`PARTIAL=%1,objeval(%#,channels(|)),|,CHANNEL,channel,channel;@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@assert/inline cor(isadmin(%#),elock(%q<mog>/Muzzle,%#))=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@break/inline gt(u(u(cmo)/FUN`GETACCMUZZLE,%q<mog>,%q<t1objid>),0)=@pemit %#=u(RFN`MSGHEAD) %q<t1name> is already Account Muzzled from %q<channel>.;@assert/inline strlen(%2)=@pemit %#=u(RFN`MSGHEAD) ERROR: No Muzzle duration entered.;@assert/inline gt(stringsecs(%2),0)=@pemit %#=u(RFN`MSGHEAD) ERROR: Invalid duration entered. Please see [pueblize(help stringsecs(),help stringsecs())] for more information.;&[u(setr,attr,ACCMUZZLE`%q<accid>)] %q<mog>=%q<t1objid>;&%q<attr>`DURATION %q<mog>=add(secs(),stringsecs(%2));@pemit %#=u(RFN`MSGHEAD) You have Account Muzzled %q<t1name> from %q<channel> for [timestring(stringsecs(%2))] - Until [convsecs(add(secs(),stringsecs(%2)))].;@attach u(ccs)/INC`MSG=v(VAR`MSGHEAD),get(u(adb)/%q<accid>),{You have been Muzzled from %q<channel> ON ALL CHARACTERS for [timestring(stringsecs(%2))] - Until [convsecs(add(secs(),stringsecs(%2)))].};@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) has Account Muzzled %q<t1name> from %q<channel> for [timestring(stringsecs(%2))] - Until [convsecs(add(secs(),stringsecs(%2)))].}}
+
+&INC`MUZZLE`SHOWALL u(cmo)=th u(setq,cids,filterbool(#lambda/valnum(\%0),iter(objeval(%#,channels(|)),u(FUN`FINDCHANNEL,%i0),|,|),|,|));@pemit %#=header(mudname() Channel Muzzles);@dolist/inline/delimit %q<cids>={@pemit %#=pueblize(u(setr,cname,elements(channels(|),match(channels(|),get(u(cmo)/%i0),|),|)),+channel [stripansi(%q<channel>)]): [itemize(iter(lsearch(all,eplayer,\[gt(get(##/D`CHANNEL`%i0`MUZZLE),secs())\]),ansi(h,name(%i0)) for [convsecs(get(%i0/D`CHANNEL`%i1`MUZZLE))] \([timestring(sub(get(%i0/D`CHANNEL`%i1`MUZZLE),secs()))]\),%b,|),|,and,\,)]};@pemit %#=header()
+
+&INC`UNMUZZLE`MAIN u(cmo)=@switch/first/inline strlen(%0)=0,{@attach u(cmo)/INC`MUZZLE`SHOWALL},{@attach u(ccs)/INC`CHECKPC=%0,1,CHANNEL;@break/inline isadmin(%q<t1>)=@pemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> is staff.;@attach u(ccs)/INC`PARTIAL=%1,objeval(%#,channels(|)),|,CHANNEL,channel,channel;@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@assert/inline cor(isadmin(%#),elock(%q<mog>/Muzzle,%#))=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@assert/inline gt(u(u(cmo)/FUN`GETMUZZLE,%q<mog>,%q<t1objid>),0)=@pemit %#=u(RFN`MSGHEAD) %q<t1name> is not Muzzled from %q<channel>.;th u(setr,attr,wildgrepi(%q<mog>,MUZZLE`*,%q<t1objid>));@wipe %q<mog>/%q<attr>;@pemit %#=u(RFN`MSGHEAD) You have unMuzzled %q<t1name> from %q<channel>.;@attach u(ccs)/INC`MSG=v(VAR`MSGHEAD),%q<t1>,{You have been unMuzzled from %q<channel>.};@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=[ansi(h,%n)] has unMuzzled %q<t1name> from %q<channel>.}}
+
+&INC`UNMUZZLE`ACCOUNT u(cmo)=@switch/first/inline strlen(%0)=0,{@attach u(cmo)/INC`MUZZLE`SHOWALL`ACCOUNT},{@attach u(ccs)/INC`CHECKPC=%0,1,CHANNEL;@break/inline isadmin(%q<t1>)=@pemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> is staff.;@assert/inline u(setr,accid,accid(%q<t1>))=@pemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> has no account to Muzzle!;@attach u(ccs)/INC`PARTIAL=%1,objeval(%#,channels(|)),|,CHANNEL,channel,channel;@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@assert/inline cor(isadmin(%#),elock(%q<mog>/Muzzle,%#))=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@assert/inline gt(u(u(cmo)/FUN`GETACCMUZZLE,%q<mog>,%q<accid>),0)=@pemit %#=u(RFN`MSGHEAD) %q<t1name> is not Account Muzzled from %q<channel>.;@wipe %q<mog>/ACCMUZZLE`%q<accid>;@pemit %#=u(RFN`MSGHEAD) You have un-Account Muzzled %q<t1name> from %q<channel>.;@attach u(ccs)/INC`MSG=v(VAR`MSGHEAD),get(u(adb)/%q<accid>),{You have been unMuzzled from %q<channel> ON ALL CHARACTERS.};@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) has un-Account Muzzled %q<t1name> from %q<channel>.}}
+
+&INC`CHECKNAME u(cmo)=@assert/inline strlen(u(setr,name,stripansi(trim(%0))))=@pemit %#=u(RFN`MSGHEAD) Channel Name field empty.;@assert/inline valid(channel,%q<name>)
+
+@@ +clock section
+&CMD`+CLOCK u(cmo)=$^(?\:\+)?(?\:chanlock|clock)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach u(ccs)/INC`PARTIAL=%1,setunion(get(u(cmo)/VAR`CLOCK`PLAYFLAGS),if(isadmin(%#),get(u(cmo)/VAR`CLOCK`ADMINFLAGS)),|,|),|,CHANNEL,switch,switch;@attach u(cmo)/INC`CLOCK=%2,%3,%4,%5
+@set u(cmo)/CMD`+CLOCK=regexp
+
+&VAR`CLOCK`PLAYFLAGS u(cmo)=VIEW
+&VAR`CLOCK`ADMINFLAGS u(cmo)=JOIN|SPEAK|SEE|HIDE|MOD|MUZZLE
+
+&INC`CLOCK u(cmo)=@assert/inline strlen(%0)=@pemit %#=u(rfn`msghead) ERROR: Channel empty.;@attach u(ccs)/INC`PARTIAL=%0,objeval(%#,channels(|)),|,CHANNEL,channel,channel;@break/inline not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),u(cdb)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@switch/first/inline %q<switch>=VIEW,{@attach u(cmo)/INC`CLOCK`VIEW},{@assert/inline cor(isdbref(lockfilter(clock(%q<channel>/mod),%#)),hasflag(%#,WIZARD))=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission Denied for %q<channel>.;@switch/first/inline gt(strlen(%2),0)=1,{th u(setq,dbs,setunion(u(u(kls)/FUN`LISTKEYS),u(u(gso)/FUN`LISTGROUPS)));@assert/inline eq(words(u(setr,choices,setdiff(iter(%2,if(match(%q<dbs>,u(setr,grab,namegrab(%q<dbs>,before(%i0,/)))),%q<grab>,before(%i0,/))),%q<dbs>))),0)=@pemit %#=u(RFN`MSGHEAD) ERROR: Following Master Keys not found: [itemize(%q<choices>,|,and,\,)];@dolist/inline %2={@assert/inline isdbref(u(setr,grab,namegrab(%q<dbs>,before(%i0,/))))=@pemit %#=u(RFN`MSGHEAD) ERROR: Master Key Not Found: [before(%i0,/)];@assert/inline match(u(u(kls)/FUN`LISTLOCKS,%q<grab>),strfirstof(after(%i0,/),MEMBER))=@pemit %#=u(RFN`MSGHEAD) ERROR: Lock Type for [before(%i0,/)] Not Found: [after(%i0,/)]};@switch/first/inline t(strlen(%q<switch>))=1,{th u(setq,lockstring,if(strlen(%2),iter(%2,@[namegrab(%q<dbs>,before(%i0,/))][if(strlen(after(%i0,/)),/[after(%i0,/)],/Member)],%B,|)));@switch/first/inline %q<switch>=MUZZLE,{@lock/user:muzzle %q<mog>=%q<lockstring>},{@clock/%q<switch> %q<channel>=%q<lockstring>}},{@break/inline strmatch(%2,*/*)=@pemit %#=u(RFN`MSGHEAD) ERROR: Auto-set mode does not support custom indirect locks.;@attach u(cmo)/INC`CLOCK`AUTOSET};@pemit %#=u(RFN`MSGHEAD) Channel %q<channel> [if(strlen(%q<switch>),%q<switch>%b,Fully-)]Locked to: [if(strlen(%2),itemize(%2,%b,and,\,),Nothing!)];@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) [if(strlen(%q<switch>),%q<switch>%b,Fully-)]Locked Channel %q<channel> to: [if(strlen(%2),itemize(%2,%b,and,\,),Nothing!)]}}}
+
+&INC`CLOCK`VIEW u(cmo)=@pemit %#=header(Channel Locks - %q<channel>);th u(setq,mog,cmogrifier(stripansi(%q<channel>)));@dolist/inline SEE JOIN SPEAK HIDE MOD MUZZLE={@pemit %#=align(8 69,%i0,switch(%i0,muzzle,lock(%q<mog>/muzzle),clock(%q<channel>/%i0)))};@pemit %#=separator(Dbrefs as Names);@dolist/inline SEE JOIN SPEAK HIDE MOD MUZZLE={@pemit %#=align(8 69,%i0,regeditalli(switch(%i0,muzzle,lock(%q<mog>/muzzle),clock(%q<channel>/%i0)),(#\\d+),name($0)))};@pemit %#=header()
+
+&INC`CLOCK`AUTOSET u(cmo)=@clock/see %q<channel>=if(strlen(%2),iter(%2,@[namegrab(%q<dbs>,before(%i0,/))]/MEMBER,%B,|));@clock/join %q<channel>=if(strlen(%2),iter(%2,@[namegrab(%q<dbs>,before(%i0,/))]/MEMBER,%B,|));@clock/speak %q<channel>=if(strlen(%2),iter(%2,@[namegrab(%q<dbs>,before(%i0,/))]/MEMBER,%B,|));@clock/hide %q<channel>=if(strlen(%2),iter(%2,@[namegrab(%q<dbs>,before(%i0,/))]/MODERATE,%B,|));@lock/user:muzzle %q<mog>=if(strlen(%2),iter(%2,@[namegrab(%q<dbs>,before(%i0,/))]/MODERATE,%B,|))
+
+&STARTUP u(cmo)=@hook/ignore @channel=u(cmo),HOOK`IGNORECHECK;@trigger u(cmo)/TRG`CLEANMUZZLE
+&HOOK`IGNORECHECK u(cmo)=if(cand(cor(strmatch(first(after(%u,/)),a*),strmatch(first(after(%u,/)),ren*)),hastype(%#,PLAYER)),0[nspemit(%#,u(RFN`MSGHEAD) ERROR: Please use +channel for this purpose!)],if(cand(strmatch(first(after(%u,/)),wh*),not(isadmin(%#)),if(isdbref(u(setr,cmog,cmogrifier(rest(%u)))),t(get(%q<cmog>/CONF`CODENAME)),0)),0[nspemit(%#,u(RFN`MSGHEAD) ERROR: @channel/who disabled for CODENAME channel anonymity on this channel! Use +channel <name> for that!)],1))
+
+&TRG`CLEANMUZZLE u(cmo)=@dolist lthings(u(cdb))=@trigger %i0/TRG`CLEANME;@wait 7200=@trigger me/TRG`CLEANMUZZLE
+
+&VAR`ALERTMODE u(cmo)=1
+&VAR`ALERTSCHANNEL u(cmo)=u(CMO`STAFFREP)
+
+&GFN`CHANCOLOR u(cmo)=localize(if(isdbref(u(setr,mog,cmogrifier(stripansi(%0)))),custcolor(%@,CHANNEL`%q<mog>,,1)))
+
+@@ Mogrify and CDB section
+@lock/user:muzzle u(cdb)=FLAG^ROYALTY|FLAG^WIZARD
+@lset u(cdb)/muzzle=v
+
+&FUN`GETMUZZLE u(cmo)=lmath(max,iter(wildgrepi(%0,MUZZLE`*,%1),get(%0/%i0`DURATION)))
+&FUN`GETACCMUZZLE u(cmo)=get(%0/ACCMUZZLE`%1`DURATIOn)
+
+&MOGRIFY`PLAYERNAME u(cdb)=localize(null(iter(v(MOGUSE`PLAYERNAME),u(setr,playname,u(FUN`PLAYERNAME`%i0,strfirstof(%q<playname>,%0)))))[strfirstof(%q<playname>,%0)])
+&MOGORDER`PLAYERNAME u(cdb)=codename
+&MOGUSE`PLAYERNAME u(cdb)=codename
+
+&FUN`PLAYERNAME`CODENAME u(cdb)=if(v(CONF`CODENAME),default(%#/D`CHANNEL`[num(me)]`CODENAME,%0))
+
+&MOGRIFY`TITLE u(cdb)=localize(null(iter(v(MOGUSE`TITLE),u(setr,title,u(FUN`TITLE`%i0,strfirstof(%q<title>,%0)))))[strfirstof(%q<title>,%0)])
+&MOGORDER`TITLE u(cdb)=noansi trim stafftag
+&MOGUSE`TITLE u(cdb)=noansi trim stafftag
+
+&FUN`TITLE`STAFFTAG u(cdb)=if(cand(v(MOGCONF`TITLE`STAFFTAG),match(v(VAR`STAFFTAG),%:),isadmin(%#)),\[[ansi(hR,Staff)]\][if(strlen(%0),%B%0)],%0)
+&MOGCONF`TITLE`STAFFTAG u(cdb)=1
+&FUN`TITLE`NOANSI u(cdb)=stripansi(%0)
+&FUN`TITLE`TRIM u(cdb)=trim(if(v(MOGCONF`TITLE`TRIM),left(%0,v(MOGCONF`TITLE`TRIM)),%0))
+&MOGCONF`TITLE`TRIM u(cdb)=0
+
+&MOGRIFY`BLOCK u(cdb)=localize(null(iter(v(MOGUSE`BLOCK),if(strlen(u(setr,block,u(FUN`BLOCK`%i0,,%1))),ibreak())))%q<block>)
+&MOGORDER`BLOCK u(cdb)=muzzle accmuzzle nostaffspoof nocodename badcodename badwords
+&MOGUSE`BLOCK u(cdb)=muzzle accmuzzle nostaffspoof nocodename badcodename badwords
+
+&FUN`BLOCK`ACCMUZZLE u(cdb)=if(cand(u(setr,clear,gt(u(setr,auntil,u(u(cmo)/FUN`GETACCMUZZLE,num(me),u(setr,accid,accid(%:)))),secs())),not(isadmin(%#))),u(RFN`MSGHEAD) You have been Account Muzzled from %1 until [fancytime(%q<auntil>,%#)])[null(if(cand(%q<auntil>,not(%q<clear>)),wipe(me/ACCMUZZLE`%q<accid>)))]
+
+&FUN`BLOCK`MUZZLE u(cdb)=if(cand(u(setr,clear,gt(u(setr,until,u(u(cmo)/FUN`GETMUZZLE,num(me),%:)),secs())),not(isadmin(%#))),u(RFN`MSGHEAD) You have been Muzzled from %1 until [convsecs(%q<until>)])[null(if(cand(%q<until>,not(%q<clear>)),wipe(me/[first(wildgrepi(me,MUZZLE`*,%:))])))]
+
+&FUN`BLOCK`NOCODENAME u(cdb)=if(cand(v(CONFIG`CODENAME),not(strlen(u(setr,codename,get(%#/D`CHANNEl`[num(me)]`CODENAME)))),not(isadmin(%#))),u(RFN`MSGHEAD) That Channel uses codenames\, not names. Please set your codename using +channel/codename %1=<codename here>)
+
+&FUN`BLOCK`BADCODENAME u(cdb)=if(cand(v(CONFIG`CODENAME),cand(not(valid(playername,stripansi(%q<codename>))),not(valid(playername,stripansi(%q<codename>),%#))),v(VAR`CODENAME2)),u(RFN`MSGHEAD) Your codename may not match another player's name!)
+
+&FUN`BLOCK`NOSTAFFSPOOF u(cdb)=switch(strmatch(%4,*\[Staff\]*)[isadmin(%#)],10,u(RFN`MSGHEAD) ERROR: You are not staff. Please remove the \[Staff\] from your channel title.)
+
+&FUN`BLOCK`BADWORDS u(cdb)=if(regmatchi(%0,%\b%([v(MOGCONF`BLOCK`BADWORDS)]%)%\b,1:x),u(RFN`MSGHEAD) Your message was blocked by the bad words filter because it contains the following: %qx)
+&MOGCONF`BLOCK`BADWORDS u(cdb)=loli|lolicon|lolicons
+
+&MOGRIFY`MESSAGE u(cdb)=localize(null(iter(v(MOGUSE`MESSAGE),u(setr,message,u(FUN`MESSAGE`%i0,strfirstof(%q<message>,%0)))))[strfirstof(%q<message>,%0)])
+&MOGORDER`MESSAGE u(cdb)=url
+&MOGUSE`MESSAGE u(cdb)=url
+
+&FUN`MESSAGE`URL u(cdb)=regeditalli(%0,v(VAR`REGEXP`WWW),weblink($0,$0))
+&VAR`REGEXP`WWW u(cdb)=\w+\://\S+
+
+&TRG`CLEANME u(cdb)=@dolist/inline/nobreak u(lattr,me/MUZZLE`*)={@switch/first/inline cor(not(isobjid(v(%i0))),lte(v(%i0`DURATION),secs()))=1,{@wipe me/%i0}};@dolist/inline/nobreak u(lattr,me/ACCMUZZLE`*)={@switch/first/inline cor(not(words(get(u(adb)/[last(%i0,`)]))),lte(v(%i0),secs()))=1,{@wipe me/%i0}}

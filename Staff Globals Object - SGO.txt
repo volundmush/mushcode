@@ -1,0 +1,17 @@
+@@ DEPENDENCIES - CORE
+
+@switch/first/inline isdbref(u(sgo))=0,{@tel create(Staff Globals Object <SGO>)=config(master_room)}
+&sgo u(coi)=locate(config(master_room),Staff Globals Object <SGO>,TXxi)
+@parent u(sgo)=u(coi)
+@set u(sgo)=WIZARD !NO_COMMAND
+@lock/command u(sgo)=ISADMIN/1
+
+&RFN`MSGHEAD u(sgo)=msghead(%0)
+
+&ISADMIN u(sgo)=isadmin(%#)
+
+&CMD`+DEBUG u(sgo)=$+debug *:@assert/inline u(setr,find,firstof(locate(%#,%0,N),u(%0)))=@pemit %#=ERROR: Sorry, %0 not found.;@set %q<find>=DEBUG VERBOSE PUPPET;@debugforwardlist %q<find>=setdiff(setunion(%#,get(%q<find>/DEBUGFORWARDLIST)),owner(%q<find>));@power %q<find>=pemit_all;@pemit %#=DEBUG for [name(%q<find>)] enabled!
+
+&CMD`+UNDEBUG u(sgo)=$+undebug *:@assert/inline u(setr,find,firstof(locate(%#,%0,N),u(%0)))=@pemit %#=ERROR: Sorry, %0 not found.;@set %q<find>=!DEBUG !VERBOSE !PUPPET;@debugforwardlist %q<find>=setdiff(get(%q<find>/DEBUGFORWARDLIST),%#);@power %q<find>=!pemit_all;@pemit %#=DEBUG for [name(%q<find>)] disabled!
+
+&CMD`+BITS u(sgo)=$+bits:@pemit %#=header(Priveleged Players);@pemit %#=align(25 3 3 3 10,Name,WIZ,ROY,JDG,Owns);@dolist/inline sort(lsearch(all,type,player,elock,FLAG^WIZARD|FLAG^ROYALTY|FLAG^JUDGE),namei)={@pemit %#=align(25 -3 -3 -3 10,name(%i0),if(hasflag(%i0,WIZARD),ansi(hr,Y),N),if(hasflag(%i0,ROYALTY),ansi(hb,Y),N),if(hasflag(%i0,JUDGE),ansi(hy,Y),N),bound(sub(nsearch(%i0),1),0))};@pemit %#=header(Priveleged Objects);@pemit %#=align(32 3 3 3 15 15,Name,WIZ,ROY,JDG,Owner,Location);@dolist/inline sortkey(#lambda/owner(\%0),lsearch(all,type,thing,elock,FLAG^WIZARD|FLAG^ROYALTY|FLAG^JUDGE),namei)={@pemit %#=align(32 -3 -3 -3 15 15,name(%i0),if(hasflag(%i0,WIZARD),ansi(hr,Y),N),if(hasflag(%i0,ROYALTY),ansi(hb,Y),N),if(hasflag(%i0,JUDGE),ansi(hy,Y),N),name(owner(%i0)),name(loc(%i0)))};@pemit %#=header()

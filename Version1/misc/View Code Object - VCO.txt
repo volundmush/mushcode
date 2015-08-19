@@ -1,0 +1,21 @@
+@switch/inline isdbref(u(vco))=0,{@tel create(View Code Object <VCO>)=config(master_room)}
+&vco u(coi)=locate(config(master_room),View Code Object <VCO>,TXxi)
+@parent u(vco)=u(coi)
+@set u(vco)=WIZARD SAFE !NO_COMMAND
+
+&CMD`VIEW u(vco)=$^(?s)(?\:\+)?(view|lore)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%2,setunion(get(u(vco)/VAR`VIEW`PLAYFLAGS),if(isadmin(%#),get(u(vco)/VAR`VIEW`ADMINFLAGS)),|,|),|,VIEW,switch,switch;@include u(vco)/INC`VIEW`[strfirstof(%q<switch>,MAIN)]=%3,%4
+@set u(vco)/CMD`VIEW=regexp
+
+&VAR`VIEW`ADMINFLAGS u(vco)=ADD|SET|DEL|REN
+
+&GFN`VIEWS u(vco)=iter(lattr(%0/VIEW`*),capnames(get(%0/%i0)),%b,|)
+
+&FUN`FINDVIEW u(vco)=sortkey(#lambda/get(%l/\%0),wildgrepi(%0,VIEW`*,%1*),i)
+
+&INC`VIEW`MAIN u(vco)=@assert strlen(%0)=@nspemit %#=You can view the following: [itemize(iter(views(%l),pueblize(%i0,view %i0),|,|),|,and,\,)];@assert words(setr(views,u(FUN`FINDVIEW,%l,%0)))=@nspemit %#=There's no view named %0 here.;@break gt(words(%q<views>),1)=@nspemit %#=That view name is ambiguous. Please be more specific in the view name.;@nspemit %#=header(View: [get(%l/%q<views>)]);@nspemit %#=u(%l/%q<views>`DESC);@nspemit %#=header()
+
+&INC`VIEW`ADD u(vco)=@assert strlen(%0)=@nspemit %#=msghead(VIEW) ERROR: View name empty.;@break words(grepi(%l,VIEW`*,%0))=@nspemit %#=msghead(VIEW) ERROR: There is already a View here by that name. Use /set to change its contents, /ren to rename it, or /del to remove it.;@assert strlen(%1)=@nspemit %#=msghead(VIEW) ERROR: View text empty.;&[setr(attr,VIEW`[nextslot(%l,VIEW)])] %l=%0;&%q<attr>`DESC %l=%1;@nspemit %#=msghead(VIEW) View set!
+
+&INC`VIEW`REN u(vco)=@assert strlen(%0)=@nspemit %#=What will you rename?;@assert words(setr(views,u(FUN`FINDVIEW,%l,%0)))=@nspemit %#=There's no view named %0 here.;@break gt(words(%q<views>),1)=@nspemit %#=That view name is ambiguous. Please be more specific in the view name.;@assert strlen(%1)=@nspemit %#=msghead(VIEW) ERROR: No new name entered.;@break words(grepi(%l,VIEW`*,%1))=@nspemit %#=msghead(VIEW) ERROR: There is already a View here by that name.;&%q<views> %l=%0;@nspemit %#=msghead(VIEW) Rename complete.
+
+&INC`VIEW`DEL u(vco)=@assert strlen(%0)=@nspemit %#=What will you rename?;@assert words(setr(views,u(FUN`FINDVIEW,%l,%0)))=@nspemit %#=There's no view named %0 here.;@break gt(words(%q<views>),1)=@nspemit %#=That view name is ambiguous. Please be more specific in the view name.;@wipe %l/%q<views>;@nspemit %#=msghead(VIEW) Deleted!

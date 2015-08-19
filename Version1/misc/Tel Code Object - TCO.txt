@@ -1,0 +1,42 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(tco))=0,{@tel create(Tel Code Object <TCO>)=config(master_room)}
+&tco u(coi)=locate(config(master_room),Tel Code Object <TCO>,TXxi)
+@parent u(tco)=u(coi)
+@set u(tco)=WIZARD !NO_COMMAND
+
+@switch/inline isdbref(u(tdb))=0,{@switch/inline isdbref(u(tco))=1,{@tel create(Tel Database Object <TDB>)=u(tco)}}
+&tdb u(coi)=locate(u(tco),Tel Database Object <TDB>,TXxi)
+@parent u(tdb)=u(coi)
+@set u(tdb)=WIZARD SAFE
+@power u(tdb)=many_attribs
+
+&CMD`TEL u(tco)=$^(?\:\+)?(?\:tel|grid|map|travel)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(tco)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(tco)/VAR`ADMINFLAGS)),|,|),|,TEL,switch,switch;@include u(tco)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set u(tco)/CMD`TEL=regexp
+
+&VAR`TEL`PLAYFLAGS u(tco)=
+&VAR`TEL`ADMINFLAGS u(tco)=ADD|DEL|LOCK|UNLOCK|MAKEDIST|DESTROYDIST|DESC
+
+&INC`MAIN u(tco)=@assert words(setr(0,sortkey(#lambda/strfirstof(stripansi(get_eval(before(\%0,~)/COLORNAME)),name(before(\%0,~))),if(isadmin(%#),filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),filterbool(FILTER_VISROOM,filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),|,|)),i,|,|)),|)=@nspemit %#=ERROR: No Tel locations registered.;@switch/inline strlen(%0)=0,{@include u(tco)/INC`MAIN`LISTDIST},{@switch/inline regmatchi(%0,^#\\d+$)=0,{@include u(tco)/INC`MAIN`SHOWDIST},1,{@switch/inline isadmin(%#)=0,{@assert words(setr(0,if(isadmin(%#),filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),filterbool(FILTER_VISROOM,filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),|,|))),|)=@nspemit %#=ERROR: No Tel locations registered.;@assert match(%q0,%0~*,|)=@nspemit %#=ERROR: %0 doesn't match a DBREF.;@break strmatch(loc(%#),%0)=@nspemit %#=You are already there!;@tel %#=%0},1,{@assert hastype(%0,ROOM)=@nspemit %#=ERROR: That is not a room!;@tel %#=%0}}}
+
+&INC`MAIN`LISTDIST u(tco)=@nspemit %#=header(Tel Locations);@dolist/inline/delimit | [setunion(setr(list2,iter(%q0,strfirstof(capnames(get(before(%i0,~)/district)),Unbound),|,|)),%q<list2>,|,|)]={@nspemit %#=subheader(pueblize(capnames(%i0),tel [capnames(%i0)]): [words(filterbool(#lambda/strmatch(%i0,strfirstof(get(before(\%0,~)/District),Unbound)),%q0,|,|),|)] Rooms);@switch/inline hasattr(u(tco)/VAR`DIST`[setr(hash,digest(md5,ucstr(%i0)))])=1,{@nspemit %#=get(u(tco)/VAR`DIST`%q<hash>`DESC)}};@nspemit %#=header(Use tel <district> to list rooms)
+
+&INC`MAIN`SHOWDIST u(tco)=@include u(ccs)/INC`PARTIAL=%0,setunion(setr(list2,iter(%q0,strfirstof(capnames(get(before(%i0,~)/district)),Unbound),|,|)),%q<list2>,|,|),|,TEL,district,district;@nspemit %#=header(District: %q<district>);@nspemit %#=table(setr(rooms,iter(filterbool(#lambda/strmatch(%q<district>,strfirstof(get(before(\%0,~)/District),Unbound)),%q0,|,|),ansi(if(last(%i0,~),hw,hr),pueblize(rjust(first(%i0,~),5),tel [first(%i0,~)]))%B-%B[left(strfirstof(get_eval(first(%i0,~)/COLORNAME),name(first(%i0,~))),35)],|,|)),38,78,|);@nspemit %#=header(Use tel #DBREF to teleport)
+
+&INC`DIST u(tco)=@include u(ccs)/INC`PARTIAL=ucstr(%0),ucstr(setunion(iter(filterbool(FILTER_ISROOM,v(VAR`ROOMLIST),|,|),default(before(%i0,~)/district,Unbound),|,|),,|,|)),|,TEL,district,district;th setq(hash,digest(md5,ucstr(%q<district>)));@switch/inline gt(strlen(%1),0)=0,{@nspemit %#=announce(TEL) District desc cleared!;&VAR`DIST`%q<hash>`DESC u(tco)},1,{@nspemit %#=announce(TEL) You set the desc for %q<district> to: %1;&VAR`DIST`%q<hash>`DESC u(tco)=%1}
+
+&FILTER_ISROOM u(tco)=cand(isdbref(first(%0,~)),hastype(first(%0,~),ROOM))
+
+&INC`ADD u(tco)=@assert u(FILTER_ISROOM,setr(0,setr(0,num(%0))))={@nspemit %#=ERROR: %0 is not a valid ROOM DBREF.};@break match(v(VAR`ROOMLIST),%q0~*,|)=@nspemit %#=ERROR: Location already registered.;th setstat(u(tco)/VAR`ROOMLIST,%q0,1);@nspemit %#=%q0 - [name(%q0)]: Added to Tel locations.
+
+&INC`DEL u(tco)=@assert strlen(%0)=@nspemit %#=ERROR: No location entered.;@assert u(FILTER_ISROOM,setr(0,setr(0,num(%0))))={@nspemit %#=ERROR: %0 is not a valid ROOM DBREF.};@assert strlen(setr(grab,grab(v(VAR`ROOMLIST),%q0~*,|)))=@nspemit %#=ERROR: Location not registered.;&VAR`ROOMLIST me=setdiff(v(VAR`ROOMLIST),%q<grab>,|,|);@nspemit %#=Location removed!
+
+&INC`LOCK u(tco)=@assert strlen(%0)=@nspemit %#=ERROR: No location entered.;@assert u(FILTER_ISROOM,setr(0,setr(0,num(%0))))={@nspemit %#=ERROR: %0 is not a valid ROOM DBREF.};@assert strlen(setr(grab,grab(v(VAR`ROOMLIST),%q0~*,|)))=@nspemit %#=ERROR: Location not registered.;@assert getstat(u(tco)/VAR`ROOMLIST,%q0)=@nspemit %#=ERROR: Location is already locked.;th setstat(u(tco)/VAR`ROOMLIST,%q0,0);@nspemit %#=Location locked!
+
+&INC`UNLOCK u(tco)=@assert strlen(%0)=@nspemit %#=ERROR: No location entered.;@assert u(FILTER_ISROOM,setr(0,setr(0,num(%0))))={@nspemit %#=ERROR: %0 is not a valid ROOM DBREF.};@assert strlen(setr(grab,grab(v(VAR`ROOMLIST),%q0~*,|)))=@nspemit %#=ERROR: Location not registered.;@break getstat(u(tco)/VAR`ROOMLIST,%q0)=@nspemit %#=ERROR: Location is not locked.;th setstat(u(tco)/VAR`ROOMLIST,%q0,1);@nspemit %#=Location unlocked!
+
+@@ TEL CODE OBJECT - TCO
+
++help/addmain Navigation/tel=The Tel System allows players and admin to easily navigate the grid.%R%R[ansi(h,tel \[<destination>\])]%RBy itself, lists all available destinations. Given a destination, sends you there. <destination> must be a dbref, such as #100.
+
++shelp/addmain Building/tel=[ansi(h,tel/add)] and [ansi(h,tel/del <destination>)]%RAdds and removes destinations to the tel list. Note that all destinations should have a &district attribute on that DBREF, used for sorting. It should match the category they appear in.%R%R[ansi(h,tel/lock)] and [ansi(h,tel/unlock <destination>)] admin lock destinations so that players cannot see or use them.

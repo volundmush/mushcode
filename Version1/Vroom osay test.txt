@@ -1,0 +1,26 @@
+&CMD`+OOC u(vroom)=$^(?s)(?\:\+ooc|osay|\+osay)(?\:/(\S+)?)?(?\: +(.*))?$:@include u(ccs)/INC`PARTIAL=%1,v(VAR`OOCFLAGS),|,CHAT,switch,switch;@assert elock(%l/speech,%#)=@nspemit %#=Permission denied.;@assert cor(isadmin(%#),not(v(option-oocgag)),u(ufunc-controls,%#))=@nspemit %#=Permission denied.;@assert strlen(%2)=@nspemit %#=What will you say?;@break strmatch(left(%2,1),|)=@nspemit %#=msghead(CHAT) Emit feature is disabled.;@message/spoof lplayers(%l)=%2,u(pgo)/OOC`[switch(%q<switch>,ALL,ALL,HERE)],%#,##,%2
+
+
+@set u(vroom)/CMD`+OOC=regexp
+
+&VAR`OOCFLAGS u(vroom)=ALL
+
+&CMD-OOC u(vroom)=$+ooc *:think u(ufunc-ooc,%N[switch(mid(%0,0,1),;,delete(%0,0,1),:,%b[delete(%0,0,1)],%bsays\, "%0")])
+
+&CMD-OOC-ALL u(vroom)=$+ooc/all *:think u(ufunc-ooc,%N[regedit(%0,^%(?s%)%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])],all)
+
+&CMD-OOC-ALL-NOEVAL u(vroom)=$^(?s)\+ooc(/noeval/all|/all/noeval) .*$:think u(ufunc-ooc,%N[regedit(rest(default(cmds`last`%#,%0)),^%(?s%)%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])],all)[null(wipe(me/cmds`last`%#))]
+@set u(vroom)/CMD-OOC-ALL-NOEVAL=regexp
+
+&CMD-OOC-HERE u(vroom)=$+ooc/here *:think u(ufunc-ooc,%N[regedit(%0,^%(?s%)%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])],here)
+
+&CMD-OOC-HERE-NOEVAL u(vroom)=$^(?s)\+ooc(/noeval/here|/here/noeval) .*$:think u(ufunc-ooc,%N[regedit(rest(default(cmds`last`%#,%0)),^%(?s%)%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])],here)[null(wipe(me/cmds`last`%#))]
+@set u(vroom)/CMD-OOC-HERE-NOEVAL=regexp
+
+&CMD-OOC-NOEVAL u(vroom)=$^(?s)\+ooc/noeval .*$:think u(ufunc-ooc,%N[regedit(rest(default(cmds`last`%#,%0)),^%(?s%)%(%[:%;%]?%)%(.+%)$,[setq(0,$1)][setq(1,$2)][switch(%q0,:,%b%q1,%;,%q1,%bsays%, "%q1")])])[null(wipe(me/cmds`last`%#))]
+@set u(vroom)/CMD-OOC-NOEVAL=regexp
+
+&CMD-OOC-GAG u(vroom)=$+ooc/gag:@select/inline u(ufunc-controls,%#)=1,{@pemit/silent %#=u(message-success,OOC gagged.)[set(me,option-oocgag:1)]},{@pemit/silent %#=u(message-error,Permission denied.)}
+&CMD-OOC-UNGAG u(vroom)=$+ooc/ungag:@select/inline u(ufunc-controls,%#)=1,{@pemit/silent %#=u(message-success,OOC ungagged.)[wipe(me/option-oocgag)]},{@pemit/silent %#=u(message-error,Permission denied.)}
+
+@dolist/inline OOC OOC-ALL OOC-ALL-NOEVAL OOC-HERE OOC-HERE-NOEVAL OOC-NOEVAL=@wipe u(vroom)/CMD-%i0

@@ -1,0 +1,25 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(wxc))=0,{@tel create(Weekly XP Code <WXC>)=config(master_room)}
+&WXC u(coi)=locate(config(master_room),Weekly XP Code <WXC>,TXxi)
+@parent u(wxc)=u(coi)
+@set u(wxc)=WIZARD !NO_COMMAND
+
+&TRG`WEEKLY u(wxc)=&VAR`WEEKS me=add(1,default(me/VAR`WEEKS,0));&VAR`HIGHEST u(wxc)=bound(lmath(max,iter(setr(list2,lsearch(all,eplayer,\[and(nor(haspower(##,GUEST),isadmin(##)),approved(##))\])),u(u(exp)/FUN`COUNT,%i0,G))),0,600);@assert words(setr(list,sql(SELECT DISTINCT objid FROM scene_players LEFT JOIN scene_poses ON scene_players.player_id=scene_poses.player_id WHERE pose_time >= now() - INTERVAL 1 WEEK)));th setq(list3,filterbool(#lambda/gte(u(u(exp)/FUN`COUNT,\%0,G),600),%q<list1>));@dolist/inline setdiff(%q<list>,%q<list3>)={@trigger me/TRG`AWARD=%i0,%q<list>,%q<list2>,%q<list3>,default(me/VAR`PARTICIPATION,8)}
+
+&TRG`AWARD u(wxc)=@switch/inline gte(u(u(exp)/FUN`COUNT,%0,G),600)=0,{@force/inline v(VAR`FORCECHAR)={+xp/award %0=%4/Weekly XP}}
+
+&FUN`EXTRA`GAINED u(xp)=100
+
+@@ u(u(wxc)/FUN`STARTING)
+&FUN`EXTRA`SPENT u(xp)=0
+
+&FUN`STARTING u(wxc)=add(default(me/VAR`STARTING,0),mul(default(me/VAR`WEEKLY,4),default(u(wxc)/VAR`WEEKS,0)))
+
+&VAR`FORCECHAR u(wxc)=#163
+
+&VAR`STARTING u(wxc)=50
+&VAR`WEEKLY u(wxc)=0
+&VAR`PARTICIPATION u(wxc)=5
+&VAR`CATCHUPMUL u(wxc)=2
+&VAR`CATCHUPTHRESHOLD u(wxc)=50

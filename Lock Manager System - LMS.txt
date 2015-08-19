@@ -1,0 +1,125 @@
+@@ DEPENDENCIES - CORE
+
+@switch/first/inline isdbref(u(kls))=0,{@tel create(Key Lock System <KLS>)=config(master_room)}
+&kls u(coi)=locate(config(master_room),Key Lock System <KLS>,TXxi)
+@parent u(kls)=u(coi)
+@set u(kls)=WIZARD SAFE !NO_COMMAND
+
+@switch/first/inline isdbref(u(kop))=0,{@switch/first/inline isdbref(u(kls))=1,{@tel create(Key Object Parent <KOP>)=u(kls)}}
+&kop u(coi)=locate(u(kls),Key Object Parent <KOP>,TXxi)
+@parent u(kop)=u(coi)
+@set u(kop)=WIZARD SAFE
+
+@lock/user:moderate u(kop)=DBREFLIST^MODERATORS|DBREFLIST^OWNERS|FUN`AUTHCHECK`MODERATE/1
+@lset u(kop)/moderate=visual
+
+@lock/user:member u(kop)=DBREFLIST^MEMBERS|DBREFLIST^MODERATORS|DBREFLIST^OWNERS|FUN`AUTHCHECK`MEMBER/1
+@lset u(kop)/member=visual
+
+@lock/user:ic u(kop)=DBREFLIST^OWNERS|DBREFLIST^MODERATORS|DBREFLIST^MEMBERS|FUN`AUTHCHECK`IC/1
+@lset u(kop)/ic=visual
+
+@lock/user:ooc u(kop)=FUN`ISADMIN/1|DBREFLIST^OWNERS|DBREFLIST^MODERATORS|DBREFLIST^MEMBERS|FUN`AUTHCHECK`OOC/1
+@lset u(kop)/ooc=visual
+
+&CMD`+KEY u(kls)=$^(?s)(?\:\+)?(key)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach u(ccs)/INC`PARTIAL=%2,setunion(get(u(kls)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(kls)/VAR`%1`ADMINFLAGS)),|,|),|,KEY,switch,switch;@attach u(kls)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
+@set u(kls)/CMD`+KEY=regexp
+
+&FUN`ISADMIN u(kop)=isadmin(%#)
+&FUN`AUTHCHECK`MODERATE u(kop)=
+&FUN`AUTHCHECK`MEMBER u(kop)=u(FUN`AUTHCHECK`OR,%#)
+&FUN`AUTHCHECK`IC u(kop)=u(FUN`AUTHCHECK`OR,%#)
+&FUN`AUTHCHECK`OOC u(kop)=u(FUN`AUTHCHECK`OR,%#)
+
+&FUN`AUTHCHECK`OR u(kop)=lmath(max,iter(lattrp(u(kop)/FUN`AUTHCHECK`OR`*),u(%i0,%0)))
+&FUN`AUTHCHECK`OR`BUILDER u(kop)=if(default(CONF`BUILDER,0),haspower(%0,BUILDER),0)
+&FUN`AUTHCHECK`OR`NOAPPROVED u(kop)=if(v(CONF`NOAPPROVED),hasflag(%0,UNREGISTERED))
+&FUN`AUTHCHECK`OR`SPLAT u(kop)=if(strlen(v(CONF`SPLAT)),match(v(CONF`SPLAT),getsplat(%0)),0)
+&FUN`AUTHCHECK`OR`SPHERE u(kop)=if(strlen(v(CONF`SPHERE)),match(v(CONF`SPHERE),getsphere(%0)),0)
+&FUN`AUTHCHECK`OR`ADMIN u(kop)=if(v(CONF`NOSTAFFCHECK),,isadmin(%0))
+
+&CMD`+LOCK u(kls)=$^(?s)(?\:\+)?(lock)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach u(kls)/INC`LOCK=%3,%4,strfirstof(%2,basic)
+@set u(kls)/CMD`+LOCK=regexp
+
+&VAR`KEY`PLAYFLAGS u(kls)=ADD|REM|MAKE|DESTROY|AUTH|REVOKE|CHOWN|CONFIG
+&VAR`KEY`ADMINFLAGS u(kls)=
+
+&RFN`MSGHEAD u(kls)=msghead(strfirstof(%0,KEY))
+&VAR`MSGHEAD u(kls)=KEY
+
+&VAR`LOCKTYPES u(kls)=Basic|Enter|Teleport|use|page|zone|parent|link|open|mail|speech|listen|command|leave|drop|dropin|give|from|pay|receive|follow|examine|chzone|forward|filter|infilter|control|dropto|destroy|interact|take|mailforward|chanjoinlock|chanspeaklock|chanseelock|chanhidelock|chanmodlock
+
+&INC`KEY`MAIN u(kls)=@assert/inline or(words(u(setr,keys,u(u(kls)/FUN`LISTKEYS))),words(u(setr,groups,u(u(gso)/FUN`LISTGROUPS))))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: There are no Keys or Groups!;@switch/first/inline strlen(%0)=0,{@pemit %#=header(mudname() Keys);@pemit %#=align(-3 6 30,*,Dbref,Name);@dolist/inline/delimit | [setunion(iter(%q<keys>,capnames(default(%i0/CONF`CATEGORY,Unset)),%B,|),,|,i,|)]={@pemit %#=separator(%i0 Master Keys);@pemit %#=u(u(kls)/FUN`DISPLAY,filterbool(#lambda/strmatch(capnames(default(\%0/CONF`CATEGORY,Unset)),%i0),%q<keys>),%#)};@pemit %#=header(mudname() Groups);@switch/first/inline t(words(u(setr,major,filterbool(#lambda/u(u(gso)/FUN`GETSET,\%0,MAJOR),%q<groups>))))=1,{@pemit %#=separator(Major Groups);@pemit %#=u(u(kls)/FUN`DISPLAY,%q<major>,%#)};@switch/first/inline t(words(u(setr,minor,filterbool(#lambda/not(u(u(gso)/FUN`GETSET,\%0,MAJOR)),%q<groups>))))=1,{@pemit %#=separator(Minor Groups);@pemit %#=u(u(kls)/FUN`DISPLAY,%q<minor>,%#)};@pemit %#=header(+key <name> to see specific Master Key!)},{@attach u(kls)/INC`KEYFIND=%0;@assert/inline cor(elock(%q<key>/MEMBER),isadmin(%#))=@pemit %#=u(RFn`MSGHEAD) ERROR: Cannot check the status of a Key you do not pass!;@pemit %#=header(mudname() Key: [name(%q<key>)]);@pemit %#=[align(50 25,ansi(h,%q<key>) - You [if(elock(%q<key>/MEMBER,%#),ansi(hg,Pass),ansi(hr,Fail))] this Key's lock!%R[ljust(rjust(OWNER:,11),11)] [itemize(iter(filterbool(#lambda/isobjid(\%0),get(%q<key>/OWNERS)),name(%i0),%b,|),|,and,\,)] %R[ljust(rjust(MODERATORS:,11),11)] [itemize(iter(filterbool(#lambda/isobjid(\%0),get(%q<key>/MODERATORS)),name(%i0),%b,|),|,and,\,)]%R[ljust(rjust(MEMBERS:,11),11)] [itemize(iter(filterbool(#lambda/isobjid(\%0),get(%q<key>/MEMBERS)),name(%i0),%b,|),|,and,\,)],iter(v(VAR`LISTCONF),ljust(rjust(%i0:,10),10)%B[u(FUN`GET`%i0,%q<key>)],|,%R))];@pemit %#=header()}
+
+&FUN`DISPLAY u(kls)=iter(%0,align(3 6 30,\[[if(elock(%i0/Member,%1),ansi(hg,O),ansi(hr,X))]\],pueblize(%i0,if(strmatch(parent(%i0),u(kop)),+key,+group) %i0),name(%i0)),%b,%r)
+
+&VAR`LISTCONF u(kls)=APPROVED|BUILDER|SPLAT|SPHERE|GROUP|KEY
+&FUN`GET`APPROVED u(kls)=if(get(%0/CONF`APPROVED),Yes,No)
+&FUN`GET`BUILDER u(kls)=if(get(%0/CONF`BUILDER),Yes,No)
+&FUN`GET`SPLAT u(kls)=get(%0/CONF`SPLAT)
+&FUN`GET`SPHERE u(kls)=get(%0/CONF`SPHERE)
+&FUN`GET`GROUP u(kls)=itemize(iter(get(%0/CONF`GROUP),%i0,%b,|),|,and,\,)
+&FUN`GET`KEY u(kls)=itemize(iter(get(%0/CONF`KEY),%i0,%b,|),|,and,\,)
+
+&INC`KEYNAME u(kls)=@assert/inline strlen(%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: Master Key Name field empty.;@assert/inline valid(name,%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: An object can't have that name. Try without special characters? Or shorter?;@break/inline isdbref(locate(u(kop),%0,TXxi))=@pemit %#=u(RFN`MSGHEAD) ERROR: A Key named that already exists.
+
+&FUN`FINDKEY u(kls)=namegrab(u(u(kls)/FUN`LISTKEYS),%0)
+
+&INC`KEYFIND u(kls)=@assert/inline strlen(%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: Key field empty.;@assert/inline isdbref(u(setr,key,u(u(kls)/FUN`FINDKEY,%0)))=@pemit %#=u(RFN`MSGHEAD) ERROR: Key '%0' not found!
+
+&INC`KEY`MAKE u(kls)=@assert/inline cor(isadmin(%#),cand(v(VAR`PLAYERMAKE),approved(%#)))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: Players may not make Master Keys.;@attach u(kls)/INC`KEYNAME=%0;@tel u(setr,key,create(%0))=u(kop);@parent %q<key>=u(kop);@set %q<key>=WIZARD SAFE;@pemit %#=u(RFN`MSGHEAD,KEY) You have created the %0 Master Key!;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) has created a new Master Key: %q<key> - %0}
+
+&INC`KEY`DESTROY u(kls)=@attach u(kls)/INC`KEYFIND=%0;@assert/inline cor(isadmin(%#),v(VAR`PLAYERDESTROY))=@pemit %#=u(RFN`MSGHEAD) ERROR: Players may not destroy Master Keys.;@assert/inline cor(isadmin(%#),match(get(%q<key>/OWNERS),%:))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: Players may not destroy Master Keys they do not own.;@attach u(ccs)/INC`VERIFY={WARNING: This will Destroy the Master Key [name(%q<key>)]. The key list will be deleted. Are you sure? Enter the same command again in ten seconds to verify.},LOCK DELETE %q<key>;@pemit %#=u(RFN`MSGHEAD,KEY) You have destroyed the Master Key [name(%q<key>)]!;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) has destroyed a Master Key: %q<key> - [name(%q<key>)]};@parent %q<key>;@set %q<key>=!SAFE;@nuke %q<key>
+
+&INC`KEY`CHOWN u(kls)=@attach u(kls)/INC`KEYFIND=%0;@assert/inline cor(isadmin(%#),match(get(%q<key>/OWNERS),%:))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: Players may not reassign Master Keys they do not own.;@attach u(ccs)/INC`CHECKPC=%1,1,KEY;@attach u(ccs)/INC`VERIFY={WARNING: This will REASSIGN OWNERS for the Master Key [name(%q<key>)]. Are you sure? Enter the same command again in ten seconds to verify.},LOCK CHOWN %q<key> %q<t1>;&OWNERS %q<key>=%q<t1objid>;@pemit %#=u(RFN`MSGHEAD,KEY) You have reassigned ownership of Master Key [name(%q<key>)] to %q<t1name>!;@pemit %q<t1>=u(RFN`MSGHEAD,KEY) %n reassigned ownership of Master Key [name(%q<key>)] to you!;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) reassigned Master Key [name(%q<key>)] to %q<t1name>}
+
+&INC`KEY`AUTH u(kls)=@attach u(kls)/INC`KEYFIND=%0;@assert/inline cor(isadmin(%#),match(get(%q<key>/OWNERS),%:))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: Players may not authorize Master Key Moderators for Master Keys they do not own.;@attach u(ccs)/INC`CHECKPC=%1,1,KEY;@break/inline match(get(%q<key>/MODERATORS),%q<t1objid>)=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: %q<t1name> is already authorized for that Master Key.;&MODERATORS %q<key>=filterbool(#lambda/isobjid(\%0),setunion(get(%q<key>/MODERATORS),%q<t1objid>));@pemit %#=u(RFN`MSGHEAD,KEY) You authorized %q<t1name> to Moderate Master Key [name(%q<key>)].;@pemit %q<t1>=u(RFN`MSGHEAD,KEY) %n authorized you to Moderate Master Key [name(%q<key>)]!;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) authorized %q<t1name> to Moderate Master Key [name(%q<key>)].}
+
+&INC`KEY`REVOKE u(kls)=@attach u(kls)/INC`KEYFIND=%0;@assert/inline cor(isadmin(%#),match(get(%q<key>/OWNERS),%:))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: Players may not revoke Master Key handlers for Master Keys they do not own.;@attach u(ccs)/INC`CHECKPC=%1,1,KEY;@assert/inline match(get(%q<key>/MODERATORS),%q<t1objid>)=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: %q<t1name> is not authorized for that Master Key.;&MODERATORS %q<key>=filterbool(#lambda/isobjid(\%0),setdiff(get(%q<key>/MODERATORS),%q<t1objid>));@pemit %#=u(RFN`MSGHEAD,KEY) You revoked %q<t1name>'s authority to Moderate Master Key [name(%q<key>)].;@pemit %q<t1>=u(RFN`MSGHEAD,KEY) %n revoked your authority to Moderate Master Key [name(%q<key>)].;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) revoked %q<t1name>'s authority to Moderate Master Key [name(%q<key>)].}
+
+&INC`KEY`ADD u(kls)=@attach u(kls)/INC`KEYFIND=%0;@assert/inline cor(elock(%q<key>/MODERATE,%#),isadmin(%#))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: You are not authorized to moderate that Key!;@attach u(ccs)/INC`CHECKPC=%1,1,KEY;@break/inline match(get(%q<key>/MEMBERS),%q<t1objid>)=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: %q<t1name> already has that Key.;&MEMBERS %q<key>=filterbool(#lambda/isobjid(\%0),setunion(get(%q<key>/MEMBERS),%q<t1objid>));@pemit %#=u(RFN`MSGHEAD,KEY) You give %q<t1name> a [name(%q<key>)] Key.;@pemit %q<t1>=u(RFN`MSGHEAD,KEY) %n gave you a [name(%q<key>)] Key!;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) gave %q<t1name> a [name(%q<key>)] Key.}
+
+&INC`KEY`REM u(kls)=@attach u(kls)/INC`KEYFIND=%0;@assert/inline cor(elock(%q<key>/MODERATE,%#),isadmin(%#))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: You are not authorized to moderate that Key!;@attach u(ccs)/INC`CHECKPC=%1,1,KEY;@assert/inline match(get(%q<key>/MEMBERS),%q<t1objid>)=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: %q<t1name> does not have that Key.;&MEMBERS %q<key>=filterbool(#lambda/isobjid(\%0),setdiff(get(%q<key>/MEMBERS),%q<t1objid>));@pemit %#=u(RFN`MSGHEAD,KEY) You revoke %q<t1name>'s [name(%q<key>)] Key.;@pemit %q<t1>=u(RFN`MSGHEAD,KEY) %n revoked your [name(%q<key>)] Key!;@switch/first/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) revoked %q<t1name>'s [name(%q<key>)] Key.}
+
+&INC`KEY`CONFIG u(kls)=@attach u(kls)/INC`KEYFIND=before(%0,/);@assert/inline cor(isadmin(%#),match(get(%q<key>/OWNERS),%:))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: Players may not configure Master Keys they do not own.;@assert/inline strlen(after(%0,/))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: Parameter empty.;@attach u(ccs)/INC`PARTIAL=after(%0,/),v(VAR`CONFCATS),|,KEY,parameter,parameter;@switch/first/inline strlen(%1)=0,{&CONF`%q<parameter> %q<key>;@pemit %#=u(RFN`MSGHEAD,KEY) You cleared Master Key [name(%q<key>)]'s %q<parameter> Setting.},{@attach u(kls)/INC`KEY`CONFIG`%q<parameter>;&CONF`%q<parameter> %q<key>=%q<entry>;@pemit %#=u(RFN`MSGHEAD,KEY) You set Master Key [name(%q<key>)]'s %q<parameter> Setting to: %q<entry>}
+
+&VAR`CONFCATS u(kls)=CATEGORY|BUILDER|APPROVED|NOAPPROVED|GROUP|SPLAT|SPHERE|KEY|NOSTAFFCHECK
+
+&INC`KEY`CONFIG`CATEGORY u(kls)=th u(setq,entry,%1)
+&INC`KEY`CONFIG`BUILDER u(kls)=th u(setq,entry,t(%1))
+&INC`KEY`CONFIG`APPROVED u(kls)=th u(setq,entry,t(%1))
+&INC`KEY`CONFIG`NOAPPROVED u(kls)=th u(setq,entry,t(%1))
+&INC`KEY`CONFIG`NOSTAFFCHECK u(kls)=th u(setq,entry,t(%1))
+&INC`KEY`CONFIG`GROUP u(kls)=@assert/inline lmath(min,u(setr,entry,iter(%1,u(u(gso)/FUN`FINDGROUP,%i0))))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: One or more Groups was not found. Groups are separated by spaces so use their IDs or ALIASes!
+&INC`KEY`CONFIG`SPLAT u(kls)=@assert/inline lmath(min,iter(u(setr,entry,sort(ucstr(%1))),match(get(u(ex-cdo)/VAR`SPLATS),%i0,|)))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: One or more Splats was not found. Splats are separated by spaces.
+&INC`KEY`CONFIG`SPHERE u(kls)=@assert/inline lmath(min,iter(u(setr,entry,sort(ucstr(%1))),match(get(u(ncdo)/VAR`SPHERES),%i0,|)))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: One or more Spheres was not found. Spheres are separated by spaces.
+&INC`KEY`CONFIG`KEY u(kls)=@assert/inline eq(words(u(setr,choices,setdiff(u(setr,entry,%1),u(u(kls)/FUN`LISTLOCKS)))),0)=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: Following lock types not found: [itemize(%q<choices>,|,and,\,)]
+
+&INC`LOCK u(kls)=@assert/inline strlen(%0)=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: No Target entered to lock.;@assert/inline isdbref(u(setr,target,locate(%#,%0,N)))=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: %0 does not match anything.;@assert/inline controls(%#,%q<target>)=@pemit %#=u(RFN`MSGHEAD,KEY) ERROR: Permission denied.;@attach u(kls)/INC`DOLOCK=%q<target>,%2,%1,LOCK
+
+&INC`DOLOCK u(kls)=@assert/inline cor(match(get(u(kls)/VAR`LOCKTYPES),%1,|),strmatch(%1,user:?*),not(strlen(%1)))=@pemit %#=u(RFN`MSGHEAD,LOCK) ERROR: Must match a proper locktype or be a user: lock.;@switch/first/inline gt(strlen(%2),0)=1,{th u(setq,dbs,setunion(u(u(kls)/FUN`LISTKEYS),u(u(gso)/FUN`LISTGROUPS)));@break/inline words(u(setr,choices,filterbool(#lambda/not(isdbref(namegrab(%q<dbs>,before(\%0,/)))),%2)))=@pemit %#=u(RFN`MSGHEAD,%3) ERROR: Following Master Keys not found: [itemize(%q<choices>,|,and,\,)];@dolist/inline %2={@assert/inline isdbref(u(setr,grab,namegrab(%q<dbs>,before(%i0,/))))=@pemit %#=u(RFN`MSGHEAD,%3) ERROR: Master Key Not Found: [before(%i0,/)];@assert/inline match(u(u(kls)/FUN`LISTLOCKS,%q<grab>),strfirstof(after(%i0,/),MEMBER))=@pemit %#=u(RFN`MSGHEAD,%3) ERROR: Lock Type for [before(%i0,/)] Not Found: [after(%i0,/)]};@lock[if(strlen(%1),/%1)] %0=[iter(%2,@[namegrab(%q<dbs>,before(%i0,/))][if(strlen(after(%i0,/)),/[after(%i0,/)],/MEMBER)],%B,|)];@switch/first/inline t(%4)=1,{@lset %0[if(strlen(%1),/%1)]=!no_inherit};@pemit %#=u(RFN`MSGHEAD,%3) You have changed the [u(setr,msg,'[if(strlen(%1),capnames(%1),Basic)]' Lock on [type(%0)] %0 ([name(%0)]) to: [itemize(capnames(%2),%b,and,\,)])];@switch/first/inline gt(get(u(kls)/VAR`ALERTMODE),0)=1,{@nscemit/noisy u(u(kls)/VAR`ALERTSCHANNEL)=ansi(h,%n) set the %q<msg>}},0,{@unlock[if(strlen(%1),/%1)] %0;@pemit %#=u(RFN`MSGHEAD,%3) You have removed the [u(setr,msg,'[if(strlen(%1),capnames(%1),Basic)]' Lock on [type(%0)] %0 ([name(%0)])];@switch/first/inline gt(get(u(kls)/VAR`ALERTMODE),0)=1,{@nscemit/noisy u(u(kls)/VAR`ALERTSCHANNEL)=ansi(h,%n) removed the %q<msg>)}}
+@@ - %0, target. %1 - lock type, %2 - lock string. %3 - announce. %4 - set !no_inherit
+
+&VAR`ALERTMODE u(kls)=1
+&VAR`ALERTSCHANNEL u(kls)=u(CMO`STAFFREP)
+&VAR`PLAYERMAKE u(kls)=0
+&VAR`PLAYERDESTROY u(kls)=0
+
+&FUN`LISTLOCKS u(kls)=setunion(if(%1,iter(filterbool(#lambda/regmatchi(\%0,^USER:\\\\w+$),setunion(llocks(%0),if(isdbref(parent(%0)),llocks(parent(%0))))),after(%i0,USER:)),iter(filterbool(#lambda/strmatch(\%0,USER:*),setunion(llocks(%0),if(isdbref(parent(%0)),llocks(parent(%0))))),after(%i0,USER:))),)
+&FUN`LISTKEYS u(kls)=sort(filterbool(#lambda/strmatch(u(kop),parent(\%0)),lthings(u(kop))),namei)
+
+@@ @pemit %#=header(capnames(Exits))%R[iter(lsearch(all,eexit,\[lmath(max,iter(llocks(##),strmatch(lock(##/\%i0),*[u(kdb)]*)))\]),align(6 20 50,%i0,name(%i0),iter(llocks(%i0),%i0>%b[lock(%i1/%i0)],%b,%r)),%b,%r)]
+
+@@ @pemit %#=header(capnames(Things))%R[iter(lsearch(all,ething,\[lmath(max,iter(llocks(##),strmatch(lock(##/\%i0),*[u(kdb)]*)))\]),align(6 20 50,%i0,name(%i0),iter(llocks(%i0),%i0>%b[lock(%i1/%i0)],%b,%r)),%b,%r)]
+
+@@ @pemit %#=header(capnames(Rooms))%R[iter(lsearch(all,eroom,\[lmath(max,iter(llocks(##),strmatch(lock(##/\%i0),*[u(kdb)]*)))\]),align(6 20 50,%i0,name(%i0),iter(llocks(%i0),%i0>%b[lock(%i1/%i0)],%b,%r)),%b,%r)]
+
+&TRG`CONVERT u(kls)=@dolist edit(u(lattr,u(kdb)/LOCK`*),LOCK`,)={@attach u(kls)/INC`KEY`MAKE=%i0;@alias %q<key>=%i0;@cpattr u(kdb)/LOCK`%i0`OWNER=%q<key>/OWNERS;@cpattr u(kdb)/LOCK`%i0`HANDLER=%q<key>/MODERATORS;@cpattr u(kdb)/LOCK`%i0`HOLDERS=%q<key>/MEMBERS;@dolist/delimit | v(VAR`CONFCATS)={@cpattr u(kdb)/LOCK`%i1`%i0=%q<key>/CONF`%i0}};@wait 1=@trigger me/TRG`CONVERT`BBS;@wait 3={@trigger me/TRG`CONVERT`EXIT;@trigger me/TRG`CONVERT`THING;@trigger me/TRG`CONVERT`ROOM}
+
+&TRG`CONVERT`BBS u(kls)=th u(setq,boards,setunion(get(u(bbs-db)/groups),iter(u(u(gso)/FUN`LISTGROUPS),get(%i0/BOARDS))));th u(setq,dbs,setunion(u(u(kls)/FUN`LISTKEYS),u(u(gso)/FUN`LISTGROUPS)));@dolist %q<boards>={@dolist filterbool(#lambda/strmatch(lock(%i0/\%0),*[u(kdb)]*),llocks(%i0))={@lock/%i0 %i1=iter(lock(%i1/%i0),@[aliasgrab(%q<dbs>,before(after(%i0,/),-))]/MEMBER,|,|)}}
+
+&TRG`CONVERT`ROOM u(kls)=th u(setq,dbs,setunion(u(u(kls)/FUN`LISTKEYS),u(u(gso)/FUN`LISTGROUPS)));@dolist lsearch(all,eroom,\[lmath(max,iter(llocks(##),strmatch(lock(##/\%i0),*[u(kdb)]*)))\])={@dolist llocks(%i0)={@lock/%i0 %i1=iter(before(after(lock(%i1/%i0),\(),|DBREFLIST),@[aliasgrab(%q<dbs>,before(after(%i0,/),-))]/MEMBER,|,|)}}
+
+&TRG`CONVERT`EXIT u(kls)=th u(setq,dbs,setunion(u(u(kls)/FUN`LISTKEYS),u(u(gso)/FUN`LISTGROUPS)));@dolist lsearch(all,eexit,\[lmath(max,iter(llocks(##),strmatch(lock(##/\%i0),*[u(kdb)]*)))\])={@dolist llocks(%i0)={@lock/%i0 %i1=iter(before(after(lock(%i1/%i0),\(),|DBREFLIST),@[aliasgrab(%q<dbs>,before(after(%i0,/),-))]/MEMBER,|,|)}}
+
+&TRG`CONVERT`THING u(kls)=th u(setq,dbs,setunion(u(u(kls)/FUN`LISTKEYS),u(u(gso)/FUN`LISTGROUPS)));@dolist lsearch(all,ething,\[lmath(max,iter(llocks(##),strmatch(lock(##/\%i0),*[u(kdb)]*)))\])={@dolist llocks(%i0)={@lock/%i0 %i1=iter(before(after(lock(%i1/%i0),\(),|DBREFLIST),@[aliasgrab(%q<dbs>,before(after(%i0,/),-))]/MEMBER,|,|)}}

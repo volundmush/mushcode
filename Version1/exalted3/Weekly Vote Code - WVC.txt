@@ -1,0 +1,37 @@
+@@ DEPENDENCIES - CORE
+
+@switch/inline isdbref(u(wvc))=0,{@tel create(Weekly Vote Code <WVC>)=config(master_room)}
+&WVC u(coi)=locate(config(master_room),Weekly Vote Code <WVC>,TXxi)
+@parent u(wvc)=u(coi)
+@set u(wvc)=WIZARD !NO_COMMAND
+
+&CMD`+VOTE u(wvc)=$^\+vote(?\:/(\S+))?(?\: +(.+))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(v(VAR`PLAYFLAGS),if(isadmin(%#),v(VAR`ADMINFLAGS)),|,|),|,v(VAR`MSGHEAD),switch,switch;@include u(wvc)/INC`[strfirstof(%q<switch>,MAIN)]=%2
+@set u(wvc)/CMD`+VOTE=regexp
+
+&VAR`PLAYFLAGS u(wvc)=CHECK
+&VAR`ADMINFLAGS u(wvc)=PROCESS
+&VAR`MSGHEAD u(wvc)=VOTE
+
+&RFN`MSGHEAD u(wvc)=msghead(v(VAR`MSGHEAD))
+&RFN`HEADER u(wvc)=header(%0,,VOTE`BORDER,VOTE`BORDERDOT,VOTE`BORDERTEXT,1)
+&RFN`SEPARATOR u(wvc)=separator(%0,,VOTE`BORDER,VOTE`BORDERDOT,VOTE`BORDERTEXT,1)
+&RFN`SUBHEADER u(wvc)=subheader(%0,,VOTE`BORDER,VOTE`BORDERDOT,VOTE`BORDERTEXT,1)
+
+&DO`ANNOUNCE u(wvc)=@include u(ccs)/INC`CMSG=%1,%#,v(VAR`MSGHEAD),u(cmo`staffrep);@switch/inline t(strmatch(%0,%#))=0,{@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),%0,%2;@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),%#,%3},1,{@include u(ccs)/INC`MSG=v(VAR`MSGHEAD),%0,%2}
+@@ %0 = list of players to message. %1 = message to admin. %2 = message to players. %3 = message to enactor.
+
+&INC`MAIN u(wvc)=@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@assert approved(%#)=@nspemit %#=u(RFN`MSGHEAD) You are not approved!;@assert approved(%q<t1>)=@nspemit %#=u(RFN`MSGHEAD) [ansi(h,%q<t1name>)] is not an approved character!;@break match(alts(%#),%q<t1objid>)=@nspemit %#=u(RFN`MSGHEAD) You may not vote for yourself!;@@ @assert gt(setr(diff,sub(secs(),strfirstof(get(%q<t1>/D`VOTE`LAST),0))),mul(3600,get(u(wvc)/VAR`HOURS)))=@nspemit %#=u(RFN`MSGHEAD) [ansi(h,name(%q<t1>))] may not receive a vote for another [ansi(h,etime(sub(mul(3600,get(u(wvc)/VAR`HOURS)),%q<diff>)))];&D`VOTE`COUNT %q<t1>=add(get(%q<t1>/D`VOTE`COUNT),1);&D`VOTE`VOTERS %q<t1>=setunion(get(%q<t1>/D`VOTE`VOTERS),%n,|,|);&D`VOTE`LAST %q<t1>=secs();@include u(wvc)/DO`ANNOUNCE=%q<t1>,{ansi(h,%q<t1name>) was voted for.},{%n just voted for you!},{You voted for %q<t1name>.}
+
+&INC`CHECK u(wvc)=@switch/inline and(isadmin(%#),gt(strlen(%2),0))=1,{@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD)},0,{@include u(ccs)/INC`CHECKPC=%#,1,v(VAR`MSGHEAD)};@nspemit %#=u(RFN`HEADER,%q<t1name>'s Votes)%RCurrent Votes: [get(%q<t1>/D`VOTE`COUNT)]%RLast Vote: [convsecs(get(%q<t1>/D`VOTE`LAST))]%RVoters: [itemize(get(%q<t1>/D`VOTE`VOTERS),|)][null(%R[if(strmatch(%#,%q<t1>),You,capnames(subj(%q<t1>)))] can get another vote: [if(gt(setr(diff,sub(secs(),strfirstof(get(%q<target2>/D`VOTE`LAST),0))),mul(3600,get(u(wvc)/VAR`HOURS))),Now!,in [ansi(h,etime(sub(mul(3600,get(u(wvc)/VAR`HOURS)),%q<diff>)))])])]%R[u(RFN`HEADER)]
+
+&TRG`WEEKLY u(wvc)=@dolist/inline filterbool(#lambda/and(nor(isadmin(\%0),haspower(\%0,GUEST)),approved(\%0)),lsearch(all,type,player,elock,D`VOTE`COUNT:>0))={@trigger u(wvc)/INC`PROCESS=%i0}
+
+&VAR`FORCECHAR u(wvc)=#163
+
+&INC`PROCESS u(wvc)=@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@assert [setr(v,get(%q<t1>/D`VOTE`COUNT))]=@nspemit %#=That player has no votes.;th setq(c,switch(%qv,0,0,1,2,2,4,>2,6));@force/inline v(VAR`FORCECHAR)=+extraxp/award %q<t1>=%qc/%qv votes for [time()] from [setr(voters,itemize(get(%q<t1>/D`VOTE`VOTERS),|,and,\,))];&D`VOTE`COUNT %q<t1>=0;@wipe %q<t1>/D`VOTE`LAST;@wipe %q<t1>/D`VOTE`VOTERS
+
+&INC`AWARD u(wvc)=@force/inline %0=+extraxp/award %1/%2=%3;
+
+&VAR`HOURS u(wvc)=8
+
+&VAR`CHANNEL u(wvc)=Staff Reports
