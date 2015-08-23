@@ -1,64 +1,60 @@
-@switch/first/inline isdbref(u(grid))=0,{@tel create(Grid Management System <GRID>)=config(master_room)}
-&grid u(coi)=locate(config(master_room),Grid Management System <GRID>,TXxi)
-@parent u(grid)=u(coi)
-@set u(grid)=WIZARD SAFE !NO_COMMAND
+@@ DEPENDENCIES: Core, Ancestor Room
+@@ I guess it'll work without MY ancestor room, but it likes to have AN Ancestor Room.
+@@ @lock/enter is not inherited in Rhost. You'll need to set your @locks more carefully in Rhost.
 
-&RFN`HEADER u(grid)=header(%0,,GRID`BORDER,GRID`BORDERDOT,GRID`BORDERTEXT)
-&RFN`SUBHEADER u(grid)=subheader(%0,,GRID`BORDER,GRID`BORDERDOT,GRID`BORDERTEXT)
-&RFN`SEPARATOR u(grid)=separator(%0,,GRID`BORDER,GRID`BORDERDOT,GRID`BORDERTEXT)
-&RFN`MSGHEAD u(grid)=msghead(v(VAR`MSGHEAD))
-&VAR`MSGHEAD u(grid)=GRID
+th u(NEWCOBJ,Grid and Navigation System <GRID>,grid,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_room),,WIZARD SAFE,INHERIT SIDEFX SAFE)
 
-@switch/first/inline isdbref(u(district))=0,{@tel create(District Parent <DISTRICT>)=u(grid)}
-&district u(coi)=locate(u(grid),District Parent <DISTRICT>,TXxi)
-@parent u(district)=u(ar)
+@select/inline v(game)=PennMUSH,{@lock/enter [u(cobj,district)]=FUN`ENTER/1;@lset [u(cobj,district)]/enter=!no_inherit;@lock/teleport [u(cobj,district)]=FUN`TELEPORT/1;@lset [u(cobj,district)]/teleport=!no_inherit},RhostMUSH,{@lock/use [u(cobj,district)]=FUN`TELEPORT/1}
+&FUN`ENTER [u(cobj,district)]=cand(approved(%#),not(hasflag(%#,JAILED)))
+&FUN`TELEPORT [u(cobj,district)]=cand(approved(%#),not(hasflag(%#,JAILED)))
 
-@lock/enter u(district)=FUN`ENTER/1
-@lset u(district)/enter=!no_inherit
-&FUN`ENTER u(district)=cand(approved(%#),not(hasflag(%#,JAILED)))
+&CMD`+GRID`PENNMUSH [u(cobj,grid)]=$^(?s)(?\:\+)?(district|dig|open|convert)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
+@set [u(cobj,grid)]/CMD`+GRID`PENNMUSH=regexp
+&CMD`+GRID`RHOSTMUSH [u(cobj,grid)]=$^(?s)(?\:\+)?(district|dig|open|convert)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
+@set [u(cobj,grid)]/CMD`+GRID`RHOSTMUSH=regexp
+&CMD`+GRID`MAIN [u(cobj,grid)]=th u(setq,systype,%1);@attach %!/INC`GETSWITCH=%2;@attach %!/INC`%q<systype>`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,grid)]/CMD`+GRID`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-@lock/teleport u(district)=FUN`TELEPORT/1
-@lset u(district)/teleport=!no_inherit
-&FUN`TELEPORT u(district)=cand(approved(%#),not(hasflag(%#,JAILED)))
+&SWITCHES`DISTRICT`PLAYER [u(cobj,grid)]=LOCK|UNLOCK|DESCRIBE|IC
+&SWITCHES`DISTRICT`ADMIN [u(cobj,grid)]=CREATE|RENAME|ORDER
+&SWITCHES`DIG`PLAYER [u(cobj,grid)]=TELEPORT
 
-&CMD`+GRID u(grid)=$^(?s)\+(district|dig|open|convert)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach u(ccs)/INC`PARTIAL=%2,setunion(get(u(grid)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(grid)/VAR`%1`ADMINFLAGS)),|,|),|,v(VAR`MSGHEAD),switch,switch;@attach u(grid)/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
-@set u(grid)/CMD`+GRID=regexp
+&SYSTEM`SWITCHES [u(cobj,mco)]=setunion(v(SWITCHES`%q<systype>`PLAYER),if(u(isadmin,%#),v(SWITCHES`%q<systype>`ADMIN)),|,|)
 
-&VAR`DISTRICT`PLAYFLAGS u(grid)=LOCK|UNLOCK|DESCRIBE
-&VAR`DISTRICT`ADMINFLAGS u(grid)=CREATE|RENAME|ORDER
+&SYSTEM`NAME [u(cobj,grid)]=GRID
 
-&VAR`DIG`PLAYFLAGS u(grid)=TELEPORT
+&FUN`LISTDISTRICTS [u(cobj,grid)]=u(sortorder,u(sortname,children(u(cobj,district))))
 
-&FUN`LISTDISTRICTS u(grid)=sortkey(#lambda/get(\%0/ORDER),sort(children(u(district)),namei))
+&INC`DISTRICT`MAIN [u(cobj,grid)]=@select/inline strlen(%0)=>0,{@attach %!/INC`DISTRICT`CHOOSE},{@attach %!/INC`DISTRICT`LIST}
 
-&INC`DISTRICT`MAIN u(grid)=@switch/first/inline strlen(%0)=>0,{@attach u(grid)/INC`DISTRICT`CHOOSE},{@attach u(grid)/INC`DISTRICT`LIST}
+&INC`DISTRICT`LIST [u(cobj,grid)]=@pemit %#=u(HEADER,mudname() District Parents);@pemit %#=ansi(u(color,%#,u(SYSTEM`NAME),COLUMN_NAMES),align(5 2 20 9 39,DBREF,IC,Name,Rooms,Description));@pemit %#=u(SEPARATOR);@dolist/inline u(FUN`LISTDISTRICTS)={@pemit %#=align(5 2 20 9 39,u(pueblize,ansi(if(controls(%#,##),hg,hr),##),+district %i0),default(##/D`IC,0),u(pueblize,name(##),+district %i0),u(nchildren,##),default(##/DESCRIBE,???))};@pemit %#=u(SUBHEADER)
 
-&INC`DISTRICT`LIST u(grid)=@pemit %#=u(RFN`HEADER,mudname() District Parents);@pemit %#=align(5 20 9 41,DBREF,Name,Rooms,Description);@pemit %#=u(RFN`SEPARATOR);@dolist/inline u(FUN`LISTDISTRICTS)={@pemit %#=align(5 20 9 41,pueblize(ansi(if(controls(%#,%i0),hg,hr),%i0),+district %i0),pueblize(name(%i0),+district %i0),nchildren(%i0),default(%i0/DESCRIBE,???))};@pemit %#=u(RFN`SUBHEADER)
+&INC`DISTRICT`CHOOSE [u(cobj,grid)]=@attach %!/INC`FINDDIST;@check controls(%#,%q<dist>)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`MSG=Now managing district %q<distname>.;&D`DISTRICT %#=%q<dist>
 
-&INC`DISTRICT`CHOOSE u(grid)=@attach u(grid)/INC`FINDDIST;@assert/inline controls(%#,%q<dist>)=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@pemit %#=u(RFN`MSGHEAD) Now managing district %q<distname>.;&D`DISTRICT %#=%q<dist>
+&INC`DISTRICT`CREATE [u(cobj,grid)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: District name empty.;@check valid(name,%0)=@attach %!/INC`MSG=ERROR: '%0' is not a valid object name.;@stop u(FIND_IN,u(cobj,district),%0)=@attach %!/INC`MSG=ERROR: A District already uses that name.;@check isdbref(u(setr,dist,create(%0)))=@attach %!/INC`MSG=ERROR: Could not create district.;@tel %q<dist>=[u(cobj,district)];@parent %q<dist>=[u(cobj,district)];@attach %!/INC`MSG=District Created! You have been set to managing it.;&D`DISTRICT %#=%q<dist>;@attach %!/INC`MSG`CHAN={Created District %q<dist> '[name(%q<dist>)]'}
 
-&INC`DISTRICT`CREATE u(grid)=@assert/inline strlen(%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: District name empty.;@assert/inline valid(name,%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: '%0' is not a valid object name.;@break/inline locate(u(district),%0,TXxi)=@pemit %#=u(RFn`MSGHEAD) ERROR: A District already uses that name.;@assert/inline u(setr,dist,create(%0))=@pemit %#=u(RFN`MSGHEAD) ERROR: Could not create district.;@tel %q<dist>=u(district);@parent %q<dist>=u(district);@pemit %#=u(RFN`MSGHEAD) District Created! You have been set to managing it.;&D`DISTRICT %#=%q<dist>;@attach u(ccs)/INC`CMSG={Created District %q<dist> '[name(%q<dist>)]'}
+&INC`DISTRICT`RENAME [u(cobj,grid)]=@attach %!/INC`FINDDIST;@check strlen(%1)=@attach %!/INC`MSG=ERROR: New name empty.;@check valid(name,%1)=@attach %!/INC`MSG=ERROR: '%1' is not a valid object name.;@stop cand(u(setr,found,u(FIND_IN,u(cobj,district),%1)),not(strmatch(%q<found>,%q<dist>)))=@attach %!/INC`MSG=ERROR: A District already uses that name.;@attach %!/INC`MSG=District Renamed!;@attach %!/INC`MSG`CHAN={Renamed District %q<dist> '%q<distname>' to '%1'};@name %q<dist>=%1
 
-&INC`DISTRICT`RENAME u(grid)=@attach u(grid)/INC`FINDDIST;@assert/inline strlen(%1)=@pemit %#=u(RFN`MSGHEAD) ERROR: New name empty.;@assert/inline valid(name,%1)=@pemit %#=u(RFN`MSGHEAD) ERROR: '%1' is not a valid object name.;@break/inline cand(u(setr,found,locate(u(district),%1,TXxi)),not(strmatch(%q<found>,%q<dist>)))=@pemit %#=u(RFN`MSGHEAD) ERROR: A District already uses that name.;@pemit %#=u(RFN`MSGHEAD) District Renamed!;@attach u(ccs)/INC`CMSG={Renamed District %q<dist> '%q<distname>' to '%1'}
+&INC`DISTRICT`DESCRIBE [u(cobj,grid)]=@attach %!/INC`FINDDIST;@check controls(%#,%q<dist>)=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Nothing entered for the description!;@attach %!/INC`MSG=Description set.;@desc %q<dist>=%1;@attach %!/INC`MSG`CHAN={Changed Description for %q<dist> '%q<distname>'}
 
-&INC`DISTRICT`DESCRIBE u(grid)=@attach u(grid)/INC`FINDDIST;@assert/inline controls(%#,%q<dist>)=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@assert/inline strlen(%1)=@pemit %#=u(RFN`MSGHEAD) ERROR: Nothing entered for the description!;@pemit %#=u(RFN`MSGHEAD) Description set.;@desc %q<dist>=%1;@attach u(ccs)/INC`CMSG={Changed Description for %q<dist> '%q<distname>'}
+&INC`DISTRICT`IC [u(cobj,grid)]=@attach %!/INC`FINDDIST;@check controls(%#,%q<dist>)=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Nothing entered!;@check match(0 1,%1)=@attach %!/INC`MSG=ERROR: IC must be 0 or 1.;@attach %!/INC`MSG=IC value set.;&D`IC %q<dist>=%1;@attach %!/INC`MSG`CHAN={Changed IC for %q<dist> to '%1'}
 
-&INC`DISTRICT`ORDER u(grid)=@attach u(grid)/INC`FINDDIST;@assert/inline strlen(%1)=@pemit %#=u(RFN`MSGHEAD) ERROR: Order value empty.;@assert/inline valnum(%1)=@pemit %#=u(RFN`MSGHEAD) ERROR: Order values must be whole, positive numbers.;&ORDER %q<dist>=%1;@set %q<dist>/ORDER=no_inherit;@pemit %#=u(RFN`MSGHEAD) Order set.;@attach u(ccs)/INC`CMSG={Changed order for %q<dist> '%q<distname>'}
+&INC`DISTRICT`ORDER [u(cobj,grid)]=@attach %!/INC`FINDDIST;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Order value empty.;@check valnum(%1)=@attach %!/INC`MSG=ERROR: Order values must be whole, positive numbers.;&ORDER %q<dist>=%1;@set %q<dist>/ORDER=no_inherit;@attach %!/INC`MSG=Order set.;@attach %!/INC`MSG`CHAN={Changed order for %q<dist> '%q<distname>'}
 
-&INC`FINDDIST u(grid)=@assert/inline strlen(%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: No District entered to check.;@assert/inline words(u(setr,dist,namegraball(u(FUN`LISTDISTRICTS),%0)))=@pemit %#=u(RFN`MSGHEAD) ERROR: District '%0' not found.;@break/inline gt(words(%q<dist>),1)=@pemit %#=u(RFN`MSGHEAD) ERROR: '%0' matched [itemize(iter(%q<dist>,pueblize(name(%i0),+district %i0),%b,|),|,and,\,)]. Please be more specific!;th u(setq,distname,name(%q<dist>))
+&INC`FINDDIST [u(cobj,grid)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No District entered to check.;@check words(u(setr,dist,namegraball(u(FUN`LISTDISTRICTS),%0)))=@attach %!/INC`MSG=ERROR: District '%0' not found.;@stop gt(words(%q<dist>),1)=@attach %!/INC`MSG=ERROR: '%0' matched [u(itemize,iter(%q<dist>,pueblize(name(%i0),+district %i0),%b,|),|,and,\,)]. Please be more specific!;th u(setq,distname,name(%q<dist>))
 
-&INC`DISTRICT`LOCK u(grid)=@attach u(grid)/INC`FINDDIST=before(%0,/);@assert/inline controls(%#,%q<dist>)=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@attach u(kls)/INC`DOLOCK=%q<dist>,after(%0,/),%1,v(VAR`MSGHEAD),1
-&INC`DISTRICT`UNLOCK u(grid)=@pemit %#=u(RFN`MSGHEAD) To Unlock, use the @unlock command directly.
+&INC`DISTRICT`LOCK [u(cobj,grid)]=@check isdbref(u(cobj,lock))=@attach %!/INC`MSG=ERROR: Lock Management System <LMS> not installed. Use @lock instead.;@attach %!/INC`FINDDIST=before(%0,/);@check controls(%#,%q<dist>)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach u(kls)/INC`DOLOCK=%q<dist>,after(%0,/),%1,v(VAR`MSGHEAD),1
+&INC`DISTRICT`UNLOCK [u(cobj,grid)]=@attach %!/INC`MSG=To Unlock, use the @unlock command directly.
 
-&INC`DISTCHECK u(grid)=@assert/inline strlen(u(setr,dist,get(%#/D`DISTRICT)))=@pemit %#=u(RFN`MSGHEAD) Please choose a District using +district <name>.;@assert/inline match(u(FUN`LISTDISTRICTS),%q<dist>)=@pemit %#=u(RFN`MSGHEAD) ERROR: District no longer valid. Please choose a District using +district <name>.;@assert/inline controls(%#,%q<dist>)=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;th u(setq,distname,name(%q<dist>))
+&INC`DISTCHECK [u(cobj,grid)]=@check strlen(u(setr,dist,get(%#/D`DISTRICT)))=@attach %!/INC`MSG=Please choose a District using +district <name>.;@check match(u(FUN`LISTDISTRICTS),%q<dist>)=@attach %!/INC`MSG=ERROR: District no longer valid. Please choose a District using +district <name>.;@check controls(%#,%q<dist>)=@attach %!/INC`MSG=ERROR: Permission denied.;th u(setq,distname,name(%q<dist>))
 
-&INC`DIG`TELEPORT u(grid)=@attach u(grid)/INC`DIG`MAIN=%0,%1,1
-&INC`DIG`MAIN u(grid)=@attach u(grid)/INC`DISTCHECK;@assert/inline hastype(%l,ROOM)=@pemit %#=u(RFN`MSGHEAD) ERROR: +dig can only be used from a proper room.;@assert/inline strlen(%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: No room name entered.;@assert/inline valid(name,%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: '%0' is not a good name for a Room.;@assert/inline u(setr,room,dig(%0))=@pemit %#=u(RFN`MSGHEAD) ERROR: Could not create room.;th u(setq,source,%l);@parent %q<room>=%q<dist>;@pemit %#=u(RFN`MSGHEAD) Room created successfully!;@switch/first/inline strlen(u(setr,exname,before(%1,\,)))=>0,{@switch/first/inline isdbref(u(setr,there,open(%q<exname>,%q<room>,%q<source>)))=1,{@pemit %#=u(RFN`MSGHEAD) Exit to new room created successfully!},0,{@pemit %#=u(RFN`MSGHEAD) ERROR: Exit to new room creation failed.}};@switch/first/inline strlen(u(setr,exname,after(%1,\,)))=>0,{@switch/first/inline isdbref(u(setr,back,open(%q<exname>,%q<source>,%q<room>)))=1,{@pemit %#=u(RFN`MSGHEAD) Exit from new room created successfully!},0,{@pemit %#=u(RFN`MSGHEAD) ERROR: Exit from new room creation failed.}};@switch/first/inline %2=1,{@teleport %#=%q<room>};@attach u(ccs)/INC`CMSG={Room %q<room> '%0' created for %q<dist> '%q<distname>'}
+&INC`DIG`TELEPORT [u(cobj,grid)]=@attach %!/INC`DIG`MAIN=%0,%1,1
+&INC`DIG`MAIN [u(cobj,grid)]=@attach %!/INC`DISTCHECK;@check hastype(%l,ROOM)=@attach %!/INC`MSG=ERROR: +dig can only be used from a proper room.;@check strlen(%0)=@attach %!/INC`MSG=ERROR: No room name entered.;@check valid(name,%0)=@attach %!/INC`MSG=ERROR: '%0' is not a good name for a Room.;@check u(setr,room,dig(%0))=@attach %!/INC`MSG=ERROR: Could not create room.;th u(setq,source,%l);@parent %q<room>=%q<dist>;@attach %!/INC`MSG=Room created successfully!;@select/inline strlen(u(setr,exname,before(%1,\,)))=>0,{@select/inline isdbref(u(setr,there,open(%q<exname>,%q<room>,%q<source>)))=1,{@attach %!/INC`MSG=Exit to new room created successfully!},0,{@attach %!/INC`MSG=ERROR: Exit to new room creation failed.}};@select/inline strlen(u(setr,exname,after(%1,\,)))=>0,{@select/inline isdbref(u(setr,back,open(%q<exname>,%q<source>,%q<room>)))=1,{@attach %!/INC`MSG=Exit from new room created successfully!},0,{@attach %!/INC`MSG=ERROR: Exit from new room creation failed.}};@select/inline %2=1,{@teleport %#=%q<room>};@attach %!/INC`MSG`CHAN={Room %q<room> '%0' created for %q<dist> '%q<distname>'}
 
-&INC`CONVERT`MAIN u(grid)=@attach u(grid)/INC`DISTCHECK;@assert/inline hastype(%l,ROOM)=@pemit %#=u(RFN`MSGHEAD) ERROR: +convert can only be used from a proper room.;@parent %l=%q<dist>;@assert/inline controls(%#,%l)=@pemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@parent %l=%q<dist>;@pemit %#=u(RFN`MSGHEAD) Room converted to %q<dist> '%q<distname>'.;@attach u(ccs)/INC`CMSG={Room %l '[name(%l)]' converted to %q<dist> '%q<distname>'}
+&INC`CONVERT`MAIN [u(cobj,grid)]=@attach %!/INC`DISTCHECK;@check hastype(%l,ROOM)=@attach %!/INC`MSG=ERROR: +convert can only be used from a proper room.;@parent %l=%q<dist>;@check controls(%#,%l)=@attach %!/INC`MSG=ERROR: Permission denied.;@parent %l=%q<dist>;@attach %!/INC`MSG=Room converted to %q<dist> '%q<distname>'.;@attach %!/INC`MSG`CHAN={Room %l '[name(%l)]' converted to %q<dist> '%q<distname>'}
 
-
-&PLAYER`DISCONNECT`TELGUEST [u(cobj,gcs)]=@break/inline %1;@select/inline u(isguest,%0)=1,{@tel/silent %0=u(game_config,NAVIGATION,GUEST_START,#0)}
+&PLAYER`DISCONNECT`TELGUEST [u(cobj,grid)]=@stop %1;@select/inline u(isguest,%0)=1,{@tel/silent %0=u(game_config,NAVIGATION,GUEST_START,#0)}
 
 &DEFAULT`NAVIGATION`GUEST_START [u(cobj,config)]=#-1
 &DESC`NAVIGATION`GUEST_START [u(cobj,config)]=Room guests return to after logoff.
@@ -72,58 +68,71 @@
 &DESC`NAVIGATION`OOC_NEXUS [u(cobj,config)]=Room +ooc leads to.
 &TYPE`NAVIGATION`OOC_NEXUS [u(cobj,config)]=DBREF
 
+&CMD`+IC [u(cobj,grid)]=$ic:@stop isic(%#)=@attach %!/INC`MSG=You're already IC.;@check approved(%#)=@attach %!/INC`MSG=You are not approved!;@select/inline cand(u(isobjid,u(setr,dest,get(%#/D`ICLOC))),u(isic,%q<dest>))=0,{@attach %!/INC`MSG=Your last IC location is no longer valid. Choose a new one from the exits in the starting nexus.;@check isdbref(u(setr,dest,u(game_config,NAVIGATION,IC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an OOC Nexus set.};@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
+
+&CMD`+OOC [u(cobj,grid)]=$ooc:@check isdbref(u(setr,dest,u(game_config,NAVIGATION,OOC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an OOC Nexus set.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@select/inline u(isic,%#)=0,{@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already in the OOC Nexus.;@attach %!/INC`MSG=You are already OOC. Returning you to the OOC Nexus.};@select/inline u(isic,%#)=1,{&D`ICLOC %#=u(objid,%l)};@attach %!/INC`RELOCATE=%#,%q<dest>
+
+&CMD`+NEXUS [u(cobj,grid)]=$+nexus:@check isdbref(u(setr,dest,u(game_config,NAVIGATION,IC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an OOC Nexus set.;@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already there.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
+
+&CMD`+GOHOME [u(cobj,grid)]=$+gohome:@force/inline %#=home
+
+&CMD`+SETHOME [u(cobj,grid)]=$+sethome:@check elock(%l/link,%#)=@attach %!/INC`MSG=You do not pass the link lock for this room.;@link %#=%l;@attach %!/INC`MSG=Home set to your current location.
+
+&FUN`TELDISTS [u(cobj,grid)]=squish(iter(u(%!/FUN`LISTDISTRICTS),if(elock(%i0/[switch(v(game),PennMUSH,Teleport,RhostMUSH,Use)],u(strfirstof,%1,%#)),%i0)))
+&FUN`FINDROOM [u(cobj,grid)]=u(namegraball,u(FUN`LISTROOMS),%0)
+&FUN`LISTROOMS [u(cobj,grid)]=squish(iter(u(FUN`TELDISTS,,%1),u(FUN`LISTDISTROOMS,%i0))%B[u(FUN`LISTTHINGS)])
+&FUN`LISTDISTROOMS [u(cobj,grid)]=u(sortname,children(%0))
+&FUN`LISTTHINGS [u(cobj,grid)]=squish(iter(u(FUN`FINDTHINGS`[v(game)]),if(cor(elock(%i0/[switch(v(game),PennMUSH,Teleport,RhostMUSH,Tport)],u(strfirstof,%1,%#)),u(isadmin,u(strfirstof,%1,%#))),%i0)))
+&FUN`FINDTHINGS`PENNMUSH [u(cobj,grid)]=lsearch(all,type,thing,elock,PORT:>0)
+&FUN`FINDTHINGS`RHOSTMUSH [u(cobj,grid)]=search(ETHING=\[get(##/PORT)\])
+
+&CMD`+PORT [u(cobj,grid)]=$+port *:@check words(u(setr,dest,u(FUN`FINDROOM,%0)))=@attach %!/INC`MSG=Nothing matches '%0'.;@stop gt(words(%q<dest>),1)=@attach %!/INC`MSG=Multiple Matches:%R[iter(%q<dest>,pueblize(ansi(hx,%i0) - [ansi(c,name(%i0))],+port %i0),%b,%r)];@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already there.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
+
+&INC`CANRELOCATE [u(cobj,grid)]=@select/inline cor(u(isadmin,%#),u(isadmin,%0))=0,{@check elock(loc(%0)/leave,%0)=@attach %!/INC`MSG=LEAVE @lock Failure.;@check elock(%1/Enter,%0)=@attach %!/INC`MSG=ENTER @lock failure.;@select/inline v(game)=PennMUSH,{@check elock(%1/Teleport,%0)=@attach %!/INC`MSG=TELEPORT @lock failure.}}
+
+&INC`RELOCATE [u(cobj,grid)]=@select/inline switch(v(game),PennMUSH,1,RhostMUSH,0)[u(ishidden,%0)]=11,,{@tel/silent %0=%1},01,{@tel/quiet %0=%1},*0,{@tel %0=%1}
+
+&CMD`+ROOMLIST [u(cobj,grid)]=$+roomlist:@pemit %#=u(header,mudname() Grid Rooms);@dolist/inline u(FUN`TELDISTS)={@pemit %#=u(SEPARATOR,name(##));th step(FUN`ROOMLIST,u(FUN`LISTDISTROOMS,##),10)};@select/inline words(u(setr,things,u(FUN`LISTTHINGS)))=>0,{@pemit %#=u(SEPARATOR,Player Things);th step(FUN`ROOMLIST,%q<things>,10)};@pemit %#=u(subheader)
+
+&CMD`+ROOMLIST`ARG [u(cobj,grid)]=$+roomlist *:think u(setq,l,u(FUN`FINDROOM)); @check strlen(u(setr,m,strfirstof(grab(%ql,%0),u(namegraball,%ql,%0))))=@pemit %#=Nothing matches '%0'.;@pemit %#=u(header,'%0');th step(FUN`ROOMLIST,%qm,10);@pemit %#=u(subheader)
+
+&FUN`ROOMLIST [u(cobj,grid)]=pemit(%#,u(table,iter(lnum(0,sub(%+,1)),ljust(ansi(c,u(pueblize,v(%i0),+port [v(%i0)])),6) [ansi(hx,u(pueblize,name(v(%i0)),+port [v(%i0)]))],%b,|),38,u(width,%#),|))
 
 
+@@ MEETME SECTION
+&CMD`+MEETME`PENNMUSH [u(cobj,grid)]=$^(?s)(?\:\+)?(invite|summon|join)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MEETME`MAIN
+@set [u(cobj,grid)]/CMD`+MEETME`PENNMUSH=regexp
+&CMD`+MEETME`RHOSTMUSH [u(cobj,grid)]=$^(?s)(?\:\+)?(invite|summon|join)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
+@set [u(cobj,grid)]/CMD`+MEETME`RHOSTMUSH=regexp
+&CMD`+MEETME`MAIN [u(cobj,grid)]=th u(setq,systype,meetme);@attach %!/INC`%q<systype>`%1=%3,%4
+@set [u(cobj,grid)]/CMD`+MEETME`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&CMD`+IC u(navi)=$ic:@break isic(%#)=@nspemit %#=u(RFN`MSGHEAD) You're already IC.;@assert approved(%#)=@nspemit %#=u(RFN`MSGHEAD) You are not approved!;@switch/inline cand(isobjid(setr(dest,get(%#/D`ICLOC))),isic(%q<dest>))=0,{@nspemit %#=u(RFN`MSGHEAD) Your last IC location is no longer valid. Choose a new one from the exits in the starting nexus.;th setq(dest,v(LOC`ICNEXUS))};@tel[if(hasflag(%#,DARK),/silent)] %#=%q<dest>;@switch/inline hasflag(%#,DARK)=0,{@nsremit %q<dest>=%N arrives from the OOC Nexus.}
+&INC`MEETME`INVITE [u(cobj,grid)]=@attach %!/INC`CHECKPC=%0,1;@stop strmatch(%#,%q<t1>)=@attach %!/INC`MSG=ERROR: Yourself? Really?;&D`INVITE`%q<t1> %#=secs();@pemit %q<t1>=u(header,Meetme);@pemit %q<t1>=%n invited you to [u(pueblize,ansi(h,join),join %n)] or [u(pueblize,ansi(h,summon),summon %n)] %o. You have 10 minutes to respond.;@pemit %q<t1>=u(subheader);@attach %!/INC`MSG=You have sent %q<t1name> a Meetme request.
 
-&CMD`+OOC u(navi)=$ooc:@assert elock(%l/leave,%#)=@nspemit %#=Permission denied. You do not pass the leave lock.;th setq(dest,v(LOC`OOCNEXUS));@switch/inline isic(%#)=0,{@break strmatch(%l,%q<dest>)=@nspemit %#=You are already in the OOC Nexus.;@nspemit %#=You are already OOC. Returning you to the OOC Nexus.};@switch/inline isic(%#)=1,{&D`ICLOC %#=objid(%l)};@tel[if(hasflag(%#,DARK),/silent)] %#=%q<dest>
+&INC`MEETME`JOIN [u(cobj,grid)]=@attach %!/INC`CHECKPC=%0,1;@stop strmatch(%#,%q<t1>)=@attach %!/INC`MSG=ERROR: Yourself? Really?;@select/inline cor(sub(secs(),max(get(%q<t1>/D`SUMMON`%#),get(%q<t1>/D`INVITE`%#))),u(isadmin,%#))=<600,{@attach %!/INC`CANRELOCATE=%#,loc(%q<t1>);@attach %!/INC`MSG`ROOM={[u(moniker,%#)] joins %q<t1name>!};@select/inline u(isic,%l)=1,{&D`RETURNTO %#=%l};@attach %!/INC`RELOCATE=%#,loc(%q<t1>);@attach %!/INC`MSG`ROOM={[u(moniker,%#)] has joined %q<t1name>!};@wipe %q<t1>/D`INVITE`%#;@wipe %q<t1>/D`SUMMON`%#},{@select/inline isdbref(u(setr,dest,u(FUN`FINDROOM,loc(%q<t1>))))=1,{@attach %!/INC`CANRELOCATE=%#,loc(%q<t1>);@attach %!/INC`MSG`ROOM={[u(moniker,%#)] joins %q<t1name>!};@select/inline u(isic,%l)=1,{&D`RETURNTO %#=%l};@attach %!/INC`RELOCATE=%#,loc(%q<t1>);@attach %!/INC`MSG`ROOM={[u(moniker,%#)] has joined %q<t1name>!};@wipe %q<t1>/D`INVITE`%#;@wipe %q<t1>/D`SUMMON`%#},0,{&D`SUMMON`%q<t1> %#=secs();@pemit %q<t1>=u(header,Meetme);@pemit %q<t1>=%n asked for you to [u(pueblize,ansi(h,summon),summon %n)] %o. You have 10 minutes to respond.;@pemit %q<t1>=u(subheader);@attach %!/INC`MSG=You have asked to join %q<t1name>.}}
 
-&CMD`+NEXUS u(navi)=$+nexus:@assert approved(%#)=@nspemit %#=u(RFN`MSGHEAD) You are not approved!;@break strmatch(%l,setr(m,v(LOC`ICNEXUS)))=@pemit %#=You are already there.;@assert elock(%l/leave,%#)=@pemit %#=Permission denied. You do not pass the leave lock.;@assert elock(%qm/teleport,%#)=@pemit %#=Permission denied. You do not pass the teleport lock.;@tel[if(hasflag(%#,DARK),/silent)] %#=%qm
+&INC`MEETME`SUMMON [u(cobj,grid)]=@attach %!/INC`CHECKPC=%0,1;@stop strmatch(%#,%q<t1>)=@attach %!/INC`MSG=ERROR: Yourself? Really?;@select/inline cor(sub(secs(),max(get(%q<t1>/D`JOIN`%#),get(%q<t1>/D`INVITE`%#))),u(isadmin,%#))=<600,{@attach %!/INC`CANRELOCATE=%q<t1>,%l;@attach %!/INC`MSG`ROOM={[u(moniker,%q<t1>)] is whisked away by %n's summons!},lcon(loc(%q<t1>));@select/inline u(isic,loc(%q<t1>))=1,{&D`RETURNTO %q<t1>=loc(%q<t1>)};@attach %!/INC`RELOCATE=%q<t1>,%l;@attach %!/INC`MSG`ROOM={[u(moniker,%q<t1>)] is brought in by %n's summons!};@wipe %q<t1>/D`INVITE`%#;@wipe %q<t1>/D`JOIN`%#},{&D`JOIN`%q<t1> %#=secs();@pemit %q<t1>=u(header,Meetme);@pemit %q<t1>=%n invited you to [u(pueblize,ansi(h,join),join %n)] %o. You have 10 minutes to respond.;@pemit %q<t1>=u(subheader);@attach %!/INC`MSG=You have requested %q<t1name>'s presence.}
 
-&CMD`+GOHOME u(navi)=$+gohome:@force/inline %#=home
-&HOOK`IGNORE`HOME u(navi)=if(elock(u(navi)/Command,%#),1,0[nspemit(%#,Permission denied.)])
+&CMD`+RETURN [u(cobj,grid)]=$+return:@check isdbref(u(setr,dest,get(%#/D`RETURNTO)))=@attach %!/INC`MSG=ERROR: You have nowhere to return to.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>;@attach %!/INC`MSG=You return to your previous location.;@wipe %q<t1>/D`RETURNTO
 
-&CMD`+SETHOME u(navi)=$+sethome:@assert elock(%l/link,%#)=@pemit %#=You do not pass the link lock for this room.;@link %#=%l;@nspemit %#=Home set to your current location.
+&CMD`+RETURN`OTHER [u(cobj,grid)]=$+return *:@stop cor(u(isguest,%#),not(u(isadmin,%#)))=@pemit %#=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=%0,1;@check isdbref(u(setr,dest,get(%q<t1>/D`RETURNTO)))=@attach %!/INC`MSG=ERROR: %q<t1name> has nowhere to return to.;@attach %!/INC`RELOCATE=%q<t1>,%q<dest>;@attach %!/INC`MSG=You have been returned to your previous location by admin.,%q<t1>;@wipe %q<t1>/D`RETURNTO
 
-&FUN`TELDISTS u(navi)=filterbool(#lambda/elock(\%0/TELEPORT,strfirstof(%1,%#)),u(u(grid)/FUN`LISTDISTRICTS))
-&FUN`FINDROOM u(navi)=namegraball(u(FUN`LISTROOMS),%0)
-&FUN`LISTROOMS u(navi)=squish(iter(u(FUN`TELDISTS,,%1),u(FUN`LISTDISTROOMS,%i0))%B[u(FUN`LISTTHINGS)])
-&FUN`LISTDISTROOMS u(navi)=sort(children(%0),namei)
-&FUN`LISTTHINGS u(navi)=filterbool(#lambda/cor(elock(\%0/TELEPORT,strfirstof(%1,%#)),isadmin(strfirstof(%1,%#))),sort(lsearch(all,type,thing,elock,PORT:>0),namei))
+@@ NAVIGATION - INVITE
++help/add +invite=[u(cobj,grid)]/HLP`INVITE
++help/category +invite=Navigation
++help/metatags +invite=join meetme summon
+&HLP`INVITE [u(cobj,grid)]=The [ansi(h,+invite)] system lets players warp across the game to directly join other players no matter where they are.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,{[ansi(h,+invite <player>)] - Extends an invitation for another player to +join or +summon you. Invites expire after 10 minutes.%R[ansi(h,+join <player>)] - Warp to a player, or extend a request for <player> to +summon you. You can also +join to someone if they are within reach of +port.%R[ansi(h,+summon <player>)] - Bring <player> to you, or extend a request for <player> to +join you.%R%RStaff can skip the invite process and simply join or summon players. However they can still extend invites.})]
 
-&CMD`+PORT u(navi)=$+port *:@assert words(setr(dest,u(FUN`FINDROOM,%0)))=@nspemit %#=u(RFN`MSGHEAD) Nothing matches '%0'.;@break gt(words(%q<dest>),1)=@nspemit %#=u(RFN`MSGHEAD) Multiple Matches:%R[iter(%q<dest>,pueblize(ansi(hx,%i0) - [ansi(c,name(%i0))],+port %i0),%b,%r)];@break strmatch(%l,%q<dest>)=@nspemit %#=u(RFN`MSGHEAD) You are already there.;@assert elock(%l/leave,%#)=@pemit %#=Permission denied. You do not pass the leave lock.; @assert elock(%q<dest>/teleport,%#)=@pemit %#=Permission denied. You do not pass the teleport lock.;@break cor(hasflag(%#,dark),hidden(%#))=@tel/silent %#=%q<dest>; @tel %#=%q<dest>
+@@ NAVIGATION - +RECALL
++help/add Grid=[u(cobj,grid)]/HLP`GRID
++help/category Grid=Navigation
++help/metatags Grid=return ic ooc rooms port home nexus
+&HLP`GRID [u(cobj,grid)]=The Grid system is a series of commands that make it easy to navigate the IC rooms, or 'Grid.'%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,ooc)] - head to the OOC meeting grounds.%r[ansi(h,ic)] - Return to your last IC location, or the IC nexus if that fails.%R[ansi(h,+nexus)] - Teleport to the IC Nexus.%R[ansi(h,+roomlist)] - List all IC rooms in the game that you can +port to.%R[ansi(h,+roomlist <search>)] - List all IC rooms partially matching the entered text.%R[ansi(h,+port <name or dbref>)] - Teleport to a room.%R[ansi(h,+sethome)] - Set the current location as your 'home.'%R[ansi(h,+gohome)] or [ansi(h,home)] - Teleport to your home.)]%R%RPlayers using THINGS as hangouts can make that object a valid +port destination by setting its PORT attribute to 1. use &PORT here=1 while within the object to set it.[switch(v(game),%RPENNMUSH: You must also set @lock/teleport here=#TRUE - Penn users can use @lock/teleport to restrict who can access the object with +port.[if(isdbref(u(cobj,lms)),%BThe Lock Management System is installed and +lock is available for this. See [u(pueblize,+help +key)])])]
 
-&CMD`+ROOMLIST u(navi)=$+roomlist:@nspemit %#=header(mudname() Grid Rooms);@dolist/inline u(FUN`TELDISTS)={@nspemit %#=u(RFN`SEPARATOR,name(%i0));th step(FUN`ROOMLIST,u(FUN`LISTDISTROOMS,%i0),30)};@switch/inline words(setr(things,u(FUN`LISTTHINGS)))=>0,{@nspemit %#=u(RFN`SEPARATOR,Player Things);th step(FUN`ROOMLIST,%q<things>,30)};@nspemit %#=subheader()
++shelp/add +district=[u(cobj,grid)]/SHLP`DISTRICT
++shelp/category +district=Building
++shelp/metatags +district=parent
+&SHLP`DISTRICT [u(cobj,grid)]=The +district system helps admin keep their Grid organized by breaking it up into any number of arbitrary 'districts' or 'regions'. Each 'District' is a THING that rooms can be @parent'd to. +district is the central management for +roomlist and +port, so set good locks![switch(v(game),RhostMUSH,%RRHOSTMUSH: Please note that in Rhost the +roomlist and +port teleport checks key off of @lock/use as it is the only one that can be inherited by @parent. +district/lock is almost useless on RhostMUSH.)]%RThe DBREF of the District Parent is: [u(cobj,district)]%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+district)] - List all districts.%r[ansi(h,+district/create <name>)] - Create a new district.%R[ansi(h,+district/rename <district>=<newname>)] - Rename a district.%R[ansi(h,+district/order <name>=<#>)] - Change a +district's order on the list and +roomlist.%R[ansi(h,+district/lock <district>/<locktype>=<lockstring>)] - Set a lock on a +district. Enhanced by the LOCK MANAGER SYSTEM if available. Use @unlock to clear them.%R[ansi(h,+district/describe <name>=<text>)] - Set a +district's description.%R[ansi(h,+district/ic <name>=<#>)] - Decide whether a +District is an IC or OOC location. Set to 0 or 1!%R[ansi(h,+district <name>)] - Choose to manage a certain district. This works for...%R[ansi(h,+dig)]\, [ansi(h,+open)] - Builder commands. Works like @dig and @open but auto-@parents the created objects.%R[ansi(h,+convert)] - Converts the room you're currently in to your managed +district. Basically just changes the @parent.)]
 
-&CMD`+ROOMLIST`ARG u(navi)=$+roomlist *:think setq(l,u(FUN`FINDROOM)); @assert strlen(setr(m,strfirstof(grab(%ql,%0),namegraball(%ql,%0))))=@pemit %#=Nothing matches '%0'.;@nspemit %#=header('%0');th step(FUN`ROOMLIST,%qm,30);@nspemit %#=subheader()
-
-&FUN`ROOMLIST u(navi)=nspemit(%#,table(iter(lnum(0,sub(%+,1)),ljust(ansi(c,pueblize(v(%i0),+port [v(%i0)])),6) [ansi(hx,pueblize(name(v(%i0)),+port [v(%i0)]))],%b,|),38,width(%#),|))
-
-&STARTUP u(navi)=@hook/ignore home=u(navi),HOOK`IGNORE`HOME;@trigger me/TRG`SELFCLEAN
-&TRG`SELFCLEAN u(navi)=@dolist/inline filterbool(FILTER_TIMEOUT,reglattr(me/^#\\d+`#\\d+$))={@wipe me/%i0};@wait 600=@trigger me/TRG`SELFCLEAN
-
-&CMD`MEETME u(navi)=$^(?s)(?\:\+)?(meet|meetme|invite|join|mjoin|summon|msummon)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(navi)/INC`%1=%3,%4
-@set u(navi)/CMD`MEETME=regexp
-
-&INC`INVITE u(navi)=@include u(navi)/INC`MEETME
-&INC`MEET u(navi)=@include u(navi)/INC`MEETME
-&INC`MEETME u(navi)=@include u(ccs)/INC`CHECKPC=%0,1,MEET;@break strmatch(%#,%q<t1>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: You can't Meet yourself.;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=u(RFN`MSGHEAD) ERROR: %q<t1name> is not online.;@break haspower(%q<t1>,GUEST)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Guests cannot be invited.;@break strmatch(%l,loc(%q<t1>))=@nspemit %#=u(RFN`MSGHEAD) ERROR: You are already there!;@break lte(sub(secs(),get(u(navi)/%#`%q<t1>)),600)=@nspemit %#=u(RFN`MSGHEAD) An invitation to %q<t1name> is already pending.;@nspemit %q<t1>=u(RFN`HEADER,Meetme,%q<t1>);@nspemit %q<t1>=%n sent you a Meetme request. You have about 10 minutes to respond.%r%rTo join %n, use '[pueblize(ansi(h,join %n),join %n)]'%rTo bring %n to you, use '[pueblize(ansi(h,summon %n),summon %n)]'%rTo decline the request you needn't do a thing.;@nspemit %q<t1>=u(RFN`HEADER,,%q<t1>);@nspemit %#=u(RFN`MSGHEAD) You have sent %q<t1name> a Meetme request.;&%#`%q<t1> me=secs()
-
-&INC`JOIN u(navi)=@include u(navi)/INC`MJOIN
-&INC`MJOIN u(navi)=@assert approved(%#)=@nspemit %#=Permission denied.;@include u(ccs)/INC`CHECKPC=%0,1,MEET;@break strmatch(%#,%q<t1>)=@nspemit %#=u(RFN`MSGHEAD) You can't Meet yourself.;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> is not online.;@assert cor(hasattr(u(navi)/%q<t1>`%#),isadmin(%#),elock(loc(%q<t1>)/teleport,%#))=@pemit %#=u(RFN`MSGHEAD) %q<t1name> has not sent you a meetme request.;@break strmatch(loc(%q<t1>),%l)=@nspemit %#=u(RFN`MSGHEAD) You are both here!;@wipe me/%q<t1>`%#;@switch/inline hasflag(%#,DARK)=0,{@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),lplayers(%l),{[ansi(h,%n)] has joined %q<t1name>!}};@switch/inline isic(%#)=1,{&D`RETURNTO %#=%l};@switch/inline hasflag(%#,DARK)=0,{@tel %#=loc(%q<t1>)},1,{@tel/silent %#=loc(%q<t1>)};@nspemit %#=u(RFN`MSGHEAD) You join %q<t1name>
-
-&INC`SUMMON u(navi)=@include u(navi)/INC`MSUMMON
-&INC`MSUMMON u(navi)=@include u(ccs)/INC`CHECKPC=%0,1,MEET;@break strmatch(%#,%q<t1>)=@nspemit %#=u(RFN`MSGHEAD) You can't Meet yourself.;@assert hasflag(%q<t1>,CONNECTED)=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> is not online.;@assert cor(hasattr(u(navi)/%q<t1>`%#),isadmin(%#))=@nspemit %#=u(RFN`MSGHEAD) %q<t1name> has not sent you a meetme request.;@break strmatch(loc(%q<t1>),%l)=@nspemit %#=u(RFN`MSGHEAD) You are both here!;@wipe me/%q<t1>`%#;@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),lvplayers(%l),{[ansi(h,%q<t1name>)] is drawn away by %n's Summons};@switch/inline isic(%q<t1>)=1,{&D`RETURNTO %q<t1>=loc(%q<t1>)};@tel %q<t1>=%l;@nspemit %#=u(RFN`MSGHEAD) You summon %q<t1name>.
-
-&INC`RETURN u(navi)=$+return:@assert isdbref(setr(l,get(%#/D`RETURNTO)))=@pemit %#=ansi(r,You have nowhere to return to.); @break cand(not(isadmin(%#)),cor(hasflag(%ql,no_tel),hasflag(%l,no_tel)))=@pemit %#=ansi(r,You can not do that.); @assert cor(isic(%ql),isadmin(%#))=@pemit %#=ansi(r,You can not return to a non-IC location.);@wipe %#/D`RETURNTO;@tel[if(hasflag(%#,DARK),/silent)] %#=%ql;@pemit %#=ansi(h,You return to your previous location.)
-&CMD`+RETURN`OTHER u(navi)=$+return *:@break haspower(%#,guest)=@pemit %#=ansi(r,You can not use this.); @assert isadmin(%#)=@pemit %#=ansi(r,You can not do that.); @break findplayer(%0); @assert isdbref(setr(l,get(%qp/D`RETURNTO)))=@pemit %#=ansi(r,ansi(nc,name(%qp)) has nowhere to return to.);@wipe %qp/D`RETURNTO;@tel %qp=%ql; @pemit %#=ansi(h,ansi(nc,name(%qp)) has been returned to [ansi(nc,name(%ql))].); @pemit %qp=ansi(h,You've been returned to your previous location[if(cor(isadmin(%qp),not(hasflag(%#,dark))),%bby [ansi(nc,%N)])].)
-
-&FILTER_TIMEOUT u(navi)=gt(sub(secs(),v(%0)),600)
-
-&OBJECT`DESTROY`PURGE u(navi)=@switch/inline %2=PLAYER,{@wipe u(navi)/[before(%0,:)]`*;@wipe u(navi)/*`[before(%0,:)]}
-
-
-@@ NAVIGATION - MEET
-+help/addmain Navigation/+meetme=[u(navi)]/HLP`MEETME
-&HLP`MEETME u(navi)=The [ansi(h,+meetme)] system lets players warp across the game to directly join other players no matter where they are.%R[ansi(hc,Meetme Aliases:)] Meetme, +meetme, meet, +meet, invite, +invite%R[ansi(hc,Join aliases:)] Join, +join, mjoin, +mjoin%R[ansi(hc,Summon Aliases:)] Summon, +msummon, msummon%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+meetme <player>)] - Extends an invitation for another player to +join or +summon you. Invites expire after 10 minutes.%R[ansi(h,+join <player>)] - Warp to a player.%R[ansi(h,+summon <player>)] - Bring <player> to you.%R%RStaff can skip the invite process and simply join or summon players. However they can still extend invites.})]
+@@ MIGRATION TOOL
+&MIGRATE`GRID [u(cobj,migrate)]=@check isdbref(u(setr,pco,u(%q<index>/pco)))=@attach %!/INC`MSG=ERROR: Cannot locate 1.0 PennMUSH Configuration Object <PCO>. Cannot continue.;@check isdbref(u(setr,navi,u(%q<index>/navi)))=@attach %!/INC`MSG=ERROR: Cannot locate 1.0 Navigation Commands Object <NAVI>. Cannot continue.;@cpattr %q<pco>/VAR`GUESTROOM=[u(cobj,config)]/CONFIG`NAVIGATION`GUEST_START;@cpattr %q<navi>/LOC`ICNEXUS=[u(cobj,config)]/CONFIG`NAVIGATION`IC_NEXUS;@cpattr %q<navi>/LOC`OOCNEXUS=[u(cobj,config)]/CONFIG`NAVIGATION`OOC_NEXUS

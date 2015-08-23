@@ -39,8 +39,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &STARTUP [u(cobj,mco)]=@dolist/inline u(lattr,%!/STARTUP`*)={@include/nobreak %!/##}
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
-&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin sortname color mxpmenu pueblize={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table={@function/privileged %d0=%!/%d0}
+&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin sortname color mxpmenu pueblize my_config speech={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech={@function/privileged %d0=%!/%d0}
 
 &STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`[v(game)];@include/nobreak %!/STARTUP`MAIN`EXTRA
 
@@ -89,6 +89,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &ISHIDDEN`PENNMUSH [u(cobj,mco)]=hidden(%0)
 &ISHIDDEN`RHOSTMUSH [u(cobj,mco)]=ishidden(%0)
 
+&ISIC [u(cobj,mco)]=default(room(%0)/D`IC,0)
+
 &MASTER_ROOM [u(cobj,mco)]=switch(v(game),PennMUSH,config(master_room),RhostMUSH,globalroom())
 &OPEN_CREATION [u(cobj,mco)]=switch(v(game),PennMUSH,strmatch(config(player_creation),yes),RhostMUSH,!member(config(register_host),*))
 
@@ -96,9 +98,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &NATTR`PENNMUSH [u(cobj,mco)]=nattr(%0)
 &NATTR`RHOSTMUSH [u(cobj,mco)]=first(lattr(%0,,l,,,1))
 
-&FILTER [u(cobj,mco)]=u(FILTER`[v(game)],%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
-&FILTER`PENNMUSH [u(cobj,mco)]=filter(FIL`%0,%1,%2,%3)
-&FILTER`RHOSTMUSH [u(cobj,mco)]=filter(FIL`%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
+&NCHILDREN [u(cobj,mco)]=u(NCHILDREN`[v(game)],%0)
+&NCHILDREN`PENNMUSH [u(cobj,mco)]=nchildren(%0)
+&NCHILDREN`RHOSTMUSH [u(cobj,mco)]=last(children(%0,l))
+
+&FILTER [u(cobj,mco)]=filter(FIL`%0,%1,if(not(strlen(%2)),%b,%2),if(not(strlen(%3)),%b,%3),%4,%5,%6,%7,%8,%9)
 
 &ISOBJID [u(cobj,mco)]=u(ISOBJID`[v(game)],%0)
 &ISOBJID`PENNMUSH [u(cobj,mco)]=isobjid(%0)
@@ -116,7 +120,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &FANCYTIME`PENNMUSH [u(cobj,mco)]=timefmt($b $d $I:$M$p $Z,%0,strfirstof(u(tz,%1),u(tz,%#)))
 &FANCYTIME`RHOSTMUSH [u(cobj,mco)]=timefmt($b $D $02H:$02T$P $i,u(strfirstof,%0,secs()),u(tz,u(strfirstof,%1,%#)))
 
-&TZ [u(cobj,mco)]=localize(default(%0/TZ,if(u(setr,accid,u(accid,%0)),get(%q<accid>/TZ),UTC)))
+&DATE [u(cobj,mco)]=u(DATE`[v(game)],%0,%1)
+&DATE`PENNMUSH [u(cobj,mco)]=timefmt($x,%0,strfirstof(u(tz,%1),u(tz,%#)))
+&DATE`RHOSTMUSH [u(cobj,mco)]=timefmt($M/$D/$Y,u(strfirstof,%0,secs()),u(tz,u(strfirstof,%1,%#)))
+
+&TZ [u(cobj,mco)]=localize(u(strfirstof,default(%0/TZ,if(u(setr,accid,u(accid,%0)),get(%q<accid>/TZ),UTC)),u(game_config,SYSTEM,TIMEZONE)))
 
 &CHARSEARCH [u(cobj,mco)]=u(lmax,iter(%1,strmatch(%0,*%i0*)))
 
@@ -145,10 +153,10 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 @@ Maybe universal?
 @@ [switch(flip(foreach(#lambda/[lit([if(mod(%1,3),%0,%,%0)])],flip(%0))),%,)]
 
-&SETSTAT [u(cobj,mco)]=localize(u(delstat,%0,%1)[u(attrib_set,%0,setunion(get(%0),%1~%2,|))])
-&DELSTAT [u(cobj,mco)]=u(attrib_set,%0,setdiff(get(%0),grab(get(%0),%1~*,|),|))
-&GETSTAT [u(cobj,mco)]=if(strlen(%2),add(rest(grab(get(%0),%1~*,|),~),rest(grab(get(before(%0,/)/D`%2),%1~*,|),~)),rest(grab(get(%0),%1~*,|),~))
-&GRABSTAT [u(cobj,mco)]=rest(grab(%0,%1~*,|),~)
+&SETSTAT [u(cobj,mco)]=localize(u(delstat,%0,%1,%2)[u(attrib_set,%0,%1,setunion(get(%0/%1),%2~%3,|))])
+&DELSTAT [u(cobj,mco)]=u(attrib_set,%0,%1,setdiff(get(%0/%1),grab(get(%0/%1),%2~*,|),|))
+&GETSTAT [u(cobj,mco)]=if(strlen(%3),add(rest(grab(get(%0/%1),%2~*,|),~),rest(grab(get(%0/D`%3),%2~*,|),~)),rest(grab(get(%0/%1),%2~*,|),~))
+&GRABSTAT [u(cobj,mco)]=rest(grab(get(%0/%1),%2~*,|),~)
 
 &LISTMAX [u(cobj,mco)]=u(lmax,iter(%0,strlen(%i0),|,|),|)
 
@@ -158,12 +166,16 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &MONIKER`PENNMUSH [u(cobj,mco)]=moniker(%0)
 &MONIKER`RHOSTMUSH [u(cobj,mco)]=cname(%0)
 
+&NAMEGRABALL [u(cobj,mco)]=u(NAMEGRABALL`[v(game)],%0,%1)
+&NAMEGRABALL`PENNMUSH [u(cobj,mco)]=namegraball(%0,%1)
+&NAMEGRABALL`RHOSTMUSH [u(cobj,mco)]=trim(squish(iter(%0,if(cor(strmatch(name(%i0),*%1*),strmatch(%i0,%1),strmatch(u(alias,%i0),%i0)),%i0))))
+
 &NUMTH [u(cobj,mco)]=%0[switch(%0,11,th,12,th,13,th,switch(right(%0,1),1,st,2,nd,3,rd,th))]
 
-&PUEBLIZE [u(cobj,mco)]=u(MXPMENU`[v(game)],%0,%1)
+&PUEBLIZE [u(cobj,mco)]=u(MXPMENU`[v(game)],%0,%1,%2,%3)
 
 &MXPMENU [u(cobj,mco)]=u(MXPMENU`[v(game)],%0,%1,%2,%3)
-&MXPMENU`PENNMUSH [u(cobj,mco)]=if(u(CAN_MXP,u(strfirstof,%3,%#)),tagwrap(send,"[render(u(strfirstof,%1,%0),html)]" hint="[render(switch(words(u(strfirstof,%0,%2),|),>1,Right Click for Menu \(Default: [first(u(strfirstof,%2,%1,%0),|)]\)|[rest(u(strfirstof,%2,%1,%0),|)],u(strfirstof,%0,%2)),html)]",first(%0,|)),if(u(CAN_PUEBLO,u(strfirstof,%3,%#)),tagwrap(a,XCH_CMD="[render(u(strfirstof,first(%1,|),first(%0,|)),html)]",first(%0,|))))
+&MXPMENU`PENNMUSH [u(cobj,mco)]=localize(if(u(CAN_MXP,u(strfirstof,%3,%#)),tagwrap(send,"[render(u(strfirstof,%1,%0),html)]" hint="[render(switch(words(u(setr,hint,u(strfirstof,%2,%1,%0)),|),>1,Right Click for Menu \(Default: [first(%q<hint>,|)]\)|[rest(%q<hint>,|)],%q<hint>),html)]",%0),if(u(CAN_PUEBLO,u(strfirstof,%3,%#)),tagwrap(a,XCH_CMD="[render(u(strfirstof,first(%1,|),first(%1,|)),html)]",%0))))
 &MXPMENU`RHOSTMUSH [u(cobj,mco)]=%0
 
 &CAN_MXP [u(cobj,mco)]=1
@@ -236,13 +248,21 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &LWHOID`PENNMUSH [u(cobj,mco)]=lwhoid(%0)
 &LWHOID`RHOSTMUSH [u(cobj,mco)]=lwho(0,%0)
 
-&ALIAS [u(cobj,mco)]=u(ALIAS`[v(game)],%0)
-&ALIAS`PENNMUSH [u(cobj,mco)]=alias(%0)
-&ALIAS`RHOSTMUSH [u(cobj,mco)]=switch(type(%0),EXIT,elements(fullname(%0),2,;),get(%0/ALIAS))
+&LWHO [u(cobj,mco)]=u(LWHO`[v(game)],%0)
+&LWHO`PENNMUSH [u(cobj,mco)]=lwho(%0)
+&LWHO`RHOSTMUSH [u(cobj,mco)]=lwho(0,%0)
+
+&GETALIAS [u(cobj,mco)]=u(GETALIAS`[v(game)],%0)
+&GETALIAS`PENNMUSH [u(cobj,mco)]=alias(%0)
+&GETALIAS`RHOSTMUSH [u(cobj,mco)]=switch(type(%0),EXIT,elements(fullname(%0),2,;),get(%0/ALIAS))
 
 &PUEBLO [u(cobj,mco)]=u(PUEBLO`[v(game)],%0)
 &PUEBLO`PENNMUSH [u(cobj,mco)]=pueblo(%0)
 &PUEBLO`RHOSTMUSH [u(cobj,mco)]=0
+
+&DECOMPOSE [u(cobj,mco)]=u(DECOMPOSE`[v(game)],%0)
+&DECOMPOSE`PENNMUSH [u(cobj,mco)]=decompose(%0)
+&DECOMPOSE`RHOSTMUSH [u(cobj,mco)]=translate(%0,p)
 
 &LVPLAYERS [u(cobj,mco)]=u(LVPLAYERS`[v(game)],%0)
 &LVPLAYERS`PENNMUSH [u(cobj,mco)]=lvplayers(%0)
@@ -260,45 +280,57 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &LVEXITS`PENNMUSH [u(cobj,mco)]=lvexits(%0)
 &LVEXITS`RHOSTMUSH [u(cobj,mco)]=lexits(%0)
 
+&TRIMLINES [u(cobj,mco)]=u(TRIMLINES`[v(game)],%0)
+&TRIMLINES`PENNMUSH [u(cobj,mco)]=trimpenn(%0,%R)
+&TRIMLINES`RHOSTMUSH [u(cobj,mco)]=trim(%0,b,%R)
+
+&WILDGREPI [u(cobj,mco)]=u(WILDGREPI`[v(game)],%0,%1,%2)
+&WILDGREPI`PENNMUSH [u(cobj,mco)]=wildgrepi(%0,%1,%2)
+&WILDGREPI`RHOSTMUSH [u(cobj,mco)]=u(filter,WILDGREPI,u(lattr,%0/%1),%b,%b,%0,%2)
+&FIL`WILDGREPI [u(cobj,mco)]=strmatch(get(%1/%0),%2)
+
+&UMAIL [u(cobj,mco)]=u(UMAIL`[v(game)],%0)
+&UMAIL`PENNMUSH [u(cobj,mco)]=elements(mailfstats(%0),2)
+&UMAIL`RHOSTMUSH [u(cobj,mco)]=elements(mailquick(%0,,1),2)
+
+
 @@ Sort section.
 
-&SORTATTR [u(cobj,mco)]=u(SORTATTR`[v(game)],%0,%1,%2)
+&SORTATTR [u(cobj,mco)]=u(SORTATTR`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTATTR`PENNMUSH [u(cobj,mco)]=sortkey(SRT`ATTRSLOT,%0,%1,%2)
 &SORTATTR`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(last(%0,`),last(%1,`))])],%0,%1,%2)
 
-&SORTIDLE [u(cobj,mco)]=u(SORTIDLE`[v(game)],%0,%1,%2)
+&SORTIDLE [u(cobj,mco)]=u(SORTIDLE`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTIDLE`PENNMUSH [u(cobj,mco)]=sort(%0,idle,%1,%2)
 &SORTIDLE`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(idle(%0),idle(%1))])],%0,%1,%2)
 
-&SORTNAME [u(cobj,mco)]=u(SORTIDLE`[v(game)],%0,%1,%2)
+&SORTNAME [u(cobj,mco)]=u(SORTNAME`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTNAME`PENNMUSH [u(cobj,mco)]=sort(%0,namei,%1,%2)
 &SORTNAME`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([comp(lcstr(name(%0)),lcstr(name(%1)))])],%0,%1,%2)
 
-&SORTALIAS [u(cobj,mco)]=u(SORTALIAS`[v(game)],%0,%1,%2)
+&SORTALIAS [u(cobj,mco)]=u(SORTALIAS`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTALIAS`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/lcstr(alias(\%0)),%0,i,%1,%2)
 &SORTALIAS`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([comp(lcstr(u(alias,%0)),lcstr(u(alias,%1)))])],%0,%1,%2)
 
-&SORTOLDID [u(cobj,mco)]=u(SORTOLDID`[v(game)],%0,%1,%2)
+&SORTOLDID [u(cobj,mco)]=u(SORTOLDID`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTOLDID`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/after(\%0,~),%0,i,%1,%2)
 &SORTOLDID`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(after(%0,~),after(%1,~))])],%0,%1,%2)
 
-&SORTPRIORITY [u(cobj,mco)]=u(SORTPRIORITY`[v(game)],%0,%1,%2)
+&SORTPRIORITY [u(cobj,mco)]=u(SORTPRIORITY`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTPRIORITY`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/default(\%0/D`ALTS`PRIORITY,0),%0,n,%1,%2)
 &SORTPRIORITY`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/D`ALTS`PRIORITY,0),default(%1/D`ALTS`PRIORITY,0))])],%0,%1,%2)
 
-&SORTSTAFF [u(cobj,mco)]=u(SORTSTAFF`[v(game)],%0,%1,%2)
-&SORTSTAFF`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/default(\%0/D`STAFF`ORDER,99),%0,n,%1,%2)
-&SORTSTAFF`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/D`STAFF`ORDER,99),default(%1/D`STAFF`ORDER,99))])],%0,%1,%2)
+&SORTORDER [u(cobj,mco)]=u(SORTORDER`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTORDER`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/default(\%0/ORDER,99),%0,n,%1,%2)
+&SORTORDER`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/ORDER,99),default(%1/ORDER,99))])],%0,%1,%2)
 
 
-&SRT`ATTRSLOT [u(cobj,mco)]=last(%0,`)
 
 @@ REGEX STORAGE
 &REG`CAPNAMES [u(cobj,mco)]=(?:^|(?<=[_\/\-\|\s()\+]))([a-z]+)
 &REG`CAPNAMES2 [u(cobj,mco)]=(^|(?<=[(]))(of|the|a|and)
 &REG`CAPNAMES3 [u(cobj,mco)]=\b(of|the|a|and)\b
 
-&REG`SQL`DATABASE [u(cobj,mco)]=\$DATABASE\$
 &REG`SQL`TABLES [u(cobj,mco)]=\$\w+\$
 &REG`SQL`ENTRY [u(cobj,mco)]=\?|\!
 
@@ -311,30 +343,28 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &SQL`IN`NUMBER [u(cobj,mco)]=iter(%0,%i0,%1,\,%b)
 &SQL`IN`STRING [u(cobj,mco)]=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
 
-&SQL`FORMAT [u(cobj,mco)]=localize(regeditalli(v(Q`%0),v(REG`SQL`DATABASE),u(SQL`DATABASE),v(REG`SQL`TABLES),u(SQL`TABLENAME,$0),v(REG`SQL`ENTRY),if(isint(u(setr,set,v(u(setr,num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,'[sqlescape(%q<set>)]'))))
+&SQL`FORMAT [u(cobj,mco)]=localize(regeditalli(v(Q`%0),v(REG`SQL`TABLES),u(SQL`TABLENAME,$0),v(REG`SQL`ENTRY),if(isint(u(setr,set,v(u(setr,num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,'[sqlescape(%q<set>)]'))))
 
 &SQL`TABLENAME [u(cobj,mco)]=v(SQL`PREFIX)[v(SQL`TABLE`[trim(%0,$)])]
+&SQL`PREFIX [u(cobj,mco)]=u(game_config,SYSTEM,SQL_PREFIX)
 
-&SQL`DATABASE [u(cobj,mco)]=sql(SELECT DATABASE())
-&SQL`PREFIX [u(cobj,mco)]=mushcode_
+&INC`DOSQL [u(cobj,mco)]=@stop strmatch(u(setr,errcheck,u(mysql,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)=@attach %!/INC`MSG=SQL ERROR: %q<errcheck>
 
-&INC`DOSQL [u(cobj,mco)]=@break/inline strmatch(u(setr,errcheck,u(mysql,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)=@attach %!/INC`MSG=SQL ERROR: %q<errcheck>
-
-@ COMMON CODE SNIPPETS
+@@ COMMON CODE SNIPPETS
 
 &SYSTEM`NAME [u(cobj,mco)]=SYSTEM
 
-&INC`CHECKPC [u(cobj,mco)]=@assert/inline strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@assert/inline strlen(%1);@assert/inline isdbref(u(setr,t%1,pmatch(%0)))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq,t%1objid,u(objid,pmatch(%0)));th u(setq,t%1name,name(pmatch(%0)));th u(setq,t%1acc,u(accid,pmatch(%0)));@select/inline t(%2)=1,{th u(setq,t%1id,u(mysql,GET`ID_FROM_OBJID,u(objid,%0)))}
+&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr,t%1,pmatch(%0)))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq,t%1objid,u(objid,pmatch(%0)));th u(setq,t%1name,name(pmatch(%0)));th u(setq,t%1acc,u(accid,pmatch(%0)));@select/inline t(%2)=1,{th u(setq,t%1id,u(mysql,GET`ID_FROM_OBJID,u(objid,%0)))}
 @@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into. %2 - Boolean for also looking up a SQL id.
 
-&INC`IDCHECK [u(cobj,mco)]=@switch/inline t(u(setr,id,u(mysql,GET`ID_FROM_OBJID,u(objid,%0))))=0,{@attach %!/INC`DOSQL=INSERT`PLAYER,u(objid,%0),name(%0);@attach %!/INC`IDCHECK}
+&INC`IDCHECK [u(cobj,mco)]=@select/inline t(u(setr,id,u(mysql,GET`ID_FROM_OBJID,u(objid,%0))))=0,{@attach %!/INC`DOSQL=INSERT`PLAYER,u(objid,%0),name(%0);@attach %!/INC`IDCHECK}
 
 &Q`GET`ID_FROM_OBJID [u(cobj,mco)]=SELECT DISTINCT player_id from $PLAYERS$ WHERE objid=?
 &Q`INSERT`PLAYER [u(cobj,mco)]=INSERT INTO $PLAYERS$ (objid,player_name) VALUES (?,?)
 
-&INC`JAILCHECK [u(cobj,mco)]=@break/inline u(jailcheck,%#)=@attach %!/INC`MSG=You have been jailed and cannot use this command.
+&INC`JAILCHECK [u(cobj,mco)]=@stop u(jailcheck,%#)=@attach %!/INC`MSG=You have been jailed and cannot use this command.
 
-&INC`VERIFY [u(cobj,mco)]=@switch/first/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th u(attrib_set,%#,VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@break/inline 1={@attach %!/INC`MSG=%0,,,%2}},1,{@wipe %#/VERIFY_OK}
+&INC`VERIFY [u(cobj,mco)]=@select/first/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th u(attrib_set,%#,VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@stop 1={@attach %!/INC`MSG=%0,,,%2}},1,{@wipe %#/VERIFY_OK}
 @@ VERIFY Arguments: %0 = message to display, %1 = code to set for verification.
 
 &INC`CPTREE [u(cobj,mco)]=@cpattr %0/%1=%2/%3;@dolist/inline u(lattr,%0/%1`**)={@cpattr %0/##=%2/%3`[elements(##,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)]}
@@ -350,18 +380,25 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &SYSTEM`SWITCHES [u(cobj,mco)]=setunion(v(SWITCHES`PLAYER),if(u(isadmin,%#),v(SWITCHES`ADMIN)),|,|)
 
-&INC`PARTIAL [u(cobj,mco)]=@select/inline or(not(strlen(%0)),u(setr,matched,match(%1,u(setr,u(strfirstof,%3,choice),%0),u(strfirstof,%2,%b))))=0,{@assert/inline words(u(setr,u(strfirstof,%3,choice),graball(%1,%0*,u(strfirstof,%2,%b),u(strfirstof,%2,%b))))=@attach %!/INC`MSG={ERROR: Invalid %4! Valid choices are: [u(itemize,%1,u(strfirstof,%2,%b))]};@break/inline gt(words(r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b)),1)=@attach %!/INC`MSG={ERROR: %0 matched [u(itemize,r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b),and,\,)]. Please be more specific.}},1,{@select/inline cand(t(strlen(%0)),t(%q<matched>))=1,{th u(setq,u(strfirstof,%3,choice),elements(%1,%q<matched>,u(strfirstof,%2,%b)))}}
+&INC`PARTIAL [u(cobj,mco)]=@select/inline or(not(strlen(%0)),u(setr,matched,match(%1,u(setr,u(strfirstof,%3,choice),%0),u(strfirstof,%2,%b))))=0,{@check words(u(setr,u(strfirstof,%3,choice),graball(%1,%0*,u(strfirstof,%2,%b),u(strfirstof,%2,%b))))=@attach %!/INC`MSG={ERROR: Invalid %4! Valid choices are: [u(itemize,%1,u(strfirstof,%2,%b))]};@stop gt(words(r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b)),1)=@attach %!/INC`MSG={ERROR: %0 matched [u(itemize,r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b),and,\,)]. Please be more specific.}},1,{@select/inline cand(t(strlen(%0)),t(%q<matched>))=1,{th u(setq,u(strfirstof,%3,choice),elements(%1,%q<matched>,u(strfirstof,%2,%b)))}}
 @@ PARTIAL %0 = entry, %1 = choices, %2 = delimiter, %3 = register name, %4 = topic name
 
 &WIPE [u(cobj,mco)]=@select/inline v(game)=PennMUSH,{@select/inline hasflag(%0,SAFE)=1,{@set %0=!SAFE;@wipe %0/%1;@set %0=SAFE},0,{@wipe %0/%1}},RhostMUSH,{@select/inline hasflag(%0,SAFE)=1,{@set %0=!SAFE;@wipe/regexp %0/^%1(`.+)?$;@set %0=SAFE},0,{@wipe/regexp %0/^%1(`.+)?$}}
 
 &DELETE [u(cobj,mco)]=@select/inline v(game)=PennMUSH,{@set %0=!SAFE;@nuke %0;@nuke %0},RhostMUSH,{@destroy/override %0}
 
+&INC`VALID`COLOR [u(cobj,mco)]=@stop strmatch(ansi(u(setr,value,%0),Test),#-*)=@attach %!/INC`MSG=ERROR: '%0' is not a valid color.
+&INC`VALID`WORD [u(cobj,mco)]=th u(setq,value,trim(%0))
+&INC`VALID`LIST [u(cobj,mco)]=th u(setq,value,trim(%0))
+&INC`VALID`BOOL [u(cobj,mco)]=@check match(0 1,u(setr,value,%0))=@attach %!/INC`MSG={ERROR: BOOL options can only be 0 (false) or 1 (true).}
+&INC`VALID`DBREF [u(cobj,mco)]=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th u(setq,value,u(objid,%0))
+&INC`VALID`TZ [u(cobj,mco)]=@check valid(timezone,u(setr,value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone}
+
 @@ MESSAGING SECTION
 &INC`MSG [u(cobj,mco)]=@select/inline v(game)=PennMUSH,{@message u(strfirstof,%1,%#)=%0,%!/MSG,##,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9},RhostMUSH,{@pemit/list u(strfirstof,%1,%#)=udefault(%!/MSG,%0,##,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)}
 @@ %0 - Message. %1 - Recipients. %2 - Format obj/attr.
 
-&INC`MSG`ROOM [u(cobj,mco)]=@select/inline v(game)=PennMUSH,{@message u(strfirstof,%1,u(lplayers,%l))=%0,%!/RMSG,##,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9},RhostMUSH,{@pemit/list u(strfirstof,%1,u(lplayers,%l))=udefault(%!/RMSG,%0,##,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)}
+&INC`MSG`ROOM [u(cobj,mco)]=@select/inline v(game)=PennMUSH,{@message u(strfirstof,%1,lcon(%l))=%0,%!/RMSG,##,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9},RhostMUSH,{@pemit/list u(strfirstof,%1,lcon(%l))=udefault(%!/RMSG,%0,##,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)}
 
 &INC`MSG`NOTICE [u(cobj,mco)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(config,ADMIN`ANONYMOUSNOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
@@ -378,7 +415,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &MSGHEAD [u(cobj,mco)]=localize(ansi(u(setr,msgcolor,u(color,u(firstof,%1,%#),SYSTEM,MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),SYSTEM,MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
 &MSGROOM [u(cobj,mco)]=localize(ansi(u(setr,msgcolor,u(color,u(firstof,%1,%#),SYSTEM,MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),SYSTEM,MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
 
-&COLOR [u(cobj,mco)]=localize(u(strfirstof,get(%0/D`COLOR`%1`%2),if(u(isdbref,u(setr,coltarget,u(firstof,%3,u(accid,%3)))),get(%q<coltarget>/D`COLOR`%1`%2)),u(strfirstof,u(game_config,COLOR,%2),n)))
+&COLOR [u(cobj,mco)]=localize(u(strfirstof,get(%0/D`COLOR`%1`%2),if(u(isdbref,u(setr,coltarget,u(firstof,%3,u(accid,%0),%0))),get(%q<coltarget>/D`COLOR`%1`%2)),if(%4,,u(strfirstof,u(game_config,COLOR,%2),n))))
 
 &HEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,HEADER)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][u(setr,borderstar,ansi(u(color,%q<target>,u(SYSTEM`NAME),HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,u(SYSTEM`NAME),HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
@@ -391,6 +428,20 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &HEADER`RENDER [u(cobj,mco)]=u(setr,end,if(%q<bordermode>,ansi(%q<bordercolor>,+)))[u(center,%q<headertext>,%q<width>,ansi(u(color,%q<target>,u(SYSTEM`NAME),BORDER),%q<fill>))]%q<end>
 @@ %0 - display text (optional), %1 - viewer (optional), %2 - Disable headertext coloring. %3 - Bordered mode. %4 - Border color override. %5 - Border star color override. %6 - Header text color override.
 
+&SPEECH [u(cobj,mco)]=localize(u(SPEECH`[v(game)],%0,%1,%2,%3,%4,%5))
+&SPEECH`PENNMUSH [u(cobj,mco)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`SPEECH),u(setr,quote,ansi(u(color,%2,%4,QUOTES),"))[ansi(u(color,%2,%4,SPEECH),$1)]%q<quote>,v(REG`URL),u(weblink,$0,$0))
+&SPEECH`RHOSTMUSH [u(cobj,mco)]=regeditalli(parsestr(u(colornames,%2,%1,%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(moniker,%0))]),v(REG`SPEECH),u(setr,quote,ansi(u(color,%2,%4,QUOTES),"))[ansi(u(color,%2,%4,SPEECH),$1)]%q<quote>,v(REG`URL),u(weblink,$0,$0))
+
+@@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup.
+
+&REG`SPEECH [u(cobj,mco)]=(?s)"([^ "][^"]*[^ "])"
+&REG`URL [u(cobj,mco)]=\w+\://\S+
+
+&COLORNAMES [u(cobj,mco)]=localize(u(COLORNAMES`[v(game)],%0,%1,%2,%3,%4))
+&COLORNAMES`PENNMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,lit(\b)[name(%i0)][lit(\b)]^[switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[u(setq,final,fold(COLORNAME`PENN,%q<colstring>,%1,beep()))]%q<final>
+&COLORNAMES`RHOSTMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,lit(%\b)[name(%i0)][lit(%\b)][beep()][switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[strfunc(regeditalli,%1[beep()]%q<colstring>,beep())]
+&COLORNAME`PENN [u(cobj,mco)]=regeditalli(%0,before(%1,^),after(%1,^))
+@@ %0 - Viewer. %1 - Text to search. %2 - Display mode. %3 - Dbrefs to check. %4 - Speaker.
 
 @@ Visibility and Connections
 &LASTIDLE [u(cobj,mco)]=switch(objeval(%#,conn(%0)),-1,ansi(hx,elements(get(%0/last),2 3)),u(hideidle,%0))
@@ -405,47 +456,50 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &GAME_CONFIG [u(cobj,mco)]=u(strfirstof,if(hasattr(u(cobj,config)/RETRIEVE`%0`%1),u(u(cobj,config)/RETRIEVE`%0`%1)),get(u(cobj,config)/CONFIG`%0`%1),get(u(cobj,config)/DEFAULT`%0`%1))
 
-&PLAYER_CONFIG [u(cobj,mco)]=u(strfirstof,if(hasattr(u(cobj,pconf)/RETRIEVE`%1`%2),u(u(cobj,pconf)/RETRIEVE`%1`%2,%0)),get(%0/D`CONFIG`%1`%2),get(u(cobj,pconf)/DEFAULT`%1`%2))
+&MY_CONFIG [u(cobj,mco)]=u(PLAYER_CONFIG,%#,%0,%1)
+
+&PLAYER_CONFIG [u(cobj,mco)]=localize(u(strfirstof,if(hasattr(u(cobj,pconf)/RETRIEVE`%1`%2),u(u(cobj,pconf)/RETRIEVE`%1`%2,%0)),if(isdbref(u(setr,accid,u(accid,%0))),get(%q<accid>/D`CONFIG`%1`%2)),get(%0/D`CONFIG`%1`%2),get(u(cobj,pconf)/DEFAULT`%1`%2)))
 
 &ISAPPROVED [u(cobj,mco)]=if(u(game_config,SYSTEM,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1)
 
 @@ EVENT HANDLING - PENN
-&PLAYER`CONNECT [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,%i0/PLAYER`CONNECT`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+&PLAYER`CONNECT [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@trigger ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,mco)]/PLAYER`CONNECT=no_inherit
 
-&PLAYER`CREATE [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,%i0/PLAYER`CREATE`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+&PLAYER`CREATE [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@trigger ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,mco)]/PLAYER`CREATE=no_inherit
 
-&PLAYER`DISCONNECT [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,%i0/PLAYER`DISCONNECT`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+&PLAYER`DISCONNECT [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@trigger ##/PLAYER`DISCONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,mco)]/PLAYER`DISCONNECT=no_inherit
 
-&SOCKET`LOGINFAIL [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,%i0/SOCKET`LOGINFAIL`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+&SOCKET`LOGINFAIL [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@trigger ##/SOCKET`LOGINFAIL=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,mco)]/SOCKET`LOGINFAIL=no_inherit
 
-&SOCKET`CONNECT [u(cobj,mco)]=@assert/inline setr(banid,first(u(u(cao)/FUN`CHECKLOGINS,%1)));@select/inline gt(secs(),get(u(bandb)/%q<banid>`UNTIL))=1,{@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) EXPIRED Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) has connected.}},0,{@pemit/port %0=setr(message,strfirstof(get(u(bandb)/%q<banid>`MESSAGE),u(u(cao)/VAR`BANLIST`MESSAGE)));@boot/port %0;@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) attempted to connect. Message sent to them: '%q<message>'}}
+&SOCKET`CONNECT [u(cobj,mco)]=@check setr(banid,first(u(u(cao)/FUN`CHECKLOGINS,%1)));@select/inline gt(secs(),get(u(bandb)/%q<banid>`UNTIL))=1,{@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) EXPIRED Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) has connected.}},0,{@pemit/port %0=setr(message,strfirstof(get(u(bandb)/%q<banid>`MESSAGE),u(u(cao)/VAR`BANLIST`MESSAGE)));@boot/port %0;@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) attempted to connect. Message sent to them: '%q<message>'}}
+@set [u(cobj,mco)]/SOCKET`CONNECT=no_inherit
 
-@@ @dolist/inline/nobreak setdiff(filterbool(#lambda/isdbref(\%0),iter(lattr(u(coi)/*),u(u(coi)/%i0))),u(eh))={@dolist/inline/nobreak lattr(%i0/SOCKET`CONNECT`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+&OBJECT`RENAME [u(cobj,mco)]=@dolist/inline children(%!)={@trigger ##/OBJECT`RENAME=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,mco)]/OBJECT`RENAME=no_inherit
 
-&OBJECT`RENAME [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,%i0/OBJECT`RENAME`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+&OBJECT`DESTROY [u(cobj,mco)]=@dolist/inline children(%!)={@trigger ##/OBJECT`DESTROY=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,mco)]/OBJECT`DESTROY=no_inherit
 
-&OBJECT`DESTROY [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,%i0/OBJECT`DESTROY`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+&OBJECT`CREATE [u(cobj,mco)]=@dolist/inline children(%!)={@trigger ##/OBJECT`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,mco)]/OBJECT`CREATE=no_inherit
 
-&OBJECT`CREATE [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,%i0/OBJECT`CREATE`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
-
-&OBJECT`MOVE [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,%i0/OBJECT`MOVE`*)={@trigger %i1/%i0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+&OBJECT`MOVE [u(cobj,mco)]=@dolist/inline children(%!)={@trigger ##/OBJECT`MOVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,mco)]/OBJECT`MOVE=no_inherit
 
 &SQL`CONNECT [u(cobj,mco)]=@sql SET time_zone = '+00:00';@nscemit/noisy u(cmo`staffrep)=SQL server connect: %0
 &SQL`CONNECTFAIL [u(cobj,mco)]=@attach %!/INC`MSG`SYSCHAN={SQL server connect fail: %0}
 &SQL`DISCONNECT [u(cobj,mco)]=@attach %!/INC`MSG`SYSCHAN={SQL server disconnect: %0}
-&STARTUP`SQL [u(cobj,mco)]=@assert/inline sql(SELECT DATABASE());@trigger %!/LOOP`SQL
+&STARTUP`SQL [u(cobj,mco)]=@check sql(SELECT DATABASE());@trigger %!/LOOP`SQL
 &LOOP`SQL [u(cobj,mco)]=@sql SELECT DATABASE();@wait 60=@trigger %!/LOOP`SQL
 
 @@ EVENT HANDLING - RHOST
 
-@ACONNECT [u(cobj,mco)]=@assert/inline strmatch(v(game),RhostMUSH);@select/inline and(eq(totcmds(%#),0),lt(sub(secs(),ctime(%#)),10))=1,{@attach/nobreak %!/PLAYER`CREATE`RHOSTMUSH=%#,words(ports(%#)),first(ports(%#))};@attach/nobreak %!/PLAYER`CONNECT`RHOSTMUSH=%#,words(ports(%#)),first(ports(%#))
-@ADISCONNECT [u(cobj,mco)]=@attach/nobreak %!/PLAYER`DISCONNECT`RHOSTMUSH=%#,words(ports(%#)),ishidden(%#)
-
-&PLAYER`CONNECT`RHOSTMUSH [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,##/PLAYER`CONNECT`*)={@trigger %d1/%d0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
-&PLAYER`CREATE`RHOSTMUSH [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,##/PLAYER`CREATE`*)={@trigger %d1/%d0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
-&PLAYER`DISCONNECT`RHOSTMUSH [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,##/PLAYER`DISCONNECT`*)={@trigger %d1/%d0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
-&SOCKET`LOGINFAIL`RHOSTMUSH [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,##/SOCKET`LOGINFAIL`*)={@trigger %d1/%d0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
-&OBJECT`DESTROY`RHOSTMUSH [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@dolist/inline/nobreak u(lattr,##/OBJECT`DESTROY`*)={@trigger %d1/%d0=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}}
+@ACONNECT [u(cobj,mco)]=@check strmatch(v(game),RhostMUSH);@select/inline and(eq(totcmds(%#),0),lt(sub(secs(),ctime(%#)),10))=1,{@attach/nobreak %!/PLAYER`CREATE=%#,words(ports(%#)),first(ports(%#))};@attach/nobreak %!/PLAYER`CONNECT=%#,words(ports(%#)),first(ports(%#))
+@ADISCONNECT [u(cobj,mco)]=@attach/nobreak %!/PLAYER`DISCONNECT=%#,words(ports(%#)),ishidden(%#)
 
 &STARTUP`RHOSTEVENT [u(cobj,mco)]=@trigger %!/LOOP`RHOSTMUSH`EVENTHANDLER
 &B_@NUKE [u(cobj,mco)]=u(RHOST`DELETE`BEFORE)
@@ -454,9 +508,14 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &A_@TOAD [u(cobj,mco)]=u(RHOST`DELETE`AFTER)
 &B_@TURTLE [u(cobj,mco)]=u(RHOST`DELETE`BEFORE)
 &A_@TURTLE [u(cobj,mco)]=u(RHOST`DELETE`AFTER)
-
 &B_@NAME [u(cobj,mco)]=u(RHOST`NAME`BEFORE)
 &A_@NAME [u(cobj,mco)]=u(RHOST`NAME`AFTER)
+&SUB_058 [u(cobj,mco)]=%#
+&I_@EMIT [u(cobj,mco)]=not(isdbref(u(cobj,scenesys)))
+&I_SAY [u(cobj,mco)]=0
+&I_POSE [u(cobj,mco)]=0
+&I_P [u(cobj,mco)]=0
+&I_S [u(cobj,mco)]=0
 
 &RHOST`DELETE`BEFORE [u(cobj,mco)]=if(u(setr,nuketarget,pmatch(before(rest(%m),=))),u(setq,nuketype,type(%q<nuketarget>))[u(setq,nukename,name(%q<nuketarget>))])
 &RHOST`DELETE`AFTER [u(cobj,mco)]=if(cand(%q<nuketarget>,strmatch(%q<nuketype>,PLAYER)),if(cor(hasflag(%q<nuketarget>,RECOVERY),not(hastype(%q<target>,PLAYER))),u(attrib_set,u(cobj,mco),DELETE`QUEUE`[u(nextslot,u(cobj,mco),DELETE`QUEUE)],%q<nuketarget>|%q<nukename>|%q<nuketype>)))
@@ -464,7 +523,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &RHOST`NAME`BEFORE [u(cobj,mco)]=u(setq,namename,name(u(setr,nametarget,pmatch(before(rest(%m),=)))))
 &RHOST`NAME`AFTER [u(cobj,mco)]=if(%q<nametarget>,if(strmatch(u(setr,newname,name(%q<nametarget>)),after(%m,=)),u(attrib_set,u(cobj,mco),NAME`QUEUE`[u(nextslot,u(cobj,mco),NAME`QUEUE)],%q<nametarget>|%q<newname>|%q<namename>)))
 
-&LOOP`RHOSTMUSH`EVENTHANDLER [u(cobj,mco)]=@assert/inline strmatch(v(game),RhostMUSH);@dolist/inline [u(lattr,%!/TRG`RHOSTMUSH`*)]={@trigger %!/%d0};@wait 60={@trigger me/LOOP`RHOSTMUSH`EVENTHANDLER}
+&LOOP`RHOSTMUSH`EVENTHANDLER [u(cobj,mco)]=@check strmatch(v(game),RhostMUSH);@dolist/inline [u(lattr,%!/TRG`RHOSTMUSH`*)]={@trigger %!/%d0};@wait 60={@trigger me/LOOP`RHOSTMUSH`EVENTHANDLER}
 
 &TRG`RHOSTMUSH`OBJECT`DELETE [u(cobj,mco)]=@dolist/inline u(lattr,u(cobj,mco)/DELETE`QUEUE`*)={@trigger u(cobj,mco)/OBJECT`DESTROY`RHOSTMUSH=elements(get(u(cobj,mco)/%d0),1,|),elements(get(u(cobj,mco)/%d0),2,|),elements(get(u(cobj,mco)/%d0),3,|);@attach %!/WIPE=u(cobj,mco),%d0}
 

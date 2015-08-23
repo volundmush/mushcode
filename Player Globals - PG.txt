@@ -1,0 +1,20 @@
+@@ DEPENDENCIES - CORE
+
+th u(NEWCOBJ,Player Globals <PG>,player_globals,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&SYSTEM`NAME [u(cobj,player_globals)]=u(strfirstof,%q<sysname>,SYSTEM)
+
+&CMD`CHARSET [u(cobj,player_globals)]=$+charset:@pemit %#=wrap(iter(lnum(32,256),if(comp(first(chr(%i0)),#-1),ljust([ljust(%i0:,4)] [ansi(hy,chr(%i0))],7)),%B,),78)
+
+&CMD`+BEEP [u(cobj,player_globals)]=$^(?\:\+)beep(?\: +(.*))?$:th u(setq,sysname,beep);@attach %!/INC`JAILCHECK;@attach %!/INC`CHECKPC=%1,1;@attach hasflag(%q<t1>,CONNECTED)=@attach %!/INC`MSG=ERROR: %q<t1name> is offline.;@attach %!/INC`MSG=[beep()][ansi(hr,%n wishes for your attention! BEEP!)],%q<t1>;@attach %!/INC`MSG=You have sent %q<t1name> a beep!
+@set [u(cobj,player_globals)]/CMD`+BEEP=regexp
+
+&CMD`+FLIP [u(cobj,player_globals)]=$+flip:th u(setq,sysname,FLIP);th u(setq,roll,rand(0,100));@switch/first/inline %q<roll>=50,{@attach %!/INC`MSG`ROOM={[ansi(h,%n)] flipped a coin: [switch(rand(1,6),1,it landed on its side!,2,a Demon grabbed it!,3,it never comes back down...,4,when it lands\, both sides are blank.,5,Reality Error 404: Coin not found!,6,it's drawn into a parallel universe!)]}},>50,{@attach %!/INC`MSG`ROOM={[ansi(h,%n)] flipped a coin: Heads!}},{@attach %!/INC`MSG`ROOM={[ansi(h,%n)] flipped a coin: Tails!}}
+
+&CMD`+OOC [u(cobj,player_globals)]=$^(?s)(\+ooc|osay|\+osay)(?\: +(.*))?$:@check elock(%l/speech,%#)=@attach %!/INC`MSG=ERROR: Permission denied by local speech lock.;@check strlen(%2)=@attach %!/INC`MSG=What will you say?;@stop strmatch(left(%2,1),|)=@attach %!/INC`MSG=Emit feature is disabled.;th u(setq,players,u(lplayers,%l));@select/inline v(game)=PennMUSH,{@message lcon(%l)=%2,%!/FUN`MSGOOC,%#,##,%2,%q<players>},RhostMUSH,{@pemit/list lcon(%l)=udefault(FUN`MSGOOC,%2,%#,##,%2,%q<players>)}
+@set [u(cobj,player_globals)]/CMD`+OOC=regexp
+
+&CMD`QUIT [u(cobj,player_globals)]=$^(quit|logoff|logout)$:@select/inline v(game)=PennMUSH,{@boot/silent %#},RhostMUSH,{@boot/quiet %#}
+@set [u(cobj,player_globals)]/CMD`QUIT=regexp
+
+&FUN`MSGOOC [u(cobj,player_globals)]=localize(ansi(u(setr,borcol,u(color,%1,OOC,BORDER)),-<)[ansi(u(color,%1,OOC,HEADER),OOC)][ansi(%q<borcol>,>-)]%B[if(u(isadmin,%0),ansi(h,lit([Staff])%B))][u(speech,%0,%2,%1,,OOC,%3)])

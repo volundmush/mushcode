@@ -1,19 +1,46 @@
 @@ DEPENDENCIES - CORE
 @@ RECOMMENDED: Character Account System. This will allow settings to be stored per account.
 
-th u(NEWCOBJ,Player Configuration SYSTEM <PCS>,pcs,u(cobj,mco),,,WIZARD SAFE,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Player Configuration SYSTEM <PCS>,pcs,,,,!NO_COMMAND WIZARD SAFE,INHERIT SIDEFX SAFE)
 th u(NEWCOBJ,Player Configuration Data Storage <PCONF>,pconf,u(cobj,pcs),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
 @@ %0 - @name. %1 - alias. %2 - location to store. %3 - parent, defaults to MCO. %4 - No parent. %5 - PennMUSH flags. %6 - RhostMUSH flags.
 
-&CMD`+CONFIG`PENNMUSH [u(cobj,gcs)]=$^(?\:\+)?config(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+CONFIG`MAIN
-@set [u(cobj,gcs)]/CMD`+CONFIG`PENNMUSH=regexp
-&CMD`+CONFIG`RHOSTMUSH [u(cobj,gcs)]=$^(?\:\+)?config(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GAMECONFIG`MAIN
-@set [u(cobj,gcs)]/CMD`+CONFIG`RHOSTMUSH=regexp
-&CMD`+CONFIG`MAIN [u(cobj,gcs)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,%4
-@set [u(cobj,gcs)]/CMD`+GAMECONFIG`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+&CMD`+CONFIG`PENNMUSH [u(cobj,pcs)]=$^(?\:\+)?config(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+CONFIG`MAIN
+@set [u(cobj,pcs)]/CMD`+CONFIG`PENNMUSH=regexp
+&CMD`+CONFIG`RHOSTMUSH [u(cobj,pcs)]=$^(?\:\+)?config(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+CONFIG`MAIN
+@set [u(cobj,pcs)]/CMD`+CONFIG`RHOSTMUSH=regexp
+&CMD`+CONFIG`MAIN [u(cobj,pcs)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,%4
+@set [u(cobj,pcs)]/CMD`+CONFIG`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&SWITCHES`PLAYER [u(cobj,gcs)]=
-&SWITCHES`ADMIN [u(cobj,gcs)]=
-&SYSTEM`NAME [u(cobj,gcs)]=GAMECONFIG
+&SWITCHES`PLAYER [u(cobj,pcs)]=COLOR
+&SWITCHES`ADMIN [u(cobj,pcs)]=
+&SYSTEM`NAME [u(cobj,pcs)]=CONFIG
 
-&INC`MAIN [u(cobj,gcs)]=@switch/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`SET}
+&INC`MAIN [u(cobj,pcs)]=@switch/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`SET}
+
+&INC`LIST [u(cobj,pcs)]=@pemit %#=u(header,Player Configuration);@dolist/inline/delimit | [u(FUN`CATEGORIES)]={th u(setq,category,##);@pemit %#=u(subheader,u(capnames,%q<category>));@pemit %#=ansi(u(color,%#,u(SYSTEM`NAME),COLUMN_NAMES),align(18 15 43,Setting,Value,Type and Description));@pemit %#=iter(u(FUN`SETTINGS,%q<category>),align(18 15 43,%i0,u(player_config,%#,%q<category>,%i0),<[default(u(cobj,pconf)/TYPE`%q<category>`%i0,unknown)]> [default(u(cobj,pconf)/DESC`%q<category>`%i0,Unset)]),|,%R)};@pemit %#=u(subheader)
+
+&FUN`CATEGORIES [u(cobj,pcs)]=sort(setunion(iter(u(lattr,[u(cobj,pconf)]/DEFAULT`*),last(%i0,`),%b,|),,|,|),a,|,|)
+
+&FUN`SETTINGS [u(cobj,pcs)]=sort(setunion(iter(u(lattr,u(cobj,pconf)/DEFAULT`%0`*),last(%i0,`),%b,|),,|,|),a,|,|)
+
+&INC`SET [u(cobj,pcs)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Category field empty.};@attach %!/INC`PARTIAL=%0,u(FUN`CATEGORIES),|,category,category;@check strlen(%1)=@attach %!/INC`MSG={ERROR: Option field empty.};@attach %!/INC`PARTIAL=%1,u(FUN`SETTINGS,%q<category>),|,option,option;@switch/inline strlen(%2)=0,{},{@attach %!/INC`VALID`[default(u(cobj,pconf)/TYPE`%q<category>`%q<option>,WORD)]=%2;th u(attrib_set,u(strfirstof,u(accid,%#),%#),D`CONFIG`%q<category>`%q<option>,%q<value>);@attach %!/INC`MSG=u(setr,msg,%q<category> %q<option> Set to: %q<value>)}
+
+&PLAYER`CONNECT [u(cobj,pcs)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/PLAYER`CONNECT`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+
+&PLAYER`CONNECT`MAIL [u(cobj,pcs)]=@stop u(isguest,%0);@check u(player_config,%0,ALERTS,MAIL);@wait 2={@select/inline t(isdbref(u(setr,accid,u(accid,%0))))=1,{th u(setq,ualts,u(FILTER,UMAIL,u(alts,%0)));@select/inline t(words(%q<ualts>))=1,{@pemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(u(sortname,%q<ualts>),ansi(h,name(%i0)) ([u(umail,%i0)]),%b,\,%b)]},0,{@pemit %0=ansi(hy,You have no unread mail.)}},0,{@pemit %0=[ansi(yh,You have [u(umail,%0)] unread @mail(s) in your inbox)]}}
+
+&FIL`UMAIL [u(cobj,pcs)]=t(u(umail,%0))
+
+@@ DEFAULT SETTINGS
+&DEFAULT [u(cobj,pconf)]=@@ Empty attribute for Rhost.
+&DESC [u(cobj,pconf)]=@@ Empty attribute for Rhost.
+&TYPE [u(cobj,pconf)]=@@ Empty attribute for Rhost.
+
+&DEFAULT`ALERTS [u(cobj,pconf)]=@@ Empty attribute for Rhost.
+&DEFAULT`CHANNELS [u(cobj,pconf)]=@@ Empty attribute for Rhost.
+&DEFAULT`COLOR [u(cobj,pconf)]=@@ Empty attribute for Rhost.
+
+&DEFAULT`ALERTS`MAIL [u(cobj,pconf)]=1
+&DESC`ALERTS`MAIL [u(cobj,pconf)]=Unread mail on login?
+&TYPE`ALERTS`MAIL [u(cobj,pconf)]=BOOL

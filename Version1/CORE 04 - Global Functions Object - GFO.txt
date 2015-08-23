@@ -9,7 +9,7 @@
 
 &GFN`FANCYTIME u(gfo)=timefmt($b $d $I:$M$p $Z,%0,strfirstof(gettz(%1),gettz(%#)))
 
-&GFN`GETTZ u(gfo)=default(%0/TZ,if(setr(accid,accid(%0)),get(u(adb)/%q<accid>`TZ)))
+&GFN`GETTZ u(gfo)=strfirstof(default(%0/TZ,if(setr(accid,accid(%0)),get(u(adb)/%q<accid>`TZ))),UTC)
 
 &GFN`CHARIN u(gfo)=lmath(max,iter(%1,strmatch(%0,*%i0*)))
 

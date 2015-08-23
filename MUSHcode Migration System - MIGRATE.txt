@@ -1,0 +1,27 @@
+@@ DEPENDENCIES: Core, Version 1
+@@ This tool is used to migrate data from Version 1 of the Codesuite to Version 2.
+@@ MAKE BACKUPS BEFORE YOU USE IT dammit.
+
+th u(NEWCOBJ,MUSHcode Migration System <MIGRATE>,migrate,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+@power [u(cobj,migrate)]=queue
+@lock/use [u(cobj,migrate)]=ISWIZARD2/1
+th u(NEWCOBJ,Old Code Box,oldbox,u(cobj,migrate),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
+
+&SYSTEM`NAME [u(cobj,migrate)]=MIGRATE
+
+&CMD`+MIGRATE`PENNMUSH [u(cobj,migrate)]=$^(?s)(?\:\+)?(migrate|cleanup|conflict)(?\:/(\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+MIGRATE`MAIN
+@set [u(cobj,migrate)]/CMD`+MIGRATE`PENNMUSH=regexp
+&CMD`+MIGRATE`RHOSTMUSH [u(cobj,migrate)]=$^(?s)(?\:\+)?(migrate|cleanup|conflict)(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+MIGRATE`MAIN
+@set [u(cobj,migrate)]/CMD`+MIGRATE`RHOSTMUSH=regexp
+&CMD`+MIGRATE`MAIN [u(cobj,migrate)]=@attach %!/INC`GETSWITCH=%2;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%1
+@set [u(cobj,migrate)]/CMD`+MIGRATE`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&MIGRATE [u(cobj,migrate)]=iter(u(lattr,%!/MIGRATE`*),last(%i0,`),%b,|)
+&CLEANUP [u(cobj,migrate)]=iter(u(lattr,%!/CLEANUP`*),last(%i0,`),%b,|)
+&CONFLICT [u(cobj,migrate)]=iter(u(lattr,%!/CONFLICT`*),last(%i0,`),%b,|)
+
+&INDEX [u(cobj,migrate)]=u(FIND_IN,u(MASTER_ROOM),Code Object Index <COI>)
+
+&INC`MAIN [u(cobj,migrate)]=@check isdbref(u(setr,index,u(index)))=@attach %!/INC`MSG=ERROR: Version 1 'Code Object Index <COI>' not found in MASTER ROOM. Cannot continue.;th u(setq,options,u(%1));@check strlen(%0)=@attach %!/INC`MSG=ERROR: [u(capnames,%1)] task name empty. Your options are: [u(itemize,%q<options>,|,and,\,)];@attach %!/INC`PARTIAL=%0,%q<options>,|,choice,choice;@select/inline %1=CLEANUP,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will wipe old attributes from players. Only do this if you've already converted! You want to Cleanup %q<choice>, correct? Type the same command again within ten seconds to continue.},CLEANUP %q<choice>};@attach %!/%1`%q<choice>
+
+&CONFLICT`FINISH [u(cobj,migrate)]=@dolist/inline children(%q<index>)=@tel %i0=u(cobj,oldbox);@tel %q<index>=u(cobj,oldbox);@set %!=NO_COMMAND

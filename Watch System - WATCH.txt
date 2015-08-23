@@ -1,47 +1,53 @@
-@@ DEPENDENCIES - Core
+@@ DEPENDENCIES - Core, Who System
+@@ RECOMMENDED: Account Management System. If installed the Watch list becomes account-based and uses +alts/priority for messaging.
 
-@switch/inline isdbref(u(wso))=0,{@tel create(Watch System Object <WSO>)=config(master_room)}
-&wso u(coi)=locate(config(master_room),Watch System Object <WSO>,TXxi)
-@parent u(wso)=u(coi)
-@set u(wso)=WIZARD !NO_COMMAND
+th u(NEWCOBJ,Watch System <WATCH>,watch,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&CMD`+WATCH u(wso)=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(wso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(wso)/VAR`ADMINFLAGS)),|,|),|,WATCH,switch,switch;@include u(wso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
-@set u(wso)/CMD`+WATCH=regexp
+&CMD`+WATCH`PENNMUSH [u(cobj,watch)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+WATCH`MAIN
+@set [u(cobj,watch)]/CMD`+WATCH`PENNMUSH=regexp
+&CMD`+WATCH`RHOSTMUSH [u(cobj,watch)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+WATCH`MAIN
+@set [u(cobj,watch)]/CMD`+WATCH`RHOSTMUSH=regexp
+&CMD`+WATCH`MAIN [u(cobj,watch)]=@attach %!/INC`GETSWITCH=%2;th u(setq,accid,if(strlen(u(accid,%#),u(accid,%#),%#)));@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%1
+@set [u(cobj,watch)]/CMD`+WATCH`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&RFN`HEADER u(wso)=header(%0)
-&RFN`MSGHEAD u(wso)=msghead(v(VAR`MSGHEAD))
-&VAR`MSGHEAD u(wso)=WATCH
+&SYSTEM`NAME [u(cobj,watch)]=WATCH
+&SWITCHES`PLAYER [u(cobj,watch)]=ADD|LIST|DELETE|HIDE|MUTE
 
-&VAR`PLAYFLAGS u(wso)=ADD|DEL|LIST|HIDE|MUTE
+&INC`MAIN [u(cobj,watch)]=@check words(u(setr,list,u(filter,ISOBJID,get(%q<accid>/D`WATCH))))=@attach %!/INC`MSG=ERROR: You have no friends on watch!;@select/inline t(%2)=0,{@check words(u(setr,list,u(sortidle,setinter(u(lwhoid,%#),get(%q<accid>/D`WATCH)))))=@attach %!/INC`MSG=No friends are online.};@pemit %#=u(HEADER,if(%2,All Friends,Online Friends));@pemit %#=ansi(u(color,%#,WATCH,COLUMN_NAMES),align(20 11 3 4 4 1 29,Name,Alias,Fac,Idle,Conn,G,Location));@dolist/inline %q<list>={@pemit %#=u(u(cobj,who)/FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(HEADER)
+&INC`LIST [u(cobj,watch)]=@attach %!/INC`MAIN=%0,%1,1
 
-&INC`MAIN u(wso)=@assert words(filterbool(#lambda/isobjid(\%0),get(%#/D`WATCH)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: You have no friends on watch!;@assert words(setr(list,setinter(lwhoid(%#),get(%#/D`WATCH),,-idle)))=@nspemit %#=u(RFN`MSGHEAD) No friends are online.;@nspemit %#=u(RFN`HEADER,Online Friends);@nspemit %#=ansi(custcolor(%#,DEFAULT`COLNAME),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location));@dolist/inline %q<list>={@nspemit %#=u(u(who)/FUN`WHO`PLAYERLINE`MAIN,%i0)};@nspemit %#=u(RFN`HEADER)
+&INC`ADD [u(cobj,watch)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to add.;@include u(ccs)/INC`CHECKPC=%0,1;@stop match(get(%q<accid>/D`WATCH),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are already a friend.;&D`WATCH %q<accid>=u(sortname,u(filter,ISOBJID,setunion(get(%q<accid>/D`WATCH),%q<t1objid>)));@attach %!/INC`MSG=%q<t1name> added to your Friends list!
 
-&INC`LIST u(wso)=@assert words(filterbool(#lambda/isobjid(\%0),get(%#/D`WATCH)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: You have no friends on watch!;th setr(list,filterbool(#lambda/isobjid(\%0),setinter(get(%#/D`WATCH),get(%#/D`WATCH),,namei)));@nspemit %#=u(RFN`HEADER,Your Friends List);@nspemit %#=ansi(custcolor(%#,DEFAULT`COLNAME),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location));@dolist/inline %q<list>={@nspemit %#=u(u(who)/FUN`WHO`PLAYERLINE`MAIN,%i0)};@nspemit %#=u(RFN`HEADER,)
+&INC`DELETE [u(cobj,watch)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to remove.;@include u(ccs)/INC`CHECKPC=%0,1;@check match(get(%q<accid>/D`WATCH),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are not a friend.;&D`WATCH %q<accid>=u(sortname,u(filter,ISOBJID,setdiff(get(%q<accid>/D`WATCH),%q<t1objid>)));@attach %!/INC`MSG=%q<t1name> removed from your Friends list!
 
-&INC`ADD u(wso)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No player entered to add.;@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@break match(get(%#/D`WATCH),%q<t1objid>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: They are already a friend.;&D`WATCH %#=filterbool(FILTER_ISOBJID,setunion(get(%#/D`WATCH),%q<t1objid>));@nspemit %#=u(RFN`MSGHEAD) %q<t1name> added to your Friends list!
+&INC`HIDE [u(cobj,watch)]=th setq(choose,if(t(get(%#/D`WATCH`HIDE)),0,1));@attach %!/INC`MSG=Your connects and disconnects will [if(%q<choose>,now,no longer)] alert anyone who has you on their friends list.;&D`WATCH`HIDE %#=%q<choose>
 
-&INC`DEL u(wso)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: No player entered to remove.;@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@assert match(get(%#/D`WATCH),%q<t1objid>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: They are not a friend.;&D`WATCH %#=filterbool(FILTER_ISOBJID,setdiff(get(%#/D`WATCH),%q<t1objid>));@nspemit %#=u(RFN`MSGHEAD) %q<t1name> removed from your Friends list!
+&INC`MUTE [u(cobj,watch)]=th setq(choose,if(t(get(%#/D`WATCH`MUTE)),0,1));@attach %!/INC`MSG=You will [if(%q<choose>,now,no longer)] be alerted when your friends connect or disconnect.;&D`WATCH`MUTE %#=%q<choose>
 
-&INC`HIDE u(wso)=th setq(choose,if(t(get(%#/D`WATCH`HIDE)),0,1));@nspemit %#=u(RFN`MSGHEAD) Okay! Your connects and disconnects will [if(%q<choose>,now,no longer)] alert anyone who has you on their friends list.;&D`WATCH`HIDE %#=%q<choose>
+&PLAYER`CONNECT [u(cobj,watch)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/PLAYER`CONNECT`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`DISCONNECT [u(cobj,watch)]=@dolist/inline u(lattr,%!/PLAYER`DISCONNECT`*)={@trigger %!/PLAYER`DISCONNECT`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 
-&INC`MUTE u(wso)=th setq(choose,if(t(get(%#/D`WATCH`MUTE)),0,1));@nspemit %#=u(RFN`MSGHEAD) Okay! You will [if(%q<choose>,now,no longer)] be alerted when your friends connect or disconnect.;&D`WATCH`MUTE %#=%q<choose>
+&PLAYER`CONNECT`WATCH [u(cobj,watch)]=@stop cor(u(ishidden,%0),get(%0/D`WATCH`HIDE),gt(%1,1));@select/inline isdbref(u(cobj,accounts))=1,{@dolist/inline/nobreak u(filter,MATCHWATCH,children(u(cobj,accounts)),%b,%b,%0)={@check words(u(setr,characters,u(filter,NOTMUTE,get(##/CHARACTERS))));@attach %!/INC`MSG=[name(%0)] has connected.,%q<characters>}},0,{@attach %!/INC`MSG=[name(%0)] has connected.,u(filter,NOTMUTE,u(filter,MATCHWATCH,setunion(u(lwhoid,%#),),%b,%b,%0))}
 
-&FILTER_ISOBJID u(wso)=isobjid(%0)
+&PLAYER`DISCONNECT`WATCH [u(cobj,watch)]=@select/inline %1=0,{&IDLERS [u(cobj,watch)]=setdiff(v(IDLERS),%0)};@stop cor(u(ishidden,%0),gte(%1,1),t(get(%0/D`WATCH`HIDE)));@select/inline isdbref(u(cobj,accounts))=1,{@dolist/inline/nobreak u(filter,MATCHWATCH,children(u(cobj,accounts)),%b,%b,%0)={@check words(u(setr,characters,u(filter,NOTMUTE,get(##/CHARACTERS))));@attach %!/INC`MSG=[name(%0)] has disconnected.,%q<characters>}},0,{@attach %!/INC`MSG=[name(%0)] has disconnected.,u(filter,NOTMUTE,u(filter,MATCHWATCH,setunion(u(lwhoid,%#),),%b,%b,%0))}
 
-&PLAYER`CONNECT`WATCH u(wso)=@break cor(hasflag(%0,DARK),hidden(%0));@break gt(%1,1);@break t(get(%0/D`WATCH`HIDE));@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),filterbool(#lambda/cand(match(get(\%0/D`WATCH),%0),default(\%0/D`WATCH`MUTE,1)),setunion(lwhoid(),)),{[name(%0)] has connected.}
+&FIL`MATCHWATCH [u(cobj,watch)]=t(match(get(%0/D`WATCH,%1)))
+&FIL`NOTMUTE [u(cobj,watch)]=not(get(%0/D`WATCH`MUTE))
 
-&PLAYER`CONNECT`MAIL u(wso)=@break haspower(%0,GUEST);@wait 2={@switch/inline t(setr(accid,accid(%0)))=1,{th setq(ualts,filterbool(#lambda/elements(mail(\%0),2),alts(%0)));@switch/inline t(words(%q<ualts>))=1,{@nspemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(sort(%q<ualts>,namei),ansi(h,name(%i0)) ([elements(mail(%i0),2)]),%b,\,%b)]},0,{@nspemit %0=ansi(hy,You have no unread mail.)}},0,{@pemit %0=[ansi(yh,You have [elements(mail(%0),2)] unread @mail(s) in your inbox)]}}
+&STARTUP [u(cobj,watch)]=@trigger %!/TRG`INDEXIDLE
 
-&PLAYER`DISCONNECT`WATCH u(wso)=&IDLERS u(wso)=setdiff(get(u(wso)/IDLERS),%0);@break cor(hasflag(%0,DARK),hidden(%0));@break gte(%1,1);@break t(get(%0/D`WATCH`HIDE));@include u(ccs)/INC`RMSG=v(VAR`MSGHEAD),filterbool(#lambda/cand(match(get(\%0/D`WATCH),%0),default(\%0/D`WATCH`MUTE,1)),setunion(lwhoid(),)),{[name(%0)] has disconnected.}
+&TRG`INDEXIDLE [u(cobj,watch)]=th setq(idlers,u(filter,IDLING,u(setr,who,setunion(u(lwhoid),))));@dolist setdiff(v(IDLERS),%q<idlers>)={@attach %!/INC`MSG=[name(%i0)] is no longer idle.,u(filter,ISADMIN,u(filter,NOTMUTE,u(filter,MATCHWATCH,%q<sho>)));@switch/inline cand(gt(u(getstat,%!/IDLERS`TIMES,##),u(stringsecs,config(idle_timeout))),u(ishidden,##))=1,{@switch/inline hasflag(%i0,DARK)=1,{@attach %!/INC`MSG=You are both Hidden and Dark.,##},0,{@attach %!/INC`MSG=Coming out of @hide from unidling.,##;@hide/off ##}}};&IDLERS [u(cobj,watch)]=%q<idlers>;&IDLERS`TIMES [u(cobj,watch)]=iter(%q<idlers>,%i0~[idle(%i0)],%b,|);@wait 60=@trigger %!/TRG`INDEXIDLE
 
-&STARTUP u(wso)=@trigger u(wso)/TRG`INDEXIDLE
-
-&TRG`INDEXIDLE u(wso)=th setq(idlers,filterbool(#lambda/gt(idle(\%0),mul(60,60)),setr(who,setunion(lwhoid(),lwhoid()))));@dolist setdiff(get(u(wso)/IDLERS),%q<idlers>)={@nspemit/list filterbool(#lambda/cand(match(get(\%0/D`WATCH),%i0),default(\%0/D`WATCH`MUTE,1),isadmin(\%0)),%q<who>)=u(RFN`MSGHEAD) [name(%i0)] is no longer idle.;@switch/inline cand(gt(getstat(u(wso)/IDLERS`TIMES,%i0),stringsecs(config(idle_timeout))),hidden(%i0))=1,{@switch/inline hasflag(%i0,DARK)=1,{@nspemit %i0=u(RFN`MSGHEAD) You are both Hidden and Dark.},0,{@nspemit %i0=u(RFN`MSGHEAD) Coming out of @hide from unidling.;@hide/off %i0}}};&IDLERS u(wso)=%q<idlers>;&IDLERS`TIMES u(wso)=iter(%q<idlers>,%i0~[idle(%i0)],%b,|);@wait 60=@trigger u(wso)/TRG`INDEXIDLE
-
-
-
-
+&FIL`IDLING [u(cobj,watch)]=gt(idle(%0),mul(60,60))
 
 @@ COMMUNITY - WATCH
-+help/addmain Community/Watch=[u(wso)]/HLP`WATCH
-&HLP`WATCH u(wso)=The Watch system alerts you as friends connect and disconnect.%R[ansi(hc,Aliases:)] +friend, friend, watch, wf, +wf%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+watch)] - Will display online friends on your list and their status.%R[ansi(h,+watch/list)] - Will display your entire list, even offline friends.%R[ansi(h,+watch/add <name>)] - Adds a player to your watch list.%R[ansi(h,+watch/del <name>)] - Removes a player from your watch list.%R[ansi(h,+watch/hide)] - Toggle whether your disconnects and connects will show to anyone who added you to their friends list.%R[ansi(h,+watch/mute)] - Toggle whether you will hear when friends connect or disconnect.})]
++help/add +watch=[u(cobj,watch)]/HLP`+WATCH
++help/category +watch=Community
++help/metatags +watch=friends wf
+&HLP`+WATCH [u(cobj,watch)]=The Watch system alerts you as friends connect and disconnect.[if(isdbref(u(cobj,accounts)),%BThe List is shared across all alts.)]%R[ansi(hc,Aliases:)] +friend, friend, watch, wf, +wf%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+watch)] - Will display online friends on your list and their status.%R[ansi(h,+watch/list)] - Will display your entire list\, even offline friends.%R[ansi(h,+watch/add <name>)] - Adds a player to your watch list.%R[ansi(h,+watch/del <name>)] - Removes a player from your watch list.%R[ansi(h,+watch/hide)] - Toggle whether your disconnects and connects will show to anyone who added you to their friends list.%R[ansi(h,+watch/mute)] - Toggle whether you will hear when friends connect or disconnect.[if(isdbref(u(cobj,accounts)),%BThis only affects the character it is used on.)]
+
+&MIGRATE`WATCH [u(cobj,migrate)]=@select/inline isdbref(u(cobj,accounts))=1,{@dolist/inline/nobreak lsearch(all,type,player,elock,D`WATCH:?*)={@check isdbref(u(setr,accid,u(accid,%i0)));&D`WATCH %q<accid>=u(sortname,u(filter,ISOBJID,setunion(get(%q<accid>/D`WATCH),get(%i0/D`WATCH))))}}
+
+&CLEANUP`WATCH [u(cobj,watch)]=@dolist/inline lsearch(all,type,player,elock,D`WATCH:?*)={&D`WATCH %i0}
+
+&CONFLICT`WATCH [u(cobj,migrate)]=@tel u(setr,wso,u(%q<index>/wso))=u(cobj,oldbox);@halt %q<wso>;@set %q<wso>=NO_COMMAND

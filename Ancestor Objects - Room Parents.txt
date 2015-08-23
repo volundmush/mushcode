@@ -47,11 +47,22 @@
 
 @select/inline isdbref(u(cobj,ancestor_player))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_PLAYER,pcreate(Ancestor Player,digest(md5,secs())))}
 @tel [u(cobj,ancestor_player)]=[u(cobj,ancestor_room)]
-@pageformat [u(cobj,ancestor_player)]=ansi(custcolor(%@,PAGE`PAGE),colornames(%4,%!,lwho(%!),PAGES))
-@outpageformat [u(cobj,ancestor_player)]=ansi(custcolor(%@,PAGE`OUTPAGE),colornames(%4,%!,lwho(%!),PAGES))
 
-@chatformat [u(cobj,ancestor_player)]=if(cor(chanpriority(%1),strmatch(%#,%!)),if(strlen(u(setr,color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[colornames(after(%5,>),%!,lwho(%!),CHANNELS)],<%1>[colornames(after(%5,>),%!,lwho(%!),CHANNELS)]))
+@pageformat [u(cobj,ancestor_player)]=ansi(color(%@,PAGE,PAGE),colornames(%!,%4,PAGES,lwho(%!),%#))
+@outpageformat [u(cobj,ancestor_player)]=ansi(color(%@,PAGE,OUTPAGE),colornames(%!,%4,PAGES,lwho(%!),%#))
+@adescribe [u(cobj,ancestor_player)]=@check [my_config(ALERTS,ADESC)];think GAME> %n just looked at you.
 
+@chatformat [u(cobj,ancestor_player)]=if(cor(chanpriority(%1),strmatch(%#,%!)),if(strlen(u(setr,color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][speech(%#,%2,%!,,CHANNELS,cwho(%1,on,1))],<%1>[if(strlen(%4),%B%4%B,%B)][speech(%#,%2,%!,,CHANNELS,cwho(%1,on,1))]))
+
+&DEFAULT`ALERTS`ADESC [u(cobj,pconf)]=0
+&DESC`ALERTS`ADESC [u(cobj,pconf)]=Signal when looked at.
+&TYPE`ALERTS`ADESC [u(cobj,pconf)]=BOOL
+
+&CDEFAULT`CHANNELS [u(cobj,pconf)]=@@ Empty attribute for Rhost.
+&CDEFAULT`CHANNELS`QUOTES [u(cobj,pconf)]=n
+&CDESC`CHANNELS`QUOTES [u(cobj,pconf)]=quotes -> " "
+&CDEFAULT`CHANNELS`SPEECH [u(cobj,pconf)]=n
+&CDESC`CHANNELS`SPEECH [u(cobj,pconf)]=quotes -> " "
 
 @@ ANCESTOR THING
 

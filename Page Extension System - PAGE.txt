@@ -1,23 +1,25 @@
-@switch/inline isdbref(u(page))=0,{@tel create(Page Extension <PAGE>)=config(master_room)}
-&page u(coi)=locate(config(master_room),Page Extension <PAGE>,TXxi)
-@parent u(page)=u(coi)
-@set u(page)=WIZARD SAFE !NO_COMMAND
+@@ DEPENDENCIES: Core, PennMUSH
+@@ This won't work at all on RhostMUSH.
 
-&CMD`REPLY u(page)=$^(?s)(?\:r|reply)(?\: +(.+?))?$:@assert words(setr(list,filterbool(#lambda/isobjid(\%0),get(%#/LASTPAGEDBY))))=@nspemit %#=Nobody's sent you a page.;@assert strlen(%1)=@nspemit %#=What will you reply with?;@force/inplace/noeval %#={page %q<list>=%1}
+th u(NEWCOBJ,Page Extension System,page,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`REPLY [u(cobj,page)]=$^(?s)(?\:r|reply)(?\: +(.+?))?$:@check words(setr(list,filterbool(#lambda/isobjid(\%0),get(%#/LASTPAGEDBY))))=@nspemit %#=Nobody's sent you a page.;@check strlen(%1)=@nspemit %#=What will you reply with?;@force/inplace/noeval %#={page %q<list>=%1}
 @set u(page)/CMD`REPLY=regexp
 
-&CMD`RETELL u(page)=$^(?s)(?\:rt|retell|repage)(?\: +(.*))?$:@break hasflag(%#,HAVEN)=@nspemit %#=You are currently in QUIET mode and cannot use RETELL.;@assert lmath(max,iter(setr(list,get(%#/LASTPAGED)),isobjid(%i0)))=@nspemit %#=You haven't sent anyone tells.;@assert strlen(%1)=@nspemit %#=announce(PAGE) ERROR: What will you say?;@force/inplace/noeval %#={page %q<list>=%1}
+&CMD`RETELL [u(cobj,page)]=$^(?s)(?\:rt|retell|repage)(?\: +(.*))?$:@stop hasflag(%#,HAVEN)=@nspemit %#=You are currently in QUIET mode and cannot use RETELL.;@check u(lmax,iter(u(setr,list,get(%#/LASTPAGED)),u(isobjid,%i0)))=@nspemit %#=You haven't sent anyone tells.;@check strlen(%1)=@nspemit %#=What will you say?;@force/inplace/noeval %#={page %q<list>=%1}
 @set u(page)/CMD`RETELL=regexp
 
-&FUN`LASTPAGEDBY u(page)=if(words(setr(list,iter(filterbool(#lambda/isdbref(\%0),if(strmatch(after(%u,%b),*=*),namelist(before(after(%u,%b),=)),get(%#/LASTPAGED))),objid(%i0)))),if(words(setr(recip,filterbool(#lambda/cand(hasflag(\%0,CONNECTED),cor(hasflag(%#,WIZARD),cand(elock(\%0/Page,%#),not(hasflag(\%0,HAVEN))))),%q<list>))),null(iter(%q<recip>,attrib_set(%i0/LASTPAGEDBY,setdiff(setunion(%q<recip>,%:),%i0))))))
+&FUN`LASTPAGEDBY [u(cobj,page)]=if(words(u(setr,list,iter(u(filter,ISDBREF,if(strmatch(after(%u,%b),*=*),namelist(before(after(%u,%b),=)),get(%#/LASTPAGED))),objid(%i0)))),if(words(u(setr,recip,filterbool(#lambda/cand(hasflag(\%0,CONNECTED),cor(hasflag(%#,WIZARD),cand(elock(\%0/Page,%#),not(hasflag(\%0,HAVEN))))),%q<list>))),null(iter(%q<recip>,attrib_set(%i0/LASTPAGEDBY,setdiff(setunion(%q<recip>,%:),%i0))))))
 
-&STARTUP u(page)=@command/add reply;@command/alias reply=r;@hook/override/inline reply=u(page),CMD`REPLY;@command/add repage;@hook/override/inline repage=u(page),CMD`RETELL;@hook/after page=u(page),FUN`LASTPAGEDBY
+&STARTUP [u(cobj,page)]=@check strmatch(v(game),PennMUSH);@command/add reply;@command/alias reply=r;@hook/override/inline reply=u(page),CMD`REPLY;@command/add repage;@hook/override/inline repage=u(page),CMD`RETELL;@hook/after page=u(page),FUN`LASTPAGEDBY
 
-&CMD`+IGNORE u(page)=$^(?s)(?\:\+)?ignore(?\:/(\S+)?)?(?\: +(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(page)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(page)/VAR`ADMINFLAGS)),|,|),|,IGNORE,switch,switch;@include u(page)/INC`[strfirstof(%1,MAIN)]=%2
-@set u(page)/CMD`+IGNORE=regexp
+&CMD`+IGNORE [u(cobj,page)]=$^(?s)(?\:\+)?ignore(?\:/(\S+)?)?(?\: +(.*))?$:@include u(ccs)/INC`GETSWITCH=%1;@include %!/INC`[strfirstof(%1,MAIN)]=%2
+@set u(cobj,page)/CMD`+IGNORE=regexp
 
-&INC`MAIN u(page)=@switch/inline strmatch(setr(old,lock(%#/PAGE)),*!DBREFLIST^IGNORELIST*)=0,{@lock/page %#=!DBREFLIST^IGNORELIST;@include u(ccs)/INC`MSG=PAGE,%#,{Your @lock/page was replaced for +ignore to work. It was: %q<old>}};@switch/inline strlen(%0)=0,{@include u(page)/INC`LIST},{@include u(ccs)/INC`CHECKPC=%0,1,PAGE;@switch/inline t(match(get(%#/IGNORELIST),%q<t1objid>))=1,{&IGNORELIST %#=filterbool(#lambda/isobjid(\%0),setdiff(get(%#/IGNORELIST),%q<t1objid>));@include u(ccs)/INC`MSG=PAGE,%#,{%q<t1name> is no longer page-ignored.}},0,{&IGNORELIST %#=filterbool(#lambda/isobjid(\%0),setunion(get(%#/IGNORELIST),%q<t1objid>));@include u(ccs)/INC`MSG=PAGE,%#,{%q<t1name> is now page-ignored.}}}
+&SYSTEM`NAME [u(cobj,page)]=PAGE
 
-&INC`LIST u(page)=@include u(ccs)/INC`MSG=PAGE,%#,{You are Ignoring: [strfirstof(itemize(iter(filterbool(#lambda/isobjid(\%0),get(%#/IGNORELIST)),name(%i0),%b,|),|,and,\,),Nobody!)]}
+&INC`MAIN [u(cobj,page)]=@select/inline strmatch(setr(old,lock(%#/PAGE)),*!DBREFLIST^IGNORELIST*)=0,{@lock/page %#=!DBREFLIST^IGNORELIST;@include u(ccs)/INC`MSG=PAGE,%#,{Your @lock/page was replaced for +ignore to work. It was: %q<old>}};@select/inline strlen(%0)=0,{@include u(page)/INC`LIST},{@include u(ccs)/INC`CHECKPC=%0,1,PAGE;@select/inline t(match(get(%#/IGNORELIST),%q<t1objid>))=1,{&IGNORELIST %#=filterbool(#lambda/isobjid(\%0),setdiff(get(%#/IGNORELIST),%q<t1objid>));@include u(ccs)/INC`MSG=PAGE,%#,{%q<t1name> is no longer page-ignored.}},0,{&IGNORELIST %#=filterbool(#lambda/isobjid(\%0),setunion(get(%#/IGNORELIST),%q<t1objid>));@include u(ccs)/INC`MSG=PAGE,%#,{%q<t1name> is now page-ignored.}}}
 
-&HLP`REPLY u(page)=%RThis game has some extra features for page!%R%R[ansi(h,reply <text>)] - Sends a reply to the last character(s) who paged you. Helpful when mass-paged. Also responds to just [ansi(h,r)]%R[ansi(h,repage <text>)] - Send a Page to the last person you just messaged. While page does this normally, retell lets you do it quickly if you just paged a lot of people who've yet to reply. Also responds to [ansi(h,rt)] and [ansi(h,retell)]%R%RBe careful with these commands because getting paged by surprise might result in mispaging.
+&INC`LIST [u(cobj,page)]=@include u(ccs)/INC`MSG=PAGE,%#,{You are Ignoring: [strfirstof(itemize(iter(filterbool(#lambda/isobjid(\%0),get(%#/IGNORELIST)),name(%i0),%b,|),|,and,\,),Nobody!)]}
+
+&HLP`REPLY [u(cobj,page)]=%RThis game has some extra features for page!%R%R[ansi(h,reply <text>)] - Sends a reply to the last character(s) who paged you. Helpful when mass-paged. Also responds to just [ansi(h,r)]%R[ansi(h,repage <text>)] - Send a Page to the last person you just messaged. While page does this normally, retell lets you do it quickly if you just paged a lot of people who've yet to reply. Also responds to [ansi(h,rt)] and [ansi(h,retell)]%R%RBe careful with these commands because getting paged by surprise might result in mispaging.

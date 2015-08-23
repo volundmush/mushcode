@@ -31,6 +31,9 @@
 
 &INC`WHO`LIST u(who)=@nspemit %#=u(RFN`HEADER,Who[if(strlen(%0),%b-%b%0)]);@include u(who)/INC`WHO`HEADER`[strfirstof(%0,MAIN)];@nspemit %#=separator();@dolist %q<who>={@nspemit %#=u(FUN`WHO`PLAYERLINE`[strfirstof(%0,MAIN)],%i0);@switch/inline eq(inum(0),words(%q<who>))=1,{&VAR`MAXPLAYERS u(pco)=setr(max,max(get(u(pco)/VAR`MAXPLAYERS),words(%q<who>)));@nspemit %#=u(RFN`SUBHEADER,if(%q<noips>,,words(%q<who>) Characters from [words(setunion(iter(%q<who>,get(%i0/LASTSITE),,|),,|),|)] IPs Connected - Record is %q<max>))}}
 
+@@ ALTERNATE VERSION, doesn't show IPs
+@@ &INC`WHO`LIST u(who)=@nspemit %#=u(RFN`HEADER,Who[if(strlen(%0),%b-%b%0)]);@include u(who)/INC`WHO`HEADER`[strfirstof(%0,MAIN)];@nspemit %#=separator();@dolist %q<who>={@nspemit %#=u(FUN`WHO`PLAYERLINE`[strfirstof(%0,MAIN)],%i0);@switch/inline eq(inum(0),words(%q<who>))=1,{&VAR`MAXPLAYERS u(pco)=setr(max,max(get(u(pco)/VAR`MAXPLAYERS),words(%q<who>)));@nspemit %#=u(RFN`SUBHEADER,words(%q<who>) Characters Connected - Record is %q<max>)}}
+
 &INC`WHO`HEADER`MAIN u(who)=@nspemit %#=ansi(custcolor(%#,DEFAULT`COLNAME),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location))
 &INC`WHO`HEADER`IDLE u(who)=@include u(who)/INC`WHO`HEADER`MAIN
 

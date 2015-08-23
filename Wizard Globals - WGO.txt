@@ -1,10 +1,7 @@
 @@ DEPENDENCIES - CORE
 
-@switch/first/inline isdbref(u(wgo))=0,{@tel create(Wizard Globals Object <WGO>)=config(master_room)}
-&wgo u(coi)=locate(config(master_room),Wizard Globals Object <WGO>,TXxi)
-@parent u(wgo)=u(coi)
-@set u(wgo)=WIZARD !NO_COMMAND
-@lock/command u(wgo)=FLAG^WIZARD
+th u(NEWCOBJ,Wizard Globals <WG>,wizard_globals,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+@lock/use [u(cobj,wizard_globals)]=ISWIZARD2/1
 
-&CMD`+DARK u(wgo)=$^(?s)(?\:\+)?dark(?\:/(\S+)?)?$:@attach u(ccs)/INC`PARTIAL=%1,ON|OFF,|,DARK,switch,switch;@switch/first/inline haspower(%#,can_dark)=0,{@power %#=can_dark};@switch/first/inline %q<switch>=OFF,{@set %#=!dark;@dolist/inline ports(%#)=@hide/off %i0;@pemit %#=Shown.},ON,{@set %#=dark;@dolist/inline ports(%#)=@hide/on %i0;@pemit %#=Hidden.},{@attach u(wgo)/CMD`+DARK=,if(hasflag(%#,DARK),Off,On)}
-@set u(wgo)/CMD`+DARK=regexp
+&CMD`+DARK [u(cobj,wizard_globals)]=$^(?s)(?\:\+)?dark(?\:/(\S+)?)?$:@attach %!/INC`PARTIAL=%1,ON|OFF,|,switch,switch;@select/inline haspower(%#,can_dark)=0,{@power %#=can_dark};@select/inline %q<switch>=OFF,{@set %#=!dark;@dolist/inline ports(%#)=@hide/off %i0;@pemit %#=Shown.},ON,{@set %#=dark;@dolist/inline ports(%#)=@hide/on %i0;@pemit %#=Hidden.},{@attach %!/CMD`+DARK=,if(hasflag(%#,DARK),Off,On)}
+@set [u(cobj,wizard_globals)]/CMD`+DARK=regexp
