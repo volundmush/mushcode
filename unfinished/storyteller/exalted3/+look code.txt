@@ -1,4 +1,4 @@
-@switch/inline isdbref(u(look))=0,{@tel create(+look code)=config(master_room)}
+@select/inline isdbref(u(look))=0,{@tel create(+look code)=config(master_room)}
 &look u(coi)=locate(config(master_room),+look code,TXxi)
 @parent u(look)=u(coi)
 @set u(look)=WIZARD !NO_COMMAND
@@ -6,16 +6,16 @@
 
 &DESCRIBE u(look)=This is the master +look object. It is used via +look and takes no arguments. It is as modular as it gets. +wharblegarble should be elsewhere, but I'll leave it as my personal signature.
 
-&DO`LOOK u(look)=$+look:@nspemit %#=header(+look);@dolist/inline lvplayers(%l)={@nspemit %#=[ansi(h,u(LOOK`getname,%i0))][u(LOOK`getshort,%i0)]%r[u(LOOK`MAKETABLE,%i0)]%r[header()]}
+&DO`LOOK u(look)=$+look:@pemit %#=header(+look);@dolist/inline lvplayers(%l)={@pemit %#=[ansi(h,u(LOOK`getname,%i0))][u(LOOK`getshort,%i0)]%r[u(LOOK`MAKETABLE,%i0)]%r[header()]}
 
-&LOOK`GETAPP u(look)=rjust([ansi(h,Appearance:)] ,12,)%B[if(setr(z,getstat(%0/D`ATTRIBUTES,APPEARANCE)),%qz,0)]
-&LOOK`GETASPECT u(look)=[rjust(ansi(h,Aspect:) ,12,)]%B[switch(getstat(%0/d`info, caste),Air,ansi(setr(y,hc),Air),Earth,ansi(setr(y,y),Earth),Fire,ansi(setr(y,hr),Fire),Water,ansi(setr(y,hb),Water),Wood,ansi(setr(y,hg),Wood),Not-DB)]%B[if(setr(z,getstat(%0/D`BACKGROUNDS,BREEDING)),ansi(%qy,%qz),ansi(%qy,0))]
+&LOOK`GETAPP u(look)=rjust([ansi(h,Appearance:)] ,12,)%B[if(u(setr,z,getstat(%0/D`ATTRIBUTES,APPEARANCE)),%qz,0)]
+&LOOK`GETASPECT u(look)=[rjust(ansi(h,Aspect:) ,12,)]%B[switch(getstat(%0/d`info, caste),Air,ansi(u(setr,y,hc),Air),Earth,ansi(u(setr,y,y),Earth),Fire,ansi(u(setr,y,hr),Fire),Water,ansi(u(setr,y,hb),Water),Wood,ansi(u(setr,y,hg),Wood),Not-DB)]%B[if(u(setr,z,getstat(%0/D`BACKGROUNDS,BREEDING)),ansi(%qy,%qz),ansi(%qy,0))]
 &LOOK`GETBREEDING u(look)=ljust(Breeding: [switch(getstat(%0/D`BACKGROUNDS,breeding),1,1,2,2,3,3,4,4,5,5 %b,None)],35,)
-&LOOK`GETCASTE u(look)=[rjust([ansi(h,Caste:)] ,12,)]%B[if(strlen(setr(z,getstat(%0/D`INFO,CASTE))),%qz,N/A)]
-&LOOK`GETCHA u(look)=[rjust([ansi(h,Charisma:)] ,12,)]%B[if(setr(z,getstat(%0/D`ATTRIBUTES,CHARISMA)),%qz,0)]
+&LOOK`GETCASTE u(look)=[rjust([ansi(h,Caste:)] ,12,)]%B[if(strlen(u(setr,z,getstat(%0/D`INFO,CASTE))),%qz,N/A)]
+&LOOK`GETCHA u(look)=[rjust([ansi(h,Charisma:)] ,12,)]%B[if(u(setr,z,getstat(%0/D`ATTRIBUTES,CHARISMA)),%qz,0)]
 &LOOK`GETNAME u(look)=ljust([name(%0)],25,.)
-&LOOK`GETPRE u(look)=[rjust([ansi(h,Presence:)] ,12,)]%B[if(setr(z,getstat(%0/D`ABILITIES,PRESENCE)),%qz,0)]
-&LOOK`GETRACE u(look)=[rjust([ansi(h,Race:)] ,12,)]%B[if(strlen(setr(z,getstat(%0/D`INFO,RACE))),%qz,N/A)]
+&LOOK`GETPRE u(look)=[rjust([ansi(h,Presence:)] ,12,)]%B[if(u(setr,z,getstat(%0/D`ABILITIES,PRESENCE)),%qz,0)]
+&LOOK`GETRACE u(look)=[rjust([ansi(h,Race:)] ,12,)]%B[if(strlen(u(setr,z,getstat(%0/D`INFO,RACE))),%qz,N/A)]
 &LOOK`GETSEX u(look)=[rjust([ansi(h,Sex:)] ,12,)]%B[switch(xget(%0,sex),f*,Female,m*,Male,Neuter)]
 &LOOK`GETSHORT u(look)=ljust(eval(%0,short-desc),47)
-&LOOK`MAKETABLE u(look)=table([u(LOOK`getsex,%0)]|[u(LOOK`getrace,%0)]|[if(strmatch(Dragon-Blooded,getstat(%0/D`INFO,Race)),u(LOOK`getaspect,%0),u(LOOK`getcaste,%0))]|[u(LOOK`getapp,%0)]|[u(LOOK`getcha,%0)]|[u(LOOK`getpre,%0)],24,78,|)
+&LOOK`MAKETABLE u(look)=u(table,[u(LOOK`getsex,%0)]|[u(LOOK`getrace,%0)]|[if(strmatch(Dragon-Blooded,getstat(%0/D`INFO,Race)),u(LOOK`getaspect,%0),u(LOOK`getcaste,%0))]|[u(LOOK`getapp,%0)]|[u(LOOK`getcha,%0)]|[u(LOOK`getpre,%0)],24,78,|)

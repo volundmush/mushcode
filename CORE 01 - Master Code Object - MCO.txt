@@ -20,6 +20,12 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &LATTR`PENNMUSH [u(cobj,mco)]=lattr(%0,%1)
 &LATTR`RHOSTMUSH [u(cobj,mco)]=if(strlen(%1),iter(lattr(%0,,,,,1),%i0,%b,%1),lattr(%0,,,,,1))
 
+&LATTRP [u(cobj,mco)]=u(LATTR`[v(game)],%0,%1)
+&LATTRP`PENNMUSH [u(cobj,mco)]=lattrp(%0,%1)
+&LATTRP`RHOSTMUSH [u(cobj,mco)]=if(strlen(%1),iter(lattrp(%0,,,,,1),%i0,%b,%1),lattrp(%0,,,,,1))
+
+if(strlen(%1),iter(lattr(%0,,,,,1),%i0,%b,%1),lattr(%0,,,,,1))
+
 &REGLATTR [u(cobj,mco)]==u(REGLATTR`[v(game)],%0,%1)
 &REGLATTR`PENNMUSH [u(cobj,mco)]=reglattr(%0,%1)
 &REGLATTR`RHOSTMUSH [u(cobj,mco)]=if(strlen(%1),iter(lattr(%0,,,,1,1),%i0,%b,%1),lattr(%0,,,,1,1))
@@ -94,7 +100,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &MASTER_ROOM [u(cobj,mco)]=switch(v(game),PennMUSH,config(master_room),RhostMUSH,globalroom())
 &OPEN_CREATION [u(cobj,mco)]=switch(v(game),PennMUSH,strmatch(config(player_creation),yes),RhostMUSH,!member(config(register_host),*))
 
-&NATTR [u(cobj,mco)]=u(LATTR`[v(game)],%0)
+&NATTR [u(cobj,mco)]=u(NATTR`[v(game)],%0)
 &NATTR`PENNMUSH [u(cobj,mco)]=nattr(%0)
 &NATTR`RHOSTMUSH [u(cobj,mco)]=first(lattr(%0,,l,,,1))
 
@@ -119,6 +125,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &FANCYTIME [u(cobj,mco)]=u(FANCYTIME`[v(game)],%0,%1)
 &FANCYTIME`PENNMUSH [u(cobj,mco)]=timefmt($b $d $I:$M$p $Z,%0,strfirstof(u(tz,%1),u(tz,%#)))
 &FANCYTIME`RHOSTMUSH [u(cobj,mco)]=timefmt($b $D $02H:$02T$P $i,u(strfirstof,%0,secs()),u(tz,u(strfirstof,%1,%#)))
+
+&PLAYER_NAME_LEN [u(cobj,mco)]=switch(v(game),PennMUSH,config(player_name_len),RhostMUSH,22)
 
 &DATE [u(cobj,mco)]=u(DATE`[v(game)],%0,%1)
 &DATE`PENNMUSH [u(cobj,mco)]=timefmt($x,%0,strfirstof(u(tz,%1),u(tz,%#)))
@@ -165,6 +173,10 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &MONIKER [u(cobj,mco)]=u(MONIKER`[v(game)],%0)
 &MONIKER`PENNMUSH [u(cobj,mco)]=moniker(%0)
 &MONIKER`RHOSTMUSH [u(cobj,mco)]=cname(%0)
+
+&NAMEGRAB [u(cobj,mco)]=u(NAMEGRAB`[v(game)],%0,%1)
+&NAMEGRAB`PENNMUSH [u(cobj,mco)]=namegrab(%0,%1)
+&NAMEGRAB`RHOSTMUSH [u(cobj,mco)]=first(trim(squish(iter(%0,if(cor(strmatch(name(%i0),*%1*),strmatch(%i0,%1),strmatch(u(alias,%i0),%i0)),%i0)))))
 
 &NAMEGRABALL [u(cobj,mco)]=u(NAMEGRABALL`[v(game)],%0,%1)
 &NAMEGRABALL`PENNMUSH [u(cobj,mco)]=namegraball(%0,%1)

@@ -1,9 +1,9 @@
-@switch/inline isdbref(u(place))=0,{@tel create(Places Code <PLACE>)=config(master_room)}
+@select/inline isdbref(u(place))=0,{@tel create(Places Code <PLACE>)=config(master_room)}
 &place u(coi)=locate(config(master_room),Places Code <PLACE>,TXxi)
 @parent u(place)=u(coi)
 @set u(place)=WIZARD SAFE !NO_COMMAND
 
-&CMD`+PLACES u(place)=$^(?s)(?\:\+)?places(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(place)/VAR`PLAYFLAGS),if(cor(isadmin(%#),controls(%#,%l)),get(u(place)/VAR`ADMINFLAGS)),|,|),|,PLACES,switch,switch;@include u(place)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3,%4,%2[if(strlen(%3),/%3)]
+&CMD`+PLACES u(place)=$^(?s)(?\:\+)?places(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach u(ccs)/INC`PARTIAL=%1,setunion(get(u(place)/VAR`PLAYFLAGS),if(cor(isadmin(%#),controls(%#,%l)),get(u(place)/VAR`ADMINFLAGS)),|,|),|,PLACES,switch,switch;@attach u(place)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3,%4,%2[if(strlen(%3),/%3)]
 @set u(place)/CMD`+PLACES=regexp
 
 &VAR`PLAYFLAGS u(place)=
@@ -15,66 +15,66 @@
 &RFN`SEPARATOR u(place)=separator(%0,,PLACES`BORDER,PLACES`BORDERDOT,PLACES`BORDERTEXT)
 &RFN`MSGHEAD u(place)=msghead(v(VAR`MSGHEAD))
 
-&INC`CREATE u(place)=@assert hastype(%l,ROOM)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Places can only be created in Rooms.;@assert strlen(%3)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Must include a name for the location.;@break valnum(%3)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Names cannot be integers.;@break strmatch(%3,*/*)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Places cannot have a / in their name.;@break strlen(u(FUN`FINDEXACT,%l,%3))=@nspemit %#=u(RFN`MSGHEAD) ERROR: A Place with that name already exists.;&[setr(attr,PLACE`[setr(id,nextslot(%l,PLACE))])] %l=%0;@switch/inline t(strlen(%2))=1,{&%q<attr>`DESC %l=%2};@nspemit %#=u(RFN`MSGHEAD) Place '%0' Created in Slot %q<id>.
+&INC`CREATE u(place)=@check hastype(%l,ROOM)=@pemit %#=u(RFN`MSGHEAD) ERROR: Places can only be created in Rooms.;@check strlen(%3)=@pemit %#=u(RFN`MSGHEAD) ERROR: Must include a name for the location.;@stop valnum(%3)=@pemit %#=u(RFN`MSGHEAD) ERROR: Names cannot be integers.;@stop strmatch(%3,*/*)=@pemit %#=u(RFN`MSGHEAD) ERROR: Places cannot have a / in their name.;@stop strlen(u(FUN`FINDEXACT,%l,%3))=@pemit %#=u(RFN`MSGHEAD) ERROR: A Place with that name already exists.;&[u(setr,attr,PLACE`[u(setr,id,nextslot(%l,PLACE))])] %l=%0;@select/inline t(strlen(%2))=1,{&%q<attr>`DESC %l=%2};@pemit %#=u(RFN`MSGHEAD) Place '%0' Created in Slot %q<id>.
 
 &FUN`FINDEXACT u(place)=if(valnum(%1),if(hasattr(%0/PLACE`%1),%1),after(first(wildgrepi(%0,PLACE`*,%1)),`))
 
 &FUN`FINDWILD u(place)=firstof(u(FUN`FINDEXACT,%0,%1),after(first(wildgrepi(%0,PLACE`*,%1*)),`))
 
-&INC`FIND u(place)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Place name field empty.;@assert setr(id,u(FUN`FIND[if(%4,EXACT,WILD)],%l,%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Place '%0' not found.[if(%4,%bThis lookup requires exact spelling.)];th setq(attr,PLACE`%q<id>,pname,get(%l/PLACE`%q<id>))
+&INC`FIND u(place)=@check strlen(%0)=@pemit %#=u(RFN`MSGHEAD) ERROR: Place name field empty.;@check u(setr,id,u(FUN`FIND[if(%4,EXACT,WILD)],%l,%0))=@pemit %#=u(RFN`MSGHEAD) ERROR: Place '%0' not found.[if(%4,%bThis lookup requires exact spelling.)];th u(setq,attr,PLACE`%q<id>,pname,get(%l/PLACE`%q<id>))
 
-&INC`DESC u(place)=@include u(place)/INC`FIND;@assert strlen(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: New desc is empty!;&%q<attr>`DESC %l=%2;@nspemit %#=u(RFN`MSGHEAD) Desc set for '%q<id>: %q<pname>'
+&INC`DESC u(place)=@attach u(place)/INC`FIND;@check strlen(%2)=@pemit %#=u(RFN`MSGHEAD) ERROR: New desc is empty!;&%q<attr>`DESC %l=%2;@pemit %#=u(RFN`MSGHEAD) Desc set for '%q<id>: %q<pname>'
 
-&INC`DELETE u(place)=@include u(place)/INC`FIND;@include u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will Delete Place '%q<id>: %q<pname>'. Are you sure? Enter the same command again to verify.},%l/%q<attr>,v(VAR`MSGHEAD);@trigger u(place)/TRG`DELETE=%#,%l,%q<attr>;@nspemit %#=u(RFN`MSGHEAD) Place '%q<id>: %q<pname>' deleted!;@wipe %l/%q<attr>
+&INC`DELETE u(place)=@attach u(place)/INC`FIND;@attach u(ccs)/INC`VERIFY={ansi(hr,WARNING:) This will Delete Place '%q<id>: %q<pname>'. Are you sure? Enter the same command again to verify.},%l/%q<attr>,v(VAR`MSGHEAD);@trigger u(place)/TRG`DELETE=%#,%l,%q<attr>;@pemit %#=u(RFN`MSGHEAD) Place '%q<id>: %q<pname>' deleted!;@wipe %l/%q<attr>
 
-&INC`CONFIG u(place)=@include u(place)/INC`FIND;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Config option empty!;@include u(ccs)/INC`PARTIAL=%1,v(VAR`CONFIG),|,PLACES,choice,choice;@switch/inline t(strlen(%2))=1,{@include u(place)/VALID`%q<choice>=%2;&%q<attr>`CONFIG`%q<choice> %l=%q<entry>;@nspemit %#=u(RFN`MSGHEAD) Place '%q<id>: %q<pname>' %q<choice> configured to: %q<entry>},0,{&%q<attr>`CONFIG`%q<choice> %l;@nspemit %#=u(RFN`MSGHEAD) Place '%q<id>: %q<pname>' %q<choice> cleared. Set to defaults.}
+&INC`CONFIG u(place)=@attach u(place)/INC`FIND;@check strlen(%1)=@pemit %#=u(RFN`MSGHEAD) ERROR: Config option empty!;@attach u(ccs)/INC`PARTIAL=%1,v(VAR`CONFIG),|,PLACES,choice,choice;@select/inline t(strlen(%2))=1,{@attach u(place)/VALID`%q<choice>=%2;&%q<attr>`CONFIG`%q<choice> %l=%q<entry>;@pemit %#=u(RFN`MSGHEAD) Place '%q<id>: %q<pname>' %q<choice> configured to: %q<entry>},0,{&%q<attr>`CONFIG`%q<choice> %l;@pemit %#=u(RFN`MSGHEAD) Place '%q<id>: %q<pname>' %q<choice> cleared. Set to defaults.}
 
 &VAR`CONFIG u(place)=MAX|FULL|JOIN|OJOIN|DEPART|ODEPART|PREFIX|MUFFLE
 
-&VALID`MAX u(place)=@assert valnum(setr(entry,%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Entry must be a whole positive number.
-&VALID`FULL u(place)=@assert if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th setq(entry,%0)
-&VALID`JOIN u(place)=@assert if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th setq(entry,%0)
-&VALID`OJOIN u(place)=@assert if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th setq(entry,%0)
-&VALID`DEPART u(place)=@assert if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th setq(entry,%0)
-&VALID`ODEPART u(place)=@assert if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th setq(entry,%0)
-&VALID`PREFIX u(place)=@assert if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th setq(entry,%0)
-&VALID`MUFFLE u(place)=@assert match(lnum(0,100),setr(entry,%0))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Entry must be a number 0-100.
+&VALID`MAX u(place)=@check valnum(u(setr,entry,%0))=@pemit %#=u(RFN`MSGHEAD) ERROR: Entry must be a whole positive number.
+&VALID`FULL u(place)=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@pemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`JOIN u(place)=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@pemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`OJOIN u(place)=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@pemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`DEPART u(place)=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@pemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`ODEPART u(place)=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@pemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`PREFIX u(place)=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@pemit %#=u(RFN`MSGHEAD) ERROR: For security reasons, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`MUFFLE u(place)=@check match(lnum(0,100),u(setr,entry,%0))=@pemit %#=u(RFN`MSGHEAD) ERROR: Entry must be a number 0-100.
 
-&INC`RENAME u(place)=@include u(place)/INC`FIND;@assert strlen(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: New name field is empty.;@break strmatch(%2,*/*)=@nspemit %#=u(RFN`MSHEAD) ERROR: Place names may not include a /.;@break u(FUN`FINDEXACT,%l,%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: That name is already used here!;&%q<attr> %l=%2;@nspemit %#=u(RFN`MSGHEAD) Place '%q<id>: %q<pname>' renamed to %2.
+&INC`RENAME u(place)=@attach u(place)/INC`FIND;@check strlen(%2)=@pemit %#=u(RFN`MSGHEAD) ERROR: New name field is empty.;@stop strmatch(%2,*/*)=@pemit %#=u(RFN`MSHEAD) ERROR: Place names may not include a /.;@stop u(FUN`FINDEXACT,%l,%2)=@pemit %#=u(RFN`MSGHEAD) ERROR: That name is already used here!;&%q<attr> %l=%2;@pemit %#=u(RFN`MSGHEAD) Place '%q<id>: %q<pname>' renamed to %2.
 
-&INC`SLOT u(place)=@include u(place)/INC`FIND;@assert strlen(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: New slot number empty.;@assert valnum(%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: New slot must be a whole, positive number.;@break hasattr(%l/PLACE`%2)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Slot is already occupied.;@include u(ccs)/INC`MVTREE=%l,%q<attr>,%l,PLACE`%2;@nspemit %#=u(RFN`MSGHEAD) Place '%q<id>: %q<pname>' Relocated to slot %2.
+&INC`SLOT u(place)=@attach u(place)/INC`FIND;@check strlen(%2)=@pemit %#=u(RFN`MSGHEAD) ERROR: New slot number empty.;@check valnum(%2)=@pemit %#=u(RFN`MSGHEAD) ERROR: New slot must be a whole, positive number.;@stop hasattr(%l/PLACE`%2)=@pemit %#=u(RFN`MSGHEAD) ERROR: Slot is already occupied.;@attach u(ccs)/INC`MVTREE=%l,%q<attr>,%l,PLACE`%2;@pemit %#=u(RFN`MSGHEAD) Place '%q<id>: %q<pname>' Relocated to slot %2.
 
-&INC`MAIN u(place)=@assert words(setr(list,sortkey(#lambda/last(\%0,`),lattr(%l/PLACE`*))))=@nspemit %#=u(RFN`MSGHEAD) There are no Places here!;@nspemit %#=u(RFN`HEADER,Places at [moniker(%l)]);@nspemit %#=align(5 25 10 34,ID,Name,Capacity,Occupants);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline %q<list>={@nspemit %#=align(5 25 10 34,last(%i0,`),get(%l/%i0),words(setr(occup,filterbool(#lambda/isobjid(\%0),get(%l/%i0`OCCUPANTS))))/[u(FUN`CONF,%l,last(%i0,`),MAX)],itemize(iter(%q<occup>,name(%i0),%b,|),|,and,\,))};@nspemit %#=u(RFN`SUBHEADER)
+&INC`MAIN u(place)=@check words(u(setr,list,sortkey(#lambda/last(\%0,`),u(lattr,%l/PLACE`*))))=@pemit %#=u(RFN`MSGHEAD) There are no Places here!;@pemit %#=u(RFN`HEADER,Places at [moniker(%l)]);@pemit %#=align(5 25 10 34,ID,Name,Capacity,Occupants);@pemit %#=u(RFN`SEPARATOR);@dolist/inline %q<list>={@pemit %#=align(5 25 10 34,last(%i0,`),get(%l/%i0),words(u(setr,occup,filterbool(#lambda/isobjid(\%0),get(%l/%i0`OCCUPANTS))))/[u(FUN`CONF,%l,last(%i0,`),MAX)],itemize(iter(%q<occup>,name(%i0),%b,|),|,and,\,))};@pemit %#=u(RFN`SUBHEADER)
 
 @ALEAVE u(ar)=@trigger me/CLEAN_PLACES=%:
 
-&CLEAN_PLACES u(ar)=@dolist/inline strfirstof(%1,lattr(me/PLACE`*`OCCUPANTS))={&%i0 me=setdiff(filterbool(#lambda/isobjid(\%0),v(%i0)),strfirstof(%0,%:),%b,namei);@wipe me/PLACE_[num(strfirstof(%0,%:))]}
+&CLEAN_PLACES u(ar)=@dolist/inline strfirstof(%1,u(lattr,me/PLACE`*`OCCUPANTS))={&%i0 me=setdiff(filterbool(#lambda/isobjid(\%0),v(%i0)),strfirstof(%0,%:),%b,namei);@wipe me/PLACE_[num(strfirstof(%0,%:))]}
 
-&PLAYER`DISCONNECT`PLACES u(place)=@break %1;@trigger loc(%0)/CLEAN_PLACES=%0
+&PLAYER`DISCONNECT`PLACES u(place)=@stop %1;@trigger loc(%0)/CLEAN_PLACES=%0
 
 &OBJECT`DESTROY`PLACES u(place)=@dolist/inline lsearch(all,type,room,elock,PLACE_[num(%0)]:*)={@trigger %i0/CLEAN_PLACES=%0}
 
-&CMD`+PLACES2 u(place)=$^(?s)(?\:\+)?(depart|place|mutter|plook)(?\: +(.*))?$:@include u(place)/PLACES`%1=%2
+&CMD`+PLACES2 u(place)=$^(?s)(?\:\+)?(depart|place|mutter|plook)(?\: +(.*))?$:@attach u(place)/PLACES`%1=%2
 @set u(place)/CMD`+PLACES2=regexp
 
-&PLACES`PLOOK u(place)=@include u(place)/INC`FIND;@assert hasattrval(%l/%q<attr>`DESC)=@nspemit %#=u(RFN`MSGHEAD) Place %q<pname> has no Description!;@nspemit %#=u(RFN`HEADER,moniker(%l) - [get(%l/%q<attr>)]);@nspemit %#=get(%l/%q<attr>`DESC);@switch/inline isadmin(%#)=1,{@nspemit %#=u(RFN`SEPARATOR,Admin Section);@nspemit %#=align(10 40 10,Option,Value,Default?);@nspemit %#=u(RFN`SEPARATOR);@dolist/inline MAX MUFFLE FULL JOIN OJOIN DEPART ODEPART PREFIX={@nspemit %#=align(10 40 10,%i0,u(FUN`CONF,%l,%q<id>,%i0),if(hasattrval(%l/%q<attr>`CONFIG`%i0),No,Yes))}};@nspemit %#=u(RFN`SUBHEADER)
+&PLACES`PLOOK u(place)=@attach u(place)/INC`FIND;@check hasattrval(%l/%q<attr>`DESC)=@pemit %#=u(RFN`MSGHEAD) Place %q<pname> has no Description!;@pemit %#=u(RFN`HEADER,moniker(%l) - [get(%l/%q<attr>)]);@pemit %#=get(%l/%q<attr>`DESC);@select/inline isadmin(%#)=1,{@pemit %#=u(RFN`SEPARATOR,Admin Section);@pemit %#=align(10 40 10,Option,Value,Default?);@pemit %#=u(RFN`SEPARATOR);@dolist/inline MAX MUFFLE FULL JOIN OJOIN DEPART ODEPART PREFIX={@pemit %#=align(10 40 10,%i0,u(FUN`CONF,%l,%q<id>,%i0),if(hasattrval(%l/%q<attr>`CONFIG`%i0),No,Yes))}};@pemit %#=u(RFN`SUBHEADER)
 
-&PLACES`DEPART u(place)=@assert cand(setr(id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@nspemit %#=u(RFN`MSGHEAD) You are not occupying any places!;@trigger %l/CLEAN_PLACES=%:,PLACE`%q<id>`OCCUPANTS;@include u(place)/MSG`DEPART;@include u(place)/MSG`ODEPART
+&PLACES`DEPART u(place)=@check cand(u(setr,id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@pemit %#=u(RFN`MSGHEAD) You are not occupying any places!;@trigger %l/CLEAN_PLACES=%:,PLACE`%q<id>`OCCUPANTS;@attach u(place)/MSG`DEPART;@attach u(place)/MSG`ODEPART
 
-&PLACES`PLACE u(place)=@break cand(setr(id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@nspemit %#=u(RFN`MSGHEAD) You are already occupying Place %q<id>: [get(%l/PLACE`%q<id>)]! Depart first!;@include u(place)/INC`FIND;@break cand(gte(words(get(%l/%q<attr>`OCCUPANTS)),u(FUN`CONF,%l,%q<id>,MAX)),not(isadmin(%#)))=@include u(place)/MSG`FULL;&%q<attr>`OCCUPANTS %l=setunion(filterbool(#lambda/isobjid(\%0),get(%l/%q<attr>`OCCUPANTS)),%:,%b,namei);&PLACE_%# %l=%q<id>;@include u(place)/MSG`JOIN;@include u(place)/MSG`OJOIN
+&PLACES`PLACE u(place)=@stop cand(u(setr,id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@pemit %#=u(RFN`MSGHEAD) You are already occupying Place %q<id>: [get(%l/PLACE`%q<id>)]! Depart first!;@attach u(place)/INC`FIND;@stop cand(gte(words(get(%l/%q<attr>`OCCUPANTS)),u(FUN`CONF,%l,%q<id>,MAX)),not(isadmin(%#)))=@attach u(place)/MSG`FULL;&%q<attr>`OCCUPANTS %l=setunion(filterbool(#lambda/isobjid(\%0),get(%l/%q<attr>`OCCUPANTS)),%:,%b,namei);&PLACE_%# %l=%q<id>;@attach u(place)/MSG`JOIN;@attach u(place)/MSG`OJOIN
 
-&PLACES`MUTTER u(place)=@assert cand(setr(id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@nspemit %#=u(RFN`MSGHEAD) You are not occupying any places!;@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) What will you say?;@break match(| ; :,left(%0,1))=@nspemit %#=u(RFN`MSGHEAD) Sorry, no posing in Mutter mode.;@nspemit/list setr(occup,get(%l/PLACE`%q<id>`OCCUPANTS))=u(FUN`CONF,%l,%q<id>,PREFIX)%b[speak(%#,%0,mutters\,)];@switch/inline t(u(FUN`CONF,%l,%q<id>,MUFFLE))=1,{@nsoemit %l/%q<occup>=From [get(%l/PLACE`%q<id>)], [speak(%#,%0,mutters\,,%l/MUTTER)]}
+&PLACES`MUTTER u(place)=@check cand(u(setr,id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@pemit %#=u(RFN`MSGHEAD) You are not occupying any places!;@check strlen(%0)=@pemit %#=u(RFN`MSGHEAD) What will you say?;@stop match(| ; :,left(%0,1))=@pemit %#=u(RFN`MSGHEAD) Sorry, no posing in Mutter mode.;@pemit/list u(setr,occup,get(%l/PLACE`%q<id>`OCCUPANTS))=u(FUN`CONF,%l,%q<id>,PREFIX)%b[speak(%#,%0,mutters\,)];@select/inline t(u(FUN`CONF,%l,%q<id>,MUFFLE))=1,{@nsoemit %l/%q<occup>=From [get(%l/PLACE`%q<id>)], [speak(%#,%0,mutters\,,%l/MUTTER)]}
 
-&MUTTER u(ar)=[setq(id,v(PLACE_[num(%1)]))][setq(chance,default(PLACE`%q<id>`CONFIG`MUFFLE,30))]"[if(eq(%q<chance>,100),%0,iter(%0,if(lte(rand(0,100),%q<chance>),%i0,...)))]"
+&MUTTER u(ar)=[u(setq,id,v(PLACE_[num(%1)]))][u(setq,chance,default(PLACE`%q<id>`CONFIG`MUFFLE,30))]"[if(eq(%q<chance>,100),%0,iter(%0,if(lte(rand(0,100),%q<chance>),%i0,...)))]"
 
 &FUN`CONF u(place)=default(%0/PLACE`%1`CONFIG`%2,v(DEF`%2))
 
 &FUN`MSG u(place)=udefault(%0/PLACE`%1`CONFIG`%2,u(DEF`%2,name(%3),subj(%3),obj(%3),poss(%3),aposs(%3),%1,get(%0/PLACE`%1)),name(%3),subj(%3),obj(%3),poss(%3),aposs(%3),%1,get(%0/PLACE`%1))
 
-&MSG`FULL u(place)=@nspemit %#=u(FUN`MSG,%l,%q<id>,FULL,%:)
-&MSG`JOIN u(place)=@nspemit %#=u(FUN`MSG,%l,%q<id>,JOIN,%:)
+&MSG`FULL u(place)=@pemit %#=u(FUN`MSG,%l,%q<id>,FULL,%:)
+&MSG`JOIN u(place)=@pemit %#=u(FUN`MSG,%l,%q<id>,JOIN,%:)
 &MSG`OJOIN u(place)=@nsoemit %#=u(FUN`MSG,%l,%q<id>,OJOIN,%:)
-&MSG`DEPART u(place)=@nspemit %#=u(FUN`MSG,%l,%q<id>,DEPART,%:)
+&MSG`DEPART u(place)=@pemit %#=u(FUN`MSG,%l,%q<id>,DEPART,%:)
 &MSG`ODEPART u(place)=@nsoemit %#=u(FUN`MSG,%l,%q<id>,ODEPART,%:)
 
 &DEF`FULL u(place)=That location is full!

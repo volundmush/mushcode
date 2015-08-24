@@ -1,13 +1,13 @@
-@switch/inline isdbref(u(ism))=0,{@tel create(Idle Status Manager <ISM>)=config(master_room)}
+@select/inline isdbref(u(ism))=0,{@tel create(Idle Status Manager <ISM>)=config(master_room)}
 &ism u(coi)=locate(config(master_room),Idle Status Manager <ISM>,TXxi)
 @set u(ism)=WIZARD SAFE !NO_COMMAND
 @parent u(ism)=u(coi)
 
 &STARTUP u(ism)=@trigger u(ism)/TRG`IDLECHECK
 
-&TRG`IDLECHECK u(ism)=@switch/inline t(v(VAR`IDLECHECK))={@trigger me/TRG`DOIDLE};@wait 300={@trigger me/TRG`IDLECHECK}
+&TRG`IDLECHECK u(ism)=@select/inline t(v(VAR`IDLECHECK))={@trigger me/TRG`DOIDLE};@wait 300={@trigger me/TRG`IDLECHECK}
 
-&TRG`DOIDLE u(ism)=@dolist filterbool(#lambda/and(nor(hasflag(\%0,DARK),hidden(\%0),isadmin(\%0),haspower(\%0,BUILDER),strmatch(#22,loc(\%0)),strmatch(loc(\%0),home(\%0))),if(hasattrval(\%0/D`LASTIC),gte(sub(secs(),get(\%0/D`LASTIC)),v(VAR`IDLEOOC)),0)),setunion(lwho(),lwho()))={@switch/inline default(%i0/PLAYSTATUS,OOC)=IC,{&PLAYSTATUS %i0=OOC;@nscemit/noisy RP Alerts=ansi(w,name(%i0)) [ansi(<#848484>,has been automatically marked)] [ansi(m,Out of Character.)];@nspemit %i0=ansi(hg,You've been marked OOC due to idletimes.)};@@ @force/inplace %i0=+recall;@@ @nspemit %i0=ansi(hg,You have been auto-recalled due to inactivity.)}
+&TRG`DOIDLE u(ism)=@dolist filterbool(#lambda/and(nor(hasflag(\%0,DARK),hidden(\%0),isadmin(\%0),haspower(\%0,BUILDER),strmatch(#22,loc(\%0)),strmatch(loc(\%0),home(\%0))),if(hasattrval(\%0/D`LASTIC),gte(sub(secs(),get(\%0/D`LASTIC)),v(VAR`IDLEOOC)),0)),setunion(lwho(),lwho()))={@select/inline default(%i0/PLAYSTATUS,OOC)=IC,{&PLAYSTATUS %i0=OOC;@nscemit/noisy RP Alerts=ansi(w,name(%i0)) [ansi(<#848484>,has been automatically marked)] [ansi(m,Out of Character.)];@pemit %i0=ansi(hg,You've been marked OOC due to idletimes.)};@@ @force/inplace %i0=+recall;@@ @pemit %i0=ansi(hg,You have been auto-recalled due to inactivity.)}
 
 &VAR`IDLEOOC u(ism)=3600
 

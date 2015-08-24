@@ -159,10 +159,10 @@
 
 @@ @mapsql u(scene)/FUN`RECALL=u(u(scene)/FUN`SQLFORMAT,GET`SCENERECALL,%q<scene>,%q<poses>)
 
-&FUN`RECALL u(scene)=nspemit(%q<target>,u(RFN`SEPARATOR,name(%1) Posed on [timefmt($b $d $I:$M$p $Z,convtime(%4,gettz(%q<target>)),gettz(%q<target>))])%R%3)
+&FUN`RECALL u(scene)=nspemit(%q<target>,u(RFN`SEPARATOR,name(%1) Posed on [fancytime(%4,%#)])%R%3)
 
 &SQL`GET`SCENETITLE u(scene)=SELECT scene_title FROM $DATABASE$.$SCENES$ WHERE scene_id=?
-&SQL`GET`SCENERECALL u(scene)=SELECT * FROM (SELECT objid,pose_id,pose,pose_time from $DATABASE$.$POSES$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE $POSES$.scene_id=? AND $POSES$.pose_ignore=0 ORDER BY $POSES$.pose_id desc limit ?) sub ORDER BY pose_id ASC
+&SQL`GET`SCENERECALL u(scene)=SELECT * FROM (SELECT objid,pose_id,pose,UNIX_TIMESTAMP(pose_time) from $DATABASE$.$POSES$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE $POSES$.scene_id=? AND $POSES$.pose_ignore=0 ORDER BY $POSES$.pose_id desc limit ?) sub ORDER BY pose_id ASC
 
 &INC`SCENE`MAIN u(scene)=@switch/inline t(strlen(%0))[isint(%0)]=0*,{@include u(scene)/INC`SCENE`PLAYERLIST=%:,%1},11,{@include u(scene)/INC`SCENE`DETAILS=%0,%1},10,{@include u(scene)/INC`SCENE`PLAYERLIST=%0,%1}
 
@@ -227,9 +227,10 @@
 
 &INC`SCENES`MINE u(scene)=@include u(scene)/INC`SCENES`LIST=1
 
-&INC`SCENES`LIST u(scene)=@include u(scene)/INC`USERCHECK=%:;@nspemit %#=u(RFN`HEADER,if(%0,Your%b)Current Schedule - [timefmt($Z,,gettz(%#))]);@dolist/inline if(%0,filterbool(#lambda/cor(t(words(setinter(u(sql,get`SCHEDOWNEROBJ,\%0),alts(%:)))),t(words(setinter(u(sql,get`tagobjids,\%0),alts(%:))))),u(sql,GET`UPCOMING)),u(sql,GET`UPCOMING))={@switch/inline not(strmatch(%q<last>,setr(last,timefmt($a $b $d $Y $Z,setr(time,u(sql,get`scheduletime,%i0)),gettz(%#)))))=1,{@nspemit %#=u(RFN`HEADER,%q<last>)};@nspemit %#=u(FUN`FORMATSCHEDULE2,%q<pid>,%i0,u(sql,get`scheduletitle,%i0),u(sql,get`scheduleplayername,%i0),%q<time>,u(sql,get`schedownerid,%i0))};@nspemit %#=u(RFN`HEADER)
+&INC`SCENES`LIST u(scene)=@include u(scene)/INC`USERCHECK=%:;th setq(target,%#);@nspemit %#=u(RFN`HEADER,if(%0,Your%b)Current Schedule - [timefmt($Z,,gettz(%#))]);@dolist/inline if(%0,filterbool(#lambda/cor(t(words(setinter(u(sql,get`SCHEDOWNEROBJ,\%0),alts(%:)))),t(words(setinter(u(sql,get`tagobjids,\%0),alts(%:))))),u(sql,GET`UPCOMING)),u(sql,GET`UPCOMING))={@switch/inline not(strmatch(%q<last>,setr(last,timefmt($a $b $d $Y $Z,setr(time,u(sql,get`scheduletime,%i0)),gettz(%#)))))=1,{@nspemit %#=u(RFN`SEPARATOR,%q<last>)};@nspemit %#=u(FUN`FORMATSCHEDULE2,%q<pid>,%i0,u(sql,get`scheduletitle,%i0),u(sql,get`scheduleplayername,%i0),%q<time>,u(sql,get`schedownerid,%i0))};@nspemit %#=u(RFN`HEADER)
 
 &FUN`FORMATSCHEDULE2 u(scene)=align(3 4 40 20 7,ljust(switch(1,eq(%0,%5),ansi(hg,*),t(words(setinter(u(sql,get`playerobjid,%5),alts(%:)))),ansi(hg,*),t(u(sql,get`tagcheck,%1,%0)),ansi(hr,*),t(words(setinter(u(sql,get`tagobjids,%1),alts(%:)))),ansi(c,*)),1)[u(sql,get`tagcount,%1)],pueblize(%1,+scenes %1),%2,%3,elements(fancytime(%4,%q<target>),3))
+
 
 &SQL`GET`TAGCOUNT u(scene)=SELECT count(tag_id) FROM $DATABASE$.$TAGS$ WHERE schedule_id=?
 &SQL`GET`TAGOBJIDS u(scene)=SELECT DISTINCT objid from $DATABASE$.$TAGS$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE schedule_id=?

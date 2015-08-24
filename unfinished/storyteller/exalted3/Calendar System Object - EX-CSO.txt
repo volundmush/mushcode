@@ -1,11 +1,11 @@
 @@ DEPENDENCIES - CORE
 
-@switch/inline isdbref(u(ex-cso))=0,{@tel create(Calendar System Object <EX-CSO>)=config(master_room)}
+@select/inline isdbref(u(ex-cso))=0,{@tel create(Calendar System Object <EX-CSO>)=config(master_room)}
 &ex-cso u(coi)=locate(config(master_room),Calendar System Object <EX-CSO>,TXxi)
 @parent u(ex-cso)=u(coi)
 @set u(ex-cso)=WIZARD !NO_COMMAND
 
-&CMD`+TIME u(ex-cso)=$^(?s)\+time(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(ex-cso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ex-cso)/VAR`ADMINFLAGS)),|),|,TIME,switch,switch;@include u(ex-cso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+&CMD`+TIME u(ex-cso)=$^(?s)\+time(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+))?$:@attach u(ccs)/INC`PARTIAL=%1,setunion(get(u(ex-cso)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(ex-cso)/VAR`ADMINFLAGS)),|),|,TIME,switch,switch;@attach u(ex-cso)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
 @set u(ex-cso)/CMD`+TIME=regexp
 
 &FUN`GETSEASON u(ex-cso)=ucstr(if(lte(v(VAR`CURDAY),420),reswitchi(stripansi(elements(u(VAR`MONTHNAMES),ceil(fdiv(v(VAR`CURDAY),28)),|)),^(DESCENDING WATER)$,FRIGID,^(ASCENDING EARTH|RESPLENDENT EARTH)$,SPRING,^(DESCENDING EARTH|ASCENDING WOOD|RESPLENDENT WOOD)$,CROP,^(DESCENDING WOOD|ASCENDING FIRE|RESPLENDENT FIRE)$,SUMMER,^(DESCENDING FIRE)$,BLAZING,^(ASCENDING AIR|RESPLENDENT AIR)$,AUTUMN,^(DESCENDING AIR|ASCENDING WATER|RESPLENDENT WATER)$,WINTER),AUTUMN))
@@ -24,11 +24,11 @@
 
 &FUN`SHOWTIME u(ex-cso)=rjust(div(v(VAR`CURSECS),3600),2,0):[rjust(div(mod(v(VAR`CURSECS),3600),60),2,0)]
 
-&INC`MAIN u(ex-cso)=@nspemit %#=header(Current IC Time);@nspemit %#=u(u(ex-cso)/FUN`SHOWDATE);@nspemit %#=u(u(ex-cso)/FUN`SHOWMOON);@nspemit %#=header()
+&INC`MAIN u(ex-cso)=@pemit %#=header(Current IC Time);@pemit %#=u(u(ex-cso)/FUN`SHOWDATE);@pemit %#=u(u(ex-cso)/FUN`SHOWMOON);@pemit %#=header()
 
-&TRG`ANNOUNCE u(ex-cso)=@switch/inline v(VAR`ANNOUNCE)=1,{@nscemit/noisy v(VAR`ANNOUNCECHANNEL)=u(u(ex-cso)/FUN`SHOWDATE) - [u(u(ex-cso)/FUN`SHOWMOON)]}
+&TRG`ANNOUNCE u(ex-cso)=@select/inline v(VAR`ANNOUNCE)=1,{@nscemit/noisy v(VAR`ANNOUNCECHANNEL)=u(u(ex-cso)/FUN`SHOWDATE) - [u(u(ex-cso)/FUN`SHOWMOON)]}
 
-&TRG`TICKER u(ex-cso)=@switch/inline t(v(VAR`ENABLED))=1,{@switch/inline gt(setr(newsecs,add(v(VAR`CURSECS),setr(secsadd,round(mul(60,v(VAR`MULTIPLIER)),0)))),86400)=1,{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS u(ex-cso)=sub(%q<newsecs>,86400);@switch/inline gt(setr(newdays,add(v(VAR`CURDAY),1)),425)=1,{&VAR`CURDAY u(ex-cso)=sub(%q<newdays>,425);&VAR`CURYEAR u(ex-cso)=add(v(VAR`CURYEAR),1);@trigger u(ex-cso)/TRG`ANNOUNCE},{&VAR`CURDAY u(ex-cso)=%q<newdays>;@trigger me/TRG`ANNOUNCE}},{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS u(ex-cso)=%q<newsecs>}};@wait 60={@trigger u(ex-cso)/TRG`TICKER}
+&TRG`TICKER u(ex-cso)=@select/inline t(v(VAR`ENABLED))=1,{@select/inline gt(u(setr,newsecs,add(v(VAR`CURSECS),u(setr,secsadd,round(mul(60,v(VAR`MULTIPLIER)),0)))),86400)=1,{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS u(ex-cso)=sub(%q<newsecs>,86400);@select/inline gt(u(setr,newdays,add(v(VAR`CURDAY),1)),425)=1,{&VAR`CURDAY u(ex-cso)=sub(%q<newdays>,425);&VAR`CURYEAR u(ex-cso)=add(v(VAR`CURYEAR),1);@trigger u(ex-cso)/TRG`ANNOUNCE},{&VAR`CURDAY u(ex-cso)=%q<newdays>;@trigger me/TRG`ANNOUNCE}},{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS u(ex-cso)=%q<newsecs>}};@wait 60={@trigger u(ex-cso)/TRG`TICKER}
 
 &VAR`ADMINFLAGS u(ex-cso)=STOP|START
 &VAR`ANNOUNCE u(ex-cso)=1
