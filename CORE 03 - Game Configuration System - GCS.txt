@@ -43,8 +43,8 @@ th u(NEWCOBJ,Game Configuration Data Storage <CONFIG>,config,u(cobj,gcs),,1,WIZA
 &DEFAULT`COLOR [u(cobj,config)]=@@ Empty attribute for Rhost.
 
 &DEFAULT`SYSTEM`SQL_PREFIX [u(cobj,config)]=mushcode_
-&DESC`SYSTEM`PUBLIC_EMAIL [u(cobj,config)]=Used by SQL.
-&TYPE`SYSTEM`PUBLIC_EMAIL [u(cobj,config)]=WORD
+&DESC`SYSTEM`SQL_PREFIX [u(cobj,config)]=Used by SQL.
+&TYPE`SYSTEM`SQL_PREFIX [u(cobj,config)]=WORD
 
 &DEFAULT`SYSTEM`PUBLIC_EMAIL [u(cobj,config)]=example@example.com
 &DESC`SYSTEM`PUBLIC_EMAIL [u(cobj,config)]=Used in system messages.

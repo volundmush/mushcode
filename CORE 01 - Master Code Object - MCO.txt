@@ -24,8 +24,6 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &LATTRP`PENNMUSH [u(cobj,mco)]=lattrp(%0,%1)
 &LATTRP`RHOSTMUSH [u(cobj,mco)]=if(strlen(%1),iter(lattrp(%0,,,,,1),%i0,%b,%1),lattrp(%0,,,,,1))
 
-if(strlen(%1),iter(lattr(%0,,,,,1),%i0,%b,%1),lattr(%0,,,,,1))
-
 &REGLATTR [u(cobj,mco)]==u(REGLATTR`[v(game)],%0,%1)
 &REGLATTR`PENNMUSH [u(cobj,mco)]=reglattr(%0,%1)
 &REGLATTR`RHOSTMUSH [u(cobj,mco)]=if(strlen(%1),iter(lattr(%0,,,,1,1),%i0,%b,%1),lattr(%0,,,,1,1))
@@ -46,7 +44,7 @@ if(strlen(%1),iter(lattr(%0,,,,,1),%i0,%b,%1),lattr(%0,,,,,1))
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
 &STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin sortname color mxpmenu pueblize my_config speech={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech={@function/privileged %d0=%!/%d0}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech ={@function/privileged %d0=%!/%d0}
 
 &STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`[v(game)];@include/nobreak %!/STARTUP`MAIN`EXTRA
 
@@ -176,11 +174,11 @@ if(strlen(%1),iter(lattr(%0,,,,,1),%i0,%b,%1),lattr(%0,,,,,1))
 
 &NAMEGRAB [u(cobj,mco)]=u(NAMEGRAB`[v(game)],%0,%1)
 &NAMEGRAB`PENNMUSH [u(cobj,mco)]=namegrab(%0,%1)
-&NAMEGRAB`RHOSTMUSH [u(cobj,mco)]=first(trim(squish(iter(%0,if(cor(strmatch(name(%i0),*%1*),strmatch(%i0,%1),strmatch(u(alias,%i0),%i0)),%i0)))))
+&NAMEGRAB`RHOSTMUSH [u(cobj,mco)]=first(trim(squish(iter(%0,if(cor(strmatch(name(%i0),*%1*),strmatch(%i0,%1),strmatch(u(getalias,%i0),%i0)),%i0)))))
 
 &NAMEGRABALL [u(cobj,mco)]=u(NAMEGRABALL`[v(game)],%0,%1)
 &NAMEGRABALL`PENNMUSH [u(cobj,mco)]=namegraball(%0,%1)
-&NAMEGRABALL`RHOSTMUSH [u(cobj,mco)]=trim(squish(iter(%0,if(cor(strmatch(name(%i0),*%1*),strmatch(%i0,%1),strmatch(u(alias,%i0),%i0)),%i0))))
+&NAMEGRABALL`RHOSTMUSH [u(cobj,mco)]=trim(squish(iter(%0,if(cor(strmatch(name(%i0),*%1*),strmatch(%i0,%1),strmatch(u(getalias,%i0),%i0)),%i0))))
 
 &NUMTH [u(cobj,mco)]=%0[switch(%0,11,th,12,th,13,th,switch(right(%0,1),1,st,2,nd,3,rd,th))]
 
@@ -306,6 +304,35 @@ if(strlen(%1),iter(lattr(%0,,,,,1),%i0,%b,%1),lattr(%0,,,,,1))
 &UMAIL`RHOSTMUSH [u(cobj,mco)]=elements(mailquick(%0,,1),2)
 
 
+@@ PROPERTY SECTION
+&GETPROPERTY [u(cobj,mco)]=localize(if(isdbref(%0),u(GETPROPERTY`%1,%0,%2,%3,%4)))
+
+&GETPROPERTY`GROUPS [u(cobj,mco)]=u(sortgroups,u(sortname,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS))))
+&GETPROPERTY`GTITLE [u(cobj,mco)]=get(%0/D`GROUP`[u(namegrab,u(GETPROPERTY`GROUPS,%0,%1,%2),%1)]`TITLE)
+&GETPROPERTY`FACTIONDB [u(cobj,mco)]=first(u(GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))
+&GETPROPERTY`FACTIONCOLOR [u(cobj,mco)]=if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(u(gso)/FUN`GETSET,%q<fac>,COLOR),hx)
+&GETPROPERTY`FACTIONSDB [u(cobj,mco)]=u(filter,FACTIONS,u(GETPROPERTY`GROUPS,%0,%1,%2,%3))
+&GETPROPERTY`FACTION [u(cobj,mco)]=if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
+&GETPROPERTY`FACABBR [u(cobj,mco)]=switch(1,u(iswizard,%0),ansi(hr,WIZ),u(isadmin,%0),ansi(hb,ROY),if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(u(strfirstof,u(color,%#,GROUP,%q<fac>,1),get(%q<fac>/SET`COLOR),n),get(%q<fac>/SET`ABBREVIATION))))
+&GETPROPERTY`FACABBRS [u(cobj,mco)]=switch(1,u(iswizard,%0),ansi(hr,WIZ),u(isadmin,%0),ansi(hb,ROY),if(words(u(setr,facs,u(GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))),iter(%q<facs>,ansi(u(strfirstof,u(color,%#,GROUP,%i0,1),get(%i0/SET`COLOR),n),get(%i0/SET`ABBREVIATION)),%b,|)))
+&GETPROPERTY`FACLETTER [u(cobj,mco)]=switch(1,u(iswizard,%0),ansi(hr,WIZ),u(isadmin,%0),ansi(hb,ROY),if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(u(strfirstof,u(color,%#,GROUP,%q<fac>,1),get(%q<fac>/SET`COLOR),n),u(strfirstof,get(%q<fac>/SET`LETTER),left(get(%q<fac>/SET`ABBREVIATION),1)))))
+&GETPROPERTY`FACTIONS [u(cobj,mco)]=if(words(u(setr,fac,u(GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))),u(GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
+&GETPROPERTY`RANK [u(cobj,mco)]=if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(GETPROPERTY`RANKS,%0,%1,%q<fac>,%3))
+&GETPROPERTY`RANKS [u(cobj,mco)]=edit(iter(u(strfirstof,%2,u(GETPROPERTY`FACTIONSDB,%0,%1,%2,%3)),u(setr,rank,get(%0/D`GROUP`%i0`RANK))-[u(strfirstof,get(%0/D`GROUP`%i0`TITLE),get(%i0/RANK`%q<rank>`NAME))],%b,|),|,if(%3,%r,\,%b))
+&GETPROPERTY`GROUPNAMES [u(cobj,mco)]=edit(iter(u(strfirstof,%2,u(sortname,setdiff(u(GETPROPERTY`GROUPS,%0,%1,%2,%3),u(GETPROPERTY`FACTIONSDB,%0,%1,%2,%3)))),if(%1,u(pueblize,ansi(u(strfirstof,get(%i0/SET`COLOR),n),name(%i0)),+group [name(%i0)]),ansi(u(strfirstof,get(%i0/SET`COLOR),n),name(%i0))),%b,|),|,if(%3,%r,\,%b))
+
+&SORTGROUPS [u(cobj,mco)]=u(SORTGROUPS`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTGROUPS`PENNMUSH [u(cobj,mco)]=sort(%0,attr:SET`SORT,%1,%2)
+&SORTGROUPS`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/SET`SORT,99),default(%1/SET`SORT,99))])],%0,%1,%2)
+
+&FIL`FACTIONS [u(cobj,mco)]=cand(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR),strmatch(FACTION,u(u(cobj,gms)/FUN`GETSET,%0,TYPE)))
+&FIL`MAJORGROUPS [u(cobj,mco)]=u(u(cobj,gms)/FUN`GETSET,%0,MAJOR)
+&FIL`MINORGROUPS [u(cobj,mco)]=eq(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR),0)
+
+&ISGROUPMEMBER [u(cobj,mco)]=if(isdbref(u(cobj,gms)),elock(if(isdbref(%1),%1,u(u(cobj,gms)/FUN`FINDGROUP,%1)),%0))
+
+&chan_title_len [u(cobj,mco)]=u(choosegame,config(chan_title_len),20)
+
 @@ Sort section.
 
 &SORTATTR [u(cobj,mco)]=u(SORTATTR`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
@@ -336,7 +363,7 @@ if(strlen(%1),iter(lattr(%0,,,,,1),%i0,%b,%1),lattr(%0,,,,,1))
 &SORTORDER`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/default(\%0/ORDER,99),%0,n,%1,%2)
 &SORTORDER`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/ORDER,99),default(%1/ORDER,99))])],%0,%1,%2)
 
-
+&CHOOSEGAME [u(cobj,mco)]=switch(v(game),PennMUSH,%0,RhostMUSH,%1)
 
 @@ REGEX STORAGE
 &REG`CAPNAMES [u(cobj,mco)]=(?:^|(?<=[_\/\-\|\s()\+]))([a-z]+)

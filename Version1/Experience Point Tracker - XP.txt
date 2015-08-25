@@ -20,6 +20,8 @@
 &FUN`COUNT u(xp)=add(lmath(add,iter(lattr(%0/D`XP`%1`*),get(%0/%i0))),if(not(%2),switch(%1,G,u(FUN`EXTRA`GAINED,%0),S,u(FUN`EXTRA`SPENT,%0),0),0))
 &FUN`TOTAL u(xp)=sub(u(FUN`COUNT,%0,G,%1),u(FUN`COUNT,%0,S,%2))
 
+&FUN`EXTRA`GAINED u(xp)=100
+
 &INC`GAINED u(xp)=@switch/inline cand(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,G
 &INC`SPENT u(xp)=@switch/inline cand(strlen(%0),isadmin(%#))=0,{@include u(ccs)/INC`CHECKPC=%#,1,XP},1,{@include u(ccs)/INC`CHECKPC=%0,1,XP};@include u(xp)/INC`LISTBY=%q<t1>,S
 

@@ -73,38 +73,10 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),FI
 &GET`OOCFINGER`DEFAULT`ALTS u(finger)=u(u(cao)/FUN`ALTS`LIST,%0,1)
 
 
-&GFN`GETPROPERTY u(finger)=if(isdbref(%0),u(FUN`GETPROPERTY`%1,%0,%2,%3,%4))
 
-&FUN`GETPROPERTY`GROUPS u(finger)=setinter(get(%0/D`GROUPS),u(u(gso)/FUN`LISTGROUPS),%b,namei)
 
-&FUN`GETPROPERTY`GTITLE u(finger)=get(%0/D`GROUP`[namegrab(u(FUN`GETPROPERTY`GROUPS,%0,%1,%2),%1)]`TITLE)
-
-&FUN`GETPROPERTY`FACTIONDB u(finger)=first(u(FUN`GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))
-
-&FUN`GETPROPERTY`FACTIONCOLOR u(finger)=if(isdbref(u(setr,fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(u(gso)/FUN`GETSET,%q<fac>,COLOR),hx)
-
-&FUN`GETPROPERTY`FACTIONSDB u(finger)=sort(filterbool(#lambda/cand(u(u(gso)/FUN`GETSET,\%0,MAJOR),strmatch(u(u(gso)/FUN`GETSET,\%0,TYPE),FACTION)),u(FUN`GETPROPERTY`GROUPS,%0,%1,%2,%3)),attr:SET`SORT)
-
-&FUN`GETPROPERTY`FACTION u(finger)=if(isdbref(u(setr,fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(FUN`GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
-
-&FUN`GETPROPERTY`FACABBR u(finger)=switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hb,ROY),if(isdbref(u(setr,fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(strfirstof(custcolor(%#,%q<fac>`NAME,,1),get(%q<fac>/SET`COLOR),n),get(%q<fac>/SET`ABBREVIATION))))
-
-&FUN`GETPROPERTY`FACABBRS u(finger)=switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hb,ROY),if(words(u(setr,facs,u(FUN`GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))),iter(%q<facs>,ansi(strfirstof(custcolor(%#,%i0`NAME,,1),get(%i0/SET`COLOR),n),get(%i0/SET`ABBREVIATION)),%b,|)))
-
-&FUN`GETPROPERTY`FACLETTER u(finger)=switch(1,hasflag(%0,WIZARD),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hb,ROY),if(isdbref(u(setr,fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(strfirstof(custcolor(%#,%q<fac>`NAME,,1),get(%q<fac>/SET`COLOR),n),strfirstof(get(%q<fac>/SET`LETTER),left(get(%q<fac>/SET`ABBREVIATION),1)))))
-
-&FUN`GETPROPERTY`FACTIONS u(finger)=if(words(u(setr,fac,u(FUN`GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))),u(FUN`GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
-
-&FUN`GETPROPERTY`RANK u(finger)=if(isdbref(u(setr,fac,u(FUN`GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(FUN`GETPROPERTY`RANKS,%0,%1,%q<fac>,%3))
-
-&FUN`GETPROPERTY`RANKS u(finger)=edit(iter(strfirstof(%2,u(FUN`GETPROPERTY`FACTIONSDB,%0,%1,%2,%3)),u(setr,rank,get(%0/D`GROUP`%i0`RANK))-[strfirstof(get(%0/D`GROUP`%i0`TITLE),get(%i0/RANK`%q<rank>`NAME))],%b,|),|,if(%3,%r,\,%b))
-
-&FUN`GETPROPERTY`GROUPNAMES u(finger)=edit(iter(strfirstof(%2,setdiff(u(FUN`GETPROPERTY`GROUPS,%0,%1,%2,%3),u(FUN`GETPROPERTY`FACTIONSDB,%0,%1,%2,%3),,namei)),if(%1,pueblize(ansi(strfirstof(get(%i0/SET`COLOR),n),name(%i0)),+group [name(%i0)]),ansi(strfirstof(get(%i0/SET`COLOR),n),name(%i0))),%b,|),|,if(%3,%r,\,%b))
-
-&FUN`GETPROPERTY`QUOTE u(finger)=get(%0/D`FINGER`QUOTE)
-&FUN`GETPROPERTY`PROFILE u(finger)=get(%0/D`FINGER`PROFILE)
-
-&GFN`LISTPROPERTIES u(finger)=trim(iter(lattr(u(finger)/FUN`GETPROPERTY`*),last(%i0,`)))
+&GETPROPERTY`QUOTE u(finger)=get(%0/D`FINGER`QUOTE)
+&GETPROPERTY`PROFILE u(finger)=get(%0/D`FINGER`PROFILE)
 
 &GFN`FACTIONS u(finger)=filterbool(#lambda/cand(get(\%0/SET`MAJOR),strmatch(get(\%0/SET`TYPE),Faction)),u(u(gso)/FUN`LISTGROUPS))
 
