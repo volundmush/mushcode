@@ -7,7 +7,7 @@ th u(NEWCOBJ,Watch System <WATCH>,watch,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 @set [u(cobj,watch)]/CMD`+WATCH`PENNMUSH=regexp
 &CMD`+WATCH`RHOSTMUSH [u(cobj,watch)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+WATCH`MAIN
 @set [u(cobj,watch)]/CMD`+WATCH`RHOSTMUSH=regexp
-&CMD`+WATCH`MAIN [u(cobj,watch)]=@attach %!/INC`GETSWITCH=%2;th u(setq,accid,if(strlen(u(accid,%#),u(accid,%#),%#)));@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%1
+&CMD`+WATCH`MAIN [u(cobj,watch)]=@attach %!/INC`GETSWITCH=%1;th u(setq,accid,u(strfirstof,u(accid,%#),%#));@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
 @set [u(cobj,watch)]/CMD`+WATCH`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,watch)]=WATCH
@@ -46,8 +46,8 @@ th u(NEWCOBJ,Watch System <WATCH>,watch,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 +help/metatags +watch=friends wf
 &HLP`+WATCH [u(cobj,watch)]=The Watch system alerts you as friends connect and disconnect.[if(isdbref(u(cobj,accounts)),%BThe List is shared across all alts.)]%R[ansi(hc,Aliases:)] +friend, friend, watch, wf, +wf%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+watch)] - Will display online friends on your list and their status.%R[ansi(h,+watch/list)] - Will display your entire list\, even offline friends.%R[ansi(h,+watch/add <name>)] - Adds a player to your watch list.%R[ansi(h,+watch/del <name>)] - Removes a player from your watch list.%R[ansi(h,+watch/hide)] - Toggle whether your disconnects and connects will show to anyone who added you to their friends list.%R[ansi(h,+watch/mute)] - Toggle whether you will hear when friends connect or disconnect.[if(isdbref(u(cobj,accounts)),%BThis only affects the character it is used on.)]
 
-&MIGRATE`WATCH [u(cobj,migrate)]=@select/inline isdbref(u(cobj,accounts))=1,{@dolist/inline/nobreak lsearch(all,type,player,elock,D`WATCH:?*)={@check isdbref(u(setr,accid,u(accid,%i0)));&D`WATCH %q<accid>=u(sortname,u(filter,ISOBJID,setunion(get(%q<accid>/D`WATCH),get(%i0/D`WATCH))))}}
+&MIGRATE`WATCH [u(cobj,migrate)]=@select/inline isdbref(u(cobj,accounts))=1,{@dolist/inline/nobreak lsearch(all,type,player,elock,D`WATCH:?*)={@check isdbref(u(setr,accid,u(accid,%i0)));&D`WATCH %q<accid>=u(sortname,u(filter,isdbref,setunion(get(%q<accid>/D`WATCH),get(%i0/D`WATCH))))}}
 
-&CLEANUP`WATCH [u(cobj,watch)]=@dolist/inline lsearch(all,type,player,elock,D`WATCH:?*)={&D`WATCH %i0}
+&CLEANUP`WATCH [u(cobj,migrate)]=@dolist/inline lsearch(all,type,player,elock,D`WATCH:?*)={&D`WATCH %i0}
 
 &CONFLICT`WATCH [u(cobj,migrate)]=@tel u(setr,wso,u(%q<index>/wso))=u(cobj,oldbox);@halt %q<wso>;@set %q<wso>=NO_COMMAND

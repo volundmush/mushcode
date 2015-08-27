@@ -1,0 +1,39 @@
+@switch/inline isdbref(u(phone))=0,{@tel create(Phone Message System <PHONE>)=config(master_room)}
+&phone u(coi)=locate(config(master_room),Phone Message System <PHONE>,TXxi)
+@parent u(phone)=u(coi)
+@set u(phone)=WIZARD SAFE !NO_COMMAND
+@lock/command u(phone)=!POWER^GUEST&!FLAG^JAILED&!FLAG^GAGGED
+
+&CMD`+PHONE u(phone)=$^(?s)(?\:\+)?(?\:phone|call)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(phone)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(phone)/VAR`ADMINFLAGS)),|,|),|,PHONE,switch,switch;@include u(phone)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set u(phone)/CMD`+PHONE=regexp
+
+&VAR`PLAYFLAGS u(phone)=ON|OFF
+&VAR`ADMINFLAGS u(phone)=
+
+&RFN`HEADER u(phone)=header(%0,,PHONE`BORDER,PHONE`BORDERDOT,PHONE`BORDERTEXT)
+&RFN`SUBHEADER u(phone)=subheader(%0,,PHONE`BORDER,PHONE`BORDERDOT,PHONE`BORDERTEXT)
+&RFN`SEPARATOR u(phone)=separator(%0,,PHONE`BORDER,PHONE`BORDERDOT,PHONE`BORDERTEXT)
+&RFN`MSGHEAD u(phone)=msghead(v(VAR`MSGHEAD))
+&VAR`MSGHEAD u(phone)=PHONE
+
+th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),PHONE,|,|))
+&VAR`CATEGORIES`PHONE u(cco-db)=HEADER
+&COLOR`PHONE`HEADER u(pco)=hc
+
+&INC`MAIN u(phone)=@assert u(FUN`ON,%#)=@nspemit %#=u(RFn`MSGHEAD) Your phone is not on!;@include u(phone)/INC`VERIFYLIST=if(not(strlen(%1)),get(%#/D`PHONE`LAST),%0);@include u(phone)/INC`SEND=strfirstof(%1,%0)
+
+&INC`SEND u(phone)=@assert strlen(%0)=@nspemit %#=u(RFN`MSGHEAD) What will you say?;&D`PHONE`LAST %#=%q<targets>;@message/spoof setunion(%q<targets>,%#)=CODE ERROR WITH PHONE,u(phone)/FUN`MESSAGEFORMAT,##,%#,%0,%q<targets>
+
+&FUN`MESSAGEFORMAT u(phone)=ansi(custcolor(%0,PHONE`HEADER),PHONE:)%B[if(strmatch(%0,%1),if(gt(words(%3),1),\(To [itemize(iter(%3,name(%i0),,|),|,and,\,)]\)%B,Phoning [name(first(if(gt(words(%3),1),setdiff(%3,%1),%3)))]\,%B),if(gt(words(%3),1),\(To [itemize(iter(%3,name(%i0),,|),|,and,\,)]\)%B))][speak(%1,%2)]
+
+&INC`VERIFYLIST u(phone)=@assert words(setr(targets,sort(filterbool(#lambda/isdbref(\%0),namelist(%0,FUN`INVALID)),namei)))=@nspemit %#=u(RFN`MSGHEAD) Invalid targets.;@assert words(setr(targets,filterbool(#lambda/cand(elock(\%0/page,%#),cor(u(FUN`ON,\%0),isadmin(%#)),hasflag(\%0,CONNECTED)),%q<targets>)))=@nspemit %#=u(RFN`MSGHEAD) You cannot send to those players. Their phones may be off or they are disconnected.
+
+&FUN`INVALID u(phone)=nspemit(%#,u(RFN`MSGHEAD) ERROR: [switch(%1,#-1,Name couldn't be matched: %0,#-2,Name was too ambiguous: %0)])
+
+&FUN`ON u(phone)=t(default(%0/D`PHONE`ON,1))
+
+&INC`ON u(phone)=@nspemit %#=u(RFN`MSGHEAD) Your phone is now on!;&D`PHONE`ON %#=1
+&INC`OFF u(phone)=@nspemit %#=u(RFN`MSGHEAD) Your phone is now off!;&D`PHONE`ON %#=0
+
++help/addmain Communications/+phone=[u(phone)]/HLP`+PHONE
+&HLP`+PHONE u(phone)=The Phone system is a simple communications command to represent direct radio, instant messenging, phones, or other methods for something too quick, private, or temporary to warrant a +radio frequency.%R[ansi(hc,Aliases:)] phone, call, +call%R%R[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+phone <namelist>=<message>)] - Send a message to one or more players. Namelist uses the same format as page, so separate names with spaces and encapsulate multi-word names in quotes - "Firstname Lastname" etc (or use their alias!)%R[ansi(h,+phone <message>)] - Send another message to the last person or people you phone'd. Same as page, do not include a = or the system will think your message is a list of targets.%R[ansi(h,+phone/off)] - Turn off your phone. Cannot receive or send messages.%R[ansi(h,+phone/on)] - Turn your phone back on.})]

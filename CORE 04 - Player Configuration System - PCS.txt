@@ -18,6 +18,9 @@ th u(NEWCOBJ,Player Configuration Data Storage <PCONF>,pconf,u(cobj,pcs),,1,WIZA
 
 &INC`MAIN [u(cobj,pcs)]=@switch/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`SET}
 
+&CMD`COLORDEMO [u(cobj,pcs)]=$^(?s)(?\:\+)?color(?\:s|demo)(?\:/(\S+)?)?$:@attach %!/INC`PARTIAL=%1,LONG,|,COLOR,switch,switch;@select/inline %q<switch>=LONG,{@dolist/inline lnum(97,122)=@pemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,%i0))],%b,%r)))},{@pemit %#=iter(lnum(0,255),ansi(+xterm%i0,xterm%i0))}
+@set [u(cobj,pcs)]/CMD`COLORDEMO=regexp
+
 &INC`LIST [u(cobj,pcs)]=@pemit %#=u(header,Player Configuration);@dolist/inline/delimit | [u(FUN`CATEGORIES)]={th u(setq,category,##);@pemit %#=u(subheader,u(capnames,%q<category>));@pemit %#=ansi(u(color,%#,u(SYSTEM`NAME),COLUMN_NAMES),align(18 15 43,Setting,Value,Type and Description));@pemit %#=iter(u(FUN`SETTINGS,%q<category>),align(18 15 43,%i0,u(player_config,%#,%q<category>,%i0),<[default(u(cobj,pconf)/TYPE`%q<category>`%i0,unknown)]> [default(u(cobj,pconf)/DESC`%q<category>`%i0,Unset)]),|,%R)};@pemit %#=u(subheader)
 
 &FUN`CATEGORIES [u(cobj,pcs)]=sort(setunion(iter(u(lattr,[u(cobj,pconf)]/DEFAULT`*),last(%i0,`),%b,|),,|,|),a,|,|)

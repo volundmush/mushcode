@@ -97,13 +97,26 @@ th u(NEWCOBJ,Radio Management System <RADIO>,radio,,,,WIZARD SAFE !NO_COMMAND,IN
 
 @@ %0 - Enactor, %1 - recipient, %2 - frequency, %3 - message, %4 - key, %5 - alias
 
-&STARTUP [u(cobj,radio)]=@trigger %!/TRG`CLEANLOGS
+&STARTUP [u(cobj,radio)]=@trigger %!/LOOP`CLEANRADIO
 
 &PLAYER`DISCONNECT`UNGAGRADIO [u(cobj,radio)]=@stop %1;@dolist/inline u(getstat,%0,D`RADIO,GAG)={&GAGGED [u(setr,log,u(FUN`FINDFREQ,%i0))]=setdiff(get(%q<log>/GAGGED),%0)};th u(delstat,%0,D`RADIO,GAG)
 
-&TRG`CLEANLOGS [u(cobj,radio)]=@dolist lthings(u(cobj,radio))={@trigger %!/TRG`CLEANLOGS`DB=##};@wait u(stringsecs,1d)=@trigger me/TRG`CLEANLOGS
-&TRG`CLEANLOGS`DB [u(cobj,radio)]=@dolist/inline u(filter,OLDLOGS,u(lattr,%0/R`*),%b,%b,%0)={@attach %!/WIPE=%0,##}
-&FIL`OLDLOGS [u(cobj,radio)]=gt(sub(secs(),get(%1/%0`ON)),u(stringsecs,2d))
+&LOOP`CLEANRADIO [u(cobj,radio)]=@dolist lthings(u(cobj,radio))={@wait #@=@trigger %!/LOOP`CLEANLOGS`DB=##};@wait u(game_config,radio,interval)=@trigger me/TRG`CLEANLOGS
+&LOOP`CLEANLOGS`DB [u(cobj,radio)]=@dolist/inline u(filter,OLDLOGS,u(lattr,%0/R`*),%b,%b,%0,u(game_Config,radio,timeout))={@attach %!/WIPE=%0,##}
+&FIL`OLDLOGS [u(cobj,radio)]=gt(sub(secs(),get(%1/%0`ON)),%2)
+
+&DEFAULT`RADIO [u(cobj,config)]=@@ Empty attrib for Rhost.
+&DEFAULT`RADIO`BUFFER [u(cobj,config)]=100
+&DESC`RADIO`BUFFER [u(cobj,config)]=Size of channel buffer in lines?
+&TYPE`RADIO`BUFFER [u(cobj,config)]=POSINT
+
+&DEFAULT`RADIO`TIMEOUT [u(cobj,config)]=259200
+&DESC`RADIO`TIMEOUT [u(cobj,config)]=How long messages are stored?
+&TYPE`RADIO`TIMEOUT [u(cobj,config)]=DURATION
+
+&DEFAULT`RADIO`INTERVAL [u(cobj,config)]=259200
+&DESC`RADIO`INTERVAL [u(cobj,config)]=Interval between timeout checks?
+&TYPE`RADIO`INTERVAL [u(cobj,config)]=DURATION
 
 @@ COMMUNICATIONS - +RADIO
 +help/add +radio=[u(cobj,radio)]/HLP`+RADIO
@@ -116,4 +129,6 @@ th u(NEWCOBJ,Radio Management System <RADIO>,radio,,,,WIZARD SAFE !NO_COMMAND,IN
 +shelp/category +radio=Communications
 &SHLP`+RADIO [u(cobj,radio)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+radio/listfreq)] - Analyzes logged messages to show all frequencies in use and who is using them. Also shows what encryption keys are in use for those frequencies. It cannot determine what Key is the 'legit' one though.%R[ansi(h,+radio/monitor)] - toggles Monitor mode. While in Monitor mode\, you will receive ALL messages from ALL frequencies\, automatically decrypted.%R[ansi(h,+radio/emit <slot or freq>=<message>)] - Send a sourceless message over a channel. All players will understand it regardless of encryption keys.%R%RMonitor mode will apply when using +radio/recall)]
 
-&MIGRATE`RADIO [u(cobj,radio)]=@check isdbref(u(setr,radb,u(%q<index>/radb)))=@attach %!/INC`MSG=ERROR: Version 1 'Radio Message Database' could not be located. Cannot continue.;@dolist/inline/nobreak u(lattr,u(radb)/*)={th setq(freq,get(%q<radb>/%i0));@check regmatchi(%q<freq>,^\\d+\.\\d+$);@tel [u(setr,log,create(FREQ: %q<freq>))]=u(cobj,radio);@cpattr %q<radb>/%i0`MEMBERS=%q<log>/MEMBERS;@cpattr %q<radb>/%i0`GAGGED=%q<log>/GAGGED;@cpattr %q<radb>/%i0`LAST=%q<log>/LASTMSG}
+&MIGRATE`RADIO [u(cobj,migrate)]=@check isdbref(u(setr,radb,u(%q<index>/radb)))=@attach %!/INC`MSG=ERROR: Version 1 'Radio Message Database' could not be located. Cannot continue.;@dolist/inline/nobreak u(lattr,%q<radb>/*)={th setq(freq,get(%q<radb>/%i0));@check regmatchi(%q<freq>,^\\d+\.\\d+$);@tel [u(setr,log,create(FREQ: %q<freq>))]=u(cobj,radio);@cpattr %q<radb>/%i0`MEMBERS=%q<log>/MEMBERS;@cpattr %q<radb>/%i0`GAGGED=%q<log>/GAGGED;@cpattr %q<radb>/%i0`LAST=%q<log>/LASTMSG}
+
+&CONFLICT`RADIO [u(cobj,migrate)]=@set u(coi,rdso)=NO_COMMAND HALT;@tel u(coi,rdso)=u(cobj,oldbox)

@@ -17,4 +17,14 @@ th u(NEWCOBJ,Player Globals <PG>,player_globals,,,,WIZARD SAFE !NO_COMMAND,INHER
 &CMD`QUIT [u(cobj,player_globals)]=$^(quit|logoff|logout)$:@select/inline v(game)=PennMUSH,{@boot/silent %#},RhostMUSH,{@boot/quiet %#}
 @set [u(cobj,player_globals)]/CMD`QUIT=regexp
 
-&FUN`MSGOOC [u(cobj,player_globals)]=localize(ansi(u(setr,borcol,u(color,%1,OOC,BORDER)),-<)[ansi(u(color,%1,OOC,HEADER),OOC)][ansi(%q<borcol>,>-)]%B[if(u(isadmin,%0),ansi(h,lit([Staff])%B))][u(speech,%0,%2,%1,,OOC,%3)])
+&FUN`MSGOOC [u(cobj,player_globals)]=localize(ansi(u(setr,borcol,u(color,%1,OOC,OOCEDGE)),-<)[ansi(u(color,%1,OOC,OOC),OOC)][ansi(%q<borcol>,>-)]%B[if(u(isadmin,%0),ansi(h,lit([Staff])%B))][u(speech,%0,%2,%1,,OOC,%3)])
+
+&DEFAULT`COLOR`OOC [u(cobj,config)]=hr
+&DESC`COLOR`OOC [u(cobj,config)]=For +ooc tag.
+&TYPE`COLOR`OOC [u(cobj,config)]=COLOR
+
+&DEFAULT`COLOR`OOCEDGE [u(cobj,config)]=hx
+&DESC`COLOR`OOCEDGE [u(cobj,config)]=For +ooc edge.
+&TYPE`COLOR`OOCEDGE [u(cobj,config)]=COLOR
+
+&CONFLICT`PGLOBALS [u(cobj,migrate)]=@tel [u(coi,pgo)]=[u(cobj,oldbox)]

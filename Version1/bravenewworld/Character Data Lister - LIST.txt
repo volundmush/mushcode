@@ -1,0 +1,18 @@
+@switch/inline isdbref(u(list))=0,{@tel create(Character Data Lister <LIST>)=config(master_room)}
+&list u(coi)=locate(config(master_room),Character Data Lister <LIST>,TXxi)
+@parent u(list)=u(coi)
+@set u(list)=WIZARD !NO_COMMAND
+
+&CMD`+LIST u(list)=$^(?s)(?\:\+)?list(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?$:@include u(ccs)/INC`PARTIAL=%1,setunion(get(u(list)/VAR`PLAYFLAGS),if(isadmin(%#),get(u(list)/VAR`ADMINFLAGS)),|,|),|,list,switch,switch;@include u(list)/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set u(list)/CMD`+list=regexp
+
+&VAR`PLAYFLAGS u(list)=
+&VAR`ADMINFLAGS u(list)=
+
+&RFN`HEADER u(list)=header(%0,,LIST`BORDER,LIST`BORDERDOT,LIST`BORDERTEXT)
+&RFN`SUBHEADER u(list)=subheader(%0,,LIST`BORDER,LIST`BORDERDOT,LIST`BORDERTEXT)
+&RFN`SEPARATOR u(list)=separator(%0,,LIST`BORDER,LIST`BORDERDOT,LIST`BORDERTEXT)
+&RFN`MSGHEAD u(list)=msghead(v(VAR`MSGHEAD))
+&VAR`MSGHEAD u(list)=LIST
+
+&INC`MAIN u(list)=@include u(ccs)/INC`CHECKPC=%0,1,v(VAR`MSGHEAD);@include u(ccs)/INC`PARTIAL=%1,ADV|POWER|FLAW,|,choice,choice;@dolist/inline/delimit | [strfirstof(%q<choice>,POWER|ADV|FLAW)]={@nspemit %#=u(RFN`HEADER,%q<t1name>'s [switch(%i0,POWER,Powers,ADV,Advantages,FLAW,Flaws)]);@dolist/inline lattr(%q<t1>/CHARGEn`%i0`*)={@nspemit %#=u(RFN`SEPARATOR,before(setr(contents,get(%q<t1>/%i0)),|));@nspemit %#=after(%q<contents>,|)}};@nspemit %#=u(RFN`SUBHEADER)

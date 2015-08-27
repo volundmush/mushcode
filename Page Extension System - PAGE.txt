@@ -4,14 +4,14 @@
 th u(NEWCOBJ,Page Extension System,page,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
 &CMD`REPLY [u(cobj,page)]=$^(?s)(?\:r|reply)(?\: +(.+?))?$:@check words(setr(list,filterbool(#lambda/isobjid(\%0),get(%#/LASTPAGEDBY))))=@nspemit %#=Nobody's sent you a page.;@check strlen(%1)=@nspemit %#=What will you reply with?;@force/inplace/noeval %#={page %q<list>=%1}
-@set u(page)/CMD`REPLY=regexp
+@set [u(cobj,page)]/CMD`REPLY=regexp
 
 &CMD`RETELL [u(cobj,page)]=$^(?s)(?\:rt|retell|repage)(?\: +(.*))?$:@stop hasflag(%#,HAVEN)=@nspemit %#=You are currently in QUIET mode and cannot use RETELL.;@check u(lmax,iter(u(setr,list,get(%#/LASTPAGED)),u(isobjid,%i0)))=@nspemit %#=You haven't sent anyone tells.;@check strlen(%1)=@nspemit %#=What will you say?;@force/inplace/noeval %#={page %q<list>=%1}
-@set u(page)/CMD`RETELL=regexp
+@set [u(cobj,page)]/CMD`RETELL=regexp
 
 &FUN`LASTPAGEDBY [u(cobj,page)]=if(words(u(setr,list,iter(u(filter,ISDBREF,if(strmatch(after(%u,%b),*=*),namelist(before(after(%u,%b),=)),get(%#/LASTPAGED))),objid(%i0)))),if(words(u(setr,recip,filterbool(#lambda/cand(hasflag(\%0,CONNECTED),cor(hasflag(%#,WIZARD),cand(elock(\%0/Page,%#),not(hasflag(\%0,HAVEN))))),%q<list>))),null(iter(%q<recip>,attrib_set(%i0/LASTPAGEDBY,setdiff(setunion(%q<recip>,%:),%i0))))))
 
-&STARTUP [u(cobj,page)]=@check strmatch(v(game),PennMUSH);@command/add reply;@command/alias reply=r;@hook/override/inline reply=u(page),CMD`REPLY;@command/add repage;@hook/override/inline repage=u(page),CMD`RETELL;@hook/after page=u(page),FUN`LASTPAGEDBY
+&STARTUP [u(cobj,page)]=@check strmatch(v(game),PennMUSH);@command/add reply;@command/alias reply=r;@hook/override/inline reply=%!,CMD`REPLY;@command/add repage;@hook/override/inline repage=%!,CMD`RETELL;@hook/after page=%!,FUN`LASTPAGEDBY
 
 &CMD`+IGNORE [u(cobj,page)]=$^(?s)(?\:\+)?ignore(?\:/(\S+)?)?(?\: +(.*))?$:@include u(ccs)/INC`GETSWITCH=%1;@include %!/INC`[strfirstof(%1,MAIN)]=%2
 @set u(cobj,page)/CMD`+IGNORE=regexp

@@ -29,7 +29,7 @@
 
 &VAR`DIG`PLAYFLAGS u(grid)=TELEPORT
 
-&FUN`LISTDISTRICTS u(grid)=sortkey(#lambda/get(\%0/ORDER),sort(children(u(district)),namei))
+&FUN`LISTDISTRICTS u(grid)=sortkey(#lambda/default(\%0/ORDER,999),sort(children(u(district)),namei))
 
 &INC`DISTRICT`MAIN u(grid)=@switch/inline strlen(%0)=>0,{@include u(grid)/INC`DISTRICT`CHOOSE},{@include u(grid)/INC`DISTRICT`LIST}
 

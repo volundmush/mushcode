@@ -1,6 +1,6 @@
 @@ DEPENDENCIES - CORE
 
-th u(NEWCOBJ,Game Configuration SYSTEM <GCS>,gcs,,,,WIZARD SAFE,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Game Configuration SYSTEM <GCS>,gcs,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 th u(NEWCOBJ,Game Configuration Data Storage <CONFIG>,config,u(cobj,gcs),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
 
 @@ %0 - @name. %1 - alias. %2 - location to store. %3 - parent, defaults to MCO. %4 - No parent. %5 - PennMUSH flags. %6 - RhostMUSH flags.
