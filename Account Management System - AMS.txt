@@ -284,6 +284,25 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 &Q`INSTALL`LOGINS [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS $LOGINS$ (login_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT, player_id BIGINT(31) UNSIGNED NOT NULL,login_date DATETIME,login_result BOOL NOT NULL DEFAULT TRUE,login_reason VARCHAR(80),login_address VARCHAR(39) NOT NULL,login_site varchar(100),login_guest BOOL NOT NULL DEFAULT FALSE,PRIMARY KEY(login_id),FOREIGN KEY(player_id) REFERENCES $PLAYERS$(player_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
 
+@@ CHARACTER - +ACCOUNT
++help/add +account=[u(cobj,ams)]/HLP`+ACCOUNT
++help/category +account=Character
+&HLP`+ACCOUNT [u(cobj,ams)]=The account system tracks players (and their alts) and their current status in the game (unapproved, approved, builder, admin, etc.).%R%R[ansi(hc,Player Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+account)] - Shows your account if you have one.%R[ansi(h,+account/email <email>)] - Sets your account's email.%R[ansi(h,+account/new)] - For new players. Enter this to start a new account on our game.%R[ansi(h,@password <old>=<new>)] - Change your password. If you forget your password\, staff will send a new one to your <email> on request - or if your Guest IP matches your previous logins.%R[ansi(h,+ip)] - Shows your recent logins. Please report any suspicious login attempts to staff!)]
+
++shelp/addmain +account=[u(cobj,ams)]/SHLP`+ACCOUNT
++shelp/category +account=Character
+&SHLP`+ACCOUNT [u(cobj,ams)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+account)] - Shows all accounts in the system.%R[ansi(h,+account <#>)] - Shows a specific account. <#> can also be a player if they have an account.%R[ansi(h,+account/bind <player>=<#>)] - Binds <player> to an account\, removing them from any other account they're in. <#> can be the name of an character \(if they have an account\)\, the word NEW \(makes a new account\)\, or the number of an existing account.%R[ansi(h,+account/unbind <player>)] - Removes a player from any account they're in.%R[ansi(h,+account/unbound)] - Displays all unbound characters. Some are best left that way.%R[ansi(h,@newpass *<name>=<newpassword>)] - Set a new password for <name>. Note the asterisk\, this is necessary! This command is WIZARD only.%R[ansi(h,+ip <player>)] - Checks a player's logins and anyone with matching IPs.%R[ansi(h,+ip/guests <player>)] - Includes Guests in the IP lookup.%R[ansi(h,+ip/ip <ip>)] - Checks an IP for any matching players. Note that ::ffff: must be prepended to any IPv4 addresses if they're showing up in normal uses of +ip!)]
+
+@@ SHELP - CHARACTER - APPROVAL
++shelp/add +approve=[u(cobj,ams)]/SHLP`+APPROVE
++shelp/category +approve=Character
+&SHLP`+APPROVE [u(cobj,ams)]=[ansi(h,+approve <name>)]%RThis will approve <name>%R%R[ansi(h,+unapprove <name>)]%RThis will unapprove <name>%R%RStaff are always considered 'approved' but may need to have the UNREGISTERED flag removed with @set if they intend to use @powers.
+
+@@ CHARACTER - +ALTS
++help/add +alts=[u(cobj,ams)]/HLP`+ALTS
++help/category +alts=Character
+&HLP`+ALTS [u(cobj,ams)]=The Alts system allows you to specify what characters of yours other players can associate with you. It also allows you to configure which alts take precedent (if any) for receiving messages from channels and BBS notifications.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+alts <target>)] - Check someone's alts. Alts are any characters with the same ALT ID. Without a target it will use yourself\, showing you what others would see.%R[ansi(h,+alts/list <#>)] or [ansi(h,+alts/list <alt>=<#>)] - Set your current character or an alt of yours to use a specific ALT ID. Characters with the same ALT ID are linked on +alts displays. Alt IDs are numbers.%R%RAll Alts begin with Alt ID 0\, which is special. Characters with Alt ID 0 have no alts period.%R%R[ansi(h,+alts/priority <#>)] or [ansi(h,+alts/priority <alt>=<#>)] - Set your Alt PRIORITY.%R[ansi(h,+alts/priority)] - Show the priority settings of all your alts.%R%RThe PRIORITY affects channel reception. In both cases\, the HIGHEST PRIORITY ALT who is eligible to receive the message \(has the channel turned on and not gagged\) will receive it. Where multiple alts have the same priority\, all with that priority will receive it.%R%RFor example\, if Alts A and B are set to Priority 1 and have the Public channel on\, and Alt C also has it on but is priority 0\, only A and B will see messages from the Public channel. If A and B gag or turn it off\, C will once again receive Public messages.)]
+
 @@ SHELP - ADMINISTRATION
 +shelp/add +staff=[u(cobj,ams)]/SHLP`+STAFF
 +shelp/category +Staff=Administration

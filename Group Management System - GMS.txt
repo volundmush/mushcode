@@ -10,10 +10,12 @@ th u(NEWCOBJ,Group Object Parent <GOP>,gop,u(cobj,gms),,1,WIZARD SAFE,INHERIT SI
 &FUN`MEMBER [u(cobj,gop)]=cor(match(v(MEMBERS),objid(%#)),u(FUN`ISADMIN))
 @lock/basic [u(cobj,gop)]=FUN`MEMBER/1
 @lset [u(cobj,gop)]/basic=visual
+@lset [u(cobj,gop)]/basic=!no_inherit
 
 &FUN`AUTHCHECK`MODERATE [u(cobj,gop)]=cor(grpperm(%#,%!,MODERATE),u(FUN`ISADMIN))
 @lock/enter [u(cobj,gop)]=FUN`AUTHCHECK`MODERATE/1
 @lset [u(cobj,gop)]/enter=visual
+@lset [u(cobj,gop)]/enter=!no_inherit
 
 &RANK [u(cobj,gop)]=@@ Empty attr for Rhost.
 &RANK`1 [u(cobj,gop)]=@@ Empty attr for Rhost.
@@ -417,6 +419,6 @@ th u(NEWCOBJ,Group Object Parent <GOP>,gop,u(cobj,gms),,1,WIZARD SAFE,INHERIT SI
 &HLP`GROUPS`BOARDS [u(cobj,gms)]=Each Group has its own set of Boards that use much of the same conventions as the Global BBS. The commands and features are completely identical, with one difference: they all begin with [ansi(h,+gb)] instead of [ansi(h,+bb)]!%R[ansi(hc,See Also:)] [u(pueblize,+help BBS)]%R%R[ansi(hc,Reading Boards)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gbread <#>\[/<#>\])] - In group mode\, takes an optional =<groupname> to specify which group. otherwise\, uses current focus.%R[ansi(h,+gbscan <groupname>)] - Like +bbscan\, but can be pointed at a specific group. otherwise\, uses focus.)]%R%R[ansi(hc,Managing Boards)]%RYou must have the GBADMIN Permission to use these commands. Anyone with it passes all group board locks and can use +gbremove\, +gbedit\, etc on any post.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gbnewgroup <name>)] - Creates a new board.%R[ansi(h,+gbcleargroup <board>)] - Deletes a board and all posts.%R[ansi(h,+gborder <new order>)] - Reorders board display order. Must use all board numbers in new order. Example: If you had five boards\, and wanted to make the final board the first\, you'd use +gborder 5 1 2 3 4%R[ansi(h,+gbconfig <board>/<parameter>=<value>)] - Sets a board's <option> to <value>. Entering no <value> clears the option. Available Options:)]%R[align(10 67,,[ansi(h,anonymous)] - Set to <name> makes all posts appear to be from <name> as long as it's set. GBADMIN still see real poster.%R[ansi(h,timeout)] - See [u(pueblize,+help BBS/Timeouts)])]%R%R[ansi(hc,Securing Boards)]%RGroup Boards can be locked so that only certain people of a certain rank or better may see or post to them.%R%R[ansi(hc,Locktypes)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,write)] - Controls who may post to a board.%R[ansi(h,read)] - Controls who can see a board and read its posts. Boards you cannot see will not be displayed on +gbread!)]%R%R[ansi(hc,Managing GBLocks)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gblock <board>/<locktype>=<rank>)] - Locks Board. Examples: +gblock 4/WRITE=1%R[ansi(h,+gbunlock <board>/<locktype>)] - Unlocks a board.)]
 
 @@ MIGRATION
-&MIGRATE`GROUPS [u(cobj,migrate)]=@check isdbref(u(setr,gop,u(%q<index>/gop)))=@attach %!/INC`MSG=ERROR: Cannot find the 1.0 Group Object Parent <GOP>. Cannot continue.;@dolist/inline u(filter,isdbref,children(%q<gop>))={@parent ##=[u(cobj,gop)];@tel ##=[u(cobj,gop)];@lock/basic ##=FUN`MEMBER/1;@lock/enter ##=FUN`AUTHCHECK`MODERATE/1}
+&MIGRATE`GROUPS [u(cobj,migrate)]=@check isdbref(u(setr,gop,u(%q<index>/gop)))=@attach %!/INC`MSG=ERROR: Cannot find the 1.0 Group Object Parent <GOP>. Cannot continue.;@dolist/inline u(filter,isdbref,children(%q<gop>))={@parent ##=[u(cobj,gop)];@tel ##=[u(cobj,gop)];@unlock/basic ##;@unlock/enter ##}
 
 &CONFLICT`GROUPS [u(cobj,migrate)]=@check isdbref(u(setr,gso,u(%q<index>/gso)))=@attach %!/INC`MSG=ERROR: Cannot find the 1.0 Group System Object <GSO>. Cannot continue.;@set %q<gso>=HALT NO_COMMAND;@tel %q<gso>=u(cobj,oldbox)
