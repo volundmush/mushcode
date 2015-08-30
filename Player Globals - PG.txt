@@ -28,3 +28,24 @@ th u(NEWCOBJ,Player Globals <PG>,player_globals,,,,WIZARD SAFE !NO_COMMAND,INHER
 &TYPE`COLOR`OOCEDGE [u(cobj,config)]=COLOR
 
 &CONFLICT`PGLOBALS [u(cobj,migrate)]=@tel [u(coi,pgo)]=[u(cobj,oldbox)]
+
+
+@@ ROLEPLAYING - +flip
++help/add +flip=[u(cobj,player_globals)]/HLP`+FLIP
++help/category +flip=Roleplaying
+&HLP`+FLIP [u(cobj,player_globals)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+flip)] - Flip a coin!)]
+
+@@ Technical - QUIT
++help/add QUIT=[u(cobj,player_globals)]/HLP`QUIT
++help/category QUIT=Technical
+&HLP`QUIT [u(cobj,player_globals)]=[ansi(hc,Aliases:)] logoff, logout%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,QUIT)] - Disconnect safely from the game.)]%R%RDon't worry, PennMUSH saves are independent of safe logoffs. This just doesn't leave a ghost connection hanging.
+
+@@ COMMUNICATIONS - +beep
++help/add +beep=[u(cobj,player_globals)]/HLP`+BEEP
++help/category +beep=Communications
+&HLP`+BEEP [u(cobj,player_globals)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+beep <player>)] - \(Hopefully\) makes a noise the other player can hear to try and get their attention. Using this excessively could be considered harassment so be polite. You have been warned!%R%RNot every client will make the noise and it is often disabled.)]
+
+@@ TECHNICAL - +Charset
++help/add +charset=[u(cobj,player_globals)]/HLP`+CHARSET
++Help/category +charset=Technical
+&HLP`+CHARSET [u(cobj,player_globals)]=[ansi(hc,See Also:)] [u(pueblize,help chr(),help chr())]%R%R[ansi(h,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+charset)] - Display most special characters the game supports.)]

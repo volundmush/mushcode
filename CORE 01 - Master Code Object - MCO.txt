@@ -1,7 +1,7 @@
 @@ COMMENTS WILL GO HERE
 
 @@ RUN THIS ON CODE WIZARD OBJECT!
-@switch/first/inline version()=PennMUSH*,{@switch/first/inline hasflag(%#,UNREGISTERED)=1,{@set me=!UNREGISTERED};@power me=no_pay},RhostMUSH*,{@set me=sidefx !wanderer;@admin command_quota_max=10000}
+@switch/first/inline version()=PennMUSH*,{@switch/first/inline hasflag(%#,UNREGISTERED)=1,{@set me=!UNREGISTERED};@power me=no_pay},RhostMUSH*,{@set me=sidefx !wanderer;@admin command_quota_max=10000;@admin command_quota_increment=100}
 
 th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,switch(version(),PennMUSH*,config(master_room),RhostMUSH**,globalroom()))][parent(%#,%q0)][set(%q0,GAME:[first(version())])][set(%q0,COBJ`MCO:[switch(version(),PennMUSH*,objid(%q0),RhostMUSH*,%q0)])][set(%q0,switch(version(),PennMUSH*,WIZARD SAFE,RhostMUSH*,INHERIT SAFE SIDEFX))])
 @@ Yeah, it's an awful hodgepodge of side effect functions. For a good cause.
@@ -45,8 +45,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &STARTUP [u(cobj,mco)]=@dolist/inline u(lattr,%!/STARTUP`*)={@include/nobreak %!/##}
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
-&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin sortname color mxpmenu pueblize my_config speech chancolor colornames={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames={@function/privileged %d0=%!/%d0}
+&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid={@function/privileged %d0=%!/%d0}
 
 &STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`[v(game)];@include/nobreak %!/STARTUP`MAIN`EXTRA
 
@@ -88,9 +88,9 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &ISADMIN`PENNMUSH [u(cobj,mco)]=orflags(%0,Wr)
 &ISADMIN`RHOSTMUSH [u(cobj,mco)]=gte(bittype(%0),2)
 
-&ISADMIN2 [u(cobj,mco)]=u(ISADMIN`[v(game)],%#)
+&ISADMIN2 [u(cobj,mco)]=[u(ISADMIN`[v(game)],%#)]
 
-&ISWIZARD2 [u(cobj,mco)]=u(iswizard,%#)
+&ISWIZARD2 [u(cobj,mco)]=[u(iswizard,%#)]
 
 &ISWIZARD [u(cobj,mco)]=u(ISWIZARD`[v(game)],%0)
 &ISWIZARD`PENNMUSH [u(cobj,mco)]=hasflag(%0,WIZARD)
@@ -162,6 +162,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &SMALLTIME [u(cobj,mco)]=u(SMALLTIME`[v(game)],%0)
 &SMALLTIME`PENNMUSH [u(cobj,mco)]=etime(%0,3)
 &SMALLTIME`RHOSTMUSH [u(cobj,mco)]=singletime(%0)
+
+&ETIME [u(cobj,mco)]=u(ETIME`[v(game)],%0)
+&ETIME`PENNMUSH [u(cobj,mco)]=etime(%0)
+&ETIME`RHOSTMUSH [u(cobj,mco)]=[trim(timefmt($!mML $!2UC $!2uy $!2EMo $!2ww $!2dd $!2Xh $!2Fm $!2Gs,%0))][ifelse(!t(%0),0s)]
+
 
 &CAPNAMES [u(cobj,mco)]=regeditalli(lcstr(%0),v(REG`CAPNAMES),capstr($1),v(REG`CAPNAMES3),lcstr($0),v(REG`CAPNAMES2),$1[capstr($2)])
 
@@ -311,6 +316,14 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &TRIMLINES`PENNMUSH [u(cobj,mco)]=trimpenn(%0,%R)
 &TRIMLINES`RHOSTMUSH [u(cobj,mco)]=trim(%0,b,%R)
 
+&TRIMTABS [u(cobj,mco)]=u(TRIMTABS`[v(game)],%0)
+&TRIMTABS`PENNMUSH [u(cobj,mco)]=trimpenn(%0,%T)
+&TRIMTABS`RHOSTMUSH [u(cobj,mco)]=trim(%0,b,%T)
+
+&TRIMCASH [u(cobj,mco)]=u(TRIMCASH`[v(game)],%0)
+&TRIMCASH`PENNMUSH [u(cobj,mco)]=trimpenn(%0,$)
+&TRIMCASH`RHOSTMUSH [u(cobj,mco)]=trim(%0,b,$)
+
 &WILDGREPI [u(cobj,mco)]=u(WILDGREPI`[v(game)],%0,%1,%2)
 &WILDGREPI`PENNMUSH [u(cobj,mco)]=wildgrepi(%0,%1,%2)
 &WILDGREPI`RHOSTMUSH [u(cobj,mco)]=u(filter,WILDGREPI,u(lattr,%0/%1),%b,%b,%0,%2)
@@ -401,10 +414,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &SQL`FORMAT [u(cobj,mco)]=localize(regeditalli(v(Q`%0),v(REG`SQL`TABLES),u(SQL`TABLENAME,$0),v(REG`SQL`ENTRY),if(isint(u(setr,set,v(u(setr,num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,'[sqlescape(%q<set>)]'))))
 
-&SQL`TABLENAME [u(cobj,mco)]=v(SQL`PREFIX)[v(SQL`TABLE`[trim(%0,$)])]
-&SQL`PREFIX [u(cobj,mco)]=u(game_config,SYSTEM,SQL_PREFIX)
+&SQL`TABLENAME [u(cobj,mco)]=u(SQL`TABLE`[u(trimcash,%0)])
 
 &INC`DOSQL [u(cobj,mco)]=@stop strmatch(u(setr,errcheck,u(mysql,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)=@attach %!/INC`MSG=SQL ERROR: %q<errcheck>
+
+&TRG`INSTALL [u(cobj,mco)]=@dolist/inline/delimit | [v(SQL`TABLES)]={@attach %!/INC`DOSQL=INSTALL`##}
 
 @@ COMMON CODE SNIPPETS
 
@@ -465,7 +479,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &INC`MSG`CHAN [u(cobj,mco)]=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(moniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof,u(CHANNEL`ALERT),%1)]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(u(strfirstof,u(CHANNEL`ALERT),%1)]={@cemit %d0=%q<chanmsg>}}
 @@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
 
-&INC`MSG`SYSCHAN [u(cobj,mco)]=th u(setq,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | u(strfirstof([u(CHANNEL`ALERT)]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | u(strfirstof([u(CHANNEL`ALERT)]={@cemit %d0=%q<chanmsg>}}
+&INC`MSG`SYSCHAN [u(cobj,mco)]=th u(setq,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof(u(CHANNEL`ALERT),%1))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(strfirstof(u(CHANNEL`ALERT),%1))]={@cemit %d0=%q<chanmsg>}}
 
 &CHANNEL`ALERT [u(cobj,mco)]=u(game_config,CHANNELS,STAFF_ALERTS)
 
@@ -490,8 +504,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &SPEECH [u(cobj,mco)]=localize(u(SPEECH`[v(game)],%0,%1,%2,%3,%4,%5))
 &SPEECH`PENNMUSH [u(cobj,mco)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`SPEECH),u(setr,quote,ansi(u(color,%2,%4,QUOTES),"))[ansi(u(color,%2,%4,SPEECH),$1)]%q<quote>,v(REG`URL),u(weblink,$0,$0))
-&SPEECH`RHOSTMUSH [u(cobj,mco)]=regeditalli(parsestr(u(colornames,%2,%1,%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(moniker,%0))]),v(REG`SPEECH),u(setr,quote,ansi(u(color,%2,%4,QUOTES),"))[ansi(u(color,%2,%4,SPEECH),$1)]%q<quote>,v(REG`URL),u(weblink,$0,$0))
-
+&SPEECH`RHOSTMUSH [u(cobj,mco)]=regeditalli(parsestr(u(colornames,%2,escape(%1),%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(moniker,%0))]),v(REG`SPEECH),u(setr,quote,ansi(u(color,%2,%4,QUOTES),"))[ansi(u(color,%2,%4,SPEECH),$1)]%q<quote>)
 @@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup.
 
 &REG`SPEECH [u(cobj,mco)]=(?s)"([^ "][^"]*[^ "])"
@@ -573,11 +586,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &B_@NAME [u(cobj,mco)]=u(RHOST`NAME`BEFORE)
 &A_@NAME [u(cobj,mco)]=u(RHOST`NAME`AFTER)
 &SUB_058 [u(cobj,mco)]=%#
-&I_@EMIT [u(cobj,mco)]=not(isdbref(u(cobj,scenesys)))
-&I_SAY [u(cobj,mco)]=0
-&I_POSE [u(cobj,mco)]=0
-&I_P [u(cobj,mco)]=0
-&I_S [u(cobj,mco)]=0
+&I_@EMIT [u(cobj,mco)]=not(isdbref(u(cobj,scene)))
+&I_SAY [u(cobj,mco)]=not(isdbref(u(cobj,scene)))
+&I_POSE [u(cobj,mco)]=not(isdbref(u(cobj,scene)))
+&I_P [u(cobj,mco)]=not(isdbref(u(cobj,scene)))
+&I_S [u(cobj,mco)]=not(isdbref(u(cobj,scene)))
 
 &RHOST`DELETE`BEFORE [u(cobj,mco)]=if(u(setr,nuketarget,pmatch(before(rest(%m),=))),u(setq,nuketype,type(%q<nuketarget>))[u(setq,nukename,name(%q<nuketarget>))])
 &RHOST`DELETE`AFTER [u(cobj,mco)]=if(cand(%q<nuketarget>,strmatch(%q<nuketype>,PLAYER)),if(cor(hasflag(%q<nuketarget>,RECOVERY),not(hastype(%q<target>,PLAYER))),u(attrib_set,u(cobj,mco),DELETE`QUEUE`[u(nextslot,u(cobj,mco),DELETE`QUEUE)],%q<nuketarget>|%q<nukename>|%q<nuketype>)))

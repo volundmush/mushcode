@@ -4,8 +4,8 @@ th u(NEWCOBJ,Lock Management System <LMS>,lms,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 th u(NEWCOBJ,Key Object Parent <KOP>,kop,u(cobj,lms),,,WIZARD SAFE,INHERIT SIDEFX SAFE)
 
 &FUN`ISADMIN [u(cobj,kop)]=isadmin(%#)
-&FUN`AUTHCHECK`MODERATE [u(cobj,kop)]=cor(match(v(MODERATORS),u(objid,%#)),match(v(OWNERS),u(objid,%#)))
-&FUN`AUTHCHECK`MEMBER [u(cobj,kop)]=cor(match(v(MEMBERS),u(objid,%#)),u(FUN`AUTHCHECK`MODERATE),u(FUN`AUTHCHECK`OR,u(objid,%#)))
+&FUN`AUTHCHECK`MODERATE [u(cobj,kop)]=[cor(match(v(MODERATORS),u(objid,%#)),match(v(OWNERS),u(objid,%#)))]
+&FUN`AUTHCHECK`MEMBER [u(cobj,kop)]=[cor(match(v(MEMBERS),u(objid,%#)),u(FUN`AUTHCHECK`MODERATE),u(FUN`AUTHCHECK`OR,u(objid,%#)))]
 
 @@ Member Lock
 @lock/basic [u(cobj,kop)]=FUN`AUTHCHECK`MEMBER/1

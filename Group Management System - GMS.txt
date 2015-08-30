@@ -7,12 +7,12 @@ th u(NEWCOBJ,Group Management System <GMS>,gms,,,,WIZARD SAFE !NO_COMMAND,INHERI
 th u(NEWCOBJ,Group Object Parent <GOP>,gop,u(cobj,gms),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
 
 &FUN`ISADMIN [u(cobj,gop)]=isadmin(%#)
-&FUN`MEMBER [u(cobj,gop)]=cor(match(v(MEMBERS),objid(%#)),u(FUN`ISADMIN))
+&FUN`MEMBER [u(cobj,gop)]=[cor(match(v(MEMBERS),objid(%#)),u(FUN`ISADMIN))]
 @lock/basic [u(cobj,gop)]=FUN`MEMBER/1
 @lset [u(cobj,gop)]/basic=visual
 @lset [u(cobj,gop)]/basic=!no_inherit
 
-&FUN`AUTHCHECK`MODERATE [u(cobj,gop)]=cor(grpperm(%#,%!,MODERATE),u(FUN`ISADMIN))
+&FUN`AUTHCHECK`MODERATE [u(cobj,gop)]=[cor(grpperm(%#,%!,MODERATE),u(FUN`ISADMIN))]
 @lock/enter [u(cobj,gop)]=FUN`AUTHCHECK`MODERATE/1
 @lset [u(cobj,gop)]/enter=visual
 @lset [u(cobj,gop)]/enter=!no_inherit

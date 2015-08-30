@@ -125,8 +125,11 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &FUN`SETREAD [u(cobj,bbs)]=localize(switch(cand(isdbref(u(setr,accid,u(accid,%0))),not(u(isguest,%0))),>0,u(attrib_set,%q<accid>,D`BB`%1`READ,setunion(setinter(u(FUN`GETREAD,%0,%1),u(FUN`LISTPOSTS,%1)),%2)),u(attrib_set,%0,D`BB`%1`READ,setunion(setinter(u(FUN`GETREAD,%0,%1),u(FUN`LISTPOSTS,%1)),%2))))
 
-&INC`ALERT [u(cobj,bbs)]=@select/inline %0=BB,{th u(setq,members,u(filter,NOTOMIT,u(filter,CANREAD`BB,setunion(lwho(),),%B,%B,%2),%b,%b,%2))},GB,{th u(setq,members,u(filter,NOTOMIT,u(filter,CANREAD`GB,setunion(lwho(),),%B,%B,%2,%q<gid1>),%b,%b,%2))};@pemit/list %q<members>=%3
+&INC`ALERT [u(cobj,bbs)]=@select/inline %0=BB,{th u(setq,members,u(filter,NOTOMIT,u(filter,CANREAD2`BB,setunion(lwho(),),%B,%B,%2),%b,%b,%2))},GB,{th u(setq,members,u(filter,NOTOMIT,u(filter,CANREAD2`GB,setunion(lwho(),),%B,%B,%2,%q<gid1>),%b,%b,%2))};@pemit/list %q<members>=%3
 @@ %0 - Mode, GB or BB. %1 - Board number. %2 - Board DBREF. %3 - Message.
+
+&FIL`CANREAD2`BB [u(cobj,bbs)]=cor(not(u(FUN`READLOCK`BB,%1,%0)),elock(%1,%0),u(isadmin,%0))
+&FIL`CANREAD2`GB [u(cobj,bbs)]=cor(not(FUN`READLOCK`GB,%1),lte(u(u(cobj,gms)/FUN`GETRANK,%2,u(objid,%1)),default(%1/CANREAD,100000)),u(FIL`CANADMIN`GB,%1,%0,%2))
 
 &INC`NEWGROUP [u(cobj,bbs)]=@check strlen(%1%2)=@attach %!/INC`MSG=ERROR: No name entered for the new board!;@check valid(name,%1%2)=@attach %!/INC`MSG=ERROR: That is not a suitable name for a board.;@stop gte(strlen(%1%2),29)=@attach %!/INC`MSG=ERROR: Board names must be 29 characters long or less.;@stop isdbref(u(find_in,switch(%0,BB,u(cobj,bbs),GB,%q<gid1>),trim(%1%2)))=@attach %!/INC`MSG=ERROR: A board already has that name.;@tel [u(setr,bb,create(trim(%1%2)))]=[switch(%0,BB,u(cobj,bbs),GB,%q<gid1>)];@power %q<bb>=many_attribs;th u(setq,ordermax,u(lmax,iter(u(u(cobj,bbs)/FUN`LISTGROUPS`%0,%q<gid1>),get(%i0/ORDER))));th u(attrib_set,%q<bb>,ORDER,add(1,%q<ordermax>));@set %q<bb>=SAFE;@attach %!/INC`MSG=Board '[trim(%1%2)]' created!;th u(setq,bbnum,match(u(u(cobj,bbs)/FUN`LISTGROUPS`%0),%q<bb>))
 

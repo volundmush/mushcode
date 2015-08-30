@@ -270,26 +270,28 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 &INC`IDLERS`MAIN [u(cobj,ams)]=@select/inline gt(strlen(%0),0)=1,{@check valnum(u(setr,days,%0))=@pemit %#=msghead(IDLERS) ERROR: Day field must be a whole, positive integer!},{th u(setq,days,30)};@check words(u(setr,idlers,sortkey(#lambda/convtime(get(\%0/LASTLOGOUT)),setdiff(lsearch(all,eplayer,\[cand(gt(sub(secs(),convtime(get(##/LASTLOGOUT))),mul(86400,%q<days>)),not(haspower(##,GUEST)),not(isadmin(##)))\]),u(ap)),n,%b,|)))=@pemit %#=msghead(IDLERS) Nobody's been offline longer than %q<days>.;@pemit %#=header(Players over %q<days> Idle)%R[ljust(DBREF,7)][ljust(NAME,30)][ljust(STATUS,10)][ljust(IP,22)]LAST ON%R[subheader()];th iter(lnum(1,ceil(fdiv(words(u(setr,list,%q<idlers>),|),30))),nspemit(%#,iter(elements(%q<list>,lnum(add(1,mul(sub(inum(0),1),30)),mul(inum(0),30)),|,|),rjust(num(%i0),5) %B[ljust(pueblize(name(%i0),+finger [name(%i0)]),30)][ljust(if(isadmin(%i0),ansi(hy,ADM),if(approved(%i0),ansi(hg,APP),ansi(hr,UNAPP))),10)][ljust(pueblize(get(%i0/LASTIP),+ip [name(%i0)]),22)][if(gte(conn(%i0),0),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3)))],|,%R)));@pemit %#=header()
 
-&VAR`IDLERS`ADMINFLAGS [u(cobj,ams)]=
-&VAR`IDLERS`PLAYFLAGS [u(cobj,ams)]=
-
+&SWITCHES`IDLERS`ADMIN [u(cobj,ams)]=
+&SWITCHES`IDLERS`PLAYER [u(cobj,ams)]=
 
 @@ SQL SECTION
 
 &SQL`INSTALL [u(cobj,ams)]=PLAYERS|LOGINS
-&SQL`TABLE`LOGINS [u(cobj,ams)]=logins
-&SQL`TABLE`PLAYERS [u(cobj,ams)]=players
+&SQL`TABLE`LOGINS [u(cobj,ams)]=mushcode_logins
+&SQL`TABLE`PLAYERS [u(cobj,ams)]=mushcode_players
 
 &Q`INSTALL`PLAYERS [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS $PLAYERS$ (player_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,objid VARCHAR(30) NOT NULL,player_name VARCHAR(60) NOT NULL DEFAULT 'Unset',PRIMARY KEY(player_id),UNIQUE KEY player_objid (objid)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
 
 &Q`INSTALL`LOGINS [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS $LOGINS$ (login_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT, player_id BIGINT(31) UNSIGNED NOT NULL,login_date DATETIME,login_result BOOL NOT NULL DEFAULT TRUE,login_reason VARCHAR(80),login_address VARCHAR(39) NOT NULL,login_site varchar(100),login_guest BOOL NOT NULL DEFAULT FALSE,PRIMARY KEY(login_id),FOREIGN KEY(player_id) REFERENCES $PLAYERS$(player_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
+&TRG`INSTALL [u(cobj,ams)]=@dolist/inline/delimit | [v(SQL`INSTALL)]={@attach %!/INC`DOSQL=INSTALL`##}
+@trigger u(cobj,ams)/TRG`INSTALL
 
 @@ CHARACTER - +ACCOUNT
 +help/add +account=[u(cobj,ams)]/HLP`+ACCOUNT
 +help/category +account=Character
 &HLP`+ACCOUNT [u(cobj,ams)]=The account system tracks players (and their alts) and their current status in the game (unapproved, approved, builder, admin, etc.).%R%R[ansi(hc,Player Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+account)] - Shows your account if you have one.%R[ansi(h,+account/email <email>)] - Sets your account's email.%R[ansi(h,+account/new)] - For new players. Enter this to start a new account on our game.%R[ansi(h,@password <old>=<new>)] - Change your password. If you forget your password\, staff will send a new one to your <email> on request - or if your Guest IP matches your previous logins.%R[ansi(h,+ip)] - Shows your recent logins. Please report any suspicious login attempts to staff!)]
 
-+shelp/addmain +account=[u(cobj,ams)]/SHLP`+ACCOUNT
++shelp/add +account=[u(cobj,ams)]/SHLP`+ACCOUNT
 +shelp/category +account=Character
 &SHLP`+ACCOUNT [u(cobj,ams)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+account)] - Shows all accounts in the system.%R[ansi(h,+account <#>)] - Shows a specific account. <#> can also be a player if they have an account.%R[ansi(h,+account/bind <player>=<#>)] - Binds <player> to an account\, removing them from any other account they're in. <#> can be the name of an character \(if they have an account\)\, the word NEW \(makes a new account\)\, or the number of an existing account.%R[ansi(h,+account/unbind <player>)] - Removes a player from any account they're in.%R[ansi(h,+account/unbound)] - Displays all unbound characters. Some are best left that way.%R[ansi(h,@newpass *<name>=<newpassword>)] - Set a new password for <name>. Note the asterisk\, this is necessary! This command is WIZARD only.%R[ansi(h,+ip <player>)] - Checks a player's logins and anyone with matching IPs.%R[ansi(h,+ip/guests <player>)] - Includes Guests in the IP lookup.%R[ansi(h,+ip/ip <ip>)] - Checks an IP for any matching players. Note that ::ffff: must be prepended to any IPv4 addresses if they're showing up in normal uses of +ip!)]
 
@@ -318,7 +320,7 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 +shelp/category Player Management=Administration
 &SHLP`PMANAGE [u(cobj,ams)]=WIZARDS have a great deal of hardcoded control over players for security and management. Most of these commands can only be used by them.%R%R[align(5 [sub(width(%#),6)],,[ansi(h,@pcreate <name>=<password>)] - Creates a player.%R%R[ansi(h,@newpass *<name>=<newpassword>)] - Changes a password. the * is necessary for hardcoded command lookups.%R%R[ansi(h,@sitelock/ban/player <name>)] - Bans a player. Be very careful with this! Check [u(pueblize,ansi(h,help @sitelock),help @sitelock)] for more info.%R%R[ansi(h,@nuke *<name>)] - Deletes a character AND EVERYTHING THEY OWN\, which by default includes EVERYTHING THEY MADE. use [ansi(h,@search *<name>)] to see what that would be before you @nuke! use [ansi(h,@chown <dbref>=me)] to save objects.)]
 
-+shelp/addmain Administration/+banlist=[u(cobj,ams)]/SHLP`BANLIST
++shelp/add Administration/+banlist=[u(cobj,ams)]/SHLP`BANLIST
 +shelp/category +banlist=Administration
 &SHLP`BANLIST [u(cobj,ams)]=[ansi(hc,See Also:)] [pueblize(help @sitelock)]%RThe BANLIST is a softcoded alternative to Penn's hardcoded @sitelock, offering similar functionality with a more convenient command display and interface. Bans set in this system automatically expire when their duration has passed. Connections from EXPIRED bans will send up warnings on admin channels but not impede the player at all.%R%RThe system has no connection to @sitelock. @sitelock settings will be processed before Banlist is. Additionally, Banlist can only decide whether to allow a connection or not - it cannot restrict certain sites from logging on as guests but allow them to logon normally, for instance. This requires @sitelock. Use +banlist for any general bans and @sitelock for anything more complicated.%R%R[ansi(hc,Basic Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+banlist)] - Show all Banlist entries.%R[ansi(h,+banlist <id>)] - Checks details for a specific banlist entry.%R[ansi(h,+banlist/comment <id>=<comment>)] - Adds a comment to a Banlist entry.})]%R%R[ansi(hc,Wizard Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+banlist/banip <ip>=<duration>/<comment>)] - Bans an IP (easily retrieved using the +ip command) for <duration> for <comment> reason. <duration> must be a string accepted by stringsecs (help stringsecs) such as 5d or 2w (5 days, 2 weeks, etc). See details below about entering IPs.%R[ansi(h,+banlist/banplayer <name>=<duration>/<comment>)] - Like /banip but attempts to automatically retrieve the proper IP address.%R[ansi(h,+banlist/duration <id>=<duration>)] - Reset a duration with a new one from now onwards.%R[ansi(h,+banlist/delete <id>)] - lift a ban.%R[ansi(h,+banlist/message <id>=<text>)] - Send a custom message to banned connections when they attempt to connect.})]%R%RWhen banning PLAYERS, the system will pull from the target's LASTIP attribute. This is set when they DISCONNECT, so in a few situations it may not be the IP they are currently using or use most.%R%RWhen banning IPs, you must enter an IP as it's displayed in the +IP command. this includes any IPv6 ::ffff:. The system uses text matching so will catch IPv4 or IPv6 addresses equally. Wildcards are only allowed for restricting entire Class C IPv4 Addresses (example: ::ffff:150.33.5.*). Be VERY careful when dealing with wildcards. The system will attempt to warn about who else a Class C ban will catch but it can only automatically check so much.%R%RNote that IP addresses for commercial ISP customers change semi-regularly.%R%RWhen bans are set down, anyone it affects will be IMMEDIATELY BOOTED.%R%RThe Default message displayed to banned connectors: [u(u(cao)/VAR`BANLIST`MESSAGE)]
 
