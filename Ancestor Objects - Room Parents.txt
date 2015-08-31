@@ -9,11 +9,11 @@
 
 &NAMEFORMAT [u(cobj,ancestor_room)]=[choosegame(endtag(a),)][u(HEADER,moniker(%!)[if(cor(controls(%#,%!),isadmin(%#)),%(%!%))],1)]
 
-&CONFORMAT [u(cobj,ancestor_room)]=[u(CONFORMAT`EXTRA)][if(words(lvplayers(%!)),u(CONFORMAT`PLAYERS`[strfirstof(v(MODE`PLAYERS_MODE),game_config(ROOM,PLAYERS_MODE))]))][if(words(lvthings(%!)),u(CONFORMAT`THINGS`[strfirstof(v(MODE`THINGS_MODE),game_config(ROOM,THINGS_MODE))]))][switch(type(%!),THING,u(SUBHEADER))]
+&CONFORMAT [u(cobj,ancestor_room)]=[u(CONFORMAT`EXTRA)][if(words(lvplayers(%!)),u(CONFORMAT`PLAYERS`[strfirstof(v(MODE`PLAYERS_MODE),game_config(ROOM,PLAYERS_MODE))]))][if(words(lvthings(%!)),%R[u(CONFORMAT`THINGS`[strfirstof(v(MODE`THINGS_MODE),game_config(ROOM,THINGS_MODE))])])][switch(type(%!),THING,%R[u(SUBHEADER)])]
 
 &CONFORMAT`PLAYERS`DEFAULT [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(19,Name))]%R[iter(sortname(lvplayers(%!)),align(19,mxpmenu(moniker(%i0),look [name(%i0)])),%b,%R)]
 
-&CONFORMAT`THINGS`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))][iter(sortname(lvthings(%!)),align(40 28 8,pueblize(name(%i0),look [name(%i0)]),pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(isadmin(%#)[hasflag(%i0,ENTER_OK)],11,pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R)]
+&CONFORMAT`THINGS`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(sortname(lvthings(%!)),align(40 28 8,pueblize(name(%i0),look [name(%i0)]),pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(isadmin(%#)[hasflag(%i0,ENTER_OK)],11,pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R)]
 
 &CONFORMAT`EXTRA [u(cobj,ancestor_room)]=[if(cor(nattr(%!/VIEW`*),nattr(%!/MUSIC`*),nattr(%!/PLACE`*)),separator(Extra)%R[iter(filterbool(#lambda/nattr(%!/\%0`*),PLACE VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)]
 &FUN`EXTRA`VIEW [u(cobj,ancestor_room)]=This room has views! Type [pueblize(ansi(h,views),views)] to list!
