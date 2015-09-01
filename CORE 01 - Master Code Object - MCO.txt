@@ -8,7 +8,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &COBJ [parent(%#)]=v(COBJ`%0)
 
-&COI [u(cobj,mco)]=localize(if(isdbref(u(setr,db,u(find_in,u(master_room),Code Object Index <COI>))),u(%q<db>/%0))
+&COI [u(cobj,mco)]=localize(if(isdbref(u(setr,db,u(find_in,u(master_room),Code Object Index <COI>))),u(%q<db>/%0)))
 
 &ATTRIB_SET [u(cobj,mco)]=u(ATTRIB_SET`[v(game)],%0,%1,%2)
 &ATTRIB_SET`PENNMUSH [u(cobj,mco)]=attrib_set(%0/%1,%2)
@@ -45,8 +45,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &STARTUP [u(cobj,mco)]=@dolist/inline u(lattr,%!/STARTUP`*)={@include/nobreak %!/##}
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
-&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid={@function/privileged %d0=%!/%d0}
+&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin isapproved approved moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid={@function/privileged %d0=%!/%d0}
 
 &STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`[v(game)];@include/nobreak %!/STARTUP`MAIN`EXTRA
 
@@ -142,7 +142,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &DATE`PENNMUSH [u(cobj,mco)]=timefmt($x,%0,strfirstof(u(gettz,%1),u(gettz,%#)))
 &DATE`RHOSTMUSH [u(cobj,mco)]=timefmt($M/$D/$Y,u(strfirstof,%0,secs()),u(gettz,u(strfirstof,%1,%#)))
 
-&CHANCOLOR [u(cobj,mco)]=localize(if(isdbref(setr(mog,cmogrifier(stripansi(%0)))),u(color(%@,CHANNEL,%q<mog>,,1,)))
+&CHANCOLOR [u(cobj,mco)]=localize(if(isdbref(setr(mog,cmogrifier(stripansi(%0)))),u(color(%@,CHANNEL,%q<mog>,,1,))))
 
 &GETTZ [u(cobj,mco)]=u(strfirstof,get(%0/TZ),if(isdbref(u(setr,accid,u(accid,%0))),get(%q<accid>/TZ)),u(game_config,SYSTEM,TIMEZONE))
 
@@ -338,10 +338,33 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 @@ PROPERTY SECTION
 &GETPROPERTY [u(cobj,mco)]=localize(if(isdbref(%0),u(GETPROPERTY`%1,%0,%2,%3,%4)))
 
+&GETPROPERTY`SEX [u(cobj,mco)]=get(%0/SEX)
+&GETPROPERTY`NAME [u(cobj,mco)]=name(%0)
+&GETPROPERTY`ALIASNAME [u(cobj,mco)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`QUOTE [u(cobj,mco)]=get(%0/D`FINGER`QUOTE)
+&GETPROPERTY`PROFILE [u(cobj,mco)]=get(%0/D`FINGER`PROFILE)
+&GETPROPERTY`SKILLS [u(cobj,mco)]=get(%0/D`FINGER`SKILLS)
+&GETPROPERTY`WIKI [u(cobj,mco)]=u(weblink,get(%0/D`FINGER`WIKI))
+&GETPROPERTY`SPECIES [u(cobj,mco)]=get(%0/D`FINGER`SPECIES)
+&GETPROPERTY`JOB [u(cobj,mco)]=get(%0/D`FINGER`JOB)
+&GETPROPERTY`GROUPNAMES2 [u(cobj,mco)]=u(getproperty`groupnames,%0,1)
+
+&GETPROPERTY`MAIL [u(cobj,mco)]=u(umail,%0) Unread Messages
+&GETPROPERTY`ALIAS [u(cobj,mco)]=u(getalias,%0)
+&GETPROPERTY`LAST [u(cobj,mco)]=u(lastidle,%0)
+&GETPROPERTY`EMAIL [u(cobj,mco)]=if(strmatch(u(setr,email,get(%0/D`OOCFINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
+&GETPROPERTY`CONTACT [u(cobj,mco)]=get(%0/D`OOCFINGER`CONTACT)
+&GETPROPERTY`HOMEPAGE [u(cobj,mco)]=get(%0/D`OOCFINGER`HOMEPAGE)
+&GETPROPERTY`THEME [u(cobj,mco)]=get(%0/D`OOCFINGER`THEME)
+&GETPROPERTY`ALTS [u(cobj,mco)]=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0),get(%0/D`OOCFINGER`ALTS))
+&GETPROPERTY`VOICEACTOR [u(cobj,mco)]=get(%0/D`OOCFINGER`VOICEACTOR)
+&GETPROPERTY`ACTOR [u(cobj,mco)]=get(%0/D`OOCFINGER`ACTOR)
+&GETPROPERTY`NOTES [u(cobj,mco)]=get(%0/D`OOCFINGER`NOTES)
+
 &GETPROPERTY`GROUPS [u(cobj,mco)]=u(sortgroups,u(sortname,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS))))
 &GETPROPERTY`GTITLE [u(cobj,mco)]=get(%0/D`GROUP`[u(namegrab,u(GETPROPERTY`GROUPS,%0,%1,%2),%1)]`TITLE)
 &GETPROPERTY`FACTIONDB [u(cobj,mco)]=first(u(GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))
-&GETPROPERTY`FACTIONCOLOR [u(cobj,mco)]=if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(u(gso)/FUN`GETSET,%q<fac>,COLOR),hx)
+&GETPROPERTY`FACTIONCOLOR [u(cobj,mco)]=if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(u(cobj,gms)/FUN`GETSET,%q<fac>,COLOR),hx)
 &GETPROPERTY`FACTIONSDB [u(cobj,mco)]=u(filter,FACTIONS,u(GETPROPERTY`GROUPS,%0,%1,%2,%3))
 &GETPROPERTY`FACTION [u(cobj,mco)]=if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
 &GETPROPERTY`FACABBR [u(cobj,mco)]=switch(1,u(iswizard,%0),ansi(hr,WIZ),u(isadmin,%0),ansi(hb,ROY),if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(u(strfirstof,u(color,%#,GROUP,%q<fac>,,1),get(%q<fac>/SET`COLOR),n),get(%q<fac>/SET`ABBREVIATION))))
@@ -356,7 +379,9 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &SORTGROUPS`PENNMUSH [u(cobj,mco)]=sort(%0,attr:SET`SORT,%1,%2)
 &SORTGROUPS`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/SET`SORT,99),default(%1/SET`SORT,99))])],%0,%1,%2)
 
-&FIL`FACTIONS [u(cobj,mco)]=cand(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR),strmatch(FACTION,u(u(cobj,gms)/FUN`GETSET,%0,TYPE)))
+&FIL`FACTIONS [u(cobj,mco)]=t(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR))
+
+@@ cand(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR),strmatch(FACTION,u(u(cobj,gms)/FUN`GETSET,%0,TYPE)))
 &FIL`MAJORGROUPS [u(cobj,mco)]=u(u(cobj,gms)/FUN`GETSET,%0,MAJOR)
 &FIL`MINORGROUPS [u(cobj,mco)]=eq(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR),0)
 
@@ -477,7 +502,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &INC`MSG`NOTICE [u(cobj,mco)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(config,ADMIN`ANONYMOUSNOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
-&INC`MSG`CHAN [u(cobj,mco)]=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(moniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof,u(CHANNEL`ALERT),%1)]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(u(strfirstof,u(CHANNEL`ALERT),%1)]={@cemit %d0=%q<chanmsg>}}
+&INC`MSG`CHAN [u(cobj,mco)]=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(moniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof,u(CHANNEL`ALERT),%1)]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(u(strfirstof,u(CHANNEL`ALERT),%1))]={@cemit %d0=%q<chanmsg>}}
 @@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
 
 &INC`MSG`SYSCHAN [u(cobj,mco)]=th u(setq,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof(u(CHANNEL`ALERT),%1))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(strfirstof(u(CHANNEL`ALERT),%1))]={@cemit %d0=%q<chanmsg>}}
@@ -504,8 +529,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 @@ %0 - display text (optional), %1 - viewer (optional), %2 - Disable headertext coloring. %3 - Bordered mode. %4 - Border color override. %5 - Border star color override. %6 - Header text color override.
 
 &SPEECH [u(cobj,mco)]=localize(u(SPEECH`[v(game)],%0,%1,%2,%3,%4,%5))
-&SPEECH`PENNMUSH [u(cobj,mco)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`SPEECH),u(setr,quote,ansi(u(color,%2,%4,QUOTES),"))[ansi(u(color,%2,%4,SPEECH),$1)]%q<quote>,v(REG`URL),u(weblink,$0,$0))
-&SPEECH`RHOSTMUSH [u(cobj,mco)]=regeditalli(parsestr(u(colornames,%2,escape(%1),%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(moniker,%0))]),v(REG`SPEECH),u(setr,quote,ansi(u(color,%2,%4,QUOTES),"))[ansi(u(color,%2,%4,SPEECH),$1)]%q<quote>)
+&SPEECH`PENNMUSH [u(cobj,mco)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>,v(REG`URL),u(weblink,$0,$0))
+&SPEECH`RHOSTMUSH [u(cobj,mco)]=regeditalli(parsestr(u(colornames,%2,escape(%1),%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(moniker,%0))]),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>)
 @@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup.
 
 &REG`SPEECH [u(cobj,mco)]=(?s)"([^ "][^"]*[^ "])"
@@ -513,6 +538,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &COLORNAMES [u(cobj,mco)]=localize(u(COLORNAMES`[v(game)],%0,%1,%2,%3,%4))
 &COLORNAMES`PENNMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,lit(\b)[name(%i0)][lit(\b)]^[switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[u(setq,final,fold(COLORNAME`PENN,%q<colstring>,%1,beep()))]%q<final>
+
+
 &COLORNAMES`RHOSTMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,lit(%\b)[name(%i0)][lit(%\b)][beep()][switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[strfunc(regeditalli,%1[beep()]%q<colstring>,beep())]
 &COLORNAME`PENN [u(cobj,mco)]=regeditalli(%0,before(%1,^),after(%1,^))
 @@ %0 - Viewer. %1 - Text to search. %2 - Display mode. %3 - Dbrefs to check. %4 - Speaker.
@@ -533,6 +560,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &MY_CONFIG [u(cobj,mco)]=u(PLAYER_CONFIG,%@,%0,%1)
 
 &PLAYER_CONFIG [u(cobj,mco)]=localize(u(strfirstof,if(hasattr(u(cobj,pconf)/RETRIEVE`%1`%2),u(u(cobj,pconf)/RETRIEVE`%1`%2,%0)),if(isdbref(u(setr,accid,u(accid,%0))),get(%q<accid>/D`CONFIG`%1`%2)),get(%0/D`CONFIG`%1`%2),get(u(cobj,pconf)/DEFAULT`%1`%2)))
+
+&APPROVED [u(cobj,mco)]=u(isapproved,%0)
 
 &ISAPPROVED [u(cobj,mco)]=if(u(game_config,SYSTEM,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1)
 

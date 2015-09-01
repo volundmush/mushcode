@@ -52,7 +52,7 @@
 @pageformat [u(cobj,ancestor_player)]=ansi(color(%@,PAGE,PAGE),colornames(%!,%4,PAGES,lwho(%!),%#))
 @outpageformat [u(cobj,ancestor_player)]=ansi(color(%@,PAGE,OUTPAGE),colornames(%!,%4,PAGES,lwho(%!),%#))
 @adescribe [u(cobj,ancestor_player)]=@check [my_config(ALERTS,ADESC)];think GAME> %n just looked at you.
-@idle [u(cobj,ancestor_player)]=if(gte(my_config(ALERTS,IDLE),idle(%!)),Currently idle\, please try again later!)
+@idle [u(cobj,ancestor_player)]=if(gte(idle(%!),my_config(ALERTS,IDLE)),Currently idle\, please try again later!)
 
 @chatformat [u(cobj,ancestor_player)]=if(cor(chanpriority(%1),strmatch(%#,%!)),if(strlen(u(setr,color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][speech(%#,%2,%!,,CHANNELS,cwho(%1,on,1))],<%1>[if(strlen(%4),%B%4%B,%B)][speech(%#,switch(%0,@,|,%0)%2,%!,,CHANNELS,cwho(%1,on,1))]))
 

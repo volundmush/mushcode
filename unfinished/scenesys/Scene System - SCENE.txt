@@ -43,6 +43,19 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &DESC`SCENESYS`BOARD [u(cobj,config)]=Board for scene announcements?
 &TYPE`SCENESYS`BOARD [u(cobj,config)]=DBREF
 
+&DEFAULT`IC [u(cobj,pconf)]=@@ empty attrib for Rhost.
+&DEFAULT`IC`QUOTES [u(cobj,pconf)]=hw
+&DESC`IC`QUOTES [u(cobj,pconf)]=For IC quotations.
+&TYPE`IC`QUOTES [u(cobj,pconf)]=COLOR
+
+&DEFAULT`IC`SPEECH [u(cobj,pconf)]=h
+&DESC`IC`SPEECH [u(cobj,pconf)]=For IC dialogue.
+&TYPE`IC`SPEECH [u(cobj,pconf)]=COLOR
+
+&DEFAULT`IC`BORDERS [u(cobj,pconf)]=0
+&DESC`IC`BORDERS [u(cobj,pconf)]=Show borders around poses?
+&TYPE`IC`BORDERS [u(cobj,pconf)]=BOOL
+
 &SYSTEM`NAME [u(cobj,scene)]=SCENESYS
 
 &OBJECT`DESTROY [u(cobj,scene)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/OBJECT`DESTROY`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
@@ -78,11 +91,11 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &FUN`ISLOGGED [u(cobj,scene)]=if(cand(not(%3),words(%4)),#-1 SCENE NOT JOINED,if(not(match(%4,%3)),#-2 JOINED SCENE (%3) NOT PRESENT,if(u(mysql,get`scenestate,%3),#-3 SCENE (%3) IS NOT ACTIVE,if(lt(words(%2),10),#-4 INSUFFICIENT WORD COUNT,%3))))
 
-&INC`HEADER [u(cobj,scene)]=@check u(isic,u(objid,owner(%#)));th u(setq,poser,ansi(hw,u(moniker,u(objid,%#))) has posed[if(u(setr,spoof,get(%#/D`SCENE`SPOOF)),%B\(as [u(moniker,%q<spoof>)]\))]%b);th u(setq,logheader,switch(1,not(words(%q<sceneactive>)),,cand(words(%q<sceneactive>),not(%q<logged>)),%[[ansi(hr,NO LOG: [u(itemize,%q<sceneactive>,%b,and,\,)])]%]%B,t(match(%q<sceneactive>,%q<logged>)),%[[ansi(hg,LOG: %0)]%]%B,));@dolist/inline u(setr,footrecp,u(filter,poseheader,%q<custrecp>,%b,%b,%0,%1))={@select/inline t(u(player_config,##,ROLEPLAY,BORDERS))=1,{@pemit ##=u(header,%q<logheader>%q<poser>,##)},{@pemit ##=u(center,%q<logheader>%q<poser>,u(width,##),%B)}}
+&INC`HEADER [u(cobj,scene)]=@check u(isic,u(objid,owner(%#)));th u(setq,poser,ansi(hw,u(moniker,u(objid,%#))) has posed[if(u(setr,spoof,get(%#/D`SCENE`SPOOF)),%B\(as [u(moniker,%q<spoof>)]\))]%b);th u(setq,logheader,switch(1,not(words(%q<sceneactive>)),,cand(words(%q<sceneactive>),not(%q<logged>)),%[[ansi(hr,NO LOG: [u(itemize,%q<sceneactive>,%b,and,\,)])]%]%B,t(match(%q<sceneactive>,%q<logged>)),%[[ansi(hg,LOG: %0)]%]%B,));@dolist/inline u(setr,footrecp,u(filter,poseheader,%q<custrecp>,%b,%b,%0,%1))={@select/inline t(u(player_config,##,IC,BORDERS))=1,{@pemit ##=u(header,%q<logheader>%q<poser>,##)},{@pemit ##=u(center,%q<logheader>%q<poser>,u(width,##),%B)}}
 
-&FIL`POSEHEADER [u(cobj,scene)]=cor(words(%2),t(u(player_config,owner(%0),ROLEPLAY,BORDERS)))
+&FIL`POSEHEADER [u(cobj,scene)]=cor(words(%2),t(u(player_config,owner(%0),IC,BORDERS)))
  
-&INC`FOOTER [u(cobj,scene)]=@check isic(u(objid,owner(%#)));th u(setq,poser,End of [ansi(hw,u(moniker,u(objid,owner(%#))))]'s pose[if(u(setr,spoof,get(%#/D`SCENE`SPOOF)),%B\(as [u(moniker,%q<spoof>)]\))]%b);@dolist/inline %q<footrecp>={@select/inline t(u(player_config,##,ROLEPLAY,BORDERS))=1,{@pemit ##=u(subheader,%q<logheader>%q<poser>,##)}}
+&INC`FOOTER [u(cobj,scene)]=@check isic(u(objid,owner(%#)));th u(setq,poser,End of [ansi(hw,u(moniker,u(objid,owner(%#))))]'s pose[if(u(setr,spoof,get(%#/D`SCENE`SPOOF)),%B\(as [u(moniker,%q<spoof>)]\))]%b);@dolist/inline %q<footrecp>={@select/inline t(u(player_config,##,IC,BORDERS))=1,{@pemit ##=u(subheader,%q<logheader>%q<poser>,##)}}
 
 &INC`POTRECORD [u(cobj,scene)]=@check get(%l/D`POT);th u(attrib_set,%l,u(setr,potattr,D`POSES`[u(nextslot,%l,D`POSES)]),%1);&%q<potattr>`CUSTLOC %l=%2;&%q<potattr>`TYPE %l=switch(%0,@EMIT,|,SAY,",SEMIPOSE,;,POSE,:);&%q<potattr>`BY %l=owner(%#);&%q<potattr>`WHEN %l=secs();@switch/inline gt(u(setr,count,u(nattr,%l/D`POSES`*)),80)=1,{@dolist/inline elements(u(sortattr,u(lattr,%l/D`POSES`*)),lnum(1,sub(%q<count>,80)))=@attach %!/WIPE=%l,##}
 
@@ -185,7 +198,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &Q`SET`SCENESTATE [u(cobj,scene)]=UPDATE $SCENES$ SET scene_state='?' WHERE scene_id=?
 
-&INC`SCENE`UNDO [u(cobj,scene)]=@attach %!/INC`USERCHECK=u(firstof,get(%#/D`SCENE`SPOOF),u(objid,%#));@attach %!/INC`VALSCENE=get(%#/D`SCENE`ACTIVE);@check eq(u(mysql,get`scenestate,%q<scene>),0)=@attach %!/INC`MSG=That scene is not Active!;@check gt(u(setr,undo,u(mysql,get`lastpose,%q<scene>,%q<pid>,0)),0)=@attach %!/INC`MSG=You have no recent poses that can be undone.;@attach %!/INC`DOSQL=SET`IGNORE,1,%q<undo>;@attach %!/INC`MSGSCENE=%q<scene>,[u(moniker,%#)] turned on Ignore for their last pose: %q<undo>
+&INC`SCENE`UNDO [u(cobj,scene)]=@attach %!/INC`USERCHECK=u(firstof,get(%#/D`SCENE`SPOOF),u(objid,%#));@attach %!/INC`VALSCENE=get(%#/D`SCENE`ACTIVE);@check eq(u(mysql,get`scenestate,%q<scene>),0)=@attach %!/INC`MSG=That scene is not Active!;@check gt(u(setr,undo,u(mysql,get`lastpose,%q<scene>,%q<pid>,0)),0)=@attach %!/INC`MSG=You have no recent poses that can be undone.;@attach %!/INC`DOSQL=SET`IGNORE,1,%q<undo>;@attach %!/INC`MSGSCENE=%q<scene>,[u(moniker,%#)] undid %p last pose: %q<undo>
 
 &INC`SCENE`REDO [u(cobj,scene)]=@attach %!/INC`USERCHECK=u(firstof,get(%#/D`SCENE`SPOOF),u(objid,%#));@attach %!/INC`VALSCENE=get(%#/D`SCENE`ACTIVE);@check eq(u(mysql,get`scenestate,%q<scene>),0)=@attach %!/INC`MSG=That scene is not Active!;@check gt(u(setr,undo,u(mysql,get`lastpose,%q<scene>,%q<pid>,1)),0)=@attach %!/INC`MSG=You have no recent poses that can be restored.;@attach %!/INC`DOSQL=SET`IGNORE,0,%q<undo>;@attach %!/INC`MSGSCENE=%q<scene>,[u(moniker,%#)] restored an earlier Ignored pose: %q<undo>
 
@@ -426,3 +439,5 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 +help/add +pot=[u(cobj,scene)]/HLP`+POT
 +help/category +pot=Roleplaying
 &HLP`+POT [u(cobj,scene)]=+pot, or [ansi(h,Po)]se [ansi(h,T)]racker, is a system that stores poses within the room for easy retrieval for review. Sometimes, poses are lost in spam or scroll, or a player enters late and needs to see what's going on, or was disconnected when someone else posed, and that's what this system's here to aid with.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+pot)] - Show either +pot/list or +pot/brief\, depending on /mode. \(See below.\)%R[ansi(h,+pot/list)] - show the last 15 \(or set max\) poses.%R[ansi(h,+pot/list <number>)] - Show a specified amount of poses.%R[ansi(h,+pot/max <number>)] - Set a new default number of poses to show.%R[ansi(h,+pot/brief)] - Show when people last posed and their last +summary made after that pose if they have one.%R[ansi(h,+pot/mode)] - Change the behavior of +pot. By default\, +pot uses +pot/list display style. Change mode and it will use +pot/brief instead.%R%R[ansi(h,+pot/toggle)] - THINGS used as rooms will not support +pot by default. Object owners can use +pot/toggle to enable pose recording.)]
+
+&CONFLICT`SCENESYS [u(cobj,migrate)]=@dolist/inline [u(coi,scene)] [u(coi,pot)]={@halt %i0;@set %i0=NO_COMMAND;@tel %i0=u(cobj,oldbox)}

@@ -27,6 +27,15 @@ th u(NEWCOBJ,Player Globals <PG>,player_globals,,,,WIZARD SAFE !NO_COMMAND,INHER
 &DESC`COLOR`OOCEDGE [u(cobj,config)]=For +ooc edge.
 &TYPE`COLOR`OOCEDGE [u(cobj,config)]=COLOR
 
+&DEFAULT`OOC [u(cobj,pconf)]=@@ empty attrib for Rhost.
+&DEFAULT`OOC`QUOTES [u(cobj,pconf)]=h
+&DESC`OOC`QUOTES [u(cobj,pconf)]=For +ooc quotations.
+&TYPE`OOC`QUOTES [u(cobj,pconf)]=COLOR
+
+&DEFAULT`OOC`SPEECH [u(cobj,pconf)]=n
+&DESC`OOC`SPEECH [u(cobj,pconf)]=For +ooc dialogue.
+&TYPE`OOC`SPEECH [u(cobj,pconf)]=COLOR
+
 &CONFLICT`PGLOBALS [u(cobj,migrate)]=@tel [u(coi,pgo)]=[u(cobj,oldbox)]
 
 
