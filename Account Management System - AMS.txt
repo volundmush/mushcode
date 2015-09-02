@@ -47,8 +47,8 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 &INC`ACCOUNT`BIND [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1;@select/inline u(valnum,%1)=1,{@select/inline not(u(setr,accid,u(FIND_IN,u(cobj,accounts),Account %1)))=1,{@attach %!/INC`ACCOUNT`MAKENUM=%1}},{@check strlen(%1)=@attach %!/INC`MSG={ERROR: Destination Account Empty. It must be an Account ID, player name, or NEW};@select/inline %1=NEW,{@attach %!/INC`ACCOUNT`MAKENEW},{@attach %!/INC`CHECKPC=%1,2;@check isdbref(u(setr,accid,u(accid,%q<t2objid>)),0)=@attach %!/INC`MSG={ERROR: That player doesn't have an account.}}};@select/inline isdbref(u(setr,oldid,u(accid,%q<t1objid>)),0)=1,{@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<oldid>,%q<t1objid>};@attach %!/INC`ACCOUNT`ADDTOACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG`NOTICE={You have been Bound to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])].},%q<t1>;@attach %!/INC`MSG={You have Bound %q<t1name> to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])]};@attach %!/INC`MSG`CHAN={Bound %q<t1name> to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])]}
 
-&INC`ACCOUNT`ADDTOACCOUNT [u(cobj,ams)]=th u(attrib_set,%0,CHARACTERS,setunion(get(%0/CHARACTERS),u(objid,%1)));th u(attrib_set,%1,D`ACCOUNT,%0);th u(setstat,%0/OLD,u(objid,%1),name(%1))
-&INC`ACCOUNT`REMFROMACCOUNT [u(cobj,ams)]=th u(attrib_set,%0,CHARACTERS,setdiff(get(%0/CHARACTERS),u(objid,%1)));@wipe %0/D`ACCOUNT;@select/inline t(%1)=1,{th u(delstat,%0/OLD,u(objid,%1))}
+&INC`ACCOUNT`ADDTOACCOUNT [u(cobj,ams)]=th u(attrib_set,%0,CHARACTERS,setunion(get(%0/CHARACTERS),u(objid,%1)));th u(attrib_set,%1,D`ACCOUNT,%0);th u(setstat,%0,OLD,u(objid,%1),name(%1))
+&INC`ACCOUNT`REMFROMACCOUNT [u(cobj,ams)]=th u(attrib_set,%0,CHARACTERS,setdiff(get(%0/CHARACTERS),u(objid,%1)));@wipe %0/D`ACCOUNT;@select/inline t(%1)=1,{th u(delstat,%0,OLD,u(objid,%1))}
 
 &INC`ACCOUNT`UNBIND [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1;@check u(setr,accid,%q<t1acc>)=@attach %!/INC`MSG={ERROR: %q<t1name> is not a member of any accounts.};@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG={You have removed %q<t1name> from Account [name(%q<accid>)]};@attach %!/INC`MSG`NOTICE={You were removed you from [name(%q<accid>)]},%q<t1>;@attach %!/INC`MSG`CHAN={Removed %q<t1name> from [name(%q<accid>)]}
 
@@ -58,18 +58,20 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 &INC`ACCOUNT`DELETE [u(cobj,ams)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Account ID empty.};@attach %!/INC`ACCOUNT`FIND=%0;@attach %!/INC`VERIFY={ansi(hr,WARNING:) This will delete Account %0. All records will be deleted. This will not delete any characters! Are you sure? Enter the command again within ten seconds to continue.},ACCOUNT DELETE %q<accid>;@attach %!/INC`MSG={[name(%q<accid>)] deleted!};@attach %!/INC`MSG`NOTICE={Your account was deleted.},u(setr,chars,get(%q<accid>/CHARACTERS));@attach %!/INC`MSG`CHAN={[name(%q<accid>)] deleted!};@dolist/inline %q<chars>={@wipe ##/D`ACCOUNT};@attach %!/DELETE=%q<accid>
 
-&PLAYER`CONNECT [u(cobj,ams)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/PLAYER`CONNECT`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&PLAYER`CREATE [u(cobj,ams)]=@dolist/inline u(lattr,%!/PLAYER`CREATE`*)={@trigger %!/PLAYER`DISCONNECT`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&PLAYER`DISCONNECT [u(cobj,ams)]=@dolist/inline u(lattr,%!/PLAYER`DISCONNECT`*)={@trigger %!/PLAYER`DISCONNECT`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CONNECT [u(cobj,ams)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CREATE [u(cobj,ams)]=@dolist/inline u(lattr,%!/PLAYER`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`DISCONNECT [u(cobj,ams)]=@dolist/inline u(lattr,%!/PLAYER`DISCONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 
-&OBJECT`RENAME [u(cobj,ams)]=@dolist/inline u(lattr,%!/OBJECT`RENAME`*)={@trigger %!/OBJECT`RENAME`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&OBJECT`DESTROY [u(cobj,ams)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/OBJECT`DESTROY`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&OBJECT`CREATE [u(cobj,ams)]=@dolist/inline u(lattr,%!/OBJECT`CREATE`*)={@trigger %!/OBJECT`CREATE`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&OBJECT`MOVE [u(cobj,ams)]=@dolist/inline u(lattr,%!/OBJECT`MOVE`*)={@trigger %!/OBJECT`MOVE`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`RENAME [u(cobj,ams)]=@dolist/inline u(lattr,%!/OBJECT`RENAME`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`DESTROY [u(cobj,ams)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`CREATE [u(cobj,ams)]=@dolist/inline u(lattr,%!/OBJECT`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`MOVE [u(cobj,ams)]=@dolist/inline u(lattr,%!/OBJECT`MOVE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 
-&PLAYER`CREATE`ACCOUNT [u(cobj,ams)]=@attach %!/INC`MSG=Welcome to [mudname())]! No account was found for this character. [if(u(OPEN_CREATION),If you have no account\, type [u(pueblize,+accout/new)]. If you have one\, use +account/request <existing character name> to send a request.,Please contact admin to get setup with an account.)],%#
+&PLAYER`CONNECT`ACCOUNT [u(cobj,ams)]=@stop u(isguest,%0);@stop isdbref(u(accid,%0));@select/inline u(game_config,SYSTEM,AUTO_ACCOUNT)=1,{@select/inline words(u(setr,accid,u(filter,isdbref,setunion(iter(u(mysql,GET`OBJIDS_FROM_IPS,u(sql`in`number,get(%0/LASTIP))),u(accid,%i0)),))))=>1,{@attach %!/INC`MSG=Welcome to [mudname()]! Login records show multiple accounts for this site. Auto-Matching cannot continue. [if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0},1,{@attach %!/INC`MSG=Welcome to [mudname())]! We found one account matching your login records. You have been auto-bound to [name(%q<accid>)]! Please contact staff if this is in error.,%0;@attach %!/INC`ACCOUNT`ADDTOACCOUNT=%q<accid>,%0},0,{@attach %!/INC`MSG=Welcome to [mudname())]! No account was found for this character.[if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0}},0,{@attach %!/INC`MSG=Welcome to [mudname())]! No account was found for this character.[if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0}
 
-&PLAYER`CONNECT`ACCOUNT [u(cobj,ams)]=@stop u(isguest,%0);@check gt(sub(secs(),u(csecs,%0)),300);@stop isdbref(u(accid,%0));@trigger u(cao)/PLAYER`CREATE`ACCOUNT=%0
+&DEFAULT`SYSTEM`AUTO_ACCOUNT [u(cobj,config)]=1
+&DESC`SYSTEm`AUTO_ACCOUNT [u(cobj,config)]=Auto-Bind accounts based on IP?
+&TYPE`SYSTEm`AUTO_ACCOUNT [u(cobj,config)]=BOOL
 
 &OBJECT`RENAME`FIXACCOUNT [u(cobj,ams)]=@select/inline %2=PLAYER,{@check isdbref(u(setr,accid,accid(%0)));th u(setstat,u(adb)/%q<accid>`OLD,%0,%1)}
 
@@ -115,7 +117,7 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 &INC`IP`IP [u(cobj,ams)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: An IP address is required.;@attach %!/INC`IP`IPSHOW=%0,1,1
 
-&INC`IP`IPSHOW [u(cobj,ams)]=@check gt(words(u(setr,ips,if(%2,%0,u(mysql,GET`LOGIN_[if(%1,GUEST,ID)],%q<t1id>)))),0)=@attach %!/INC`MSG=ERROR: No IP logs found to match against.;th u(setq,pcs,u(sortname,u(mysql,GET`OBJIDS_FROM_IPS[if(%1,_GUEST)],u(SQL`IN`STRING,%q<ips>))));th if(%1,u(setq,pcs,u(filter,NOTGUEST,%q<pcs>)));@check words(%q<pcs>)=@attach %!/INC`MSG=ERROR: No Matching Logs found.;@pemit %#=u(header,Site matches for [if(%2,%0,name(%0))][if(%1,%B\(Showing Guests\))]);@dolist/inline %q<pcs>={@pemit %#=u(separator,ansi(h,u(pueblize,u(moniker,##),+finger [name(##)]))[ansi(h,\(##\))] - [u(lastidle,##)]);@pemit %#=ansi(u(color,%#,%q<sysname>,COLUMN_NAMES),align(20 22 25,Date,Address,Result));@pemit %#=iter(u(mysql2,get`logins,u(objid,##)),align(20 22 25,u(fancytime,elements(%i0,3,^)),elements(%i0,2,^),if(elements(%i0,1,^),Success,elements(%i0,4,^))),|,%R)};@pemit %#=u(subheader)
+&INC`IP`IPSHOW [u(cobj,ams)]=@check gt(words(u(setr,ips,if(%2,%0,u(mysql,GET`LOGIN_[if(%1,GUEST,ID)],%q<t1id>)))),0)=@attach %!/INC`MSG=ERROR: No IP logs found to match against.;th u(setq,pcs,u(sortname,u(mysql,GET`OBJIDS_FROM_IPS[if(%1,_GUEST)],u(SQL`IN`STRING,%q<ips>))));th if(%1,u(setq,pcs,u(filter,NOTGUEST,%q<pcs>)));@check words(%q<pcs>)=@attach %!/INC`MSG=ERROR: No Matching Logs found.;@pemit %#=u(header,Site matches for [if(%2,%0,name(%0))][if(%1,%B\(Showing Guests\))]);@dolist/inline %q<pcs>={@pemit %#=u(separator,ansi(h,u(pueblize,u(moniker,##),+finger [name(##)]))[ansi(h,\(##\))] - [u(lastidle,##)]);@pemit %#=ansi(u(color,%#,%q<sysname>,COLUMN_NAMES),align(20 22 25,Date,Address,Result));@pemit %#=iter(u(mysql2,get`logins,u(objid,##)),align(20 22 25,u(fancytime,elements(%i0,3,^),%#),elements(%i0,2,^),if(elements(%i0,1,^),Success,elements(%i0,4,^))),|,%R)};@pemit %#=u(subheader)
 
 &Q`GET`LOGIN_ID [u(cobj,ams)]=SELECT DISTINCT login_address FROM $LOGINS$ WHERE player_id=? AND login_guest=0 AND login_result=1
 &Q`GET`LOGIN_GUEST [u(cobj,ams)]=SELECT DISTINCT login_address FROM $LOGINS$ WHERE player_id=? AND login_result=1

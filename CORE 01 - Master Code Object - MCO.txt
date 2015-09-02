@@ -45,8 +45,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &STARTUP [u(cobj,mco)]=@dolist/inline u(lattr,%!/STARTUP`*)={@include/nobreak %!/##}
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
-&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin isapproved approved moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid={@function/privileged %d0=%!/%d0}
+&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder namelink={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin isapproved approved moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid namelink={@function/privileged %d0=%!/%d0}
 
 &STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`[v(game)];@include/nobreak %!/STARTUP`MAIN`EXTRA
 
@@ -128,9 +128,9 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &CTIME`PENNMUSH [u(cobj,mco)]=ctime(%0)
 &CTIME`RHOSTMUSH [u(cobj,mco)]=createtime(%0)
 
-&FANCYTIME [u(cobj,mco)]=u(FANCYTIME`[v(game)],%0,%1)
-&FANCYTIME`PENNMUSH [u(cobj,mco)]=timefmt($b $d $I:$M$p $Z,%0,strfirstof(u(gettz,%1),u(gettz,%#)))
-&FANCYTIME`RHOSTMUSH [u(cobj,mco)]=timefmt($b $D $02H:$02T$P $i,u(strfirstof,%0,secs()),u(gettz,u(strfirstof,%1,%#)))
+&FANCYTIME [u(cobj,mco)]=u(FANCYTIME`[v(game)],%0,%1,%2)
+&FANCYTIME`PENNMUSH [u(cobj,mco)]=timefmt($b $d $I:$M$p $Z,%0,strfirstof(%2,u(gettz,%1),u(gettz,%#)))
+&FANCYTIME`RHOSTMUSH [u(cobj,mco)]=timefmt($b $D $02H:$02T$P $i,u(strfirstof,%0,secs()),u(strfirstof,%2,u(gettz,%1),u(gettz,%#)))
 
 &FANCYDAY [u(cobj,mco)]=u(FANCYDAY`[v(game)],%0,%1)
 &FANCYDAY`PENNMUSH [u(cobj,mco)]=timefmt($b $d $Y,%0,strfirstof(u(gettz,%1),u(gettz,%#)))
@@ -144,7 +144,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &CHANCOLOR [u(cobj,mco)]=localize(if(isdbref(setr(mog,cmogrifier(stripansi(%0)))),u(color(%@,CHANNEL,%q<mog>,,1,))))
 
-&GETTZ [u(cobj,mco)]=u(strfirstof,get(%0/TZ),if(isdbref(u(setr,accid,u(accid,%0))),get(%q<accid>/TZ)),u(game_config,SYSTEM,TIMEZONE))
+&GETTZ [u(cobj,mco)]=u(strfirstof,u(player_config,%0,SYSTEM,TIMEZONE),u(game_config,SYSTEM,TIMEZONE),UTC)
 
 &CHARSEARCH [u(cobj,mco)]=u(lmax,iter(%1,strmatch(%0,*%i0*)))
 
@@ -190,6 +190,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &MONIKER [u(cobj,mco)]=u(MONIKER`[v(game)],%0)
 &MONIKER`PENNMUSH [u(cobj,mco)]=moniker(%0)
 &MONIKER`RHOSTMUSH [u(cobj,mco)]=cname(%0)
+
+&NAMELINK [u(cobj,mco)]=localize(u(mxpmenu,u(moniker,%0),iter(u(setr,com,u(game_config,SYSTEM,NAMELINK)),%i0 [name(%0)]),%q<com>))
 
 &NAMEGRAB [u(cobj,mco)]=u(NAMEGRAB`[v(game)],%0,%1)
 &NAMEGRAB`PENNMUSH [u(cobj,mco)]=namegrab(%0,%1)
@@ -537,8 +539,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &REG`URL [u(cobj,mco)]=\w+\://\S+
 
 &COLORNAMES [u(cobj,mco)]=localize(u(COLORNAMES`[v(game)],%0,%1,%2,%3,%4))
-&COLORNAMES`PENNMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,lit(\b)[name(%i0)][lit(\b)]^[switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[u(setq,final,fold(COLORNAME`PENN,%q<colstring>,%1,beep()))]%q<final>
-
+&COLORNAMES`PENNMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,\\b[name(%i0)]\\b^[switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[u(setq,final,fold(COLORNAME`PENN,%q<colstring>,%1,beep()))]%q<final>
 
 &COLORNAMES`RHOSTMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,lit(%\b)[name(%i0)][lit(%\b)][beep()][switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[strfunc(regeditalli,%1[beep()]%q<colstring>,beep())]
 &COLORNAME`PENN [u(cobj,mco)]=regeditalli(%0,before(%1,^),after(%1,^))

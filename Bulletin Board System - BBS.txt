@@ -24,6 +24,8 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 &INC`INIT`GB [u(cobj,bbs)]=@check isdbref(u(cobj,gms))=@attach %!/INC`MSG=ERROR: The Group System is not installed!;@check u(game_config,bbs,gbs)=@attach %!/INC`MSG=ERROR: Group Boards are disabled.;@attach u(cobj,gms)/INC`CODE`VALGROUP=switch(%2,rea*,u(strfirstof,%5,u(getstat,%#,D`GROUP,Group),0),sca*,u(strfirstof,%3,u(getstat,%#,D`GROUP,Group),0),u(strfirstof,u(getstat,%#,D`GROUP,Group),0)),1;th u(setstat,%#,D`GROUP,Group,%q<gid1>);th u(setq,allboards,u(FUN`LISTGROUPS`GB,%q<gid1>));th u(setq,visigroups,u(FUN`VALIDGROUPS,GB,READ,%#,%q<allboards>,%q<gid1>,1));th u(setq,readgroups,u(FUN`VALIDGROUPS,GB,READ,%#,%q<allboards>))
 &INC`INIT`BB [u(cobj,bbs)]=th u(setq,allboards,u(FUN`LISTGROUPS`BB));th u(setq,visigroups,u(FUN`VALIDGROUPS,BB,READ,%#,%q<allboards>,,1));th u(setq,readgroups,u(FUN`VALIDGROUPS,BB,READ,%#,%q<allboards>))
 
+&INC`INIT`BBOTHER [u(cobj,bbs)]=th u(setq,allboards,u(u(cobj,bbs)/FUN`LISTGROUPS`BB));th u(setq,visigroups,u(u(cobj,bbs)/FUN`VALIDGROUPS,BB,READ,%#,%q<allboards>,,1));th u(setq,readgroups,u(u(cobj,bbs)/FUN`VALIDGROUPS,BB,READ,%#,%q<allboards>))
+
 &FUN`VALIDGROUPS [u(cobj,bbs)]=localize(if(words(u(setr,valgroups,u(filter,CAN%1`%0,%3,%b,%b,%2,u(strfirstof,%4,%q<gid1>)))),if(%5,%q<valgroups>,u(FILTER,NOTOMIT,%q<valgroups>,%b,%b,%2))))
 @@ %0 - Mode. (GB|BB) %1 - Check type. (READ|WRITE|ADMIN). %2 - Viewer. %3 - Boards. %4 - Group override. %5 - Emit override.
 
@@ -44,9 +46,13 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &FUN`BBSPRIORITY [u(cobj,bbs)]=[u(setq,max,lmath(max,iter(u(setr,passed,iter(filterbool(#lambda/u(FUN`CANREAD`BB,\%0,%2,,),filterbool(#lambda/hasflag(\%0,CONNECTED),alts(if(isadmin(%#),%0,%#)))),%i0~[default(%i0/D`ALTS`PRIORITY,0)],%b,|)),after(%i0,~),|,%b)))][iter(filterbool(#lambda/eq(after(\%0,~),%q<max>),%q<passed>,|,|),before(%i0,~),|,%b)]
 
-&PLAYER`CONNECT [u(cobj,bbs)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/PLAYER`CONNECT`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CONNECT [u(cobj,bbs)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 
 &PLAYER`CONNECT`CHECK [u(cobj,bbs)]=@check u(player_config,%0,ALERTS,BBS);@force %0=+bbscan
+
+&DEFAULT`ALERTS`BBS [u(cobj,pconf)]=1
+&DESC`ALERTS`BBS [u(cobj,pconf)]=Show +bbscan at logon?
+&TYPE`ALERTS`BBS [u(cobj,pconf)]=BOOL
 
 &FUN`LISTGROUPS`BB [u(cobj,bbs)]=u(sortboards,u(filter,ISBOARD,u(lthings,%!)))
 &FUN`LISTGROUPS`GB [u(cobj,bbs)]=u(sortboards,u(filter,ISBOARD,u(lthings,u(strfirstof,%0,%q<gid1>))))
@@ -57,8 +63,8 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 &SORTBOARDS`PENNMUSH [u(cobj,bbs)]=sortkey(#lambda/get(\%0/ORDER),%0,n,%1,%2)
 &SORTBOARDS`RHOSTMUSH [u(cobj,bbs)]=sortby(#lambda/[lit([ncomp(default(%0/ORDER,99),default(%1/ORDER,99))])],%0,%1,%2)
 
-&INC`CHECK`FINDBB [u(cobj,bbs)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: You must enter a board to use!;@select/inline %8=1,{th u(setq,bbnum,match(%q<allboards>,u(setr,bb,u(namegrab,%q<allboards>,%1))))},{th u(setq,bbnum,match(%q<allboards>,u(setr,bb,u(namegrab,u(FUN`VALIDGROUPS,%0,%2,%#,%q<allboards>,%4,%3),if(u(valnum,%1),elements(%q<allboards>,%1),%1)))))};@check isdbref(%q<bb>)=@attach %!/INC`MSG=ERROR: You are not a [ucstr(%2)] member of that board.;th u(setq,listposts,u(FUN`LISTPOSTS,%q<bb>));th u(setq,readposts,u(FUN`GETREAD,%#,%q<bb>))
-@@ %0 - Style, %1 - Board Name/Num. %2 - Type (READ|WRITE|ADMIN). %3 - Omit Override, %4 - Group DBREF?, %8 - SceneSys mode.
+&INC`CHECK`FINDBB [u(cobj,bbs)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: You must enter a board to use!;@select/inline isdbref(%8)=1,{@attach %!/INC`INIT`BB;th u(setq,bbnum,match(%q<allboards>,u(setr,bb,u(namegrab,%q<allboards>,%1))))},{th u(setq,bbnum,match(%q<allboards>,u(setr,bb,u(namegrab,u(FUN`VALIDGROUPS,%0,%2,%#,%q<allboards>,%4,%3),if(u(valnum,%1),elements(%q<allboards>,%1),%1)))))};@check isdbref(%q<bb>)=@attach %!/INC`MSG=ERROR: You are not a [ucstr(%2)] member of that board.,u(strfirstof,%8,%#);th u(setq,listposts,u(FUN`LISTPOSTS,%q<bb>));th u(setq,readposts,u(FUN`GETREAD,u(strfirstof,%8,%#),%q<bb>))
+@@ %0 - Style, %1 - Board Name/Num. %2 - Type (READ|WRITE|ADMIN). %3 - Omit Override, %4 - Group DBREF?, %8 - SceneSys mode. Alternate enactor dbref!
 
 &INC`CHECK`FINDPOST [u(cobj,bbs)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No post entered!;@check u(valnum,%1)=@attach %!/INC`MSG=ERROR: Posts must be addressed by their post #s!;@check strlen(u(setr,post,elements(%q<listposts>,u(setr,postnum,%1))))=@attach %!/INC`MSG=ERROR: Post not found.
 
@@ -103,7 +109,8 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &FUN`CONFIG`BB`TIMEOUT [u(cobj,bbs)]=udefault(%0/TIMEOUT,u(game_config,bbs,timeout))
 
-&INC`POST [u(cobj,bbs)]=@attach %!/INC`JAILCHECK;@attach %!/INC`GUESTCHECK;@select/inline strlen(%1)=0,{@check hasattr(%#/D`%0`NEW`BB)=@attach %!/INC`MSG=ERROR: You don't have a post in progress.;th u(setq,gid1,get(%#/D`%0`NEW`GID));@attach %!/INC`POST`MAKEMESS=%#,get(%#/D`%0`NEW`BBNUM),get(%#/D`%0`NEW`BB),left(get(%#/D`%0`NEW`TITLE),34),get(%#/D`%0`NEW`TEXT),get(%#/D`%0`NEW`TYPE);@wipe %#/D`%0`NEW},{@attach %!/INC`CHECK`FINDBB=%0,%1,WRITE,,,,,,%4;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Title field empty!;@stop cor(strmatch(%2,*%r*),strmatch(%2,*%t*))=@attach %!/INC`MSG=ERROR: Titles may not contain linebreaks or indents.;@select/inline strlen(%3)=0,{@attach %!/INC`POST`BEGIN},{@attach %!/INC`POST`MAKEMESS=%#,%q<bbnum>,%q<bb>,left(%2,34),%3,%0}}
+&INC`POST [u(cobj,bbs)]=@attach %!/INC`JAILCHECK;@attach %!/INC`GUESTCHECK;@select/inline strlen(%1)=0,{@check hasattr(%#/D`%0`NEW`BB)=@attach %!/INC`MSG=ERROR: You don't have a post in progress.;th u(setq,gid1,get(%#/D`%0`NEW`GID));@attach %!/INC`POST`MAKEMESS=%#,get(%#/D`%0`NEW`BBNUM),get(%#/D`%0`NEW`BB),left(get(%#/D`%0`NEW`TITLE),34),get(%#/D`%0`NEW`TEXT),get(%#/D`%0`NEW`TYPE);@wipe %#/D`%0`NEW},{@attach u(cobj,bbs)/INC`CHECK`FINDBB=%0,%1,WRITE,,,,,,%4;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Title field empty!;@stop cor(strmatch(%2,*%r*),strmatch(%2,*%t*))=@attach %!/INC`MSG=ERROR: Titles may not contain linebreaks or indents.;@select/inline strlen(%3)=0,{@attach %!/INC`POST`BEGIN},{@attach u(cobj,bbs)/INC`POST`MAKEMESS=u(strfirstof,%4,%#),%q<bbnum>,%q<bb>,left(%2,34),%3,%0}}
+@@ %0 - mode. %1 - Board DBREF. %2 - Subject. %3 - text. %4 - SceneSys mode enactor dbref?
 
 &INC`GUESTCHECK [u(cobj,bbs)]=@select/inline u(game_config,BBS,GUEST_POST)=0,{@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Guests may not make posts.}
 
@@ -117,7 +124,7 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &INC`PROOF [u(cobj,bbs)]=@check hasattr(%#/D`%0`NEW`BB)=@attach %!/INC`MSG=ERROR: You don't have a post in progress.;@pemit %#=u(HEADER,name(get(%#/D`%0`NEW`BB)) - [get(%#/D`%0`NEW`TITLE)]);@pemit %#=get(%#/D`%0`NEW`TEXT);@pemit %#=u(HEADER,Length: [strlen(get(%#/D`%0`NEW`TEXT))] Characters)
 
-&INC`POST`MAKEMESS [u(cobj,bbs)]=th u(setq,next,u(baseconv,default(%2/NEXT,1),10,36));&NEXT %2=add(default(%2/NEXT,1),1);th u(attrib_set,%2,~`%q<next>,%4);&~`%q<next> %2=%4;&~`%q<next>`DETAILS %2=[name(%0)]|[u(objid,%0)]|[secs()];&~`%q<next>`HDR %2=%3;@select/inline u(u(cobj,bbs)/FUN`CONFIG,%2,TIMEOUT)=0,{&~`%q<next>`TIMEOUT %2=mul(60,60,24,30);&~`%q<next>`NOTIMEOUT %2=1},{&~`%q<next>`TIMEOUT %2=u(firstof,u(FUN`CONFIG,%2,TIMEOUT),0)};@select/inline %5=BB,{@attach %!/INC`ALERT=%5,%1,%2,{(New [ucstr(%5)] Message ([u(pueblize,u(setr,messnum,%1/[u(nattr,%2/~`*)]),+[lcstr(%5)]read %q<messnum>)]) posted to '[u(moniker,%2)]' by [default(%2/ANONYMOUS,u(moniker,%#))]: %3)}},GB,{@attach %!/INC`ALERT=%5,%1,%2,{[ansi(hc,<GROUP BB>)] New message posted on '[u(pueblize,%q<gname1>,+group %q<gname1>)]' '[u(moniker,%2)]' Board ([u(pueblize,u(setr,messnum,%1/[u(nattr,%2/~`*)]),+[lcstr(%5)]read %q<messnum>=%q<gid1>)]) by [default(%2/ANONYMOUS,u(moniker,%#))]: %3}};th u(FUN`SETREAD,%#,%q<bb>,%q<next>);&D`BB`LASTPOST %#=%q<bb> %q<next>
+&INC`POST`MAKEMESS [u(cobj,bbs)]=th u(setq,next,u(baseconv,default(%2/NEXT,1),10,36));&NEXT %2=add(default(%2/NEXT,1),1);th u(attrib_set,%2,~`%q<next>,%4);&~`%q<next> %2=%4;&~`%q<next>`DETAILS %2=[name(%0)]|[u(objid,%0)]|[secs()];&~`%q<next>`HDR %2=%3;@select/inline u(u(cobj,bbs)/FUN`CONFIG,%2,TIMEOUT)=0,{&~`%q<next>`TIMEOUT %2=mul(60,60,24,30);&~`%q<next>`NOTIMEOUT %2=1},{&~`%q<next>`TIMEOUT %2=u(firstof,u(u(cobj,bbs)/FUN`CONFIG,%2,TIMEOUT),0)};@select/inline %5=BB,{@attach u(cobj,bbs)/INC`ALERT=%5,%1,%2,{(New [ucstr(%5)] Message ([u(pueblize,u(setr,messnum,%1/[u(nattr,%2/~`*)]),+[lcstr(%5)]read %q<messnum>)]) posted to '[u(moniker,%2)]' by [default(%2/ANONYMOUS,u(moniker,%0))]: %3)}},GB,{@attach u(cobj,bbs)/INC`ALERT=%5,%1,%2,{[ansi(hc,<GROUP BB>)] New message posted on '[u(pueblize,%q<gname1>,+group %q<gname1>)]' '[u(moniker,%2)]' Board ([u(pueblize,u(setr,messnum,%1/[u(nattr,%2/~`*)]),+[lcstr(%5)]read %q<messnum>=%q<gid1>)]) by [default(%2/ANONYMOUS,u(moniker,%0))]: %3}};th u(FUN`SETREAD,%0,%q<bb>,%q<next>);&D`BB`LASTPOST %0=%q<bb> %q<next>
 
 @@ DETAILS - Name, DBREF, timestamp, edited
 

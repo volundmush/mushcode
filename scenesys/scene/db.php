@@ -1,4 +1,4 @@
-<?
+<?php
 	$username="your_username";  // We highly suggest the use of a SELECT PERMISSIONS only account.
 	$password="some_password"; // This way, there is no security risk. SceneSys doesn't require more at this moment.
 	$database="your_database";

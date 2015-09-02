@@ -43,7 +43,16 @@ th u(NEWCOBJ,Player Configuration Data Storage <PCONF>,pconf,u(cobj,pcs),,1,WIZA
 &DEFAULT`ALERTS [u(cobj,pconf)]=@@ Empty attribute for Rhost.
 &DEFAULT`CHANNELS [u(cobj,pconf)]=@@ Empty attribute for Rhost.
 &DEFAULT`COLOR [u(cobj,pconf)]=@@ Empty attribute for Rhost.
+&DEFAULT`SYSTEM [u(cobj,pconf)]=@@ Empty attribute for Rhost.
 
 &DEFAULT`ALERTS`MAIL [u(cobj,pconf)]=1
 &DESC`ALERTS`MAIL [u(cobj,pconf)]=Unread mail on login?
 &TYPE`ALERTS`MAIL [u(cobj,pconf)]=BOOL
+
+&DEFAULT`CHANNELS`NAMELINK [u(cobj,pconf)]=1
+&DESC`CHANNELS`NAMELINK [u(cobj,pconf)]=Clickify speaker names?
+&TYPE`CHANNELS`NAMELINK [u(cobj,pconf)]=BOOL
+
+&DEFAULT`SYSTEM`TIMEZONE [u(cobj,pconf)]=UTC
+&DESC`SYSTEM`TIMEZONE [u(cobj,pconf)]=Timezone to display in?
+&TYPE`SYSTEM`TIMEZONE [u(cobj,pconf)]=TZ

@@ -74,6 +74,10 @@ th u(NEWCOBJ,Game Configuration Data Storage <CONFIG>,config,u(cobj,gcs),,1,WIZA
 &DESC`SYSTEM`TIMEZONE [u(cobj,config)]=Default Timezone?
 &TYPE`SYSTEM`TIMEZONE [u(cobj,config)]=TZ
 
+&DEFAULT`SYSTEM`NAMELINK [u(cobj,config)]=+finger
+&DESC`SYSTEM`NAMELINK [u(cobj,config)]=|-delimited Commands for names?
+&TYPE`SYSTEM`NAMELINK [u(cobj,config)]=LIST
+
 &DEFAULT`CHANNELS`JOIN_GUESTS [u(cobj,config)]=Guest
 &DESC`CHANNELS`JOIN_GUESTS [u(cobj,config)]=Default Channels for Guests.
 &TYPE`CHANNELS`JOIN_GUESTS [u(cobj,config)]=LIST

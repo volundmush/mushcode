@@ -354,8 +354,8 @@ th u(NEWCOBJ,Group Object Parent <GOP>,gop,u(cobj,gms),,1,WIZARD SAFE,INHERIT SI
 @set [u(cobj,gms)]/CMD`CHAT`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 @@ MAINTENANCE
-&PLAYER`CONNECT [u(cobj,gms)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/PLAYER`CONNECT`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&OBJECT`DESTROY [u(cobj,gms)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/OBJECT`DESTROY`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CONNECT [u(cobj,gms)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`DESTROY [u(cobj,gms)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 
 &PLAYER`CONNECT`GROUPCHECK [u(cobj,gms)]=@wait 2=@dolist u(filter,INVITES,u(FUN`LISTGROUPS,%b,%b,%0))={@attach %!/INC`MSG=The [name(%i0)] have invited you to join their group! To accept\, type [u(pueblize,ansi(h,+gjoin [name(%i0)]),+gjoin [name(%i0)])]}
 
