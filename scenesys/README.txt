@@ -5,7 +5,7 @@ Done reading it? Okay, good. Get ready for a headache.
 
 So you want to install SceneSys. It's easier said than done. In order to do this, you're going to need some familiarity with configuring webservers, editing PHP files, and both installing and configuring MediaWiki... or help from someone who can do that. This is in fact pretty difficult and will be until some better method of packaging it can be discovered.
 
-Unlike the main package installation I can't hold your hand through this one. You'll have to find resources of your own that fit your situation. Google.com is a lifesavor.
+Unlike the main package installation I can't hold your hand through this one. You'll have to find resources of your own that fit your situation. Google.com is a lifesaver.
 
 If you need help with topics such as installing MySQL, a webserver, and Mediawiki, the fine folks at M*U*S*H (mush.pennmush.org 4201) might be able to offer guidance.
 
