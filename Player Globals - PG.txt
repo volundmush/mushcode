@@ -19,25 +19,21 @@ th u(NEWCOBJ,Player Globals <PG>,player_globals,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &FUN`MSGOOC [u(cobj,player_globals)]=localize(ansi(u(setr,borcol,u(color,%1,OOC,OOCEDGE)),-<)[ansi(u(color,%1,OOC,OOC),OOC)][ansi(%q<borcol>,>-)]%B[if(u(isadmin,%0),ansi(h,lit([Staff])%B))][u(speech,%0,%2,%1,,OOC,%3)])
 
-&DEFAULT`COLOR`OOC [u(cobj,config)]=hr
-&DESC`COLOR`OOC [u(cobj,config)]=For +ooc tag.
-&TYPE`COLOR`OOC [u(cobj,config)]=COLOR
+th u(NEWCONF,config,COLOR,OOC,hr,For +ooc tag.,COLOR)
+th u(NEWCONF,config,COLOR,OOCEDGE,hx,For +ooc edge.,COLOR)
 
-&DEFAULT`COLOR`OOCEDGE [u(cobj,config)]=hx
-&DESC`COLOR`OOCEDGE [u(cobj,config)]=For +ooc edge.
-&TYPE`COLOR`OOCEDGE [u(cobj,config)]=COLOR
+th u(NEWCONF,pconf,COLOR,OOC,hr,For +ooc tag.,COLOR)
+th u(NEWCONF,pconf,COLOR,OOCEDGE,hx,For +ooc edge.,COLOR)
 
-&DEFAULT`OOC [u(cobj,pconf)]=@@ empty attrib for Rhost.
-&DEFAULT`OOC`QUOTES [u(cobj,pconf)]=h
-&DESC`OOC`QUOTES [u(cobj,pconf)]=For +ooc quotations.
-&TYPE`OOC`QUOTES [u(cobj,pconf)]=COLOR
-
-&DEFAULT`OOC`SPEECH [u(cobj,pconf)]=n
-&DESC`OOC`SPEECH [u(cobj,pconf)]=For +ooc dialogue.
-&TYPE`OOC`SPEECH [u(cobj,pconf)]=COLOR
+th u(NEWCONF,pconf,OOC,QUOTES,,For +ooc quotations.,COLOR)
+th u(NEWCONF,pconf,OOC,SPEECH,,For +ooc dialogue.,COLOR)
 
 &CONFLICT`PGLOBALS [u(cobj,migrate)]=@tel [u(coi,pgo)]=[u(cobj,oldbox)]
 
+@@ COMMUNICATIONS - +ooc
++help/add +ooc=[u(cobj,player_globals)]/HLP`+OOC
++help/category +ooc=Communications
+&HLP`+OOC [u(cobj,player_globals)]=[ansi(hc,OOC Commands)]%RThese are ALWAYS considered Out-of-character communications.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,osay <speech>)] - Equivalent to say.%R[ansi(h,+ooc <speech>)] - alias of osay%R[ansi(h,+ooc <speech>)] - Alias of Osay.)]
 
 @@ ROLEPLAYING - +flip
 +help/add +flip=[u(cobj,player_globals)]/HLP`+FLIP

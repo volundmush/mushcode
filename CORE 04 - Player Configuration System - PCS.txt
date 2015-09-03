@@ -12,7 +12,7 @@ th u(NEWCOBJ,Player Configuration Data Storage <PCONF>,pconf,u(cobj,pcs),,1,WIZA
 &CMD`+CONFIG`MAIN [u(cobj,pcs)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,%4
 @set [u(cobj,pcs)]/CMD`+CONFIG`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&SWITCHES`PLAYER [u(cobj,pcs)]=COLOR
+&SWITCHES`PLAYER [u(cobj,pcs)]=[if(isdbref(u(cobj,channel)),CHANNEL|)][if(isdbref(u(cobj,gms)),GROUP|)]NAME
 &SWITCHES`ADMIN [u(cobj,pcs)]=
 &SYSTEM`NAME [u(cobj,pcs)]=CONFIG
 
@@ -21,38 +21,53 @@ th u(NEWCOBJ,Player Configuration Data Storage <PCONF>,pconf,u(cobj,pcs),,1,WIZA
 &CMD`COLORDEMO [u(cobj,pcs)]=$^(?s)(?\:\+)?color(?\:s|demo)(?\:/(\S+)?)?$:@attach %!/INC`PARTIAL=%1,LONG,|,COLOR,switch,switch;@select/inline %q<switch>=LONG,{@dolist/inline lnum(97,122)=@pemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,%i0))],%b,%r)))},{@pemit %#=iter(lnum(0,255),ansi(+xterm%i0,xterm%i0))}
 @set [u(cobj,pcs)]/CMD`COLORDEMO=regexp
 
-&INC`LIST [u(cobj,pcs)]=@pemit %#=u(header,Player Configuration);@dolist/inline/delimit | [u(FUN`CATEGORIES)]={th u(setq,category,##);@pemit %#=u(subheader,u(capnames,%q<category>));@pemit %#=ansi(u(color,%#,u(SYSTEM`NAME),COLUMN_NAMES),align(18 15 43,Setting,Value,Type and Description));@pemit %#=iter(u(FUN`SETTINGS,%q<category>),align(18 15 43,%i0,u(player_config,%#,%q<category>,%i0),<[default(u(cobj,pconf)/TYPE`%q<category>`%i0,unknown)]> [default(u(cobj,pconf)/DESC`%q<category>`%i0,Unset)]),|,%R)};@pemit %#=u(subheader)
+&INC`LIST [u(cobj,pcs)]=@pemit %#=u(header,Player Configuration);@dolist/inline/delimit | [u(FUN`CATEGORIES)]={th u(setq,category,##);@pemit %#=u(subheader,u(capnames,%q<category>));@pemit %#=ansi(u(color,%#,u(SYSTEM`NAME),COLUMN_NAMES),align(18 15 43,Setting,Value,Type and Description));@pemit %#=iter(u(FUN`SETTINGS,%q<category>),align(18 15 43,%i0,u(setr,setting,u(player_config,%#,%q<category>,%i0))[switch(get(u(cobj,pconf)/TYPE`%q<category>`%i0),BOOL,%B[if(t(%q<setting>),%(True%),%(False%))],DURATION,%B%([u(smalltime,%q<setting>)]%))],<[default(u(cobj,pconf)/TYPE`%q<category>`%i0,unknown)]> [default(u(cobj,pconf)/DESC`%q<category>`%i0,Unset)]),|,%R)};@pemit %#=u(subheader)
 
-&FUN`CATEGORIES [u(cobj,pcs)]=sort(setunion(iter(u(lattr,[u(cobj,pconf)]/DEFAULT`*),last(%i0,`),%b,|),,|,|),a,|,|)
+&FUN`CATEGORIES [u(cobj,pcs)]=sort(get(u(cobj,pconf)/CATEGORIES),|,|)
 
-&FUN`SETTINGS [u(cobj,pcs)]=sort(setunion(iter(u(lattr,u(cobj,pconf)/DEFAULT`%0`*),last(%i0,`),%b,|),,|,|),a,|,|)
+&FUN`SETTINGS [u(cobj,pcs)]=sort(get(u(cobj,pconf)/CATEGORIES`%0),|,|)
 
-&INC`SET [u(cobj,pcs)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Category field empty.};@attach %!/INC`PARTIAL=%0,u(FUN`CATEGORIES),|,category,category;@check strlen(%1)=@attach %!/INC`MSG={ERROR: Option field empty.};@attach %!/INC`PARTIAL=%1,u(FUN`SETTINGS,%q<category>),|,option,option;@switch/inline strlen(%2)=0,{},{@attach %!/INC`VALID`[default(u(cobj,pconf)/TYPE`%q<category>`%q<option>,WORD)]=%2;th u(attrib_set,u(strfirstof,u(accid,%#),%#),D`CONFIG`%q<category>`%q<option>,%q<value>);@attach %!/INC`MSG=u(setr,msg,%q<category> %q<option> Set to: %q<value>)}
+&INC`SET [u(cobj,pcs)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Category field empty.};@attach %!/INC`PARTIAL=%0,u(FUN`CATEGORIES),|,category,category;@check strlen(%1)=@attach %!/INC`MSG={ERROR: Option field empty.};@attach %!/INC`PARTIAL=%1,u(FUN`SETTINGS,%q<category>),|,option,option;@switch/inline strlen(%2)=0,{@attach %!/INC`MSG=%q<category> %q<option> restored to default.;@attach %!/WIPE=u(strfirstof,u(accid,%#),%#),D`CONFIG`%q<category>`%q<option>},{@attach %!/INC`VALID`[default(u(cobj,pconf)/TYPE`%q<category>`%q<option>,WORD)]=%2;th u(attrib_set,u(strfirstof,u(accid,%#),%#),D`CONFIG`%q<category>`%q<option>,%q<value>);@attach %!/INC`MSG=u(setr,msg,%q<category> %q<option> Set to: %q<value>)}
 
-&PLAYER`CONNECT [u(cobj,pcs)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/PLAYER`CONNECT`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&INC`GROUP [u(cobj,pcs)]=th u(setq,groups,u(filter,ISMEMBER,u(u(cobj,gms)/FUN`LISTGROUPS),%b,%b,%#));@switch/inline strlen(%0)=0,{@attach %!/INC`GROUP`LIST},{@attach %!/INC`GROUP`SET}
+
+&INC`GROUP`LIST [u(cobj,pcs)]=@pemit %#=u(header,Group Color);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(34 10,Group,Color));@pemit %#=u(separator);@dolist/inline %q<groups>={@pemit %#=align(34 10,u(moniker,##),u(color,%#,GROUP,##,,1))};@pemit %#=u(subheader)
+
+&FIL`ISMEMBER [u(cobj,pcs)]=elock(%0,%1)
+
+&INC`GROUP`SET [u(cobj,pcs)]=@check isdbref(u(setr,gid1,u(namegrab,%q<groups>,%0)))=@attach %!/INC`MSG=ERROR: Group '%0' not found.;@switch/inline strlen(%2)=0,{@attach %!/INC`MSG=GROUP [name(%q<gid1>)] restored to default.;@attach %!/WIPE=u(strfirstof,u(accid,%#),%#),D`CONFIG`GROUP`%q<gid1>},{@attach %!/INC`VALID`COLOR=%2;th u(attrib_set,u(strfirstof,u(accid,%#),%#),D`CONFIG`GROUP`%q<gid1>,%q<value>);@attach %!/INC`MSG=u(setr,msg,GROUP [name(%q<gid1>)] Set to: %q<value>)}
+
+&INC`CHANNEL [u(cobj,pcs)]=th u(setq,channels,u(filter,objeval(%#,channels(|)),%b,%b,u(cobj,mop)));@switch/inline strlen(%0)=0,{@attach %!/INC`CHANNEL`LIST},{@attach %!/INC`CHANNEL`SET}
+
+&FIL`RIGHTMOG [u(cobj,pcs)]=strmatch(parent(cmogrifier(%0)),%1)
+
+&INC`CHANNEL`LIST [u(cobj,pcs)]=@pemit %#=u(header,Channel Color);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(34 10,Channel,Color));@pemit %#=u(separator);@dolist/inline/delimit | %q<channels>={@pemit %#=align(34 10,%i0,u(color,%#,CHANNEL,cmogrifier(%i0),,1))};@pemit %#=u(subheader)
+
+&INC`CHANNEL`SET [u(cobj,pcs)]=@attach %!/INC`PARTIAL=%0,stripansi(%q<channels>),|,channel,channel;@switch/inline strlen(%2)=0,{@attach %!/INC`MSG=CHANNEL %q<channel> restored to default.;@attach %!/WIPE=u(strfirstof,u(accid,%#),%#),D`CONFIG`CHANNEL`[cmogrifier(%q<channel>)]},{@attach %!/INC`VALID`COLOR=%2;th u(attrib_set,u(strfirstof,u(accid,%#),%#),D`CONFIG`CHANNEL`[cmogrifier(%q<channel>)],%q<value>);@attach %!/INC`MSG=u(setr,msg,CHANNEL %q<channel> Set to: %q<value>)}
+
+&INC`NAME [u(cobj,pcs)]=@switch/inline strlen(%0)=0,{@attach %!/INC`NAME`LIST},{@attach %!/INC`NAME`SET}
+
+&INC`NAME`LIST [u(cobj,pcs)]=@pemit %#=u(header,Name Color);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(34 10,Name,Color));@pemit %#=u(separator);@dolist/inline u(lattr,u(strfirstof,u(accid,%#),%#)/D`CONFIG`NAMES`#*)={@pemit %#=align(34 10,u(moniker,last(##,`)),u(color,%#,NAMES,last(##,`),,1))};@pemit %#=u(subheader)
+
+&INC`NAME`SET [u(cobj,pcs)]=@attach %!/INC`CHECKPC=%0,1;@switch/inline strlen(%2)=0,{@attach %!/INC`MSG=NAMES %q<t1name> restored to default.;@attach %!/WIPE=u(strfirstof,u(accid,%#),%#),D`CONFIG`NAMES`%q<t1>},{@attach %!/INC`VALID`COLOR=%2;th u(attrib_set,u(strfirstof,u(accid,%#),%#),D`CONFIG`NAMES`%q<t1>,%q<value>);@attach %!/INC`MSG=u(setr,msg,NAMES %q<t1name> Set to: %q<value>)}
+
+&PLAYER`CONNECT [u(cobj,pcs)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 
 &PLAYER`CONNECT`MAIL [u(cobj,pcs)]=@stop u(isguest,%0);@check u(player_config,%0,ALERTS,MAIL);@wait 2={@select/inline t(isdbref(u(setr,accid,u(accid,%0))))=1,{th u(setq,ualts,u(FILTER,UMAIL,u(alts,%0)));@select/inline t(words(%q<ualts>))=1,{@pemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(u(sortname,%q<ualts>),ansi(h,name(%i0)) ([u(umail,%i0)]),%b,\,%b)]},0,{@pemit %0=ansi(hy,You have no unread mail.)}},0,{@pemit %0=[ansi(yh,You have [u(umail,%0)] unread @mail(s) in your inbox)]}}
 
 &FIL`UMAIL [u(cobj,pcs)]=t(u(umail,%0))
 
 @@ DEFAULT SETTINGS
-&DEFAULT [u(cobj,pconf)]=@@ Empty attribute for Rhost.
-&DESC [u(cobj,pconf)]=@@ Empty attribute for Rhost.
-&TYPE [u(cobj,pconf)]=@@ Empty attribute for Rhost.
 
-&DEFAULT`ALERTS [u(cobj,pconf)]=@@ Empty attribute for Rhost.
-&DEFAULT`CHANNELS [u(cobj,pconf)]=@@ Empty attribute for Rhost.
-&DEFAULT`COLOR [u(cobj,pconf)]=@@ Empty attribute for Rhost.
-&DEFAULT`SYSTEM [u(cobj,pconf)]=@@ Empty attribute for Rhost.
-
-&DEFAULT`ALERTS`MAIL [u(cobj,pconf)]=1
-&DESC`ALERTS`MAIL [u(cobj,pconf)]=Unread mail on login?
-&TYPE`ALERTS`MAIL [u(cobj,pconf)]=BOOL
-
-&DEFAULT`CHANNELS`NAMELINK [u(cobj,pconf)]=1
-&DESC`CHANNELS`NAMELINK [u(cobj,pconf)]=Clickify speaker names?
-&TYPE`CHANNELS`NAMELINK [u(cobj,pconf)]=BOOL
-
-&DEFAULT`SYSTEM`TIMEZONE [u(cobj,pconf)]=UTC
-&DESC`SYSTEM`TIMEZONE [u(cobj,pconf)]=Timezone to display in?
-&TYPE`SYSTEM`TIMEZONE [u(cobj,pconf)]=TZ
+th u(NEWCONF,pconf,ALERTS,MAIL,1,Unread mail on login?,BOOL)
+th u(NEWCONF,pconf,SYSTEM,TIMEZONE,,Timezone to display in?,TZ)
+th u(NEWCONF,pconf,ALERTS,MAIL,1,Unread mail on login?,BOOL)
+th u(NEWCONF,pconf,NAMES,MINE,,Color to see your name in?,COLOR)
+th u(NEWCONF,pconf,NAMES,SPEAKER,,Color to see speaker's name in?,COLOR)
+th u(NEWCONF,pconf,NAMES,OTHER,,Color to see other's name in?,COLOR)
+th u(NEWCONF,pconf,NAMES,COLUMN_NAMES,,For column names.,COLOR)
+th u(NEWCONF,pconf,NAMES,HEADER_TEXT,,For header names.,COLOR)
+th u(NEWCONF,pconf,NAMES,HEADER_STAR,,For header stars.,COLOR)
+th u(NEWCONF,pconf,NAMES,BORDER,,For borders.,COLOR)
+th u(NEWCONF,pconf,NAMES,MSG,,For system messages borders.,COLOR)
+th u(NEWCONF,pconf,NAMES,MSGTEXT,,For system message headers.,COLOR)

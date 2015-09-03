@@ -36,7 +36,7 @@ function ansispan($string)
 function pueblospan($line)
 {
 	$result = "";
-	$result_array = explode('p',$line);
+	$result_array = explode('p',$line[1]);
 	foreach($result_array as $part)
 	{
 		$result .= "$part";

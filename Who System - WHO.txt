@@ -25,7 +25,9 @@ th u(NEWCOBJ,Who System <WHO>,who,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE
 &INC`WHO`IDLE [u(cobj,who)]=@attach %!/INC`WHO`SORT`IDLE;@select/inline gt(strlen(%1),0)=1,{@attach %!/INC`WHO`SEARCH=%1};@attach %!/INC`WHO`LIST=Idle,%1
 &INC`WHO`SORT`IDLE [u(cobj,who)]=@check words(u(setr,who,revwords(u(sortidle,u(FUN`WHO`MAIN)))))=@attach %!/INC`MSG=No players to show!
 
-&INC`WHO`LIST [u(cobj,who)]=@pemit %#=u(HEADER,Who[if(strlen(%0),%b-%b%0)]);@attach %!/INC`WHO`HEADER`[strfirstof(%0,MAIN)];@pemit %#=separator();@dolist %q<who>={@pemit %#=u(FUN`WHO`PLAYERLINE`[strfirstof(%0,MAIN)],##);@select/inline eq(#@,words(%q<who>))=1,{&MAXPLAYERS %!=u(setr,max,max(get(%!/MAXPLAYERS),words(%q<who>)));@pemit %#=u(SUBHEADER,words(%q<who>) Characters from [words(setunion(iter(%q<who>,get(%i0/LASTSITE),,|),,|),|)] IPs Connected - Record is %q<max>)}}
+&INC`WHO`LIST [u(cobj,who)]=@pemit %#=u(HEADER,Who[if(strlen(%0),%b-%b%0)]);@attach %!/INC`WHO`HEADER`[strfirstof(%0,MAIN)];@pemit %#=separator();@dolist %q<who>={@pemit %#=u(FUN`WHO`PLAYERLINE`[strfirstof(%0,MAIN)],##);@select/inline eq(#@,words(%q<who>))=1,{&MAXPLAYERS %!=u(setr,max,max(get(%!/MAXPLAYERS),words(%q<who>)));@pemit %#=u(SUBHEADER,words(%q<who>) Characters[if(u(game_config,WHO,SHOW_IPS),%Bfrom [words(setunion(iter(%q<who>,get(%i0/LASTSITE),,|),,|),|)] IPs)]%BConnected - Record is %q<max>)}}
+
+th u(NEWCONF,config,WHO,SHOW_IPS,1,Show # of unique IPs?,BOOL)
 
 &INC`WHO`HEADER`MAIN [u(cobj,who)]=@pemit %#=ansi(u(color,%#,WHO,COLUMN_NAMES),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location))
 &INC`WHO`HEADER`IDLE [u(cobj,who)]=@attach %!/INC`WHO`HEADER`MAIN

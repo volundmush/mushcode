@@ -37,9 +37,15 @@ th u(NEWCOBJ,FCList Database <FCLIST-DB>,fclist-db,u(cobj,fclist),,1,WIZARD SAFE
 
 &INC`REMOVE [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@attach %!/INC`CHECKPC=%1,1;@check match(get(u(cobj,fclist-db)/%q<group>`LIST),%q<t1objid>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not listed in that group!;@attach %!/INC`REMFROMLIST=%q<group>,%q<t1objid>;@attach %!/INC`MSG=You removed %q<t1name> from FCLIST Group '%q<gname>'!;@attach %!/INC`CMSG=%q<t1name> removed from list '%q<gname>'
 
-&INC`STATUS [u(cobj,fclist)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No status entered.;@attach %!/INC`PARTIAL=%1,OPEN|CLOSING|PLAYED|DEAD|TEMP,|,status,status;@attach %!/INC`MSG=%q<t1name>'s FCList status is now: %q<status>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<status>.;&D`FINGER`STATUS %q<t1>=%q<status>
+&INC`STATUS [u(cobj,fclist)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No status entered.;@attach %!/INC`PARTIAL=%1,u(game_config,FCLIST,STATUS),|,status,status;@attach %!/INC`MSG=%q<t1name>'s FCList status is now: %q<status>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<status>.;&D`FINGER`STATUS %q<t1>=%q<status>
 
-&INC`TYPE [u(cobj,fclist)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No type entered.;@attach %!/INC`PARTIAL=%1,FC|OC|OFC|EFC|SFC,|,type,type;@attach %!/INC`MSG=%q<t1name>'s FCList Type is now: %q<type>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<status>.;&D`FINGER`TYPE %q<t1>=%q<type>
+th u(newconf,config,FCLIST,STATUS,OPEN|CLOSING|PLAYED|DEAD|TEMP,Character types available,LIST)
+
+&INC`TYPE [u(cobj,fclist)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No type entered.;@attach %!/INC`PARTIAL=%1,u(game_config,FCLIST,TYPES),|,type,type;@attach %!/INC`MSG=%q<t1name>'s FCList Type is now: %q<type>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<type>.;&D`FINGER`TYPE %q<t1>=%q<type>
+
+th u(newconf,config,FCLIST,TYPES,FC|OC|OFC|EFC|SFC,Character types available,LIST)
+
+&EXTRATYPES [u(cobj,fclist)]=DC|WS|VT
 
 &INC`ADDTOLIST [u(cobj,fclist)]=&%0`LIST u(cobj,fclist-db)=u(filter,ISOBJID,u(sortname,setunion(get(u(cobj,fclist-db)/%0`LIST),%1)))
 &INC`REMFROMLIST [u(cobj,fclist)]=&%0`LIST u(cobj,fclist-db)=u(filter,ISOBJID,u(sortname,setdiff(get(u(cobj,fclist-db)/%0`LIST),%1)))
@@ -50,7 +56,7 @@ th u(NEWCOBJ,FCList Database <FCLIST-DB>,fclist-db,u(cobj,fclist),,1,WIZARD SAFE
 +help/add +fclist=[u(cobj,fclist)]/HLP`+FCLIST
 +help/category +fclist=Community
 +help/metatags +fclist=theme roster
-&HLP`+FCLIST [u(cobj,fclist)]=The FCList system tracks played characters belonging to themes used in [mudname()].%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+fclist)] - Lists all Themes in use.%R[ansi(hw,+fclist <theme>)] - List the roster of characters in a theme.%R[ansi(hw,+fclist/info <theme>)] - List details about a theme's listing.%R%RSTATUS:%ROpen - The character is available to play.%RClosing - The character is closing but staff is still accepting applications.%RPlayed - The character is played.%RDead - The character is dead and cannot be applied for.%RTemp - The character is being played temporarily for a plot or similar purpose.%R%RTYPE:%RFC - Feature Character. Created by official canon.%ROFC - Original Feature Character. Created for the game.%ROC - Original Character. Generally not listed.%REFC - Essential Feature Character. Crucial to the game's storytelling\, such as faction leaders.%RSFC - Special Feature Character.)]
+&HLP`+FCLIST [u(cobj,fclist)]=The FCList system tracks played characters belonging to themes used in [mudname()].%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+fclist)] - Lists all Themes in use.%R[ansi(hw,+fclist <theme>)] - List the roster of characters in a theme.%R[ansi(hw,+fclist/info <theme>)] - List details about a theme's listing.%R%RSTATUS:%ROpen - The character is available to play.%RClosing - The character is closing but staff is still accepting applications.%RPlayed - The character is played.%RDead - The character is dead and cannot be applied for.%RTemp - The character is being played temporarily for a plot or similar purpose.%R%RTYPE:%RFC - Feature Character. Created by official canon.%ROFC - Original Feature Character. Created for the game.%ROC - Original Character. Generally not listed.%REFC - Essential Feature Character. Crucial to the game's storytelling\, such as faction leaders.%RSFC - Special Feature Character.%R%RThis list is general and doesn't cover every game.)]
 
 +shelp/add +fclist=[u(cobj,fclist)]/SHLP`+FCLIST
 +shelp/category +fclist=Character

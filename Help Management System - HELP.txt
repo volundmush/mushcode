@@ -73,7 +73,7 @@ th u(NEWCOBJ,DYNAMIC DATABASE,HELP-DYNAMIC,u(cobj,help),,1,WIZARD SAFE,SIDEFX SA
 @@ MIGRATION TOOL
 &MIGRATE`HELP [u(cobj,migrate)]=@check isdbref(u(cobj,help))=@attach %!/INC`MSG=ERROR: Cannot locate 2.0 Help Management System. Cannot continue.;@check isdbref(u(setr,hso,u(%q<index>/hso)))=@attach %!/INC`MSG=ERROR: Cannot locate 1.0 Help System Object <HSO>. Cannot continue.;@dolist/inline HELP NEWS SHELP={@trigger %!/MIGRATE`HELP`INDIV=##};
 
-&MIGRATE`HELP`INDIV [u(cobj,migrate)]=@check isdbref(u(setr,hobj,get(%q<hso>/VAR`%0)));@check isdbref(u(setr,dest,u(cobj,help-%0)));@dolist/inline u(setr,files,u(lattr,%q<hobj>/*))={@attach %!/INC`CPTREE=%q<hobj>,##,%q<dest>,H`#@;@mvattr %q<dest>/H`#@`NAME=%q<dest>/H`#@;&H`@#`CATEGORY %q<dest>=ucstr(get(%q<dest>/H`#@`CATEGORY))};@dolist/inline u(lattr,%q<dest>/H`*`SUB`*)={@select/inline hasattr(%q<dest>/%i0`NAME)=1,{th u(attrib_set,%q<dest>,%i0,get(%q<dest>/%i0`NAME))}};&SLOT %q<dest>=words(%q<files>)
+&MIGRATE`HELP`INDIV [u(cobj,migrate)]=@check isdbref(u(setr,hobj,get(%q<hso>/VAR`%0)));@check isdbref(u(setr,dest,u(cobj,help-%0)));@dolist/inline u(setr,files,u(lattr,%q<hobj>/*))={@attach %!/INC`CPTREE=%q<hobj>,##,%q<dest>,H`#@;@mvattr %q<dest>/H`#@`NAME=%q<dest>/H`#@;&H`#@`CATEGORY %q<dest>=ucstr(get(%q<dest>/H`#@`CATEGORY))};@dolist/inline u(lattr,%q<dest>/H`*`SUB`*)={@select/inline hasattr(%q<dest>/%i0`NAME)=1,{th u(attrib_set,%q<dest>,%i0,get(%q<dest>/%i0`NAME))}};&SLOT %q<dest>=words(%q<files>)
 
 &CLEANUP`HELP [u(cobj,migrate)]=@dolist/inline lsearch(all,type,player)={@attach %!/WIPE=##,D`HELPREAD}
 

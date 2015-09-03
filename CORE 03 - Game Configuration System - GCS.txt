@@ -15,105 +15,44 @@ th u(NEWCOBJ,Game Configuration Data Storage <CONFIG>,config,u(cobj,gcs),,1,WIZA
 @set [u(cobj,gcs)]/CMD`+GAMECONFIG`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,gcs)]=
-&SWITCHES`ADMIN [u(cobj,gcs)]=
+&SWITCHES`ADMIN [u(cobj,gcs)]=GET
 &SYSTEM`NAME [u(cobj,gcs)]=GAMECONFIG
 
 &INC`MAIN [u(cobj,gcs)]=@switch/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`SET}
 
-&INC`LIST [u(cobj,gcs)]=@pemit %#=u(header,mudname() Configuration);@dolist/inline/delimit | [u(FUN`CATEGORIES)]={th u(setq,category,##);@pemit %#=u(subheader,u(capnames,%q<category>));@pemit %#=ansi(u(color,%#,u(SYSTEM`NAME),COLUMN_NAMES),align(18 15 43,Setting,Value,Type and Description));@pemit %#=iter(u(FUN`SETTINGS,%q<category>),align(18 15 43,%i0,u(game_config,%q<category>,%i0),<[default(u(cobj,config)/TYPE`%q<category>`%i0,unknown)]> [default(u(cobj,config)/DESC`%q<category>`%i0,Unset)]),|,%R)};@pemit %#=u(subheader)
+&INC`LIST [u(cobj,gcs)]=@pemit %#=u(header,mudname() Configuration);@dolist/inline/delimit | [u(FUN`CATEGORIES)]={th u(setq,category,##);@pemit %#=u(subheader,u(capnames,%q<category>));@pemit %#=ansi(u(color,%#,u(SYSTEM`NAME),COLUMN_NAMES),align(14 19 43,Setting,Value,Type and Description));@pemit %#=iter(u(FUN`SETTINGS,%q<category>),align(14 19 43,%i0,u(game_config,%q<category>,%i0),<[default(u(cobj,config)/TYPE`%q<category>`%i0,unknown)]> [default(u(cobj,config)/DESC`%q<category>`%i0,Unset)]),|,%R)};@pemit %#=u(subheader)
 
-&FUN`CATEGORIES [u(cobj,gcs)]=sort(setunion(iter(u(lattr,[u(cobj,config)]/DEFAULT`*),last(%i0,`),%b,|),,|,|),a,|,|)
+&FUN`CATEGORIES [u(cobj,gcs)]=sort(get(u(cobj,config)/CATEGORIES),|,|)
 
-&FUN`SETTINGS [u(cobj,gcs)]=sort(setunion(iter(u(lattr,u(cobj,config)/DEFAULT`%0`*),last(%i0,`),%b,|),,|,|),a,|,|)
+&FUN`SETTINGS [u(cobj,gcs)]=sort(get(u(cobj,config)/CATEGORIES`%0),|,|)
 
-&INC`SET [u(cobj,gcs)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Category field empty.};@attach %!/INC`PARTIAL=%0,u(FUN`CATEGORIES),|,category,category;@check strlen(%1)=@attach %!/INC`MSG={ERROR: Option field empty.};@attach %!/INC`PARTIAL=%1,u(FUN`SETTINGS,%q<category>),|,option,option;@switch/inline strlen(%2)=0,{},{@attach %!/INC`VALID`[default(u(cobj,config)/TYPE`%q<category>`%q<option>,WORD)]=%2;th u(attrib_set,u(cobj,config),CONFIG`%q<category>`%q<option>,%q<value>);@attach %!/INC`MSG=u(setr,msg,Game Option %q<category> %q<option> Set to: %q<value>);@attach %!/INC`MSG`CHAN={%q<msg>}}
+&INC`GET [u(cobj,gcs)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Category field empty.};@attach %!/INC`PARTIAL=%0,u(FUN`CATEGORIES),|,category,category;@check strlen(%1)=@attach %!/INC`MSG={ERROR: Option field empty.};@attach %!/INC`PARTIAL=%1,u(FUN`SETTINGS,%q<category>),|,option,option;@pemit %#=u(game_config,%q<category>,%q<option>)
+
+&INC`SET [u(cobj,gcs)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Only wizards can set options.;@check strlen(%0)=@attach %!/INC`MSG={ERROR: Category field empty.};@attach %!/INC`PARTIAL=%0,u(FUN`CATEGORIES),|,category,category;@check strlen(%1)=@attach %!/INC`MSG={ERROR: Option field empty.};@attach %!/INC`PARTIAL=%1,u(FUN`SETTINGS,%q<category>),|,option,option;@switch/inline strlen(%2)=0,{@attach %!/INC`MSG=Cleared/reset %q<category> %q<option>!;@attach %!/WIPE=u(cobj,config),CONFIG`%q<category>`%q<option>;@attach %!/INC`MSG`CHAN={Cleared/Reset %q<category> %q<option>}},{@attach %!/INC`VALID`[default(u(cobj,config)/TYPE`%q<category>`%q<option>,WORD)]=%2;th u(attrib_set,u(cobj,config),CONFIG`%q<category>`%q<option>,%q<value>);@attach %!/INC`MSG=u(setr,msg,Game Option %q<category> %q<option> Set to: %q<value>);@attach %!/INC`MSG`CHAN={%q<msg>}}
+
+
 
 @@ STARTUP EXTRA is used by individual games.
-&PLAYER`CREATE [u(cobj,gcs)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/PLAYER`DISCONNECT`##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CREATE [u(cobj,gcs)]=@dolist/inline u(lattr,%!/PLAYER`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 &PLAYER`CREATE`CHANNELS [u(cobj,gcs)]=@select/inline 1=u(isguest,%0)={@dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_GUESTS)]=@select/inline v(game)=PennMUSH,{@chan/on %i0=%0},RhostMUSH,{}},0,{@dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_PLAYERS)]=@select/inline v(game)=PennMUSH,{@chan/on %i0=%0},RhostMUSH,{}}
 
 @@ CONFIG DEFAULTS - Don't change these! +config can change them.
 
-&DEFAULT [u(cobj,config)]=@@ Empty attribute for Rhost.
-&DESC [u(cobj,config)]=@@ Empty attribute for Rhost.
-&TYPE [u(cobj,config)]=@@ Empty attribute for Rhost.
-
-&DEFAULT`SYSTEM [u(cobj,config)]=@@ Empty attribute for Rhost.
-&DEFAULT`CHANNELS [u(cobj,config)]=@@ Empty attribute for Rhost.
-&DEFAULT`COLOR [u(cobj,config)]=@@ Empty attribute for Rhost.
-
-&DEFAULT`SYSTEM`SQL_PREFIX [u(cobj,config)]=mushcode_
-&DESC`SYSTEM`SQL_PREFIX [u(cobj,config)]=Used by SQL.
-&TYPE`SYSTEM`SQL_PREFIX [u(cobj,config)]=WORD
-
-&DEFAULT`SYSTEM`PUBLIC_EMAIL [u(cobj,config)]=example@example.com
-&DESC`SYSTEM`PUBLIC_EMAIL [u(cobj,config)]=Used in system messages.
-&TYPE`SYSTEM`PUBLIC_EMAIL [u(cobj,config)]=WORD
-
-&DEFAULT`SYSTEM`ANONYMOUS_NOTICES [u(cobj,config)]=0
-&DESC`SYSTEM`ANONYMOUS_NOTICES [u(cobj,config)]=Hide admin names in sys-messages?
-&TYPE`SYSTEM`ANONYMOUS_NOTICES [u(cobj,config)]=BOOL
-
-&DEFAULT`SYSTEM`HEADER_FILL [u(cobj,config)]==
-&DESC`SYSTEM`HEADER_FILL [u(cobj,config)]=Border characters.
-&TYPE`SYSTEM`HEADER_FILL [u(cobj,config)]=WORD
-
-&DEFAULT`SYSTEM`SUBHEADER_FILL [u(cobj,config)]==
-&DESC`SYSTEM`SUBHEADER_FILL [u(cobj,config)]=Border characters.
-&TYPE`SYSTEM`SUBHEADER_FILL [u(cobj,config)]=WORD
-
-&DEFAULT`SYSTEM`SEPARATOR_FILL [u(cobj,config)]=-
-&DESC`SYSTEM`SEPARATOR_FILL [u(cobj,config)]=Border characters.
-&TYPE`SYSTEM`SEPARATOR_FILL [u(cobj,config)]=WORD
-
-&DEFAULT`SYSTEM`REQUIRE_APPROVAL [u(cobj,config)]=0
-&DESC`SYSTEM`REQUIRE_APPROVAL [u(cobj,config)]=Game requires chargen approval?
-&TYPE`SYSTEM`REQUIRE_APPROVAL [u(cobj,config)]=BOOL
-
-&DEFAULT`SYSTEM`TIMEZONE [u(cobj,config)]=UTC
-&DESC`SYSTEM`TIMEZONE [u(cobj,config)]=Default Timezone?
-&TYPE`SYSTEM`TIMEZONE [u(cobj,config)]=TZ
-
-&DEFAULT`SYSTEM`NAMELINK [u(cobj,config)]=+finger
-&DESC`SYSTEM`NAMELINK [u(cobj,config)]=|-delimited Commands for names?
-&TYPE`SYSTEM`NAMELINK [u(cobj,config)]=LIST
-
-&DEFAULT`CHANNELS`JOIN_GUESTS [u(cobj,config)]=Guest
-&DESC`CHANNELS`JOIN_GUESTS [u(cobj,config)]=Default Channels for Guests.
-&TYPE`CHANNELS`JOIN_GUESTS [u(cobj,config)]=LIST
-
-&DEFAULT`CHANNELS`JOIN_PLAYERS [u(cobj,config)]=Public|RP|Staff-Help
-&DESC`CHANNELS`JOIN_PLAYERS [u(cobj,config)]=Default Channels for Players.
-&TYPE`CHANNELS`JOIN_PLAYERS [u(cobj,config)]=LIST
-
-&DEFAULT`CHANNELS`JOIN_ADMIN [u(cobj,config)]=Admin|**Code
-&DESC`CHANNELS`JOIN_ADMIN [u(cobj,config)]=Default Channels for new Admin.
-&TYPE`CHANNELS`JOIN_ADMIN [u(cobj,config)]=LIST
-
-&DEFAULT`CHANNELS`STAFF_ALERTS [u(cobj,config)]=**Code
-&DESC`CHANNELS`STAFF_ALERTS [u(cobj,config)]=Default Channels for Staff Alerts.
-&TYPE`CHANNELS`STAFF_ALERTS [u(cobj,config)]=LIST
-
-&DEFAULT`COLOR`COLUMN_NAMES [u(cobj,config)]=g
-&DESC`COLOR`COLUMN_NAMES [u(cobj,config)]=For column names.
-&TYPE`COLOR`COLUMN_NAMES [u(cobj,config)]=COLOR
-
-&DEFAULT`COLOR`HEADER_TEXT [u(cobj,config)]=hw
-&DESC`COLOR`HEADER_TEXT [u(cobj,config)]=For header names.
-&TYPE`COLOR`HEADER_TEXT [u(cobj,config)]=COLOR
-
-&DEFAULT`COLOR`HEADER_STAR [u(cobj,config)]=hm
-&DESC`COLOR`HEADER_STAR [u(cobj,config)]=For header stars.
-&TYPE`COLOR`HEADER_STAR [u(cobj,config)]=COLOR
-
-&DEFAULT`COLOR`BORDER [u(cobj,config)]=m
-&DESC`COLOR`BORDER [u(cobj,config)]=For borders.
-&TYPE`COLOR`BORDER [u(cobj,config)]=COLOR
-
-&DEFAULT`COLOR`MSG [u(cobj,config)]=hm
-&DESC`COLOR`MSG [u(cobj,config)]=For system messages borders.
-&TYPE`COLOR`MSG [u(cobj,config)]=COLOR
-
-&DEFAULT`COLOR`MSGTEXT [u(cobj,config)]=hw
-&DESC`COLOR`MSGTEXT [u(cobj,config)]=For system message headers.
-&TYPE`COLOR`MSGTEXT [u(cobj,config)]=COLOR
+th u(NEWCONF,config,SYSTEM,SQL_PREFIX,mushcode_,Used by SQL.,WORD)
+th u(NEWCONF,config,SYSTEM,PUBLIC_EMAIL,example@example.com,Used in system messages.,WORD)
+th u(NEWCONF,config,SYSTEM,ANONYMOUS_NOTICES,0,Hide admin names in sys-messages?,BOOL)
+th u(NEWCONF,config,SYSTEM,HEADER_FILL,=,Border characters.,WORD)
+th u(NEWCONF,config,SYSTEM,SUBHEADER_FILL,=,Border characters.,WORD)
+th u(NEWCONF,config,SYSTEM,SEPARATOR_FILL,=,Border characters.,WORD)
+th u(NEWCONF,config,SYSTEM,REQUIRE_APPROVAL,0,Game requires chargen approval?,BOOL)
+th u(NEWCONF,config,SYSTEM,TIMEZONE,UTC,Default Timezone?,TZ)
+th u(NEWCONF,config,SYSTEM,NAMELINK,+finger,|-delimited Commands for names?,LIST)
+th u(NEWCONF,config,CHANNELS,JOIN_PLAYERS,,Default Channels for Players.,LIST)
+th u(NEWCONF,config,CHANNELS,JOIN_ADMIN,,Default Channels for new Admin.,LIST)
+th u(NEWCONF,config,CHANNELS,STAFF_ALERTS,,Default Channels for Staff Alerts.,LIST)
+th u(NEWCONF,config,COLOR,COLUMN_NAMES,g,For column names.,COLOR)
+th u(NEWCONF,config,COLOR,HEADER_TEXT,hw,For header names.,COLOR)
+th u(NEWCONF,config,COLOR,HEADER_STAR,hm,For header stars.,COLOR)
+th u(NEWCONF,config,COLOR,BORDER,m,For borders.,COLOR)
+th u(NEWCONF,config,COLOR,MSG,hm,For system messages borders.,COLOR)
+th u(NEWCONF,config,COLOR,MSGTEXT,hw,For system message headers.,COLOR)

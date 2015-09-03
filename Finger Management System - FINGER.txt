@@ -1,0 +1,64 @@
+@@ DEPENDENCIES: Core
+@@ RECOMMENDED: Group System, enables Factional fields.
+
+th u(NEWCOBJ,Finger Management System <FINGER>,finger,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+FINGER`PENNMUSH [u(cobj,finger)]=$^(?s)(?\:\+)?(oocfinger|finger)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+FINGER`MAIN
+@set [u(cobj,finger)]/CMD`+FINGER`PENNMUSH=regexp
+&CMD`+FINGER`RHOSTMUSH [u(cobj,finger)]=$^(?s)(?\:\+)?(oocfinger|finger)(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+FINGER`MAIN
+@set [u(cobj,finger)]/CMD`+FINGER`RHOSTMUSH=regexp
+&CMD`+FINGER`MAIN [u(cobj,finger)]=th u(setq,sysname,%1);@attach %!/INC`GETSWITCH=%2;@include %!/INC`%1`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,finger)]/CMD`+FINGER`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,finger)]=FINGER
+
+&SYSTEM`SWITCHES [u(cobj,finger)]=setunion(v(SWITCHES`%q<sysname>`PLAYER),if(u(isadmin,%#),v(SWITCHES`%q<sysname>`ADMIN)),|,|)
+
+&SWITCHES`FINGER`PLAYER [u(cobj,finger)]=SET|GET
+&SWITCHES`FINGER`ADMIN [u(cobj,finger)]=
+
+&INC`FINGER`MAIN [u(cobj,finger)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@pemit %#=u(HEADER,if(strlen(u(setr,hdr,u(game_config,FINGER,HEADER))),u(strfirstof,u(getproperty,%q<t1>,%q<hdr>),get(%q<t1>/D`FINGER`%q<hdr>))),,,1);th u(setq,col1,u(game_config,FINGER,COLUMN1));th u(setq,rjust1,lmath(max,iter(%q<col1>,strlen(elements(##,2,~)),|,%b)));th u(setq,col2,u(game_config,FINGER,COLUMN2));th u(setq,rjust2,lmath(max,iter(%q<col2>,strlen(elements(##,2,~)),|,%b)));@pemit %#=align(1. [floor(fdiv(sub(u(width,%#),7),2))] 1. [ceil(fdiv(sub(u(width,%#),7),2))] 1.,ansi(u(color,%#,FINGER,BORDER),|),iter(%q<col1>,rjust(elements(##,2,~),%q<rjust1>):%B[u(strfirstof,u(getproperty,%q<t1>,elements(##,1,~)),get(%q<t1>/D`FINGER`[elements(##,1,~)]),elements(##,3,~))],|,%R),ansi(u(color,%#,FINGER,BORDER),|),iter(%q<col2>,rjust(elements(##,2,~),%q<rjust2>):%B[u(strfirstof,u(getproperty,%q<t1>,elements(##,1,~)),get(%q<t1>/D`FINGER`[elements(##,1,~)]),elements(##,3,~))],|,%R),ansi(u(color,%#,FINGER,BORDER),|));@dolist/inline/delimit | [u(game_config,FINGER,EXTRA)]=@select/inline t(strlen(u(setr,found,u(strfirstof,u(getproperty,%q<t1>,before(##,~)),get(%q<t1>/D`FINGER`[elements(##,1,~)])))))=1,{@pemit %#=u(SEPARATOR,u(capnames,u(strfirstof,after(##,~),##)),,,1);@pemit %#=align(1. [sub(u(width,%#),4)] 1.,ansi(u(color,%#,FINGER,BORDER),|),edit(%q<found>,%t,space(8)),ansi(u(color,%#,FINGER,BORDER),|))};@pemit %#=u(SUBHEADER,if(strlen(u(setr,shdr,u(game_config,FINGER,SUBHEADER))),u(strfirstof,u(getproperty,%q<t1>,%q<shdr>),get(%q<t1>/D`FINGER`%q<shdr>))),,,1);@select/inline cand(nor(u(isadmin,%#),strmatch(%#,%q<t1>)),get(%q<t1>/afinger))=1,{@trigger %q<t1>/AFINGER=%#,u(moniker,%#)}
+
+th u(NEWCONF,pconf,ALERTS,AFINGER,0,Alert when +finger'd?,BOOL)
+
+&AFINGER [u(cobj,ancestor_player)]=@select/inline my_config(ALERTS,AFINGER)=1,{@pemit %#=Game> %1 just +fingered you!}
+
+&INC`FINGER`SET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin,%#),strmatch(%0,*/*)),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(cand(u(isadmin,%#),strmatch(%0,*/*)),after(%0,/),%0),setunion(u(game_config,FINGER,PLAYERSET),if(u(isadmin,%#),u(game_config,FINGER,ADMINSET)),|,|),|,field,field;@select/inline strlen(%1)=0,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR FINGER %q<field>},>0,{@attach %!/INC`CHECK`%q<field>=%1};&D`FINGER`%q<field> %q<t1>=%1;@attach %!/INC`MSG=You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [u(capnames,%q<field>)] Finger Field to: %1;@select/inline strmatch(%#,%q<t1>)=0,{@attach %!/INC`MSG`NOTICE=Your [u(capnames,%q<field>)] Finger Field is now: %1,%q<t1>}
+
+&INC`FINGER`GET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(strmatch(%0,*/*),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(strmatch(%0,*/*),after(%0,/),%0),setunion(u(game_config,FINGER,PLAYERSET),u(game_config,FINGER,ADMINSET),|,|),|,field,field;@pemit %#=u(getproperty,%q<T1>,%q<field>)
+
+th u(NEWCONF,config,FINGER,HEADER,ALIASMONIKER,Header text,WORD)
+th u(NEWCONF,config,FINGER,SUBHEADER,,SubHeader text,WORD)
+th u(NEWCONF,config,FINGER,COLUMN1,SEX~Sex|SPECIES~Species,Left +finger header column,LIST)
+th u(NEWCONF,config,FINGER,COLUMN2,JOB~Job,Right +finger header column,LIST)
+th u(NEWCONF,config,FINGER,EXTRA,GROUPNAMES2~Groups|QUOTE~Quote|PROFILE~Profile|SKILLS~Skills|WIKI~Wiki,Lower section of +finger,LIST)
+th u(NEWCONF,config,FINGER,PLAYERSET,JOB|SPECIES|QUOTE|PROFILE|SKILLS,fields settable by players,LIST)
+th u(NEWCONF,config,FINGER,ADMINSET,,fields settable by admin,LIST)
+
+&SWITCHES`OOCFINGER`PLAYER [u(cobj,finger)]=SET
+&SWITCHES`OOCFINGER`ADMIN [u(cobj,finger)]=
+
+&INC`OOCFINGER`MAIN [u(cobj,finger)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@pemit %#=u(HEADER,%q<t1name>);@dolist/inline/delimit | [u(game_config,OOCFINGER,COLUMN)]={@pemit %#=align(1. >[u(setr,oocw,u(game_config,OOCFINGER,WIDTH))] 1. [sub(u(width,%#),%q<oocw>,7)] 1.,ansi(u(color,%#,FINGER,BORDER),|),elements(##,2,~),ansi(u(color,%#,FINGER,BORDER),|),u(getproperty,%q<t1>,elements(##,1,~)),ansi(u(color,%#,FINGER,BORDER),|))};@dolist/inline/delimit | [u(game_config,OOCFINGER,EXTRA)]={@select/inline t(strlen(u(setr,found,u(getproperty,%q<t1>,##))))=1,{@pemit %#=u(subheader,u(capnames,##));@pemit %#=align(1. [sub(u(width,%#),4)] 1.,ansi(u(color,%#,FINGER,BORDER),|),edit(%q<found>,%t,space(8)),ansi(u(color,%#,FINGER,BORDER),|))}};@pemit %#=u(SUBHEADER);@select/inline nor(u(isadmin,%#),strmatch(%#,%q<t1>))=1,{@trigger %q<t1>/AOOCFINGER=%#,u(moniker,%#)}
+
+&INC`OOCFINGER`SET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin,%#),strmatch(%0,*/*)),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(cand(u(isadmin,%#),strmatch(%0,*/*)),after(%0,/),%0),setunion(u(game_config,OOCFINGER,PLAYERSET),if(u(isadmin,%#),u(game_config,OOCFINGER,ADMINSET)),|,|),|,field,field;@select/inline strlen(%1)=0,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR OOCFINGER %q<field>};&D`OOCFINGER`%q<field> %q<t1>=%1;@attach %!/INC`MSG=You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [u(capnames,%q<field>)] OOCFinger Field to: %1;@select/inline strmatch(%#,%q<t1>)=0,{@attach %!/INC`MSG={Your [u(capnames,%q<field>)] OOCFinger Field is now: %1},%q<t1>}
+
+th u(newconf,config,OOCFINGER,COLUMN,ALIAS~Alias|MAIL~Mush Mail|LAST~Last On|EMAIL~Email|CONTACT~Contact|HOMEPAGE~Homepage|THEME~Theme Song|ALTS~Alts|OTHER~Other|ACTOR~Actor|VOICEACTOR~Voice Actor,List to display.,LIST)
+th u(newconf,config,OOCFINGER,WIDTH,11,Width of main column.,POSINT)
+th u(newconf,config,OOCFINGER,EXTRA,NOTES,Extra sections to display.,LIST)
+th u(newconf,config,OOCFINGER,PLAYERSET,EMAIL|CONTACT|HOMEPAGE|THEME|OTHER|VOICEACTOR|ACTOR|NOTES|ALTS,Sections Players can edit.,LIST)
+th u(newconf,config,OOCFINGER,ADMINSET,,Sections Admins can edit.,LIST)
+
+@@ HELP SECTION
++help/add +finger=[u(cobj,finger)]/HLP`FINGER
++help/category +Finger=Character
+
++help/add +oocfinger=[u(cobj,finger)]/HLP`OOCFINGER
++help/category +oocfinger=Character
+
+&HLP`FINGER [u(cobj,finger)]=The +finger system keeps track of and presents in-character information for some community flavor. By reading someone's finger, you can gain a brief overview of what the character is about!%R%R[ansi(hc,Commands)]%R[align(5 72,,[ansi(h,+finger)] - Show your own finger.%R[ansi(h,+finger <name>)] - Show someone else's +finger.%R[ansi(h,+finger/set <field>=<text>)] - Set a finger field. Setting to nothing may clear it.%R[ansi(h,+finger/get <field>)] - Retrieves a field for editing. Can be used on other players as <player>/<field>)]%R%RFields settable by players: [u(itemize,get(u(cobj,finger)/FINGER`PLAYERSET),|,and,\,)]%RFields Only settable by Admin: [u(itemize,get(u(cobj,finger)/FINGER`ADMINSET),|,and,\,)]%R%RFields not listed here are controlled by other factors.[if(u(isadmin,%#),%R%R[u(subheader,Admin Section)]%RAdmin may set the fields of other characters using [ansi(h,+finger/set <name>/<field>=<text>)])]
+
+&HLP`OOCFINGER [u(cobj,finger)]=The +oocfinger system keeps track of and presents out of character information for your fellow players' convenience.%R%R[ansi(hc,Commands)]%R[align(5 72,,[ansi(h,+oocfinger)] - Show your own OOCfinger.%R[ansi(h,+oocfinger <name>)] - Show someone else's +oocfinger.%R[ansi(h,+oocfinger/set <field>=<text>)] - Set an oocfinger field. Setting to nothing may clear it.)]%R%RFields settable by players: [u(itemize,get(u(cobj,finger)/OOCFINGER`PLAYERSET),|,and,\,)]%RFields Only settable by Admin: [u(itemize,get(u(cobj,finger)/OOCFINGER`ADMINSET),|,and,\,)]%R%RFields not listed here are controlled by other factors.%RThe EMAIL field is special. If you wish to hide your email from everyone but admin, prefix it with a ! - for example\, !user@site.com. This is different from your Account email\, which is seen only by admin.[if(u(isadmin,%#),%R%R[u(subheader,Admin Section)]%RAdmin may set the fields of other characters using [ansi(h,+oocfinger/set <name>/<field>=<text>)])]
+
++shelp/add +finger=[u(cobj,finger)]/SHLP`FINGER
++shelp/category +finger=Administration
+&SHLP`FINGER [u(cobj,finger)]=[ansi(hc,Staff Configuration)]%R+finger is one of those commands that's difficult to make a generic version suited for all games. So this one can be customized easily using +gameconfig!%R%RFor FINGER, COLUMN1 and COLUMN2 use a |-delimited list of finger fields that can be customized with adding further options via ~ delimiters. The order for field delimiters is <GET>~<DISPLAY>~<DEFAULT>. As an example, if COLUMN1 is SEX~Gender~???|RACE~Species~Human, the RACE word will be used to GET DATA (using getproperty on the Master Code Object), it will display Species in the column, and if the GET returns nothing it will display Human by default.%R%RThe EXTRA option handles the bordered sections below the dual column section. It works similarly: GROUPNAMES2~Groups|SKILLS~Skills would show sections named Groups and Skills, with GETPROPERTY`GROUPNAMES2 being called for the first one.%R%RIf the system cannot find a GETPROPERTY entry for dynamic retrieval it will instead resort to searching for an attribute on the player: D`FINGER`<GET> such as D`FINGER`PROFILE. This is important because of PLAYERSET and ADMINSET, which allow you to set |-delimited WORDS. PLAYERSET values are entries players can set themselves while ADMINSET can only be changed by admin.%R%RHERE ARE SOME SPECIAL <GET>'s provided by Volund's Mushcode Suite:%RSEX: Retrieves @sex.%RNAME: Retrives name().%RMONIKER: Retrieves @moniker or cname() depending on game.%RALIASNAME: Shows name() then first alias() in parentheses.%RALIASMONIKER: Like above but uses @moniker.%RWIKI: Retrieves D`FINGER`WIKI and tries to clickify it.%RGROUPNAMES2: Shows clickable list of all Minor Group memberships.%RMAIL: Shows # Unread Messages.%RALIAS: Shows first @alias.%RLAST: Display idle or last-connect information.%REMAIL: Shows D`FINGER`EMAIL. If value begins with ! it is considered a hidden email and only admin see it.%RACCEMAIL: Shows Account email. Players probably won't like this one!%RACCALTS: Display the same data that +alts would. Requires Account System.%RFACTION: Displays name of first Major Group the player belongs to according to Group Sort.%RFACABBR: First found faction's abbreviation.%RFACLETTER: First found faction's first letter.%RRANK: #-<rank or title> from first found faction.%R%RYou can add additional GETPROPERTIES by adding them in the following format to the Master Code Object: GETPROPERTY`<GET>, such as GETPROPERTY`PROFILE. The person being checked is passed as \%0. Design these as a u()-function.%R%RA <GET> MUST be a single word. Alphanumeric characters, no spaces or special symbols!%R%RSome examples:%R+gameconfig finger/column1=FACTION~Faction~Unaffiliated|SEX~Gender|SPECIES~Species%R+gameconfig finger/column2=RANK~Rank~N/A|JOB~Job~Wanderer|TYPE~Character Type~N/A%R+gameconfig finger/extra=QUOTE~Quote|PROFILE~Profile|SKILLS~Skills|WIKI~Wiki%R%REXAMPLE of adding a new special <GET>:%R%R&GETPROPERTY`CODENAME [num(u(cobj,mco))]=get(\%0/CODENAME)%R(yes this is the correct dbref.)

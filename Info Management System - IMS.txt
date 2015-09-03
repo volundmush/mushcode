@@ -6,7 +6,7 @@ th u(NEWCOBJ,Info Management System <IMS>,ims,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 @set [u(cobj,ims)]/CMD`+INFO`PENNMUSH=regexp
 &CMD`+INFO`RHOSTMUSH [u(cobj,ims)]=$^(?\:\+)?(info|pinfo)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
 @set [u(cobj,ims)]/CMD`+INFO`RHOSTMUSH=regexp
-&CMD`+INFO`MAIN [u(cobj,ims)]=@attach %!/INC`GETSWITCH=%2;th u(setq,sysname,%1);@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%3),trim(%4),%5
+&CMD`+INFO`MAIN [u(cobj,ims)]=@attach %!/INC`GETSWITCH=%2;th u(setq,sysname,ucstr(%1));@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%3),trim(%4),%5
 @set [u(cobj,ims)]/CMD`+INFO`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,ims)]=GET|RENAME|DELETE

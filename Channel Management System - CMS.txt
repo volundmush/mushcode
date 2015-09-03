@@ -29,9 +29,7 @@ th u(NEWCOBJ,Muzzle Database <MUZZLE>,muzzle,u(cobj,channel),,,WIZARD SAFE !NO_C
 
 &INC`CHANNEL`ADD [u(cobj,channel)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Channel name empty!;@check valid(channel,%0)=@attach %!/INC`MSG=ERROR: Channel name was not accepted. A channel of that name already exists or the entered name was too long or had unacceptable characters.;@select/inline strlen(%1)=>0,{@stop strmatch(ansi(%1,test),u(setr,error,#-*))=@attach %!/INC`MSG=ERROR: '%1' was not accepted by ansi()! Error returned: %q<error>};@channel/add if(strlen(%1),ansi(%1,%0),%0)=u(game_config,CHANNELS,DEFAULT_PRIVS);@attach %!/INC`CHANNEL`INIT;@attach %!/INC`MSG=Channel [if(strlen(%1),ansi(%1,%0),%0)] created!;@attach %!/INC`MSG`CHAN=Created the [if(strlen(%1),ansi(%1,%0),%0)] channel!
 
-&DEFAULT`CHANNELS`DEFAULT_PRIVS [u(cobj,config)]=PQ
-&DESC`CHANNELS`DEFAULT_PRIVS [u(cobj,config)]=Default priveleges for new channels.
-&TYPE`CHANNELS`DEFAULT_PRIVS [u(cobj,config)]=WORD
+th u(NEWCONF,config,CHANNELS,DEFAULT_PRIVS,PQ,Default priveleges for new channels.,WORD)
 
 &INC`CHANNEL`INIT [u(cobj,channel)]=@check match(stripansi(objeval(%#,channels(|))),%0,|)=@attach %!/INC`MSG=ERROR: Channel not found.;@select/inline strmatch(cmogrifier(%0),u(cobj,mop))=0,{@select/inline isdbref(u(setr,mog,u(FIND_IN,u(cobj,mop),MOG-[stripansi(%0)])))=1,{@channel/mogrifier %0=%q<mog>},0,{@tel u(setr,mog,create(MOG-[stripansi(%0)]))=u(cobj,mop);@parent %q<mog>=u(cobj,mop);@channel/mogrifier %0=%q<mog>;@select/inline %q<switch>=INIT,{@attach %!/INC`MSG=Channel initiation of '%0' complete!}}},1,{@select/inline %q<switch>=INIT,{@attach %!/INC`MSG=Channel initiation of '%0' unnecessary!}}
 
@@ -117,9 +115,7 @@ th u(NEWCOBJ,Muzzle Database <MUZZLE>,muzzle,u(cobj,channel),,,WIZARD SAFE !NO_C
 
 &LOOP`CLEANMUZZLE [u(cobj,channel)]=@dolist/inline setunion(lattr(u(cobj,muzzle)/ALL`*),setunion(lattr(u(cobj,muzzle)/CHAR`*`*),setunion(lattr(u(cobj,muzzle)/ACCALL`*),lattr(u(cobj,muzzle)/ACC`*`*))))={@select/inline gt(get(u(cobj,muzzle)/%i0),secs())=1,{@attach %!/WIPE=u(cobj,muzzle),%i0}};@wait u(game_config,channels,interval)=@trigger %!/LOOP`CLEANMUZZLE
 
-&DEFAULT`CHANNELS`INTERVAL [u(cobj,config)]=3600
-&DESC`CHANNELS`INTERVAL [u(cobj,config)]=Interval between Muzzle cleaning?
-&TYPE`CHANNELS`INTERVAL [u(cobj,config)]=DURATION
+th u(NEWCONF,config,CHANNELS,INTERVAL,3600,Interval between Muzzle cleaning?,DURATION)
 
 @@ Mogrify and CDB section
 @lock/user:muzzle u(cobj,mop)=FLAG^ROYALTY|FLAG^WIZARD

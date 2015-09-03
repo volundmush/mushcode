@@ -85,11 +85,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &ISGUEST`PENNMUSH [u(cobj,mco)]=haspower(%0,GUEST)
 &ISGUEST`RHOSTMUSH [u(cobj,mco)]=hasflag(%0,GUEST)
 
-&ISADMIN [u(cobj,mco)]=u(ISADMIN`[v(game)],%0)
+&ISADMIN [u(cobj,mco)]=cor(get(%0/D`STAFF),u(ISADMIN`[v(game)],%0))
 &ISADMIN`PENNMUSH [u(cobj,mco)]=orflags(%0,Wr)
 &ISADMIN`RHOSTMUSH [u(cobj,mco)]=gte(bittype(%0),2)
 
-&ISADMIN2 [u(cobj,mco)]=[u(ISADMIN`[v(game)],%#)]
+&ISADMIN2 [u(cobj,mco)]=[u(ISADMIN,%#)]
 
 &ISWIZARD2 [u(cobj,mco)]=[u(iswizard,%#)]
 
@@ -142,11 +142,13 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &DATE`PENNMUSH [u(cobj,mco)]=timefmt($x,%0,strfirstof(u(gettz,%1),u(gettz,%#)))
 &DATE`RHOSTMUSH [u(cobj,mco)]=timefmt($M/$D/$Y,u(strfirstof,%0,secs()),u(gettz,u(strfirstof,%1,%#)))
 
-&CHANCOLOR [u(cobj,mco)]=localize(if(isdbref(setr(mog,cmogrifier(stripansi(%0)))),u(color(%@,CHANNEL,%q<mog>,,1,))))
+&CHANCOLOR [u(cobj,mco)]=localize(if(isdbref(u(setr,mog,cmogrifier(stripansi(%0)))),u(color,%@,CHANNEL,%q<mog>,,1)))
 
 &GETTZ [u(cobj,mco)]=u(strfirstof,u(player_config,%0,SYSTEM,TIMEZONE),u(game_config,SYSTEM,TIMEZONE),UTC)
 
 &CHARSEARCH [u(cobj,mco)]=u(lmax,iter(%1,strmatch(%0,*%i0*)))
+
+&NEWCONF [u(cobj,mco)]=[u(attrib_set,u(cobj,%0),CATEGORIES,setunion(get(u(cobj,%0)/CATEGORIES),%1,|,|))][u(attrib_set,u(cobj,%0),CATEGORIES`%1,setunion(get(u(cobj,%0)/CATEGORIES`%1),%2,|,|))][u(attrib_set,u(cobj,%0),DEFAULT`%1`%2,%3)][u(attrib_set,u(cobj,%0),DESC`%1`%2,%4)][u(attrib_set,u(cobj,%0),TYPE`%1`%2,%5)]
 
 &LMAX [u(cobj,mco)]=u(LMAX`[v(game)],%0,%1)
 &LMAX`PENNMUSH [u(cobj,mco)]=lmath(max,%0,%1)
@@ -333,7 +335,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &FIL`WILDGREPI [u(cobj,mco)]=strmatch(get(%1/%0),%2)
 
 &UMAIL [u(cobj,mco)]=u(UMAIL`[v(game)],%0)
-&UMAIL`PENNMUSH [u(cobj,mco)]=elements(mailfstats(%0),2)
+&UMAIL`PENNMUSH [u(cobj,mco)]=elements(mail(%0),2)
 &UMAIL`RHOSTMUSH [u(cobj,mco)]=elements(mailquick(%0,,1),2)
 
 
@@ -342,26 +344,18 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &GETPROPERTY`SEX [u(cobj,mco)]=get(%0/SEX)
 &GETPROPERTY`NAME [u(cobj,mco)]=name(%0)
-&GETPROPERTY`ALIASNAME [u(cobj,mco)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
-&GETPROPERTY`QUOTE [u(cobj,mco)]=get(%0/D`FINGER`QUOTE)
-&GETPROPERTY`PROFILE [u(cobj,mco)]=get(%0/D`FINGER`PROFILE)
-&GETPROPERTY`SKILLS [u(cobj,mco)]=get(%0/D`FINGER`SKILLS)
-&GETPROPERTY`WIKI [u(cobj,mco)]=u(weblink,get(%0/D`FINGER`WIKI))
-&GETPROPERTY`SPECIES [u(cobj,mco)]=get(%0/D`FINGER`SPECIES)
-&GETPROPERTY`JOB [u(cobj,mco)]=get(%0/D`FINGER`JOB)
-&GETPROPERTY`GROUPNAMES2 [u(cobj,mco)]=u(getproperty`groupnames,%0,1)
+&GETPROPERTY`MONIKER [u(cobj,mco)]=u(moniker,%0)
+&GETPROPERTY`ALIASNAME [u(cobj,mco)]=name(%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`ALIASMONIKER [u(cobj,mco)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
 
+&GETPROPERTY`WIKI [u(cobj,mco)]=u(weblink,get(%0/D`FINGER`WIKI))
+&GETPROPERTY`GROUPNAMES2 [u(cobj,mco)]=u(getproperty`groupnames,%0,1)
 &GETPROPERTY`MAIL [u(cobj,mco)]=u(umail,%0) Unread Messages
 &GETPROPERTY`ALIAS [u(cobj,mco)]=u(getalias,%0)
 &GETPROPERTY`LAST [u(cobj,mco)]=u(lastidle,%0)
-&GETPROPERTY`EMAIL [u(cobj,mco)]=if(strmatch(u(setr,email,get(%0/D`OOCFINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
-&GETPROPERTY`CONTACT [u(cobj,mco)]=get(%0/D`OOCFINGER`CONTACT)
-&GETPROPERTY`HOMEPAGE [u(cobj,mco)]=get(%0/D`OOCFINGER`HOMEPAGE)
-&GETPROPERTY`THEME [u(cobj,mco)]=get(%0/D`OOCFINGER`THEME)
-&GETPROPERTY`ALTS [u(cobj,mco)]=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0),get(%0/D`OOCFINGER`ALTS))
-&GETPROPERTY`VOICEACTOR [u(cobj,mco)]=get(%0/D`OOCFINGER`VOICEACTOR)
-&GETPROPERTY`ACTOR [u(cobj,mco)]=get(%0/D`OOCFINGER`ACTOR)
-&GETPROPERTY`NOTES [u(cobj,mco)]=get(%0/D`OOCFINGER`NOTES)
+&GETPROPERTY`EMAIL [u(cobj,mco)]=if(strmatch(u(setr,email,get(%0/D`FINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
+&GETPROPERTY`ACCEMAIL [u(cobj,mco)]=if(isdbref(u(accid,%0)),get(u(accid,%0)/EMAIL))
+&GETPROPERTY`ACCALTS [u(cobj,mco)]=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0))
 
 &GETPROPERTY`GROUPS [u(cobj,mco)]=u(sortgroups,u(sortname,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS))))
 &GETPROPERTY`GTITLE [u(cobj,mco)]=get(%0/D`GROUP`[u(namegrab,u(GETPROPERTY`GROUPS,%0,%1,%2),%1)]`TITLE)
@@ -476,7 +470,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &INC`GETSWITCH [u(cobj,mco)]=@attach %!/INC`PARTIAL=%0,u(SYSTEM`SWITCHES),|,switch,switch
 
-&SYSTEM`SWITCHES [u(cobj,mco)]=setunion(v(SWITCHES`PLAYER),if(u(isadmin,%#),v(SWITCHES`ADMIN)),|,|)
+&SYSTEM`SWITCHES [u(cobj,mco)]=setunion(u(SWITCHES`PLAYER),if(u(isadmin,%#),u(SWITCHES`ADMIN)),|,|)
 
 &INC`PARTIAL [u(cobj,mco)]=@select/inline or(not(strlen(%0)),u(setr,matched,match(%1,u(setr,u(strfirstof,%3,choice),%0),u(strfirstof,%2,%b))))=0,{@check words(u(setr,u(strfirstof,%3,choice),graball(%1,%0*,u(strfirstof,%2,%b),u(strfirstof,%2,%b))))=@attach %!/INC`MSG={ERROR: Invalid %4! Valid choices are: [u(itemize,%1,u(strfirstof,%2,%b))]};@stop gt(words(r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b)),1)=@attach %!/INC`MSG={ERROR: %0 matched [u(itemize,r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b),and,\,)]. Please be more specific.}},1,{@select/inline cand(t(strlen(%0)),t(%q<matched>))=1,{th u(setq,u(strfirstof,%3,choice),elements(%1,%q<matched>,u(strfirstof,%2,%b)))}}
 @@ PARTIAL %0 = entry, %1 = choices, %2 = delimiter, %3 = register name, %4 = topic name
@@ -504,10 +498,10 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &INC`MSG`NOTICE [u(cobj,mco)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(config,ADMIN`ANONYMOUSNOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
-&INC`MSG`CHAN [u(cobj,mco)]=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(moniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof,u(CHANNEL`ALERT),%1)]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(u(strfirstof,u(CHANNEL`ALERT),%1))]={@cemit %d0=%q<chanmsg>}}
+&INC`MSG`CHAN [u(cobj,mco)]=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(moniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof,%1,u(CHANNEL`ALERT))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(u(strfirstof,%1,u(CHANNEL`ALERT)))]={@cemit %d0=%q<chanmsg>}}
 @@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
 
-&INC`MSG`SYSCHAN [u(cobj,mco)]=th u(setq,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof(u(CHANNEL`ALERT),%1))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(strfirstof(u(CHANNEL`ALERT),%1))]={@cemit %d0=%q<chanmsg>}}
+&INC`MSG`SYSCHAN [u(cobj,mco)]=th u(setq,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof(%1,u(CHANNEL`ALERT)))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(strfirstof(%1,u(CHANNEL`ALERT)))]={@cemit %d0=%q<chanmsg>}}
 
 &CHANNEL`ALERT [u(cobj,mco)]=u(game_config,CHANNELS,STAFF_ALERTS)
 
@@ -517,31 +511,31 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &MSGHEAD [u(cobj,mco)]=localize(ansi(u(setr,msgcolor,u(color,u(firstof,%1,%#),SYSTEM,MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),SYSTEM,MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
 &MSGROOM [u(cobj,mco)]=localize(ansi(u(setr,msgcolor,u(color,u(firstof,%1,%#),SYSTEM,MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),SYSTEM,MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
 
-&COLOR [u(cobj,mco)]=localize(u(strfirstof,get(%0/D`COLOR`%1`%2),if(u(isdbref,u(setr,coltarget,u(firstof,%3,u(accid,%0),%0))),get(%q<coltarget>/D`COLOR`%1`%2)),if(%4,,u(strfirstof,u(game_config,COLOR,%2),n))))
+&COLOR [u(cobj,mco)]=localize(u(strfirstof,u(player_config,%0,%1,%2),if(%4,,u(strfirstof,u(game_config,COLOR,%2),n))))
 
-&HEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,HEADER)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][u(setr,borderstar,ansi(u(color,%q<target>,u(SYSTEM`NAME),HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,u(SYSTEM`NAME),HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&HEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,HEADER)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][u(setr,borderstar,ansi(u(color,%q<target>,COLOR,HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,COLOR,HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&SUBHEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,u(SYSTEM`NAME),HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&SUBHEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,COLOR,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&SEPARATOR [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,u(SYSTEM`NAME),HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&SEPARATOR [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,COLOR,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&HEADER`PREP [u(cobj,mco)]=u(setq,target,u(firstof,owner(u(firstof,%0,%#))))[u(setq,bordercolor,u(color,%q<target>,u(SYSTEM`NAME),BORDER))][u(setq,bordermode,%1)][u(setq,width,sub(u(width,%q<target>),if(%q<bordermode>,2,0)))][u(setq,fill,u(game_config,SYSTEM,%2_FILL))]
+&HEADER`PREP [u(cobj,mco)]=u(setq,target,u(firstof,owner(u(firstof,%0,%#))))[u(setq,bordercolor,u(color,%q<target>,COLOR,BORDER))][u(setq,bordermode,%1)][u(setq,width,sub(u(width,%q<target>),if(%q<bordermode>,2,0)))][u(setq,fill,u(game_config,SYSTEM,%2_FILL))]
 
-&HEADER`RENDER [u(cobj,mco)]=u(setr,end,if(%q<bordermode>,ansi(%q<bordercolor>,+)))[u(center,%q<headertext>,%q<width>,ansi(u(color,%q<target>,u(SYSTEM`NAME),BORDER),%q<fill>))]%q<end>
+&HEADER`RENDER [u(cobj,mco)]=u(setr,end,if(%q<bordermode>,ansi(%q<bordercolor>,+)))[u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>
 @@ %0 - display text (optional), %1 - viewer (optional), %2 - Disable headertext coloring. %3 - Bordered mode. %4 - Border color override. %5 - Border star color override. %6 - Header text color override.
 
 &SPEECH [u(cobj,mco)]=localize(u(SPEECH`[v(game)],%0,%1,%2,%3,%4,%5))
-&SPEECH`PENNMUSH [u(cobj,mco)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>,v(REG`URL),u(weblink,$0,$0))
+&SPEECH`PENNMUSH [u(cobj,mco)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>)
 &SPEECH`RHOSTMUSH [u(cobj,mco)]=regeditalli(parsestr(u(colornames,%2,escape(%1),%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(moniker,%0))]),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>)
 @@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup.
 
 &REG`SPEECH [u(cobj,mco)]=(?s)"([^ "][^"]*[^ "])"
-&REG`URL [u(cobj,mco)]=\w+\://\S+
+&REG`URL [u(cobj,mco)]=\w+\://\S+[^"]
 
 &COLORNAMES [u(cobj,mco)]=localize(u(COLORNAMES`[v(game)],%0,%1,%2,%3,%4))
 &COLORNAMES`PENNMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,\\b[name(%i0)]\\b^[switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[u(setq,final,fold(COLORNAME`PENN,%q<colstring>,%1,beep()))]%q<final>
 
-&COLORNAMES`RHOSTMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,lit(%\b)[name(%i0)][lit(%\b)][beep()][switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[strfunc(regeditalli,%1[beep()]%q<colstring>,beep())]
+&COLORNAMES`RHOSTMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,lit(%\b)[name(%i0)][lit(%\b)][beep()][switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,OTHER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[strfunc(regeditalli,%1[beep()]%q<colstring>,beep())]
 &COLORNAME`PENN [u(cobj,mco)]=regeditalli(%0,before(%1,^),after(%1,^))
 @@ %0 - Viewer. %1 - Text to search. %2 - Display mode. %3 - Dbrefs to check. %4 - Speaker.
 
@@ -556,11 +550,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 @@ Color and Configuration
 
-&GAME_CONFIG [u(cobj,mco)]=u(strfirstof,if(hasattr(u(cobj,config)/RETRIEVE`%0`%1),u(u(cobj,config)/RETRIEVE`%0`%1)),get(u(cobj,config)/CONFIG`%0`%1),get(u(cobj,config)/DEFAULT`%0`%1))
+&GAME_CONFIG [u(cobj,mco)]=u(strfirstof,get(u(cobj,config)/CONFIG`%0`%1),get(u(cobj,config)/DEFAULT`%0`%1))
 
 &MY_CONFIG [u(cobj,mco)]=u(PLAYER_CONFIG,%@,%0,%1)
 
-&PLAYER_CONFIG [u(cobj,mco)]=localize(u(strfirstof,if(hasattr(u(cobj,pconf)/RETRIEVE`%1`%2),u(u(cobj,pconf)/RETRIEVE`%1`%2,%0)),if(isdbref(u(setr,accid,u(accid,%0))),get(%q<accid>/D`CONFIG`%1`%2)),get(%0/D`CONFIG`%1`%2),get(u(cobj,pconf)/DEFAULT`%1`%2)))
+&PLAYER_CONFIG [u(cobj,mco)]=localize(u(strfirstof,if(isdbref(u(setr,accid,u(accid,%0))),get(%q<accid>/D`CONFIG`%1`%2)),get(%0/D`CONFIG`%1`%2),get(u(cobj,pconf)/DEFAULT`%1`%2)))
 
 &APPROVED [u(cobj,mco)]=u(isapproved,%0)
 
@@ -604,7 +598,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 @ACONNECT [u(cobj,mco)]=@check strmatch(v(game),RhostMUSH);@select/inline and(eq(totcmds(%#),0),lt(sub(secs(),ctime(%#)),10))=1,{@attach/nobreak %!/PLAYER`CREATE=%#,words(ports(%#)),first(ports(%#))};@attach/nobreak %!/PLAYER`CONNECT=%#,words(ports(%#)),first(ports(%#))
 @set [u(cobj,mco)]/ACONNECT=no_inherit
-@ADISCONNECT [u(cobj,mco)]=@attach/nobreak %!/PLAYER`DISCONNECT=%#,words(ports(%#)),ishidden(%#)
+@ADISCONNECT [u(cobj,mco)]=@check strmatch(v(game),RhostMUSH);@attach/nobreak %!/PLAYER`DISCONNECT=%#,words(ports(%#)),ishidden(%#)
 @set [u(cobj,mco)]/ADISCONNECT=no_inherit
 
 &STARTUP`RHOSTEVENT [u(cobj,mco)]=@trigger %!/LOOP`RHOSTMUSH`EVENTHANDLER

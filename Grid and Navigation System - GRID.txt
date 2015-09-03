@@ -54,19 +54,8 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &INC`CONVERT`MAIN [u(cobj,grid)]=@attach %!/INC`DISTCHECK;@check hastype(%l,ROOM)=@attach %!/INC`MSG=ERROR: +convert can only be used from a proper room.;@parent %l=%q<dist>;@check controls(%#,%l)=@attach %!/INC`MSG=ERROR: Permission denied.;@parent %l=%q<dist>;@attach %!/INC`MSG=Room converted to %q<dist> '%q<distname>'.;@attach %!/INC`MSG`CHAN={Room %l '[name(%l)]' converted to %q<dist> '%q<distname>'}
 
-&PLAYER`DISCONNECT`TELGUEST [u(cobj,grid)]=@stop %1;@select/inline u(isguest,%0)=1,{@tel/silent %0=u(game_config,NAVIGATION,GUEST_START,#0)}
-
-&DEFAULT`NAVIGATION`GUEST_START [u(cobj,config)]=#-1
-&DESC`NAVIGATION`GUEST_START [u(cobj,config)]=Room guests return to after logoff.
-&TYPE`NAVIGATION`GUEST_START [u(cobj,config)]=DBREF
-
-&DEFAULT`NAVIGATION`IC_NEXUS [u(cobj,config)]=#-1
-&DESC`NAVIGATION`IC_NEXUS [u(cobj,config)]=Room +nexus leads to or default +ic
-&TYPE`NAVIGATION`IC_NEXUS [u(cobj,config)]=DBREF
-
-&DEFAULT`NAVIGATION`OOC_NEXUS [u(cobj,config)]=#-1
-&DESC`NAVIGATION`OOC_NEXUS [u(cobj,config)]=Room +ooc leads to.
-&TYPE`NAVIGATION`OOC_NEXUS [u(cobj,config)]=DBREF
+th u(NEWCONF,config,NAVIGATION,IC_NEXUS,#-1,Room +nexus leads to or default +ic,DBREF)
+th u(NEWCONF,config,NAVIGATION,OOC_NEXUS,#-1,Room +ooc leads to.,DBREF)
 
 &CMD`+IC [u(cobj,grid)]=$ic:@stop u(isic,%#)=@attach %!/INC`MSG=You're already IC.;@check approved(%#)=@attach %!/INC`MSG=You are not approved!;@select/inline cand(u(isobjid,u(setr,dest,get(%#/D`ICLOC))),u(isic,%q<dest>))=0,{@attach %!/INC`MSG=Your last IC location is no longer valid. Choose a new one from the exits in the starting nexus.;@check isdbref(u(setr,dest,u(game_config,NAVIGATION,IC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an OOC Nexus set.};@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
 

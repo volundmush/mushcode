@@ -24,17 +24,10 @@
 
 &EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[table(iter(sortorder(sortname(lvexits(%!))),ljust(if(strlen(alias(%i0)),<[ansi(color(%#,ROOM,EXITALIAS),pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(color(%#,ROOM,EXITNAME),pueblize(moniker(%i0),name(%i0)))] to [ansi(color(%#,ROOM,EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))],%b,|),37,width(%#),|)]%R[u(SUBHEADER)]
 
-&DEFAULT`ROOM`PLAYERS_MODE [u(cobj,config)]=DEFAULT
-&DESC`ROOM`PLAYERS_MODE [u(cobj,config)]=Changes room format for PLAYERS.
-&TYPE`ROOM`PLAYERS_MODE [u(cobj,config)]=WORD
+th u(NEWCONF,config,ROOM,PLAYERS_MODE,DEFAULT,Changes room format for PLAYERS.,WORD)
+th u(NEWCONF,config,ROOM,THINGS_MODE,DEFAULT,Changes room format for THINGS.,WORD)
+th u(NEWCONF,config,ROOM,EXITS_MODE,DEFAULT,Changes room format for EXITS.,WORD)
 
-&DEFAULT`ROOM`THINGS_MODE [u(cobj,config)]=DEFAULT
-&DESC`ROOM`THINGS_MODE [u(cobj,config)]=Changes room format for THINGS.
-&TYPE`ROOM`THINGS_MODE [u(cobj,config)]=WORD
-
-&DEFAULT`ROOM`EXITS_MODE [u(cobj,config)]=DEFAULT
-&DESC`ROOM`EXITS_MODE [u(cobj,config)]=Changes room format for EXITS.
-&TYPE`ROOM`EXITS_MODE [u(cobj,config)]=WORD
 
 @@ ANCESTOR EXIT
 
@@ -49,30 +42,20 @@
 @select/inline isbref(u(setr,ap,pmatch(*ancestor player)))=1,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_PLAYER,%q<ap>)},0,{@select/inline isdbref(u(cobj,ancestor_player))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_PLAYER,pcreate(Ancestor Player,digest(md5,secs())))}}
 @tel [u(cobj,ancestor_player)]=[u(cobj,ancestor_room)]
 
-@pageformat [u(cobj,ancestor_player)]=ansi(color(%@,PAGE,PAGE),colornames(%!,%4,PAGES,lwho(%!),%#))
-@outpageformat [u(cobj,ancestor_player)]=ansi(color(%@,PAGE,OUTPAGE),colornames(%!,%4,PAGES,lwho(%!),%#))
+@pageformat [u(cobj,ancestor_player)]=ansi(color(%@,COLOR,PAGE),colornames(%!,%4,PAGES,lwho(%!),%#))
+@outpageformat [u(cobj,ancestor_player)]=ansi(color(%@,COLOR,OUTPAGE),colornames(%!,%4,PAGES,lwho(%!),%#))
 @adescribe [u(cobj,ancestor_player)]=@check [my_config(ALERTS,ADESC)];think GAME> %n just looked at you.
 @idle [u(cobj,ancestor_player)]=if(gte(idle(%!),my_config(ALERTS,IDLE)),Currently idle\, please try again later!)
 
-@chatformat [u(cobj,ancestor_player)]=if(cor(chanpriority(%1),strmatch(%#,%!)),if(strlen(u(setr,color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][speech(%#,%2,%!,if(my_config(CHANNELS,NAMELINK),namelink(%#)),CHANNELS,cwho(%1,on,1))],<%1>[if(strlen(%4),%B%4%B,%B)][speech(%#,switch(%0,@,|,%0)%2,%!,if(my_config(CHANNELS,NAMELINK),namelink(%#)),CHANNELS,cwho(%1,on,1))]))
+@chatformat [u(cobj,ancestor_player)]=if(cor(chanpriority(%1),strmatch(%#,%!)),if(strlen(u(setr,color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][speech(%#,switch(%0,@,|,%0)%2,%!,if(my_config(CHANNELS,NAMELINK),namelink(%#)),CHANNELS,cwho(%1,on,1))],<%1>[if(strlen(%4),%B%4%B,%B)][speech(%#,switch(%0,@,|,%0)%2,%!,if(my_config(CHANNELS,NAMELINK),namelink(%#)),CHANNELS,cwho(%1,on,1))]))
 
-&DEFAULT`ALERTS`ADESC [u(cobj,pconf)]=0
-&DESC`ALERTS`ADESC [u(cobj,pconf)]=Signal when looked at.
-&TYPE`ALERTS`ADESC [u(cobj,pconf)]=BOOL
-
-&DEFAULT`ALERTS`IDLE [u(cobj,pconf)]=1800
-&DESC`ALERTS`IDLE [u(cobj,pconf)]=Minutes until pagers receive idle message.
-&TYPE`ALERTS`IDLE [u(cobj,pconf)]=DURATION
-
-&CDEFAULT`CHANNELS [u(cobj,pconf)]=@@ Empty attribute for Rhost.
-&CDEFAULT`CHANNELS`QUOTES [u(cobj,pconf)]=n
-&CDESC`CHANNELS`QUOTES [u(cobj,pconf)]=quotes -> " "
-&CDEFAULT`CHANNELS`SPEECH [u(cobj,pconf)]=n
-&CDESC`CHANNELS`SPEECH [u(cobj,pconf)]=quotes -> " "
-
-&DEFAULT`CHANNELS`NAMELINK [u(cobj,pconf)]=1
-&DESC`CHANNELS`NAMELINK [u(cobj,pconf)]=Clickify speaker names?
-&TYPE`CHANNELS`NAMELINK [u(cobj,pconf)]=BOOL
+th u(NEWCONF,pconf,ALERTS,ADESC,0,Signal when looked at.,BOOL)
+th u(NEWCONF,pconf,ALERTS,IDLE,1800,Minutes until pagers receive idle message.,DURATION)
+th u(NEWCONF,pconf,CHANNELS,QUOTES,,quotes -> " ",COLOR)
+th u(NEWCONF,pconf,CHANNELS,SPEECH,,Speech color.,COLOR)
+th u(NEWCONF,pconf,CHANNELS,NAMELINK,1,Clickify speaker names?,BOOL)
+th u(NEWCONF,pconf,COLOR,PAGE,,For incoming pages.,COLOR)
+th u(NEWCONF,pconf,COLOR,OUTPAGE,,For outgoing pages.,COLOR)
 
 @@ ANCESTOR THING
 @select/inline isbref(u(coi,at))=1,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_THING,u(coi,at))},0,{@select/inline isdbref(u(coi,ae))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_THING,create(Ancestor Thing <AT>))}}

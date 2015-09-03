@@ -79,6 +79,9 @@ th u(NEWCOBJ,Radio Management System <RADIO>,radio,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &FUN`FORMATMONITOR [u(cobj,radio)]=ansi(hr,-<)[ansi(hw,RADIO MONITOR: %2)][ansi(hr,>-)]%B[if(%7,ansi(h,name(%0)) EMIT: [u(colornames,%1,%3,RADIO,lwho(%!),%0)],if(strlen(%6),trim(%6)%B)[u(speech,%0,%3,%1,if(strlen(%5),\([u(moniker,%0)]\) %5,u(moniker,%0)),RADIO,lwho())])]
 
+th u(NEWCONF,pconf,RADIO,QUOTES,,For radio quotations.,COLOR)
+th u(NEWCONF,pconf,RADIO,SPEECH,,For radio dialogue.,COLOR)
+
 &INC`LOGRADIO [u(cobj,radio)]=@select/inline isdbref(u(setr,log,u(FUN`FINDFREQ,%1)))=0,{@tel [u(setr,log,create(FREQ: %1))]=[u(cobj,radio)]};&LASTMSG %q<log>=secs();th u(setq,logattr,u(setr,logattr,R`[u(nextslot,%q<log>,R)]));th u(attrib_set,%q<log>,%q<logattr>,%2);th u(attrib_set,%q<log>,%q<logattr>`ON,secs());th u(attrib_set,%q<log>,%q<logattr>`KEY,%3);th u(attrib_set,%q<log>,%q<logattr>`CODENAME,%4);th u(attrib_set,%q<log>,%q<logattr>`AS,name(%0));th u(attrib_set,%q<log>,%q<logattr>`BY,u(objid,%0));th u(attrib_set,%q<log>,%q<logattr>`EMIT,%6);th u(attrib_set,%q<log>,%q<logattr>`TITLE,%5);@select/inline gt(u(setr,count,u(nattr,%q<log>/R`*)),100)=1,{@dolist/inline elements(u(sortattr,u(lattr,%q<log>/R`*)),lnum(1,sub(%q<count>,100)))=@attach %!/WIPE=%q<log>,##}
 
 &INC`LISTFREQ [u(cobj,radio)]=@check words(u(setr,freqs,u(sortlast,u(filter,LASTRADIO,lthings(u(cobj,radio))))))=@attach %!/INC`MSG=No Freqs are in use.;@pemit %#=u(header,Active Radio Frequencies);@pemit %#=ansi(u(color,%#,RADIO,COLUMN_NAMES),align(10 40 20,Freq,Players,Keys))%R[u(separator)];@dolist %q<freqs>={@pemit %#=align(10 40 20,u(setr,freq,trim(after(name(u(setr,db,##)),:))),u(itemize,iter(u(sortname,setunion(iter(u(lattr,%q<db>/R`*),get(%q<db>/%i0`BY)),get(%q<db>/%i0`MEMBERS),,)),u(moniker,%i0)\([if(match(get(%q<db>/MEMBERS),u(objid,%i0)),On,Off)]\),%b,|),|,and,\,),u(itemize,setunion(iter(u(wildgrepi,%q<db>,R`*`KEY,?*),get(%q<db>/%i0),%B,|),,|,|),|,and,\,));@select/inline #@=1,{@pemit %#=u(header)}}
@@ -105,18 +108,9 @@ th u(NEWCOBJ,Radio Management System <RADIO>,radio,,,,WIZARD SAFE !NO_COMMAND,IN
 &LOOP`CLEANLOGS`DB [u(cobj,radio)]=@dolist/inline u(filter,OLDLOGS,u(lattr,%0/R`*),%b,%b,%0,u(game_Config,radio,timeout))={@attach %!/WIPE=%0,##}
 &FIL`OLDLOGS [u(cobj,radio)]=gt(sub(secs(),get(%1/%0`ON)),%2)
 
-&DEFAULT`RADIO [u(cobj,config)]=@@ Empty attrib for Rhost.
-&DEFAULT`RADIO`BUFFER [u(cobj,config)]=100
-&DESC`RADIO`BUFFER [u(cobj,config)]=Size of channel buffer in lines?
-&TYPE`RADIO`BUFFER [u(cobj,config)]=POSINT
-
-&DEFAULT`RADIO`TIMEOUT [u(cobj,config)]=259200
-&DESC`RADIO`TIMEOUT [u(cobj,config)]=How long messages are stored?
-&TYPE`RADIO`TIMEOUT [u(cobj,config)]=DURATION
-
-&DEFAULT`RADIO`INTERVAL [u(cobj,config)]=259200
-&DESC`RADIO`INTERVAL [u(cobj,config)]=Interval between timeout checks?
-&TYPE`RADIO`INTERVAL [u(cobj,config)]=DURATION
+th u(NEWCONF,config,RADIO,BUFFER,100,Size of channel buffer in lines?,POSINT)
+th u(NEWCONF,config,RADIO,TIMEOUT,259200,How long messages are stored?,DURATION)
+th u(NEWCONF,config,RADIO,INTERVAL,259200,Interval between timeout checks?,DURATION)
 
 @@ COMMUNICATIONS - +RADIO
 +help/add +radio=[u(cobj,radio)]/HLP`+RADIO
