@@ -122,11 +122,11 @@ th u(NEWCONF,config,CHANNELS,INTERVAL,3600,Interval between Muzzle cleaning?,DUR
 @lset u(cobj,mop)/muzzle=v
 @lset u(cobj,mop)/muzzle=!no_inherit
 
-&MOGRIFY`PLAYERNAME [u(cobj,mop)]=localize(null(iter(v(MOGUSE`PLAYERNAME),u(setr,playname,u(FUN`PLAYERNAME`%i0,strfirstof(%q<playname>,%0)))))[strfirstof(%q<playname>,%0)])
-&MOGORDER`PLAYERNAME [u(cobj,mop)]=codename
-&MOGUSE`PLAYERNAME [u(cobj,mop)]=codename
+&MOGRIFY`MESSAGE [u(cobj,mop)]=localize(null(iter(v(MOGUSE`MESSAGE),u(setr,message,u(FUN`MESSAGE`%i0,strfirstof(%q<message>,%0)))))[strfirstof(%q<message>,%0)])
 
-&FUN`PLAYERNAME`CODENAME [u(cobj,mop)]=if(v(CONF`CODENAME),default(%#/D`CHANNEL`[num(me)]`CODENAME,%0))
+&MOGRIFY`PLAYERNAME [u(cobj,mop)]=localize(null(iter(v(MOGUSE`PLAYERNAME),u(setr,playname,u(FUN`PLAYERNAME`%i0,strfirstof(%q<playname>,%0)))))[strfirstof(%q<playname>,%0)])
+&MOGORDER`PLAYERNAME [u(cobj,mop)]=
+&MOGUSE`PLAYERNAME [u(cobj,mop)]=
 
 &MOGRIFY`TITLE [u(cobj,mop)]=localize(null(iter(v(MOGUSE`TITLE),u(setr,title,u(FUN`TITLE`%i0,strfirstof(%q<title>,%0)))))[strfirstof(%q<title>,%0)])
 &MOGORDER`TITLE [u(cobj,mop)]=noansi trim stafftag
@@ -173,7 +173,8 @@ th u(NEWCONF,config,CHANNELS,INTERVAL,3600,Interval between Muzzle cleaning?,DUR
 +help/add Channels/Moderators=[u(cobj,channel)]/HLP`CHANNELS`MODERATORS
 &HLP`CHANNELS`MODERATORS [u(cobj,channel)]=[ansi(hc,See Also:)] [u(pueblize,help ansi())], [u(pueblize,help @channel admin,help @channel admin)]%R%R[ansi(hc,Moderator Commands)]%RThese commands may only used by Storytellers or appointed channel moderators.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+muzzle <player>/<channel>=<duration>)] - Restrict <player> from speaking on <channel> for <duration>. Duration uses stringsecs\(\) ([u(pueblize,help stringsecs())]) - Example duration: 5h 30m or 10d 2h.%R[ansi(hw,+muzzle)] - Show active Muzzles on channels you moderate or your own muzzles.%R[ansi(h,+unmuzzle <player>/<channel>)] - Releases a Muzzle before it's expired. Player moderators cannot release muzzles set by admin.)]%R%R[ansi(hc,Configuration Commands)]%RThese commands can only be used by Admin or appointed channel moderators.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,@chan/desc <channel>=<text>)] - Sets a channel's description.)]
 
-+shelp/add Communications/Channels=[u(cobj,channel)]/SHLP`CHANNELS
++shelp/add Channels=[u(cobj,channel)]/SHLP`CHANNELS
++shelp/category Channels=Communications
 &SHLP`CHANNELS [u(cobj,channel)]=[ansi(hc,Staff Commands)]%RThese commands may only be used by Staff.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+channel/add <name>\[=<color>\])] - Creates a channel.%R[ansi(h,+channel/del <channel>)] - Deletes a channel.%R[ansi(h,+channel/rename <channel>=<newname>)] - Renames a channel. Change color by renaming to itself. Must color manually\, however. You MUST enclose the ansi\(\) call in square brackets!%R[ansi(h,+channel/init <channel>)] - Initializes a channel to default settings and creates a mogrifier for it if one does not exist. This is only necessary for channels not made using +channel/add.%R[ansi(h,+channel/stafftag <channel>)] - Enable your \[Staff\] tag for a channel.)]%R%R[ansi(hc,Mogrifier Commands)]%RThese commands may only be used by Staff, and are for advanced users.%RFor more information, please see [u(pueblize,help mogrify)]%RThe MOGCONF system uses an individual modifier for each channel, created with /init and placed in the Channel Database object. Each is parented to the channel database object. These commands depend on this arrangement. New mogrifier features can be added by a coder very easily.%R%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+channel/mogconf <channel>)] - Displays the mogrifier options for a channel.%R[ansi(h,+channel/mogconf <channel>/<mogrifier>=<list>)] - change the list of mogrifiers in use by the channel.%R[ansi(h,+channel/mogconf <channel>/<mogrifier>/<option>=<value>)] - Changes a Mogrifier option for a Channel. Blank values clear the option.)]
 
 +shelp/add +muzzle=[u(cobj,channel)]/SHLP`MUZZLE

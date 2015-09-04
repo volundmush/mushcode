@@ -45,8 +45,12 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &STARTUP [u(cobj,mco)]=@dolist/inline u(lattr,%!/STARTUP`*)={@include/nobreak %!/##}
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
-&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder namelink={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline align sortkey game_config header subheader separator isadmin isapproved approved moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid namelink={@function/privileged %d0=%!/%d0}
+&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder namelink,v(FUNCTIONLIST`EXTRA))={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(align sortkey game_config header subheader separator isadmin isapproved approved moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid namelink,v(FUNCTIONLIST`EXTRA))={@function/privileged %d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=%d0 wizard}
+
+&FUNCTIONLIST`EXTRA [u(cobj,mco)]=
+&FUNCTIONLIST`ADMIN [u(cobj,mco)]=
+@@ These are meant to be added to by game packages.
 
 &STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`[v(game)];@include/nobreak %!/STARTUP`MAIN`EXTRA
 
@@ -350,6 +354,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &GETPROPERTY`WIKI [u(cobj,mco)]=u(weblink,get(%0/D`FINGER`WIKI))
 &GETPROPERTY`GROUPNAMES2 [u(cobj,mco)]=u(getproperty`groupnames,%0,1)
+&GETPROPERTY`FACTION2 [u(cobj,mco)]=u(getproperty`faction,%0,1)
 &GETPROPERTY`MAIL [u(cobj,mco)]=u(umail,%0) Unread Messages
 &GETPROPERTY`ALIAS [u(cobj,mco)]=u(getalias,%0)
 &GETPROPERTY`LAST [u(cobj,mco)]=u(lastidle,%0)
@@ -363,9 +368,9 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`FACTIONCOLOR [u(cobj,mco)]=if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(u(cobj,gms)/FUN`GETSET,%q<fac>,COLOR),hx)
 &GETPROPERTY`FACTIONSDB [u(cobj,mco)]=u(filter,FACTIONS,u(GETPROPERTY`GROUPS,%0,%1,%2,%3))
 &GETPROPERTY`FACTION [u(cobj,mco)]=if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
-&GETPROPERTY`FACABBR [u(cobj,mco)]=switch(1,u(iswizard,%0),ansi(hr,WIZ),u(isadmin,%0),ansi(hb,ROY),if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(u(strfirstof,u(color,%#,GROUP,%q<fac>,,1),get(%q<fac>/SET`COLOR),n),get(%q<fac>/SET`ABBREVIATION))))
-&GETPROPERTY`FACABBRS [u(cobj,mco)]=switch(1,u(iswizard,%0),ansi(hr,WIZ),u(isadmin,%0),ansi(hb,ROY),if(words(u(setr,facs,u(GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))),iter(%q<facs>,ansi(u(strfirstof,u(color,%#,GROUP,%i0,,1),get(%i0/SET`COLOR),n),get(%i0/SET`ABBREVIATION)),%b,|)))
-&GETPROPERTY`FACLETTER [u(cobj,mco)]=switch(1,u(iswizard,%0),ansi(hr,WIZ),u(isadmin,%0),ansi(hb,ROY),if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(u(strfirstof,u(color,%#,GROUP,%q<fac>,,1),get(%q<fac>/SET`COLOR),n),u(strfirstof,get(%q<fac>/SET`LETTER),left(get(%q<fac>/SET`ABBREVIATION),1)))))
+&GETPROPERTY`FACABBR [u(cobj,mco)]=switch(1,u(iswizard,%0),ansi(u(game_config,SYSTEm,WIZTAG),WIZ),u(isadmin,%0),ansi(u(game_config,SYSTEm,ROYTAG),ROY),if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(u(strfirstof,u(color,%#,GROUP,%q<fac>,,1),get(%q<fac>/SET`COLOR),n),get(%q<fac>/SET`ABBREVIATION))))
+&GETPROPERTY`FACABBRS [u(cobj,mco)]=switch(1,u(iswizard,%0),ansi(u(game_config,SYSTEm,WIZTAG),WIZ),u(isadmin,%0),ansi(u(game_config,SYSTEm,ROYTAG),ROY),if(words(u(setr,facs,u(GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))),iter(%q<facs>,ansi(u(strfirstof,u(color,%#,GROUP,%i0,,1),get(%i0/SET`COLOR),n),get(%i0/SET`ABBREVIATION)),%b,|)))
+&GETPROPERTY`FACLETTER [u(cobj,mco)]=switch(1,u(iswizard,%0),ansi(u(game_config,SYSTEm,WIZTAG),WIZ),u(isadmin,%0),ansi(u(game_config,SYSTEm,ROYTAG),ROY),if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),ansi(u(strfirstof,u(color,%#,GROUP,%q<fac>,,1),get(%q<fac>/SET`COLOR),n),u(strfirstof,get(%q<fac>/SET`LETTER),left(get(%q<fac>/SET`ABBREVIATION),1)))))
 &GETPROPERTY`FACTIONS [u(cobj,mco)]=if(words(u(setr,fac,u(GETPROPERTY`FACTIONSDB,%0,%1,%2,%3))),u(GETPROPERTY`GROUPNAMES,%0,%1,%q<fac>,%3))
 &GETPROPERTY`RANK [u(cobj,mco)]=if(isdbref(u(setr,fac,u(GETPROPERTY`FACTIONDB,%0,%1,%2,%3))),u(GETPROPERTY`RANKS,%0,%1,%q<fac>,%3))
 &GETPROPERTY`RANKS [u(cobj,mco)]=edit(iter(u(strfirstof,%2,u(GETPROPERTY`FACTIONSDB,%0,%1,%2,%3)),u(setr,rank,get(%0/D`GROUP`%i0`RANK))-[u(strfirstof,get(%0/D`GROUP`%i0`TITLE),get(%i0/RANK`%q<rank>`NAME))],%b,|),|,if(%3,%r,\,%b))

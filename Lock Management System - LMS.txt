@@ -24,6 +24,7 @@ th u(NEWCOBJ,Key Object Parent <KOP>,kop,u(cobj,lms),,,WIZARD SAFE,INHERIT SIDEF
 &FUN`AUTHCHECK`OR`SPLAT [u(cobj,kop)]=if(strlen(v(CONF`SPLAT)),match(v(CONF`SPLAT),getsplat(%0)),0)
 &FUN`AUTHCHECK`OR`SPHERE [u(cobj,kop)]=if(strlen(v(CONF`SPHERE)),match(v(CONF`SPHERE),getsphere(%0)),0)
 &FUN`AUTHCHECK`OR`ADMIN [u(cobj,kop)]=if(v(CONF`NOSTAFFCHECK),,isadmin(%0))
+&FUN`AUTHCHECK`OR`NOFACTION u(kop)=if(v(CONF`NOFACTION),not(words(u(getproperty,%0,factionsdb))))
 
 &CMD`+KEY`PENNMUSH [u(cobj,lms)]=$^(?s)(?\:\+)?(key)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+KEY`MAIN
 @set [u(cobj,lms)]/CMD`+KEY`PENNMUSH=regexp
@@ -85,8 +86,9 @@ th u(NEWCOBJ,Key Object Parent <KOP>,kop,u(cobj,lms),,,WIZARD SAFE,INHERIT SIDEF
 
 &INC`CONFIG [u(cobj,lms)]=@attach %!/INC`KEYFIND=before(%0,/);@check cor(u(isadmin,%#),match(get(%q<key>/OWNERS),u(objid,%#)))=@attach %!/INC`MSG=ERROR: Players may not configure Master Keys they do not own.;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Parameter empty.;@attach %!/INC`PARTIAL=after(%0,/),setunion(v(CONFCATS),v(CONFCATS`EXTRA),|,|),|,parameter,parameter;@select/inline strlen(%1)=0,{&CONF`%q<parameter> %q<key>;@attach %!/INC`MSG=You cleared Master Key [name(%q<key>)]'s %q<parameter> Setting.},{@attach %!/INC`CONFIG`%q<parameter>;&CONF`%q<parameter> %q<key>=%q<entry>;@attach %!/INC`MSG=You set Master Key [name(%q<key>)]'s %q<parameter> Setting to: %q<entry>}
 
-&CONFCATS [u(cobj,lms)]=CATEGORY|BUILDER|APPROVED|NOAPPROVED|GROUP|SPLAT|SPHERE|KEY|NOSTAFFCHECK
+&CONFCATS [u(cobj,lms)]=CATEGORY|BUILDER|APPROVED|NOAPPROVED|GROUP|SPHERE|KEY|NOSTAFFCHECK|NOFACTION
 
+&INC`CONFIG`NOFACTION u(kls)=th u(setq,entry,t(%1))
 &INC`CONFIG`CATEGORY [u(cobj,lms)]=th u(setq,entry,%1)
 &INC`CONFIG`BUILDER [u(cobj,lms)]=th u(setq,entry,t(%1))
 &INC`CONFIG`APPROVED [u(cobj,lms)]=th u(setq,entry,t(%1))

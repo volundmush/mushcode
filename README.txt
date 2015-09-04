@@ -12,7 +12,7 @@ Terms
 
 CONDITIONS
 You may copy, distribute, and alter this softcode with the following restrictions:
-A) The softcode may not be used for commercial purposes, whether this be selling the software or using it on a pay-to-play game.
+A) The softcode may not be used for commercial purposes, whether this be selling the softcode or using it on a pay-to-play game.
 B) Please link back to the original repository in a visible credits file or article somewhere on your game, and give credit where it is due.
 C) You need not release any altered versions of the softcode, but if you do it must be under identical terms.
 
@@ -108,14 +108,14 @@ D) Under Cosmetic stuff: player_name_spaces - set this to yes.
 E) Under Cosmetic stuff: set page_aliases to yes
 F) Under Flags section: You may also want to include ANSI and COLOR256 as a default but some clients might barf at this.
 
-3. In your restart.cnf, uncomment and ensure your LANG=en_US if you want to take advantage of the expanded charset. Little requires this, it does allow accented names and some other tricks. Some server OSes might need the ISO version of en_US specified.
+3. In your restart file, uncomment and ensure your LANG=en_US if you want to take advantage of the expanded charset. Little requires this, but it does allow accented names and some other tricks. Some server OSes might need the ISO version of en_US specified.
 
 4. Logon to your code-WIZARD character who will own the code. Run the CORE 01 file to create the Master Code Object.
 5. Next, logon to #1 and run CORE 02.
 6. Return to your WIZARD character and run CORE 03 and CORE 04.
 7. @shutdown/reboot to make sure all of the STARTUPS are working.
 
-8. At this point, you can choose to install whatever you want. HOWEVER, do note that the helpfiles for each system are included in the system's file, as are the MIGRATION COMMANDS. If you want to use my Help System, install it FIRST. If you are upgrading from 1.0, install the Migration tool too before ANYTHING ELSE.
+8. At this point, you can choose to install whatever you want. HOWEVER, do note that the helpfiles for each system are included in the system's file, as are the MIGRATION COMMANDS. If you are planning on migrating data from 1.0, install the Migration Tool first. If you are going to use the Help System, it should follow. This will ensure that Help files (and migration code) will be installed when the systems are installed.
 
 9. Use +gameconfig to configure all relevant settings as appropriate to your game.
 
@@ -133,7 +133,7 @@ Be sure you are saving the .conf files with UNIX linebreaks if you're on Windows
 
 Why does it not need a lot of modifications to netrhost.conf? Because the CORE 02 startup does all of that! Handy!
 
-5. At this point, you can choose to install whatever you want. HOWEVER, do note that the helpfiles for each system are included in the system's file, as are the MIGRATION COMMANDS. If you want to use my Help System, install it FIRST. If you are upgrading from 1.0, install the Migration tool too before ANYTHING ELSE.
+5. At this point, you can choose to install whatever you want. HOWEVER, do note that the helpfiles for each system are included in the system's file. If you want to use my Help System, install it FIRST. This will ensure the helpfiles are entered as the systems are installed.
 
 6. Use +gameconfig to configure all relevant settings as appropriate to your game.
 

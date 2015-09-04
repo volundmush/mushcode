@@ -1,7 +1,7 @@
 @@ DEPENDENCIES: CORE
 
 @@ ANCESTOR ROOM
-@select/inline isdbref(u(cobj,ancestor_room))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_ROOM,dig(Ancestor Room))}
+@select/inline isdbref(u(coi,ar))=1,{&COBJ`ANCESTOR_ROOM [cobj,mco]=[u(coi,ar)]},0,{@select/inline isdbref(u(cobj,ancestor_room))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_ROOM,dig(Ancestor Room))}}
 
 &HEADER [u(cobj,ancestor_room)]=header(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
 &SEPARATOR [u(cobj,ancestor_room)]=separator(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
@@ -9,11 +9,13 @@
 
 &NAMEFORMAT [u(cobj,ancestor_room)]=[choosegame(endtag(a),)][u(HEADER,moniker(%!)[if(cor(controls(%#,%!),isadmin(%#)),%(%!%))],1)]
 
-&CONFORMAT [u(cobj,ancestor_room)]=[u(CONFORMAT`EXTRA)][if(words(lvplayers(%!)),u(CONFORMAT`PLAYERS`[strfirstof(v(MODE`PLAYERS_MODE),game_config(ROOM,PLAYERS_MODE))]))][if(words(lvthings(%!)),%R[u(CONFORMAT`THINGS`[strfirstof(v(MODE`THINGS_MODE),game_config(ROOM,THINGS_MODE))])])][switch(type(%!),THING,%R[u(SUBHEADER)])]
+&CONFORMAT [u(cobj,ancestor_room)]=[u(CONFORMAT`EXTRA)][if(words(lvplayers(%!)),u(CONFORMAT`PLAYERS`[strfirstof(v(MODE`PLAYERS_MODE),game_config(ROOM,PLAYERS_MODE))]))][if(words(lvthings(%!)),%R[u(CONFORMAT`THINGS`[strfirstof(if(strmatch(%!,choosegame(config(master_room),globalroom())),MASTER_ROOM),v(MODE`THINGS_MODE),game_config(ROOM,THINGS_MODE))])])][switch(type(%!),THING,%R[u(SUBHEADER)])]
 
 &CONFORMAT`PLAYERS`DEFAULT [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(19,Name))]%R[iter(sortname(lvplayers(%!)),align(19,mxpmenu(moniker(%i0),look [name(%i0)])),%b,%R)]
 
 &CONFORMAT`THINGS`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(sortname(lvthings(%!)),align(40 28 8,pueblize(name(%i0),look [name(%i0)]),pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(isadmin(%#)[hasflag(%i0,ENTER_OK)],11,pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R)]
+
+&CONFORMAT`THINGS`MASTER_ROOM [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(sortname(lvthings(%!)),align(40 28 8,name(%i0),name(owner(%i0)),switch(isadmin(%#)[hasflag(%i0,ENTER_OK)],11,ansi(hg,%i0),1*,ansi(hr,%i0),01,ansi(hg,enter_ok),ansi(hr,can't))),%b,%R)]
 
 &CONFORMAT`EXTRA [u(cobj,ancestor_room)]=[if(cor(nattr(%!/VIEW`*),nattr(%!/MUSIC`*),nattr(%!/PLACE`*)),separator(Extra)%R[iter(filterbool(#lambda/nattr(%!/\%0`*),PLACE VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)]
 &FUN`EXTRA`VIEW [u(cobj,ancestor_room)]=This room has views! Type [pueblize(ansi(h,views),views)] to list!
@@ -28,6 +30,13 @@ th u(NEWCONF,config,ROOM,PLAYERS_MODE,DEFAULT,Changes room format for PLAYERS.,W
 th u(NEWCONF,config,ROOM,THINGS_MODE,DEFAULT,Changes room format for THINGS.,WORD)
 th u(NEWCONF,config,ROOM,EXITS_MODE,DEFAULT,Changes room format for EXITS.,WORD)
 
+th u(NEWCONF,config,ROOM,COLUMN_NAMES,,For column names in room formats,COLOR)
+th u(NEWCONF,config,ROOM,EXITNAME,,Color of exit names.,COLOR)
+th u(NEWCONF,config,ROOM,EXITALIAS,,Color of exit names.,COLOR)
+
+th u(NEWCONF,pconf,ROOM,COLUMN_NAMES,,For column names in room formats,COLOR)
+th u(NEWCONF,pconf,ROOM,EXITNAME,,Color of exit names.,COLOR)
+th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
 
 @@ ANCESTOR EXIT
 
