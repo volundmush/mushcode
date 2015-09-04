@@ -1,0 +1,50 @@
+
+th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+@lock/use [u(cobj,data)]=ISADMIN2/1
+
+&CMD`+EDITCHAR`PENNMUSH [u(cobj,data)]=$^\+editchar(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+WHO`MAIN
+@set [u(cobj,data)]/CMD`+EDITCHAR`PENNMUSH=regexp
+&CMD`+EDITCHAR`RHOSTMUSH [u(cobj,data)]=$^\+editchar(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+WHO`MAIN
+@set [u(cobj,data)]/CMD`+EDITCHAR`RHOSTMUSH=regexp
+&CMD`+EDITCHAR`MAIN [u(cobj,data)]=@attach %!/INC`GETSWITCH=%1,|,switch,switch;th iter(before(%2,=),u(setq,chr(add(inum(0),64)),%i0),|);@attach %!/INC`CHECKPC=%qa,1;@check strlen(%qb)=@attach %!/INC`MSG=ERROR: No Type entered to %q<switch> Your choices are: [itemize(iter(u(lattr,[u(cobj,data)]/INC`%q<switch>`*,|),last(%i0,`),|,|),|,and,\,)]!;@attach %!/INC`PARTIAL=%qb,iter(u(lattr,%!/INC`%q<switch>`*,|),last(%i0,`),|,|),|,topic,option;@attach [u(cobj,data)]/INC`%q<switch>`%q<topic>=%q<t1>,after(iter(%2,trim(%i0),|,|),elements(%2,1,|)|),squish(squish(trim(%3)),|)
+@set [u(cobj,data)]/CMD`+EDITCHAR`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&GETSPHERE [u(cobj,data)]=u(strfirstof,u(getstat,%0/D`INFO,Sphere),Mortal)
+
+&STARTUP [u(cobj,data)]=@select/inline v(game)=PennMUSH,{@function getsphere=%!,GETSPHERE},RhostMUSH,{@function/privileged getsphere=%!,GETSPHERE}
+
+&SWITCHES`ADMIN [u(cobj,data)]=SET|REM|ADD
+&SYSTEM`NAME [u(cobj,data)]=EDITCHAR
+
+&DO`ANNOUNCE [u(cobj,data)]=@attach %!/INC`MSG`CHAN=%1;@select/inline strmatch(%#,%0)=0,{@attach %!/INC`MSG=%2,%0;@attach %!/INC`MSG=%3},1,{@attach %!/INC`MSG=%2,%0}
+
+@@ %0 - player being modified. %1 - message for admin channel. %2 - message for player. %3 - message for admin.
+
+@@ Advantages
+
+&INC`SET`SPHERE [u(cobj,data)]=@attach %!/DO`SET`SPHERE;@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))]'s [u(setr,msg,Splat is now set to: [ansi(h,u(capnames,%q<find>))])]},{Your %q<msg>},{[ansi(h,name(%0))]'s %q<msg>}
+
+&DO`VAL`SPHERE [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No Splat name entered.;@attach %!/INC`PARTIAL=%2,get(u(cobj,data)/SPHERES),|,find,sphere;
+&DO`SET`SPHERE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SPHERE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`INFO,SPHERE,u(capnames,%q<find>)
+
+&SPHERES [u(cobj,data)]=MORTAL
+
+&INC`SET`POWER [u(cobj,data)]=@attach %!/DO`SET`POWER;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0))'s [u(setr,have,Power is now: [ansi(h,%q<entry>)])])]},{Your %q<have>},{%q<msg>}
+
+&DO`VAL`POWER [u(cobj,data)]=@check u(valnum,%2)=@attach %!/INC`MSG=ERROR: Power must be a positive integer.;th u(setq,entry,%2)
+&DO`SET`POWER [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`POWER;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`INFO,POWER,%q<entry>
+
+th u(setstat,%0,D`INFO,Power,%q<entry>)
+
+&INC`SET`WILLPOWER [u(cobj,data)]=@attach %!/DO`SET`WILLPOWER;@attach %!/DO`ANNOUNCE=%0,{u(setr,msg,ansi(h,name(%0))'s [u(setr,have,Willpower is now: [ansi(h,%q<entry>)])])},{Your %q<have>},{%q<msg>}
+
+&DO`VAL`WILLPOWER [u(cobj,data)]=@check u(valnum,%2)=@attach %!/INC`MSG=ERROR: Willpower must be a positive integer.;th u(setq,entry,%2)
+&DO`SET`WILLPOWER [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`WILLPOWER;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`INFO,WILLPOWER,%q<entry>
+
+
+
+&WORDLIST`VAL [u(cobj,data)]=@stop u(charsearch,%2,~)=@attach %!/INC`MSG=ERROR: ~ is a system-reserved character.;th u(setq,filtered,u(filter,STRLEN,iter(ucstr(%2),squish(%i0),|,|),|,|))
+&KEYVALUE`SET [u(cobj,data)]=@stop u(charsearch,%2 %3,| ~)=@attach %!/INC`MSG=ERROR: ~ and | are system-reserved characters.;@select/inline strlen(%3)=>0,{th u(setstat,%0,%1,ucstr(%2),%3)},{th u(delstat,%0,%1,ucstr(%2))}
+&WORDLIST`ADD [u(cobj,data)]=@attach [u(cobj,data)]/WORDLIST`VAL;@dolist/inline/delimit | %q<filtered>=th u(setstat,%0,%1,##,add(1,u(getstat,%0,%1,##)));th u(setq,returnlist,iter(ucstr(%2),%i0~[u(getstat,%0,%1,##)],|,|))
+&WORDLIST`DEL [u(cobj,data)]=@attach [u(cobj,data)]/WORDLIST`VAL;@dolist/inline/delimit | %q<filtered>=@select/inline u(setr,rank,u(getstat,%0,%1,##))=>1,{th u(setstat,%0,%1,##,sub(%q<rank>,1))},{th u(delstat,%0,%1,##)};th u(setq,returnlist,iter(ucstr(%2),%i0~[bound(u(getstat,%0,%1,%i0),0)],|,|))
+@@ %0 - Target. %1 - Attr. %2 - List. %3 - Entry for keyvalue.

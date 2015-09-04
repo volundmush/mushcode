@@ -26,7 +26,7 @@ th u(NEWCOBJ,Game Configuration Data Storage <CONFIG>,config,u(cobj,gcs),,1,WIZA
 
 &FUN`SETTINGS [u(cobj,gcs)]=sort(get(u(cobj,config)/CATEGORIES`%0),|,|)
 
-&INC`GET [u(cobj,gcs)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Category field empty.};@attach %!/INC`PARTIAL=%0,u(FUN`CATEGORIES),|,category,category;@check strlen(%1)=@attach %!/INC`MSG={ERROR: Option field empty.};@attach %!/INC`PARTIAL=%1,u(FUN`SETTINGS,%q<category>),|,option,option;@pemit %#=u(game_config,%q<category>,%q<option>)
+&INC`GET [u(cobj,gcs)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Category field empty.};@attach %!/INC`PARTIAL=%0,u(FUN`CATEGORIES),|,category,category;@check strlen(%1)=@attach %!/INC`MSG={ERROR: Option field empty.};@attach %!/INC`PARTIAL=%1,u(FUN`SETTINGS,%q<category>),|,option,option;@pemit %#=u(decompose,u(game_config,%q<category>,%q<option>))
 
 &INC`SET [u(cobj,gcs)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Only wizards can set options.;@check strlen(%0)=@attach %!/INC`MSG={ERROR: Category field empty.};@attach %!/INC`PARTIAL=%0,u(FUN`CATEGORIES),|,category,category;@check strlen(%1)=@attach %!/INC`MSG={ERROR: Option field empty.};@attach %!/INC`PARTIAL=%1,u(FUN`SETTINGS,%q<category>),|,option,option;@switch/inline strlen(%2)=0,{@attach %!/INC`MSG=Cleared/reset %q<category> %q<option>!;@attach %!/WIPE=u(cobj,config),CONFIG`%q<category>`%q<option>;@attach %!/INC`MSG`CHAN={Cleared/Reset %q<category> %q<option>}},{@attach %!/INC`VALID`[default(u(cobj,config)/TYPE`%q<category>`%q<option>,WORD)]=%2;th u(attrib_set,u(cobj,config),CONFIG`%q<category>`%q<option>,%q<value>);@attach %!/INC`MSG=u(setr,msg,Game Option %q<category> %q<option> Set to: %q<value>);@attach %!/INC`MSG`CHAN={%q<msg>}}
 
