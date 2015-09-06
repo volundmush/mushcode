@@ -46,7 +46,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
 &STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder namelink,v(FUNCTIONLIST`EXTRA))={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(align sortkey game_config header subheader separator isadmin isapproved approved moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid namelink,v(FUNCTIONLIST`EXTRA))={@function/privileged %d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=%d0 wizard}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(align lalign sortkey game_config header subheader separator isadmin isapproved approved moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid namelink,v(FUNCTIONLIST`EXTRA))={@function/privileged %d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=%d0 wizard}
 
 &FUNCTIONLIST`EXTRA [u(cobj,mco)]=
 &FUNCTIONLIST`ADMIN [u(cobj,mco)]=
@@ -197,7 +197,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &MONIKER`PENNMUSH [u(cobj,mco)]=moniker(%0)
 &MONIKER`RHOSTMUSH [u(cobj,mco)]=cname(%0)
 
-&NAMELINK [u(cobj,mco)]=localize(u(mxpmenu,u(moniker,%0),iter(u(setr,com,u(game_config,SYSTEM,NAMELINK)),%i0 [name(%0)]),%q<com>))
+&NAMELINK [u(cobj,mco)]=localize(u(mxpmenu,u(moniker,%0),iter(u(setr,com,u(game_config,SYSTEM,NAMELINK)),%i0 [name(%0)],|,|),%q<com>))
 
 &NAMEGRAB [u(cobj,mco)]=u(NAMEGRAB`[v(game)],%0,%1)
 &NAMEGRAB`PENNMUSH [u(cobj,mco)]=namegrab(%0,%1)
@@ -263,7 +263,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 @@ Rhost Functions
 &ALIGN [u(cobj,mco)]=[printf([iter(%0,$[case(mid(%i0,0,1),<,-[delete(%i0,0,1)],>,[delete(%i0,0,1)],_,_[delete(%i0,0,1)],-,^[delete(%i0,0,1)],=,_[delete(%i0,0,1)],-%i0)]|"s)],%1,%2,%3,%4,%5,%6,%7,%8,%9)]
 &SORTKEY [u(cobj,mco)]=munge(#lambda/%[sort%(%%0%,%2%,%3%)%],iter(%1,edit(u(%0,itext(0)),%b,),ifelse(!$v(3),%b,%3),ifelse(!$v(3),%b,%3)),%1,ifelse(!$v(3),%b,%3),ifelse(!$v(4),ifelse(!$v(3),%b,%3),%4))
-@@
+&LALIGN [u(cobj,mco)]=[strfunc(printf,[iter(%0,$[case(mid(%i0,0,1),<,-[delete(%i0,0,1)],>,[delete(%i0,0,1)],_,_[delete(%i0,0,1)],-,^[delete(%i0,0,1)],=,_[delete(%i0,0,1)],-%i0)]|"s)]%2%1,%2)]
 
 &BASECONV [u(cobj,mco)]=u(BASECONV`[v(game)],%0,%1,%2)
 &BASECONV`PENNMUSH [u(cobj,mco)]=baseconv(%0,%1,%2)
@@ -351,6 +351,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`MONIKER [u(cobj,mco)]=u(moniker,%0)
 &GETPROPERTY`ALIASNAME [u(cobj,mco)]=name(%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
 &GETPROPERTY`ALIASMONIKER [u(cobj,mco)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`NAMELINK [u(cobj,mco)]=u(namelink,%0)
+&GETPROPERTY`HIDEIDLE [u(cobj,mco)]=u(hideidle,%0)
+&GETPROPERTY`HIDECONN [u(cobj,mco)]=u(hideconn,%0)
+&GETPROPERTY`SEXLETTER [u(cobj,mco)]=left(get(%0/SEX),1)
+&GETPROPERTY`LOCATION [u(cobj,mco)]=if(findable(%#,%0),name(loc(%0)),*UNFINDABLE*)
 
 &GETPROPERTY`WIKI [u(cobj,mco)]=u(weblink,get(%0/D`FINGER`WIKI))
 &GETPROPERTY`GROUPNAMES2 [u(cobj,mco)]=u(getproperty`groupnames,%0,1)
@@ -536,8 +541,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &INC`VALID`DBREF [u(cobj,mco)]=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th u(setq,value,u(objid,%0))
 &INC`VALID`TZ [u(cobj,mco)]=@check valid(timezone,u(setr,value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone}
 &INC`VALID`DURATION [u(cobj,mco)]=@check u(setr,value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()}
-&INC`VALID`POSINT [u(cobj,mco)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.}
-&INC`VALID`INT [u(cobj,mco)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0.}
+&INC`VALID`POSINT [u(cobj,mco)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[u(strfirstof,%1,%0)]' must be a whole number 0 or greater.};th u(setq,value,%0)
+&INC`VALID`INT [u(cobj,mco)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0.};th u(setq,value,%0)
 &INC`VALID`LOCK [u(cobj,mco)]=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th u(setq,value,%0)
 
 @@ MESSAGING SECTION

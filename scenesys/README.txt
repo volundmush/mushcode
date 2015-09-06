@@ -64,11 +64,11 @@ require_once("$IP/extensions/CSS/CSS.php");
 
 # External Data
 include_once("$IP/extensions/ExternalData/ExternalData.php");
-$edgDBServer['ID'] = "localhost";
-$edgDBServerType['ID'] = "mysql"; 
-$edgDBName['ID'] = "DB name";
-$edgDBUser['ID'] = "username";
-$edgDBPass['ID'] = "password";
+$edgDBServer['scenesys'] = "localhost";
+$edgDBServerType['scenesys'] = "mysql"; 
+$edgDBName['scenesys'] = "DB name";
+$edgDBUser['scenesys'] = "username";
+$edgDBPass['scenesys'] = "password";
 
 # Header Tabs
 require_once("$IP/extensions/HeaderTabs/HeaderTabs.php");
@@ -97,3 +97,6 @@ $wgDefaultUserOptions['wikieditor-publish'] = 1;
 # Parser Functions
 require_once("$IP/extensions/ParserFunctions/ParserFunctions.php");
 $wgPFEnableStringFunctions = true;
+
+# Variables
+require_once("$IP/extensions/Variables/Variables.php");

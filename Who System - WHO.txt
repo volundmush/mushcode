@@ -29,10 +29,13 @@ th u(NEWCOBJ,Who System <WHO>,who,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE
 
 th u(NEWCONF,config,WHO,SHOW_IPS,1,Show # of unique IPs?,BOOL)
 
-&INC`WHO`HEADER`MAIN [u(cobj,who)]=@pemit %#=ansi(u(color,%#,WHO,COLUMN_NAMES),align(20 11 3 4  4 1 29,Name,Alias,Fac,Idle,Conn,G,Location))
+th u(newconf,CONFIG,WHO,HEADER,Name~20|Alias~11|Fac~3|Idle~4|Conn~4|G~1|Location~29,check +shelp +who,LIST)
+th u(newconf,CONFIG,WHO,COLUMNS,NAMELINK~20|ALIAS~11|MAJORABBR~3|HIDEIDLE~>4|HIDECONN~>4|SEXLETTER~1|LOCATION~29,Check +shelp +who,LIST)
+
+&INC`WHO`HEADER`MAIN [u(cobj,who)]=@pemit %#=ansi(u(color,%#,WHO,COLUMN_NAMES),lalign(iter(u(setr,hdr,u(game_config,WHO,HEADER)),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,beep()),beep()))
 &INC`WHO`HEADER`IDLE [u(cobj,who)]=@attach %!/INC`WHO`HEADER`MAIN
 
-&FUN`WHO`PLAYERLINE`MAIN [u(cobj,who)]=align(20 11 -3 >4 >4 1 [sub(u(width,%#),49)],u(pueblize,if(u(ishidden,%0),ansi(hx,name(%0)),u(moniker,%0)),+finger [name(%0)]),u(getalias,%0),u(strfirstof,u(getproperty,%0,MAJORABBR),ansi(hx,---)),u(hideidle,%0),u(hideconn,%0),ucstr(left(default(%0/sex,?),1)),if(not(findable(%#,%0)),*UNFINDABLE*,if(match(%q<portable>,loc(%0)),u(pueblize,left(name(loc(%0)),sub(u(width,%#),49)),+port [loc(%0)]),left(name(loc(%0)),sub(u(width,%#),49)))))
+&FUN`WHO`PLAYERLINE`MAIN [u(cobj,who)]=lalign(iter(u(setr,col,u(game_config,WHO,COLUMNS)),after(%i0,~),|,%b),iter(%q<col>,u(getproperty,%0,before(%i0,~)),|,beep()),beep())
 &FUN`WHO`PLAYERLINE`IDLE [u(cobj,who)]=u(FUN`WHO`PLAYERLINE`MAIN,%0)
 
 @@ &STARTUP [u(cobj,who)]=@hook/override WHO=%!,CMD`+WHO`[v(game)]

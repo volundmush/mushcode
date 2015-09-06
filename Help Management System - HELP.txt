@@ -20,7 +20,7 @@ th u(NEWCOBJ,DYNAMIC DATABASE,HELP-DYNAMIC,u(cobj,help),,1,WIZARD SAFE,SIDEFX SA
 
 &SYSTEM`NAME [u(cobj,help)]=u(strfirstof,%q<sysname>,HELP)
 &SWITCHES`PLAYER [u(cobj,help)]=
-&SWITCHES`ADMIN [u(cobj,help)]=HELP|ADD|RENAME|DELETE|CATEGORY|RENCATEGORY|METATAGS
+&SWITCHES`ADMIN [u(cobj,help)]=HELP|ADD|RENAME|DELETE|CATEGORY|RENCATEGORY|METATAGS|VIEWCODE
 
 &FUN`CATEGORIES [u(cobj,help)]=ucstr(setunion(ucstr(iter(u(lattr,%0/H`*`CATEGORY),get(%0/%i0),%b,|)),,|,|))
 &FUN`FILESOFCAT [u(cobj,help)]=localize(u(sorthelp,u(filter,if(strlen(u(setr,catname,%1)),ISHELPCATEGORY,ISUNCATEGORIZED),u(lattr,%0/H`*),%b,%b,%0)))
@@ -62,11 +62,11 @@ th u(NEWCOBJ,DYNAMIC DATABASE,HELP-DYNAMIC,u(cobj,help),,1,WIZARD SAFE,SIDEFX SA
 
 &INC`CATEGORY [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@check strlen(%2)=@attach %!/INC`MSG=ERROR: New Category field empty.;@stop strmatch(%2,UNCATEGORIZED)=@attach %!/INC`MSG=ERROR: 'UNCATEGORIZED' is reserved for system use.;th u(attrib_set,%q<db>,H`%q<topid>`CATEGORY,ucstr(%2));th u(attrib_set,%q<db>,H`%q<topid>`TIMESTAMP,secs());@attach %!/INC`MSG=u(setr,msg,File '[get(%q<db>/H`%q<topid>)]' moved to Category: [ucstr(%2)]);@attach %!/INC`MSG`CHAN=%q<msg>
 
-&INC`VIEWCODE [u(cobj,help)]=@select/inline words(%2,/)=0,{@attach %!/INC`MSG=ERROR: Must include an article to retrieve!},1,{@attach %!/INC`GET`TOPIC},2,{@attach %!/INC`GET`SUB},{@attach %!/INC`MSG=ERROR: %q<comm> supports only 2 maximum arguments for retrieving unformatted text.}
+&INC`VIEWCODE [u(cobj,help)]=@select/inline t(strlen(%0))[t(strlen(%1))]=10,{@attach %!/INC`GET`TOPIC},11,{@attach %!/INC`GET`SUB},{@attach %!/INC`MSG=ERROR: What are you retrieving?}
 
-&INC`GET`TOPIC [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@pemit %#=decompose(get(%q<db>/%q<topid>`CONTENTS))
+&INC`GET`TOPIC [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@pemit %#=decompose(get(%q<db>/H`%q<topid>`CONTENTS))
 
-&INC`GET`SUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@attach %!/INC`FINDSUB;@pemit %#=decompose(get(%q<db>/%q<topid>`SUB`%q<subid>`CONTENTS))
+&INC`GET`SUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@attach %!/INC`FINDSUB=%1;@pemit %#=decompose(get(%q<db>/H`%q<topid>`SUB`%q<subid>`CONTENTS))
 
 &INC`HELP [u(cobj,help)]=@pemit %#=u(header,Staff %q<comm> Commands);@pemit %#=[ansi(hc,Administrator Commands)]%R[align(5 [sub(u(width,%#),6)],,{[ansi(h,%q<comm>/add <filename>=<text>)] - Creates or update a helpfile. If <text> is #DBREF/ATTRIBUTE format, the given attribute will be u()'d for retrieval.%R[ansi(h,%q<comm>/add <filename>/<subfilename>=<text>)] - Create or update a sub-helpfile..%R[ansi(h,%q<comm>/category <filename>=<category>)] - Assign or re-assign a helpfile to a category. Categories are arbitrary and do not need to be creative.%R[ansi(h,%q<comm>/rencategory <category>=<new name>)] - Re-assign all helpfiles of a given category to a new one.%R[ansi(h,%q<comm>/delete <filename>\[/<subfilename>\])] - Delete a helpfile or subfile.%R[ansi(h,%q<comm>/rename <filename>\[/<subfilename>\])]=<newname> - Rename a file/subfile.%R[ansi(h,%q<comm>/metatags <filename>=<list of tags>)] - Set or overwrite a helpfile's list of metatags used for searching.})];@pemit %#=u(subheader)
 

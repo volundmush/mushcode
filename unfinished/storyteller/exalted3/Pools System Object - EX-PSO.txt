@@ -35,69 +35,69 @@
 
 &FUN`CUR u(ex-pso)=bound(get(%0/D`POOLS`%1`CUR),if(strmatch(v(DAT`%1`TYPE),Track),u(FUN`TOTALCOMMIT,%0,%1),0),if(strmatch(v(DAT`%1`TYPE),Pool),sub(u(FUN`MAX,%0,%1),u(FUN`TOTALCOMMIT,%0,%1)),u(FUN`MAX,%0,%1)))
 
-&FUN`MAX u(ex-pso)=add(u(FUN`MAX`%1,%0),getstat(%0/D`POOLBONUS,%1))
+&FUN`MAX u(ex-pso)=add(u(FUN`MAX`%1,%0),u(getstat,%0,D`POOLBONUS,%1))
 
-&FUN`MAX`PERSONAL u(ex-pso)=add(u(FUN`MAX`PERSONAL`[getsplat(%0)],%0),mul(getstat(%0/D`POSITIVE_MUTATIONS,Essence Abundance),3))
+&FUN`MAX`PERSONAL u(ex-pso)=add(u(FUN`MAX`PERSONAL`[getsplat(%0)],%0),mul(u(getstat,%0,D`POSITIVE_MUTATIONS,Essence Abundance),3))
 &FUN`MAX`PERIPHERAL u(ex-pso)=add(u(FUN`MAX`PERIPHERAL`[getsplat(%0)],%0),0)
 
-&FUN`MAX`LIMIT u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(SOLAR|LUNAR|SIDEREAL|INFERNAL|TERRESTRIAL)$),10,gt(getstat(%0/D`NEGATIVE_MUTATIONS,Great Curse),0),10,0)
+&FUN`MAX`LIMIT u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(SOLAR|LUNAR|SIDEREAL|INFERNAL|TERRESTRIAL)$),10,gt(u(getstat,%0,D`NEGATIVE_MUTATIONS,Great Curse),0),10,0)
 &FUN`MAX`RESONANCE u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(ABYSSAL)$),10,0)
 &FUN`MAX`CLARITY u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(ALCHEMICAL)$),10,0)
 
-&FUN`MAX`PERSONAL`GOD-BLOODED u(ex-pso)=reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,mul(getstat(%0/D`INFO,Essence),8),^(Divine|Ghost|Demon)$,add(mul(getstat(%0/D`INFO,Essence),5),mul(u(FUN`MAX`WILLPOWER,%0),2),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))),add(mul(getstat(%0/D`INFO,Essence),4),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
+&FUN`MAX`PERSONAL`GOD-BLOODED u(ex-pso)=reswitchi(u(getstat,%0,D`INFO,Caste),^(Fae)$,mul(u(getstat,%0,D`INFO,Essence),8),^(Divine|Ghost|Demon)$,add(mul(u(getstat,%0,D`INFO,Essence),5),mul(u(FUN`MAX`WILLPOWER,%0),2),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))),add(mul(u(getstat,%0,D`INFO,Essence),4),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
 
-&FUN`MAX`PERSONAL`SOLAR u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),10)
-&FUN`MAX`PERIPHERAL`SOLAR u(ex-pso)=add(mul(7,getstat(%0/D`INFO,Essence)),26)
+&FUN`MAX`PERSONAL`SOLAR u(ex-pso)=add(mul(3,u(getstat,%0,D`INFO,Essence)),10)
+&FUN`MAX`PERIPHERAL`SOLAR u(ex-pso)=add(mul(7,u(getstat,%0,D`INFO,Essence)),26)
 
-&FUN`MAX`PERSONAL`TERRESTRIAL u(ex-pso)=add(mul(1,getstat(%0/D`INFO,Essence)),11)
-&FUN`MAX`PERIPHERAL`TERRESTRIAL u(ex-pso)=add(mul(4,getstat(%0/D`INFO,Essence)),23)
+&FUN`MAX`PERSONAL`TERRESTRIAL u(ex-pso)=add(mul(1,u(getstat,%0,D`INFO,Essence)),11)
+&FUN`MAX`PERIPHERAL`TERRESTRIAL u(ex-pso)=add(mul(4,u(getstat,%0,D`INFO,Essence)),23)
 
-&FUN`MAX`PERSONAL`LUNAR u(ex-pso)=add(mul(1,getstat(%0/D`INFO,Essence)),15)
-&FUN`MAX`PERIPHERAL`LUNAR u(ex-pso)=add(mul(4,getstat(%0/D`INFO,Essence)),34)
+&FUN`MAX`PERSONAL`LUNAR u(ex-pso)=add(mul(1,u(getstat,%0,D`INFO,Essence)),15)
+&FUN`MAX`PERIPHERAL`LUNAR u(ex-pso)=add(mul(4,u(getstat,%0,D`INFO,Essence)),34)
 
-&FUN`MAX`PERSONAL`SIDEREAL u(ex-pso)=add(mul(2,getstat(%0/D`INFO,Essence)),9)
-&FUN`MAX`PERIPHERAL`SIDEREAL u(ex-pso)=add(mul(6,getstat(%0/D`INFO,Essence)),25)
+&FUN`MAX`PERSONAL`SIDEREAL u(ex-pso)=add(mul(2,u(getstat,%0,D`INFO,Essence)),9)
+&FUN`MAX`PERIPHERAL`SIDEREAL u(ex-pso)=add(mul(6,u(getstat,%0,D`INFO,Essence)),25)
 &FUN`MAX`PARADOX u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(SIDEREAL)$),10,0)
 
-&FUN`MAX`PERSONAL`ABYSSAL u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),10)
-&FUN`MAX`PERIPHERAL`ABYSSAL u(ex-pso)=add(mul(7,getstat(%0/D`INFO,Essence)),26)
+&FUN`MAX`PERSONAL`ABYSSAL u(ex-pso)=add(mul(3,u(getstat,%0,D`INFO,Essence)),10)
+&FUN`MAX`PERIPHERAL`ABYSSAL u(ex-pso)=add(mul(7,u(getstat,%0,D`INFO,Essence)),26)
 
-&FUN`MAX`PERSONAL`LIMINAL u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),10)
-&FUN`MAX`PERIPHERAL`LIMINAL u(ex-pso)=add(mul(4,getstat(%0/D`INFO,Essence)),23)
+&FUN`MAX`PERSONAL`LIMINAL u(ex-pso)=add(mul(3,u(getstat,%0,D`INFO,Essence)),10)
+&FUN`MAX`PERIPHERAL`LIMINAL u(ex-pso)=add(mul(4,u(getstat,%0,D`INFO,Essence)),23)
 
-&FUN`MAX`PERSONAL`ALCHEMICAL u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
-&FUN`MAX`PERIPHERAL`ALCHEMICAL u(ex-pso)=add(mul(5,getstat(%0/D`INFO,Essence)),mul(3,u(FUN`MAX`WILLPOWER,%0)),null(SKINMOUNTHERE),mul(2,if(default(VAR`MAXVIRTUES,0),5,lmath(max,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
+&FUN`MAX`PERSONAL`ALCHEMICAL u(ex-pso)=add(mul(3,u(getstat,%0,D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
+&FUN`MAX`PERIPHERAL`ALCHEMICAL u(ex-pso)=add(mul(5,u(getstat,%0,D`INFO,Essence)),mul(3,u(FUN`MAX`WILLPOWER,%0)),null(SKINMOUNTHERE),mul(2,if(default(VAR`MAXVIRTUES,0),5,lmath(max,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
 
-&FUN`MAX`PERSONAL`DRAGON-KING u(ex-pso)=add(mul(4,getstat(%0/D`INFO,Essence)),null(SKINMOUNTHERE),mul(2,u(FUN`MAX`WILLPOWER,%0)),if(default(VAR`MAXVIRTUES,0),10,add(getstat(%0/D`VIRTUES,Conviction),getstat(%0/D`VIRTUES,Valor))))
+&FUN`MAX`PERSONAL`DRAGON-KING u(ex-pso)=add(mul(4,u(getstat,%0,D`INFO,Essence)),null(SKINMOUNTHERE),mul(2,u(FUN`MAX`WILLPOWER,%0)),if(default(VAR`MAXVIRTUES,0),10,add(u(getstat,%0,D`VIRTUES,Conviction),u(getstat,%0,D`VIRTUES,Valor))))
 
-&FUN`MAX`PERSONAL`GHOST u(ex-pso)=add(mul(10,getstat(%0/D`INFO,Essence)),mul(3,u(FUN`MAX`WILLPOWER,%0)),null(SKINMOUNTHERE),mul(2,if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
+&FUN`MAX`PERSONAL`GHOST u(ex-pso)=add(mul(10,u(getstat,%0,D`INFO,Essence)),mul(3,u(FUN`MAX`WILLPOWER,%0)),null(SKINMOUNTHERE),mul(2,if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
 
-&FUN`MAX`PERSONAL`GOD`BLOODED u(ex-pso)=add(reswitchi(getstat(%0/D`INFO,Caste),^(Fae)$,mul(getstat(%0/D`INFO,Essence),8),^(Divine|Demon|Ghost)$,add(mul(5,getstat(%0/D`INFO,Essence)),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),mul(2,u(FUN`MAX`WILLPOWER,%0)))),switch(getstat(%0/D`POSITIVE_MUTATIONS,Essence Abundance),1,3,2,6,4,12,6,16,0))
+&FUN`MAX`PERSONAL`GOD`BLOODED u(ex-pso)=add(reswitchi(u(getstat,%0,D`INFO,Caste),^(Fae)$,mul(u(getstat,%0,D`INFO,Essence),8),^(Divine|Demon|Ghost)$,add(mul(5,u(getstat,%0,D`INFO,Essence)),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),mul(2,u(FUN`MAX`WILLPOWER,%0)))),switch(u(getstat,%0,D`POSITIVE_MUTATIONS,Essence Abundance),1,3,2,6,4,12,6,16,0))
 
-&FUN`MAX`PERSONAL`HALF`CASTE u(ex-pso)=add(mul(4,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),switch(getstat(%0/D`POSITIVE_MUTATIONS,Essence Abundance),1,3,2,6,4,12,6,16,0))
+&FUN`MAX`PERSONAL`HALF`CASTE u(ex-pso)=add(mul(4,u(getstat,%0,D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),switch(u(getstat,%0,D`POSITIVE_MUTATIONS,Essence Abundance),1,3,2,6,4,12,6,16,0))
 
-&FUN`MAX`PERSONAL`INFERNAL u(ex-pso)=add(mul(3,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
-&FUN`MAX`PERIPHERAL`INFERNAL u(ex-pso)=add(mul(7,getstat(%0/D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),null(SKINMOUNTHERE))
+&FUN`MAX`PERSONAL`INFERNAL u(ex-pso)=add(mul(3,u(getstat,%0,D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0))
+&FUN`MAX`PERIPHERAL`INFERNAL u(ex-pso)=add(mul(7,u(getstat,%0,D`INFO,Essence)),u(FUN`MAX`WILLPOWER,%0),if(default(VAR`MAXVIRTUES,0),20,lmath(add,iter(get(%0/D`VIRTUES),last(%i0,~),|))),null(SKINMOUNTHERE))
 
-&FUN`MAX`PERSONAL`JADEBORN u(ex-pso)=add(mul(10,getstat(%0/D`INFO,Essence)),null(SKINMOUNTHERE))
+&FUN`MAX`PERSONAL`JADEBORN u(ex-pso)=add(mul(10,u(getstat,%0,D`INFO,Essence)),null(SKINMOUNTHERE))
 &FUN`MAX`DIVERGENCE u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(JADEBORN)$),10,0)
 
 
 
-&FUN`MAX`PERSONAL`MORTAL u(ex-pso)=if(or(getstat(%0/D`MERITS,Awakened Essence),getstat(%0/D`POSITIVE_MUTATIONS,Awakened Essence),v(VAR`MORTALESSENCE)),add(mul(10,getstat(%0/D`INFO,Essence)),null(SKINMOUNTHERE)),0)
+&FUN`MAX`PERSONAL`MORTAL u(ex-pso)=if(or(u(getstat,%0,D`MERITS,Awakened Essence),u(getstat,%0,D`POSITIVE_MUTATIONS,Awakened Essence),v(VAR`MORTALESSENCE)),add(mul(10,u(getstat,%0,D`INFO,Essence)),null(SKINMOUNTHERE)),0)
 
 &VAR`MORTALESSENCE u(ex-pso)=0
 
-&FUN`MAX`PERSONAL`RAKSHA u(ex-pso)=add(mul(10,getstat(%0/D`INFO,Essence)),null(SKINMOUNTHERE))
+&FUN`MAX`PERSONAL`RAKSHA u(ex-pso)=add(mul(10,u(getstat,%0,D`INFO,Essence)),null(SKINMOUNTHERE))
 &FUN`MAX`STASIS u(ex-pso)=switch(1,regmatchi(getsplat(%0),^(RAKSHA)$),10,0)
-&FUN`MAX`GOSSAMER u(ex-pso)=switch(getstat(%0/D`BACKGROUNDS,Gossamer),1,1,2,3,3,6,4,10,5,20,0)
+&FUN`MAX`GOSSAMER u(ex-pso)=switch(u(getstat,%0,D`BACKGROUNDS,Gossamer),1,1,2,3,3,6,4,10,5,20,0)
 
 
 
-&FUN`MAX`PERSONAL`SPIRIT u(ex-pso)=add(mul(10,getstat(%0/D`INFO,Essence)),mul(5,u(FUN`MAX`WILLPOWER,%0)),null(SKINMOUNTHERE))
+&FUN`MAX`PERSONAL`SPIRIT u(ex-pso)=add(mul(10,u(getstat,%0,D`INFO,Essence)),mul(5,u(FUN`MAX`WILLPOWER,%0)),null(SKINMOUNTHERE))
 
-&FUN`MAX`WILLPOWER u(ex-pso)=firstof(getstat(%0/D`INFO,Willpower),0)
-&FUN`MAX`DISSONANCE u(ex-pso)=if(getstat(%0/D`NEGATIVE_MUTATIONS,Gremlin Syndrome),10,0)
+&FUN`MAX`WILLPOWER u(ex-pso)=firstof(u(getstat,%0,D`INFO,Willpower),0)
+&FUN`MAX`DISSONANCE u(ex-pso)=if(u(getstat,%0,D`NEGATIVE_MUTATIONS,Gremlin Syndrome),10,0)
 
 &DAT`CLARITY u(ex-pso)=
 &DAT`CLARITY`TYPE u(ex-pso)=Track
