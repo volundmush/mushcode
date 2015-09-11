@@ -68,6 +68,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &FIL`ALIASMATCH [u(cobj,mco)]=strmatch(alias(%0),%1*)
 &FIL`NOTGUEST [u(cobj,mco)]=not(u(isguest,%0))
 &FIL`FINDACCOUNT [u(cobj,mco)]=match(get(%0/CHARACTERS),%q<finddb>)
+&FIL`STRLEN [u(cobj,mco)]=t(strlen(%0))
+&FIL`ISINT [u(Cobj,mco)]=isint(%0)
 
 @@ U-FUNCTION SECTION
 
@@ -158,6 +160,10 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &LMAX`PENNMUSH [u(cobj,mco)]=lmath(max,%0,%1)
 &LMAX`RHOSTMUSH [u(cobj,mco)]=lmax(%0,%1)
 
+&LMIN [u(cobj,mco)]=u(LMIN`[v(game)],%0,%1)
+&LMIN`PENNMUSH [u(cobj,mco)]=lmath(min,%0,%1)
+&LMIN`RHOSTMUSH [u(cobj,mco)]=lmin(%0,%1)
+
 &LADD [u(cobj,mco)]=u(LADD`[v(game)],%0,%1)
 &LADD`PENNMUSH [u(cobj,mco)]=lmath(add,%0,%1)
 &LADD`RHOSTMUSH [u(cobj,mco)]=ladd(%0,%1)
@@ -176,6 +182,10 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 
 &CAPNAMES [u(cobj,mco)]=regeditalli(lcstr(%0),v(REG`CAPNAMES),capstr($1),v(REG`CAPNAMES3),lcstr($0),v(REG`CAPNAMES2),$1[capstr($2)])
+
+&REG`CAPNAMES [u(cobj,mco)]=(?:^|(?<=[_\/\-\|\s()\+]))([a-z]+)
+&REG`CAPNAMES2 [u(cobj,mco)]=(^|(?<=[(\|\/]))(of|the|a|and|in)
+&REG`CAPNAMES3 [u(cobj,mco)]=\b(of|the|a|and|in)\b
 
 &COMMAFY [u(cobj,mco)]=u(COMMAFY`[v(game)],%0)
 &COMMAFY`PENNMUSH [u(cobj,mco)]=squish(flip(foreach(#lambda/if(mod(\%1,3),\%0,\\,\%0),flip(%0))),\,)
@@ -279,7 +289,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &HASATTRVAL [u(cobj,mco)]=u(HASATTRVAL`[v(game)],%0)
 &HASATTRVAL`PENNMUSH [u(cobj,mco)]=hasattrval(%0)
-&HASATTRVAL`RHOSTMUSH [u(cobj,mco)]=!!$get(%0,%1)
+&HASATTRVAL`RHOSTMUSH [u(cobj,mco)]=!!$get(%0)
+
+&NAMELIST [u(cobj,mco)]=u(NAMELIST`[v(game)],%0,%1)
+&NAMELIST`PENNMUSH [u(cobj,mco)]=namelist(%0,%1)
+&NAMELIST`RHOSTMUSH [u(cobj,mco)]=iter(%0,ifelse(!match(setr(0,pmatch(##)),#-1*),%q0,#-1[objeval(%#,u(%1,##,#-1))]))
 
 &LWHOID [u(cobj,mco)]=u(LWHOID`[v(game)],%0)
 &LWHOID`PENNMUSH [u(cobj,mco)]=lwhoid(%0)
@@ -426,7 +440,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`ALLRANKLISTLINE [u(cobj,mco)]=u(GETPROPERTY`ALLRANKLIST,%0,1)
 
 &SORTGROUPS [u(cobj,mco)]=u(SORTGROUPS`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTGROUPS`PENNMUSH [u(cobj,mco)]=sort(%0,attr:SET`SORT,%1,%2)
+&SORTGROUPS`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/default(\%0/SET`SORT,99),%0,n,%1,%2)
 &SORTGROUPS`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/SET`SORT,99),default(%1/SET`SORT,99))])],%0,%1,%2)
 
 &FIL`MAJOR [u(cobj,mco)]=t(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR))
@@ -527,7 +541,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &SYSTEM`SWITCHES [u(cobj,mco)]=setunion(u(SWITCHES`PLAYER),if(u(isadmin,%#),u(SWITCHES`ADMIN)),|,|)
 
-&INC`PARTIAL [u(cobj,mco)]=@select/inline or(not(strlen(%0)),u(setr,matched,match(%1,u(setr,u(strfirstof,%3,choice),%0),u(strfirstof,%2,%b))))=0,{@check words(u(setr,u(strfirstof,%3,choice),graball(%1,%0*,u(strfirstof,%2,%b),u(strfirstof,%2,%b))))=@attach %!/INC`MSG={ERROR: Invalid %4! Valid choices are: [u(itemize,%1,u(strfirstof,%2,%b))]};@stop gt(words(r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b)),1)=@attach %!/INC`MSG={ERROR: %0 matched [u(itemize,r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b),and,\,)]. Please be more specific.}},1,{@select/inline cand(t(strlen(%0)),t(%q<matched>))=1,{th u(setq,u(strfirstof,%3,choice),elements(%1,%q<matched>,u(strfirstof,%2,%b)))}}
+&INC`PARTIAL [u(cobj,mco)]=@select/inline or(not(strlen(%0)),u(setr,matched,match(%1,u(setr,u(strfirstof,%3,choice),%0),u(strfirstof,%2,%b))))=0,{@check words(u(setr,u(strfirstof,%3,choice),graball(%1,%0*,u(strfirstof,%2,%b),u(strfirstof,%2,%b))))=@attach %!/INC`MSG={ERROR: Invalid %4! Valid choices are: [u(itemize,%1,u(strfirstof,%2,%b),and,\,)]};@stop gt(words(r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b)),1)=@attach %!/INC`MSG={ERROR: %0 matched [u(itemize,r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b),and,\,)]. Please be more specific.}},1,{@select/inline cand(t(strlen(%0)),t(%q<matched>))=1,{th u(setq,u(strfirstof,%3,choice),elements(%1,%q<matched>,u(strfirstof,%2,%b)))}}
 @@ PARTIAL %0 = entry, %1 = choices, %2 = delimiter, %3 = register name, %4 = topic name
 
 &WIPE [u(cobj,mco)]=@select/inline v(game)=PennMUSH,{@select/inline hasflag(%0,SAFE)=1,{@set %0=!SAFE;@wipe %0/%1;@set %0=SAFE},0,{@wipe %0/%1}},RhostMUSH,{@select/inline hasflag(%0,SAFE)=1,{@set %0=!SAFE;@wipe/regexp %0/^%1(`.+)?$;@set %0=SAFE},0,{@wipe/regexp %0/^%1(`.+)?$}}

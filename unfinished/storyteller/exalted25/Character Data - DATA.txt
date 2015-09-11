@@ -1,0 +1,230 @@
+@@ Advantages
+&INC`SET`ESSENCE [u(cobj,data)]=@attach %!/INC`SET`POWER
+&INC`SET`SPLAT [u(cobj,data)]=@attach [u(cobj,data)]/INC`SET`CLASS
+th u(newconf,config,STORYTELLER,CLASSES,MORTAL|SOLAR|LUNAR|TERRESTRIAL|ABYSSAL|SIDEREAL|ALCHEMICAL|DRAGON-KING|GOD-BLOODED|INFERNAL|JADEBORN|RAKSHA|SPIRIT,Available Spheres,LIST)
+
+&INC`SET`CASTE [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`CASTE;@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))]'s [u(setr,msg,Caste is now set to: [ansi(h,u(capnames,%q<find>))])]},{Your %q<msg>},{[ansi(h,name(%0))]'s %q<msg>}
+
+&DO`VAL`CASTE [u(cobj,data)]=th u(setq,class,u(getclass,%0));@check words(u(setr,castes,get(u(cobj,data)/CASTE`%q<class>)),|)=@attach %!/INC`MSG=[u(capnames,%q<class>)]s do not have Castes.;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No Caste name entered.;@attach %!/INC`PARTIAL=%2,%q<castes>,|,find,caste
+&DO`SET`CASTE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`CASTE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`INFO,CASTE,%q<find>
+
+&CASTE`SOLAR [u(cobj,data)]=DAWN|ZENITH|TWILIGHT|NIGHT|ECLIPSE
+&CASTE`LUNAR [u(cobj,data)]=FULL MOON|CHANGING MOON|NO MOON|CASTELESS
+&CASTE`TERRESTRIAL [u(cobj,data)]=AIR|EARTH|FIRE|WATER|WOOD
+&CASTE`ABYSSAL [u(cobj,data)]=DUSK|MIDNIGHT|DAYBREAK|DAY|MOONSHADOW
+&CASTE`SIDEREAL [u(cobj,data)]=JOURNEYS|ENDINGS|BATTLES|SECRETS|SERENITY
+
+&CASTE`ALCHEMICAL [u(cobj,data)]=ORICHALCUM|MOONSILVER|JADE|SOULSTEEL|STARMETAL|ADAMANT
+&CASTE`DRAGON-KING [u(cobj,data)]=ANKLOK|MOSOK|PTEROK|RAPTOK
+&CASTE`GOD-BLOODED [u(cobj,data)]=DIVINE|GHOST|DEMON|FAE|SOLAR|LUNAR|SIDEREAL|ABYSSAL|INFERNAL
+&CASTE`INFERNAL [u(cobj,data)]=SLAYER|FIEND|SCOURGE|MALEFACTOR|DEFILER|SOVEREIGN
+&CASTE`JADEBORN [u(cobj,data)]=ARTISAN|WORKER|WARRIOR
+&CASTE`RAKSHA [u(cobj,data)]=DIPLOMAT|COURTIER|IMPERIAL RAKSHA|SCRIBE|ENTERTAINER|LUMINARY|ESHU|ORNAMENTAL RAKSHA|WARRIOR|ANARCH|XIA|CATAPHRACT|WORKER|PANJANDRUM|ARTISAN|STRATEGOS|GUIDE|HARBINGER|VAGABOND|NOMAD|FERRYMAN|HERALD|SKALD|DRAGOON|ATTENDANT
+&CASTE`SPIRIT [u(cobj,data)]=GOD|DEMON
+&CASTE`DRAGON-KING [u(cobj,data)]=ANKLOK|MOSOK|PTEROK|RAPTOK
+
+@@ Attributes
+
+&INC`SET`ATTRIBUTE [u(cobj,data)]=@attach %!/DO`SET`ATTRIBUTE=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Attribute
+
+&DO`VAL`ATTRIBUTE [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Attribute name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,find,attribute;@attach %!/DO`CHECKSTAT=%0,Attributes,%2
+&DO`SET`ATTRIBUTE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ATTRIBUTE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`ATTRIBUTES,%q<find>,%q<value>
+
+&FUN`GET`ATTRIBUTES [u(cobj,data)]=u(game config,STORYTELLER,ATTRIBUTES)
+&FUN`RET`ATTRIBUTES [u(cobj,data)]=iter(ucstr(get(%0/D`ATTRIBUTES)),before(%i0,~),|,|)
+
+th u(newconf,config,STORYTELLER,ATTRIBUTES,STRENGTH|CHARISMA|PERCEPTION|DEXTERITY|MANIPULATION|INTELLIGENCE|STAMINA|APPEARANCE|WITS,Attributes list,list)
+
+@@ Abilities
+
+&INC`SET`ABILITY [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`ABILITY=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Ability
+
+&DO`VAL`ABILITY [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Ability name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`ABILITIES),|,find,ability;@attach %!/DO`CHECKSTAT=%0,Abilities,%2
+&DO`SET`ABILITY [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ABILITY;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`ABILITIES,%q<find>,%q<value>
+
+&FUN`GET`ABILITIES [u(cobj,data)]=u(game config,STORYTELLER,ABILITIES)
+&FUN`RET`ABILITIES [u(cobj,data)]=iter(ucstr(get(%0/D`ABILITIES)),before(%i0,~),|,|)
+
+th u(newconf,config,STORYTELLER,ABILITIES,ARCHERY|MARTIAL ARTS|MELEE|THROWN|WAR|BUREAUCRACY|LINGUISTICS|RIDE|SAIL|SOCIALIZE|ATHLETICS|AWARENESS|DODGE|LARCENY|STEALTH|CRAFT|INVESTIGATION|LORE|MEDICINE|OCCULT|INTEGRITY|PERFORMANCE|PRESENCE|RESISTANCE|SURVIVAL,Abilities list for display,LIST)
+
+@@ Info
+th u(newconf,CONFIG,STORYTELLER,INFOTYPES,FAVORED YOZI|VIRTUE FLAW|DOOM|LIEGE|TOTEM ANIMAL|FLAWED VIRTUE|NATION|HOUSE|FACTION|LURE|URGE,Extra Chargen settings?,LIST)
+
+@@ Colleges
+&INC`SET`COLLEGE [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`COLLEGE=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,College
+
+&DO`VAL`COLLEGE [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No College name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`COLLEGES),|,find,college;@attach %!/DO`CHECKSTAT=%0,Colleges,%2
+&DO`SET`COLLEGE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`COLLEGE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`COLLEGES,%q<find>,%q<value>
+
+&FUN`GET`COLLEGES [u(cobj,data)]=u(game config,STORYTELLER,COLLEGES)
+&FUN`RET`COLLEGES [u(cobj,data)]=iter(ucstr(get(%0/D`COLLEGES)),before(%i0,~),|,|)
+
+th u(newconf,config,STORYTELLER,COLLEGES,THE CORPSE|THE CROW|THE HAYWAIN|THE RISING SMOKE|THE SWORD|THE CAPTAIN|THE GULL|THE MAST|THE MESSENGER|THE SHIP'S WHEEL|THE EWER|THE LOVERS|THE MUSICIAN|THE PEACOCK|THE PILLAR|THE GUARDIANS|THE KEY|THE MASK|THE SORCERER|THE TREASURE TROVE|THE BANNER|THE GAUNTLET|THE QUIVER|THE SHIELD|THE SPEAR|THE COMET|THE LIGHTNING BOLT,Sidereal Colleges list for chargen,LIST)
+
+@@ Slots
+&INC`SET`SLOT [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`SLOT=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Slot
+
+&DO`VAL`SLOT [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Slot name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`SLOTS),|,find,slot;@attach %!/DO`CHECKSTAT=%0,Slots,%2
+&DO`SET`SLOT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SLOT;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`SLOTS,%q<find>,%q<value>
+
+&FUN`GET`SLOTS [u(cobj,data)]=u(game config,STORYTELLER,SLOTS)
+&FUN`RET`SLOTS [u(cobj,data)]=iter(ucstr(get(%0/D`SLOTS)),before(%i0,~),|,|)
+
+th u(newconf,config,STORYTELLER,SLOTS,DEDICATED|GENERAL,Alchemical Slots list for chargen,LIST)
+
+@@ Paths
+&INC`SET`PATH [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`PATH=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Path
+
+&DO`VAL`PATH [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Path name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`PATHS),|,find,path;@attach %!/DO`CHECKSTAT=%0,Paths,%2
+&DO`SET`PATH [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`PATH;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`PATHS,%q<find>,%q<value>
+
+&FUN`GET`PATHS [u(cobj,data)]=u(game config,STORYTELLER,PATHS)
+&FUN`RET`PATHS [u(cobj,data)]=iter(ucstr(get(%0/D`PATHS)),before(%i0,~),|,|)
+
+th u(newconf,config,STORYTELLER,PATHS,CELESTIAL AIR|CLEAR AIR|SOLID EARTH|YIELDING EARTH|BLAZING FIRE|FLICKERING FIRE|FLOWING WATER|SHIMMERING WATER|GROWING WOOD|SHAPING WOOD|GLORIOUS CONSUMPTION|COAGULATED EUCHARIST|TECHNOMORPHIC TRANSCENDANCE|ECSTATIC ARMAGEDDON|TORMENTED BODHISATTVA,Dragon-King Paths list for chargen,LIST)
+
+@@ GRACES
+&INC`SET`GRACE [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`GRACE=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Grace
+
+&DO`VAL`GRACE [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Grace name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`GRACES),|,find,grace;@attach %!/DO`CHECKSTAT=%0,Graces,%2
+&DO`SET`GRACE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`GRACE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`GRACES,%q<find>,%q<value>
+
+&FUN`GET`GRACES [u(cobj,data)]=u(game config,STORYTELLER,GRACES)
+&FUN`RET`GRACES [u(cobj,data)]=iter(ucstr(get(%0/D`GRACES)),before(%i0,~),|,|)
+
+th u(newconf,config,STORYTELLER,GRACES,WAY|SWORD|STAFF|CUP|RING|HEART,Raksha Graces list for chargen,LIST)
+
+@@ VIRTUES
+&INC`SET`VIRTUE [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`VIRTUE=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Virtue
+
+&DO`VAL`VIRTUE [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Virtue name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`VIRTUES),|,find,virtue;@attach %!/DO`CHECKSTAT=%0,Virtues,%2
+&DO`SET`VIRTUE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`VIRTUE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`VIRTUES,%q<find>,%q<value>
+
+&FUN`GET`VIRTUES [u(cobj,data)]=u(game config,STORYTELLER,VIRTUES)
+&FUN`RET`VIRTUES [u(cobj,data)]=iter(ucstr(get(%0/D`VIRTUES)),before(%i0,~),|,|)
+
+th u(newconf,config,STORYTELLER,VIRTUES,COMPASSION|CONVICTION|TEMPERANCE|VALOR,Virtues list for chargen,LIST)
+
+&INC`SET`STYLE [u(cobj,data)]=@check strlen(elements(%1,2,|))=@attach %!/INC`MSG=ERROR: No Tier entered.;@attach %!/INC`PARTIAL=elements(%1,2,|),TERRESTRIAL|CELESTIAL|SIDEREAL,|,tier,tier;@check strlen(u(setr,slot,elements(%1,3,|)))=@attach %!/INC`MSG=ERROR: No Style ID entered.;@check valnum(%q<slot>)=@attach %!/INC`MSG=ERROR: Martial Arts Styles must be addressed by their slot IDs.;@check strlen(get(%0/D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<slot>))=@attach %!/INC`MSG=ERROR: [ansi(h,name(%0))] has no style by that ID.;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Style name field empty.;@attach %!/INC`MSG=[ansi(h,name(%0))]'s [u(numth,%q<slot>)] [ansi(h,%q<tier>)] Martial Arts Style is now called [ansi(h,%2)];@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))]'s [u(numth,%q<slot>)] [ansi(h,%q<tier>)] Martial Arts Style is now called [ansi(h,%2)];@attach %!/INC`MSG`NOTICE=Your [u(numth,%q<slot>)] [ansi(h,%q<tier>)] Martial Arts Style is now called [ansi(h,%2)],%0;th u(attrib_set,%0,D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<slot>`NAME,%2)
+
+@@ Charms
+&CHARMTYPE [u(cobj,data)]=localize(switch(u(setr,class,getclass(%0)),GOD-BLOODED,switch(1,t(match(DIVINE DEMON,u(setr,caste,u(getstat,%0,D`INFO,CASTE)))),Spirit,strmatch(%q<caste>,Fae),Raksha,t(match(SOLAR LUNAR ABYSSAL INFERNAL SIDEREAL)),%q<caste>,MORTAL),%q<class>))
+
+&INC`ADD`CHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`ADD`CHARM=%0,u(charmtype,%0)/[elements(%1,2,|)],%2;@attach [u(cobj,data)]/INC`ADD`CHARM`REPORT
+&INC`REM`CHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`REM`CHARM=%0,u(charmtype,%0)/[elements(%1,2,|)],%2;@attach [u(cobj,data)]/INC`REM`CHARM`REPORT
+
+&INC`ADD`CHARM`REPORT [u(cobj,data)]=@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) gained the [u(setr,have,ansi(h,u(capnames,%q<find> %q<find2>)) Charms [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`CHARM`REPORT [u(cobj,data)]=@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) lost the [u(setr,have,ansi(h,u(capnames,%q<find> %q<find2>)) Charms: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+
+&INC`ADD`OCHARM [u(cobj,data)]=@attach %!/DO`ADD`CHARM=%0,elements(%1,2,|)/[elements(%1,3,|)],%2;@attach %!/INC`ADD`CHARM`REPORT
+&INC`REM`OCHARM [u(cobj,data)]=@attach %!/DO`REM`CHARM=%0,elements(%1,2,|)/[elements(%1,3,|)],%2;@attach %!/INC`REM`CHARM`REPORT
+
+&DO`VAL`CHARM [u(cobj,data)]=@check strlen(before(%1,/))=@attach %!/INC`MSG=ERROR: No Charmtype entered.;@attach %!/INC`PARTIAL=before(%1,/),u(u(cobj,data)/FUN`GET`CHARMTYPES),|,find,charmtype;@check strlen(after(%1,/))=@attach %!/INC`MSG=ERROR: No Charm Category entered.;@attach %!/INC`PARTIAL=after(%1,/),edit(u(u(cobj,data)/FUN`GET`CHARMTYPES`%q<find>),%b,_),|,find2,Charm Category;@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Charms entered.
+&DO`ADD`CHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`CHARM;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`CHARMS`%q<find>`%q<find2>,%q<value>
+&DO`REM`CHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`CHARM;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`CHARMS`%q<find>`%q<Find2>,%q<value>
+
+&FUN`GET`CHARMTYPES [u(cobj,data)]=SOLAR|ABYSSAL|TERRESTRIAL|LUNAR|SIDEREAL|INFERNAL|SPIRIT|RAKSHA|GHOST|JADEBORN|ALCHEMICAL
+
+&FUN`GET`CHARMTYPES`SOLAR [u(cobj,data)]=u(FUN`GET`ABILITIES)
+&FUN`GET`CHARMTYPES`ABYSSAL [u(cobj,data)]=u(FUN`GET`ABILITIES)
+&FUN`GET`CHARMTYPES`TERRESTRIAL [u(cobj,data)]=u(FUN`GET`ABILITIES)
+&FUN`GET`CHARMTYPES`LUNAR [u(cobj,data)]=u(FUN`GET`ATTRIBUTES)
+&FUN`GET`CHARMTYPES`SIDEREAL [u(cobj,data)]=setunion(u(FUN`GET`ABILITIES),u(FUN`GET`COLLEGES),|,|)
+&FUN`GET`CHARMTYPES`INFERNAL [u(cobj,data)]=MALFEAS|CECELYNE|SWLIHN|ADORJAN|EBON DRAGON|KIMBERY|THEION|MARTIAL ARTS
+&FUN`GET`CHARMTYPES`SPIRIT [u(cobj,data)]=UNIVERSAL
+&FUN`GET`CHARMTYPES`ALCHEMICAL [u(cobj,data)]=COMBAT|SURVIVAL|SPEED AND MOBILITY|SOCIAL|STEALTH AND DISGUISE|ANALYTIC AND COGNITIVE|LABOR AND UTILITY|SUBMODULES|GENERAL|MASS COMBAT|SPIRITUAL
+&FUN`GET`CHARMTYPES`RAKSHA [u(cobj,data)]=MASK|HEART|CUP|RING|STAFF|SWORD|WAY
+&FUN`GET`CHARMTYPES`SPIRIT [u(cobj,data)]=GENERAL|UNIVERSAL|AEGIS|BLESSINGS|CURSES|DIVINATIONS|DIVINE WORKS|EDGES|EIDOLA|ENCHANTMENTS|INHABITINGS|RELOCATIONS|SENDINGS|TANTRA
+&FUN`GET`CHARMTYPES`MORTAL [u(cobj,data)]=UNIVERSAL
+&FUN`GET`CHARMTYPES`GHOST [u(cobj,data)]=UNIVERSAL
+&FUN`GET`CHARMTYPES`JADEBORN [u(cobj,data)]=FOUNDATION|WORKER|WARRIOR|ARTISAN|ENLIGHTENED|CHAOS
+
+@@ Martial ARTS
+&FUN`GET`STYLENAME [u(cobj,data)]=u(capnames,default(%0/D`CHARMS`%0`%1`NAME,Unnamed Style))
+
+&INC`ADD`MACHARM [u(cobj,data)]=@attach %!/DO`ADD`MACHARM=%0,elements(%1,2 3,|,|),%2;@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))] [u(setr,have,gained [ansi(h,u(u(cobj,data)/FUN`GET`STYLENAME,%0,%q<tier> MARTIAL ARTS,%q<slot>))] Charms: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of addition: %q<returnformat>)]},{You %q<have>},{[ansi(h,name(%0))] gained %q<have>}
+
+&INC`REM`MACHARM [u(cobj,data)]=@attach %!/DO`REM`MACHARM=%0,elements(%1,2 3,|,|),%2;@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))] [u(setr,have,lost [ansi(h,u(u(cobj,data)/FUN`GET`STYLENAME,%0,%q<slot>))] Charms: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)]},{You %q<have>},{[ansi(h,name(%0))] lost %q<have>}
+
+&DO`VAL`MACHARM [u(cobj,data)]=@check strlen(before(%1,|))=@attach %!/INC`MSG=ERROR: No Tier entered!;@attach %!/INC`PARTIAL=before(%1,|),TERRESTRIAL|CELESTIAL|SIDEREAL,|,tier,tier;@attach %!/INC`VALID`POSINT=after(%1,|),Martial Arts Slot;th u(setq,slot,%q<value>);@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Charms entered.
+
+&DO`ADD`MACHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`MACHARM;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`CHARMS`%q<tier> MARTIAL ARTS`%q<slot>,%q<value>
+
+&DO`REM`MACHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`MACHARM;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`CHARMS`%q<tier> MARTIAL ARTS`%q<slot>,%q<value>;@select/inline strlen(get(%0/D`CHARMS`%q<tier> MARTIAL ARTS`%q<slot>))=0,{@attach %!/WIPE=%0,D`CHARMS`%q<tier> MARTIAL ARTS`%q<slot>}
+
+@@ Health
+
+&INC`ADD`HEALTH [u(cobj,data)]=@attach %!/DO`ADD`HEALTH;th u(setq,have,additional Health Levels: [sortby(FUN`HEALTHSORT,ucstr(%2))]);@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))] has gained %q<have>},{You have gained %q<have>},{[ansi(h,name(%0))] has gained %q<have>}
+
+&INC`REM`HEALTH [u(cobj,data)]=@attach %!/DO`REM`HEALTH;th u(setq,have,Health Levels: [sortby(FUN`HEALTHSORT,ucstr(%2))]);@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))] has lost %q<have>},{You have lost %q<have>},{[ansi(h,name(%0))] has lost %q<have>}
+
+&DO`VAL`HEALTH [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: Health levels field empty.;@check lmath(min,iter(ucstr(%2),or(isnum(%i0),regmatchi(%i0,^(I|D)$))))=@attach %!/INC`MSG=ERROR: %q<newhealth> contains an invalid value. Health values must be a negative number, I, or D.
+&DO`ADD`HEALTH [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`HEALTH;&D`HEALTH %0=sortby(u(cobj,data)/FUN`HEALTHSORT,cat(get(%0/D`HEALTH),ucstr(%2)))
+&DO`REM`HEALTh [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`HEALTH;&D`HEALTH %0=sortby(u(cobj,data)/FUN`HEALTHSORT,remove(get(%0/D`HEALTH),ucstr(%2)))
+
+&FUN`HEALTHSORT [u(cobj,data)]=comp(u(FUN`HEALTHSORT`GET,%0),u(FUN`HEALTHSORT`GET,%1),N)
+
+&FUN`HEALTHSORT`GET [u(cobj,data)]=switch(%0,-0,1,-1,2,-2,3,-4,4,I,5,D,6)
+
+@@ Spells
+
+&INC`ADD`SPELL [u(cobj,data)]=@attach %!/DO`ADD`SPELL=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Spells [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,))]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`SPELL [u(cobj,data)]=@attach %!/DO`REM`SPELL=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Spells: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,))]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+
+&DO`VAL`SPELL [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Spell Category entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`SPELLS),|,find,Spell Category;@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Spells entered.
+
+&DO`ADD`SPELL [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SPELL;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`SPELLS`%q<find>,%q<value>
+&DO`REM`SPELL [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SPELL;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`SPELLS`%q<find>,%q<value>;@select/inline strlen(get(%0/D`SPELLS`%q<find>))=0,{@wipe %0/D`SPELLS`%q<find>;@select/inline strlen(get(%0/D`SPELLS))=0,{@wipe %0/D`SPELLS}}
+
+&FUN`GET`SPELLS [u(cobj,data)]=u(game config,STORYTELLERY,SPELLS)
+th u(newconf,CONFIG,STORYTELLER,SPELLS,TERRESTRIAL|CELESTIAL|SOLAR|SHADOWLANDS|LABYRINTH|VOID,Available Spell Categories,LIST)
+
+@@ Protocols
+
+&INC`ADD`PROTOCOL [u(cobj,data)]=@attach %!/DO`ADD`PROTOCOL=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Protocols [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,))]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`PROTOCOL [u(cobj,data)]=@attach %!/DO`REM`PROTOCOL=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Protocols: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,))]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+
+&DO`VAL`PROTOCOL [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Protocol Category entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`PROTOCOLS),|,find,Protocol Category;@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Protocols entered.
+
+&DO`ADD`PROTOCOL [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`PROTOCOL;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`PROTOCOLS`%q<find>,%q<value>
+&DO`REM`PROTOCOL [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`PROTOCOL;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`PROTOCOLS`%q<find>,%q<value>;@select/inline strlen(get(%0/D`PROTOCOLS`%q<find>))=0,{@wipe %0/D`PROTOCOLS`%q<find>;@select/inline strlen(get(%0/D`PROTOCOLS))=0,{@wipe %0/D`PROTOCOLS}}
+
+&FUN`GET`PROTOCOLS [u(cobj,data)]=u(game config,STORYTELLERY,PROTOCOLS)
+th u(newconf,CONFIG,STORYTELLER,PROTOCOLS,MAN-MACHINE|GOD-MACHINE,Available Protocol Categories,LIST)
+
+@@ Languages
+
+&INC`ADD`LANGUAGE [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: Language field empty.;@stop words(setinter(%2,get(%0/D`LANGUAGES),|,|),|)=@attach %!/INC`MSG=ERROR: [ansi(h,name(%0))] already has Languages(s): [u(itemize,setinter(%2,get(%0/D`LANGUAGES),|,|),|,and,\,)];&D`LANGUAGES %0=iter(setunion(%2,get(%0/D`LANGUAGES),|,|),u(capnames,%i0),|,|);@attach %!/INC`MSG=[ansi(h,name(%0))] now has [u(setr,have,the LANGUAGES(s): [ansi(h,u(itemize,iter(%2,u(capnames,%i0),|,|),|,and,\,))])];@attach %!/INC`MSG`NOTICE=You now have %q<have>,%0;@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))] now has %q<have>
+
+&INC`REM`LANGUAGE [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: Language field empty.;@check eq(words(%2,|),words(setinter(%2,get(%0/D`LANGUAGES),|,|),|))=@attach %!/INC`MSG=ERROR: [ansi(h,name(%0))] does not have Languages(s): [u(itemize,setdiff(%2,get(%0/D`LANGUAGES),|,|),|,and,\,)];&D`LANGUAGES %0=iter(setdiff(get(%0/D`LANGUAGES),%2,|,|),u(capnames,%i0),|,|);@attach %!/INC`MSG=[ansi(h,name(%0))] no longer has [u(setr,have,the LANGUAGES(s): [ansi(h,u(itemize,iter(%2,u(capnames,%i0),|,|),|,and,\,))])];@attach %!/INC`MSG`NOTICE=You no longer have %q<have>,%0;@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))] no longer has %q<have>
+
+&VAR`LANGUAGES [u(cobj,data)]=HIGH REALM|LOW REALM|OLD REALM|RIVERSPEAK|SKYTONGUE|FLAMETONGUE|SEATONGUE|FOREST-TONGUE|GUILD CANT|HIGH HOLY SPEECH
+
+@@ Thaumaturgy
+
+&INC`ADD`THAUMATURGY [u(cobj,data)]=@attach %!/DO`ADD`THAUMATURGY=%0,elements(%1,2 3,|,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<practice> %q<type>))  [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`THAUMATURGY [u(cobj,data)]=@attach %!/DO`REM`THAUMATURGY=%0,elements(%1,2 3,|,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<practice> %q<type>)): [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+
+&DO`VAL`THAUMATURGY [u(cobj,data)]=@check strlen(elements(%1,1,|))=@attach %!/INC`MSG=ERROR: Practice (Arts or Sciences) field empty.;@attach %!/INC`PARTIAL=elements(%1,1,|),ARTS|SCIENCES,|,practice,Practice;@check strlen(elements(%1,2,|))=@attach %!/INC`MSG=ERROR: Type (Degrees or Procedures) Field empty.;@attach %!/INC`PARTIAL=elements(%1,2,|),PROCEDURES|DEGREES,|,type,Type;@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: Entry field empty.
+
+&DO`ADD`THAUMATURGY [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`THAUMATURGY;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`%q<practice>`%q<type>,%q<value>
+&DO`REM`THAUMATURGY [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`THAUMATURGY;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`%q<practice>`%q<type>,%q<value>;@select/inline strlen(get(%0/D`%q<practice>`%q<type>))=0,{@attach %!/WIPE=%0,D`%q<practice>`%q<type>;@select/inline strlen(get(%0/D`%q<practice>))=0,{@attach %!/WIPE=%0,D`%q<practice>}}
+
+@@ Favored
+
+&INC`ADD`FAVORED [u(cobj,data)]=@attach %!/DO`ADD`FAVORED=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now [u(setr,have,[ansi(h,u(capnames,%q<find>))] Favors: [u(itemize,iter(%q<value>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)])])]},{You now %q<have>},{%q<msg>}
+&INC`REM`FAVORED [u(cobj,data)]=@attach %!/DO`REM`FAVORED=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer [u(setr,have,[ansi(h,u(capnames,%q<find>))] Favor: [u(itemize,iter(%q<value>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)])])]},{You no longer %q<have>},{%q<msg>}
+
+&DO`VAL`FAVORED [u(cobj,data)]=@check strlen(before(%1,/))=@attach %!/INC`MSG=ERROR: No Favored Type entered.;@attach %!/INC`PARTIAL=before(%1,/),u(u(cobj,data)/FUN`GET`FAVORED),|,find,Favored Type;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No [u(capnames,%q<find>)] entered.;th u(setq,find2,u(u(cobj,data)/FUN`GET`FAVORED`%q<find>));th u(setq,value,iter(ucstr(%2),grab(%q<find2>,if(strlen(%i0),%i0*),|),|,|));@check lmath(min,iter(%q<value>,strlen(%i0),|,%b))=@attach %!/INC`MSG=ERROR: One or more [u(capnames,%q<find>)] didn't resolve. Please check your entry.
+
+&DO`ADD`FAVORED [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`FAVORED;@stop words(u(setr,conflict,setinter(u(setr,oldcharms,ucstr(get(%0/D`FAVORED`%q<find>))),ucstr(%q<value>),|,|)),|)=@attach %!/INC`MSG=[switch(%0,%#,You already have,name(%0) already has)] the [u(itemize,u(capnames,%q<conflict>),|,and,\,)] [ansi(h,u(capnames,%q<find>))] Favored.;&D`FAVORED`%q<find> %0=u(setr,newcharms,setunion(%q<oldcharms>,ucstr(%q<value>),|,|))
+&DO`REM`FAVORED [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`FAVORED;@stop words(u(setr,conflict,setdiff(ucstr(%q<value>),u(setr,oldcharms,ucstr(get(%0/D`FAVORED`%q<find>))),|,|)),|)=@attach %!/INC`MSG=[switch(%0,%#,You don't have have,name(%0) doesn't have)] the [u(itemize,u(capnames,%q<conflict>),|,and,\,)] [ansi(h,u(capnames,%q<find>))] Favored.;&D`FAVORED`%q<find> %0=u(setr,newcharms,setdiff(get(%0/D`FAVORED`%q<find>),ucstr(%q<value>),|,|));@select/inline strlen(%q<newcharms>)=0,{@attach %!/WIPE=%0,D`FAVORED`%q<find>}
+
+&FUN`GET`FAVORED [u(cobj,data)]=ATTRIBUTES|ABILITIES
+&FUN`GET`FAVORED`ATTRIBUTES [u(cobj,data)]=u(FUN`GET`ATTRIBUTES)
+&FUN`GET`FAVORED`ABILITIES [u(cobj,data)]=u(FUN`GET`ABILITIES)
+
+@@ Charmnames
+&CMD`+CHARMNAMES [u(cobj,data)]=$^\+charmnames(?\: +(.+))?$:@check strlen(%1)=@pemit %#=What Class's Charm names will you check?;@attach %!/INC`PARTIAL=%1,u(FUN`GET`CHARMTYPES),|,splat,Splat;@check words(u(lattr,u(cobj,pool)/%q<splat>`*))=@pemit %#=That Splat has no pool data to display.;@pemit %#=u(header,u(capnames,%q<splat>) Pool Charms);@select/inline words(u(setr,slots,u(sortattr,u(lattr,u(cobj,pool)/%q<splat>`EXPANDED`*))))=>0,{@pemit %#=ansi(h,* EXPANDED POOL *);@dolist/inline %q<slots>={@pemit %#=ansi(h,last(##,`) Motes:) [edit(u(capnames,get(u(cobj,pool)/##)),|,\,%b)]}};@select/inline words(u(setr,slots,u(sortattr,u(lattr,u(cobj,pool)/%q<splat>`OVERDRIVE`*))))=>0,{@pemit %#=ansi(h,* OVERDRIVE POOL *);@dolist/inline %q<slots>={@pemit %#=ansi(h,last(##,`) Motes:) [edit(u(capnames,get(u(cobj,pool)/##)),|,\,%b)]}};@pemit %#=%RTo codedly take advantage of these Charms so that they affect your pools, they must be entered exactly as spelled above. Expanders must have a number on the end such as Immanent Solar Glory 4 to denote how many times they were purchased (without such a number, it defaults to 1) and will be collectively checked in all Charm categories and added together. For Infernal Expanders, simply having them listed is enough. God-Blooded use the expanders of their parent Splats.;@pemit %#=u(subheader)
+@set [u(cobj,data)]/CMD`+CHARMNAMES=regexp
+

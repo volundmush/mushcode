@@ -249,31 +249,6 @@ th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WOR
 
 &PLAYER`CONNECT`STAFFDUTY [u(cobj,ams)]=@check cand(get(%0/D`STAFF),u(player_config,%0,LOGIN,STATUS));@wait 3={@attach %!/INC`MSG=You are [if(hasflag(%0,DARK),DARK,not Dark)], [if(hidden(%0),Hidden,not Hidden)] and [if(get(%0/D`STAFF`VACATION),on Vacation,if(default(%0/D`STAFF`DUTY,0),On Duty,Off Duty))].}
 
-@@ ********* BUILDER SECTION ********
-@select/inline isdbref(u(build))=0,{@tel pcreate(Buildstaff,digest(md5,secs()))=u(cao)}
-&build u(coi)=locate(u(cao),Buildstaff,PXxi)
-@lock/zone u(build)=POWER^BUILDER
-@set u(build)=!UNREGISTERED SHARED
-@power u(build)=builder no_pay no_quota
-@lset u(build)/zone=v
-
-
-&OBJECT`CREATE`BUILDER [u(cobj,ams)]=@check hastype(%0,ROOM EXIT);@check haspower(owner(%0),BUILDER);@chown/preserve %0=u(build)
-
-&CMD`+BUILDER [u(cobj,ams)]=$^(?\:\+)?(builder)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`BUILDER`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`BUILDER`ADMINFLAGS)),|,|),|,BUILDER,switch,switch;@attach %!/INC`BUILDER`[strfirstof(%q<switch>,MAIN)]=%3,%4
-@set u(cao)/CMD`+BUILDER=regexp
-
-&INC`BUILDER`MAIN [u(cobj,ams)]=@select/inline isadmin(%#)=1,{@select/inline strlen(%0)=0,{@check words(u(setr,build,lsearch(all,eplayer,\[haspower(##,BUILDER)\])))=@pemit %#=msghead(BUILDER) There are no Builder Characters.;@pemit %#=header(mudname() Builder Characters);@pemit %#=iter(%q<build>,ansi(h,%i0 - [name(%i0)]) - [powers(%i0)],%b,%R);@pemit %#=header()},{@attach %!/INC`CHECKPC=%0,1,BUILDER;@pemit %#=header(%q<t1name>'s Belongings);@dolist/inline THING ROOM EXIT=@select/inline gt(words(u(setr,search,lsearch(%q<t1>,type,%i0))),0)=1,{@pemit %#=subheader(Type: %i0);@dolist/inline %q<search>=@pemit %#=[rjust(pueblize(%i0,brief %i0),7)] - [name(%i0)]};@pemit %#=header()}},0,{@pemit %#=msghead(BUILDER) You [if(haspower(%#,BUILDER),ansi(hg,are),ansi(hr,are not))] A Builder!}
-
-&INC`BUILDER`ADD [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1,BUILDER;@stop haspower(%q<t1>,BUILDER)=@pemit %#=msghead(BUILDER) ERROR: They are already a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=builder no_quota tel_anywhere open_anywhere link_anywhere;give %q<t1>=100000;@pemit %#=msghead(BUILDER) You have made %q<t1name> a Builder.;@pemit %q<t1>=msghead(BUILDER) %n has granted you Builder powers.;@select/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy u(VAR`BUILDER`ALERTSCHANNEL)=%n has made %q<t1name> a Builder.}
-
-&INC`BUILDER`REM [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1,BUILDER;@check haspower(%q<t1>,BUILDER)=@pemit %#=msghead(BUILDER) ERROR: They are not a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=!builder !no_quota !tel_anywhere !open_anywhere !link_anywhere;@select/inline lt(money(%q<t1>),100000)=1,{give %q<t1>=100000};give %q<t1>=-99000;@pemit %#=msghead(BUILDER) You have revoked %q<t1name>'s Builder powers.;@pemit %q<t1>=msghead(BUILDER) %n has revoked your Builder powers.;@select/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy u(VAR`BUILDER`ALERTSCHANNEL)=%n has revoked %q<t1name>'s Builder powers.}
-
-&VAR`BUILDER`ADMINFLAGS [u(cobj,ams)]=ADD|REM
-
-&VAR`BUILDER`ALERTMODE [u(cobj,ams)]=1
-&VAR`BUILDER`ALERTSCHANNEL [u(cobj,ams)]=u(CMO`STAFFREP)
-
 @@ ******** IDLERS SECTION ******
 &CMD`+IDLERS [u(cobj,ams)]=$^(?\:\+)?(idlers)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/INC`PARTIAL=%2,setunion(get(u(cao)/VAR`%1`PLAYFLAGS),if(isadmin(%#),get(u(cao)/VAR`%1`ADMINFLAGS)),|,|),|,%1,switch,switch;@attach %!/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4
 @set u(cao)/CMD`+IDLERS=regexp

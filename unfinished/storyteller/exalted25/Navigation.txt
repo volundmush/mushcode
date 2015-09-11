@@ -1,6 +1,0 @@
-&GFN`ISIC u(navi)=cand(cor(gt(get(room(%0)/D`IC),0),gt(get(switch(type(%0),PLAYER,loc(%0),%0)/D`IC),0)),not(gt(get(switch(type(%0),PLAYER,loc(%0),%0)/NOTIC),0)))
-
-&FUN`LISTIC u(navi)=setunion(lsearch(all,type,room,elock,D`IC:>0),lsearch(all,type,thing,elock,D`IC:>0),,namei)
-
-&LOC`ICNEXUS u(navi)=#1127
-&LOC`OOCNEXUS u(navi)=#26

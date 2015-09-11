@@ -1,0 +1,14 @@
+&CMD`+MERITS`PENNMUSH [u(cobj,merit)]=$^(?s)(?\:\+)?(backgrounds|merits|flaws|warmutations|ragemutations|negmutations|posmutations)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
+@set [u(cobj,merit)]/CMD`+MERITS`PENNMUSH=regexp
+&CMD`+MERITS`RHOSTMUSH [u(cobj,merit)]=$^(?s)(?\:\+)?(backgrounds|merits|flaws|warmutations|ragemutations|negmutations|posmutations)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
+@set [u(cobj,merit)]/CMD`+MERITS`RHOSTMUSH=regexp
+&CMD`+MERITS`MAIN [u(cobj,merit)]=@attach %!/INIT`%1;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=squish(trim(%3)),trim(%4)
+@set [u(cobj,merit)]/CMD`+MERITS`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&INIT`MERITS [u(cobj,merit)]=th u(setq,sysname,MERITS);th u(setq,root,D`MERITS);th u(setq,type,Merit);th u(setq,comm,+merits)
+&INIT`FLAWS [u(cobj,merit)]=th u(setq,sysname,FLAWS);th u(setq,root,D`FLAWS);th u(setq,type,Flaw);th u(setq,comm,+flaws)
+&INIT`BACKGROUNDS [u(cobj,merit)]=th u(setq,sysname,BACKGROUNDS);th u(setq,root,D`BACKGROUNDS);th u(setq,type,Background);th u(setq,comm,+backgrounds)
+&INIT`WARMUTATIONS [u(cobj,merit)]=th u(setq,sysname,MUTATIONS);th u(setq,root,D`WARFORM_MUTATIONS);th u(setq,type,Warform Mutation);th u(setq,comm,+warmutations)
+&INIT`RAGEMUTATIONS [u(cobj,merit)]=th u(setq,sysname,MUTATIONS);th u(setq,root,D`RAGE_MUTATIONS);th u(setq,type,By Rage Recast Mutation);th u(setq,comm,+ragemutations)
+&INIT`POSMUTATIONS [u(cobj,merit)]=th u(setq,sysname,MUTATIONS);th u(setq,root,D`POSITIVE_MUTATIONS);th u(setq,type,Positive Mutation);th u(setq,comm,+posmutations)
+&INIT`NEGMUTATIONS [u(cobj,merit)]=th u(setq,sysname,MUTATIONS);th u(setq,root,D`NEGATIVE_MUTATIONS);th u(setq,type,Negative Mutation);th u(setq,comm,+negmutations)

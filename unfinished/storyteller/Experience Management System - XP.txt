@@ -1,0 +1,76 @@
+@@ DEPENDENCIES: Core, SQL
+
+th u(newcobj,STORYTELLER: Experience Management System <XP>,xp,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+XP`PENNMUSH [u(cobj,xp)]=$^(?s)(?\:\+)?(xp)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:/(.*))?$:@attach %!/CMD`+XP`MAIN
+@set [u(cobj,xp)]/CMD`+XP`PENNMUSH=regexp
+&CMD`+XP`RHOSTMUSH [u(cobj,xp)]=$^(?s)(?\:\+)?(xp)(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:/(.*))?$:@attach %!/CMD`+XP`MAIN
+@set [u(cobj,xp)]/CMD`+XP`RHOSTMUSH=regexp
+&CMD`+XP`MAIN [u(cobj,xp)]=@attach %!/INIT`%1;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=squish(trim(%3)),squish(trim(%4)),squish(trim(%5))
+@set [u(cobj,xp)]/CMD`+XP`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&INIT`XP [u(cobj,xp)]=th u(setq,root,XP);th u(setq,type,Experience);th u(setq,comm,+xp);th u(setq,earn,0);th u(setq,use,0)
+
+&SWITCHES`ADMIN [u(cobj,xp)]=DELETE|TOTALS|AWARD|SPEND
+&SWITCHES`PLAYER [u(cobj,xp)]=DETAILS|EARN|USE
+
+&SYSTEM`NAME [u(cobj,xp)]=XP
+
+&FUN`AVAILABLE [u(cobj,xp)]=add(u(mysql,GET`AVAILABLE,u(objid,%0),%1),u(FUN`EXTRA`%1))
+&FUN`GAINED [u(cobj,xp)]=add(u(mysql,GET`GAINED,u(objid,%0),%1),u(FUN`EXTRA`%1))
+&FUN`SPENT [u(cobj,xp)]=add(u(mysql,GET`SPENT,u(objid,%0),%1),0)
+&Q`GET`AVAILABLE [u(cobj,xp)]=SELECT sum(xp_amount) FROM $EXPERIENCE$ WHERE xp_objid=? AND xp_type=?
+&Q`GET`GAINED [u(cobj,xp)]=SELECT sum(xp_amount) FROM $EXPERIENCE$ WHERE xp_objid=? AND xp_type=? AND xp_amount>0
+&Q`GET`SPENT [u(cobj,xp)]=SELECT abs(sum(xp_amount)) FROM $EXPERIENCE$ WHERE xp_objid=? AND xp_type=? AND xp_amount<0
+
+&DO`ANNOUNCE [u(cobj,xp)]=@attach %!/INC`MSG`CHAN=%1;@select/inline strmatch(%0,%#)=0,{@attach %!/INC`MSG`NOTICE=%2,%0;@attach %!/INC`MSG=%3},1,{@attach %!/INC`MSG`NOTICE=%2,%0}
+@@ %0 = list of players to message. %1 = message to admin. %2 = message to players. %3 = message to enactor.
+
+&INC`EARN [u(cobj,xp)]=@attach %!/INC`SELF=%#,%0,%1,AWARD,1
+&INC`USE [u(cobj,xp)]=@attach %!/INC`SELF=%#,%0,%1,SPEND,1
+&INC`CRAFT [u(cobj,xp)]=@check cor(switch(%3,AWARD,%q<earn>,SPEND,%q<use>),u(isadmin,%#))=@attach %!/INC`MSG=Permission denied.;@check strlen(%2)=@attach %!/INC`MSG=Need to specify a reason!;@attach %!/INC`MARKXP
+
+&INC`AWARD [u(cobj,xp)]=@attach %!/INC`MARKXP=%0,%1,%2,AWARD
+&INC`SPEND [u(cobj,xp)]=@attach %!/INC`MARKXP=%0,%1,%2,SPEND
+&INC`MARKXP [u(cobj,xp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No targets entered!;@stop words(u(filter,NAMELIST,u(setr,list,u(namelist,%0,#lambda/pemit(%#,ERROR: Target Not Found or Ambiguous: \%0)))))=@attach %!/INC`MSG=ERROR: One or more entered names did not resolve. Please check your entry and try again.;@check cand(isnum(%1),gt(%1,0))=@attach %!/INC`MSG=ERROR: %q<type> amounts must be positive numbers!;th u(setq,msg,switch(%3,AWARD,Gained,Lost) [ansi(h,%1)] %q<type> for: [u(strfirstof,%2,No given reason.)])[u(setq,recplist,u(itemize,iter(%q<list>,ansi(h,u(moniker,%i0)),%b,|),|,and,\,))];@dolist/inline %q<list>=@attach %!/INC`DOSQL=INSERT`XP,u(objid,##),%q<root>,switch(%3,AWARD,%1,SPEND,mul(%1,-1)),%2,u(moniker,%#);@attach %!/DO`ANNOUNCE=%q<list>,{%q<recplist> %q<msg>},{You %q<msg>},{%q<recplist> %q<msg>}
+
+&FIL`NAMELIST [u(cobj,xp)]=strmatch(%0,#-*)
+
+&Q`INSERT`XP [u(cobj,xp)]=INSERT INTO $EXPERIENCE$ (xp_objid,xp_type,xp_amount,xp_reason,xp_admin,xp_date) VALUES (?,?,?,?,?,UTC_TIMESTAMP())
+
+&INC`DELETE [u(cobj,xp)]=@attach %!/INC`CHECKPC=%0,1;@check u(valnum,%2)=@attach %!/INC`MSG=%q<type> entries must be addressed via whole and positive numbers!;@check u(setr,rowid,u(mysql,GET`XP_ID_ROW,%q<t1objid>,%q<root>,sub(%2,1)))=@attach %!/INC`MSG=ERROR: %q<t1name> does not have a [u(numth,%2)] XP entry.;th u(setq,amount,u(mysql,GET`AMOUNT,%q<rowid>));th u(setq,reason,u(mysql,GET`REASON,%q<rowid>));@attach %!/INC`DOSQL=DELETE`ROW,%q<rowid>;th u(setq,msg,%q<type> Entry %2 was [ansi(hr,DELETED)]. Amount Was: %q<amount>. Reason Was: %q<reason>);@attach %!/DO`ANNOUNCE=%q<t1>,{[ansi(h,%q<t1name>)]'s %q<msg>},{Your %q<msg>},{[ansi(h,%q<t1name>)]'s %q<msg>};@attach %!/WIPE=%q<t1>,D`%q<root>`%1`%2
+
+&Q`GET`XP_ID_ROW [u(cobj,xp)]=SELECT xp_id FROM $EXPERIENCE$ WHERE xp_objid=? AND xp_type=? ORDER BY xp_id LIMIT 1 OFFSET ?
+&Q`GET`AMOUNT [u(cobj,xp)]=SELECT xp_amount FROM $EXPERIENCE$ WHERE xp_id=?
+&Q`GET`REASON [u(cobj,xp)]=SELECT xp_reason FROM $EXPERIENCE$ WHERE xp_id=?
+
+&INC`MAIN [u(cobj,xp)]=@select/inline and(strlen(%0),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%0,1},0,{@attach %!/INC`CHECKPC=%#,1};@attach %!/INC`LIST=%q<t1>
+
+&INC`LIST [u(cobj,xp)]=@pemit %#=u(header,u(moniker,%0)'s %q<type>)%R[ljust(ansi(h,rjust(Available:,10)),10)][rjust(sub(u(setr,gained,u(FUN`GAINED,%0,%q<root>)),u(setr,spent,u(FUN`SPENT,%0,%q<root>))),4)]%r[ljust(ansi(h,rjust(Total:,10)),10)][rjust(%q<gained>,4)]%r[ljust(ansi(h,rjust(Spent:,10)),10)][rjust(%q<spent>,4)];@pemit %#=u(subheader)
+
+&INC`DETAILS [u(cobj,xp)]=@select/inline cand(strlen(%0),u(isadmin,%#))=0,{@attach %!/INC`CHECKPC=%#,1},1,{@attach %!/INC`CHECKPC=%0,1};@pemit %#=u(header,u(moniker,%q<t1>)'s %q<type>);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(6 6 20 20 30,#,Amt,Date,Source,Reason));@pemit %#=u(separator);@dolist u(setr,rows,u(mysql,GET`ROWS,%q<t1objid>,%q<root>))={th u(setq,details,u(mysql2,GET`DETAILS,##));@pemit %#=align(6 6 20 20 30,#@,elements(%q<details>,1,^),u(fancytime,elements(%q<details>,2,^),%#),elements(%q<details>,3,^),after(%q<details>,elements(%q<details>,1 2 3,^,^)^));@select/inline #@=words(%q<rows>),{@pemit %#=u(subheader)}}
+
+&Q`GET`ROWS [u(cobj,xp)]=SELECT xp_id FROM $EXPERIENCE$ WHERE xp_objid=? AND xp_type=? ORDER BY xp_id
+&Q`GET`AMOUNT [u(cobj,xp)]=SELECT xp_amount FROM $EXPERIENCE$ WHERE xp_id=?
+&Q`GET`REASON [u(cobj,xp)]=SELECT xp_reason FROM $EXPERIENCE$ WHERE xp_id=?
+&Q`GET`DETAILS [u(cobj,xp)]=select xp_amount,UNIX_TIMESTAMP(xp_date),xp_admin,xp_reason FROM $EXPERIENCE$ where xp_id=?
+
+&INC`TOTALS [u(cobj,xp)]=@pemit %#=u(header,mudname() %q<type> Totals);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(25 7 7 7 10,Name,Gained,Spent,Avail,Class));@dolist/inline/delimit | [u(mysql2,GET`TOTALS,%q<root>)]=@pemit %#=align(25 7 7 7 10,u(moniker,elements(##,1,^)),add(elements(##,3,^),u(FUN`EXTRA`%q<root>)),add(elements(##,4,^),0),add(elements(##,2,^),u(FUN`EXTRA`%q<root>)),getclass(elements(##,1,^)));@pemit %#=u(subheader)
+
+&Q`GET`TOTALS [u(cobj,xp)]=SELECT xp_objid,sum(xp_amount) as availxp,sum(CASE WHEN xp_amount>0 THEN xp_amount ELSE 0 END) as gainxp,abs(sum(CASE WHEN xp_amount<0 THEN xp_amount ELSE 0 END)) as spendxp FROM $EXPERIENCE$ WHERE xp_type=? GROUP BY xp_objid ORDER BY gainxp desc
+
+&Q`INSTALL`EXPERIENCE [u(cobj,xp)]=CREATE TABLE IF NOT EXISTS $EXPERIENCE$ (xp_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,xp_objid VARCHAR(25) NOT NULL,xp_type VARCHAR(80),xp_amount DECIMAL(7,3),xp_admin VARCHAR(255),xp_reason TEXT,xp_date DATETIME,PRIMARY KEY(xp_id)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
+&SQL`TABLES [u(cobj,xp)]=EXPERIENCE
+&SQL`TABLE`EXPERIENCE [u(cobj,xp)]=mushcode_experience
+
+@trigger [u(cobj,xp)]/TRG`INSTALL
+
++help/add +xp=[u(cobj,xp)]/HLP`+XP
++help/category +xp=Roleplaying
++help/metatags +xp=experience growth
+&HLP`+XP [u(cobj,xp)]=[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,[ansi(h,+xp)] - Show how much XP you have.%R[ansi(h,+xp/details)] - Show details on your XP transactions.%R[ansi(h,+xp/earn <#>=<reason>)] - Gain # amount of XP. Only useful for certain kinds based on game.%R[ansi(h,+xp/use <#>=<reason>)] - Use an amount of XP. Only useful for certain kinds of XP.)]%R%R[ansi(hc,XP Types)]%RThis game supports the following commands. They all use the same style as above.%R[u(HLP`TYPES)]
+
++shelp/add +xp=[u(cobj,xp)]/SHLP`+XP
++shelp/category +xp=Character
+&SHLP`+XP [u(cobj,xp)]=[ansi(hc,Viewing Commands)]%R[align(5 [sub(width(%#),6)],,[ansi(h,+xp <name>)] - check a player's XP totals.%R[ansi(h,+xp/details <name>)] - Check a player's XP transactions.)]%R%R[ansi(hc,Managing Commands)]%R[align(5 [sub(width(%#),6)],,[ansi(h,+xp/delete <name>=<#>)] - Remove a player's entry entry.%R[ansi(h,+xp/award <list of player>=<amount>/<reason>)] - Awards XP to one or more players. Reason is optional.%R[ansi(h,+xp/spend <list of players>=<amount>/<reason>)] - Spend one or more players' XP. Reason is optional.%R[ansi(h,+xp/totals)] - Display sorted list of players by XP totals.%R%RNOTE: 'Available XP' is defined as 'gained - spent' while 'Total' is 'total gained ever.' To 'refund' XP\, don't award it - delete the relevant spend records then make new ones.)]%R%RNOTE: These commands also work for all +xp types listed in +help +xp.

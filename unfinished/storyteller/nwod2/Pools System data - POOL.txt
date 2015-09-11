@@ -1,0 +1,69 @@
+@@ VAMPIRE
+&CLASS`VAMPIRE [u(cobj,pool)]=VITAE WILLPOWER
+&POOL`VITAE [u(cobj,pool)]=Pool
+&POOL`VITAE`UNITNAME [u(cobj,pool)]=Points
+&POOL`VITAE`UNITTYPE [u(cobj,pool)]=Vitae
+&POOL`VITAE`MAX [u(cobj,pool)]=switch(getclass(%0),VAMPIRE,switch(getpower(%0),1,10,2,11,3,12,4,13,5,14,6,15,7,20,8,30,9,50,10,100),u(getstat,%0,D`ATTRIBUTES,Stamina))
+&POOL`VITAE`INIT [u(cobj,pool)]=u(POOL`VITAE`MAX,%0)
+&POOL`VITAE`HAVE [u(cobj,pool)]=u(getstat,%0,D`INFO,Ghoul)
+&POOL`VITAE`ORDER [u(cobj,pool)]=5
+&POOL`VITAE`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
+
+@@ SIN-EATER
+&CLASS`SIN-EATER [u(cobj,pool)]=PLASM WILLPOWER
+&POOL`PLASM [u(cobj,pool)]=Pool
+&POOL`PLASM`UNITNAME [u(cobj,pool)]=Points
+&POOL`PLASM`UNITTYPE [u(cobj,pool)]=Plasm
+&POOL`PLASM`MAX [u(cobj,pool)]=switch(getpower(%0),1,14,2,18,3,22,4,26,5,30,6,40,7,50,8,60,9,75,10,100)
+&POOL`PLASM`INIT [u(cobj,pool)]=u(POOL`PLASM`MAX,%0)
+&POOL`PLASM`ORDER [u(cobj,pool)]=10
+&POOL`PLASM`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
+
+@@ CHANGELING
+&CLASS`CHANGELING [u(cobj,pool)]=GLAMOUR WILLPOWER
+&POOL`GLAMOUR [u(cobj,pool)]=Pool
+&POOL`GLAMOUR`UNITNAME [u(cobj,pool)]=Points
+&POOL`GLAMOUR`UNITTYPE [u(cobj,pool)]=Glamour
+&POOL`GLAMOUR`MAX [u(cobj,pool)]=switch(getpower(%0),1,10,2,11,3,12,4,13,5,14,6,15,7,20,8,30,9,50,10,100)
+&POOL`GLAMOUR`INIT [u(cobj,pool)]=u(POOL`GLAMOUR`MAX,%0)
+&POOL`GLAMOUR`ORDER [u(cobj,pool)]=10
+&POOL`GLAMOUR`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
+
+@@ PROMETHEAN
+&CLASS`PROMETHEAN [u(cobj,pool)]=
+&POOL`PYROS [u(cobj,pool)]=Pool
+&POOL`PYROS`UNITNAME [u(cobj,pool)]=Points
+&POOL`PYROS`UNITTYPE [u(cobj,pool)]=Pyros
+&POOL`PYROS`MAX [u(cobj,pool)]=switch(getpower(%0),1,10,2,11,3,12,4,13,5,14,6,15,7,20,8,30,9,50,10,100)
+&POOL`PYROS`INIT [u(cobj,pool)]=u(POOL`PYROS`MAX,%0)
+&POOL`PYROS`ORDER [u(cobj,pool)]=10
+&POOL`PYROS`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
+
+@@ WEREWOLF
+&CLASS`WEREWOLF [u(cobj,pool)]=ESSENCE WILLPOWER
+&POOL`ESSENCE [u(cobj,pool)]=Pool
+&POOL`ESSENCE`UNITNAME [u(cobj,pool)]=Points
+&POOL`ESSENCE`UNITTYPE [u(cobj,pool)]=Essence
+&POOL`ESSENCE`MAX [u(cobj,pool)]=switch(getpower(%0),1,10,2,11,3,12,4,13,5,14,6,15,7,20,8,30,9,50,10,100)
+&POOL`ESSENCE`INIT [u(cobj,pool)]=u(POOL`ESSENCE`MAX,%0)
+&POOL`ESSENCE`ORDER [u(cobj,pool)]=10
+&POOL`ESSENCE`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
+
+@@ MAGE
+&CLASS`MAGE [u(cobj,pool)]=MANA WILLPOWER
+&POOL`MANA [u(cobj,pool)]=Pool
+&POOL`MANA`UNITNAME [u(cobj,pool)]=Points
+&POOL`MANA`UNITTYPE [u(cobj,pool)]=Essence
+&POOL`MANA`MAX [u(cobj,pool)]=switch(getpower(%0),1,10,2,11,3,12,4,13,5,14,6,15,7,20,8,30,9,50,10,100)
+&POOL`MANA`INIT [u(cobj,pool)]=u(POOL`MANA`MAX,%0)
+&POOL`MANA`ORDER [u(cobj,pool)]=10
+&POOL`MANA`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
+
+@@ GENERAL
+&POOL`WILLPOWER [u(cobj,pool)]=Pool
+&POOL`WILLPOWER`UNITNAME [u(cobj,pool)]=Points
+&POOL`WILLPOWER`UNITTYPE [u(cobj,pool)]=Willpower
+&POOL`WILLPOWER`MAX [u(cobj,pool)]=add(u(getstat,%0,D`ATTRIBUTES,Composure),u(getstat,%0,D`ATTRIBUTES,Resolve),getbonus(%0,WILLPOWER))
+&POOL`WILLPOWER`INIT [u(cobj,pool)]=u(POOL`WILLPOWER`MAX,%0)
+&POOL`WILLPOWER`ORDER [u(cobj,pool)]=100
+&POOL`WILLPOWER`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT

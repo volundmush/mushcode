@@ -1,0 +1,130 @@
+&INC`PUBLIC [u(cobj,sheet)]=@select/inline t(default(%#/SHEETPUBLIC,0))=0,{@pemit %#=msghead(SHEET) Your sheet is now shared publically!;&SHEETPUBLIC %#=1},1,{@pemit %#=msghead(SHEET) Your sheet is now private!;&SHEETPUBLIC %#=0}
+
+&INC`STYLE [u(cobj,sheet)]=@select/inline t(default(%#/SHEETSTYLE,0))=0,{@pemit %#=msghead(SHEET) Charms and Spells will now display in an alternate style!;&SHEETSTYLE %#=1},1,{@pemit %#=msghead(SHEET) Charms and Spells will now display in ordinary style!;&SHEETSTYLE %#=0}
+
+&INC`EXTRA [u(cobj,sheet)]=@pemit %#=repeat(u(FUN`COLOR,%1,BORDER,-),0)%R%b%b%b[ansi(u(strfirstof,v(%1`ATTRNAME),n),--------------------<-)][ansi(u(strfirstof,v(%1`PSM),n),Merits)][ansi(u(strfirstof,v(%1`ATTRNAME),n),->----------------)][if(words(u(setr,merits,get(%0/D`MERITS)),|),%R%b%b%b- [iter(%q<merits>,ansi(u(strfirstof,v(%1`SKILLNAME),n),elements(%i0,1,~))[repeat(ansi(u(strfirstof,v(%1`SKILLLINE),n),_),sub(43,strlen(elements(%i0,1,~)),strlen(elements(%i0,2,~))))][ansi(u(strfirstof,v(%1`SKILLDOT),n),elements(%i0,2,~))],|,%R%b%b%b-%b )])]%r%r;@pemit %#=[ansi(u(strfirstof,v(%1`ATTRNAME),n),%b%b%b-----------------<-)][ansi(u(strfirstof,v(%1`PSM),n),Specialties)][ansi(u(strfirstof,v(%1`ATTRNAME),n),->--------------)][if(words(u(setr,specialties,get(%0/D`SPECIALTIES)),|),%R%b%b%b- [iter(%q<specialties>,ansi(u(strfirstof,v(%1`SKILLNAME),n),capnames(elements(%i0,1,~))\,%B[elements(%i0,2,~)])[repeat(ansi(u(strfirstof,v(%1`SKILLLINE),n),_),sub(41,strlen(elements(%i0,1,~)),strlen(elements(%i0,2,~)),strlen(elements(%i0,3,~))))][ansi(u(strfirstof,v(%1`SKILLDOT),n),elements(%i0,3,~))],|,%R%b%b%b-%b)])]%r%r;@pemit %#=[ansi(u(strfirstof,v(%1`ATTRNAME),n),%b%b%b--------------------<-)][ansi(u(strfirstof,v(%1`PSM),n),Notes)][ansi(u(strfirstof,v(%1`ATTRNAME),n),->-----------------)][if(words(u(setr,notes,u(lattr,%0/D`NOTES`*,|)),|),%R%b%b%b-[iter(%q<notes>,rjust(inum(0),2).%B[get(%0/%i0)],|,%R%b%b%b-)])][u(FUN`COLOR,%1,BORDER,)]%R[repeat(u(FUN`COLOR,%1,BORDER,-),0)]
+
+&INC`MAIN [u(cobj,sheet)]=@pemit %#=u(u(FUN`SHEETHEADER,%0,u(setr,splat,getclass(%0)));@select/inline gt(strlen(setunion(u(u(cobj,data)/FUN`RET`ATTRIBUTES,%0),setunion(get(%0/D`FAVORED`ATTRIBUTES),get(%0/D`SUPERNAL`ATTRIBUTES),|,|),|,|)),0)=1,{@pemit %#=u(u(FUN`ATTRIBUTES,%0,%q<splat>)};@select/inline gt(strlen(setunion(u(u(cobj,data)/FUN`RET`ABILITIES,%0),setunion(get(%0/D`FAVORED`ABILITIES),get(%0/D`SUPERNAL`ABILITIES),|,|),|,|)),0)=1,{@pemit %#=u(u(FUN`ABILITIES,%0,%q<splat>)};@select/inline gt(strlen(setunion(u(u(cobj,data)/FUN`RET`CRAFTS,%0),setunion(get(%0/D`FAVORED`CRAFTS),get(%0/D`SUPERNAL`CRAFTS),|,|),|,|)),0)=1,{@pemit %#=u(u(FUN`CRAFTS,%0,%q<splat>)};@select/inline gt(strlen(setunion(u(u(cobj,data)/FUN`RET`STYLES,%0),setunion(get(%0/D`FAVORED`STYLES),get(%0/D`SUPERNAL`STYLES),|,|),|,|)),0)=1,{@pemit %#=u(u(FUN`STYLES,%0,%q<splat>)};@select/inline gt(strlen(get(%0/D`SPECIALTIES)),0)=1,{@pemit %#=u(u(FUN`SPECIALTIES,%0,%q<splat>)};@select/inline t(nattr(%0/D`MERITS`*))=1,{@pemit %#=u(FUN`MERITS,%0,%q<splat>)};@select/inline t(nattr(%0/D`FLAWS`*))=1,{@pemit %#=u(FUN`FLAWS,%0,%q<splat>)};@select/inline t(nattr(%0/D`PACTS`*))=1,{@pemit %#=u(FUN`PACTS,%0,%q<splat>)};@attach %!/INC`ADVANTAGES;@attach %!/INC`FOOTER
+
+@@ @pemit %#=u(u(FUN`ADVANTAGES`%q<splat>,%0,%q<splat>);@pemit %#=u(u(FUN`OTHER,%0,%q<splat>);@pemit %#=u(u(FUN`FOOTER,%0,%q<splat>)
+
+&FUN`HEADER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,if(%4,|,\}))[if(strlen(%2),center(u(FUN`COLOR,%1,FRONTSLASH,/)[u(FUN`COLOR,%1,FIRSTLETTER,%2)][u(FUN`COLOR,%1,RESTWORD,%3)][u(FUN`COLOR,%1,FRONTSLASH,/)],76,u(FUN`COLOR,%1,BORDER,-)),u(FUN`COLOR,%1,BORDER,repeat(-,76)))][u(FUN`COLOR,%1,BORDER,if(%4,|,\{))]
+
+&FUN`SHEETHEADER [u(cobj,sheet)]=[space(2)][u(FUN`COLOR,%1,BORDER,.)][u(FUN`COLOR,%1,BORDER,repeat(-,72))][u(FUN`COLOR,%1,BORDER,.)]%R[space(1)][u(FUN`COLOR,%1,BORDER,/)][center(u(FUN`COLOR,%1,TITLE,mudname()),74)][u(FUN`COLOR,%1,BORDER,\\)]%R[u(FUN`HEADER,%0,%1,,,1)]%R[u(FUN`BORDER,%0,%1,align(36 37,ljust(rjust(u(FUN`COLOR,%1,TEXTHEAD,Name)[u(FUN`COLOR,%1,COLON,:)],12),13)[u(FUN`COLOR,%1,TEXTFIELD,name(%0))],ljust(rjust(u(FUN`COLOR,%1,TEXTHEAD,Title)[u(FUN`COLOR,%1,COLON,:)],14),15)[u(FUN`COLOR,%1,TEXTFIELD,default(%0/Title,the unknown))]))][u(u(FUN`SPLATINFO`%1,%0,%1)]
+
+&FUN`SPLATINFO`MAIN [u(cobj,sheet)]=%R[u(FUN`BORDER,%0,%1,align(37 36,if(strlen(%2),rjust(u(FUN`COLOR,%1,TEXTHEAD,%2)[u(FUN`COLOR,%1,COLON,:)],12)%B[u(FUN`COLOR,%1,TEXTFIELD,u(strfirstof,u(getstat,%0,D`INFO,%2),None))])[if(strlen(%3),%R[rjust(u(FUN`COLOR,%1,TEXTHEAD,%3)[u(FUN`COLOR,%1,COLON,:)],12)]%B[u(FUN`COLOR,%1,TEXTFIELD,u(strfirstof,u(getstat,%0,D`INFO,%3),None))])],if(strlen(%4),rjust(u(FUN`COLOR,%1,TEXTHEAD,%4)[u(FUN`COLOR,%1,COLON,:)],13)%B[u(FUN`COLOR,%1,TEXTFIELD,u(strfirstof,u(getstat,%0,D`INFO,%4),None))])[if(strlen(%5),%R[rjust(u(FUN`COLOR,%1,TEXTHEAD,%5)[u(FUN`COLOR,%1,COLON,:)],13)]%B[u(FUN`COLOR,%1,TEXTFIELD,u(strfirstof,u(getstat,%0,D`INFO,%5),None))])]))]
+
+&FUN`SPLATINFO`MORTAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,,,,)
+&FUN`SPLATINFO`SOLAR [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,,Essence,)
+
+&FUN`SPLATINFO`ABYSSAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,Doom,Essence,Liege)
+&FUN`SPLATINFO`LUNAR [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,Virtue Flaw,Essence,Totem Animal)
+&FUN`SPLATINFO`SIDEREAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,Virtue Flaw,Essence,)
+&FUN`SPLATINFO`TERRESTRIAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,Virtue Flaw,Essence,House)
+&FUN`SPLATINFO`INFERNAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,Urge,Essence,Favored Yozi)
+&FUN`SPLATINFO`ALCHEMICAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,Nation,Essence,)
+&FUN`SPLATINFO`RAKSHA [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,Lure,Essence,)
+&FUN`SPLATINFO`DRAGON-KING [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,,Essence,)
+&FUN`SPLATINFO`JADEBORN [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,,Essence,)
+&FUN`SPLATINFO`GOD-BLOODED [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,Caste,,Essence,)
+
+&FUN`BORDER [u(cobj,sheet)]=align(1. 74 1.,u(FUN`COLOR,%1,BORDER,|),%2,u(FUN`COLOR,%1,BORDER,|)%R)
+
+&FUN`ATTRIBUTES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,ATTRIBUTES,23,A,ttributes,D`ATTRIBUTES,setunion(u(u(cobj,data)/FUN`RET`ATTRIBUTES,%0),setunion(get(%0/D`FAVORED`ATTRIBUTES),get(%0/D`SUPERNAL`ATTRIBUTES),|,|),|,|),u(u(cobj,data)/FUN`GET`ATTRIBUTES))
+
+@@ u(FUN`COLOR,%1,BORDER,\}[repeat(-,8)])[u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,PSM,Physical)][u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,15))][u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,PSM,Social)][u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,16))][u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,PSM,Mental)][u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,11)\{)]%R
+
+&FUN`ABILITIES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,ABILITIES,23,A,bilities,D`ABILITIES,setunion(u(u(cobj,data)/FUN`RET`ABILITIES,%0),setunion(get(%0/D`FAVORED`ABILITIES),get(%0/D`SUPERNAL`ABILITIES),|,|),|,|),u(u(cobj,data)/FUN`GET`ABILITIES`EXTRA))
+&FUN`CRAFTS [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,CRAFTS,23,C,rafts,D`CRAFTS,sort(u(u(cobj,data)/FUN`RET`CRAFTS,%0),i,|,|),,1)
+&FUN`STYLES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,STYLES,23,S,tyles,D`STYLES,sort(u(u(cobj,data)/FUN`RET`STYLES,%0),i,|,|),,1)
+&FUN`SPECIALTIES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,SPECIALTIES,36,S,pecialties,D`SPECIALTIES,sort(u(u(cobj,data)/FUN`RET`SPECIALTIES,%0),i,|,|),,1)
+
+&FUN`MERITS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,MERITS)
+&FUN`FLAWS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,FLAWS)
+&FUN`PACTS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,PACTS)
+
+&FUN`DOTFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,%4%5)%R[u(setq,sorted,if(strlen(%8),filterbool(#lambda/match(%7,\%0,|),%8,|,|),%7))][if(%9,u(setq,first,filterbool(#lambda/lt(strlen(\%0),sub(%3,10)),%q<sorted>,|,|),second,filterbool(#lambda/gte(strlen(\%0),sub(%3,10)),%q<sorted>,|,|)),u(setq,first,%q<sorted>))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`STATFORMAT,%0,%1,%2,%3,%6,%q<first>)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`STATFORMAT2,%0,%1,%2,74,%6,%q<second>)))][if(strlen(%q<firstsec>),%q<firstsec>)][if(strlen(%q<secondsec>),if(strlen(%q<firstsec>),%R%q<secondsec>,%q<secondsec>))])
+
+&FUN`STATFORMAT [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,u(table,iter(%5,u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%3),|,|),%3,74,|))
+&FUN`STATFORMAT2 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,trimpenn(iter(%5,u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%3),|,%R),%R))
+
+&FUN`MERFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,capnames(%2))%R[u(setq,sorted,sortkey(#lambda/u(u(cobj,merit)/FUN`MERNAME,%0,\%0),u(lattr,%0/D`%2`*),i,%b,|))][u(setq,first,filterbool(#lambda/lt(strlen(u(u(cobj,merit)/FUN`MERNAME,%0,\%0)),sub(36,10)),%q<sorted>,|,|),second,filterbool(#lambda/gte(strlen(u(u(cobj,merit)/FUN`MERNAME,%0,\%0)),sub(36,10)),%q<sorted>,|,|))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`MERFORMAT`2,%0,%1,%2,%q<first>)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`MERFORMAT`3,%0,%1,%2,%q<second>)))][if(strlen(%q<firstsec>),%q<firstsec>)][if(strlen(%q<secondsec>),if(strlen(%q<firstsec>),%R%q<secondsec>,%q<secondsec>))])
+
+&FUN`MERFORMAT`2 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,u(table,iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(u(cobj,merit)/FUN`MERNAME,%0,%i0),36,get(%0/%i0`RANK),,1,1),|,|),36,74,|))
+
+&FUN`MERFORMAT`3 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,trimpenn(iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(u(cobj,merit)/FUN`MERNAME,%0,%i0),74,get(%0/%i0`RANK),,1,1),|,%R),%R))
+
+&FUN`STATFORMAT`STAT [u(cobj,sheet)]=localize([u(setq,namedisp,if(%9,left(%3,%9),%3))][u(setq,val,u(strfirstof,%5,u(getstat,%0,D`%2,%3)))][u(setq,bon,u(strfirstof,%6,getbonus(%0,%3)))][u(setq,totval,add(%q<val>,if(%7,%q<bon>)))][if(%7,u(setq,valdisp,if(%7,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<val>)))),[u(setq,astlen,if(lte(%q<bon>,-1),bound(add(%q<val>,%q<bon>),0),%q<val>))][u(setq,minlen,if(lte(%q<bon>,-1),abs(%q<bon>)))][u(setq,pluslen,if(gte(%q<bon>,1),%q<bon>))][u(setq,valdisp,[if(%q<astlen>,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<astlen>)))][if(%q<minlen>,u(FUN`COLOR,%1,STATDOT,repeat(-,%q<minlen>)))][if(%q<pluslen>,u(FUN`COLOR,%1,STATDOT,repeat(+,%q<pluslen>)))])])][if(%8,,u(setq,fav,t(match(get(%0/D`FAVORED`%2),switch(%3,MARTIAL ARTS,BRAWL,%3),|)),sup,t(match(get(%0/D`SUPERNAL`%2),%3,|))))][u(setq,statlen,strlen(%q<namedisp>))][if(lte(sub(%4,1,%q<statlen>,strlen(%q<valdisp>)),0),u(setq,valdisp,%q<totval>,dotlen,strlen(%q<totval>)),u(setq,dotlen,strlen(%q<valdisp>)))][u(setq,linelen,sub(%4,1,%q<dotlen>,%q<statlen>))][switch(1,%q<sup>,u(FUN`COLOR,%1,SUPMARK,+),%q<fav>,u(FUN`COLOR,%1,FAVMARK,+),%b)][u(FUN`COLOR,%1,STATNAME,capnames(%q<namedisp>))][if(gt(%q<linelen>,0),repeat(u(FUN`COLOR,%1,STATLINE,.),%q<linelen>))]%q<valdisp>)
+
+
+@@ %0 = Player. %1 = Splat. %2 = Attribute. %3 = Entry. %4 = Length. %5 = manual value. %6 = Manual bonus. %7 = Don't show bonus. %8 = No favoreds. %9 = Truncate.
+
+
+&INC`ADVANTAGES [u(cobj,sheet)]=@attach %!/INC`CHARMS;@attach %!/INC`EVOCATIONS;@attach %!/INC`MACHARMS;@attach %!/INC`SPELLS
+
+
+
+&INC`CHARMS [u(cobj,sheet)]=@dolist/inline filterbool(#lambda/strlen(regrepi(%0,D`\%0`*,.+)),CHARMS`SOLAR CHARMS`LUNAR CHARMS`ABYSSAL CHARMS`ALCHEMICAL CHARMS`INFERNAL CHARMS`TERRESTRIAL CHARMS`JADEBORN CHARMS`RAKSHA CHARMS`SIDEREAL CHARMS`SPIRIT CHARMS`MORTAL ARCANOI`GHOST)={@select/inline default(%#/SHEETSTYLE,0)=0,{@pemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`))\, [capnames(after(%i0,`))]);@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),u(lattr,%0/D`%i0`*))={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,capnames(last(%i0,`)));@pemit %#=u(FUN`BORDER,%0,%1,u(u(FUN`WORDLIST,%0,get(%0/%i0)))}},1,{@pemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`))\, [capnames(after(%i0,`))]);@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),u(lattr,%0/D`%i0`*))={@pemit %#=u(FUN`BORDER,%0,%1,ansi(h,capnames(last(%i0,`))): [itemize(sort(iter(get(%0/%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}}
+
+&INC`MACHARMS [u(cobj,sheet)]=@dolist/inline filterbool(#lambda/strlen(regrepi(%0,D`\%0`*,.+)),CHARMS`MACHARMS CHARMS`SMACHARMS)={@select/inline default(%#/SHEETSTYLE,0)=0,{@pemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(switch(elements(%i0,2,`),MACHARMS,Martial Arts Charms,SMACHARMS,Sidereal Martial Arts Charms)));@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),sortkey(#lambda/get(%0/\%0`NAME),u(lattr,%0/D`%i0`*),i))={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,capnames(default(%0/%i0`NAME,Unnamed Style)));@pemit %#=u(FUN`BORDER,%0,%1,u(u(FUN`WORDLIST,%0,get(%0/%i0)))}},1,{@pemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(switch(elements(%i0,2,`),MACHARMS,Martial Arts Charms,SMACHARMS,Sidereal Martial Arts Charms)));@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),sortkey(#lambda/get(%0/\%0`NAME),u(lattr,%0/D`%i0`*),i))={@pemit %#=u(FUN`BORDER,%0,%1,ansi(h,capnames(default(%0/%i0`NAME,Unnamed Style)):) [itemize(sort(iter(get(%0/%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}}
+
+&INC`EVOCATIONS [u(cobj,sheet)]=@dolist/inline filterbool(#lambda/strlen(regrepi(%0,D`\%0`*,.+)),CHARMS`EVOCATIONS)={@select/inline default(%#/SHEETSTYLE,0)=0,{@pemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(switch(elements(%i0,2,`),EVOCATIONS,Evocations)));@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),sortkey(#lambda/get(%0/\%0`NAME),u(lattr,%0/D`%i0`*),i))={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,capnames(default(%0/%i0`NAME,Unnamed Artifact)));@pemit %#=u(FUN`BORDER,%0,%1,u(u(FUN`WORDLIST,%0,get(%0/%i0)))}},1,{@pemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(switch(elements(%i0,2,`),EVOCATIONS,Evocations)));@dolist/inline filterbool(#lambda/strlen(get(%0/\%0)),sortkey(#lambda/get(%0/\%0`NAME),u(lattr,%0/D`%i0`*),i))={@pemit %#=u(FUN`BORDER,%0,%1,ansi(h,capnames(default(%0/%i0`NAME,Unnamed Artifact)):) [itemize(sort(iter(get(%0/%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}}
+
+&INC`SPELLS [u(cobj,sheet)]=@dolist/inline filterbool(#lambda/strlen(get(%0/D`\%0)),SPELLS`TERRESTRIAL SPELLS`CELESTIAL SPELLS`SOLAR SPELLS`SHADOWLANDS SPELLS`LABYRINTH SPELLS`VOID PROTOCOLS`MAN-MACHINE PROTOCOLS`GOD-MACHINE)={@select/inline default(%#/SHEETSTYLE,0)=0,{@pemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`)));@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,capnames(after(%i0,`)));@pemit %#=u(FUN`BORDER,%0,%1,u(u(FUN`WORDLIST,%0,get(%0/D`%i0)))},1,{@pemit %#=u(FUN`CHARMHEADER,%0,%1,capnames(before(%i0,`)));@pemit %#=u(FUN`BORDER,%0,%1,ansi(h,capnames(after(%i0,`))): [itemize(sort(iter(get(%0/D`%i0),capnames(%i0),|,|),i,|,|),|,and,\,)])}}
+
+&FUN`WORDLIST [u(cobj,sheet)]=if(strlen(u(setr,short,u(table,sort(filterbool(#lambda/lte(strlen(\%0),36),u(setr,capped,iter(%1,capnames(%i0),|,|)),|,|),i,|,|),36,74,|))),%q<short>)[if(words(u(setr,toolong,filterbool(#lambda/gte(strlen(\%0),37),%q<capped>,|,|)),|),if(strlen(%q<short>),%R)[iter(%q<toolong>,%i0,|,%R)])]
+
+&FUN`CHARMHEADER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,\})[center(u(FUN`COLOR,%1,FRONTSLASH,/)[u(FUN`COLOR,%1,CHARMHEADER,%2)][u(FUN`COLOR,%1,FRONTSLASH,/)],76,u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,\{)]
+
+&FUN`CHARMSUBHEADER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,|)[center(u(FUN`COLOR,%1,CHARMSUBHEADERBORDER,====)[u(FUN`COLOR,%1,CHARMSUBHEADER,%2)][u(FUN`COLOR,%1,CHARMSUBHEADERBORDER,====)],76)][u(FUN`COLOR,%1,BORDER,|)]
+
+&FUN`SECTIONHEADER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,\})[center(u(FUN`COLOR,%1,FRONTSLASH,/)[u(FUN`COLOR,%1,HEADER,edit(%2,_,%b))][u(FUN`COLOR,%1,FRONTSLASH,/)],76,u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,\{)]
+
+&INC`FOOTER [u(cobj,sheet)]=@select/inline gt(strlen(get(%0/D`LANGUAGES)),0)=1,{@pemit %#=u(FUN`SECTIONHEADER,%0,%1,Languages);@pemit %#=u(FUN`BORDER,%0,%1,itemize(sort(get(%0/D`LANGUAGES),a,|),|,and,\,))};@select/inline gt(words(u(u(cobj,pool)/FUN`LISTPOOLS,%0)),0)=1,{@pemit %#=u(FUN`COLOR,%1,BORDER,\}[repeat(-,8)])[u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,PSM,Pools)][u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,11))][u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,PSM,Tracks)][u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,23))][u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,PSM,XP)][u(FUN`COLOR,%1,FRONTSLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,15)\{)]%R[u(FUN`BORDER,%0,%1,align(>17 >17 >30,u(FUN`FORMATPOOLS,%0,Pool),u(FUN`FORMATPOOLS,%0,Track),u(FUN`XP,%0)))]};@pemit %#=u(FUN`BORDER,%0,%1,align(>11 62,Health:, u(u(ex-dts)/FUN`FORMATHEALTH,%0)));@pemit %#=u(FUN`FOOTER,%0,%1)
+
+&FUN`FORMATPOOLS [u(cobj,sheet)]=iter(u(u(cobj,pool)/FUN`LISTPOOLS,%0,%1),%i0: [rjust(u(u(cobj,pool)/FUN`CUR,%0,%i0),switch(%1,Pool,2,Channel,1,Track,2,2),0)]/[rjust(u(u(cobj,pool)/FUN`MAX,%0,%i0),switch(%1,Pool,2,Channel,1,Track,2,2),0)],%B,%R)
+
+&FUN`XP [u(cobj,sheet)]=trimpenn(iter(filterbool(#lambda/nattr(%0/D`\[u(u(exp)/FUN`XPATTR,\%0)\]`**),XP EXTRA S G W),u(FUN`COLOR,%1,PSM,rjust(u(u(exp)/FUN`TYPENAME2,%i0),9): [rjust(sub(u(u(exp)/FUN`COUNT,%0,G,%i0),u(u(exp)/FUN`COUNT,%0,S,%i0)),3,0)]/[rjust(u(u(exp)/FUN`COUNT,%0,G,%i0),3,0)]),%b,%R),%r)
+
+&FUN`FOOTER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,|----------------------------------------------------------------------------|)%R%B[u(FUN`COLOR,%1,BORDER,\\)]%B[center(u(u(FUN`GETSERIES,%1),72)]%B[u(FUN`COLOR,%1,BORDER,/)]%R%B%B[u(FUN`COLOR,%1,BORDER,'------------------------------------------------------------------------')]
+
+&FUN`GETSERIES [u(cobj,sheet)]=switch(%0,SOLAR,ansi(hy,Solars):%B[ansi(hy,The Lawgivers)],ABYSSAL,ansi(hx,Abyssals):%B[ansi(hx,The Deathknights)],INFERNAL,ansi(hg,Infernals):%B[ansi(hg,The Green Sun Princes)],LUNAR,ansi(hc,Lunars):%B[ansi(hc,The Stewards)],SIDEREAL,ansi(hm,Sidereals):%B[ansi(hm,The Viziers)],TERRESTRIAL,ansi(hr,Terrestrials):%B[ansi(hr,The TERRESTRIAL)],ALCHEMICAL,ansi(c,Alchemicals):%B[ansi(c,The Champions)],JADEBORN,ansi(y,Jadeborn),RAKSHA,ansi(m,Raksha):%B[ansi(m,The Fair Folk)],MORTAL,Mortals:%BThe Heroes,GHOST,Ghosts,DRAGON-KING,Dragon-Kings,GOD-BLOODED,ansi(h,GOD-BLOODED):%B[ansi(h,The Children of the Mighty)],Exalted 2.5e)
+
+&DEFAULT`STATNAME [u(cobj,sheet)]=
+&DEFAULT`FAVMARK [u(cobj,sheet)]=c
+&DEFAULT`SUPMARK [u(cobj,sheet)]=hr
+
+&SOLAR`BORDER [u(cobj,sheet)]=y
+&SOLAR`FRONTSLASH [u(cobj,sheet)]=hr
+&SOLAR`HEADER [u(cobj,sheet)]=hy
+&SOLAR`CHARMHEADER [u(cobj,sheet)]=hy
+
+&LUNAR`BORDER [u(cobj,sheet)]=+lightblue1
+&LUNAR`FRONTSLASH [u(cobj,sheet)]=hb
+&LUNAR`HEADER [u(cobj,sheet)]=hc
+&LUNAR`CHARMHEADER [u(cobj,sheet)]=hc
+
+&INFERNAL`BORDER [u(cobj,sheet)]=g
+&INFERNAL`FRONTSLASH [u(cobj,sheet)]=y
+&INFERNAL`HEADER [u(cobj,sheet)]=hg
+&INFERNAL`CHARMHEADER [u(cobj,sheet)]=hg
+
+&ABYSSAL`BORDER [u(cobj,sheet)]=+gray18
+&ABYSSAL`FRONTSLASH [u(cobj,sheet)]=+grey93
+&ABYSSAL`HEADER [u(cobj,sheet)]=+red3
+&ABYSSAL`CHARMHEADER [u(cobj,sheet)]=+red3
+
+&SIDEREAL`BORDER [u(cobj,sheet)]=hm
+&SIDEREAL`FRONTSLASH [u(cobj,sheet)]=m
+&SIDEREAL`HEADER [u(cobj,sheet)]=hw
+&SIDEREAL`CHARMHEADER [u(cobj,sheet)]=hw
+
+&TERRESTRIAL`BORDER [u(cobj,sheet)]=hr
+&TERRESTRIAL`FRONTSLASH [u(cobj,sheet)]=c
+&TERRESTRIAL`HEADER [u(cobj,sheet)]=hc
+&TERRESTRIAL`CHARMHEADER [u(cobj,sheet)]=c
+
+&RAKSHA`BORDER [u(cobj,sheet)]=+springgreen3
+&RAKSHA`FRONTSLASH [u(cobj,sheet)]=+powderblue
+&RAKSHA`HEADER [u(cobj,sheet)]=+powderblue
+&RAKSHA`CHARMHEADER [u(cobj,sheet)]=+powderblue

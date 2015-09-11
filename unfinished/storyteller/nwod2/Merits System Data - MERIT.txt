@@ -1,0 +1,9 @@
+&CMD`+MERITS`PENNMUSH [u(cobj,merit)]$^(?s)(?\:\+)?(merits|flaws)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
+@set [u(cobj,merit)]/CMD`+MERITS`PENNMUSH=regexp
+&CMD`+MERITS`RHOSTMUSH [u(cobj,merit)]=$^(?s)(?\:\+)?(merits|flaws)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
+@set [u(cobj,merit)]/CMD`+MERITS`RHOSTMUSH=regexp
+&CMD`+MERITS`MAIN [u(cobj,merit)]=@attach %!/INIT`%1;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[strfirstof(%q<switch>,MAIN)]=squish(trim(%3)),trim(%4)
+@set [u(cobj,merit)]/CMD`+MERITS`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&INIT`MERITS [u(cobj,merit)]=th u(setq,sysname,MERITS);th u(setq,root,D`MERITS);th u(setq,type,Merit)
+&INIT`FLAWS [u(cobj,merit)]=th u(setq,sysname,FLAWS);th u(setq,root,D`FLAWS);th u(setq,type,Flaw)
