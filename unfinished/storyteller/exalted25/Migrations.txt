@@ -1,0 +1,8 @@
+&MIGRATE`STATS [u(cobj,migrate)]=@dolist lsearch(all,type,player)=@wait #@={th u(setstat,%i0,D`INFO,POWER,u(getstat,%i0,D`INFO,Essence));th u(setstat,%i0,D`INFO,CLASS,u(getstat,%i0,D`INFO,Splat));@select/inline getclass(%i0)=Dragon-Blooded,{th u(setstat,%i0,D`INFO,TERRESTRIAL)};@dolist/inline filterbool(#lambda/hasattrval(%i0/\%0),D`ATTRIBUTES D`ABILITIES D`COLLEGES D`PATHS D`SPECIALTIES D`SLOTS)={&%i0 %i1=ucstr(edit(get(%i1/%i0),_,%b))};@dolist/inline filterbool(#lambda/not(strmatch(\%0,*`NAME)),iter(D`CHARMS D`SPELLS D`PROTOOCLS D`ARTS D`DEGREES,lattr(%i1/%i0`**)))={&%i0 %i1=iter(ucstr(get(%i1/%i0)),if(isint(last(%i0)),elements(%i0,lnum(1,sub(words(%i0),1)))~[last(%i0)],%i0~1),|,|)}}
+
+&MIGRATE`MARTIAL [u(cobj,migrate)]=@dolist lsearch(all,type,player)={@dolist/inline lattr(%i0/D`CHARMS`*_MARTIAL_ARTS`*`NAME)=&%i0 %i1=u(capnames,before(get(%i1/%i0),~))}
+
+&MIGRATE`MERITS [u(cobj,migrate)]=@dolist lsearch(all,type,player)=@wait #@={@dolist/inline D`MERITS D`FLAWS D`BACKGROUNDS D`WARFORM_MUTATIONS D`RAGE_MUTATIONS D`POSITIVE_MUTATIONS D`NEGATIVE_MUTATIONS D`NEUTRAL_MUTATIONS={@dolist/inline/delimit | [get(%i1/%i0)]={th u(setq,merit,ucstr(before(before(before(%i0,\(),:),~)));th u(setq,context,strfirstof(trim(after(before(%i0,~),:)),before(after(before(%i0,~),\(),\))));th u(setq,rank,after(%i0,~));@attach [u(cobj,merit)]/DO`ADD=%i1`[inum(0)],%i2,%q<merit>,%q<context>,%q<rank>;@attach [u(cobj,merit)]/DO`UPD=%i1`[inum(0)],%i2}}}
+
+
+&MIGRATE`XP [u(cobj,migrate)]=@dolist lsearch(all,type,player)=@wait #@={@dolist/inline sortkey(#lambda/get(%i0/\%0`ON),u(lattr,%i0/D`XP`*`*))=th u(u(cobj,xp)/MYSQL,INSERT`XP2,u(objid,%i1),XP,switch(elements(%i0,3,`),G,get(%i1/%i0),S,mul(-1,get(%i1/%i0))),get(%i1/%i0`REASON),get(%i1/%i0`BY),get(%i1/%i0`ON))}

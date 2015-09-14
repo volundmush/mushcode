@@ -129,7 +129,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 
 &Q`GET`LOGINS [u(cobj,ams)]=SELECT login_result,login_address,UNIX_TIMESTAMP(login_date),login_reason from $LOGINS$ as logins LEFT JOIN $PLAYERS$ as players ON players.player_id=logins.player_id WHERE players.objid=? ORDER BY login_date ASC LIMIT 10
 
-&TRG`IP`CLEANCONNLOGS [u(cobj,ams)]=@attach %!/INC`IDCHECK=%0;@check %q<id>;th u(setq,keepids,u(mysql,GET`GOOD_LOGINS,%q<id>));@attach %!/INC`DOSQL=DELETE`OLD_LOGINS=%q<id>,u(SQL`IN`NUMBER,%q<keepids>)
+&TRG`IP`CLEANCONNLOGS [u(cobj,ams)]=@attach %!/INC`IDCHECK=%0;@check %q<id>;th u(setq,keepids,u(mysql,GET`GOOD_LOGINS,%q<id>));@attach %!/INC`DOSQL=DELETE`OLD_LOGINS,%q<id>,u(SQL`IN`NUMBER,%q<keepids>)
 
 &Q`GET`GOOD_LOGINS [u(cobj,ams)]=SELECT login_id FROM $LOGINS$ WHERE player_id=? ORDER BY login_date DESC LIMIT 20
 &Q`DELETE`OLD_LOGINS [u(cobj,ams)]=DELETE FROM $LOGINS$ WHERE player_id=? AND login_id NOT IN (!)

@@ -45,8 +45,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &STARTUP [u(cobj,mco)]=@dolist/inline u(lattr,%!/STARTUP`*)={@include/nobreak %!/##}
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
-&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder namelink,v(FUNCTIONLIST`EXTRA))={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(align lalign sortkey game_config header subheader separator isadmin isapproved approved moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid namelink,v(FUNCTIONLIST`EXTRA))={@function/privileged %d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=%d0 wizard}
+&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder namelink weblink,v(FUNCTIONLIST`EXTRA))={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(align lalign sortkey game_config header subheader separator isadmin isapproved approved moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid namelink weblink,v(FUNCTIONLIST`EXTRA))={@function/privileged %d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=%d0 wizard}
 
 &FUNCTIONLIST`EXTRA [u(cobj,mco)]=
 &FUNCTIONLIST`ADMIN [u(cobj,mco)]=
@@ -457,7 +457,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 @@ Sort section.
 
 &SORTATTR [u(cobj,mco)]=u(SORTATTR`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTATTR`PENNMUSH [u(cobj,mco)]=sortkey(SRT`ATTRSLOT,%0,%1,%2)
+&SORTATTR`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/last(\%0,`),%0,n,%1,%2)
 &SORTATTR`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(last(%0,`),last(%1,`))])],%0,%1,%2)
 
 &SORTIDLE [u(cobj,mco)]=u(SORTIDLE`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
@@ -515,7 +515,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &SYSTEM`NAME [u(cobj,mco)]=SYSTEM
 
-&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr,t%1,pmatch(%0)))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq,t%1objid,u(objid,pmatch(%0)));th u(setq,t%1name,name(pmatch(%0)));th u(setq,t%1acc,u(accid,pmatch(%0)));@select/inline t(%2)=1,{th u(setq,t%1id,u(mysql,GET`ID_FROM_OBJID,u(objid,%0)))}
+&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr,t%1,pmatch(%0)))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq,t%1objid,u(objid,pmatch(%0)));th u(setq,t%1name,name(pmatch(%0)));th u(setq,t%1acc,u(accid,pmatch(%0)));@select/inline t(%2)=1,{th u(setq,t%1id,u(mysql,GET`ID_FROM_OBJID,u(objid,pmatch(%0))))}
 @@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into. %2 - Boolean for also looking up a SQL id.
 
 &INC`IDCHECK [u(cobj,mco)]=@select/inline t(u(setr,id,u(mysql,GET`ID_FROM_OBJID,u(objid,%0))))=0,{@attach %!/INC`DOSQL=INSERT`PLAYER,u(objid,%0),name(%0);@attach %!/INC`IDCHECK}
@@ -626,6 +626,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &PLAYER_CONFIG [u(cobj,mco)]=localize(u(strfirstof,if(isdbref(u(setr,accid,u(accid,%0))),get(%q<accid>/D`CONFIG`%1`%2)),get(%0/D`CONFIG`%1`%2),get(u(cobj,pconf)/DEFAULT`%1`%2)))
 
 &APPROVED [u(cobj,mco)]=u(isapproved,%0)
+&APPROVED2 [u(cobj,mco)]=u(isapproved,%#)
+
 
 &ISAPPROVED [u(cobj,mco)]=if(u(game_config,SYSTEM,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1)
 

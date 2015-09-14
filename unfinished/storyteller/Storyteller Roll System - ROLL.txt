@@ -6,6 +6,8 @@ th u(newconf,CONFIG,ROLLER,AGAIN_NUMBER,10,Default #-Again.,POSINT)
 th u(newconf,CONFIG,ROLLER,REROLL_NUMBER,,Default Re-#.,POSINT)
 th u(newconf,CONFIG,ROLLER,BOTCHES,0,Enable botches?,BOOL)
 th u(newconf,CONFIG,ROLLER,CHANNEL,,Channel to report dice rolls?,LIST)
+th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|SKILLS|ARCANA|DISCIPLINES|MANIFESTATIONS|RENOWN,D`Attributes to stat search?,LIST)
+
 
 &CMD`+ROLL`PENNMUSH [u(cobj,roll)]=$^(?\:\+)?(st)?(d)?roll(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ROLL`MAIN
 @set [u(cobj,roll)]/CMD`+ROLL`PENNMUSH=regexp
@@ -47,31 +49,17 @@ th u(newconf,CONFIG,ROLLER,CHANNEL,,Channel to report dice rolls?,LIST)
 
 &FUN`FINDSPECNAME [u(cobj,roll)]=u(strfirstof,if(match(get(u(strfirstof,%1,%#)/D`SPECIALTIES),%0,|),%0),grab(iter(get(u(strfirstof,%1,%#)/D`SPECIALTIES),before(%i0,~),|,|),%0*,|),%0)
 
-&ROLL`DYNAMICSTATS [u(cobj,roll)]=SPEED|DEFENSE|INITIATIVE|WILLPOWER|BLOOD POTENCY|PRIMAL URGE|PSYCHE|WYRD|GNOSIS|PYROS|ENDOWMENT|MORALITY
-&ROLL`DYNAMICSTATS`SPEED [u(cobj,roll)]=add(bound(u(getstat,%0,D`ATTRIBUTES,Strength,BONUS),1),bound(u(getstat,%0,D`ATTRIBUTES,Dexterity,BONUS),1),5)
-&ROLL`DYNAMICSTATS`DEFENSE [u(cobj,roll)]=add(min(bound(u(getstat,%0,D`ATTRIBUTES,Dexterity,BONUS),1),bound(u(getstat,%0,D`ATTRIBUTES,Wits,BONUS),1)),u(getstat,%0,D`BONUS,DEFENSE))
-&ROLL`DYNAMICSTATS`INITIATIVE [u(cobj,roll)]=add(bound(u(getstat,%0,D`ATTRIBUTES,Dexterity,BONUS),1),bound(u(getstat,%0,D`ATTRIBUTES,Composure,BONUS),1),u(getstat,%0,D`BONUS,INITIATIVE))
-&ROLL`DYNAMICSTATS`WILLPOWER [u(cobj,roll)]=u(u(cobj,pool)/POOL`WILLPOWER`MAX,%0)
-&ROLL`DYNAMICSTATS`BLOOD_POTENCY [u(cobj,roll)]=u(getstat,%0,D`INFO,Power)
-&ROLL`DYNAMICSTATS`PRIMAL_URGE [u(cobj,roll)]=u(getstat,%0,D`INFO,Power)
-&ROLL`DYNAMICSTATS`PSYCHE [u(cobj,roll)]=u(getstat,%0,D`INFO,Power)
-&ROLL`DYNAMICSTATS`WYRD [u(cobj,roll)]=u(getstat,%0,D`INFO,Power)
-&ROLL`DYNAMICSTATS`GNOSIS [u(cobj,roll)]=u(getstat,%0,D`INFO,Power)
-&ROLL`DYNAMICSTATS`PYROS [u(cobj,roll)]=u(getstat,%0,D`INFO,Power)
-&ROLL`DYNAMICSTATS`MORALITY [u(cobj,roll)]=u(getstat,%0,D`INFO,Morality)
-&ROLL`DYNAMICSTATS`ENDOWMENT [u(cobj,roll)]=u(lmax,iter(u(filter,ISINTSTAT,get(%0/D`ENDOWMENTS),|,|),last(%i0,~),|))
-
 &FIL`ISINTSTAT [u(Cobj,roll)]=isint(after(%0,~))
 
-&FUN`FINDSTATNAME`SEARCH`EXACT [u(cobj,roll)]=null(iter(v(ROLL`CATEGORIES),if(match(iter(u(filter,ISINTSTAT,get(%1/D`%i0),|,|),first(%i0,~),|,|),%0,|),u(setr,found,%0)[ibreak(1)]),|,|))[ucstr(%q<found>)]
+&FUN`FINDSTATNAME`SEARCH`EXACT [u(cobj,roll)]=null(iter(u(game_config,ROLLER,CATEGORIES),if(match(iter(u(filter,ISINTSTAT,get(%1/D`%i0),|,|),first(%i0,~),|,|),%0,|),u(setr,found,%0)[ibreak(1)]),|,|))[ucstr(%q<found>)]
 
-&FUN`FINDSTATNAME`SEARCH`WILD [u(cobj,roll)]=null(iter(v(ROLL`CATEGORIES),if(strlen(u(setr,found,grab(iter(u(filter,ISINTSTAT,get(%1/D`%i0),|,|),first(%i0,~),|,|),%0*,|))),%q<found>[ibreak(1)]),|,|))[ucstr(%q<found>)]
+&FUN`FINDSTATNAME`SEARCH`WILD [u(cobj,roll)]=null(iter(u(game_config,ROLLER,CATEGORIES),if(strlen(u(setr,found,grab(iter(u(filter,ISINTSTAT,get(%1/D`%i0),|,|),first(%i0,~),|,|),%0*,|))),%q<found>[ibreak(1)]),|,|))[ucstr(%q<found>)]
 
 &ROLL`CATEGORIES [u(cobj,roll)]=ATTRIBUTES|SKILLS|ARCANA|DISCIPLINES|MANIFESTATIONS|RENOWN
 
 &FUN`STATNUM [u(cobj,roll)]=localize(if(strmatch(%0,*/*),add(u(FUN`STATNUM,before(stripansi(%0),/),%1),u(strfirstof,last(grab(get(%#/D`SPECIALTIES),elements(stripansi(%0),1 2,/,/)*~*,|),~),0)),if(match(v(ROLL`DYNAMICSTATS),%0,|),add(u(ROLL`DYNAMICSTATS`[edit(stripansi(%0),%b,_)],u(strfirstof,%1,%#)),getbonus(u(strfirstof,%1,%#),stripansi(%0))),add(u(firstof,u(FUN`STATNUM`SEARCH,stripansi(%0),u(strfirstof,%1,%#)),0),getbonus(u(strfirstof,%1,%#),stripansi(%0))))))
 
-&FUN`STATNUM`SEARCH [u(cobj,roll)]=null(iter(v(ROLL`CATEGORIES),if(strlen(u(setr,found,grab(get(%1/D`%i0),%0~*,|))),%q<found>[ibreak(1)]),|,|))[after(%q<found>,~)]
+&FUN`STATNUM`SEARCH [u(cobj,roll)]=null(iter(u(game_config,ROLLER,CATEGORIES),if(strlen(u(setr,found,grab(get(%1/D`%i0),%0~*,|))),%q<found>[ibreak(1)]),|,|))[after(%q<found>,~)]
 
 &FUN`FORMATROLL [u(cobj,roll)]=regeditalli(%0,v(REG`FORMATROLL),u(u(cobj,roll)/FUN`FORMATNUM,$0,u(strfirstof,%1,%#)),%b\\+%b,ansi(hg,%b+%b),%b\\-%b,ansi(hr,%b-%b))
 
@@ -98,10 +86,20 @@ th u(newconf,CONFIG,ROLLER,CHANNEL,,Channel to report dice rolls?,LIST)
 
 &FUN`ROLLRESULT [u(cobj,roll)]=if(and(not(isint(%0)),lt(%0,1)),ansi(hx,a botch!),switch(%1,0,if(lt(floor(%0),1),ansi(hr,a failure!),if(gt(floor(%0),1),ansi(hg,floor(%0) successes!),ansi(hg,a success!))),1,if(lte(floor(%0),%2),if(floor(%0),floor(%0) success[if(gt(floor(%0),1),es)]\, but [ansi(hr,a miss.)],no successes! [ansi(hr,a miss!)]),ansi(hg,floor(%0) success[if(gt(floor(%0),1),es)]! [sub(floor(%0),%2)] success[if(gt(sub(floor(%0),%2),1),es)] over DV!)),2,if(lt(floor(%0),%2),if(floor(%0),floor(%0) successes\, but [ansi(hr,a failure.)],no successes! [ansi(hr,a failure!)]),ansi(hg,floor(%0) Success[if(gt(floor(%0),1),es)]!%B[sub(floor(%0),%2)] Threshold Success[if(gt(sub(floor(%0),%2),1),es)]))))
 
-&FUN`RESFORMAT [u(cobj,roll)]=u(setq,formatted,u(FUN`FORMATROLL,%q<findnames>,%q<t1>))[null(iter(lnum(1,%q<mul>),u(FUN`ROLL,%q<totaldice>,%i0)))][switch(%q<dicemode>,ST,if(%q<public>,%n rolls with %q<t1name>'s Stats,You roll for %q<t1name>),job,%n Rolls,if(%q<private>,You Roll,%n rolls))]%b%q<formatted>[if(neq(%q<tn>,u(game_config,ROLLER,TARGET_NUMBER)),%bat TN%q<tn>)][if(%q<def>,\,%bVs DV%q<def>)][if(%q<dif>,\,%bat Difficulty %q<dif>)][if(neq(words(setinter(%q<dbl>,u(game_config,ROLLER,DOUBLE_NUMBER))),words(%q<dbl>)),\,%bWith Double [itemize(sort(%q<dbl>),%b,and,\,)])][if(neq(%q<ag>,u(game_config,ROLLER,AGAIN_NUMBER)),\,%bWith %q<ag>-Again)][if(words(%q<re>),\,%bRe-Rolling [itemize(%q<re>,%b,and,\,)])][if(gt(%q<mul>,1),\,%b%q<mul> times)]: %q<totaldice> Total dice!%R[u(trimlines,iter(lnum(1,%q<mul>),ansi(h,if(gt(%q<mul>,1),numth(%i0) Roll,Roll):)%b[u(FUN`GETREG,roll%i0,4)][if(u(setr,rerolls,r(roll%i0-rerolls)),%b[ansi(hx,|)] Re-Rolls:%b[iter(lnum(1,%q<rerolls>),u(FUN`GETREG,roll%i1-reroll%i0,4),%b,|)])][if(u(setr,agains,r(roll%i0-agrolls)),%R[u(trimlines,iter(lnum(1,%q<agains>),ansi(h,if(gt(%q<mul>,1),%t)%q<ag>-Again Roll %i0:)%b[u(FUN`GETREG,roll%i1-agroll%i0,4)],%b,%r))])]%R%TResulting in: [u(FUN`ROLLRESULT,add(%q<sux>,u(FUN`GETREG,roll%i0,6)),if(%q<def>,1,if(%q<dif>,2,0)),u(strfirstof,%q<def>,%q<dif>))],%b,%r))]
+&FUN`RESFORMAT [u(cobj,roll)]=u(setq,formatted,u(FUN`FORMATROLL,%q<findnames>,%q<t1>))[null(iter(lnum(1,%q<mul>),u(FUN`ROLL,%q<totaldice>,%i0)))][switch(%q<dicemode>,ST,if(%q<public>,%n rolls with %q<t1name>'s Stats,You roll for %q<t1name>),job,%n Rolls,if(%q<private>,You Roll,%n rolls))]%b%q<formatted>[if(neq(%q<tn>,u(game_config,ROLLER,TARGET_NUMBER)),%bat TN%q<tn>)][if(%q<def>,\,%bVs DV%q<def>)][if(%q<dif>,\,%bat Difficulty %q<dif>)][if(neq(words(setinter(%q<dbl>,u(game_config,ROLLER,DOUBLE_NUMBER))),words(%q<dbl>)),\,%bWith Double [itemize(sort(%q<dbl>),%b,and,\,)])][if(neq(%q<ag>,u(game_config,ROLLER,AGAIN_NUMBER)),\,%bWith %q<ag>-Again)][if(words(%q<re>),\,%bRe-Rolling [itemize(%q<re>,%b,and,\,)])][if(gt(%q<mul>,1),\,%b%q<mul> times)]: %q<totaldice> Total dice!%R[u(trimlines,iter(lnum(1,%q<mul>),ansi(h,if(gt(%q<mul>,1),u(numth,%i0) Roll,Roll):)%b[u(FUN`GETREG,roll%i0,4)][if(u(setr,rerolls,r(roll%i0-rerolls)),%b[ansi(hx,|)] Re-Rolls:%b[iter(lnum(1,%q<rerolls>),u(FUN`GETREG,roll%i1-reroll%i0,4),%b,|)])][if(u(setr,agains,r(roll%i0-agrolls)),%R[u(trimlines,iter(lnum(1,%q<agains>),ansi(h,if(gt(%q<mul>,1),%t)%q<ag>-Again Roll %i0:)%b[u(FUN`GETREG,roll%i1-agroll%i0,4)],%b,%r))])]%R%TResulting in: [u(FUN`ROLLRESULT,add(%q<sux>,u(FUN`GETREG,roll%i0,6)),if(%q<def>,1,if(%q<dif>,2,0)),u(strfirstof,%q<def>,%q<dif>))],%b,%r))]
 
-&INC`ROLL [u(cobj,roll)]=th u(setq,results,u(FUN`RESFORMAT));@select/inline t(%q<private>)=1,{@pemit %#=%q<results>},0,{@remit %l=%q<results>};@attach %!/INC`MSG`CHAN=if(%q<private>,\(PRIVATE\)%B)[if(%q<private>,edit(%q<results>,You Roll,%n Rolls),%q<results>)],u(game_config,ROLLER,CHANNEL)
+&INC`ROLL [u(cobj,roll)]=th u(setq,results,u(FUN`RESFORMAT));@select/inline t(%q<private>)=1,{@attach %!/INC`MSG=%q<results>},0,{@attach %!/INC`MSG`ROOM=%q<results>};@attach %!/INC`MSG`CHAN=if(%q<private>,\(PRIVATE\)%B)[if(%q<private>,edit(%q<results>,You Roll,%n Rolls),%q<results>)],u(game_config,ROLLER,CHANNEL)
 
-&INC`STROLL [u(cobj,roll)]=th u(setq,results,u(FUN`RESFORMAT,,%q<t1>));@select/inline t(%q<public>)=0,{@pemit %#=%q<results>},1,{@nsremit %l=%q<results>};@attach %!/INC`MSG`CHAN=edit(%q<results>,You roll for,%n rolls for),u(game_config,ROLLER,CHANNEL)
+&INC`STROLL [u(cobj,roll)]=th u(setq,results,u(FUN`RESFORMAT,,%q<t1>));@select/inline t(%q<public>)=0,{@attach %!/INC`MSG`ROOM=%q<results>},1,{@attach %!/INC`MSG`ROOM=%q<results>};@attach %!/INC`MSG`CHAN=edit(%q<results>,You roll for,%n rolls for),u(game_config,ROLLER,CHANNEL)
 
 &CMD`+ROLLINIT [u(cobj,roll)]=$roll init:@check words(u(setr,list,lvplayers(%l)))=@attach %!/INC`MSG=Nobody to roll init for!;th iter(%q<list>,u(setq,dex,u(firstof,u(getstat,%i0,D`ATTRIBUTES,DEXTERITY,BONUS),0),comp,u(firstof,u(getstat,%i0,D`ATTRIBUTES,COMPOSURE,BONUS),0),bonus,u(firstof,u(getstat,%i0,D`BONUS,initiative),0),roll,u(firstof,rand(1,10),0))[u(attrib_set,%i0,INITROLL,ansi(h,DEXTERITY\(%q<dex>\) + COMPOSURE\(%q<comp>\) + BONUS\(%q<bonus>\) + ROLL\(%q<roll>\) = )%B[ansi(hg,add(%q<dex>,%q<comp>,%q<bonus>,%q<roll>))])]);@attach %!/INC`MSG`ROOM=%n called for an Initiative Roll!;th iter(sortkey(#lambda/stripansi(last(get(\%0/INITROLL))),%q<list>,n),remit(%l,ljust(left(name(%i0):,add(1,config(player_name_len))),add(1,config(player_name_len)))%B[get(%i0/INITROLL)]))
+
+
+@@ ROLEPLAYING - +ROLL
++help/add +roll=[u(cobj,roll)]/HLP`+ROLL
++help/category +roll=Roleplaying
+&HLP`+ROLL [u(cobj,roll)]=[ansi(h,+roll\[/switches\] <stats to roll>)]%R[ansi(h,+droll\[/switches\] <stats to roll>)]%R%R+roll is for virtually any situation that involves rolling X amount of d10.%R%R<stats to roll> can be any Attribute, Ability, or Stat+Specialty (addressed by attribute or ability followed by a slash and then the text-- example, Melee/Swords. This will ADD BOTH TOGETHER so you don't need to use Melee + Melee/Swords), Willpower, Essence, Crafts, or martial arts styles. It will also accept any whole numbers. Each entry can be seperated by a + or -.%R%RExample of a valid roll formula: +roll Dexterity + Melee + 10%R%RStat entries are not case sensitive, although they do support partial matches. Dex will be matched to Dexterity... however, int could be either Intelligence or Integrity, and it will pick the first its matching algorithm finds, so be careful to enter enough to not be vague.%R%R+droll is the same as +roll, though it does not count 10s as succeses. This is used for rolling extras or damage and so on.%R%RSWITCHES (which can be combined in any order and used repeatedly) are-%R%R/def# - Roll against a given Defense to determine hit or miss and threshold successes. (may not be used with /dif# simultaneously)%R/dif# - Roll against a given difficulty to determine threshold succeses. (may not be used with /def# simultaneously)%R/tn# - change target number.%R/sux# - adds automatic successes.%R/pen# - external penalties to subtract successes from rolls.%R/PRIVATE - only you see the roll's results.%R/mul# - multi-roll. Rolls the given <stats to roll> # amount of times. Note: does not support cumulative penalties for flurries.%R/dbl# - double #. If given, overrides default 10 so use /dbl9/dbl10, etc.%R/re# - Re-roll #. Can be used several times, such as /re6/re7/re8.
+
++shelp/add +roll=[u(cobj,roll)]/SHLP`+ROLL
++shelp/category +roll=ROLEPLAYING
+&SHLP`+ROLL [u(cobj,roll)]=In addition to the normal commands, Storytellers may do the following:%R+stroll\[/<switches>\] <player>=<roll string>%R%RIt does exactly what it sounds like.

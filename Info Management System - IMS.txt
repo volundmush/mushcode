@@ -57,5 +57,6 @@ th u(NEWCOBJ,Info Management System <IMS>,ims,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 +shelp/category +info=Character
 &SHLP`+INFO [u(cobj,ims)]=Staff are able to see, create, edit, delete, rename, and otherwise manage +info and +pinfo files on any character. The commands work the same as for players via <name>/<filename>.%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+info/lock <player>/<filelist>)] - Lock one or more info files.%R[ansi(h,+info/unlock <player>/<filelist>)] - Unlock one or more info files.%R%RLocked files cannot be edited by players. This is useful for 'approved information' depending on the game.)]
 
+&MIGRATE`INFO [u(cobj,migrate)]=
 
 &CONFLICT`INFO [u(cobj,migrate)]=@tel u(coi,ifo)=u(cobj,oldbox);@set u(coi,ifo)=NO_COMMAND HALT

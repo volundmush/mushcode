@@ -8,11 +8,11 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 &DO`ANNOUNCE [u(cobj,merit)]=@select/inline t(strlen(%1))=1,{@attach %!/INC`MSG`CHAN=%1};@select/inline strmatch(%#,%0)=0,{@attach %!/INC`MSG`NOTICE=%2,%0;@attach %!/INC`MSG=%3},1,{@attach %!/INC`MSG`NOTICE=%2,%0}
 @@ %0 - player being modified. %1 - message for admin channel. %2 - message for player. %3 - message for admin.
 
-&INC`TARGET [u(cobj,merit)]=@select/inline strmatch(%0,*/*)=1,{@attach %!/INC`CHECKPC=before(%0,/),1;th u(setq,target,%q<t1>,filename,after(%0,/))},0,{th u(setq,target,%#)[u(setq,filename,%0)]}
+&INC`TARGET [u(cobj,merit)]=@select/inline strmatch(%0,*/*)=1,{@attach %!/INC`CHECKPC=before(%0,/),1;th u(setq,target,%q<t1>)[u(setq,filename,after(%0,/))]},0,{th u(setq,target,%#)[u(setq,filename,%0)]}
 
 &INC`MERNAME [u(cobj,merit)]=@check strlen(u(setr,merit,trim(squish(before(%0,:)))))=@attach %!/INC`MSG=ERROR: [capstr(%q<type>)] field empty.;th u(setq,context,squish(trim(after(%0,:))));@stop u(charsearch,%q<context>,| ~)=@attach %!/INC`MSG=ERROR: Contexts may not contain a ~ or |.
 
-&INC`EXISTING [u(cobj,merit)]=@check strlen(u(setr,attr,first(u(filter,FINDMERIT,u(lattr,%q<target>/%q<attr>`*),%b,%b,%q<target>,%q<merit>,%q<context>))))=@attach %!/INC`MSG=ERROR: Cannot find '%q<merit>[if(strlen(%q<context>),:%b%q<context>)]'.;th u(setq,merit,get(%q<target>/%q<attr>));th u(setq,context,get(%q<target>/%q<attr>`CONTEXT))
+&INC`EXISTING [u(cobj,merit)]=@check strlen(u(setr,attr,first(u(filter,FINDMERIT,u(lattr,%q<target>/%q<root>`*),%b,%b,%q<target>,%q<merit>,%q<context>))))=@attach %!/INC`MSG=ERROR: Cannot find '%q<merit>[if(strlen(%q<context>),:%b%q<context>)]'.;th u(setq,merit,get(%q<target>/%q<attr>));th u(setq,context,get(%q<target>/%q<attr>`CONTEXT))
 
 &FIL`FINDMERIT [u(cobj,merit)]=cand(cor(strmatch(get(%1/%0),%2),strmatch(get(%1/%0),%2*)),cor(strmatch(get(%1/%0`CONTEXT),%3),strmatch(get(%1/%0`CONTEXT),%3*)))
 
@@ -40,7 +40,7 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 
 &INC`GET [u(cobj,merit)]=@attach %!/INC`TARGET;@attach %!/INC`MERNAME;@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s [u(FUN`MERNAME,%q<target>,%q<attr>)] Desc);@pemit %#=decompile(get(%q<target>/%q<attr>`DESC));@pemit %#=u(SUBHEADER)
 
-&INC`MAIN [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline t(strlen(%q<filename>))=1,{@attach %!/INC`EXISTING=%q<filename>;@attach %!/INC`DISPLAY},0,{@attach %!/INC`LIST}
+&INC`MAIN [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline t(strlen(%q<filename>))=1,{@attach %!/INC`MERNAME=%q<filename>;@attach %!/INC`EXISTING;@attach %!/INC`DISPLAY},0,{@attach %!/INC`LIST}
 
 &INC`LIST [u(cobj,merit)]=@pemit %#=u(HEADER,name(%q<target>)'s [u(capnames,%q<sysname>)]);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(30 30 8,Name,Desc,Rank));@pemit %#=u(SEPARATOR);@dolist/inline u(sortmer,u(lattr,%q<target>/%q<root>`*))={@pemit %#=align(30 30 8,pueblize(u(FUN`MERNAME,%q<target>,##),%q<comm> [name(%q<target>)]/[u(FUN`MERNAME,%q<target>,##)]),left(get(%q<target>/##`DESC),20),repeat(*,get(%q<target>/##`RANK)))};@pemit %#=u(SUBHEADER)
 
@@ -48,11 +48,14 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 &SORTMER`PENNMUSH [u(cobj,merit)]=sortkey(#lambda/u(FUN`MERNAME,%q<target>,\%0),%0,i,%1,%2)
 &SORTMER`RHOSTMUSH [u(cobj,merit)]=sortby(#lambda/[lit([comp(lcstr(u(FUN`MERNAME,%q<target>,%0)),lcstr(u(FUN`MERNAME,%q<target>,%1)))])],%0,%1,%2)
 
-&INC`DISPLAY [u(cobj,merit)]=@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@pemit %#=get(%q<target>/%q<attr>`DESC);@pemit %#=u(RFN`SEPARATOR);@pemit %#=ansi(u(color(%#,COLOR,COLUMN_NAMES)),align(20 20,Setby,Seton));@pemit %#=align(20 20,get(%q<target>/%q<attr>`BY),fancytime(get(%q<target>/%q<attr>`ON),%#));@pemit %#=u(SUBHEADER)
+&INC`DISPLAY [u(cobj,merit)]=@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@pemit %#=get(%q<target>/%q<attr>`DESC);@pemit %#=u(RFN`SEPARATOR);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(20 20,Setby,Seton));@pemit %#=u(separator);@pemit %#=align(20 20,get(%q<target>/%q<attr>`BY),u(fancytime,get(%q<target>/%q<attr>`ON),%#));@pemit %#=u(SUBHEADER)
 
 @@ CHARACTER - +INFO
-+help/addmain Character/+merits=[u(ex-mer)]/HLP`+MERITS
-&HLP`+MERITS [u(cobj,merit)]=The Merit system allows Players to mark down their character's Merits, Flaws, and other notes.%R%R[ansi(hc,Concepts)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,Types)] - Only official Merits and Flaws may be entered. The system has a database of valid Merits/Flaws and will Partial match them.%R[ansi(h,context)] - Merits and flaws can have a CONTEXT, such as the name of an Artifact or the source of one's resources. When a Merit name is neded, the context is added in the following style: Artifact: Volcano Cutter. Contexts must be unique for each Merit type!%R[ansi(h,modes)] - This command can also be called as [ansi(h,+flaws)] to address Flaws and [ansi(h,+pacts)] for Sorcerous Pact-based merits like Dark Paramour.})]%R%R[ansi(hc,Managing Merits)]%RNote: Merits and Flaws may only be edited freely while in Chargen. Only admin may edit them otherwise.%R%R[align(5 [sub(width(%#),6)],,{[ansi(h,+merits)] - Lists your current Merits.%R[ansi(h,+merits <merit>)] - View details about a Merit.%R[ansi(h,+merits/add <merit>=<value>)] - Creates new Merit. Value must be a number.%R[ansi(h,+merits/rank <merit>=<value>)] - Change's a merit's value.%R[ansi(h,+merits/desc <merit>=<text>)] - Describes a merit with a text entry visible when it's viewed.%R[ansi(h,+merits/context <merit>=<new context>)] - Change a merit's context.%R[ansi(h,+merits/get <merit>)] - Retrieve an unformatted version of a Merit's /desc for easy editing.})]
++help/add +merits=[u(cobj,merit)]/HLP`+MERITS
++help/category +merits=Character
++help/metatags +merits=+backgrounds +flaws +mutations +pacts
+&HLP`+MERITS [u(cobj,merit)]=The Merit system allows Players to mark down their character's Merits, Flaws, and other notes.%R%R[ansi(hc,Concepts)]%R[align(5 [sub(width(%#),6)],,[ansi(h,Types)] - The actual type of the merit. Examples: Haven\, Resources\, Artifact\, Contacts\, Patron\, etc.%R[ansi(h,context)] - Merits and equivalents can have a CONTEXT\, such as the name of an Artifact or the source of one's resources. When a Merit name is neded\, the context is added in the following style: Artifact: Volcano Cutter. Contexts must be unique for each TYPE you have! You can have an Artifact: Volcano Cutter and an Artifact: Orichalcum Breastplate\, but not two Volcano cutters.)]%R%R[ansi(hc,Managing Merits)]%RNote: Merits may only be edited freely while in Chargen. Only admin may edit them otherwise.%R%R[align(5 [sub(width(%#),6)],,[ansi(h,+merits)] - Lists your current Merits.%R[ansi(h,+merits <merit>)] - View details about a Merit.%R[ansi(h,+merits/add <merit>=<value>)] - Creates new Merit. Value must be a number.%R[ansi(h,+merits/rank <merit>=<value>)] - Change's a merit's value.%R[ansi(h,+merits/desc <merit>=<text>)] - Describes a merit with a text entry visible when it's viewed.%R[ansi(h,+merits/context <merit>=<new context>)] - Change a merit's context.%R[ansi(h,+merits/get <merit>)] - Retrieve an unformatted version of a Merit's /desc for easy editing.%R[ansi(h,+merits/delete %q<merit>)] - Delete a merit.)]%R%R[u(HLP`MERITS`GAME)]
 
-+shelp/addmain Character/+merits=[u(ex-mer)]/SHLP`+MERITS
++shelp/add +merits=[u(cobj,merit)]/SHLP`+MERITS
++shelp/category +merits=Character
 &SHLP`+MERITS [u(cobj,merit)]=Staff commands with +merit are identical to the player commands. To target specific players, use <player>/ to view a player with +merit, and <player>/<merit> to use any other commands. For example, +merits/add <person>/Resources: Tribute=3

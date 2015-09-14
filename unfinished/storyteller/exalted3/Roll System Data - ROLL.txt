@@ -1,13 +1,14 @@
-&ROLL`INIT`TN u(srs)=7
-&ROLL`INIT`DBL u(srs)=10
-&ROLL`INIT`AG u(srs)=11
-&ROLL`INIT`RE u(srs)=
-&ROLL`INIT`BOTCHES u(srs)=1
+th u(newconf,CONFIG,ROLLER,TARGET_NUMBER,7,Target Number,POSINT)
+th u(newconf,CONFIG,ROLLER,DOUBLE_NUMBER,10,Double success numbers.,WORD)
+th u(newconf,CONFIG,ROLLER,AGAIN_NUMBER,11,Default #-Again.,POSINT)
+th u(newconf,CONFIG,ROLLER,REROLL_NUMBER,11,Default Re-#.,POSINT)
+th u(newconf,CONFIG,ROLLER,BOTCHES,1,Enable botches?,BOOL)
+th u(newconf,CONFIG,ROLLER,CHANNEL,,Channel to report dice rolls?,LIST)
+th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|ABILITIES|COLLEGES|GRACES|VIRTUES|PATHS|INFO,D`Attributes to stat search?,LIST)
 
-&ROLL`DYNAMICSTATS u(srs)=MARTIAL ARTS
-&ROLL`DYNAMICSTATS`MARTIAL_ARTS u(srs)=getstat(%0/D`ABILITIES,Martial Arts)
-
-&ROLL`CATEGORIES u(srs)=ATTRIBUTES|ABILITIES|STYLES|CRAFTS|INFO
+&ROLL`DYNAMICSTATS [u(cobj,roll)]=MARTIAL ARTS|ESSENCE
+&ROLL`DYNAMICSTATS`MARTIAL_ARTS [u(cobj,roll)]=u(getstat,%0,D`ABILITIES,Martial Arts)
+&ROLL`DYNAMICSTATS`ESSENCE [u(cobj,roll)]=getpower(%0)
 
 @@ ROLEPLAYING - +ROLL
 +help/addmain Roleplaying/+roll=[u(srs)]/HLP`+ROLL

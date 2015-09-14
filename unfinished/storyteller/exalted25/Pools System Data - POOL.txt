@@ -28,7 +28,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`EXPANDED`UNITTYPE [u(cobj,pool)]=Expanded Peripheral Essence
 &POOL`EXPANDED`MAX [u(cobj,pool)]=add(u(POOL`EXPANDED`MAX`[getclass(%0)],%0,EXPANDED),0)
 &POOL`EXPANDED`INIT [u(cobj,pool)]=u(POOL`EXPANDED`MAX,%0)
-&POOL`EXPANDED`ORDER [u(cobj,pool)]=10
+&POOL`EXPANDED`ORDER [u(cobj,pool)]=15
 &POOL`EXPANDED`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT
 
 &POOL`OVERDRIVE [u(cobj,pool)]=Pool
@@ -36,7 +36,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`OVERDRIVE`UNITTYPE [u(cobj,pool)]=Expanded Peripheral Essence
 &POOL`OVERDRIVE`MAX [u(cobj,pool)]=add(u(POOL`OVERDRIVE`MAX`[getclass(%0)],%0,OVERDRIVE),0)
 &POOL`OVERDRIVE`INIT [u(cobj,pool)]=u(POOL`OVERDRIVE`MAX,%0)
-&POOL`OVERDRIVE`ORDER [u(cobj,pool)]=10
+&POOL`OVERDRIVE`ORDER [u(cobj,pool)]=17
 &POOL`OVERDRIVE`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
 
 &POOL`WILLPOWER [u(cobj,pool)]=Pool
@@ -44,7 +44,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`WILLPOWER`UNITTYPE [u(cobj,pool)]=Willpower
 &POOL`WILLPOWER`MAX [u(cobj,pool)]=u(strfirstof,u(getstat,%0,D`INFO,Willpower),0)
 &POOL`WILLPOWER`INIT [u(cobj,pool)]=u(FUN`WILLCHECK,%0)
-&POOL`WILLPOWER`ORDER [u(cobj,pool)]=15
+&POOL`WILLPOWER`ORDER [u(cobj,pool)]=18
 
 &POOL`WILLPOWER`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT
 
@@ -61,7 +61,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`COMPASSION`UNITNAME [u(cobj,pool)]=Points
 &POOL`COMPASSION`UNITTYPE [u(cobj,pool)]=Compassion
 &POOL`COMPASSION`MAX [u(cobj,pool)]=if(strmatch(getclass(%0),Raksha),u(getstat,%0,D`GRACES,Cup),u(getstat,%0,D`VIRTUES,Compassion))
-&POOL`COMPASSION`INIT [u(cobj,pool)]=0
+&POOL`COMPASSION`INIT [u(cobj,pool)]=u(POOL`COMPASSION`MAX,%0)
 &POOL`COMPASSION`ORDER [u(cobj,pool)]=50
 &POOL`COMPASSION`HAVE [u(cobj,pool)]=hasattr(%0/D`VIRTUES)
 &POOL`COMPASSION`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
@@ -70,7 +70,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`CONVICTION`UNITNAME [u(cobj,pool)]=Points
 &POOL`CONVICTION`UNITTYPE [u(cobj,pool)]=Conviction
 &POOL`CONVICTION`MAX [u(cobj,pool)]=if(strmatch(getclass(%0),Raksha),u(getstat,%0,D`GRACES,Staff),u(getstat,%0,D`VIRTUES,Conviction))
-&POOL`CONVICTION`INIT [u(cobj,pool)]=0
+&POOL`CONVICTION`INIT [u(cobj,pool)]=u(POOL`CONVICTION`MAX,%0)
 &POOL`CONVICTION`ORDER [u(cobj,pool)]=55
 &POOL`CONVICTION`HAVE [u(cobj,pool)]=hasattr(%0/D`VIRTUES)
 &POOL`CONVICTION`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
@@ -79,7 +79,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`TEMPERANCE`UNITNAME [u(cobj,pool)]=Points
 &POOL`TEMPERANCE`UNITTYPE [u(cobj,pool)]=Temperance
 &POOL`TEMPERANCE`MAX [u(cobj,pool)]=if(strmatch(getclass(%0),Raksha),u(getstat,%0,D`GRACES,Ring),u(getstat,%0,D`VIRTUES,Temperance))
-&POOL`TEMPERANCE`INIT [u(cobj,pool)]=0
+&POOL`TEMPERANCE`INIT [u(cobj,pool)]=u(POOL`TEMPERANCE`MAX,%0)
 &POOL`TEMPERANCE`ORDER [u(cobj,pool)]=60
 &POOL`TEMPERANCE`HAVE [u(cobj,pool)]=hasattr(%0/D`VIRTUES)
 &POOL`TEMPERANCE`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
@@ -88,7 +88,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`VALOR`UNITNAME [u(cobj,pool)]=Points
 &POOL`VALOR`UNITTYPE [u(cobj,pool)]=Valor
 &POOL`VALOR`MAX [u(cobj,pool)]=if(strmatch(getclass(%0),Raksha),u(getstat,%0,D`GRACES,Sword),u(getstat,%0,D`VIRTUES,Valor))
-&POOL`VALOR`INIT [u(cobj,pool)]=0
+&POOL`VALOR`INIT [u(cobj,pool)]=u(POOL`VALOR`MAX,%0)
 &POOL`VALOR`ORDER [u(cobj,pool)]=65
 &POOL`VALOR`HAVE [u(cobj,pool)]=hasattr(%0/D`VIRTUES)
 &POOL`VALOR`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
@@ -101,7 +101,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 
 
 @@ SOLAR
-&CLASS`SOLAR [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
+&CLASS`SOLAR [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT EXPANDED OVERDRIVE
 &POOL`PERSONAL`MAX`SOLAR [u(cobj,pool)]=add(mul(3,getpower(%0)),u(FUN`WILLCHECK,%0))
 &POOL`PERIPHERAL`MAX`SOLAR [u(cobj,pool)]=add(mul(7,getpower(%0)),u(FUN`WILLCHECK,%0),u(FUN`VIRTUES,%0))
 &POOL`EXPANDED`MAX`SOLAR [u(cobj,pool)]=u(FUN`EXTRA,%0,SOLAR,%1)
@@ -114,7 +114,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &SOLAR`OVERDRIVE`10 [u(cobj,pool)]=Storm-Gathering Practice|Hero's Fatal Resolve|Fading Light Quickening|Righteous Avenger's Aspect|Certain Victory Formulation|Red Dawn Ascending|Essence-Gathering Temper|You Shall Not Pass|Virtuous Warrior's Fortitude|Labors Treasured and Defended|Is This Tomorrow|Triumph Signed By Excellence|Honest Turnabout Assault|Wrongly-Condemned Rage|Jousting at Giants|Fearless Admiral's Dominion
 
 @@ LUNAR
-&CLASS`LUNAR [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
+&CLASS`LUNAR [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT EXPANDED OVERDRIVE
 &POOL`PERSONAL`MAX`LUNAR [u(cobj,pool)]=add(getpower(%0),mul(2,u(FUN`WILLCHECK,%0)))
 &POOL`PERIPHERAL`MAX`LUNAR [u(cobj,pool)]=add(mul(4,getpower(%0)),mul(2,u(FUN`WILLCHECK,%0)),mul(4,if(u(game_config,STORYTELLER,MAX_VIRTUES),5,u(lmax,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
 &POOL`EXPANDED`MAX`LUNAR [u(cobj,pool)]=u(FUN`EXTRA,%0,LUNAR,%1)
@@ -127,7 +127,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &LUNAR`OVERDRIVE`10 [u(cobj,pool)]=Never To Rise Again|Biting At the Heels|Undying Ratel's Vengeance|Disappointed Guardian-Spirit Correction|Protean Exemplar Differentiation|World-Warden Onslaught|Hunter-As-Bait Gambit|Snarling Watchdog Retribution|Sleeping Dragon Awakens
 
 @@ TERRESTIAL
-&CLASS`TERRESTIAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
+&CLASS`TERRESTIAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT EXPANDED
 &POOL`PERSONAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(getpower(%0),u(FUN`WILLCHECK,%0),u(FUN`BREEDING,%0))
 &POOL`PERIPHERAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(mul(4,getpower(%0)),u(FUN`WILLCHECK,%0),if(u(game_config,STORYTELLER,MAX_VIRTUES),10,lmath(add,elements(sort(iter(get(%0/D`VIRTUES),last(%i0,~),|)),3 4))),switch(u(FUN`BREEDING,%0),1,2,2,3,3,5,4,7,5,9,6,11,0))
 &POOL`EXPANDED`MAX`TERRESTRIAL [u(cobj,pool)]=u(FUN`EXTRA,%0,TERRESTRIAL,%1)
@@ -139,7 +139,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &TERRESTRIAL`EXPANDED`5 [u(cobj,pool)]=Elemental Engorgement Technique
 
 @@ SIDEREAL
-&CLASS`SIDEREAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT PARADOX
+&CLASS`SIDEREAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT PARADOX EXPANDED OVERDRIVE
 &POOL`PERSONAL`MAX`SIDEREAL [u(cobj,pool)]=add(mul(2,getpower(%0)),u(FUN`WILLCHECK,%0))
 &POOL`PERIPHERAL`MAX`SIDEREAL [u(cobj,pool)]=add(mul(6,getpower(%0)),u(FUN`WILLCHECK,%0),u(FUN`VIRTUES,%0))
 &POOL`EXPANDED`MAX`SIDEREAL [u(cobj,pool)]=u(FUN`EXTRA,%0,SIDEREAL,%1)
@@ -158,7 +158,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &SIDEREAL`OVERDRIVE`10 [u(cobj,pool)]=Guarding the Weave|Portentous Omens Manifested|Tactic-Snatching Ingenuity|Mana Drips From Lotus Petals|Covert Shadows Woven|Horizon-Cresting Cavalry Rescue
 
 @@ ABYSSAL
-&CLASS`ABYSSAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER RESONANCE
+&CLASS`ABYSSAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER RESONANCE EXPANDED OVERDRIVE
 &POOL`PERSONAL`MAX`ABYSSAL [u(cobj,pool)]=u(POOL`PERSONAL`MAX`SOLAR,%0)
 &POOL`PERIPHERAL`MAX`ABYSSAL [u(cobj,pool)]=u(POOL`PERIPHERAL`MAX`SOLAR,%0)
 &POOL`EXPANDED`MAX`ABYSSAL [u(cobj,pool)]=u(FUN`EXTRA,%0,ABYSSAL,%1)
@@ -180,7 +180,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &ABYSSAL`OVERDRIVE`15 [u(cobj,pool)]=Bright Days Painted Black
 
 @@ INFERNAL
-&CLASS`INFERNAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
+&CLASS`INFERNAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT EXPANDED OVERDRIVE
 &POOL`PERSONAL`MAX`INFERNAL [u(cobj,pool)]=u(POOL`PERSONAL`MAX`SOLAR,%0)
 &POOL`PERIPHERAL`MAX`INFERNAL [u(cobj,pool)]=u(POOL`PERIPHERAL`MAX`SOLAR,%0)
 &POOL`EXPANDED`MAX`INFERNAL [u(cobj,pool)]=u(FUN`EXTRA,%0,INFERNAL,%1)
@@ -195,7 +195,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &INFERNAL`OVERDRIVE`20 [u(cobj,pool)]=Song of the Depths
 
 @@ ALCHEMICAL
-&CLASS`ALCHEMICAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER CLARITY
+&CLASS`ALCHEMICAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER CLARITY EXPANDED OVERDRIVE
 &POOL`PERSONAL`MAX`ALCHEMICAL [u(cobj,pool)]=add(mul(3,getpower(%0)),u(FUN`WILLCHECK,%0))
 &POOL`PERIPHERAL`MAX`ALCHEMICAL [u(cobj,pool)]=add(mul(5,getpower(%0)),mul(3,u(FUN`WILLCHECK,%0)),mul(2,if(u(game_config,STORYTELLER,MAX_VIRTUES),5,u(lmax,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
 &POOL`EXPANDED`MAX`ALCHEMICAL [u(cobj,pool)]=u(FUN`EXTRA,%0,ALCHEMICAL,%1)
@@ -249,7 +249,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`PERSONAL`MAX`MORTAL [u(cobj,pool)]=if(cor(u(getstat,%0,D`MERITS,Awakened Essence),u(GAME_CONFIG,STORYTELLER,AWAKENED_ESSENCE)),mul(10,getpower(%0)),0)
 
 @@ Spirit
-&CLASS`SPIRIT [u(cobj,pool)]=PERSONAL WILLPOWER
+&CLASS`SPIRIT [u(cobj,pool)]=PERSONAL WILLPOWER EXPANDED
 &POOL`PERSONAL`MAX`SPIRIT [u(cobj,pool)]=add(mul(10,getpower(%0)),mul(5,u(FUN`WILLCHECK,%0)))
 &POOL`EXPANDED`MAX`SPIRIT [u(cobj,pool)]=u(FUN`EXTRA,%0,SPIRIT,%1)
 &POOL`OVERDRIVE`MAX`SPIRIT [u(cobj,pool)]=u(FUN`EXTRA,%0,SPIRIT,%1)
@@ -259,7 +259,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &SPIRIT`EXPANDED`10 [u(cobj,pool)]=Essence Plethora
 
 @@ GOD-BLOODED
-&CLASS`GOD-BLOODED [u(cobj,pool)]=PERSONAL WILLPOWER
+&CLASS`GOD-BLOODED [u(cobj,pool)]=PERSONAL WILLPOWER EXPANDED OVERDRIVE
 &POOL`PERSONAL`MAX`GOD-BLOODED [u(cobj,pool)]=localize(add(switch(1,t(match(DIVINE DEMON GHOST,ucstr(u(setr,caste,u(getstat,%0,D`INFO,CASTE))))),u(FUN`PERSONAL`MAX`GOD-BLOODED`SPIRIT,%0),strmatch(%q<caste>,FAE),u(FUN`PERSONAL`MAX`GOD-BLOODED`FAE,%0),t(match(SOLAR LUNAR SIDEREAL ABYSSAL INFERNAL,%q<caste>)),u(FUN`PERSONAL`MAX`GOD-BLOODED`HALF-CASTE,%0)),switch(u(getstat,%0,D`POSITIVE_MUTATIONS,Essence Abundance),1,3,2,6,4,12,6,16,0)))
 &POOL`PERSONAL`MAX`GOD-BLOODED`SPIRIT [u(cobj,pool)]=add(mul(5,getpower(%0)),u(FUN`VIRTUES,%0),mul(2,u(FUN`WILLCHECK,%0)))
 &POOL`PERSONAL`MAX`GOD-BLOODED`FAE [u(cobj,pool)]=mul(getpower(%0),8)
@@ -269,23 +269,23 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`OVERDRIVE`MAX`GOD-BLOODED [u(cobj,pool)]=localize(switch(1,t(match(DIVINE DEMON GHOST,ucstr(u(setr,caste,u(getstat,%0,D`INFO,CASTE))))),u(POOL`%1`MAX`SPIRIT,%0,%1),strmatch(%q<caste>,FAE),u(POOL`%1`MAX`RAKSHA,%0,%1),t(match(SOLAR LUNAR SIDEREAL ABYSSAL INFERNAL,%q<caste>)),u(POOL`%1`MAX`%q<caste>,%0,%1)))
 
 @@ Raksha
-&CLASS`RAKSHA [u(cobj,pool)]=PERSONAL WILLPOWER GOSSAMER
-&POOL`PERSONAL`MAX`RAKSHA [u(cobj,pool)]=add(mul(10,getpower(%0)))
+&CLASS`RAKSHA [u(cobj,pool)]=PERSONAL WILLPOWER GOSSAMER EXPANDED
+&POOL`PERSONAL`MAX`RAKSHA [u(cobj,pool)]=add(mul(10,getpower(%0)),0)
 &POOL`EXPANDED`MAX`RAKSHA [u(cobj,pool)]=u(FUN`EXTRA,%0,RAKSHA,%1)
 
 &POOL`GOSSAMER [u(cobj,pool)]=Pool
 &POOL`GOSSAMER`UNITNAME [u(cobj,pool)]=Strands
 &POOL`GOSSAMER`UNITTYPE [u(cobj,pool)]=Gossamer
-&POOL`GOSSAMER`MAX [u(cobj,pool)]=10
+&POOL`GOSSAMER`MAX [u(cobj,pool)]=switch(xget(%0,first(u(wildgrepi,%0,D`BACKGROUNDS`*,GOSSAMER))`RANK),1,1,2,3,3,6,4,10,5,20,0)
 &POOL`GOSSAMER`ORDER [u(cobj,pool)]=80
 &POOL`GOSSAMER`INIT [u(cobj,pool)]=0
-&POOL`GOSSAMER`HAVE [u(cobj,pool)]=u(getstat,%0,D`BACKGROUNDS,Gossamer)
+&POOL`GOSSAMER`HAVE [u(cobj,pool)]=t(u(wildgrepi,%0,D`BACKGROUNDS`*,GOSSAMER))
 &POOL`GOSSAMER`OPTIONS [u(cobj,pool)]=SPEND GAIN COMMIT
 
 &POOL`STASIS [u(cobj,pool)]=Track
 &POOL`STASIS`UNITNAME [u(cobj,pool)]=Points
 &POOL`STASIS`UNITTYPE [u(cobj,pool)]=Stasis
-&POOL`STASIS`MAX [u(cobj,pool)]=switch(u(getstat,%0,D`BACKGROUNDS,Gossamer),1,1,2,3,3,6,4,10,5,20,0)
+&POOL`STASIS`MAX [u(cobj,pool)]=10
 &POOL`STASIS`ORDER [u(cobj,pool)]=160
 &POOL`STASIS`INIT [u(cobj,pool)]=0
 &POOL`STASIS`OPTIONS [u(cobj,pool)]=SPEND GAIN COMMIT

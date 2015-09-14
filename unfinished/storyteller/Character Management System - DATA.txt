@@ -9,7 +9,7 @@ th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERI
 &CMD`+EDITCHAR`MAIN [u(cobj,data)]=@attach %!/INC`GETSWITCH=%1;th iter(before(%2,=),u(setq,chr(add(inum(0),64)),%i0),|);@attach %!/INC`CHECKPC=%qa,1;@check strlen(%qb)=@attach %!/INC`MSG=ERROR: No Type entered to %q<switch> Your choices are: [itemize(iter(u(lattr,[u(cobj,data)]/INC`%q<switch>`*,|),last(%i0,`),|,|),|,and,\,)]!;@attach %!/INC`PARTIAL=%qb,iter(u(lattr,%!/INC`%q<switch>`*,|),last(%i0,`),|,|),|,topic,option;@attach [u(cobj,data)]/INC`%q<switch>`%q<topic>=%q<t1>,after(iter(%2,trim(%i0),|,|),elements(%2,1,|)|),squish(squish(trim(%3)),|)
 @set [u(cobj,data)]/CMD`+EDITCHAR`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&GETCLASS [u(cobj,data)]=u(strfirstof,u(getstat,%0,D`INFO,Sphere),Mortal)
+&GETCLASS [u(cobj,data)]=u(strfirstof,u(getstat,%0,D`INFO,Class),Mortal)
 &GETPOWER [u(cobj,data)]=u(strfirstof,u(getstat,%0,D`INFO,Power),1)
 &GETBONUS [u(cobj,data)]=add(u(getstat,%0,D`BONUS,%1),u(GETBONUS`[u(getclass,%0)],%0,%1))
 

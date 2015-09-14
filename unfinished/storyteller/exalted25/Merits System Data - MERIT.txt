@@ -12,3 +12,5 @@
 &INIT`RAGEMUTATIONS [u(cobj,merit)]=th u(setq,sysname,MUTATIONS);th u(setq,root,D`RAGE_MUTATIONS);th u(setq,type,By Rage Recast Mutation);th u(setq,comm,+ragemutations)
 &INIT`POSMUTATIONS [u(cobj,merit)]=th u(setq,sysname,MUTATIONS);th u(setq,root,D`POSITIVE_MUTATIONS);th u(setq,type,Positive Mutation);th u(setq,comm,+posmutations)
 &INIT`NEGMUTATIONS [u(cobj,merit)]=th u(setq,sysname,MUTATIONS);th u(setq,root,D`NEGATIVE_MUTATIONS);th u(setq,type,Negative Mutation);th u(setq,comm,+negmutations)
+
+&HLP`MERITS`GAME [u(Cobj,merit)]=[ansi(hc,Types)]%R+merits can be used as the following commands:%R[ansi(h,+backgrounds)] - For all Exalted backgrounds.%R[ansi(h,+flaws)] - For Flaws.%R[ansi(h,+warmutations)] - For Warform Mutations (Lunars.)%R[ansi(h,+ragemutations)] - For Mutations gained in By Rage Recast.%R[ansi(h,+posmutations)] - For Positive Mutations.%R[ansi(h,+negmutations)] - For Negative Mutations.

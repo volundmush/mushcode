@@ -2,7 +2,7 @@
 
 &INC`EXTRA [u(cobj,sheet)]=@pemit %#=repeat(u(FUN`COLOR,%1,BORDER,-),0)%R%b%b%b[ansi(u(strfirstof,v(%1`ATTRNAME),n),--------------------<-)][ansi(u(strfirstof,v(%1`PSM),n),Merits)][ansi(u(strfirstof,v(%1`ATTRNAME),n),->----------------)][if(words(u(setr,merits,get(%0/D`MERITS)),|),%R%b%b%b- [iter(%q<merits>,ansi(u(strfirstof,v(%1`SKILLNAME),n),elements(%i0,1,~))[repeat(ansi(u(strfirstof,v(%1`SKILLLINE),n),_),sub(43,strlen(elements(%i0,1,~)),strlen(elements(%i0,2,~))))][ansi(u(strfirstof,v(%1`SKILLDOT),n),elements(%i0,2,~))],|,%R%b%b%b-%b )])]%r%r;@pemit %#=[ansi(u(strfirstof,v(%1`ATTRNAME),n),%b%b%b-----------------<-)][ansi(u(strfirstof,v(%1`PSM),n),Specialties)][ansi(u(strfirstof,v(%1`ATTRNAME),n),->--------------)][if(words(u(setr,specialties,get(%0/D`SPECIALTIES)),|),%R%b%b%b- [iter(%q<specialties>,ansi(u(strfirstof,v(%1`SKILLNAME),n),u(capnames,elements(%i0,1,~))\,%B[elements(%i0,2,~)])[repeat(ansi(u(strfirstof,v(%1`SKILLLINE),n),_),sub(41,strlen(elements(%i0,1,~)),strlen(elements(%i0,2,~)),strlen(elements(%i0,3,~))))][ansi(u(strfirstof,v(%1`SKILLDOT),n),elements(%i0,3,~))],|,%R%b%b%b-%b)])]%r%r;@pemit %#=[ansi(u(strfirstof,v(%1`ATTRNAME),n),%b%b%b--------------------<-)][ansi(u(strfirstof,v(%1`PSM),n),Notes)][ansi(u(strfirstof,v(%1`ATTRNAME),n),->-----------------)][if(words(u(setr,notes,u(lattr,%0/D`NOTES`*,|)),|),%R%b%b%b-[iter(%q<notes>,rjust(inum(0),2).%B[get(%0/%i0)],|,%R%b%b%b-)])][u(FUN`COLOR,%1,BORDER,)]%R[repeat(u(FUN`COLOR,%1,BORDER,-),0)]
 
-&INC`MAIN [u(cobj,sheet)]=@pemit %#=u(FUN`SHEETHEADER,%0,u(setr,class,getclass(%0)));@select/inline strlen(setunion(u(u(cobj,data)/FUN`RET`ATTRIBUTES,%0),setunion(get(%0/D`FAVORED`ATTRIBUTES),get(%0/D`SUPERNAL`ATTRIBUTES),|,|),|,|))=>0,{@pemit %#=u(FUN`ATTRIBUTES,%0,%q<class>)};@select/inline strlen(setunion(u(u(cobj,data)/FUN`RET`ABILITIES,%0),setunion(get(%0/D`FAVORED`ABILITIES),get(%0/D`SUPERNAL`ABILITIES),|,|),|,|))=>0,{@pemit %#=u(FUN`ABILITIES,%0,%q<class>)};@select/inline strlen(get(%0/D`SPECIALTIES))=>0,{@pemit %#=u(FUN`SPECIALTIES,%0,%q<class>)};@select/inline u(nattr,%0/D`WARFORM_MUTATIONS`*)=>0,{@pemit %#=u(FUN`WARFORM_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`RAGE_MUTATIONS`*)=>0,{@pemit %#=u(FUN`RAGE_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`POSITIVE_MUTATIONS`*)=>0,{@pemit %#=u(FUN`POSITIVE_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`NEGATIVE_MUTATIONS`*)=>0,{@pemit %#=u(FUN`NEGATIVE_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`BACKGROUNDS`*)=>0,{@pemit %#=u(FUN`BACKGROUNDS,%0,%q<class>)};@select/inline u(nattr,%0/D`MERITS`*)=>0,{@pemit %#=u(FUN`MERITS,%0,%q<class>)};@select/inline u(nattr,%0/D`FLAWS`*)=>0,{@pemit %#=u(FUN`FLAWS,%0,%q<class>)};@select/inline u(nattr,%0/D`PACTS`*)=>0,{@pemit %#=u(FUN`PACTS,%0,%q<class>)};@select/inline gstrlen(get(%0/D`GRACES))=>0,{@pemit %#=u(FUN`GRACES,%0,%q<class>)};@attach %!/INC`ADVANTAGES;@attach %!/INC`FOOTER
+&INC`MAIN [u(cobj,sheet)]=@pemit %#=u(FUN`SHEETHEADER,%0,u(setr,class,getclass(%0)));@select/inline strlen(setunion(u(u(cobj,data)/FUN`RET`ATTRIBUTES,%0),setunion(get(%0/D`FAVORED`ATTRIBUTES),get(%0/D`SUPERNAL`ATTRIBUTES),|,|),|,|))=>0,{@pemit %#=u(FUN`ATTRIBUTES,%0,%q<class>)};@select/inline strlen(setunion(u(u(cobj,data)/FUN`RET`ABILITIES,%0),setunion(get(%0/D`FAVORED`ABILITIES),get(%0/D`SUPERNAL`ABILITIES),|,|),|,|))=>0,{@pemit %#=u(FUN`ABILITIES,%0,%q<class>)};@select/inline strlen(get(%0/D`SPECIALTIES))=>0,{@pemit %#=u(FUN`SPECIALTIES,%0,%q<class>)};@select/inline u(nattr,%0/D`WARFORM_MUTATIONS`*)=>0,{@pemit %#=u(FUN`WARFORM_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`RAGE_MUTATIONS`*)=>0,{@pemit %#=u(FUN`RAGE_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`POSITIVE_MUTATIONS`*)=>0,{@pemit %#=u(FUN`POSITIVE_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`NEGATIVE_MUTATIONS`*)=>0,{@pemit %#=u(FUN`NEGATIVE_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`BACKGROUNDS`*)=>0,{@pemit %#=u(FUN`BACKGROUNDS,%0,%q<class>)};@select/inline u(nattr,%0/D`MERITS`*)=>0,{@pemit %#=u(FUN`MERITS,%0,%q<class>)};@select/inline u(nattr,%0/D`FLAWS`*)=>0,{@pemit %#=u(FUN`FLAWS,%0,%q<class>)};@select/inline u(nattr,%0/D`PACTS`*)=>0,{@pemit %#=u(FUN`PACTS,%0,%q<class>)};@select/inline strlen(get(%0/D`GRACES))=>0,{@pemit %#=u(FUN`GRACES,%0,%q<class>)};@attach %!/INC`ADVANTAGES;@attach %!/INC`FOOTER
 
 @@ @pemit %#=u(FUN`ADVANTAGES`%q<class>,%0,%q<class>);@pemit %#=u(FUN`OTHER,%0,%q<class>);@pemit %#=u(FUN`FOOTER,%0,%q<class>)
 
@@ -14,11 +14,11 @@
 
 &FUN`INFOCOLUMN [u(cobj,sheet)]=localize(u(setq,colwidth,u(lmax,iter(%2,strlen(elements(%i0,2,~)),|,%b)))[iter(%2,rjust(u(FUN`COLOR,%1,TEXTHEAD,elements(%i0,2,~)),%q<colwidth>)[u(FUN`COLOR,%1,COLON,:)]%B[u(FUN`COLOR,%1,TEXTFIELD,u(capnames,u(strfirstof,switch(elements(%i0,1,~),NAME,u(moniker,%0),u(getstat,%0,D`INFO,elements(%i0,1,~))),elements(%i0,3,~))))],|,%R)])
 
-&FUN`SPLATINFO`SOLAR [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A,POWER~Essence~1|VIRTUE FLAW~Virtue Flaw~None)
-&FUN`SPLATINFO`ABYSSAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|DOOM~Doom~None,POWER~Essence~1|LIEGE~Liege~None)
-&FUN`SPLATINFO`LUNAR [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|VIRTUE FLAW~Virtue Flaw~None,POWER~Essence~1|TOTEM ANIMAL~Totem Animal~None)
-&FUN`SPLATINFO`SIDEREAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|VIRTUE FLAW~Virtue Flaw~None,POWER~Essence~1|FACTION~Faction~None)
-&FUN`SPLATINFO`TERRESTRIAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,CNAME~Name|ASTE~Caste~N/A|VIRTUE FLAW~Virtue Flaw~None,POWER~Essence~1|HOUSE~House~None)
+&FUN`SPLATINFO`SOLAR [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A,POWER~Essence~1|VIRTUEFLAW~Virtue Flaw~None)
+&FUN`SPLATINFO`ABYSSAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|[if(u(game_config,STORYTELLER,RESONANCE),FLAWEDVIRTUE~Flawed Virtue~None,DOOM~Doom~None)],POWER~Essence~1|LIEGE~Liege~None)
+&FUN`SPLATINFO`LUNAR [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|VIRTUEFLAW~Virtue Flaw~None,POWER~Essence~1|TOTEM ANIMAL~Totem Animal~None)
+&FUN`SPLATINFO`SIDEREAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|VIRTUEFLAW~Virtue Flaw~None,POWER~Essence~1|FACTION~Faction~None)
+&FUN`SPLATINFO`TERRESTRIAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,CNAME~Name|ASTE~Caste~N/A|VIRTUEFLAW~Virtue Flaw~None,POWER~Essence~1|HOUSE~House~None)
 &FUN`SPLATINFO`INFERNAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|URGE~Urge~None,POWER~Essence~1|FAVORED YOZI~Favored Yozi~None)
 &FUN`SPLATINFO`ALCHEMICAL [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A,POWER~Essence~1|NATION~Nation~None)
 &FUN`SPLATINFO`RAKSHA [u(cobj,sheet)]=u(FUN`SPLATINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A,POWER~Essence~1|LURE~Lure~None)
@@ -50,34 +50,33 @@
 &FUN`PATHS [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,PATHS,36,P,aths,D`PATHS,u(u(cobj,data)/FUN`RET`PATHS,%0))
 &FUN`GRACES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,GRACES,23,G,races,D`GRACES,u(u(cobj,data)/FUN`RET`GRACES,%0))
 
-&FUN`SPECIALTIES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,SPECIALTIES,36,S,pecialties,D`SPECIALTIES,sort(u(u(cobj,data)/FUN`RET`SPECIALTIES,%0),i,|,|),,1)
+&FUN`SPECIALTIES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,SPECIALTIES,36,S,pecialties,D`SPECIALTIES,sort(u(u(cobj,data)/FUN`RET`SPECIALTIES,%0),i,|,|))
 
-&FUN`BACKGROUNDS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,BACKGROUNDS)
-&FUN`MERITS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,MERITS)
-&FUN`FLAWS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,FLAWS)
-&FUN`WARFORM_MUTATIONS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,WARFORM_MUTATIONS)
-&FUN`RAGE_MUTATIONS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,RAGE_MUTATIONS)
-&FUN`NEGATIVE_MUTATIONS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,NEGATIVE_MUTATIONS)
-&FUN`POSITIVE_MUTATIONS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,POSITIVE_MUTATIONS)
+&FUN`BACKGROUNDS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,BACKGROUNDS,+backgrounds)
+&FUN`MERITS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,MERITS,+merits)
+&FUN`FLAWS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,FLAWS,+flaws)
+&FUN`WARFORM_MUTATIONS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,WARFORM_MUTATIONS,+warmutations)
+&FUN`RAGE_MUTATIONS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,RAGE_MUTATIONS,+ragemutations)
+&FUN`NEGATIVE_MUTATIONS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,NEGATIVE_MUTATIONS,+negmutations)
+&FUN`POSITIVE_MUTATIONS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,POSITIVE_MUTATIONS,+posmutations)
 
 &FUN`DOTFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,%4%5)%R[u(setq,sorted,if(strlen(%8),u(filter,DOTMATCH,%8,|,|,%7),%7))][if(%9,u(setq,first,u(filter,LTSTRLEN,%q<sorted>,|,|,%3),second,u(filter,GTESTRLEN,%q<sorted>,|,|,%3)),u(setq,first,%q<sorted>))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`STATFORMAT,%0,%1,%2,%3,%6,%q<first>)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`STATFORMAT2,%0,%1,%2,sub(u(width,%#),2),%6,%q<second>)))][if(strlen(%q<firstsec>),%q<firstsec>)][if(strlen(%q<secondsec>),if(strlen(%q<firstsec>),%R%q<secondsec>,%q<secondsec>))])
 
 &FIL`DOTMATCH [u(cobj,sheet)]=t(match(%1,%0,|))
-&FIL`LTSTRLEN [u(Cobj,sheet)]=lt(strlen(%0),sub(%1,10))
-&FIL`GTESTRLEN [u(cobj,sheet)]=gte(strlen(%0),sub(%1,10))
+&FIL`LTSTRLEN [u(Cobj,sheet)]=lt(strlen(before(%0,~)),sub(%1,10))
+&FIL`GTESTRLEN [u(cobj,sheet)]=gte(strlen(%0),%1)
 
 &FUN`STATFORMAT [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,[u(setq,wid,floor(fdiv(mod(sub(u(width,%#),4),%3),floor(fdiv(sub(u(width,%#),4),%3)))))][u(table,iter(%5,u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%3),|,|),add(%q<wid>,%3),sub(u(width,%#),4),|)])
 &FUN`STATFORMAT2 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,trimpenn(iter(%5,u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%3),|,%R),%R))
 
-&FUN`MERFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,u(capnames,%2))%R[u(setq,sorted,sortkey(#lambda/u(u(cobj,merit)/FUN`MERNAME,%0,\%0),u(lattr,%0/D`%2`*),i,%b,|))][u(setq,first,filterbool(#lambda/lt(strlen(u(u(cobj,merit)/FUN`MERNAME,%0,\%0)),sub(36,10)),%q<sorted>,|,|),second,filterbool(#lambda/gte(strlen(u(u(cobj,merit)/FUN`MERNAME,%0,\%0)),sub(36,10)),%q<sorted>,|,|))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`MERFORMAT`2,%0,%1,%2,%q<first>)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`MERFORMAT`3,%0,%1,%2,%q<second>)))][if(strlen(%q<firstsec>),%q<firstsec>)][if(strlen(%q<secondsec>),if(strlen(%q<firstsec>),%R%q<secondsec>,%q<secondsec>))])
+&FUN`MERFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,u(capnames,%2))%R[u(setq,sorted,sortkey(#lambda/u(u(cobj,merit)/FUN`MERNAME,%0,\%0),u(lattr,%0/D`%2`*),i,%b,|))][u(setq,first,filterbool(#lambda/lt(strlen(u(u(cobj,merit)/FUN`MERNAME,%0,\%0)),sub(36,10)),%q<sorted>,|,|))][u(setq,second,filterbool(#lambda/gte(strlen(u(u(cobj,merit)/FUN`MERNAME,%0,\%0)),sub(36,10)),%q<sorted>,|,|))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`MERFORMAT`2,%0,%1,%2,%q<first>,%3)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`MERFORMAT`3,%0,%1,%2,%q<second>,%3)))][if(strlen(%q<firstsec>),%q<firstsec>)][if(strlen(%q<secondsec>),if(strlen(%q<firstsec>),%R%q<secondsec>,%q<secondsec>))])
 
-&FUN`MERFORMAT`2 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,u(table,iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(u(cobj,merit)/FUN`MERNAME,%0,%i0),36,get(%0/%i0`RANK),,1,1),|,|),36,sub(u(width,%#),4),|))
+&FUN`MERFORMAT`2 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,u(table,iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(pueblize,u(u(cobj,merit)/FUN`MERNAME,%0,%i0),%4 [name(%0)]/[u(u(cobj,merit)/FUN`MERNAME,%0,%i0)]),36,get(%0/%i0`RANK),,1,1),|,|),36,sub(u(width,%#),4),|))
 
-&FUN`MERFORMAT`3 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,trimpenn(iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(u(cobj,merit)/FUN`MERNAME,%0,%i0),sub(u(width,%#),4),get(%0/%i0`RANK),,1,1),|,%R),%R))
+&FUN`MERFORMAT`3 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,trimpenn(iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(pueblize,u(u(cobj,merit)/FUN`MERNAME,%0,%i0),%4 [name(%0)]/[u(u(cobj,merit)/FUN`MERNAME,%0,%i0)]),sub(u(width,%#),4),get(%0/%i0`RANK),,1,1),|,%R),%R))
 
 &FUN`STATFORMAT`STAT [u(cobj,sheet)]=localize([u(setq,namedisp,if(%9,left(%3,%9),%3))][u(setq,val,u(strfirstof,%5,u(getstat,%0,D`%2,%3)))][u(setq,bon,u(strfirstof,%6,getbonus(%0,%3)))][u(setq,totval,add(%q<val>,if(%7,%q<bon>)))][if(%7,u(setq,valdisp,if(%7,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<val>)))),[u(setq,astlen,if(lte(%q<bon>,-1),bound(add(%q<val>,%q<bon>),0),%q<val>))][u(setq,minlen,if(lte(%q<bon>,-1),abs(%q<bon>)))][u(setq,pluslen,if(gte(%q<bon>,1),%q<bon>))][u(setq,valdisp,[if(%q<astlen>,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<astlen>)))][if(%q<minlen>,u(FUN`COLOR,%1,STATDOT,repeat(-,%q<minlen>)))][if(%q<pluslen>,u(FUN`COLOR,%1,STATDOT,repeat(+,%q<pluslen>)))])])][if(%8,,u(setq,fav,t(match(get(%0/D`FAVORED`%2),switch(%3,MARTIAL ARTS,BRAWL,%3),|)),sup,t(match(get(%0/D`SUPERNAL`%2),%3,|))))][u(setq,statlen,strlen(%q<namedisp>))][if(lte(sub(%4,1,%q<statlen>,strlen(%q<valdisp>)),0),u(setq,valdisp,%q<totval>,dotlen,strlen(%q<totval>)),u(setq,dotlen,strlen(%q<valdisp>)))][u(setq,linelen,sub(%4,1,%q<dotlen>,%q<statlen>))][switch(1,%q<sup>,u(FUN`COLOR,%1,SUPMARK,+),%q<fav>,u(FUN`COLOR,%1,FAVMARK,+),%b)][u(FUN`COLOR,%1,STATNAME,u(capnames,%q<namedisp>))][if(gt(%q<linelen>,0),repeat(u(FUN`COLOR,%1,STATLINE,.),%q<linelen>))]%q<valdisp>)
 @@ %0 = Player. %1 = Splat. %2 = Attribute. %3 = Entry. %4 = Length. %5 = manual value. %6 = Manual bonus. %7 = Don't show bonus. %8 = No favoreds. %9 = Truncate.
-
 
 &INC`ADVANTAGES [u(cobj,sheet)]=@select/inline gt(strlen(get(%0/D`COLLEGES)),0)=1,{@pemit %#=u(FUN`COLLEGES,%0,%q<class>)};@select/inline gt(strlen(get(%0/D`PATHS)),0)=1,{@pemit %#=u(FUN`PATHS,%0,%q<class>)};@attach %!/INC`CHARMS;@attach %!/INC`MACHARMS;@attach %!/INC`SPELLS;@attach %!/INC`CHARM_SLOTS
 
@@ -95,7 +94,9 @@
 
 &INC`GRACES [u(cobj,sheet)]=@dolist/inline u(filter,HASATTRVAL2,Graces,%b,%b,%0)={@pemit %#=u(FUN`DOTFORMAT,%0,%1,%i0,36,left(%i0,1),after(%i0,left(%i0,1)),D`%i0,sort(u(u(cobj,data)/FUN`RET`GRACES,%0),i,|,|),,1)}
 
-&FUN`WORDLIST [u(cobj,sheet)]=if(strlen(u(setr,short,u(table,sort(u(filter,LTESTRLEN,u(setr,capped,iter(u(renderwords,%1),%i0,|,|)),|,|,36),i,|,|),36,74,|))),%q<short>)[if(words(u(setr,toolong,u(filter,GTESTRLEN,%q<capped>,|,|,37)),|),if(strlen(%q<short>),%R)[iter(%q<toolong>,%i0,|,%R)])]
+&FUN`WORDLIST [u(cobj,sheet)]=if(strlen(u(setr,short,u(table,sort(u(filter,LTESTRLEN,u(setr,capped,iter(u(renderwords,%1),%i0,|,|)),|,|,36),i,|,|),36,sub(u(width,%#),4),|))),%q<short>)[if(words(u(setr,toolong,u(filter,GTESTRLEN,%q<capped>,|,|,37)),|),if(strlen(%q<short>),%R)[iter(%q<toolong>,%i0,|,%R)])]
+
+
 
 &RENDERWORDS [u(cobj,sheet)]=regeditalli(u(capnames,%0),~(\\d+),switch(u(setr,wordnum,$1),>1,%b%(%q<wordnum>%)))
 
@@ -121,7 +122,10 @@
 
 &FUN`FORMATPOOLS [u(cobj,sheet)]=iter(u(capnames,u(u(cobj,pool)/FUN`LISTPOOLS,%0,%1)),rjust(%i0: [rjust(u(u(cobj,pool)/FUN`CUR,%0,%i0),switch(%1,Pool,3,Channel,1,Track,2,3),0)]/[rjust(u(u(cobj,pool)/FUN`MAX,%0,%i0),switch(%1,Pool,3,Channel,1,Track,2,3),0)],switch(%1,Pool,21,Channel,19,Track,19,21)),|,%R)
 
-&FUN`FOOTER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,|----------------------------------------------------------------------------|)%R%B[u(FUN`COLOR,%1,BORDER,\\)]%B[ansi(u(strfirstof,v(%1`PSM),n),XP:)]%B[u(FUN`COLOR,%1,PSM,rjust(sub(u(setr,g,u(xp)/FUN`COUNT,%0,G)),u(xp)/FUN`COUNT,%0,S)),4,0))][u(FUN`COLOR,%1,BORDER,/)][u(FUN`COLOR,%1,PSM,rjust(%qg,4,0))][rjust(u(FUN`GETSERIES,%1),59)]%B[u(FUN`COLOR,%1,BORDER,/)]%R%B%B[u(FUN`COLOR,%1,BORDER,'------------------------------------------------------------------------')]
+&FUN`FOOTER [u(cobj,sheet)]=u(FUN`SECTIONHEADER,%0,%1,Advancement)%R[u(FUN`BORDER,%0,%1,u(table,iter(XP~Experience,after(%i0,~): [rjust(u(u(cobj,xp)/FUN`AVAILABLE,%0,before(%i0,~)),3,0)]/[rjust(u(u(cobj,xp)/FUN`GAINED,%0,before(%i0,~)),3,0)],|,|),36,sub(u(width,%#),4),|))]%R%B[u(FUN`COLOR,%1,BORDER,\\)][space(sub(u(width,%#),4))][u(FUN`COLOR,%1,BORDER,/)]%R%B%B[u(FUN`COLOR,%1,BORDER,')][center([u(FUN`COLOR,%1,BORDER,*)]%B[u(FUN`GETSERIES,%1)]%B[u(FUN`COLOR,%1,BORDER,*)],sub(u(width,%#),6),u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,')]
+
+
+
 
 &FUN`GETSERIES [u(cobj,sheet)]=switch(%0,SOLAR,ansi(hy,Solars):%B[ansi(hy,The Lawgivers)],ABYSSAL,ansi(hx,Abyssals):%B[ansi(hx,The Deathknights)],INFERNAL,ansi(hg,Infernals):%B[ansi(hg,The Green Sun Princes)],LUNAR,ansi(hc,Lunars):%B[ansi(hc,The Stewards)],SIDEREAL,ansi(hm,Sidereals):%B[ansi(hm,The Viziers)],TERRESTRIAL,ansi(hr,Terrestrials):%B[ansi(hr,The TERRESTRIAL)],ALCHEMICAL,ansi(c,Alchemicals):%B[ansi(c,The Champions)],JADEBORN,ansi(y,Jadeborn),RAKSHA,ansi(m,Raksha):%B[ansi(m,The Fair Folk)],MORTAL,Mortals:%BThe Heroes,GHOST,Ghosts,DRAGON-KING,Dragon-Kings,GOD-BLOODED,ansi(h,GOD-BLOODED):%B[ansi(h,The Children of the Mighty)],Exalted 2.5e)
 

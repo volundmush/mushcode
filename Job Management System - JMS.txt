@@ -4,6 +4,8 @@ th u(NEWCOBJ,Job System,jms,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 th u(NEWCOBJ,Jobs Database <JOBDB>,jobdb,u(cobj,jms),,,WIZARD SAFE,INHERIT SIDEFX SAFE)
 @describe [u(cobj,jobdb)]=???
 
+th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request category?,WORD)
+
 @unlock/basic [u(cobj,jobdb)]
 @lset [u(cobj,jobdb)]/basic=visual
 @lset [u(cobj,jobdb)]/basic=!NO_INHERIT
@@ -27,7 +29,7 @@ th u(NEWCOBJ,Jobs Database <JOBDB>,jobdb,u(cobj,jms),,,WIZARD SAFE,INHERIT SIDEF
 @set [u(cobj,jms)]/CMD`+REQUEST`PENNMUSH=regexp
 &CMD`+REQUEST`RHOSTMUSH [u(cobj,jms)]=$^(?s)\+request(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REQUEST`MAIN
 @set [u(cobj,jms)]/CMD`+REQUEST`RHOSTMUSH=regexp
-&CMD`+REQUEST`MAIN [u(cobj,jms)]=@attach %!/INC`PARTIAL=%1,u(setr,valcats,iter(u(FUN`VALIDCATS,%#,POST),name(%i0),%b,|)),|,Category,Category;@attach %!/INC`REQUEST=trim(%2),trim(%3),%q<category>,u(objid,%#)
+&CMD`+REQUEST`MAIN [u(cobj,jms)]=@attach %!/INC`PARTIAL=u(strfirstof,%1,u(game_Config,JOBS,DEFAULT_CATEGORY)),u(setr,valcats,iter(u(FUN`VALIDCATS,%#,POST),name(%i0),%b,|)),|,Category,Category;@attach %!/INC`REQUEST=trim(%2),trim(%3),%q<category>,u(objid,%#)
 @set [u(cobj,jms)]/CMD`+REQUEST`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &INC`REQUEST [u(cobj,jms)]=th u(setq,subm,u(strfirstof,u(objid,%3),u(objid,%#)));@check strlen(%0)=@attach %!/INC`MSG=Available Job categories: [u(itemize,%q<valcats>,|,and,\,)],%q<subm>;@check strlen(%1)=@attach %!/INC`MSG=The Request text field is empty! What are you asking staff?,%q<subm>;@attach %!/INC`PLAYERID=%q<subm>;@select/inline t(%2)=1,{@attach %!/INC`FINDCAT=%2};@attach %!/INC`DOSQL=NEW`REQUEST,%q<pid>,%q<cat>,%0,%1,add(secs(),u(FUN`CONF,%q<cat>,DUE));th u(setr,jid,u(mysql,get`newjob,%q<pid>));@attach %!/INC`AMSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] has been created[if(%q<cat>,%bunder '%q<catname>')] by [u(FUN`MASKNAME,%q<cat>)].};@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
@@ -77,9 +79,9 @@ th u(NEWCOBJ,Jobs Database <JOBDB>,jobdb,u(cobj,jms),,,WIZARD SAFE,INHERIT SIDEF
 
 &INC`CATNAMECHECK [u(cobj,jms)]=@check strlen(%0)=@attach %!/INC`MSG=You must enter the new category name!;@check cand(valid(name,%0),eq(words(%0),1),lte(strlen(%0),8))=@attach %!/INC`MSG='%0' is not a valid category name. Categories must be valid object names\, contain no spaces\, and be 8 characters or less.
 
-&INC`CATEXIST [u(cobj,jms)]=@stop or(isdbref(u(namegrab,u(FUN`LISTCATS),%0)),strmatch(%0,None))=@attach %!/INC`MSG=A Category by that name already exists!
+&INC`CATEXIST [u(cobj,jms)]=@stop isdbref(u(namegrab,u(FUN`LISTCATS),%0))=@attach %!/INC`MSG=A Category by that name already exists!
 
-&INC`FINDCAT [u(cobj,jms)]=@check strlen(%0)=@attach %!/INC`MSG=No Category Name entered!;@select/inline %0=None,{},{@check words(u(setr,cats,u(FUN`LISTCATS)))=@attach %!/INC`MSG=There are no Categories.;@check isdbref(u(setr,cat,u(objid,u(namegrab,%q<cats>,%0))))=@attach %!/INC`MSG=Category '%0' not found.;th u(setq,catname,name(%q<cat>))}
+&INC`FINDCAT [u(cobj,jms)]=@check strlen(%0)=@attach %!/INC`MSG=No Category Name entered!;@check words(u(setr,cats,u(FUN`LISTCATS)))=@attach %!/INC`MSG=There are no Categories.;@check isdbref(u(setr,cat,u(objid,u(namegrab,%q<cats>,%0))))=@attach %!/INC`MSG=Category '%0' not found.;th u(setq,catname,name(%q<cat>))
 
 &FUN`LISTCATS [u(cobj,jms)]=iter(u(sortname,children(u(cobj,jobdb))),u(objid,%i0))
 
@@ -92,32 +94,33 @@ th u(NEWCOBJ,Jobs Database <JOBDB>,jobdb,u(cobj,jms),,,WIZARD SAFE,INHERIT SIDEF
 
 &INC`MAIN [u(cobj,jms)]=@select/inline 1=isint(%0),{@attach %!/INC`DISPLAYJOB=%0},t(strlen(%0)),{@attach %!/INC`DISPLAYCAT=%0,%1},{@select/inline %q<mode>=MYJOBS,{@attach %!/INC`MYJOBS`LIST},{@attach %!/INC`CATLIST}}
 
-&INC`CATLIST [u(cobj,jms)]=@pemit %#=u(HEADER,mudname() Jobs);@pemit %#=align(8 34 4 4 4 4 4 4 4,Name,Description,Pen,App,Dny,Cnc,Over,Due,Anon);@dolist/inline u(FUN`LISTCATS)={@pemit %#=u(FUN`CATEGORYLINE,##)};@pemit %#=u(FUN`CATEGORYLINE);@pemit %#=u(SUBHEADER)
+&INC`CATLIST [u(cobj,jms)]=@pemit %#=u(HEADER,mudname() Jobs);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(8 34 4 4 4 4 4 4 4,Name,Description,Pen,App,Dny,Cnc,Over,Due,Anon));@pemit %#=u(separator);@dolist/inline u(FUN`LISTCATS)={@pemit %#=u(FUN`CATEGORYLINE,##)};@pemit %#=u(SUBHEADER)
 
-&FUN`CATEGORYLINE [u(cobj,jms)]=align(8 34 4 4 4 4 4 4 4,if(strlen(%0),u(pueblize,name(%0),+[lcstr(%q<mode>)] [name(%0)]),u(pueblize,None,+jobs None)),if(strlen(%0),get(%0/describe),For all uncategorized jobs.),u(mysql,GET`STATUSCOUNT,0,%0),u(mysql,GET`STATUSCOUNT,1,%0),u(mysql,GET`STATUSCOUNT,2,%0),u(mysql,GET`STATUSCOUNT,3,%0),u(mysql,GET`OVERDUE,%0),u(strfirstof,u(etime,u(FUN`CONF,%0,DUE)),0),u(FUN`CONF,%0,ANONYMOUS))
+&FUN`CATEGORYLINE [u(cobj,jms)]=align(8 34 4 4 4 4 4 4 4,u(pueblize,name(%0),+[lcstr(%q<mode>)] [name(%0)]),get(%0/describe),u(mysql,GET`STATUSCOUNT,0,%0),u(mysql,GET`STATUSCOUNT,1,%0),u(mysql,GET`STATUSCOUNT,2,%0),u(mysql,GET`STATUSCOUNT,3,%0),u(mysql,GET`OVERDUE,%0),u(strfirstof,u(etime,u(FUN`CONF,%0,DUE)),0),u(FUN`CONF,%0,ANONYMOUS))
 
 &Q`GET`STATUSCOUNT [u(cobj,jms)]=SELECT count(job_id) FROM $JOBS$ where job_status=? AND job_objid=?
 &Q`GET`OVERDUE [u(cobj,jms)]=SELECT count(job_id) FROM $JOBS$ WHERE job_status=0 AND job_objid=? AND due_date<NOW()
 
 &INC`OLD [u(cobj,jms)]=th u(setq,old,OLD);@attach %!/INC`MAIN
 
-&INC`DISPLAYCAT [u(cobj,jms)]=@switch/inline %0=None,{@check u(isadmin,%#)=@attach %!/INC`MSG=Permission denied.},{@attach %!/INC`FINDCAT=%0;@attach %!/INC`PERMCHECKCAT=%#,ADMIN,%q<cat>};th u(setq,total,u(mysql,GET`JOBLISTCATCOUNT%q<old>,%q<cat>));@switch/inline u(valnum,%1)=1,{th u(setq,page,bound(%1,1,u(setr,max,ceil(fdiv(%q<total>,30)))))},{th u(setq,page,1,max,ceil(fdiv(%q<total>,30)))};@pemit %#=u(HEADER,mudname() - [u(strfirstof,%q<catname>,Uncategorized)] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline revwords(u(mysql,GET`JOBLISTCAT%q<old>,%q<cat>,mul(30,sub(%q<page>,1))))={@pemit %#=u(FUN`LISTJOBSTAFF,##)};@pemit %#=u(SUBHEADER,if(gt(%q<page>,1),ansi(hg,u(pueblize,<,+job[if(strlen(%q<old>),/old)] [u(strfirstof,%q<catname>,None)]=[sub(%q<page>,1)])),ansi(hx,<))%BPage %q<page> of [bound(%q<max>,1)]%B[if(lt(%q<page>,%q<max>),ansi(hg,u(pueblize,>,+job[if(strlen(%q<old>),/old)] [u(strfirstof,%q<catname>,None)]=[add(%q<page>,1)])),ansi(hx,>))])
+&INC`DISPLAYCAT [u(cobj,jms)]=@attach %!/INC`FINDCAT=%0;@attach %!/INC`PERMCHECKCAT=%#,ADMIN,%q<cat>;th u(setq,total,u(mysql,GET`JOBLISTCATCOUNT%q<old>,%q<cat>));@switch/inline u(valnum,%1)=1,{th u(setq,page,bound(%1,1,u(setr,max,ceil(fdiv(%q<total>,30)))))},{th u(setq,page,1,max,ceil(fdiv(%q<total>,30)))};@pemit %#=u(HEADER,mudname() - %q<catname> Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline revwords(u(mysql,GET`JOBLISTCAT%q<old>,%q<cat>,mul(30,sub(%q<page>,1))))={@pemit %#=u(FUN`LISTJOBSTAFF,##)};@pemit %#=u(SUBHEADER,if(gt(%q<page>,1),ansi(hg,u(pueblize,<,+job[if(strlen(%q<old>),/old)] %q<catname>=[sub(%q<page>,1)])),ansi(hx,<))%BPage %q<page> of [bound(%q<max>,1)]%B[if(lt(%q<page>,%q<max>),ansi(hg,u(pueblize,>,+job[if(strlen(%q<old>),/old)] %q<catname>=[add(%q<page>,1)])),ansi(hx,>))])
 
-&INC`SCAN [u(cobj,jms)]=@check u(setr,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)[if(u(FUN`PERMCHECK,None,Admin,%#),%b1)]))=@attach %!/INC`MSG=Permission denied.;@dolist/inline u(setr,maincount,u(filter,UNREADCAT,%q<cats>,%B,%B,%q<pid>))={th u(setq,had,1);@pemit %#=u(HEADER,mudname() - New [if(u(isobjid,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),name(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),Uncategorized)] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,GET`NEWJOBSCAT,%q<pid>,if(isint(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),%q<pid>)={@pemit %#=u(FUN`LISTJOBSTAFF,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))};@select/inline #@=words(%q<maincount>),{@pemit %#=u(SUBHEADER,Showing 20 Per Category)}};@select/inline not(%q<had>)=1,{@attach %!/INC`MSG=There are no new jobs in the system!}
+&INC`SCAN [u(cobj,jms)]=@check u(setr,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)))=@attach %!/INC`MSG=Permission denied.;@dolist/inline u(setr,maincount,u(filter,UNREADCAT,%q<cats>,%B,%B,%q<pid>))={th u(setq,had,1);@pemit %#=u(HEADER,mudname() - New [name(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,GET`NEWJOBSCAT,%q<pid>,if(isint(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),%q<pid>)={@pemit %#=u(FUN`LISTJOBSTAFF,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))};@select/inline #@=words(%q<maincount>),{@pemit %#=u(SUBHEADER)}};@select/inline not(%q<had>)=1,{@attach %!/INC`MSG=There are no new jobs in the system!}
 
-&FIL`UNREADCAT [u(cobj,jms)]=t(u(mysql,GET`NEWJOBSCATCOUNT,%1,if(isint(%0),,%0),%1))
+&FIL`UNREADCAT [u(cobj,jms)]=t(u(mysql,GET`NEWJOBSCATCOUNT,%1,%0,%1))
 
-&Q`GET`NEWJOBSCAT [u(cobj,jms)]=SELECT jobs.job_id FROM $JOBS$ as jobs LEFT JOIN $CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) order by jobs.job_id ASC LIMIT 20
-&Q`GET`NEWJOBSCATCOUNT [u(cobj,jms)]=SELECT count(jobs.job_id) FROM $JOBS$ as jobs LEFT JOIN $CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) order by jobs.job_id
+&Q`GET`NEWJOBSCAT [u(cobj,jms)]=SELECT jobs.job_id FROM $DATABASE$.$JOBS$ as jobs LEFT JOIN $DATABASE$.$CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL OR jobs.job_status=0 OR (jobs.job_status>0 AND jobs.close_date>= UTC_TIMESTAMP() - INTERVAL 7 DAY)) order by jobs.job_id ASC
+&Q`GET`NEWJOBSCATCOUNT [u(cobj,jms)]=SELECT count(jobs.job_id) FROM $DATABASE$.$JOBS$ as jobs LEFT JOIN $DATABASE$.$CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL OR jobs.job_status=0 OR (jobs.job_status>0 AND jobs.close_date>= UTC_TIMESTAMP() - INTERVAL 7 DAY)) order by jobs.job_id ASC
 
-&INC`NEXT [u(cobj,jms)]=@check u(setr,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)[if(u(FUN`PERMCHECK,None,Admin,%#),%b1)]))=@attach %!/INC`MSG=Permission denied.;@dolist/inline u(setr,maincount,u(filter,NEXTJOBS,%q<cats>,%B,%B,%q<pid>))={th u(setq,had,1);@pemit %#=u(HEADER,mudname() - New [if(u(isobjid,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),name(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),Uncategorized)] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,GET`NEXTJOBSCAT,%q<pid>,if(isint(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),%q<pid>)={@attach %!/INC`DISPLAYJOB=switch(v(game),PennMUSH,%i0,RhostMUSH,%d0);@stop 1};@attach %!/INC`MSG=There are no unread jobs in the system!
+&INC`NEXT [u(cobj,jms)]=@check u(setr,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)))=@attach %!/INC`MSG=Permission denied.;@check u(setr,next,u(mysql,GET`NEXTJOB,%q<pid>,u(SQL`IN`STRING,%q<cats>)))=@attach %!/INC`MSG=There are no unread jobs to see!;@attach %!/INC`DISPLAYJOB=%q<next>
 
-&FIL`NEXTJOBS [u(cobj,jms)]=t(u(mysql,GET`NEXTJOBSCATCOUNT,%1,if(isint(%0),,%0),%1))
+&FIL`NEXTJOBS [u(cobj,jms)]=t(u(mysql,GET`NEXTJOBSCATCOUNT,%1,%0,%1))
 
-&Q`GET`NEXTJOBSCAT [u(cobj,jms)]=SELECT jobs.job_id FROM $JOBS$ as jobs LEFT JOIN $CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) AND NOT (jobs.job_status>0 AND jobs.close_date <= UTC_TIMESTAMP() - INTERVAL 14 DAY) order by jobs.job_id ASC LIMIT 1
-&Q`GET`NEXTJOBSCATCOUNT [u(cobj,jms)]=SELECT count(jobs.job_id) FROM $JOBS$ as jobs LEFT JOIN $CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) AND NOT (jobs.job_status>0 AND jobs.close_date <= UTC_TIMESTAMP() - INTERVAL 14 DAY) order by jobs.job_id
+&Q`GET`NEXTJOB [u(cobj,jms)]=SELECT jobs.job_id FROM $JOBS$ as jobs LEFT JOIN $CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid IN (!) AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) order by jobs.job_id ASC LIMIT 1
 
-&INC`PENDING [u(cobj,jms)]=@check u(setr,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)[if(u(FUN`PERMCHECK,None,Admin,%#),%b1)]))=@attach %!/INC`MSG=Permission denied.;@dolist/inline u(setr,maincount,u(filter,PENDINGCOUNT,%q<cats>,%b,%B,%q<pid>))={th u(setq,had,1);@pemit %#=u(HEADER,mudname() - New [if(u(isobjid,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),name(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),Uncategorized)] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,GET`PENJOBSCAT,%q<pid>,if(isint(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),%q<pid>)={@pemit %#=u(FUN`LISTJOBSTAFF,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))};@select/inline #@=1,{@pemit %#=u(SUBHEADER,Showing 20 Per Category)}};@select/inline not(%q<had>)=1,{@attach %!/INC`MSG=There are no new jobs in the system!}
+@@ AND NOT (jobs.job_status>0 AND jobs.close_date <= UTC_TIMESTAMP() - INTERVAL 14 DAY)
+
+&INC`PENDING [u(cobj,jms)]=@check u(setr,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)))=@attach %!/INC`MSG=Permission denied.;@dolist/inline u(setr,maincount,u(filter,PENDINGCOUNT,%q<cats>,%b,%B,%q<pid>))={th u(setq,had,1);@pemit %#=u(HEADER,mudname() - New [if(u(isobjid,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),name(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),Uncategorized)] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,GET`PENJOBSCAT,%q<pid>,if(isint(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),%q<pid>)={@pemit %#=u(FUN`LISTJOBSTAFF,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))};@select/inline #@=1,{@pemit %#=u(SUBHEADER,Showing 20 Per Category)}};@select/inline not(%q<had>)=1,{@attach %!/INC`MSG=There are no new jobs in the system!}
 
 &FIL`PENDINGCOUNT [u(cobj,jms)]=t(u(mysql,GET`PENJOBSCATCOUNT,%q<pid>,if(isint(\%0),,\%0),%q<pid>))
 
@@ -252,6 +255,9 @@ th u(NEWCOBJ,Jobs Database <JOBDB>,jobdb,u(cobj,jms),,,WIZARD SAFE,INHERIT SIDEF
 
 &Q`RENAME`PLAYER [u(cobj,jms)]=UPDATE $PLAYERS$ SET player_name=? WHERE objid=?
 
+&MIGRATE`JOBS [u(cobj,migrate)]=@dolist/inline children(u(coi,jobdb))={@tel %i0=u(cobj,jobdb);@parent %i0=u(cobj,jobdb)}
+
+&CONFLICT`JOBS [u(cobj,migrate)]=@dolist u(coi,jobsys)={@tel %i0=u(cobj,oldbox);@set %i0=NO_COMMAND HALT}
 
 @@ INSTALL AND SQL CONFIG
 &Q`INSTALL`PLAYERS [u(cobj,jms)]=CREATE TABLE IF NOT EXISTS $PLAYERS$ (player_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,objid VARCHAR(30) NOT NULL,player_name VARCHAR(60) NOT NULL DEFAULT 'Unset',PRIMARY KEY(player_id),UNIQUE KEY player_objid (objid)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
@@ -276,7 +282,8 @@ th u(NEWCOBJ,Jobs Database <JOBDB>,jobdb,u(cobj,jms),,,WIZARD SAFE,INHERIT SIDEF
 
 @trigger [u(cobj,jms)]/TRG`INSTALL
 
-&PLAYER`CONNECT`MYJOBS [u(cobj,jms)]=@check u(isadmin,%0);@wait 2=@force %0=+myjobs
+&PLAYER`CONNECT [u(cobj,jms)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CONNECT`MYJOBS [u(cobj,jms)]=@wait 2=@select/inline u(isadmin,%0)=1,{@force %0=+job/scan},0,{@force %0=+myjobs}
 
 +help/add +job=[u(cobj,jms)]/HLP`+JOB
 +help/category +job=Communications
