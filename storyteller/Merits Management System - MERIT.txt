@@ -48,7 +48,7 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 &SORTMER`PENNMUSH [u(cobj,merit)]=sortkey(#lambda/u(FUN`MERNAME,%q<target>,\%0),%0,i,%1,%2)
 &SORTMER`RHOSTMUSH [u(cobj,merit)]=sortby(#lambda/[lit([comp(lcstr(u(FUN`MERNAME,%q<target>,%0)),lcstr(u(FUN`MERNAME,%q<target>,%1)))])],%0,%1,%2)
 
-&INC`DISPLAY [u(cobj,merit)]=@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@pemit %#=get(%q<target>/%q<attr>`DESC);@pemit %#=u(RFN`SEPARATOR);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(20 20,Setby,Seton));@pemit %#=u(separator);@pemit %#=align(20 20,get(%q<target>/%q<attr>`BY),u(fancytime,get(%q<target>/%q<attr>`ON),%#));@pemit %#=u(SUBHEADER)
+&INC`DISPLAY [u(cobj,merit)]=@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@pemit %#=get(%q<target>/%q<attr>`DESC);@pemit %#=u(SEPARATOR);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(20 20,Setby,Seton));@pemit %#=u(separator);@pemit %#=align(20 20,get(%q<target>/%q<attr>`BY),u(fancytime,get(%q<target>/%q<attr>`ON),%#));@pemit %#=u(SUBHEADER)
 
 @@ CHARACTER - +INFO
 +help/add +merits=[u(cobj,merit)]/HLP`+MERITS

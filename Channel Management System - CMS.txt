@@ -130,7 +130,7 @@ th u(NEWCONF,config,CHANNELS,INTERVAL,3600,Interval between Muzzle cleaning?,DUR
 
 &MOGRIFY`TITLE [u(cobj,mop)]=localize(null(iter(v(MOGUSE`TITLE),u(setr,title,u(FUN`TITLE`%i0,strfirstof(%q<title>,%0)))))[strfirstof(%q<title>,%0)])
 &MOGORDER`TITLE [u(cobj,mop)]=noansi trim stafftag
-&MOGUSE`TITLE [u(cobj,mop)]=noansi trim stafftag
+&MOGUSE`TITLE [u(cobj,mop)]=trim stafftag
 
 &FUN`TITLE`STAFFTAG [u(cobj,mop)]=if(cand(v(MOGCONF`TITLE`STAFFTAG),match(v(VAR`STAFFTAG),%:),u(isadmin,%#)),\[[ansi(hR,Staff)]\][if(strlen(%0),%B%0)],%0)
 &MOGCONF`TITLE`STAFFTAG [u(cobj,mop)]=1

@@ -15,5 +15,6 @@ th u(newconf,PCONF,STORYTELLER,SHEET_PUBLIC,0,Make +sheet public?,BOOL)
 
 &FUN`COLOR [u(cobj,sheet)]=ansi(u(strfirstof,v(%0`%1),v(DEFAULT`%1),n),%2)
 
-+help/addmain Roleplaying/+sheet=[u(ex-sso)]/HLP`+SHEET
-&HLP`+SHEET [u(cobj,sheet)]=[ansi(hc,Commands)]%R[align(5 [sub(width(%#),6)],,{[ansi(h,+sheet)] - Shows your sheet.%R[ansi(hc,+sheet/public)] - Makes your sheet publically viewable by others. use again to hide it once more.%R[ansi(h,+sheet <player>)] - View another's +sheet. They must have allowed it or you must be staff.})]
++help/add +sheet=[u(cobj,sheet)]/HLP`+SHEET
++help/category +sheet=Roleplaying
+&HLP`+SHEET [u(cobj,sheet)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+sheet)] - Shows your sheet.%R[ansi(h,+sheet <player>)] - View another's +sheet. They must have allowed it or you must be staff.%R%RYou can allow others to view your sheet via [ansi(h,+Config storyteller/sheet_public=1)] \(set to 0 to disable\))]

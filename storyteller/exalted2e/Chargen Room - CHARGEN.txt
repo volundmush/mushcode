@@ -14,10 +14,10 @@
 
 @desc [u(cobj,chargen)]=%TWelcome to [mudname()] Chargen! In this room you will setup your sheet and other aspects and prepare for admin review for approval. Remember to check out any House Rules at [u(weblink,mudurl(),mudurl())]%R%R%T[ansi(h,INSTRUCTIONS:)] Set your sheet as it would be after spending all your available points, including starting experience awarded by house rules. Approval will require an +info (+help +info) file detailing your spends so keep track of how you spend your XP.%R%R%TTo see your sheet, type [ansi(h,+sheet)]%R[u(u(strfirstof,u(getstat,%#,D`CHARGEN,Page),CG`1),getclass(%#))]%R[u(SEPARATOR,Chargen)]%RViewing Page [ansi(h,u(strfirstof,last(u(getstat,%#,D`CHARGEN,Page),`),1))] of [ansi(h,u(lmax,u(filter,ISPAGE,u(lattr,%!/*))))]. Use [ansi(h,+page <number>)] to change. For example, +page 2.%RIf you'd like to undo certain steps, use [ansi(h,+reset)] to view your options.%R[u(FUN`STATS,%#)]
 
-&FUN`STATS [u(cobj,chargen)]=[u(SEPARATOR,Progress)]%R[ansi(h,ATTRIBUTES:)] [rjust(u(FUN`COUNT,%#,ATTRIBUTES),2,0)]. Physical/Social/Mental: [rjust(add(u(getstat,%#,D`ATTRIBUTES,Strength),u(getstat,%#,D`ATTRIBUTES,Dexterity),u(getstat,%#,D`ATTRIBUTES,Stamina)),2,0)]/[rjust(add(u(getstat,%#,D`ATTRIBUTES,Charisma),u(getstat,%#,D`ATTRIBUTES,Manipulation),u(getstat,%#,D`ATTRIBUTES,Appearance)),2,0)]/[rjust(add(u(getstat,%#,D`ATTRIBUTES,Perception),u(getstat,%#,D`ATTRIBUTES,Intelligence),u(getstat,%#,D`ATTRIBUTES,Wits)),2,0)]%R[ansi(h,ABILITIES:)] [rjust(add(u(FUN`COUNT,%#,ABILITIES),u(FUN`COUNT,%#,STYLES),u(FUN`COUNT,%#,CRAFTS)),2,0)]/[rjust(u(strfirstof,v(MAX`ABILITIES`[u(setr,class,getclass(%#))]),??),2,0)]%R[ansi(h,MERITS:)] [rjust(u(FUN`COUNT`MERITS,%#),2,0)]/[rjust(u(strfirstof,v(MAX`MERITS`%q<class>),??),2,0)]%R[ansi(h,CHARMS:)] [rjust(add(u(FUN`COUNT`CHARMS,%#),u(FUN`COUNT`SPELLS,%#)),2,0)]/[rjust(u(strfirstof,v(MAX`CHARMS`%q<class>),??),2,0)]
+&FUN`STATS [u(cobj,chargen)]=[u(SEPARATOR,Progress)]%R[ansi(h,ATTRIBUTES:)] [rjust(u(FUN`COUNT,%#,ATTRIBUTES),2,0)]. Physical/Social/Mental: [rjust(add(u(getstat,%#,D`ATTRIBUTES,Strength),u(getstat,%#,D`ATTRIBUTES,Dexterity),u(getstat,%#,D`ATTRIBUTES,Stamina)),2,0)]/[rjust(add(u(getstat,%#,D`ATTRIBUTES,Charisma),u(getstat,%#,D`ATTRIBUTES,Manipulation),u(getstat,%#,D`ATTRIBUTES,Appearance)),2,0)]/[rjust(add(u(getstat,%#,D`ATTRIBUTES,Perception),u(getstat,%#,D`ATTRIBUTES,Intelligence),u(getstat,%#,D`ATTRIBUTES,Wits)),2,0)]%R[ansi(h,ABILITIES:)] [rjust(add(u(FUN`COUNT,%#,ABILITIES),u(FUN`COUNT,%#,STYLES),u(FUN`COUNT,%#,CRAFTS)),2,0)]/[rjust(u(strfirstof,v(MAX`ABILITIES`[u(setr,class,getclass(%#))]),??),2,0)]%R[ansi(h,BACKGROUNDS:)] [rjust(u(FUN`COUNT`BACKGROUNDS,%#),2,0)]/[rjust(u(strfirstof,v(MAX`MERITS`%q<class>),??),2,0)]%R[ansi(h,CHARMS:)] [rjust(add(u(FUN`COUNT`CHARMS,%#),u(FUN`COUNT`SPELLS,%#)),2,0)]/[rjust(u(strfirstof,v(MAX`CHARMS`%q<class>),??),2,0)]
 
 &FUN`COUNT [u(cobj,chargen)]=u(ladd,iter(get(%0/D`%1),last(%i0,~),|,%b))
-&FUN`COUNT`MERITS [u(cobj,chargen)]=u(ladd,iter(u(lattr,%0/D`MERITS`*`RANK),get(%0/%i0)))
+&FUN`COUNT`BACKGROUNDS [u(cobj,chargen)]=u(ladd,iter(u(lattr,%0/D`BACKGROUNDS`*`RANK),get(%0/%i0)))
 &FUN`COUNT`CHARMS [u(cobj,chargen)]=u(ladd,iter(u(lattr,%0/D`CHARMS`*`*),words(get(%0/%i0),|)))
 &FUN`COUNT`SPELLS [u(cobj,chargen)]=u(ladd,iter(u(lattr,%0/D`SPELLS`*),words(get(%0/%i0),|)))
 
@@ -34,6 +34,9 @@
 &CG`1`RAKSHA [u(cobj,chargen)]=ansi(h,+lure <virtue and condition>)] to set your Lure.
 &CG`1`MORTAL [u(cobj,chargen)]=Mortals have nothing race-specific to set!
 &CG`1`JADEBORN [u(cobj,chargen)]=This covers both Enlightened and Unenlightened!
+&CG`1`GOD-BLOODED [u(cobj,chargen)]=ansi(h,+parent <parentname or type>) to set your parent!
+&CG`1`SIDEREAL [u(cobj,chargen)]=ansi(h,+faction <name>) to set your faction! (Choices: Gold, Bronze, Independent, Ronin, etc.) You can set this to anything - only Ronin has a coded effect (lower background points.)
+
 
 &CMD`+SPLAT [u(cobj,chargen)]=$^\+(?\:splat|class)(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CLASS=%#,,%1;@force/inline %#=look;@attach %!/INC`MSG=You are now a [ansi(h,u(capnames,%q<find>))].
 @set [u(cobj,chargen)]/CMD`+SPLAT=regexp
@@ -41,7 +44,7 @@
 &CMD`+CASTE [u(cobj,chargen)]=$^\+caste(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CASTE=%#,,%1;@attach %!/INC`MSG=Your Caste is now [ansi(h,u(capnames,%q<find>))].
 @set [u(cobj,chargen)]/CMD`+CASTE=regexp
 
-&CMD`INFOSET [u(cobj,chargen)]=$^\+(virtueflaw|flawedvirtue|doom|liege|lure|totem|urge|house|nation|yozi|nation)(?\: +(.+))?$:th u(setq,type,switch(%1,flawedvirtue,Flawed Virtue,virtueflaw,Virtue Flaw,doom,Doom,liege,Liege,lure,Lure,totem,Totem Animal,urge,Urge,house,House,yozi,Favored Yozi,nation,Nation));@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Class!;th u(setstat,%#,D`INFO,%q<type>,%2)
+&CMD`INFOSET [u(cobj,chargen)]=$^\+(virtueflaw|flawedvirtue|doom|liege|lure|totem|urge|house|nation|yozi|parent)(?\: +(.+))?$:th u(setq,type,switch(%1,flawedvirtue,Flawed Virtue,virtueflaw,Virtue Flaw,doom,Doom,liege,Liege,lure,Lure,totem,Totem Animal,urge,Urge,house,House,yozi,Favored Yozi,nation,Nation,parent,Parent));@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Class!;th u(setstat,%#,D`INFO,%q<type>,%2)
 @set [u(cobj,chargen)]/CMD`INFOSET=regexp
 
 &CG`2 [u(cobj,chargen)]=[u(SEPARATOR,Step 2: Attributes)]%R%tTo set an attribute:%r%r[ansi(h,%t+attr <attribute>=<value>)] (<attribute> may be a partial match. <value> must be 0 or greater.)%R%TYour choices are: [u(itemize,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,and,\,)]%R%R%TAll Attributes begin with 1 dot free, unless otherwise stated for your Splat.%r%r%tIn order of Primary/Secondary/Tertiary...[udefault(CG`2`[getclass(%#)],Your Splat appears unset or has no data entered.)]
@@ -130,7 +133,7 @@
 
 &CMD`+CASTEFAVORED [u(cobj,chargen)]=$+castefavored:@check strlen(u(getstat,%#,D`INFO,Caste))=@pemit %#=You do not have a Caste set!;@check strlen(u(setr,newfavored,unique(iter(v(DAT`3`FAVORED`[edit(u(getstat,%#,D`INFO,Caste),%B,_)]),u(capnames,%i0),|,|),i,|,|)))=@pemit %#=Your Caste does not have any listed Favored Abilities.;@pemit %#=You set your Favored Abilities to those of the [ansi(h,u(getstat,%#,D`INFO,Caste))] Caste.;th U(attrib_set,%#,D`FAVORED`ABILITIES,setunion(get(%#/D`FAVORED`ABILITIES),%q<newfavored>,|,|))
 
-&CMD`+HERITAGE [u(cobj,chargen)]=$^\+heritage(?\: +(.+))?$:@check strlen(%1)=@attach %!/INC`MSG=Are you a Dynast\, Lookshy\, or Outcaste Terrestrial?;@attach %!/INC`PARTIAL=%1,DYNAST|LOOKSHY|OUTCASTE,|,choice,Heritage;@select/inline %q<choice>=dynast,{@attach %!/INC`MSG=You set your base skills as a Dynast-raised Dragon-blood. You have 35 points in total to spend\, but you cannot lower these base skills below their current level\, and you must spend at least 13 points in Favored abilities. If you don't have at least 2 dots in each of these baseline skills\, you're likely considered embarassingly inept by your family.;@cpattr %!/DAT`HERITAGE`DYNAST=%#/D`ABILITIES;th u(setstat,%#,D`INFO,Heritage,u(capnames,%q<choice>))},lookshy,{@attach %!/INC`MSG=You set your base skills as a Lookshy-raised Dragon-blood. You have 35 points in total to spend\, but you must spend at least 13 on favored skills and you cannot lower the current skills below their present level. What "+sheet" gives now is a minimally-competent Lookshy Dragonblood.;@cpattr me/DAT`HERITAGE`LOOKSHY=%#/D`ABILITIES;th u(setstat,%#,D`INFO,Heritage,u(capnames,%1))},outcaste,{@attach %!/INC`MSG=You mark yourself as a Dragon-blood raised outside of the conventional structures of the Realm or Lookshy. While this gives you more freedom in how to spend your ability points\, it also gives you fewer points to spend. You have 25 ability points and must spend 13 of them on Favored abilities.;&d`abilities %#;th u(setstat,%#,D`INFO,Heritage,u(capnames,%q<choice>))},{@attach %!/INC`MSG=Your choices for Terrestrial heritage are Dynast, Lookshy, and Outcaste.}
+&CMD`+HERITAGE [u(cobj,chargen)]=$^\+heritage(?\: +(.+))?$:@check strlen(%1)=@attach %!/INC`MSG=Are you a Dynast\, Lookshy\, or Outcaste Terrestrial?;@attach %!/INC`PARTIAL=%1,DYNAST|LOOKSHY|OUTCASTE,|,choice,Heritage;@select/inline %q<choice>=dynast,{@attach %!/INC`MSG=You set your base skills as a Dynast-raised Dragon-blood. You have 35 points in total to spend\, but you cannot lower these base skills below their current level\, and you must spend at least 13 points in Favored abilities. If you don't have at least 2 dots in each of these baseline skills\, you're likely considered embarassingly inept by your family.;@cpattr %!/DAT`HERITAGE`DYNAST=%#/D`ABILITIES},lookshy,{@attach %!/INC`MSG=You set your base skills as a Lookshy-raised Dragon-blood. You have 35 points in total to spend\, but you must spend at least 13 on favored skills and you cannot lower the current skills below their present level. What "+sheet" gives now is a minimally-competent Lookshy Dragonblood.;@cpattr me/DAT`HERITAGE`LOOKSHY=%#/D`ABILITIES},outcaste,{@attach %!/INC`MSG=You mark yourself as a Dragon-blood raised outside of the conventional structures of the Realm or Lookshy. While this gives you more freedom in how to spend your ability points\, it also gives you fewer points to spend. You have 25 ability points and must spend 13 of them on Favored abilities.;&d`abilities %#;th u(setstat,%#,D`INFO,Heritage,u(capnames,%q<choice>))},{@attach %!/INC`MSG=Your choices for Terrestrial heritage are Dynast, Lookshy, and Outcaste.};th u(setstat,%#,D`INFO,Heritage,u(capnames,%q<choice>))
 @set [u(cobj,chargen)]/CMD`+HERITAGE=regexp
 
 &CMD`+SPEC [u(cobj,chargen)]=$^\+spec(?\: +(.+?))?(?\:=(.+))?$:@attach u(cobj,data)/DO`SET`SPECIALTY=%#,%1,if(eq(%2,0),,%2);@select/inline t(%2)=1,{@attach %!/INC`MSG=You set [ansi(h,u(capnames,%q<find>/%q<spec>))] to [ansi(h,%2)]},0,{@attach %!/INC`MSG=You remove [ansi(h,u(capnames,%q<find>/%q<spec>))]}
@@ -180,19 +183,25 @@
 
 &CG`4 [u(cobj,chargen)]=[u(SEPARATOR,Step 4: Backgrounds and Etc)]%R[ansi(h,+help +merits)] to see how to set your Backgrounds, Mutations, and similar properties. Make sure to give them descriptions and contexts as appropriate![if(cand(strlen(getclass(%#)),hasattr(%!/CG`4`[getclass(%#)])),%R%R%T[u(CG`4`[getclass(%#)])])]
 
-&CG`4`MORTAL [u(cobj,chargen)]=Mortals receive 7 dots to spend on Merits.
-&CG`4`SOLAR [u(cobj,chargen)]=Solars receive 7 dots to spend on merits.
+&CG`4`MORTAL [u(cobj,chargen)]=Mortals receive 7 dots to spend on Backgrounds.
+&CG`4`SOLAR [u(cobj,chargen)]=Solars receive 7 dots to spend on Backgrounds.
+&CG`4`ABYSSAL [u(cobj,chargen)]=Abyssals receive 7 dots to spend on Backgrounds.
+&CG`4`INFERNAL [u(cobj,chargen)]=Infernals receive 7 dots to spend on Backgrounds. They also receive 1 dot free in Backing, Influence, and Cult of their Caste's Yozi.
+&CG`4`TERRESTIAL [u(cobj,chargen)]=Dynasts receive 12 dots to spend on Backgrounds while Lookshyans receive 13. Outcastes receive only 7.
+&CG`4`RAKSHA [u(cobj,chargen)]=Noble Raksha receive 10 dots to spend on Backgrounds. Commoner Raksha receive NONE.
+&CG`4`ALCHEMICAL [u(cobj,chargen)]=Alchemicals receive 10 dots to spend on Backgrounds. Adamant Castes receive Mentor 3 free, while others receive Class 3 free.
+&CG`4`SIDEREAL [u(cobj,chargen)]=Functionaries of the Bureau of Destiny receive 15 dots to spend on Backgrounds. Ronin have only 7.
 
-&MAX`MERITS`MORTAL [u(cobj,chargen)]=6
-&MAX`MERITS`SOLAR [u(cobj,chargen)]=7
-&MAX`MERITS`ABYSSAL [u(cobj,chargen)]=7
-&MAX`MERITS`INFERNAL [u(cobj,chargen)]=7
-&MAX`MERITS`LUNAR [u(cobj,chargen)]=7
-&MAX`MERITS`SIDEREAL [u(cobj,chargen)]=
+&MAX`BACKGROUNDS`MORTAL [u(cobj,chargen)]=6
+&MAX`BACKGROUNDS`SOLAR [u(cobj,chargen)]=7
+&MAX`BACKGROUNDS`ABYSSAL [u(cobj,chargen)]=7
+&MAX`BACKGROUNDS`INFERNAL [u(cobj,chargen)]=10
+&MAX`BACKGROUNDS`LUNAR [u(cobj,chargen)]=7
+&MAX`BACKGROUNDS`SIDEREAL [u(cobj,chargen)]=switch(u(getstat,%0,D`INFO,Faction,Ronin,7,15))
 
-&MAX`MERITS`ALCHEMICAL [u(cobj,chargen)]=10
-&MAX`MERITS`TERRESTIAL [u(cobj,chargen)]=switch(u(getstat,%0,D`INFO,Nation),Realm,12,Lookshy,13,Outcaste,7,7)
-&MAX`MERITS`RAKSHA [u(cobj,chargen)]=
+&MAX`BACKGROUNDS`ALCHEMICAL [u(cobj,chargen)]=13
+&MAX`BACKGROUNDS`TERRESTIAL [u(cobj,chargen)]=switch(u(getstat,%0,D`INFO,Nation),Realm,12,Lookshy,13,Outcaste,7,7)
+&MAX`BACKGROUNDS`RAKSHA [u(cobj,chargen)]=10
 
 &CG`5 [u(cobj,chargen)]=[u(SEPARATOR,Step 5: Charms and Other Powers)]%RThis room's contents change based on previous choices. Pick a Sorcery Charm and Sorcery will appear as an option when you look, etc.[if(cand(strlen(getclass(%#)),hasattr(%!/CG`5`[getclass(%#)])),%R%R[u(CG`5`[getclass(%#)])])]
 
@@ -211,7 +220,7 @@
 
 &CG`5`TERRESTRIAL [u(cobj,chargen)]=switch(u(setr,nation,u(getstat,%#,D`INFO,Nation)),Realm,Dynastic,Lookshy,Lookshyan,Outcaste) Dragon-Blooded start with [switch(%q<nation>,Realm,7 Charms/Spells\, minimum 4 from Aspect/Favored Abilities. Immaculates instead choose 5 Celestial martial arts charms from a Dragon Style.,Lookshy,Lookshyan Dragon-Blooded start with Wind-Carried Words\, Elemental Bolt Attack\, and 6 more charms/spells\, Minimum 4 in Favored/Aspect Abilities.,Outcaste Dragon-Blooded start with 7 Charms/Spells\, Minimum 4 in Favored/Aspect abilities.)]%R%R[u(CG`5`NATIVECHARMS)][if(words(graball(get(%#/D`CHARMS`TERRESTRIAL`INTELLIGENCE),* CIRCLE *,|,|),|))]
 
-&CG`5`RAKSHA [u(cobj,chargen)]=Raksha Nobles begin with 10 Charms, one free Assumption, and any Charms gained from Birth.%RRaksha Commoners begin with 8 Charms and any gained from Birth. Minimum 5 Charms must be associated with the Major Grace.%RMartial Arts requires the Sword Charm 'Root of the Perfected Lotus'%R%R[u(CG`5`NATIVECHARMS)][if(u(getstat,%#,D`CHARMS`RAKSHA`SWORD,ROOT OF THE PERFECTED LOTUS),%R%R[u(CG`5`MACHARMS)])]
+&CG`5`RAKSHA [u(cobj,chargen)]=Raksha Nobles begin with 10 Charms, one free Assumption, and any Charms gained from Birth.%RRaksha Commoners begin with 8 Charms and any gained from Birth. Minimum 5 Charms must be associated with the Major Grace.%RMartial Arts requires the Sword Charm 'Root of the Perfected Lotus'%R%R[u(CG`5`NATIVECHARMS)]%R%R[ansi(h,+grace <grace>=<rank>)] to set your graces.[if(u(getstat,%#,D`CHARMS`RAKSHA`SWORD,ROOT OF THE PERFECTED LOTUS),%R%R[u(CG`5`MACHARMS)])]
 
 &CG`5`SIDEREAL [u(cobj,chargen)]=Employed Sidereals begin with 12 Charms\, minimum 5 from Auspicious or Favored Abilities\, maximum 3 Sidereal Martial Arts Charms. Ronin start with 8 and the same minimums\, no SMA.%R%R[u(CG`5`NATIVECHARMS)]%R%R[u(CG`5`MACHARMS)]%R%R[ansi(h,+maidenfavcoll)] to set your Caste Colleges.%R[ansi(h,+college <college>=<value>)] to set Astrology.%rYour choices are: [u(itemize,u(u(cobj,data)/FUN`GET`COLLEGES),|,and,\,)]
 
@@ -272,18 +281,22 @@
 &DAT`4`FAVORED`PATHS`PTEROK [u(cobj,chargen)]=Celestial Air|Clear Air
 &DAT`4`FAVORED`PATHS`RAPTOK [u(cobj,chargen)]=Yielding Earth|Growing Wood
 
-&CG`6 [u(cobj,chargen)]=[u(SEPARATOR,Step 6: Finishing Touches)][if(cand(strlen(getclass(%#)),hasattr(%!/CG`6`[getclass(%#)])),%R[u(CG`6`[getclass(%#)])])]
+&CG`6 [u(cobj,chargen)]=[u(SEPARATOR,Step 6: Finishing Touches)]%R[u(CG`6`ESSENCE)]%R%R[u(CG`6`WILLPOWER)]%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`HEALTH)]%R%R[u(CG`6`VIRTUES)]%R%R[u(CG`6`LANGUAGES)]%R%R[u(CG`6`FINISH)]
+
+@@ [if(cand(strlen(getclass(%#)),hasattr(%!/CG`6`[getclass(%#)])),%R[u(CG`6`[getclass(%#)])])]
 
 &CG`6`MORTAL [u(cobj,chargen)]=[u(CG`6`ESSENCE)]%RMortals begin with Essence 1.%R%R[u(CG`6`WILLPOWER)]%RMortals begin with 3 Willpower.%R%R[u(CG`6`INTIMACY)]%R%R[u(CG`6`HEALTH)]%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`FINISH)]
 &CG`6`SOLAR [u(cobj,chargen)]=[u(CG`6`ESSENCE)]%RSolars begin with Essence 1.%R%R[u(CG`6`WILLPOWER)]%RSolars begin with 5 Willpower.%R%R[u(CG`6`INTIMACY)]%R%R[u(CG`6`HEALTH)]%R%R[ansi(h,+info Trigger=<limit trigger>)] to set your Limit Trigger.%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`FINISH)]
 
 &CG`6`INTIMACY [u(cobj,chargen)]=[ansi(h,+help +intimacy)] for instructions on setting your Intimacies.%RChoose at least 4 intimacies. At least one must be Defining, one must be Major, one must be positive, one must be negative.
-&CG`6`HEALTH [u(cobj,chargen)]=[ansi(h,+hl <Health level list>)] to set your health levels. If you lack extra levels, use "+hl -0 -1 -1 -2 -2 -4 I". The system will sort for you if you goof!
+&CG`6`HEALTH [u(cobj,chargen)]=[ansi(h,+hl <Health level list>)] to set your health levels. If you lack extra levels, use "+hl -0 -1 -1 -2 -2 -4 I [iter(lnum(u(getstat,%#,D`ATTRIBUTES,Stamina)),D)]". The system will sort for you if you goof!
 &CG`6`WILLPOWER [u(cobj,chargen)]=[ansi(h,+wp <value>)] to set your willpower.
 &CG`6`ESSENCE [u(cobj,chargen)]=[ansi(h,+ess <value>)] to set your Essence rating.
 &CG`6`BGSTORY [u(cobj,chargen)]=[ansi(h,+info BGStory=<story>)] to set your background story. A few paragraphs will do. The file has a limit of 4kb of text, use BGStory2, 3, etc, if necessary. \%R can linebreak, \%T indents. Readability counts!
 &CG`6`CHARGENXP [u(cobj,chargen)]=As mentioned in page 1, mark down how much XP you spent (and what on) in an +info using [ansi(h,+info Chargen=<description of XP spent>)]. Your +sheet should reflect the final result.
 &CG`6`FINISH [u(cobj,chargen)]=When complete, paste the following command to your client: %r%t[ansi(h,+request/apps Finished with chargen!=Look me over please!)]
+&CG`6`VIRTUES [u(cobj,chargen)]=[ansi(h,+virtue <virtue>=<rank>)] to set your Virtues.
+&CG`6`LANGUAGES [u(cobj,chargen)]=[ansi(h,+addlang <language>)] - to gain a language, +dellang to remove one!
 
 &CMD`+ESS [u(cobj,chargen)]=$+ess *:@attach u(cobj,data)/DO`SET`ESSENCE=%#,,%0;@attach %!/INC`MSG=You set your permanent Essence to %0.
 

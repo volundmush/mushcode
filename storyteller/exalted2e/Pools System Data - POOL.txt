@@ -126,8 +126,8 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &LUNAR`OVERDRIVE [u(cobj,pool)]=@@ Empty attrib for Rhost.
 &LUNAR`OVERDRIVE`10 [u(cobj,pool)]=Never To Rise Again|Biting At the Heels|Undying Ratel's Vengeance|Disappointed Guardian-Spirit Correction|Protean Exemplar Differentiation|World-Warden Onslaught|Hunter-As-Bait Gambit|Snarling Watchdog Retribution|Sleeping Dragon Awakens
 
-@@ TERRESTIAL
-&CLASS`TERRESTIAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT EXPANDED
+@@ TERRESTRIAL
+&CLASS`TERRESTRIAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT EXPANDED
 &POOL`PERSONAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(getpower(%0),u(FUN`WILLCHECK,%0),u(FUN`BREEDING,%0))
 &POOL`PERIPHERAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(mul(4,getpower(%0)),u(FUN`WILLCHECK,%0),if(u(game_config,STORYTELLER,MAX_VIRTUES),10,lmath(add,elements(sort(iter(get(%0/D`VIRTUES),last(%i0,~),|)),3 4))),switch(u(FUN`BREEDING,%0),1,2,2,3,3,5,4,7,5,9,6,11,0))
 &POOL`EXPANDED`MAX`TERRESTRIAL [u(cobj,pool)]=u(FUN`EXTRA,%0,TERRESTRIAL,%1)
@@ -269,7 +269,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`OVERDRIVE`MAX`GOD-BLOODED [u(cobj,pool)]=localize(switch(1,t(match(DIVINE DEMON GHOST,ucstr(u(setr,caste,u(getstat,%0,D`INFO,CASTE))))),u(POOL`%1`MAX`SPIRIT,%0,%1),strmatch(%q<caste>,FAE),u(POOL`%1`MAX`RAKSHA,%0,%1),t(match(SOLAR LUNAR SIDEREAL ABYSSAL INFERNAL,%q<caste>)),u(POOL`%1`MAX`%q<caste>,%0,%1)))
 
 @@ Raksha
-&CLASS`RAKSHA [u(cobj,pool)]=PERSONAL WILLPOWER GOSSAMER EXPANDED
+&CLASS`RAKSHA [u(cobj,pool)]=PERSONAL WILLPOWER GOSSAMER EXPANDED STASIS
 &POOL`PERSONAL`MAX`RAKSHA [u(cobj,pool)]=add(mul(10,getpower(%0)),0)
 &POOL`EXPANDED`MAX`RAKSHA [u(cobj,pool)]=u(FUN`EXTRA,%0,RAKSHA,%1)
 
