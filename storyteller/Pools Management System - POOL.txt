@@ -10,7 +10,7 @@ th u(newconf,CONFIG,STORYTELLER,PLAYER_GAIN,1,Players can refill pools?,BOOL)
 &SWITCHES`PLAYER [u(cobj,pool)]=
 &SWITCHES`ADMIN [u(cobj,pool)]=
 
-&INC`FINDPOOL [u(cobj,pool)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: What resource? Your choices are: [u(itemize,u(FUN`LISTPOOLS,%1),|,and,\,)];@attach %!/INC`PARTIAL=%0,u(filter,OPTIONS,u(FUN`LISTPOOLS,%1),|,|,%2),|,choice,pool
+&INC`FINDPOOL [u(cobj,pool)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: What resource? Your choices are: [u(itemize,u(FUN`LISTPOOLS,%1),|,and,\,)];@attach %!/INC`PARTIAL=%0,u(filter,OPTIONS,u(FUN`LISTPOOLS,%1),|,|,%2,%3),|,choice,pool
 
 &FUN`POOLDETAIL [u(cobj,pool)]=v(POOL`%0`UNITNAME) of [u(capnames,v(POOL`%0`UNITTYPE))]
 
@@ -26,25 +26,23 @@ th u(newconf,CONFIG,STORYTELLER,PLAYER_GAIN,1,Players can refill pools?,BOOL)
 
 &INC`ADMIN [u(cobj,pool)]=@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=before(%0,/),1;@attach %!/INC`FINDPOOL=after(%0,/),%q<t1>,switch(%2,FILL,GAIN,DRAIN,SPEND);@attach %!/INC`VALID`POSINT=before(%1,/),switch(%2,FILL,Gain,DRAIN,Spend);th u(setq,reason,after(%1,/))
 
-&INC`DRAIN [u(cobj,pool)]=@attach %!/INC`ADMIN=%0,%1,DRAIN;@stop lt(u(FUN`CUR,%q<t1>,%q<choice>),%q<value>)=@attach %!/INC`MSG=There aren't enough [u(FUN`POOLDETAIl,%q<choice>)] in %q<t1name>'s [v(POOL`%q<choice>)]!;@attach %!/INC`MSG`ROOM=u(setr,msg,Drained %q<value> [u(FUN`POOLDETAIL,%q<choice>)] from %q<t1name> for: [u(strfirstof,%q<reason>,No reason given!)]),lcon(loc(%q<t1>));@attach %!/INC`MSG`CHAN=%q<msg>;&D`POOLS`%q<choice>`CUR %q<t1>=sub(get(%q<t1>/D`POOLS`%q<choice>`CUR),%q<value>)
+&INC`DRAIN [u(cobj,pool)]=@attach %!/INC`ADMIN=%0,%1,DRAIN,1;@stop lt(u(FUN`CUR,%q<t1>,%q<choice>),%q<value>)=@attach %!/INC`MSG=There aren't enough [u(FUN`POOLDETAIl,%q<choice>)] in %q<t1name>'s [v(POOL`%q<choice>)]!;@attach %!/INC`MSG`ROOM=u(setr,msg,Drained %q<value> [u(FUN`POOLDETAIL,%q<choice>)] from %q<t1name> for: [u(strfirstof,%q<reason>,No reason given!)]),lcon(loc(%q<t1>));@attach %!/INC`MSG`CHAN=%q<msg>;&D`POOLS`%q<choice>`CUR %q<t1>=sub(get(%q<t1>/D`POOLS`%q<choice>`CUR),%q<value>)
 
 &INC`BURN [u(cobj,pool)]=@attach %!/INC`SPEND
 &INC`SPEND [u(cobj,pool)]=@attach %!/INC`FINDPOOL=%0,%#,SPEND;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Burn Value empty.;@attach %!/INC`VALID`POSINT=before(%1,/),Spend;@stop lt(u(FUN`CUR,%#,%q<choice>),%1)=@attach %!/INC`MSG=There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(POOL`%q<choice>)]!;@attach %!/INC`MSG`ROOM=spent %q<value> [u(FUN`POOLDETAIL,%q<choice>)][if(strlen(after(%1,/)),%bfor%b[after(%1,/)])]!;@attach %!/INC`MSG`CHAN=Spent %q<value> [u(FUN`POOLDETAIL,%q<choice>)] on: [u(strfirstof,after(%1,/),NO REASON GIVEN!)];&D`POOLS`%q<choice>`CUR %#=sub(get(%#/D`POOLS`%q<choice>`CUR),%q<value>)
 
-&INC`FILL [u(cobj,pool)]=@attach %!/INC`ADMIN=%0,%1,FILL;@attach %!/INC`MSG`ROOM=u(setr,msg,Gave %q<t1name> %q<value> [u(FUN`POOLDETAIL,%q<choice>)] for: [u(strfirstof,%q<reason>,No reason given!)]),lcon(loc(%q<t1>));@attach %!/INC`MSG`CHAN=%q<msg>;&D`POOLS`%q<choice>`CUR %q<t1>=bound(add(get(%q<t1>/D`POOLS`%q<choice>`CUR),%q<value>),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)))
+&INC`FILL [u(cobj,pool)]=@attach %!/INC`ADMIN=%0,%1,FILL,1;@attach %!/INC`MSG`ROOM=u(setr,msg,Gave %q<t1name> %q<value> [u(FUN`POOLDETAIL,%q<choice>)] for: [u(strfirstof,%q<reason>,No reason given!)]),lcon(loc(%q<t1>));@attach %!/INC`MSG`CHAN=%q<msg>;&D`POOLS`%q<choice>`CUR %q<t1>=bound(add(get(%q<t1>/D`POOLS`%q<choice>`CUR),%q<value>),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)))
 
 &INC`GAIN [u(cobj,pool)]=@check cor(u(isadmin,%#),u(game_config,STORYTELLER,POOLS,PLAYER_GAIN))=@attach %!/INC`MSG=ERROR: Permission denied. Players must rely on Storytellers or 'hunts' to re-fill their resources.;@attach %!/INC`FINDPOOL=%0,%#,GAIN;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Regain Value empty.;@attach %!/INC`VALID`POSINT=before(%1,/),Gain;@attach %!/INC`MSG`ROOM=Gained %q<value> [u(FUN`POOLDETAIL,%q<choice>)][if(strlen(after(%1,/)),%bfor%b[after(%1,/)])]!;@attach %!/INC`MSG`CHAN=Gained %q<value> [u(FUN`POOLDETAIL,%q<choice>)] for: [u(strfirstof,after(%1,/),NO REASON GIVEN!)];&D`POOLS`%q<choice>`CUR %#=bound(add(get(%#/D`POOLS`%q<choice>`CUR),%q<value>),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)))
 
 &FUN`TOTALCOMMIT [u(cobj,pool)]=lmath(add,iter(u(lattr,%0/D`POOLS`%1`COMMIT`*),get(%0/%i0)))
 
 &FUN`CUR [u(cobj,pool)]=bound(get(%0/D`POOLS`%1`CUR),0,sub(u(FUN`MAX,%0,%1),u(FUN`TOTALCOMMIT,%0,%1)))
-
-
 &FUN`MAX [u(cobj,pool)]=add(u(POOL`%1`MAX,%0),u(getstat,%0,D`POOLBONUS,%1))
 
 &INC`REFRESH [u(cobj,pool)]=@check cor(u(isadmin,%#),u(game_config,STORYTELLER,POOLS,PLAYER_GAIN))=@attach %!/INC`MSG=ERROR: Permission denied. Players must rely on Storytellers or 'hunts' to re-fill their resources.;@dolist/inline/delimit | [u(filter,OPTIONS,u(FUN`LISTPOOLS,%#),|,|,REFRESH)]=&D`POOLS`##`CUR %#=bound(u(strfirstof,u(POOL`##`INIT,%#),0),0,sub(u(FUN`MAX,%#,##),u(FUN`TOTALCOMMIT,%#,##)));@attach %!/INC`MSG`ROOM=Refreshed %p resources!;@attach %!/INC`MSG`CHAN=Refresh %p resources!
 
-&FIL`OPTIONS [u(cobj,pool)]=t(match(v(POOL`%0`OPTIONS),%1))
+&FIL`OPTIONS [u(cobj,pool)]=cor(%2,t(match(v(POOL`%0`OPTIONS),%1)))
 
 &INC`COMMIT [u(cobj,pool)]=@attach %!/INC`FINDPOOL=before(%0,/),%#,COMMIT;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Commit Value empty.;@attach %!/INC`VALID`POSINT=after(%0,/),Commit Values;@stop lt(u(FUN`CUR,%#,%q<choice>),after(%0,/))=@attach %!/INC`MSG=There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(VAR`POOL`%q<choice>`TYPE)]!;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No reason entered for this Commitment!;&[u(setr,attr,D`POOLS`%q<choice>`COMMIT`[u(nextslot,%#,D`POOLS`%q<choice>`COMMIT)])] %#=after(%0,/);&D`POOLS`%q<choice>`CUR %#=bound(sub(get(%#/D`POOLS`%q<choice>`CUR),%q<value>),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)));&%q<attr>`REASON %#=%1;@attach %!/INC`MSG`ROOM=just Committed [after(%0,/)] [u(FUN`POOLDETAIL,%q<choice>)] to: %1;@attach %!/INC`MSG`CHAN=just Committed [after(%0,/)] [u(FUN`POOLDETAIL,%q<choice>)] to: %1
 
@@ -53,6 +51,8 @@ th u(newconf,CONFIG,STORYTELLER,PLAYER_GAIN,1,Players can refill pools?,BOOL)
 &INC`POOLS [u(cobj,pool)]=@select/inline cand(u(isadmin,%#),strlen(%0))=1,{@attach %!/INC`CHECKPC=%0,1},0,{th u(setq,t1,%#)};@pemit %#=u(header,name(%q<t1>)'s Pools);@dolist/inline/delimit | [u(FUN`LISTPOOLS,%q<t1>)]={@pemit %#=rjust(u(capnames,##),10): [rjust(u(FUN`CUR,%q<t1>,##),3,0)]/[rjust(u(FUN`MAX,%q<t1>,##),3,0)][if(nattr(%q<t1>/D`POOLS`##`COMMIT`*),%R[iter(u(lattr,%q<t1>/D`POOLS`##`COMMIT`*),%T[last(%i0,`)]: [rjust(get(%q<t1>/%i0),3)] for [get(%q<t1>/%i0`REASON)],%B,%R)])]};@pemit %#=u(subheader)
 
 &POOL [u(cobj,pool)]=@@ Empty attrib for Rhost.
+
+&PLAYER`APPROVE [u(cobj,pool)]=@dolist/inline/delimit | [u(FUN`LISTPOOLS,%0)]={&D`POOLS`##`CUR %0=bound(u(POOL`##`INIT,%0),0,sub(u(FUN`MAX,%0,##),u(FUN`TOTALCOMMIT,%0,##)))}
 
 @@
 +help/add +pools=[u(cobj,pool)]/HLP`+POOLS

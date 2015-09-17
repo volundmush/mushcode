@@ -1,7 +1,8 @@
 th u(newconf,config,STORYTELLER,SHARDS_ABYSSALS,0,True: Abyssals use Doom (shards). False: Use Flawed Virtue. (MOEP),BOOL)
 
-
 @@ Advantages
+&POWER`DEFAULT [u(cobj,data)]=Essence
+
 &INC`SET`ESSENCE [u(cobj,data)]=@attach %!/INC`SET`POWER
 &INC`SET`SPLAT [u(cobj,data)]=@attach [u(cobj,data)]/INC`SET`CLASS
 th u(newconf,config,STORYTELLER,CLASSES,MORTAL|SOLAR|LUNAR|TERRESTRIAL|ABYSSAL|SIDEREAL|ALCHEMICAL|DRAGON-KING|GOD-BLOODED|INFERNAL|JADEBORN|RAKSHA|SPIRIT,Available Spheres,LIST)
@@ -52,7 +53,7 @@ th u(newconf,config,STORYTELLER,ABILITIES,ARCHERY|MARTIAL ARTS|MELEE|THROWN|WAR|
 
 @@ Specialties
 
-&INC`SET`SPECIALTY [u(cobj,data)]=@attach [u(cobj,data)]/Do`SET`SPECIALTY=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Specialty,%q<find>/%q<spec>
+&INC`SET`SPECIALTY [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`SPECIALTY=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Specialty,%q<find>/%q<spec>
 
 &DO`VAL`SPECIALTY [u(cobj,data)]=@check strlen(u(setr,enstat,before(%1,/)))=@attach %!/INC`MSG=ERROR: No stat entered to specialize in.;@attach %!/INC`PARTIAL=%q<enstat>,setunion(u(u(cobj,data)/FUN`GET`ABILITIES),u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,|),|,find,stat;@check strlen(u(setr,spec,after(%1,/)))=@attach %!/INC`MSG=ERROR: No Specialty name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Specialties,%2
 &DO`SET`SPECIALTY [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SPECIALTY;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`SPECIALTIES,%q<find>/%q<spec>,%q<value>

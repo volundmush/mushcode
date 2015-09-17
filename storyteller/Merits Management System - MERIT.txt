@@ -8,13 +8,13 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 &DO`ANNOUNCE [u(cobj,merit)]=@select/inline t(strlen(%1))=1,{@attach %!/INC`MSG`CHAN=%1};@select/inline strmatch(%#,%0)=0,{@attach %!/INC`MSG`NOTICE=%2,%0;@attach %!/INC`MSG=%3},1,{@attach %!/INC`MSG`NOTICE=%2,%0}
 @@ %0 - player being modified. %1 - message for admin channel. %2 - message for player. %3 - message for admin.
 
-&INC`TARGET [u(cobj,merit)]=@select/inline strmatch(%0,*/*)=1,{@attach %!/INC`CHECKPC=before(%0,/),1;th u(setq,target,%q<t1>)[u(setq,filename,after(%0,/))]},0,{th u(setq,target,%#)[u(setq,filename,%0)]}
+&INC`TARGET [u(cobj,merit)]=@select/inline strmatch(%0,*/*)=1,{@attach %!/INC`CHECKPC=before(%0,/),1,,1;th u(setq,target,%q<t1>)[u(setq,filename,after(%0,/))]},0,{th u(setq,target,u(firstof,get(%#/D`COVER),%#))[u(setq,filename,%0)]}
 
 &INC`MERNAME [u(cobj,merit)]=@check strlen(u(setr,merit,trim(squish(before(%0,:)))))=@attach %!/INC`MSG=ERROR: [capstr(%q<type>)] field empty.;th u(setq,context,squish(trim(after(%0,:))));@stop u(charsearch,%q<context>,| ~)=@attach %!/INC`MSG=ERROR: Contexts may not contain a ~ or |.
 
 &INC`EXISTING [u(cobj,merit)]=@check strlen(u(setr,attr,first(u(filter,FINDMERIT,u(lattr,%q<target>/%q<root>`*),%b,%b,%q<target>,%q<merit>,%q<context>))))=@attach %!/INC`MSG=ERROR: Cannot find '%q<merit>[if(strlen(%q<context>),:%b%q<context>)]'.;th u(setq,merit,get(%q<target>/%q<attr>));th u(setq,context,get(%q<target>/%q<attr>`CONTEXT))
 
-&FIL`FINDMERIT [u(cobj,merit)]=cand(cor(strmatch(get(%1/%0),%2),strmatch(get(%1/%0),%2*)),cor(strmatch(get(%1/%0`CONTEXT),%3),strmatch(get(%1/%0`CONTEXT),%3*)))
+&FIL`FINDMERIT [u(cobj,merit)]=if(strlen(%3),cand(cor(strmatch(get(%1/%0),%2),strmatch(get(%1/%0),%2*)),cor(strmatch(get(%1/%0`CONTEXT),%3),strmatch(get(%1/%0`CONTEXT),%3*))),cand(strmatch(get(%1/%0),%2*),not(strlen(get(%1/%0`CONTEXT)))))
 
 &FUN`MERNAME [u(cobj,merit)]=localize(u(capnames,get(%0/%1)[if(strlen(u(setr,context,get(%0/%1`CONTEXT))),:%b%q<context>)]))
 
@@ -42,7 +42,7 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 
 &INC`MAIN [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline t(strlen(%q<filename>))=1,{@attach %!/INC`MERNAME=%q<filename>;@attach %!/INC`EXISTING;@attach %!/INC`DISPLAY},0,{@attach %!/INC`LIST}
 
-&INC`LIST [u(cobj,merit)]=@pemit %#=u(HEADER,name(%q<target>)'s [u(capnames,%q<sysname>)]);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(30 30 8,Name,Desc,Rank));@pemit %#=u(SEPARATOR);@dolist/inline u(sortmer,u(lattr,%q<target>/%q<root>`*))={@pemit %#=align(30 30 8,pueblize(u(FUN`MERNAME,%q<target>,##),%q<comm> [name(%q<target>)]/[u(FUN`MERNAME,%q<target>,##)]),left(get(%q<target>/##`DESC),20),repeat(*,get(%q<target>/##`RANK)))};@pemit %#=u(SUBHEADER)
+&INC`LIST [u(cobj,merit)]=@pemit %#=u(HEADER,name(%q<target>)'s [u(capnames,%q<sysname>)]);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(40 30 6,Name,Desc,Rank));@pemit %#=u(SEPARATOR);@dolist/inline u(sortmer,u(lattr,%q<target>/%q<root>`*))={@pemit %#=align(40 30 6,pueblize(u(FUN`MERNAME,%q<target>,##),%q<comm> [name(%q<target>)]/[u(FUN`MERNAME,%q<target>,##)]),left(get(%q<target>/##`DESC),20),repeat(*,get(%q<target>/##`RANK)))};@pemit %#=u(SUBHEADER)
 
 &SORTMER [u(cobj,merit)]=u(SORTMER`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTMER`PENNMUSH [u(cobj,merit)]=sortkey(#lambda/u(FUN`MERNAME,%q<target>,\%0),%0,i,%1,%2)

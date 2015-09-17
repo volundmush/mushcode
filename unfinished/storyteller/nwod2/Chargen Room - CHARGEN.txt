@@ -23,9 +23,17 @@
 
 &CG [u(cobj,chargen)]=@@ Empty attrib for Rhost.
 
-&CG`1 [u(cobj,chargen)]=[u(SEPARATOR,Step 1: Concept and Caste)]%R[ansi(h,+class <type>)]%R%TYour choices are: [u(itemize,u(setr,classes,u(game_config,STORYTELLER,CLASSES)),|,and,\,)][if(strlen(u(setr,castes,get(u(cobj,data)/CASTE`%0))),%R%R[ansi(h,+caste <type>)] to set your [switch(%0,Terrestrial,Aspect,Caste)]%R%TYour choices are: [u(itemize,%q<castes>,|,and,\,)][if(hasattr(%!/CG`1`%0),%R%R[u(CG`1`%0)])])]%R%R[ansi(h,&sex me=<gender>)] to set your Gender (Male, Female, or None)
+&CG`1 [u(cobj,chargen)]=[u(SEPARATOR,Step 1: Concept and Class)]%R[ansi(h,+class <type>)]%R%TYour choices are: [u(itemize,u(setr,classes,u(game_config,STORYTELLER,CLASSES)),|,and,\,)][if(hasattr(%!/CG`1`%0),%R%R[u(CG`1`%0)])])]%R%R[ansi(h,&sex me=<gender>)] to set your Gender (Male, Female, etc)
 
-&CG`1`SOLAR [u(cobj,chargen)]=ansi(h,+virtueflaw <flaw>) to set your Virtue Flaw.
+&CG`1`VAMPIRE [u(cobj,chargen)]=[u(CG`1`CASTE,clan)]%R%R[ansi(h,+mask <mask>)] to set your Mask.%R[ansi(h,+dirge <dirge>)] to choose your Dirge.%R[ansi(h,+covenant <covenant>)] to choose your Covenant.
+&CG`1`WEREWOLF [u(cobj,chargen)]=[u(CG`1`CASTE,auspice)]%R%R[ansi(h,+blood <blood>)] to set your Blood.%R[ansi(h,+bone <bone>)] to set your Bone.%R[ansi(h,+lodge <lodge>)] to choose your Lodge.%R[ansi(h,+tribe <tribe>)] to pick your Tribe.
+&CG`1`HUNTER [u(cobj,chargen)]=[ansi(h,+profession <profession>)] to set your profession.%R[ansi(h,+tier <number>)] to set your Tier.%R[ansi(h,+organization <organization>)] to set your Organization.
+&CG`1`BEAST [u(cobj,chargen)]=
+&CG`1`MORTAL [u(cobj,chargen)]=
+&CG`1`CHANGELING [u(cobj,chargen)]=
+
+&CG`1`CASTE [u(Cobj,chargen)]=[ansi(h,+%0 <%0>)] to set your [u(capnames,%0)]. Your choices are: [u(itemize,get(u(cobj,data)/[getclass(%#)]),|,and,\,)]
+
 &CG`1`LUNAR [u(cobj,chargen)]=u(CG`1`SOLAR)%R%R[ansi(h,+totem <animal>)] to set your Spirit Shape.
 &CG`1`ABYSSAL [u(cobj,chargen)]=if(u(game_config,STORYTELLER,SHARDS_ABYSSALS),ansi(h,+doom <doom>) to set your Doom (Shards hack),ansi(h,+flawedvirtue <flaw>) to set your Flawed Virtue (MoEP: Abyssals))%R%R[ansi(h,+liege <name>)] to set your Liege (or Renegade)
 &CG`1`ALCHEMICAL [u(cobj,chargen)]=ansi(h,+nation <name>)] to set your Nation.
@@ -38,13 +46,13 @@
 &CG`1`SIDEREAL [u(cobj,chargen)]=ansi(h,+faction <name>) to set your faction! (Choices: Gold, Bronze, Independent, Ronin, etc.) You can set this to anything - only Ronin has a coded effect (lower background points.)
 
 
-&CMD`+SPLAT [u(cobj,chargen)]=$^\+(?\:splat|class)(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CLASS=%#,,%1;@force/inline %#=look;@attach %!/INC`MSG=You are now a [ansi(h,u(capnames,%q<find>))].
-@set [u(cobj,chargen)]/CMD`+SPLAT=regexp
+&CMD`+CLASS [u(cobj,chargen)]=$^\+(?\:sphere|class)(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CLASS=%#,,%1;@force/inline %#=look;@attach %!/INC`MSG=You are now a [ansi(h,u(capnames,%q<find>))].
+@set [u(cobj,chargen)]/CMD`+class=regexp
 
-&CMD`+CASTE [u(cobj,chargen)]=$^\+caste(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CASTE=%#,,%1;@attach %!/INC`MSG=Your Caste is now [ansi(h,u(capnames,%q<find>))].
+&CMD`+CASTE [u(cobj,chargen)]=$^\+(?\:clan|auspice|path|seeming|incarnation)(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CASTE=%#,,%1;@attach %!/INC`MSG=Your Caste is now [ansi(h,u(capnames,%q<find>))].
 @set [u(cobj,chargen)]/CMD`+CASTE=regexp
 
-&CMD`INFOSET [u(cobj,chargen)]=$^\+(virtueflaw|flawedvirtue|doom|liege|lure|totem|urge|house|nation|yozi|parent)(?\: +(.+))?$:th u(setq,type,switch(%1,flawedvirtue,Flawed Virtue,virtueflaw,Virtue Flaw,doom,Doom,liege,Liege,lure,Lure,totem,Totem Animal,urge,Urge,house,House,yozi,Favored Yozi,nation,Nation,parent,Parent));@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Class!;th u(setstat,%#,D`INFO,%q<type>,%2)
+&CMD`INFOSET [u(cobj,chargen)]=$^\+(mask|dirge|covenant|bloodline)(?\: +(.+))?$:th u(setq,type,switch(%1,flawedvirtue,Flawed Virtue,virtueflaw,Virtue Flaw,doom,Doom,liege,Liege,lure,Lure,totem,Totem Animal,urge,Urge,house,House,yozi,Favored Yozi,nation,Nation,parent,Parent));@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Class!;th u(setstat,%#,D`INFO,%q<type>,%2)
 @set [u(cobj,chargen)]/CMD`INFOSET=regexp
 
 &CG`2 [u(cobj,chargen)]=[u(SEPARATOR,Step 2: Attributes)]%R%tTo set an attribute:%r%r[ansi(h,%t+attr <attribute>=<value>)] (<attribute> may be a partial match. <value> must be 0 or greater.)%R%TYour choices are: [u(itemize,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,and,\,)]%R%R%TAll Attributes begin with 1 dot free, unless otherwise stated for your Splat.%r%r%tIn order of Primary/Secondary/Tertiary...[udefault(CG`2`[getclass(%#)],Your Splat appears unset or has no data entered.)]

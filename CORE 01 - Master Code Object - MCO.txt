@@ -515,8 +515,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &SYSTEM`NAME [u(cobj,mco)]=SYSTEM
 
-&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr,t%1,pmatch(%0)))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq,t%1objid,u(objid,pmatch(%0)));th u(setq,t%1name,name(pmatch(%0)));th u(setq,t%1acc,u(accid,pmatch(%0)));@select/inline t(%2)=1,{th u(setq,t%1id,u(mysql,GET`ID_FROM_OBJID,u(objid,pmatch(%0))))}
-@@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into. %2 - Boolean for also looking up a SQL id.
+&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr,t%1,if(%3,u(firstof,u(u(cobj,cover)/FUN`FINDCOVER,%0),pmatch(%0)),pmatch(%0))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq,t%1objid,u(objid,r(t%1)));th u(setq,t%1name,name(r(t%1)));th u(setq,t%1acc,u(accid,r(t%1)));@select/inline t(%2)=1,{th u(setq,t%1id,u(mysql,GET`ID_FROM_OBJID,u(objid,r(t%1))))}
+@@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into. %2 - Boolean for also looking up a SQL id. %3 - Use Cover System.
 
 &INC`IDCHECK [u(cobj,mco)]=@select/inline t(u(setr,id,u(mysql,GET`ID_FROM_OBJID,u(objid,%0))))=0,{@attach %!/INC`DOSQL=INSERT`PLAYER,u(objid,%0),name(%0);@attach %!/INC`IDCHECK}
 
@@ -525,7 +525,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &INC`JAILCHECK [u(cobj,mco)]=@stop u(jailcheck,%#)=@attach %!/INC`MSG=You have been jailed and cannot use this command.
 
-&INC`VERIFY [u(cobj,mco)]=@select/first/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th u(attrib_set,%#,VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@stop 1={@attach %!/INC`MSG=%0,,,%2}},1,{@wipe %#/VERIFY_OK}
+&INC`VERIFY [u(cobj,mco)]=@select/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th u(attrib_set,%#,VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@stop 1={@attach %!/INC`MSG=%0,,,%2}},1,{@wipe %#/VERIFY_OK}
 @@ VERIFY Arguments: %0 = message to display, %1 = code to set for verification.
 
 &INC`CPTREE [u(cobj,mco)]=@cpattr %0/%1=%2/%3;@dolist/inline u(lattr,%0/%1`**)={@cpattr %0/##=%2/%3`[elements(##,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)]}
@@ -629,11 +629,15 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &APPROVED2 [u(cobj,mco)]=u(isapproved,%#)
 
 
-&ISAPPROVED [u(cobj,mco)]=if(u(game_config,SYSTEM,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1)
+&ISAPPROVED [u(cobj,mco)]=cor(u(isadmin,%0),if(u(game_config,SYSTEM,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1))
 
 @@ EVENT HANDLING - PENN
 &PLAYER`CONNECT [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@trigger ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,mco)]/PLAYER`CONNECT=no_inherit
+
+@@ Player-Approve is a pseudo-event triggered by the Account Management System.
+&PLAYER`APPROVE [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@trigger ##/PLAYER`APPROVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,mco)]/PLAYER`APPROVE=no_inherit
 
 &PLAYER`CREATE [u(cobj,mco)]=@dolist/inline/nobreak children(%!)={@trigger ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,mco)]/PLAYER`CREATE=no_inherit

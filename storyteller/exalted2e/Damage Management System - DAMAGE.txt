@@ -1,5 +1,7 @@
 th u(newcobj,STORYTELLER: Damage Management System <DAMAGE>,damage,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
+&SYSTEM`NAME [u(cobj,damage)]=HEALTH
+
 &CMD`DAMAGE [u(cobj,damage)]=$^(?\:\+)(damage|heal)(?\: +(.+?))?(?\: +(.*))?$:@attach %!/INC`%1=%2,%3
 @set [u(cobj,damage)]/CMD`DAMAGE=regexp
 

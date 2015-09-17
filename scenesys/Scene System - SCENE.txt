@@ -427,7 +427,7 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 
 +shelp/add +scene=[u(cobj,scene)]/SHLP`+SCENE
 +shelp/category +Scene=Roleplaying
-&SHLP`+SCENE [u(cobj,scene)]=
+&SHLP`+SCENE [u(cobj,scene)]=[ansi(hc,Wizard Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/delete <id>)] - Deletes a scene and all recorded poses.%R[ansi(h,+scene/merge <player>=<char id>)] - This command exists for when a character is deleted and a new one is created and the new character needs to 'take the place' of the old one. This will re-assign the given <char id> to player and change any of the player's existing scenesys information to use that ID.)]
 
 +help/add +schedule=[u(cobj,scene)]/HLP`+SCHEDULE
 +help/category +schedule=Roleplaying

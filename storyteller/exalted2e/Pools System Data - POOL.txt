@@ -45,7 +45,6 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`WILLPOWER`MAX [u(cobj,pool)]=u(strfirstof,u(getstat,%0,D`INFO,Willpower),0)
 &POOL`WILLPOWER`INIT [u(cobj,pool)]=u(FUN`WILLCHECK,%0)
 &POOL`WILLPOWER`ORDER [u(cobj,pool)]=18
-
 &POOL`WILLPOWER`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT
 
 &POOL`LIMIT [u(cobj,pool)]=Track

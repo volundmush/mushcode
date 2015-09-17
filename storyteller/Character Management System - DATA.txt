@@ -6,12 +6,14 @@ th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERI
 @set [u(cobj,data)]/CMD`+EDITCHAR`PENNMUSH=regexp
 &CMD`+EDITCHAR`RHOSTMUSH [u(cobj,data)]=$^\+editchar(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+EDITCHAR`MAIN
 @set [u(cobj,data)]/CMD`+EDITCHAR`RHOSTMUSH=regexp
-&CMD`+EDITCHAR`MAIN [u(cobj,data)]=@attach %!/INC`GETSWITCH=%1;th iter(before(%2,=),u(setq,chr(add(inum(0),64)),%i0),|);@attach %!/INC`CHECKPC=%qa,1;@check strlen(%qb)=@attach %!/INC`MSG=ERROR: No Type entered to %q<switch> Your choices are: [itemize(iter(u(lattr,[u(cobj,data)]/INC`%q<switch>`*,|),last(%i0,`),|,|),|,and,\,)]!;@attach %!/INC`PARTIAL=%qb,iter(u(lattr,%!/INC`%q<switch>`*,|),last(%i0,`),|,|),|,topic,option;@attach [u(cobj,data)]/INC`%q<switch>`%q<topic>=%q<t1>,after(iter(%2,trim(%i0),|,|),elements(%2,1,|)|),squish(squish(trim(%3)),|)
+&CMD`+EDITCHAR`MAIN [u(cobj,data)]=@attach %!/INC`GETSWITCH=%1;th iter(before(%2,=),u(setq,chr(add(inum(0),64)),%i0),|);@attach %!/INC`CHECKPC=%qa,1,,1;@check strlen(%qb)=@attach %!/INC`MSG=ERROR: No Type entered to %q<switch> Your choices are: [itemize(iter(u(lattr,[u(cobj,data)]/INC`%q<switch>`*,|),last(%i0,`),|,|),|,and,\,)]!;@attach %!/INC`PARTIAL=%qb,iter(u(lattr,%!/INC`%q<switch>`*,|),last(%i0,`),|,|),|,topic,option;@attach [u(cobj,data)]/INC`%q<switch>`%q<topic>=%q<t1>,after(iter(%2,trim(%i0),|,|),elements(%2,1,|)|),squish(squish(trim(%3)),|)
 @set [u(cobj,data)]/CMD`+EDITCHAR`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&GETCLASS [u(cobj,data)]=u(strfirstof,u(getstat,%0,D`INFO,Class),Mortal)
-&GETPOWER [u(cobj,data)]=u(strfirstof,u(getstat,%0,D`INFO,Power),1)
+&GETCLASS [u(cobj,data)]=u(strfirstof,u(getstat,switch(type(%0),THING,get(%0/OWNER),%0),D`INFO,Class),Mortal)
+&GETPOWER [u(cobj,data)]=u(strfirstof,u(getstat,switch(type(%0),THING,get(%0/OWNER),%0),D`INFO,Power),1)
 &GETBONUS [u(cobj,data)]=add(u(getstat,%0,D`BONUS,%1),u(GETBONUS`[u(getclass,%0)],%0,%1))
+
+
 
 &STARTUP [u(cobj,data)]=@select/inline v(game)=PennMUSH,{@dolist/inline getclass getpower getbonus={@function %i0=%!,%i0}},RhostMUSH,{@dolist/inline getclass getpower getbonus={@function/privileged getclass=%!,GETCLASS}}
 
@@ -35,9 +37,9 @@ th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERI
 
 th u(newconf,config,STORYTELLER,CLASSES,MORTAL,Available Classes,LIST)
 
-&INC`SET`POWER [u(cobj,data)]=@attach %!/DO`SET`POWER;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0))'s [u(setr,have,Power is now: [ansi(h,%q<entry>)])])]},{Your %q<have>},{%q<msg>}
+&INC`SET`POWER [u(cobj,data)]=@attach %!/DO`SET`POWER;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0))'s [u(setr,have,default(u(cobj,data)/POWER`[getclass(%0)],u(strfirstof,v(POWER`DEFAULT),Power)) is now: [ansi(h,%q<entry>)])])]},{Your %q<have>},{%q<msg>}
 
-&DO`VAL`POWER [u(cobj,data)]=@check u(valnum,%2)=@attach %!/INC`MSG=ERROR: Power must be a positive integer.;th u(setq,entry,%2)
+&DO`VAL`POWER [u(cobj,data)]=@check u(valnum,%2)=@attach %!/INC`MSG=ERROR: [default(u(cobj,data)/POWER`[getclass(%0)],u(strfirstof,v(POWER`DEFAULT),Power))] must be a positive integer.;th u(setq,entry,%2)
 &DO`SET`POWER [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`POWER;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`INFO,POWER,%q<entry>
 
 &INC`SET`WILLPOWER [u(cobj,data)]=@attach %!/DO`SET`WILLPOWER;@attach %!/DO`ANNOUNCE=%0,{u(setr,msg,ansi(h,name(%0))'s [u(setr,have,Willpower is now: [ansi(h,%q<entry>)])])},{Your %q<have>},{%q<msg>}
@@ -55,6 +57,6 @@ th u(newconf,config,STORYTELLER,CLASSES,MORTAL,Available Classes,LIST)
 &WORDLIST`VAL [u(cobj,data)]=@stop u(charsearch,%2,~)=@attach %!/INC`MSG=ERROR: ~ is a system-reserved character.;th u(setq,filtered,u(filter,STRLEN,iter(ucstr(%2),squish(%i0),|,|),|,|))
 &KEYVALUE`SET [u(cobj,data)]=@stop u(charsearch,%2 %3,| ~)=@attach %!/INC`MSG=ERROR: ~ and | are system-reserved characters.;@select/inline strlen(%3)=>0,{th u(setstat,%0,%1,ucstr(%2),%3)},{th u(delstat,%0,%1,ucstr(%2))}
 &WORDLIST`ADD [u(cobj,data)]=@attach [u(cobj,data)]/WORDLIST`VAL;@dolist/inline/delimit | %q<filtered>={th if(u(valnum,last(##)),u(setq,add,last(##))[u(setq,word,elements(##,lnum(1,sub(words(##),1))))],u(setq,word,##)[u(setq,add,1)]);th u(setq,wordlist,setunion(%q<wordlist>,%q<word>,|,|));th u(setstat,%0,%1,%q<word>,add(%q<add>,u(getstat,%0,%1,%q<word>)))};th u(setq,returnlist,iter(ucstr(%q<wordlist>),%i0~[u(getstat,%0,%1,%q<word>)],|,|));th u(setq,returnformat,u(itemize,iter(%q<returnlist>,u(capnames,before(%i0,~))%b%([add(,after(%i0,~),0)]%),|,|),|,and,\,))
-&WORDLIST`REM [u(cobj,data)]=@attach [u(cobj,data)]/WORDLIST`VAL;@dolist/inline/delimit | %q<filtered>={th if(u(valnum,last(##)),u(setq,sub,last(##))[u(setq,word,elements(##,lnum(1,sub(words(##),1))))],u(setq,word,##)[u(setq,sub,1)]);th u(setq,wordlist,setunion(%q<wordlist>,%q<word>,|,|));@select/inline u(setr,rank,u(getstat,%0,%1,%q<word>))=>1,{th u(setstat,%0,%1,%q<word>,sub(%q<rank>,%q<sub>))},{th u(delstat,%0,%1,%q<word>)}};th u(setq,returnlist,iter(ucstr(%q<wordlist>),%i0~[bound(u(getstat,%0,%1,%i0),0)],|,|));th u(setq,returnformat,u(itemize,iter(%q<returnlist>,u(capnames,before(%i0,~))%b%([add(after(%i0,~),0)]%),|,|),|,and,\,))
+&WORDLIST`REM [u(cobj,data)]=@attach [u(cobj,data)]/WORDLIST`VAL;@dolist/inline/delimit | %q<filtered>={th if(u(valnum,last(##)),u(setq,sub,last(##))[u(setq,word,elements(##,lnum(1,sub(words(##),1))))],u(setq,word,##)[u(setq,sub,1)]);th u(setq,wordlist,setunion(%q<wordlist>,%q<word>,|,|));@select/inline u(setr,rank,sub(u(getstat,%0,%1,%q<word>),%q<sub>))=>1,{th u(setstat,%0,%1,%q<word>,sub(%q<rank>,%q<sub>))},{th u(delstat,%0,%1,%q<word>)}};th u(setq,returnlist,iter(ucstr(%q<wordlist>),%i0~[bound(u(getstat,%0,%1,%i0),0)],|,|));th u(setq,returnformat,u(itemize,iter(%q<returnlist>,u(capnames,before(%i0,~))%b%([add(after(%i0,~),0)]%),|,|),|,and,\,))
 
 @@ %0 - Target. %1 - Attr. %2 - List. %3 - Entry for keyvalue.

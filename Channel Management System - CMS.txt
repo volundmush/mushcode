@@ -116,6 +116,7 @@ th u(NEWCONF,config,CHANNELS,DEFAULT_PRIVS,PQ,Default priveleges for new channel
 &LOOP`CLEANMUZZLE [u(cobj,channel)]=@dolist/inline setunion(lattr(u(cobj,muzzle)/ALL`*),setunion(lattr(u(cobj,muzzle)/CHAR`*`*),setunion(lattr(u(cobj,muzzle)/ACCALL`*),lattr(u(cobj,muzzle)/ACC`*`*))))={@select/inline gt(get(u(cobj,muzzle)/%i0),secs())=1,{@attach %!/WIPE=u(cobj,muzzle),%i0}};@wait u(game_config,channels,interval)=@trigger %!/LOOP`CLEANMUZZLE
 
 th u(NEWCONF,config,CHANNELS,INTERVAL,3600,Interval between Muzzle cleaning?,DURATION)
+th u(NEWCONF,config,CHANNELS,STAFFTAG,hR,Color of Staff tag?,COLOR)
 
 @@ Mogrify and CDB section
 @lock/user:muzzle u(cobj,mop)=FLAG^ROYALTY|FLAG^WIZARD
@@ -132,7 +133,7 @@ th u(NEWCONF,config,CHANNELS,INTERVAL,3600,Interval between Muzzle cleaning?,DUR
 &MOGORDER`TITLE [u(cobj,mop)]=noansi trim stafftag
 &MOGUSE`TITLE [u(cobj,mop)]=trim stafftag
 
-&FUN`TITLE`STAFFTAG [u(cobj,mop)]=if(cand(v(MOGCONF`TITLE`STAFFTAG),match(v(VAR`STAFFTAG),%:),u(isadmin,%#)),\[[ansi(hR,Staff)]\][if(strlen(%0),%B%0)],%0)
+&FUN`TITLE`STAFFTAG [u(cobj,mop)]=if(cand(v(MOGCONF`TITLE`STAFFTAG),match(v(VAR`STAFFTAG),%:),u(isadmin,%#)),\[[ansi(u(game_config,CHANNELS,STAFFTAG),Staff)]\][if(strlen(%0),%B%0)],%0)
 &MOGCONF`TITLE`STAFFTAG [u(cobj,mop)]=1
 &FUN`TITLE`NOANSI [u(cobj,mop)]=stripansi(%0)
 &FUN`TITLE`TRIM [u(cobj,mop)]=trim(if(v(MOGCONF`TITLE`TRIM),left(%0,v(MOGCONF`TITLE`TRIM)),%0))

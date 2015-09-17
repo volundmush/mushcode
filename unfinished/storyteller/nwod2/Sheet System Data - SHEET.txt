@@ -1,0 +1,211 @@
+&INC`EXTRA [u(cobj,sheet)]=@pemit %#=[space(2)][u(FUN`COLOR,%1,BORDER,.)][u(FUN`COLOR,%1,BORDER,repeat(-,73))][u(FUN`COLOR,%1,BORDER,.)]%R[space(1)][u(FUN`COLOR,%1,BORDER,/)][center(u(FUN`COLOR,%1,TITLE,mudname()),75)][u(FUN`COLOR,%1,BORDER,\\)];@select/inline gt(nattr(%0/D`MERITS`*),0)=1,{@pemit %#=u(FUN`MERITS,%0,%1)};@select/inline gt(nattr(%0/D`FLAWS`*),0)=1,{@pemit %#=u(FUN`FLAWS,%0,%1)};@select/inline gt(nattr(%0/D`NOTES`*),0)=1,{@pemit %#=u(FUN`HEADER,%0,%1,N,otes);@pemit %#=u(FUN`BORDER,%0,%1,iter(sortkey(#lambda/last(\%0,`),u(lattr,%0/D`NOTES`*)),rjust(inum(0),2). [get(%0/%i0)],%B,%R))};@pemit %#=u(FUN`FOOTER,%0,%1)
+
+&INC`MAIN [u(cobj,sheet)]=@pemit %#=u(FUN`SHEETHEADER,%0,u(setr,class,getclass(%0)));th u(setq,cover,u(strfirstof,get(%0/D`COVER),%0));@select/inline strlen(setunion(u(u(cobj,data)/FUN`RET`ATTRIBUTES,%q<cover>),setunion(get(%q<cover>/D`FAVORED`ATTRIBUTES),get(%q<cover>/D`SUPERNAL`ATTRIBUTES),|,|),|,|))=>0,{@pemit %#=u(FUN`ATTRIBUTES,%q<cover>,%q<class>)};@select/inline strlen(setunion(u(u(cobj,data)/FUN`RET`SKILLS,%q<cover>),setunion(get(%q<cover>/D`FAVORED`SKILLS),get(%q<cover>/D`SUPERNAL`SKILLS),|,|),|,|))=>0,{@pemit %#=u(FUN`SKILLS,%q<cover>,%q<class>)};@select/inline strlen(get(%q<cover>/D`SPECIALTIES))=>0,{@pemit %#=u(FUN`SPECIALTIES,%q<cover>,%q<class>)};@select/inline u(nattr,%0/D`SMERITS`*)=>0,{@pemit %#=u(FUN`SMERITS,%0,%q<class>)};@select/inline u(nattr,%0/D`SFLAWS`*)=>0,{@pemit %#=u(FUN`SFLAWS,%0,%q<class>)};@select/inline u(nattr,%q<cover>/D`MERITS`*)=>0,{@pemit %#=u(FUN`MERITS,%q<cover>,%q<class>)};@select/inline u(nattr,%q<cover>/D`FLAWS`*)=>0,{@pemit %#=u(FUN`FLAWS,%q<cover>,%q<class>)};@attach %!/INC`ADVANTAGES=%0,%q<class>;@attach %!/INC`OTHER=%0,%q<class>;@attach %!/INC`FOOTER=%0,%q<class>
+
+&FUN`SMERITS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,SMERITS,+smerits,Shared Merits)
+&FUN`SFLAWS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,SFLAWS,+sflaws,Shared Flaws)
+
+&FUN`CLASSINFO`MORTAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|VIRTUE~Virtue~Unset,CLASS~Class|VICE~Vice~Unset)
+&FUN`CLASSINFO`VAMPIRE [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|MASK~Mask~Unset|CLAN~Clan~Unset|COVENANT~Covenant~None,CLASS~Class|DIRGE~Dirge~Unset|POWER~Blood Potency~1=)
+&FUN`CLASSINFO`MAGE [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|VIRTUE~Virtue~Unset|PATH~Path~Unset|ORDER~Order~None,CLASS~Class|VICE~Vice~Unset|POWER~Gnosis~1|LEGACY~Legacy~None)
+&FUN`CLASSINFO`CHANGELING [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|VIRTUE~Virtue~Unset|SEEMING~Seeming~None|COURT~Court~None,CLASS~Class|VICE~Vice~Unset|POWER~Wyrd~1|KITH~Kith~None)
+&FUN`CLASSINFO`HUNTER [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|VIRTUE~Virtue~Unset|PROFESSION~Profession~None|TIER~Tier~1,CLASS~Class|VICE~Vice~Unset|ORGANIZATION~Organization~None)
+&FUN`CLASSINFO`SIN-EATER [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|VIRTUE~Virtue~Unset|ARCHETYPE~Archetype~None|THRESHOLD~Threshold~None,CLASS~Class|VICE~Vice~Unset|POWER~Psyche~1)
+&FUN`CLASSINFO`WEREWOLF [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|BLOOD~Blood~Unset|AUSPICE~Auspice~None|LODGE~Lodge~None,CLASS~Class|BONE~Bone~Unset|POWER~Primal Urge~1|TRIBE~Tribe~None)
+&FUN`CLASSINFO`BEAST [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|LIFE~Life~Unset|FAMILY~Family~None|HUNGER~Hunger~None,CLASS~Class|LEGEND~Legend~Unset|POWER~Lair~1)
+&FUN`CLASSINFO`DEMON [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|VIRTUE~Virtue~Unset|INCARNATION~Incarnation~Unset|AGENDA~Agenda~None,CLASS~Class|VICE~Vice~Unset|POWER~Primum~1|CATALYST~Catalyst~None)
+
+&ATTRIBUTES`PHYSICAL [u(Cobj,sheet)]=STRENGTH|DEXTERITY|STAMINA
+&ATTRIBUTES`SOCIAL [u(cobj,sheet)]=PRESENCE|MANIPULATION|COMPOSURE
+&ATTRIBUTES`MENTAL [u(cobj,sheet)]=INTELLIGENCE|WITS|RESOLVE
+
+&FUN`SKILLS [u(cobj,sheet)]=localize(u(FUN`3HEADER,%0,%1,Physical Skills|Social Skills|Mental Skills)%R[align(1. [u(setr,c1,floor(u(setr,c0,fdiv(sub(u(width,%#),4),3))))] 1. [u(setr,c2,ceil(%q<c0>))] 1. [u(setr,c3,sub(u(width,%#),4,%q<c1>,%q<c2>))] 1.,u(FUN`COLOR,%1,BORDER,|),u(FUN`SKILLCASCADE,%0,%1,PHYSICAL,%q<c1>),u(FUN`COLOR,%1,BORDER,|),u(FUN`SKILLCASCADE,%0,%1,SOCIAL,%q<c2>),u(FUN`COLOR,%1,BORDER,|),u(FUN`SKILLCASCADE,%0,%1,MENTAL,%q<c3>),u(FUN`COLOR,%1,BORDER,|),,,%R)])
+
+&FUN`SKILLCASCADE [u(cobj,sheet)]=iter(v(SKILLS`%2),u(FUN`STATFORMAT`STAT,%0,%1,SKILLS,%i0,%3),|,%R)
+
+&SKILLS`MENTAL [u(cobj,sheet)]=ACADEMICS|COMPUTER|CRAFTS|INVESTIGATION|MEDICINE|OCCULT|POLITICS|SCIENCE
+&SKILLS`PHYSICAL [u(cobj,sheet)]=ATHLETICS|BRAWL|DRIVE|FIREARMS|LARCENY|STEALTH|SURVIVAL|WEAPONRY
+&SKILLS`SOCIAL [u(cobj,sheet)]=ANIMAL KEN|EMPATHY|EXPRESSION|INTIMIDATION|PERSUASION|SOCIALIZE|STREETWISE|SUBTERFUGE
+
+&FUN`ADVHEADER [u(cobj,sheet)]=center(u(FUN`COLOR,%1,ATTRNAME,====)[u(FUN`COLOR,%1,PSM,%2)][u(FUN`COLOR,%1,ATTRNAME,====)],firstof(%3,74))
+
+&INC`ADVCHECK [u(cobj,sheet)]=@select/inline t(%q<adv>)=0,{th u(setq,adv,1);@pemit %#=u(FUN`HEADER,%0,%1,A,dvantages)},1,{th u(setq,newline,1)}
+
+&INC`ADVANTAGES [u(cobj,sheet)]=@select/inline words(u(setr,advantages,u(sortadv,u(filter,HASADVANTAGE,DISCIPLINES|RENOWN|GIFTS|SGIFTS|RITES|ARCANA|CONTRACTS|ECHOES|MANTLE|ENDOWMENTS|MANIFESTATIONS|CEREMONIES|KEYS|TRANSMUTATIONS|BESTOWMENTS|EMBEDS|EXPLOITS|ATAVISMS|NIGHTMARES|LAIRTRAITS,|,|,%0),|,|)),|)=>0,{@pemit %#=u(FUN`SECTIONHEADER,%0,%1,Advantages);@dolist/inline/delimit | %q<advantages>={@pemit %#=u(FUN`ADVSUBHEADER,%0,%1,u(strfirstof,get(u(cobj,data)/##),##));@@ @pemit %#=u(FUN`COLOR,%1,BORDER,|)[center(u(strfirstof,get(u(cobj,data)/##),##),sub(u(width,%#),2),u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,|)];@pemit %#=u(FUN`BORDER,%0,%1,u(ADV`[get(u(cobj,data)/##`TYPE)],%0,%1,##)%R%R)}}
+
+
+&FIL`HASADVANTAGE [u(Cobj,sheet)]=cor(hasattr(%1/D`%0),u(u(cobj,data)/%0`HAVE,%1))
+&SORTADV [u(cobj,sheet)]=u(SORTADV`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTADV`PENNMUSH [u(cobj,sheet)]=sortkey(#lambda/default(u(cobj,data)/%0`ORDER,99),%0,n,%1,%2)
+&SORTADV`RHOSTMUSH [u(cobj,sheet)]=sortby(#lambda/[lit([ncomp(default(u(cobj,data)/%0`ORDER,99),default(u(cobj,data)/%1`ORDER,99))])],%0,%1,%2)
+
+&INC`ADV [u(cobj,sheet)]=@select/inline gt(switch(%4,STAT,strlen(get(%0/D`%2)),WORD,strlen(get(%0/D`%2)),GIFT,strlen(get(%0/D`%2)),SGIFT,strlen(get(%0/D`%2)),STATUS,and(or(getstat(%0/D`INFO,%5 Status),getstat(%0/D`INFO,%6 Status),getstat(%0/D`INFO,%7 Status)),or(match(%8,%1,|),if(strmatch(%9,GHOUL),getstat(%0/D`INFO,Ghoul)))),Mantle,t(getstat(%0/D`INFO,%5 Mantle)),0),0)=1,{@attach [u(cobj,sheet)]/INC`ADVCHECK;@select/inline 1=t(match(STAT|GIFT|SGIFT|WORD,%4,|)),{@pemit %#=u(FUN`BORDER,%0,%1,if(%q<newline>,%R)[u(FUN`ADVHEADER,%0,%1,%3)]%R[u(FUN`ADV`%4,%0,%1,%2)])},t(match(STATUS,%4,|)),{@pemit %#=if(%q<newline>,u(FUN`BORDER,%0,%1,%R))%R[u(FUN`ADV`STATUS,%0,%1,%5,%6,%7)]},t(match(MANTLE,%4,|)),{@pemit %#=u(FUN`BORDER,%0,%1,if(%q<newline>,%R)[u(FUN`ADVHEADER,%0,%1,%5 Mantle)]%R[u(FUN`ADV`MANTLE,%0,%1,%5)])}}
+
+&ADV`STAT [u(cobj,sheet)]=u(table,iter(sortkey(#lambda/before(\%0,~),u(capnames,get(%0/D`%2)),i,|,|),u(FUN`STATFORMAT`STAT,%0,%1,D`%2,u(capnames,before(%i0,~)),24,after(%i0,~),,1,1),|,|),24,sub(u(width,%#),2),|)
+
+&ADV`GIFT [u(cobj,sheet)]=u(table,iter(sortkey(#lambda/before(\%0,~),u(capnames,get(%0/D`%2)),i,|,|),u(FUN`STATFORMAT`GIFT,%0,%1,D`%2,before(%i0,~),24,after(%i0,~)),|,|),24,sub(u(width,%#),2),|)
+
+&ADV`MANTLE [u(cobj,sheet)]=center(u(FUN`DOTBOX,5,u(strfirstof,u(getstat,%0,D`INFO,Court Mantle),0)),sub(u(width,%#),4))
+
+&ADV`WORD [u(cobj,sheet)]=if(strlen(u(setr,short,u(table,sort(u(filter,LTESTRLEN,u(setr,capped,iter(u(renderwords,get(%0/D`%2)),center(%i0,24),|,|)),|,|,24),i,|,|),24,sub(u(width,%#),4),|))),%q<short>)[if(words(u(setr,toolong,u(filter,GTESTRLEN,%q<capped>,|,|,37)),|),if(strlen(%q<short>),%R)[iter(%q<toolong>,%i0,|,%R)])]
+
+&FUN`STATFORMAT`GIFT [u(cobj,sheet)]=localize([u(setq,namedisp,%3)][u(setq,val,<%5>)][u(setq,valdisp,u(FUN`COLOR,%1,STATDOT,%q<val>))][u(setq,statlen,strlen(%q<namedisp>))][if(lte(sub(%4,1,%q<statlen>,strlen(%q<valdisp>)),0),u(setq,valdisp,%q<totval>,dotlen,strlen(%q<totval>)),u(setq,dotlen,strlen(%q<valdisp>)))][u(setq,linelen,sub(%4,1,%q<dotlen>,%q<statlen>))][u(FUN`COLOR,%1,STATNAME,%q<namedisp>)][if(gt(%q<linelen>,0),repeat(u(FUN`COLOR,%1,STATFILL,.),%q<linelen>))]%q<valdisp>)
+
+&INC`FOOTER [u(cobj,sheet)]=@attach %!/INC`STATUS;@pemit %#=u(FUN`FOOTER,%0,%1)
+
+&INC`STATUS [u(cobj,sheet)]=@pemit %#=u(FUN`3HEADER,%0,%1,Status|Damage|Experiences);@pemit %#=u(FUN`STATUS,%0,%1)
+
+&FUN`STATUS [u(cobj,sheet)]=localize(align(1. [u(setr,c1,floor(u(setr,c0,fdiv(sub(u(width,%#),4),3))))] 1. [u(setr,c2,ceil(%q<c0>))] 1. [u(setr,c3,sub(u(width,%#),4,%q<c1>,%q<c2>))] 1.,u(FUN`COLOR,%1,BORDER,|),u(FUN`FORMATPOOLS,%0),u(FUN`COLOR,%1,BORDER,|),center(u(FUN`COLOR,%1,DAMAGENAME,Damage Total:) [u(FUN`COLOR,%1,DAMAGENUM,rjust(u(u(cobj,damage)/FUN`CURDAMAGE,%0),strlen(u(setr,maxhealth,u(u(cobj,damage)/FUN`MAX`HEALTH,%0))),0)/%q<maxhealth>)],%q<c2>)%R[center(u(u(cobj,damage)/FUN`FORMATHEALTH,%0),%q<c2>)],u(FUN`COLOR,%1,BORDER,|),iter(XP~Experience,center(after(%i0,~): [rjust(u(u(cobj,xp)/FUN`AVAILABLE,%0,before(%i0,~)),3,0)]/[rjust(u(u(cobj,xp)/FUN`GAINED,%0,before(%i0,~)),3,0)],%q<c3>),|,|),u(FUN`COLOR,%1,BORDER,|),,,%R))
+
+&FUN`FOOTER [u(cobj,sheet)]=[u(FUN`COLOR,%1,BORDER,|)][repeat(u(FUN`COLOR,%1,BORDER,-),sub(u(width,%#),2))][u(FUN`COLOR,%1,BORDER,|)]%R%B[u(FUN`COLOR,%1,BORDER,\\)][center(u(FUN`GETSERIES,%1),sub(u(width,%#),4))][u(FUN`COLOR,%1,BORDER,/)]%R%B%B[u(FUN`COLOR,%1,BORDER,')][repeat(u(FUN`COLOR,%1,BORDER,-),sub(u(width,%#),6))][u(FUN`COLOR,%1,BORDER,')]
+
+&FUN`GETSERIES [u(cobj,sheet)]=if(eq(3,rand(1,100)),u(FUN`EXALTED,%0),switch(%0,VAMPIRE,ansi(hr,Vampire: The Requiem),CHANGELING,ansi(hc,C)[ansi(c,hangeling)][ansi(m,:)]%B[ansi(hx,The)]%B[ansi(hy,L)][ansi(y,ost)],SIN-EATER,ansi(hx,SIN-EATER: The Sin-Eaters),HUNTER,ansi(hr,H)[ansi(r,unter)][ansi(r,:)]%B[ansi(hx,The)]%B[ansi(hc,V)][ansi(c,igil)],MAGE,ansi(+xterm120,Mage: The Awakening),PROMETHEAN,ansi(r,Promethean: The Created),WEREWOLF,ansi(hg,Werewolf: The Forsaken),BEAST,ansi(hx,Beast: The Primordial),DEMON,ansi(hc,Demon: The Descent),New World of Darkness))
+
+&FUN`EXALTED [u(cobj,sheet)]=switch(%0,HUNTER,ansi(hy,Solars):%B[ansi(hy,The Lawgivers)],VAMPIRE,ansi(hx,Abyssals):%B[ansi(hx,The Deathknights)],DEMON,ansi(hg,Infernals):%B[ansi(hg,The Green Sun Princes)],WEREWOLF,ansi(hc,Lunars):%B[ansi(hc,The Stewards)],MAGE,ansi(hm,Sidereals):%B[ansi(hm,The Viziers)],DRAGON-BLOODED,ansi(hr,Terrestrials):%B[ansi(hr,The Dragon-Blooded)],PROMETHEAN,ansi(c,Alchemicals):%B[ansi(c,The Champions)],JADEBORN,ansi(y,Jadeborn),CHANGELING,ansi(m,Raksha):%B[ansi(m,The Fair Folk)],MORTAL,Mortals:%BThe Heroes,SIN-EATER,ansi(hx,Abyssals):%B[ansi(hx,The Deathknights)],DRAGON-KING,Dragon-Kings,GOD-BLOODED,ansi(h,GOD-BLOODED):%B[ansi(h,The Children of the Mighty)],Exalted 2.5e)
+
+&BEAST`TITLE [u(cobj,sheet)]=hm
+&BEAST`BORDER [u(cobj,sheet)]=m
+&BEAST`TEXTFIELD [u(cobj,sheet)]=n
+&BEAST`TEXTHEAD [u(cobj,sheet)]=m
+&BEAST`COLON [u(cobj,sheet)]=hm
+&BEAST`SECTIONNAME [u(cobj,sheet)]=hw
+&BEAST`3COLUMNNAME [u(cobj,sheet)]=hw
+&BEAST`ADVNAME [u(cobj,sheet)]=hm
+&BEAST`ADVBORDER [u(cobj,sheet)]=hx
+&BEAST`SLASH [u(cobj,sheet)]=hm
+&BEAST`STATDOT [u(cobj,sheet)]=hw
+&BEAST`STATFILL [u(cobj,sheet)]=hw
+&BEAST`STATNAME [u(cobj,sheet)]=hx
+&BEAST`TRAITNAME [u(cobj,sheet)]=n
+&BEAST`DAMAGENAME [u(cobj,sheet)]=hx
+&BEAST`DAMAGENUM [u(cobj,sheet)]=hm
+&BEAST`DAMAGETOTAL [u(cobj,sheet)]=w
+&BEAST`DAMAGETOTALNUM [u(cobj,sheet)]=hm
+
+&SIN-EATER`TITLE [u(cobj,sheet)]=hx
+&SIN-EATER`BORDER [u(cobj,sheet)]=b
+&SIN-EATER`TEXTFIELD [u(cobj,sheet)]=hx
+&SIN-EATER`TEXTHEAD [u(cobj,sheet)]=c
+&SIN-EATER`COLON [u(cobj,sheet)]=b
+&SIN-EATER`SECTIONNAME [u(cobj,sheet)]=c
+&SIN-EATER`3COLUMNNAME [u(cobj,sheet)]=c
+&SIN-EATER`ADVNAME [u(cobj,sheet)]=b
+&SIN-EATER`ADVBORDER [u(cobj,sheet)]=hx
+&SIN-EATER`SLASH [u(cobj,sheet)]=n
+&SIN-EATER`STATDOT [u(cobj,sheet)]=c
+&SIN-EATER`STATLINE [u(cobj,sheet)]=c
+&SIN-EATER`STATNAME [u(cobj,sheet)]=hx
+&SIN-EATER`DAMAGENAME [u(cobj,sheet)]=n
+&SIN-EATER`DAMAGENUM [u(cobj,sheet)]=b
+&SIN-EATER`DAMAGETOTAL [u(cobj,sheet)]=c
+&SIN-EATER`DAMAGETOTALNUM [u(cobj,sheet)]=c
+
+&CHANGELING`TITLE [u(cobj,sheet)]=hc
+&CHANGELING`BORDER [u(cobj,sheet)]=m
+&CHANGELING`TEXTFIELD [u(cobj,sheet)]=n
+&CHANGELING`TEXTHEAD [u(cobj,sheet)]=m
+&CHANGELING`COLON [u(cobj,sheet)]=m
+&CHANGELING`SECTIONNAME [u(cobj,sheet)]=y
+&CHANGELING`3COLUMNNAME [u(cobj,sheet)]=y
+&CHANGELING`ADVNAME [u(cobj,sheet)]=m
+&CHANGELING`ADVBORDER [u(cobj,sheet)]=c
+&CHANGELING`SLASH [u(cobj,sheet)]=hy
+&CHANGELING`STATDOT [u(cobj,sheet)]=hc
+&CHANGELING`STATFILL [u(cobj,sheet)]=hc
+&CHANGELING`STATNAME [u(cobj,sheet)]=c
+&CHANGELING`TRAITNAME [u(cobj,sheet)]=n
+&CHANGELING`DAMAGENAME [u(cobj,sheet)]=n
+&CHANGELING`DAMAGENUM [u(cobj,sheet)]=m
+&CHANGELING`DAMAGETOTAL [u(cobj,sheet)]=c
+&CHANGELING`DAMAGETOTALNUM [u(cobj,sheet)]=m
+
+&HUNTER`TITLE [u(cobj,sheet)]=hr
+&HUNTER`BORDER [u(cobj,sheet)]=r
+&HUNTER`TEXTFIELD [u(cobj,sheet)]=c
+&HUNTER`TEXTHEAD [u(cobj,sheet)]=c
+&HUNTER`COLON [u(cobj,sheet)]=hc
+&HUNTER`SECTIONNAME [u(cobj,sheet)]=r
+&HUNTER`3COLUMNNAME [u(cobj,sheet)]=r
+&HUNTER`ADVNAME [u(cobj,sheet)]=r
+&HUNTER`ADVBORDER [u(cobj,sheet)]=r
+&HUNTER`SLASH [u(cobj,sheet)]=hr
+&HUNTER`STATDOT [u(cobj,sheet)]=c
+&HUNTER`STATLINE [u(cobj,sheet)]=c
+&HUNTER`STATNAME [u(cobj,sheet)]=hc
+&HUNTER`TRAITNAME [u(cobj,sheet)]=hr
+&HUNTER`DAMAGENAME [u(cobj,sheet)]=n
+&HUNTER`DAMAGENUM [u(cobj,sheet)]=hr
+&HUNTER`DAMAGETOTAL [u(cobj,sheet)]=r
+&HUNTER`DAMAGETOTALNUM [u(cobj,sheet)]=r
+
+&MAGE`TITLE [u(cobj,sheet)]=+gold4
+&MAGE`BORDER [u(cobj,sheet)]=+gold4
+&MAGE`TEXTFIELD [u(cobj,sheet)]=hn
+&MAGE`TEXTHEAD [u(cobj,sheet)]=+gold4
+&MAGE`COLON [u(cobj,sheet)]=+xterm24
+&MAGE`SECTIONNAME [u(cobj,sheet)]=c
+&MAGE`3COLUMNNAME [u(cobj,sheet)]=c
+&MAGE`ADVNAME [u(cobj,sheet)]=+deepskyblue
+&MAGE`ADVBORDER [u(cobj,sheet)]=+dodgerblue2
+&MAGE`SLASH [u(cobj,sheet)]=+xterm120
+&MAGE`STATDOT [u(cobj,sheet)]=+xterm45
+&MAGE`STATLINE [u(cobj,sheet)]=+xterm28
+&MAGE`STATNAME [u(cobj,sheet)]=+dodgerblue2
+&MAGE`DAMAGENAME [u(cobj,sheet)]=n
+&MAGE`DAMAGENUM [u(cobj,sheet)]=+dodgerblue2
+&MAGE`DAMAGETOTAL [u(cobj,sheet)]=c
+&MAGE`DAMAGETOTALNUM [u(cobj,sheet)]=c
+
+&MORTAL`TITLE [u(cobj,sheet)]=hc
+&MORTAL`BORDER [u(cobj,sheet)]=b
+&MORTAL`TEXTFIELD [u(cobj,sheet)]=n
+&MORTAL`TEXTHEAD [u(cobj,sheet)]=b
+&MORTAL`COLON [u(cobj,sheet)]=n
+&MORTAL`SECTIONNAME [u(cobj,sheet)]=n
+&MORTAL`3COLUMNNAME [u(cobj,sheet)]=n
+&MORTAL`ADVNAME [u(cobj,sheet)]=n
+&MORTAL`ADVBORDER [u(cobj,sheet)]=n
+&MORTAL`SLASH [u(cobj,sheet)]=hc
+&MORTAL`STATDOT [u(cobj,sheet)]=hc
+&MORTAL`STATFILL [u(cobj,sheet)]=hc
+&MORTAL`STATNAME [u(cobj,sheet)]=c
+&MORTAL`DAMAGENAME [u(cobj,sheet)]=n
+&MORTAL`DAMAGENUM [u(cobj,sheet)]=hr
+&MORTAL`DAMAGETOTAL [u(cobj,sheet)]=hb
+&MORTAL`DAMAGETOTALNUM [u(cobj,sheet)]=hr
+
+&VAMPIRE`TITLE [u(cobj,sheet)]=hr
+&VAMPIRE`BORDER [u(cobj,sheet)]=r
+&VAMPIRE`TEXTFIELD [u(cobj,sheet)]=n
+&VAMPIRE`TEXTHEAD [u(cobj,sheet)]=r
+&VAMPIRE`COLON [u(cobj,sheet)]=hr
+&VAMPIRE`SECTIONNAME [u(cobj,sheet)]=hw
+&VAMPIRE`3COLUMNNAME [u(cobj,sheet)]=hw
+&VAMPIRE`ADVNAME [u(cobj,sheet)]=hr
+&VAMPIRE`ADVBORDER [u(cobj,sheet)]=hx
+&VAMPIRE`SLASH [u(cobj,sheet)]=hr
+&VAMPIRE`STATDOT [u(cobj,sheet)]=hw
+&VAMPIRE`STATFILL [u(cobj,sheet)]=hw
+&VAMPIRE`STATNAME [u(cobj,sheet)]=hx
+&VAMPIRE`DAMAGENAME [u(cobj,sheet)]=hx
+&VAMPIRE`DAMAGENUM [u(cobj,sheet)]=hr
+&VAMPIRE`DAMAGETOTAL [u(cobj,sheet)]=w
+&VAMPIRE`DAMAGETOTALNUM [u(cobj,sheet)]=hr
+
+&WEREWOLF`TITLE [u(cobj,sheet)]=hg
+&WEREWOLF`BORDER [u(cobj,sheet)]=y
+&WEREWOLF`TEXTFIELD [u(cobj,sheet)]=hx
+&WEREWOLF`TEXTHEAD [u(cobj,sheet)]=hg
+&WEREWOLF`COLON [u(cobj,sheet)]=hy
+&WEREWOLF`SECTIONNAME [u(cobj,sheet)]=hy
+&WEREWOLF`3COLUMNNAME [u(cobj,sheet)]=hy
+&WEREWOLF`ADVNAME [u(cobj,sheet)]=hg
+&WEREWOLF`ADVBORDER [u(cobj,sheet)]=hw
+&WEREWOLF`SLASH [u(cobj,sheet)]=y
+&WEREWOLF`STATDOT [u(cobj,sheet)]=hw
+&WEREWOLF`STATFILL [u(cobj,sheet)]=n
+&WEREWOLF`STATNAME [u(cobj,sheet)]=n
+&WEREWOLF`DAMAGENAME [u(cobj,sheet)]=y
+&WEREWOLF`DAMAGENUM [u(cobj,sheet)]=hy
+&WEREWOLF`DAMAGETOTAL [u(cobj,sheet)]=y
+&WEREWOLF`DAMAGETOTALNUM [u(cobj,sheet)]=y

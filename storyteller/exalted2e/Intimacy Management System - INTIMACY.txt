@@ -4,7 +4,7 @@ th u(newcobj,STORYTELLER: Intimacy Management System <INTIMACY>,intimacy,,,,WIZA
 @set [u(cobj,intimacy)]/CMD`+INTIMACY`PENNMUSH=regexp
 &CMD`+INTIMACY`RHOSTMUSH [u(cobj,intimacy)]=$^(?s)\+intimacy(?\:/(\\S+))?(?\: +(.*))?$:@attach %!/CMD`+INTIMACY`MAIN
 @set [u(cobj,intimacy)]/CMD`+INTIMACY`RHOSTMUSH=regexp
-&CMD`+INTIMACY`MAIN [u(cobj,intimacy)]=@attach %!/INC`GETSWITCH=%1;@select/inline cand(strlen(%2),not(strlen(%1)),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%2,1,INTIMACY},0,{@attach %!/INC`CHECKPC=%#,1,INTIMACY};@attach %!/INC`[strfirstof(%q<switch>,MAIN)]=%2,%q<t1>
+&CMD`+INTIMACY`MAIN [u(cobj,intimacy)]=@attach %!/INC`GETSWITCH=%1;@select/inline cand(strlen(%2),not(strlen(%1)),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%2,1},0,{@attach %!/INC`CHECKPC=%#,1};@attach %!/INC`[strfirstof(%q<switch>,MAIN)]=%2,%q<t1>
 @set [u(cobj,intimacy)]/CMD`+INTIMACY`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,intimacy)]=BUILD|ERODE|GAIN|LOSE|HELP|URGE|MOTIVATION
@@ -13,7 +13,7 @@ th u(newcobj,STORYTELLER: Intimacy Management System <INTIMACY>,intimacy,,,,WIZA
 
 &INC`BUILD [u(cobj,intimacy)]=@attach %!/INC`CHECKINT;@stop gt(u(setr,new,add(1,get(%1/D`INTIMACIES`%0`CUR))),u(getstat,%1,D`VIRTUES,Conviction))=@attach %!/INC`MSG=ERROR: That would exceed your Conviction.;&D`INTIMACIES`%0`CUR %1=%q<new>;@attach %!/INC`MSG=You reinforced your '[get(%1/D`INTIMACIES`%0`CONTEXT)]' Intimacy.
 
-&INC`ERODE [u(cobj,intimacy)]=@attach %!/INC`CHECKINT;@select/inline u(setr,new,sub(1,bound(get(%1/D`INTIMACIES`%0`CONTEXT),0,u(getstat,%1,D`VIRTUES,Conviction))))=0,{@attach %!/INC`MSG=Your '[get(%1/D`INTIMACIES`%0`CONTEXT)]' Intimacy was eroded to 0, and removed.;@attach %!/WIPE=%1,D`INTIMACIES`%0},{&D`INTIMACIES`%0 %1=%q<new>;@attach %!/INC`MSG=You have Eroded your '[get(%1/D`INTIMACIES`%0`CONTEXT)]' Intimacy.}
+&INC`ERODE [u(cobj,intimacy)]=@attach %!/INC`CHECKINT;@select/inline u(setr,new,sub(bound(get(%1/D`INTIMACIES`%0`CUR),0,u(getstat,%1,D`VIRTUES,Conviction)),1))=0,{@attach %!/INC`MSG=Your '[get(%1/D`INTIMACIES`%0`CONTEXT)]' Intimacy was eroded to 0\, and removed.;@attach %!/WIPE=%1,D`INTIMACIES`%0},{&D`INTIMACIES`%0`CUR %1=%q<new>;@attach %!/INC`MSG=You have Eroded your '[get(%1/D`INTIMACIES`%0`CONTEXT)]' Intimacy.}
 
 &INC`GAIN [u(cobj,intimacy)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Intimacy context field empty.;th u(attrib_set,%1,u(setr,attr,D`INTIMACIES`[u(nextslot,%1,D`INTIMACIES)])`CONTEXT,%0);&%q<attr>`CUR %1=u(getstat,%1,D`VIRTUES,Conviction);@attach %!/INC`MSG=Intimacy '%0' added.
 
