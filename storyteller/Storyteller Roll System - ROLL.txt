@@ -16,8 +16,6 @@ th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|SKILLS|ARCANA|DISCIPLINES|MANIF
 &CMD`+ROLL`MAIN [u(cobj,roll)]=@stop strmatch(init,%4);@select/inline gt(words(%3,/),0)=1,{@check u(FUN`FLAGCHECK,%3)=@attach %!/INC`MSG=ERROR: [u(itemize,iter(%q<errcheck>,ansi(h,%i0),|,|),|,and,\,)]};@select/inline ucstr(%1)=ST,{@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%4)=@attach %!/INC`MSG=ERROR: Who will you roll for?;@attach %!/INC`CHECKPC=%4,1,,1};@check strlen(u(setr,string,switch(%1,ST,%5,%4)))=@attach %!/INC`MSG=ERROR: You must enter a formula of stats and/or numbers to roll. Example: Dexterity + Melee - 3;@check strlen(u(setr,inflate,u(FUN`NORMALIZE,%q<string>)))=@attach %!/INC`MSG=ERROR: Could not format roll formula. Please contact a coder.;@check strlen(u(setr,findnames,u(FUN`FINDNAMES,%q<inflate>,u(strfirstof,%q<t1>,get(%#/D`COVER),%#))))=@attach %!/INC`MSG=ERROR: Could not perform name finding. Please contact a coder.;@check gt(u(setr,totaldice,ulocal(FUN`CALC,u(setr,calcdice,u(FUN`CALCDICE,%q<findnames>,u(strfirstof,%q<t1>,get(%#/D`COVER),%#))))),0)=@attach %!/INC`MSG=ERROR: You have no dice to roll! Check your spelling and ensure that penalties aren't reducing your roll to nothing.;@attach %!/INC`INIT=%1,%2;@attach %!/INC`%1ROLL
 @set [u(cobj,roll)]/CMD`+ROLL`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-u(strfirstof,%q<t1>,get(%#/D`COVER),%#)
-
 &SYSTEm`NAME [u(cobj,roll)]=DICE
 
 &FUN`FLAGCHECK [u(cobj,roll)]=u(lmin,iter(ucstr(%0),regeditalli(%i0,^\(?P<switch>\\w+?\)\(?P<num>\\d+\)?$,if(hasattr(u(cobj,roll)/FUN`FLAGCHECK`$<switch>),u(FUN`FLAGCHECK`$<switch>,$<num>),u(setq,errcheck,setunion(%q<errcheck>,Unrecognized switch: %i0,|,|))0)),/))

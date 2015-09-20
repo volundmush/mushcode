@@ -2,10 +2,10 @@ th u(newcobj,STORYTELLER: Shapeshift Management System <SHIFT>,shift,,,,WIZARD S
 
 &SYSTEm`NAME [u(Cobj,shift)]=SHIFT
 
-&CMD`SHIFT [u(cobj,shift)]=$^(?\:\+)?shift(?\: +(.*))?$:@check words(u(setr,list,u(FUN`LISTFORM,%#)),|)=@attach %!/INC`MSG=ERROR: You have no forms to shift into.;@check strlen(%1)=@attach %!/INC`MSG=Your current form is: [getform(%#)];@attach %!/INC`PARTIAL=%1,%q<list>,|,formname,Form;@attach %!/INC`MSG`Room=[ansi(h,%n)] has just switched to %p [ansi(h,capnames(%q<formname>))] Form!;th u(setstat,%#,D`INFO,Form,u(capnames,%q<formname>))
+&CMD`SHIFT [u(cobj,shift)]=$^(?\:\+)?shift(?\: +(.*))?$:@check words(u(setr,list,u(FUN`LISTFORM,%#)),|)=@attach %!/INC`MSG=ERROR: You have no forms to shift into.;@check strlen(%1)=@attach %!/INC`MSG=Your current form is: [getform(%#)];@attach %!/INC`PARTIAL=%1,%q<list>,|,formname,Form;@attach %!/INC`MSG`Room=[ansi(h,%n)] has just switched to %p [ansi(h,u(capnames,%q<formname>))] Form!;th u(setstat,%#,D`INFO,Form,u(capnames,%q<formname>))
 @set [u(cobj,shift)]/CMD`SHIFT=regexp
 
-&FUN`LISTFORM [u(cobj,shift)]=switch(1,strmatch(getclass(%0),WEREWOLF),v(WEREWOLF))
+&FUN`LISTFORM [u(cobj,shift)]=switch(getclass(%0),WEREWOLF,v(WEREWOLF))
 
 &STARTUP [u(Cobj,shift)]=@select/inline v(game)=PennMUSH,{@dolist/inline getform ensorcel ghoul={@function %i0=%!,%i0;@function/restrict %i0=localize}},RhostMUSH,{@dolist/inline getform ensorcel ghoul=@function/privileged %i0=%!,%i0}
 

@@ -22,7 +22,7 @@ th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request categ
 @set [u(cobj,jms)]/CMD`+JOB`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,jms)]=JOBS
-&SWITCHES`PLAYER [u(cobj,jms)]=REPLY|OLD|APPROVE|DENY|CANCEL|REVIVE|COMMENT|DUE|CLAIM|UNCLAIM|ATTN|SCAN|NEXT|PENDING
+&SWITCHES`PLAYER [u(cobj,jms)]=REPLY|OLD|APPROVE|DENY|CANCEL|REVIVE|COMMENT|DUE|CLAIM|UNCLAIM|ATTN|SCAN|NEXT|PENDING[if(isdbref(u(cobj,roll)),|ROLL)]
 &SWITCHES`ADMIN [u(cobj,jms)]=NEWCATEGORY|DELCATEGORY|RENCATEGORY|LOCKCATEGORY|UNLOCKCATEGORY|CATEGORY|CONFIG|DESC
 
 &CMD`+REQUEST`PENNMUSH [u(cobj,jms)]=$^(?s)\+request(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REQUEST`MAIN
@@ -255,9 +255,13 @@ th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request categ
 
 &Q`RENAME`PLAYER [u(cobj,jms)]=UPDATE $PLAYERS$ SET player_name=? WHERE objid=?
 
+&INC`ROLL [u(cobj,jms)]=@check setr(jid,u(mysql,GET`JOBID,%0))=@attach %!/INC`MSG=ERROR: Job %0 not found.;@check or(strmatch(u(mysql,GET`OWNEROBJID,%q<jid>),%:),match(u(mysql,GET`CLAIMOBJIDS,%q<jid>),%:),u(FUN`PERMCHECK,setr(cat,u(mysql,GET`JOBCAT,%q<jid>)),ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission Denied.;@check eq(u(mysql,GET`JOBSTATUS,%q<jid>),0)=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you roll?;@switch/inline t(strlen(after(%1,|)))=1,{@check u(u(cobj,roll)/FUN`FLAGCHECK,after(%1,|))=@attach %!/INC`MSG=ERROR: [u(itemize,iter(%q<errcheck>,ansi(h,%i0),|,|),|,and,\,)]};@include u(cobj,roll)/INC`INIT=,;@check strlen(setr(inflate,u(u(cobj,roll)/FUN`NORMALIZE,setr(string,before(%1,|)))))=@attach %!/INC`MSG=ERROR: Could not format roll formula. Please contact a coder.;@check strlen(setr(findnames,u(u(cobj,roll)/FUN`FINDNAMES,%q<inflate>,%#)))=@attach %!/INC`MSG=ERROR: Could not perform name finding. Please contact a coder.;@check gt(setr(totaldice,ulocal(u(cobj,roll)/FUN`CALC,setr(calcdice,u(u(cobj,roll)/FUN`CALCDICE,%q<findnames>,%#)))),0)=@attach %!/INC`MSG=ERROR: You have no dice to roll! Check your spelling and ensure that penalties aren't reducing your roll to nothing.;th setq(resformat,u(u(cobj,roll)/FUN`RESFORMAT));@attach %!/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,%q<resformat>;@attach %!/INC`MSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a Roll in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].};@attach %!/INC`MAILJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a Roll in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].%R%RRoll:%R%q<resformat>};@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`DOSQL=SET`JOBATTN,not(strmatch(u(mysql,GET`OWNEROBJID,%q<jid>),%:)),%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+
+
 &MIGRATE`JOBS [u(cobj,migrate)]=@dolist/inline children(u(coi,jobdb))={@tel %i0=u(cobj,jobdb);@parent %i0=u(cobj,jobdb)}
 
 &CONFLICT`JOBS [u(cobj,migrate)]=@dolist u(coi,jobsys)={@tel %i0=u(cobj,oldbox);@set %i0=NO_COMMAND HALT}
+
 
 @@ INSTALL AND SQL CONFIG
 &Q`INSTALL`PLAYERS [u(cobj,jms)]=CREATE TABLE IF NOT EXISTS $PLAYERS$ (player_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,objid VARCHAR(30) NOT NULL,player_name VARCHAR(60) NOT NULL DEFAULT 'Unset',PRIMARY KEY(player_id),UNIQUE KEY player_objid (objid)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1

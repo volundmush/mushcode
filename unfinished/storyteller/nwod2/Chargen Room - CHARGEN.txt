@@ -12,7 +12,7 @@
 
 &SYSTEM`NAME [u(cobj,chargen)]=CHARGEN
 
-@desc [u(cobj,chargen)]=%TWelcome to [mudname()] Chargen! In this room you will setup your sheet and other aspects and prepare for admin review for approval. Remember to check out any House Rules at [u(weblink,mudurl(),mudurl())]%R%R%T[ansi(h,INSTRUCTIONS:)] Set your sheet as it would be after spending all your available points, including starting experience awarded by house rules. Approval will require an +info (+help +info) file detailing your spends so keep track of how you spend your XP.%R%R%TTo see your sheet, type [ansi(h,+sheet)]%R[u(u(strfirstof,u(getstat,%#,D`CHARGEN,Page),CG`1),getclass(%#))]%R[u(SEPARATOR,Chargen)]%RViewing Page [ansi(h,u(strfirstof,last(u(getstat,%#,D`CHARGEN,Page),`),1))] of [ansi(h,u(lmax,u(filter,ISPAGE,u(lattr,%!/*))))]. Use [ansi(h,+page <number>)] to change. For example, +page 2.%RIf you'd like to undo certain steps, use [ansi(h,+reset)] to view your options.%R[u(FUN`STATS,%#)]
+@desc [u(cobj,chargen)]=%TWelcome to [mudname()] Chargen! In this room you will setup your sheet and other aspects and prepare for admin review for approval. Remember to check out any House Rules at [u(weblink,mudurl())]%R%R%T[ansi(h,INSTRUCTIONS:)] Set your sheet as it would be after spending all your available points, including starting experience awarded by house rules. Approval will require an +info (+help +info) file detailing your spends so keep track of how you spend your XP.%R%R%TTo see your sheet, type [ansi(h,+sheet)]%R[u(u(strfirstof,u(getstat,%#,D`CHARGEN,Page),CG`1),getclass(%#))]%R[u(SEPARATOR,Chargen)]%RViewing Page [ansi(h,u(strfirstof,last(u(getstat,%#,D`CHARGEN,Page),`),1))] of [ansi(h,u(lmax,u(filter,ISPAGE,u(lattr,%!/*))))]. Use [ansi(h,+page <number>)] to change. For example, +page 2.%RIf you'd like to undo certain steps, use [ansi(h,+reset)] to view your options.
 
 &FUN`STATS [u(cobj,chargen)]=[u(SEPARATOR,Progress)]%R[ansi(h,ATTRIBUTES:)] [rjust(u(FUN`COUNT,%#,ATTRIBUTES),2,0)]. Physical/Social/Mental: [rjust(add(u(getstat,%#,D`ATTRIBUTES,Strength),u(getstat,%#,D`ATTRIBUTES,Dexterity),u(getstat,%#,D`ATTRIBUTES,Stamina)),2,0)]/[rjust(add(u(getstat,%#,D`ATTRIBUTES,Charisma),u(getstat,%#,D`ATTRIBUTES,Manipulation),u(getstat,%#,D`ATTRIBUTES,Appearance)),2,0)]/[rjust(add(u(getstat,%#,D`ATTRIBUTES,Perception),u(getstat,%#,D`ATTRIBUTES,Intelligence),u(getstat,%#,D`ATTRIBUTES,Wits)),2,0)]%R[ansi(h,ABILITIES:)] [rjust(add(u(FUN`COUNT,%#,ABILITIES),u(FUN`COUNT,%#,STYLES),u(FUN`COUNT,%#,CRAFTS)),2,0)]/[rjust(u(strfirstof,v(MAX`ABILITIES`[u(setr,class,getclass(%#))]),??),2,0)]%R[ansi(h,BACKGROUNDS:)] [rjust(u(FUN`COUNT`BACKGROUNDS,%#),2,0)]/[rjust(u(strfirstof,v(MAX`MERITS`%q<class>),??),2,0)]%R[ansi(h,CHARMS:)] [rjust(add(u(FUN`COUNT`CHARMS,%#),u(FUN`COUNT`SPELLS,%#)),2,0)]/[rjust(u(strfirstof,v(MAX`CHARMS`%q<class>),??),2,0)]
 
@@ -23,271 +23,95 @@
 
 &CG [u(cobj,chargen)]=@@ Empty attrib for Rhost.
 
-&CG`1 [u(cobj,chargen)]=[u(SEPARATOR,Step 1: Concept and Class)]%R[ansi(h,+class <type>)]%R%TYour choices are: [u(itemize,u(setr,classes,u(game_config,STORYTELLER,CLASSES)),|,and,\,)][if(hasattr(%!/CG`1`%0),%R%R[u(CG`1`%0)])])]%R%R[ansi(h,&sex me=<gender>)] to set your Gender (Male, Female, etc)
+&CG`1 [u(cobj,chargen)]=[u(SEPARATOR,Step 1: Concept and Class)]%R[ansi(h,+class <type>)]%R%TYour choices are: [u(itemize,u(setr,classes,u(game_config,STORYTELLER,CLASSES)),|,and,\,)][if(hasattr(%!/CG`1`%0),%R%R[u(CG`1`%0)])]%R%R[ansi(h,&sex me=<gender>)] to set your Gender (Male, Female, etc)
 
+&CG`1`MORTAL [u(cobj,chargen)]=
 &CG`1`VAMPIRE [u(cobj,chargen)]=[u(CG`1`CASTE,clan)]%R%R[ansi(h,+mask <mask>)] to set your Mask.%R[ansi(h,+dirge <dirge>)] to choose your Dirge.%R[ansi(h,+covenant <covenant>)] to choose your Covenant.
 &CG`1`WEREWOLF [u(cobj,chargen)]=[u(CG`1`CASTE,auspice)]%R%R[ansi(h,+blood <blood>)] to set your Blood.%R[ansi(h,+bone <bone>)] to set your Bone.%R[ansi(h,+lodge <lodge>)] to choose your Lodge.%R[ansi(h,+tribe <tribe>)] to pick your Tribe.
 &CG`1`HUNTER [u(cobj,chargen)]=[ansi(h,+profession <profession>)] to set your profession.%R[ansi(h,+tier <number>)] to set your Tier.%R[ansi(h,+organization <organization>)] to set your Organization.
-&CG`1`BEAST [u(cobj,chargen)]=
-&CG`1`MORTAL [u(cobj,chargen)]=
-&CG`1`CHANGELING [u(cobj,chargen)]=
+&CG`1`BEAST [u(cobj,chargen)]=[u(CG`1`CASTE,family)]%R%R[ansi(h,+hunger <hunger>)] to set your Hunger.%R[ansi(h,+life <life>)] to set your Life.%R[ansi(h,+legend <legend>)] to set your legend.
+&CG`1`CHANGELING [u(cobj,chargen)]=[u(CG`1`CASTE,seeming)]%R%R[ansi(h,+virtue <virtue>)] to set your Virtue.%R%R[ansi(h,+vice <vice>)] to set your Vice.%R%R[ansi(h,+court <court>)] to set your Court.%R[ansi(h,+kith <kith>)] to set your Kith.
+&CG`1`DEMON [u(cobj,chargen)]=[u(CG`1`CASTE,incarnation)]%R%R[ansi(h,+agenda <agenda>)] to set your Agenda.%R%RPlease set your stats for your primary Cover. Additional Covers can be created by admin later.
+&CG`1`MAGE [u(cobj,chargen)]=[u(CG`1`CASTE,path)]%R%R[ansi(h,+virtue <virtue>)] to set your Virtue.%R%R[ansi(h,+vice <vice>)] to set your Vice.%R%R[ansi(h,+order <order>)] to set your Order.%R[ansi(h,+legacy <legacy>)] to set your Legacy.
 
-&CG`1`CASTE [u(Cobj,chargen)]=[ansi(h,+%0 <%0>)] to set your [u(capnames,%0)]. Your choices are: [u(itemize,get(u(cobj,data)/[getclass(%#)]),|,and,\,)]
-
-&CG`1`LUNAR [u(cobj,chargen)]=u(CG`1`SOLAR)%R%R[ansi(h,+totem <animal>)] to set your Spirit Shape.
-&CG`1`ABYSSAL [u(cobj,chargen)]=if(u(game_config,STORYTELLER,SHARDS_ABYSSALS),ansi(h,+doom <doom>) to set your Doom (Shards hack),ansi(h,+flawedvirtue <flaw>) to set your Flawed Virtue (MoEP: Abyssals))%R%R[ansi(h,+liege <name>)] to set your Liege (or Renegade)
-&CG`1`ALCHEMICAL [u(cobj,chargen)]=ansi(h,+nation <name>)] to set your Nation.
-&CG`1`INFERNAL [u(cobj,chargen)]=ansi(h,+yozi <name>) to set your Favored Yozi.%R%R[ansi(h,+urge <archetype>)] to set your Urge model.%R%R[ansi(h,+intimacy/urge <urge>)] to set its specifics.
-&CG`1`TERRESTRIAL [u(cobj,chargen)]=ansi(h,+nation) to set your origin. (Realm, Lookshy, Outcaste?)%R[ansi(h,+house <name>)] to set your dynastic house or equivalent, if applicable.
-&CG`1`RAKSHA [u(cobj,chargen)]=ansi(h,+lure <virtue and condition>)] to set your Lure.
-&CG`1`MORTAL [u(cobj,chargen)]=Mortals have nothing race-specific to set!
-&CG`1`JADEBORN [u(cobj,chargen)]=This covers both Enlightened and Unenlightened!
-&CG`1`GOD-BLOODED [u(cobj,chargen)]=ansi(h,+parent <parentname or type>) to set your parent!
-&CG`1`SIDEREAL [u(cobj,chargen)]=ansi(h,+faction <name>) to set your faction! (Choices: Gold, Bronze, Independent, Ronin, etc.) You can set this to anything - only Ronin has a coded effect (lower background points.)
+&CG`1`CASTE [u(Cobj,chargen)]=[ansi(h,+%0 <%0>)] to set your [u(capnames,%0)].%R%TYour choices are: [u(itemize,get(u(cobj,data)/[getclass(%#)]),|,and,\,)]
 
 
 &CMD`+CLASS [u(cobj,chargen)]=$^\+(?\:sphere|class)(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CLASS=%#,,%1;@force/inline %#=look;@attach %!/INC`MSG=You are now a [ansi(h,u(capnames,%q<find>))].
 @set [u(cobj,chargen)]/CMD`+class=regexp
 
-&CMD`+CASTE [u(cobj,chargen)]=$^\+(?\:clan|auspice|path|seeming|incarnation)(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CASTE=%#,,%1;@attach %!/INC`MSG=Your Caste is now [ansi(h,u(capnames,%q<find>))].
+&CMD`+CASTE [u(cobj,chargen)]=$^\+(?\:clan|auspice|path|seeming|incarnation|family)(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CASTE=%#,,%1;@attach %!/INC`MSG=Your Caste is now [ansi(h,u(capnames,%q<find>))].
 @set [u(cobj,chargen)]/CMD`+CASTE=regexp
 
 &CMD`INFOSET [u(cobj,chargen)]=$^\+(mask|dirge|covenant|bloodline)(?\: +(.+))?$:th u(setq,type,switch(%1,flawedvirtue,Flawed Virtue,virtueflaw,Virtue Flaw,doom,Doom,liege,Liege,lure,Lure,totem,Totem Animal,urge,Urge,house,House,yozi,Favored Yozi,nation,Nation,parent,Parent));@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Class!;th u(setstat,%#,D`INFO,%q<type>,%2)
 @set [u(cobj,chargen)]/CMD`INFOSET=regexp
 
-&CG`2 [u(cobj,chargen)]=[u(SEPARATOR,Step 2: Attributes)]%R%tTo set an attribute:%r%r[ansi(h,%t+attr <attribute>=<value>)] (<attribute> may be a partial match. <value> must be 0 or greater.)%R%TYour choices are: [u(itemize,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,and,\,)]%R%R%TAll Attributes begin with 1 dot free, unless otherwise stated for your Splat.%r%r%tIn order of Primary/Secondary/Tertiary...[udefault(CG`2`[getclass(%#)],Your Splat appears unset or has no data entered.)]
+&CG`2 [u(cobj,chargen)]=[u(SEPARATOR,Step 2: Attributes)]%R%tTo set an attribute:%r%r[ansi(h,%t+attr <attribute>=<value>)] (<attribute> may be a partial match. <value> must be 0 or greater.)%R%TYour choices are: [u(itemize,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,and,\,)]%R%R%TAll Attributes begin with 1 dot free, unless your Template states otherwise.%r%r%tIn order of Primary/Secondary/Tertiary...[udefault(CG`2`[getclass(%#)],Your Class appears unset or has no data entered.)]
 
-&CG`2`MORTAL [u(cobj,chargen)]=Mortals receive 6/4/3 Attribute points for Primary/Secondary/Social. Remember all Attributes begin at 1 before distributing these.
-&CG`2`SOLAR [u(cobj,chargen)]=Solars receive 8/6/4 Attribute points for Primary/Secondary/Social. Remember all Attributes begin at 1 before distributing these.
-&CG`2`INFERNAL [u(cobj,chargen)]=Infernals receive 8/6/4 Attribute points for Primary/Secondary/Social. Remember all Attributes begin at 1 before distributing these.
-&CG`2`ABYSSAL [u(cobj,chargen)]=Abyssals receive 8/6/4 Attribute points for Primary/Secondary/Social. Remember all Attributes begin at 1 before distributing these.
-
-&CG`2`ALCHEMICAL [u(cobj,chargen)]=Alchemicals receive 8 Attribute Points for their Caste Attributes, minimum 2 each, 6 Attribute points in their Favored Attributes, and 4 Attribute points to be used freely.%r%tIn addition they receive 1 extra point for a Caste or Favored Attribute.%r%r%t[ansi(h,+castefavattr)] to set your Caste Favored Attributes%r%t[ansi(h,+favattr <attribute>)] to set your Favored Attribute(s).%r%t[ansi(h,+unfavattr <attribute>)] to unset your Favored Attribute(s).
-&CG`2`TERRESTRIAL [u(cobj,chargen)]=Terrestrial receive 8/6/4 Attribute Points.
-&CG`2`DRAGON-KING [u(cobj,chargen)]=Modern Dragon-Kings receive 7/5/4.%r%tAncient Dragon-Kings receive 8/6/5.
-&CG`2`GHOST [u(cobj,chargen)]=Ghosts receive 6/4/3 Attribute points. If converting from a living character, they retain existing ratings, and lose any Favored Attributes if they posessed them.
-&CG`2`GOD-BLOODED [u(cobj,chargen)]=God-Blooded receive 6/5/3 Attribute points. Half-Castes add 1 additional point wherever they wish.
-&CG`2`JADEBORN [u(cobj,chargen)]=Enlightened Jadeborn receive 16/13/10, mininum 3 in each Attribute, maximum 7.%r%tUnenlightened Jadeborn receive 8/4/3 Attribute Points.
-&CG`2`LUNAR [u(cobj,chargen)]=Lunars receive 8/6/4 Attribute points, and may add 1 additional point to any Caste or Favored Attribute.%r%tTattooed Lunars receive 3 Caste Attributes and 1 Favored Attribute. Casteless Receive only 2 Favored Attributes.%r%r%t[ansi(h,+castefavattr)] to set your Caste Favored Attributes%r%t[ansi(h,+favattr <attribute>)] to set your Favored Attribute(s).%r%t[ansi(h,+unfavattr <attribute>)] to unset your Favored Attribute(s).
-
-&CG`2`RAKSHA [u(cobj,chargen)]=Noble Raksha receive 16/13/10, mininum 3 in each Attribute, maximum 7.%r%tCommoner Raksha begin with 0 in each Attribute, receive 10/7/4, and may not raise them above 4.
-&CG`2`SIDEREAL [u(cobj,chargen)]=Sidereals receive 8/6/4 Attribute points.
-
-&CG`2`SPIRIT [u(cobj,chargen)]=Spirits usually receive (Essence x3) + (Cult x3) + (Virtues x2) Attribute points. Please consult with staff if designing a Spirit!
+&CG`2`MORTAL [u(cobj,chargen)]=Mortals receive 5/4/3 Attribute points for Primary/Secondary/Social.
+&CG`2`VAMPIRE [u(cobj,chargen)]=Vampires receive 5/4/3 Attribute points for Primary/Secondary/Social.
+&CG`2`WEREWOLF [u(cobj,chargen)]=Werewolves receive 5/4/3 Attribute points for Primary/Secondary/Social.
+&CG`2`HUNTER [u(cobj,chargen)]=Hunters receive 5/4/3 Attribute points for Primary/Secondary/Social.
+&CG`2`BEAST [u(cobj,chargen)]=Beasts receive 5/4/3 Attribute points for Primary/Secondary/Social.
+&CG`2`CHANGELING [u(cobj,chargen)]=Changelings receive 5/4/3 Attribute points for Primary/Secondary/Social.
+&CG`2`DEMON [u(cobj,chargen)]=Demons receive 5/4/3 Attribute points for Primary/Secondary/Social.
+&CG`2`MAGE [u(cobj,chargen)]=Mages receive 5/4/3 Attribute points for Primary/Secondary/Social.
 
 &CMD`+ATTR [u(cobj,chargen)]=$^\+attr(?\: +(.+?))?(?\:=(.+))?$:@attach u(cobj,data)/DO`SET`ATTRIBUTE=%#,%1,if(eq(%2,0),,%2);@attach %!/INC`MSG=You set [ansi(h,u(capnames,%q<find>))] to %2.
 @set [u(cobj,chargen)]/CMD`+ATTR=regexp
 
-&CMD`+CASTEFAVATTR [u(cobj,chargen)]=$+castefavattr:@check strlen(u(getstat,%#,D`INFO,Caste))=@attach %!/INC`MSG=You do not have a Caste set!;@check match(ALCHEMICAL|LUNAR,getclass(%#),|)=@attach %!/INC`MSG=Only Alchemical and Lunar Exalted may favor Attributes.;@check strlen(u(setr,newfavored,v(DAT`2`FAVORED`[edit(u(getstat,%#,D`INFO,Caste),%B,_)])))=@attach %!/INC`MSG=Your Caste does not have any listed Favored Attributes.;@attach %!/INC`MSG=You set your Favored Attributes to those of the [ansi(h,u(getstat,%#,D`INFO,Caste))] Caste.;th u(attrib_set,%#,D`FAVORED`ATTRIBUTES,setunion(get(%#/D`FAVORED`ATTRIBUTES),%q<newfavored>,|,|))
+&CG`3 [u(cobj,chargen)]=[u(SEPARATOR,Step 3: Skills)]%R[if(and(strlen(getclass(%#)),hasattr(%!/CG`3`[getclass(%#)])),[u(CG`3`[getclass(%#)])])]%R%RSetting any stat to 0 will remove it.
 
-&CMD`+FAVATTR [u(cobj,chargen)]=$^\+(un)?favattr(?\: +(.+))?$:@check strlen(%2)=@attach %!/INC`MSG=Which Attribute will you [if(strlen(%1),un-Favor,Favor)]?;@attach %!/INC`PARTIAL=%2,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,choice,Attribute;@select/inline t(strlen(%1))=1,{@check match(get(%#/D`FAVORED`ATTRIBUTES),%q<choice>,|)=@attach %!/INC`MSG=That Attribute is not Favored!};th u(attrib_set,%#,D`FAVORED`ATTRIBUTES,u(setr,new,set[if(strlen(%1),diff,union)](get(%#/D`FAVORED`ATTRIBUTES),u(capnames,%q<choice>),|,|)));@attach %!/INC`MSG=You now have [ansi(h,if(words(%q<new>,|),words(%q<new>,|),No))] Favored Attributes[if(words(%q<new>,|),:%B[ansi(h,u(itemize,%q<new>,|,and,\,))])]
-@set [u(cobj,chargen)]/CMD`+FAVATTR=regexp
+&CG`3`MORTAL [u(cobj,chargen)]=Mortals receive 11/7/4 Skill points for Primary/Secondary/Social.%R%R[u(CG`3`SKILL)]
+&CG`3`VAMPIRE [u(cobj,chargen)]=Vampires receive 11/7/4 Skill points for Primary/Secondary/Social.%R%R[u(CG`3`SKILL)]
+&CG`3`WEREWOLF [u(cobj,chargen)]=Werewolves receive 11/7/4 Skill points for Primary/Secondary/Social.%R%R[u(CG`3`SKILL)]
+&CG`3`HUNTER [u(cobj,chargen)]=Hunters receive 11/7/4 Skill points for Primary/Secondary/Social.%R%R[u(CG`3`SKILL)]%R%R[u(CG`3`ASSET)]
+&CG`3`BEAST [u(cobj,chargen)]=Beasts receive 11/7/4 Skill points for Primary/Secondary/Social.%R%R[u(CG`3`SKILL)]
+&CG`3`CHANGELING [u(cobj,chargen)]=Changelings receive 11/7/4 Skill points for Primary/Secondary/Social.%R%R[u(CG`3`SKILL)]
+&CG`3`DEMON [u(cobj,chargen)]=Demons receive 11/7/4 Skill points for Primary/Secondary/Social.%R%R[u(CG`3`SKILL)]
+&CG`3`MAGE [u(cobj,chargen)]=Mages receive 11/7/4 Skill points for Primary/Secondary/Social.%R%R[u(CG`3`SKILL)]
 
-&DAT`2`FAVORED`ADAMANT [u(cobj,chargen)]=STRENGTH|APPEARANCE|PERCEPTION
-&DAT`2`FAVORED`CHANGING_MOON [u(cobj,chargen)]=CHARISMA|MANIPULATION|APPEARANCE
-&DAT`2`FAVORED`FULL_MOON [u(cobj,chargen)]=STRENGTH|DEXTERITY|STAMINA
-&DAT`2`FAVORED`HALF_MOON [u(cobj,chargen)]=CHARISMA|PERCEPTION|INTELLIGENCE
-&DAT`2`FAVORED`JADE [u(cobj,chargen)]=STAMINA|CHARISMA|WITS
-&DAT`2`FAVORED`MOONSILVER [u(cobj,chargen)]=DEXTERITY|APPEARANCE|WITS
-&DAT`2`FAVORED`NO_MOON [u(cobj,chargen)]=PERCEPTION|INTELLIGENCE|WITS
-&DAT`2`FAVORED`ORICHALCUM [u(cobj,chargen)]=STRENGTH|CHARISMA|INTELLIGENCE
-&DAT`2`FAVORED`SOULSTEEL [u(cobj,chargen)]=STAMINA|MANIPULATION|PERCEPTION
-&DAT`2`FAVORED`STARMETAL [u(cobj,chargen)]=DEXTERITY|MANIPULATION|INTELLIGENCE
-&DAT`2`FAVORED`WANING_MOON [u(cobj,chargen)]=DEXTERITY|MANIPULATION|WITS
-&DAT`2`FAVORED`WAXING_MOON [u(cobj,chargen)]=CHARISMA|MANIPULATION|APPEARANCE
+&CG`3`SKILL [u(cobj,chargen)]=%t[ansi(h,+skill <skill>=<value>)] to set a Skill (<skill> may be a partial match, <value> must be a number 0 or higher.)%R%t[ansi(h,+spec <skill>/<specialization>=<points>)] to set a Specialty. (Set to 1\, no higher.)%R%TYour Skill choices are: [u(itemize,u(capnames,u(u(cobj,data)/FUN`GET`SKILLS)),|,and,\,)]
 
-&CG`3 [u(cobj,chargen)]=[u(SEPARATOR,Step 3: Abilities)]%R[if(and(strlen(getclass(%#)),hasattr(%!/CG`3`[getclass(%#)])),[u(CG`3`[getclass(%#)])])]%R%RSetting any stat to 0 will remove it.
+&CG`3`ASSET [u(cobj,chargen)]=%t[ansi(h,+asset <Ability>)] to set a Skill as an Asset Skill.%r%t[ansi(h,+unasset <skill>)] to unset an Asset Skill.
 
-&CG`3`MORTAL [u(cobj,chargen)]=Mortals receive 28 Ability points.%R%r[u(CG`3`ABILITY)]
-&CG`3`SOLAR [u(cobj,chargen)]=Solars receive 5 Caste Abilities and 5 Favored Abilities.%rSolars receive 28 ability points, minimum 10 among Caste and Favored Abilities, and receive 4 Specialty points.%R%R[u(CG`3`ABILITY)]%r%r[u(CG`3`FAVORED)]
+&CMD`+SKILL [u(cobj,chargen)]=$^\+skill(?\: +(.+?))?(?\:=(.+))?$:@attach u(cobj,data)/DO`SET`SKILL=%#,%1,if(eq(%2,0),,%2);@attach %!/INC`MSG=[if(%2,You set [ansi(h,u(capnames,%q<find>))] to %2,You remove [ansi(h,u(capnames,%q<find>))])].
+@set [u(cobj,chargen)]/CMD`+SKILL=regexp
 
-&CG`3`ABILITY [u(cobj,chargen)]=%t[ansi(h,+abil <ability>=<value>)] to set an Ability (<Ability> may be a partial match, <value> must be a number 0 or higher.)%R%t[ansi(h,+spec <ability or attribute>/<specialization>=<points>)] to set a Specialty. (Set to 1, no higher.)%R%TYour Ability choices are: [u(itemize,u(capnames,setdiff(u(u(cobj,data)/FUN`GET`ABILITIES),CRAFT,|,i,|)),|,and,\,)]
-
-&CG`3`FAVORED [u(cobj,chargen)]=%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored (also use this for Caste ones).%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored/Caste Ability.%R%TSetting "Craft" or "Martial Arts" Favored automatically favors all Crafts/Styles, respectively.
-
-&CG`3`SUPERNAL [u(cobj,chargen)]=%t[ansi(h,+supabil <Ability>)] to set an Ability as Supernal.%r%t[ansi(h,+unsupabil <ability>)] to unset a Supernal Ability.
-
-&CG`3`STYLE [u(cobj,chargen)]=%T[ansi(h,+style <style>=<value>)] to set points in a Martial Arts style.%R%TYour Style choices are: [u(itemize,u(capnames,u(u(cobj,data)/FUN`GET`STYLES)),|,and,\,)]
-
-&CG`3`CRAFT [u(cobj,chargen)]=%T[ansi(h,+craft <field>=<value>)] to set points in various Crafts, such as Weaponry or Carpentry.
-
-&CG`3`ABYSSAL [u(cobj,chargen)]=Abyssals note their 5 Caste Abilities, and choose 5 Favored Abilities.%r%tAbyssals receive 28 ability points, minimum 10 among caste and favored, and receive 4 Specialty points.%r%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-
-&CG`3`INFERNAL [u(cobj,chargen)]=Infernals receive their 5 Caste Abilities, and choose 5 Favored Abilities.%r%tInfernals receive 28 ability points, minimum 10 among caste and favored, and receive 4 Specialty points.%r%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-
-&CG`3`ALCHEMICAL [u(cobj,chargen)]=Alchemicals receive 25 ability points and 4 Specialty points. In our House Rules they may also favor 3 Abilities.%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-&CG`3`TERRESTRIAL [u(cobj,chargen)]=Terrestrial note their 5 Aspect Abilities, and choose 3 Favored Abilities.%r%tOutcastes receive 25 Ability Points, while Lookshy and Dynasts receive 35. All Terrestrial receive 4 Specialty points.%r%t[ansi(h,+heritage <Dynast/Lookshy/Outcaste>)] to set additional Ability info. A Dragon-Blood must have this many points in each heritage Ability.%r%r%t[ansi(h,+castefavored)] to set your Aspect Abilities.%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-&CG`3`DRAGON-KING [u(cobj,chargen)]=Dragon-Kings receive 3 Breed Abilities, and choose 5 Favored Abilities.%r%tModern Dragon-Kings receive 25 and Ancient Dragon-Kings receive 35 Ability Points, minimum 10 among Breed or Favored Abilities.%r%r%t[ansi(h,+castefavored)] to set your Breed Abilities.%r%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-&CG`3`GHOST [u(cobj,chargen)]=Ghosts receive 25 Ability points, and 1 Favored Ability. No Ability may exceed their Favored Ability.%r%tPlayer characters converting to Ghosts retain their old ratings, but not Caste/Favored/Auspicious Abilities, and must pick just 1.%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-&CG`3`GOD-BLOODED [u(cobj,chargen)]=God-Blooded receive 25 Ability points, and 1 Favored Ability. No Ability may exceed their Favored Ability.%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-&CG`3`JADEBORN [u(cobj,chargen)]=All Jadeborn receive Craft as Favored, and choose 5 other Favored Abilities.%r%tEnlightened Jadeborn receive 35 Ability points, minimum 10 among Favored.%r%tEnlightened Jadeborn may use Bonus XP to raise Abilities as high as 6 at Chargen.%r%tArtisans must have Awareness 1, Bureaucracy 2, Linguistics 2 (High Realm, Old Realm), Lore 2, Martial Arts or Melee 1, Occult 2, Performance or Presence 1, Socialize 2, and 2 points divided amongst Craft abilities.%r%r%tUnenlightened Jadeborn receive 22 Ability Points, minimum 14 among Favored and minimum 1 each.%r%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-&CG`3`LUNAR [u(cobj,chargen)]=Lunars receive 25 ability points, and receive 4 Specialty points.%r%tLunars always Favor Survival, and may choose one additional Favored Ability.%r%tSilver Pact Lunars must have Survival 2, and at least point in Archery, Melee, Martial Arts, or Thrown.%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-&CG`3`MAIN [u(cobj,chargen)]=Please return to the first room and set your race!
-&CG`3`RAKSHA [u(cobj,chargen)]=Noble Raksha choose 5 Caste Abilities from the 10 associated with their Ascendant and Shadowed Castes, and may select 3 Additional Favored Abilities.%r%tThey receive 1 point in all Caste Abilities, and 2 point in all Favored Abilities free. They also receive 25 Ability points and 3 Specialty points to be used as they see fit.%r%t(Cannot use Chargen Ability points or Bonus XP to raise Favored Abilities above 5, Caste abilities above 4, or other Abilities above 3.)%r%r%tIn addition to Caste Abilities, Commoner Raksha may select 1 Favored Ability or convert a Caste Ability into a Favored Ability.%r%tThey receive 1 free point in each Caste Ability and 2 free points in their Favored Ability, non-cumulative if upgrading a Caste Ability. They also receive 25 Ability points and 5 Specialty points to be used as they see fit.%r%t(Cannot use Chargen Ability points or Bonus XP to raise Favored Abilities above 5, Caste abilities above 4, or other Abilities above 3.)%r%r%t[ljust(Diplomat:,14)] Linguistics, Occult, Ride, Socialize, Thrown%r%t[ljust(Entertainer:,14)] Investigation, Larceny, Medicine, Performance, Stealth%r%t[ljust(Warrior:,14)] Archery, Martial Arts, Melee, Presence, War%r%t[ljust(Worker:,14)] Bureaucracy, Craft, Integrity, Lore, Resistance%r%t[ljust(Guide:,14)] Athletics, Awareness, Dodge, Sail, Survival%r%r%tRaksha must set all Caste and Favored Abilities manually.%r%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-&CG`3`SIDEREAL [u(cobj,chargen)]=Sidereals receive 5 Auspicious Abilities and 4 Favored Abilities.%r%tRonin Sidereals receive 25 Ability Points, minimum 10 among Auspicious and Favored Abilities, and 4 Specialty points.%r%tMembers of the Bureau of Destiny receive 35 Ability Points, minimum 15 among Auspicious and Favored Abilities, and 4 Specialty points..%r%r%tBureau of Destiny members require minimum ratings of the following by Caste due to training:%r%tALL must have Awareness 2, Bureaucracy 2, Linguistics 1 (Old Realm), Lore 3, Martial Arts 2, Occult 2, Socialize 1, Stealth 1, and at least 1 in Archery, Melee, or Thrown.%r%tChosen of Journeys must have Athletics 2, Linguistics 2 (Old Realm + an appropriate additional language), Resistance 2, Survival 2, and Ride or Sail 2%r%tChosen of Serenity must have Craft or Performance 2, Linguistics 2 (eloquence), Medicine 2, Presence 2, and Socialize 3%r%tChosen of Battles must have Archery or Melee 3, Athletics 2, Dodge 2, Presence 2, and War 2%r%tChosen of Secrets must have Awareness 2, Investigation 3, Larceny 2, Socialize 2, and Stealth 2%r%tChosen of Endings must have Awareness 2, Dodge 2, Integrity 2, Martial Arts 3, and Stealth 2%r%r%t[ansi(h,+castefavored)] to set your Auspicious Abilities.%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-&CG`3`SPIRIT [u(cobj,chargen)]=Please consult with staff if designing a Spirit!
-
-&CMD`+ABIL [u(cobj,chargen)]=$^\+abil(?\: +(.+?))?(?\:=(.+))?$:@attach u(cobj,data)/DO`SET`ABILITY=%#,%1,if(eq(%2,0),,%2);@attach %!/INC`MSG=[if(%2,You set [ansi(h,u(capnames,%q<find>))] to %2,You remove [ansi(h,u(capnames,%q<find>))])]. You have spent [ansi(h,u(ladd,iter(setunion(get(%#/D`CRAFTS),setunion(get(%#/D`ABILITIES),get(%#/D`STYLES),|,i,|),|,i,|),last(%i0,~),|)))] Ability dots!
-@set [u(cobj,chargen)]/CMD`+ABIL=regexp
-
-@@ &CMD`+STYLES [u(cobj,chargen)]=$^\+style(?\: +(.+?))?(?\:=(.+))?$:@attach u(cobj,data)/DO`SET`STYLES=%#,%1,if(eq(%2,0),,%2);@attach %!/INC`MSG=[if(%2,You set [ansi(h,u(capnames,%q<find>))] to %2,You remove [ansi(h,u(capnames,%q<find>))])]. You have spent [ansi(h,u(ladd,iter(setunion(get(%#/D`CRAFTS),setunion(get(%#/D`ABILITIES),get(%#/D`STYLES),|,i,|),|,i,|),last(%i0,~),|)))] Ability dots!
-@set [u(cobj,chargen)]/CMD`+STYLES=regexp
-
-@@ &CMD`+CRAFT [u(cobj,chargen)]=$^\+craft(?\: +(.+?))?(?\:=(.+))?$:@attach u(cobj,data)/DO`SET`CRAFTS=%#,%1,if(eq(%2,0),,%2);@attach %!/INC`MSG=[if(%2,You set [ansi(h,u(capnames,%q<find>))] to %2,You remove [ansi(h,u(capnames,%q<find>))])]. You have spent [ansi(h,u(ladd,iter(setunion(get(%#/D`CRAFTS),setunion(get(%#/D`ABILITIES),get(%#/D`STYLES),|,i,|),|,i,|),last(%i0,~),|)))] Ability dots!
-@set [u(cobj,chargen)]/CMD`+CRAFT=regexp
-
-&CMD`+FAVABIL [u(cobj,chargen)]=$^\+(un)?(fav|sup)abil(?\: +(.+))?$:th switch(%1,un,u(setq,mode,rem),u(setq,mode,add));th u(setq,mode2,switch(%2,fav,FAVORED,sup,SUPERNAL));@attach u(cobj,data)/DO`%q<mode>`%q<mode2>=%#,ABILITIES,%3;@attach %!/INC`MSG=You [switch(%q<mode>,add,now,no longer)] [switch(%q<mode2>,SUPERNAL,Supernal Ability,Ability)] Favor [u(itemize,iter(%q<value>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)]. Current [switch(%q<mode2>,SUPERNAL,Supernal Ability,Ability)] Favors: [words(get(%#/D`%q<mode2>`ABILITIES),|)]
-@set [u(cobj,chargen)]/CMD`+FAVABIL=regexp
-
-&CMD`+CASTEFAVORED [u(cobj,chargen)]=$+castefavored:@check strlen(u(getstat,%#,D`INFO,Caste))=@pemit %#=You do not have a Caste set!;@check strlen(u(setr,newfavored,unique(iter(v(DAT`3`FAVORED`[edit(u(getstat,%#,D`INFO,Caste),%B,_)]),u(capnames,%i0),|,|),i,|,|)))=@pemit %#=Your Caste does not have any listed Favored Abilities.;@pemit %#=You set your Favored Abilities to those of the [ansi(h,u(getstat,%#,D`INFO,Caste))] Caste.;th U(attrib_set,%#,D`FAVORED`ABILITIES,setunion(get(%#/D`FAVORED`ABILITIES),%q<newfavored>,|,|))
-
-&CMD`+HERITAGE [u(cobj,chargen)]=$^\+heritage(?\: +(.+))?$:@check strlen(%1)=@attach %!/INC`MSG=Are you a Dynast\, Lookshy\, or Outcaste Terrestrial?;@attach %!/INC`PARTIAL=%1,DYNAST|LOOKSHY|OUTCASTE,|,choice,Heritage;@select/inline %q<choice>=dynast,{@attach %!/INC`MSG=You set your base skills as a Dynast-raised Dragon-blood. You have 35 points in total to spend\, but you cannot lower these base skills below their current level\, and you must spend at least 13 points in Favored abilities. If you don't have at least 2 dots in each of these baseline skills\, you're likely considered embarassingly inept by your family.;@cpattr %!/DAT`HERITAGE`DYNAST=%#/D`ABILITIES},lookshy,{@attach %!/INC`MSG=You set your base skills as a Lookshy-raised Dragon-blood. You have 35 points in total to spend\, but you must spend at least 13 on favored skills and you cannot lower the current skills below their present level. What "+sheet" gives now is a minimally-competent Lookshy Dragonblood.;@cpattr me/DAT`HERITAGE`LOOKSHY=%#/D`ABILITIES},outcaste,{@attach %!/INC`MSG=You mark yourself as a Dragon-blood raised outside of the conventional structures of the Realm or Lookshy. While this gives you more freedom in how to spend your ability points\, it also gives you fewer points to spend. You have 25 ability points and must spend 13 of them on Favored abilities.;&d`abilities %#;th u(setstat,%#,D`INFO,Heritage,u(capnames,%q<choice>))},{@attach %!/INC`MSG=Your choices for Terrestrial heritage are Dynast, Lookshy, and Outcaste.};th u(setstat,%#,D`INFO,Heritage,u(capnames,%q<choice>))
-@set [u(cobj,chargen)]/CMD`+HERITAGE=regexp
+&CMD`+ASSET [u(cobj,chargen)]=$^\+(un)?asset(?\: +(.+))?$:th switch(%1,un,u(setq,mode,rem),u(setq,mode,add));th u(setq,mode2,switch(fav,fav,FAVORED,sup,SUPERNAL));@attach u(cobj,data)/DO`%q<mode>`%q<mode2>=%#,SKILLS,%3;@attach %!/INC`MSG=You [switch(%q<mode>,add,gained,removed)] an Asset Skill: [u(itemize,iter(%q<entry>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)].
+@set [u(cobj,chargen)]/CMD`+ASSET=regexp
 
 &CMD`+SPEC [u(cobj,chargen)]=$^\+spec(?\: +(.+?))?(?\:=(.+))?$:@attach u(cobj,data)/DO`SET`SPECIALTY=%#,%1,if(eq(%2,0),,%2);@select/inline t(%2)=1,{@attach %!/INC`MSG=You set [ansi(h,u(capnames,%q<find>/%q<spec>))] to [ansi(h,%2)]},0,{@attach %!/INC`MSG=You remove [ansi(h,u(capnames,%q<find>/%q<spec>))]}
 @set [u(cobj,chargen)]/CMD`+SPEC=regexp
 
-&DAT`3`FAVORED`DAWN [u(cobj,chargen)]=ARCHERY|AWARENESS|BRAWL|DODGE|MELEE|RESISTANCE|THROWN|WAR
-&DAT`3`FAVORED`ZENITH [u(cobj,chargen)]=ATHLETICS|INTEGRITY|PERFORMANCE|LORE|PRESENCE|RESISTANCE|SURVIVAL|WAR
-&DAT`3`FAVORED`TWILIGHT [u(cobj,chargen)]=BUREAUCRACY|CRAFT|INTEGRITY|INVESTIGATION|LINGUISTICS|LORE|MEDICINE|OCCULT
-&DAT`3`FAVORED`NIGHT [u(cobj,chargen)]=ATHLETICS|AWARENESS|DODGE|INVESTIGATION|LARCENY|RIDE|STEALTH|SOCIALIZE
-&DAT`3`FAVORED`ECLIPSE [u(cobj,chargen)]=BUREAUCRACY|LARCENY|LINGUISTICS|OCCULT|PRESENCE|RIDE|SAIL|SOCIALIZE
+&CG`4 [u(cobj,chargen)]=[u(SEPARATOR,Step 4: Merits)]%R[ansi(h,+help +merits)] to see how to set your Merits. Make sure to give them descriptions and contexts as appropriate![if(cand(strlen(getclass(%#)),hasattr(%!/CG`4`[getclass(%#)])),%R%R%T[u(CG`4`[getclass(%#)])])]
 
-&DAT`3`FAVORED`DUSK [u(cobj,chargen)]=ARCHERY|AWARENESS|BRAWL|DODGE|MELEE|RESISTANCE|THROWN|WAR
-&DAT`3`FAVORED`MIDNIGHT [u(cobj,chargen)]=ATHLETICS|INTEGRITY|PERFORMANCE|LORE|PRESENCE|RESISTANCE|SURVIVAL|WAR
-&DAT`3`FAVORED`DAYBREAK [u(cobj,chargen)]=BUREAUCRACY|CRAFT|INTEGRITY|INVESTIGATION|LINGUISTICS|LORE|MEDICINE|OCCULT
-&DAT`3`FAVORED`DAY [u(cobj,chargen)]=ATHLETICS|AWARENESS|DODGE|INVESTIGATION|LARCENY|RIDE|STEALTH|SOCIALIZE
-&DAT`3`FAVORED`MOONSHADOW [u(cobj,chargen)]=BUREAUCRACY|LARCENY|LINGUISTICS|OCCULT|PRESENCE|RIDE|SAIL|SOCIALIZE
+&CG`4`MORTAL [u(cobj,chargen)]=Mortals receive 10 Points to spend on Merits.%R%RIf you are a Ghoul, create a Ghoul Merit.
+&CG`4`VAMPIRE [u(cobj,chargen)]=Vampires receive 10 Points to spend on Merits.
+&CG`4`WEREWOLF [u(cobj,chargen)]=Werewolves receive 10 Points to spend on Merits.
+&CG`4`HUNTER [u(cobj,chargen)]=Hunters receive 10 Points to spend on Merits.
+&CG`4`BEAST [u(cobj,chargen)]=Beasts receive 10 Points to spend on Merits.
+&CG`4`CHANGELING [u(cobj,chargen)]=Changelings receive 10 Points to spend on Merits.
+&CG`4`DEMON [u(cobj,chargen)]=Demons receive 10 Points to spend on Merits.
+&CG`4`MAGE [u(cobj,chargen)]=Mages receive 10 Points to spend on Merits.
 
-&DAT`3`FAVORED`AIR [u(cobj,chargen)]=LINGUISTICS|LORE|OCCULT|STEALTH|THROWN
-&DAT`3`FAVORED`ANKLOK [u(cobj,chargen)]=RESISTANCE|SURVIVAL|WAR
-&DAT`3`FAVORED`BATTLES [u(cobj,chargen)]=ARCHERY|ATHLETICS|MELEE|PRESENCE|WAR
-&DAT`3`FAVORED`DEFILER [u(cobj,chargen)]=CRAFT|INVESTIGATION|LORE|MEDICINE|OCCULT
-&DAT`3`FAVORED`EARTH [u(cobj,chargen)]=CRAFT|INTEGRITY|RESISTANCE|WAR|AWARENESS
-&DAT`3`FAVORED`ENDINGS [u(cobj,chargen)]=AWARENESS|BUREAUCRACY|INTEGRITY|MARTIAL ARTS|MEDICINE
-&DAT`3`FAVORED`FIEND [u(cobj,chargen)]=BUREAUCRACY|LINGUISTICS|RIDE|SAIL|SOCIALIZE
-&DAT`3`FAVORED`FIRE [u(cobj,chargen)]=ATHLETICS|DODGE|MELEE|PRESENCE|SOCIALIZE
-&DAT`3`FAVORED`JADE [u(cobj,chargen)]=STAMINA|CHARISMA|WITS
-&DAT`3`FAVORED`JOURNEYS [u(cobj,chargen)]=RESISTANCE|RIDE|SAIL|SURVIVAL|THROWN
-&DAT`3`FAVORED`MALEFACTOR [u(cobj,chargen)]=INTEGRITY|PERFORMANCE|PRESENCE|RESISTANCE|SURVIVAL
-&DAT`3`FAVORED`MOSOK [u(cobj,chargen)]=BRAWL|LARCENY|SURVIVAL
-&DAT`3`FAVORED`PTEROK [u(cobj,chargen)]=ATHLETICS|LORE|OCCULT
-&DAT`3`FAVORED`RAPTOK [u(cobj,chargen)]=CRAFT|SOCIALIZE|LINGUISTICS
-&DAT`3`FAVORED`SCOURGE [u(cobj,chargen)]=ATHLETICS|AWARENESS|DODGE|LARCENY|STEALTH
-&DAT`3`FAVORED`SECRETS [u(cobj,chargen)]=INVESTIGATION|LARCENY|LORE|OCCULT|STEALTH
-&DAT`3`FAVORED`SERENITY [u(cobj,chargen)]=CRAFT|DODGE|LINGUISTICS|PERFORMANCE|SOCIALIZE
-&DAT`3`FAVORED`SLAYER [u(cobj,chargen)]=ARCHERY|MARTIAL ARTS|MELEE|THROWN|WAR
-&DAT`3`FAVORED`WATER [u(cobj,chargen)]=BUREAUCRACY|INVESTIGATION|LARCENY|MARTIAL ARTS|SAIL
-&DAT`3`FAVORED`WOOD [u(cobj,chargen)]=ARCHERY|MEDICINE|PERFORMANCE|RIDE|SURVIVAL
+&CG`5 [u(cobj,chargen)]=[u(SEPARATOR,Step 5: Advantages)][if(cand(strlen(getclass(%#)),hasattr(%!/CG`5`[getclass(%#)])),%R%R[u(CG`5`[getclass(%#)])])]
 
-&DAT`HERITAGE`DYNAST [u(cobj,chargen)]=ARCHERY~1|LORE~2|MARTIAL ARTS~1|MELEE~1|PERFORMANCE~1|PRESENCE~1|RIDE~1|SOCIALIZE~2|WAR~1
-&DAT`HERITAGE`LOOKSHY [u(cobj,chargen)]=ARCHERY~2|LINGUISTICS~3|LORE~2|MARTIAL ARTS~2|MELEE~2|PERFORMANCE~1|PRESENCE~1|RIDE~1|STEALTH~1|WAR~2
+&CG`5`MORTAL [u(cobj,chargen)]=[if(ghoul(%#),u(CG`5`VAMPIRE),Mortals have nothing more to do here! Move on.)]
+&CG`5`VAMPIRE [u(cobj,chargen)]=Vampires begin with 3 dots to distribute for disciplines. Two dots must be put into clan disciplines. The third is free to use as you wish.%R%R[ansi(h,+discipline <discipline>=<rank>)] to set your disciplines.%R%TChoices: [u(itemize,u(u(cobj,data)/FUn`GET`DISCIPLINES),|,and,\,)]
+&CG`5`WEREWOLF [u(cobj,chargen)]=Werewolves begin with 3 dots to distribute for Renown. Two dots must be put into Tribe or Auspice Renown. The third is free to use as you wish. Renown is important, as if you have two or more dots in your Auspice's Renown, you gain the second dot of that Auspice's Moon Gift for free.%R%R[ansi(h,+renown <renown>=<rank>)] to set your Renown.%R%TChoices: [u(itemize,u(u(cobj,data)/FUN`GET`RENOWN),|,and,\,)]%R%RWerewolves start with 1 Moon Gift dot, determined by Auspice. You also start with 2 Shadow Gifts, determined by your Tribe or Auspice. You get one free facet of each. Finally, you have 1 Wolf Gift to assign if your tribe renown is only a single dot.%R%R[ansi(h,+gift <gift>=<ranks>)] to set your Moon Gifts. Ranks can be 1, 2, 3, 4, 5, etc.%R[ansi(h,+delgift <gift>=<ranks>)] to remove Moon Gifts.%R[ansi(h,+sgift <gift>=<ranks>)] to add Wolf or Shadow Gifts. Ranks can be S, P, C, W, or H.%R[ansi(h,+delsgift <gift>=<ranks>)] to remove Shadow/Wolf Gifts.%R%RYou begin with 2 dots in Rites.%R[ansi(h,+rite <rite>=<rank>)] to set your Rites.
+&CG`5`BEAST [u(cobj,chargen)]=Beasts begin with 2 Atavisms (One must be tied to your Family), 2 Nightmares (If you have an established Kinship with another supernatural, you may begin with one bonus Kinship Nightmare in connection to that supernatural), and 2 Lair Traits (One of the two must be Minor and both must be associated with the look and feel of your Lair).%R%R[ansi(h,+atavism <atavism>)] to add an Atavism.%R[ansi(h,+delatavism <atavism>)] to remove an Atavism.%R[ansi(h,+nightmare <nightmare>)] to add a Nightmare.%R[ansi(h,+delnightmare <nightmare>)] to remove a Nightmare.%R[ansi(h,+lairtrait <trait>)] to add a Lair Trait.%R[ansi(h,+dellairtrait <trait>)] to remove a Lair Trait.
+&CG`5`CHANGELING [u(cobj,chargen)]=Changelings begin with 5 points in Contracts to allocate. 2 of the 5 points must be spent on Court and Seeming Contracts.%R%R[ansi(h,+contract <contract>=<rank>)] to set your Contracts.
+&CG`5`DEMON [u(cobj,chargen)]=A starting demon has four Embeds and/or Exploits. One Embed must be from his Incarnation's favored category.%R%R[ansi(h,+embed <embed>)] to add an Embed.%R[ansi(h,+delembed <embed>)] to remove an Embed.%R[ansi(h,+exploit <exploit>)] to add an Exploit.%R[ansi(h,+delexploit <exploit>)] to remove an Exploit.
 
-&DAT`3`FAVORED`QAESTOR [u(cobj,chargen)]=INTEGRITY|INVESTIGATION|SOCIALIZE|LARCENY|BUREAUCRACY
-&DAT`3`FAVORED`ECSTATIC [u(cobj,chargen)]=ATHLETICS|CRAFT|DODGE|PERFORMANCE|SOCIALIZE
-&DAT`3`FAVORED`MONOLITH [u(cobj,chargen)]=PRESENCE|SURVIVAL|INVESTIGATION|ATHLETICS|RESISTANCE
-&DAT`3`FAVORED`JUGGERNAUT [u(cobj,chargen)]=ATHLETICS|PRESENCE|RESISTANCE|INTEGRITY|MARTIAL ARTS
-&DAT`3`FAVORED`DELUGE [u(cobj,chargen)]=ATHLETICS|SURVIVAL|SAIL|INVESTIGATION|OCCULT
+&CG`5`MAGE [u(cobj,chargen)]=
 
-&CG`4 [u(cobj,chargen)]=[u(SEPARATOR,Step 4: Backgrounds and Etc)]%R[ansi(h,+help +merits)] to see how to set your Backgrounds, Mutations, and similar properties. Make sure to give them descriptions and contexts as appropriate![if(cand(strlen(getclass(%#)),hasattr(%!/CG`4`[getclass(%#)])),%R%R%T[u(CG`4`[getclass(%#)])])]
+&CMD`+POWER1 [u(cobj,chargen)]=$^\+(discipline|renown|rite|arcana|contract|endowment|manifestation|ceremony)(?\: +(.+?))?(?\:=(.+?))?$:@attach [u(cobj,data)]/DO`SET`%1=%#,%2,if(eq(%3,0),,%3);@attach %!/INC`MSG=%q<find> is now: %3
+@set [u(cobj,chargen)]/CMD`+POWER1=regexp
 
-&CG`4`MORTAL [u(cobj,chargen)]=Mortals receive 7 dots to spend on Backgrounds.
-&CG`4`SOLAR [u(cobj,chargen)]=Solars receive 7 dots to spend on Backgrounds.
-&CG`4`ABYSSAL [u(cobj,chargen)]=Abyssals receive 7 dots to spend on Backgrounds.
-&CG`4`INFERNAL [u(cobj,chargen)]=Infernals receive 7 dots to spend on Backgrounds. They also receive 1 dot free in Backing, Influence, and Cult of their Caste's Yozi.
-&CG`4`TERRESTIAL [u(cobj,chargen)]=Dynasts receive 12 dots to spend on Backgrounds while Lookshyans receive 13. Outcastes receive only 7.
-&CG`4`RAKSHA [u(cobj,chargen)]=Noble Raksha receive 10 dots to spend on Backgrounds. Commoner Raksha receive NONE.
-&CG`4`ALCHEMICAL [u(cobj,chargen)]=Alchemicals receive 10 dots to spend on Backgrounds. Adamant Castes receive Mentor 3 free, while others receive Class 3 free.
-&CG`4`SIDEREAL [u(cobj,chargen)]=Functionaries of the Bureau of Destiny receive 15 dots to spend on Backgrounds. Ronin have only 7.
+&CMD`+POWER2 [u(cobj,chargen)]=$^\+(del)?(atavism|gift|sgift|nightmare|lairtrait|echo|key|transmutation|bestowment|embed|exploit)(?\: +(.+?))?(?\:=(.+))?$:th u(setq,mode,switch(%1,add,ADD,del,REM,ADD));@select/inline t(match(GIFT SGIFT,%2))=1,{@attach u(cobj,data)/DO`%q<mode>`%2=%#,%3,%4},0,{@attach u(cobj,data)/DO`%q<mode>`%2=%#,,%3};th u(setq,have,ansi(h,u(capnames,%q<find>)) [u(capnames,%2s)]. [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of modifications: %q<returnformat>);@attach %!/INC`MSG=You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
+@set [u(cobj,chargen)]/CMD`+POWER2=regexp
 
-&MAX`BACKGROUNDS`MORTAL [u(cobj,chargen)]=6
-&MAX`BACKGROUNDS`SOLAR [u(cobj,chargen)]=7
-&MAX`BACKGROUNDS`ABYSSAL [u(cobj,chargen)]=7
-&MAX`BACKGROUNDS`INFERNAL [u(cobj,chargen)]=10
-&MAX`BACKGROUNDS`LUNAR [u(cobj,chargen)]=7
-&MAX`BACKGROUNDS`SIDEREAL [u(cobj,chargen)]=switch(u(getstat,%0,D`INFO,Faction,Ronin,7,15))
-
-&MAX`BACKGROUNDS`ALCHEMICAL [u(cobj,chargen)]=13
-&MAX`BACKGROUNDS`TERRESTIAL [u(cobj,chargen)]=switch(u(getstat,%0,D`INFO,Nation),Realm,12,Lookshy,13,Outcaste,7,7)
-&MAX`BACKGROUNDS`RAKSHA [u(cobj,chargen)]=10
-
-&CG`5 [u(cobj,chargen)]=[u(SEPARATOR,Step 5: Charms and Other Powers)]%RThis room's contents change based on previous choices. Pick a Sorcery Charm and Sorcery will appear as an option when you look, etc.[if(cand(strlen(getclass(%#)),hasattr(%!/CG`5`[getclass(%#)])),%R%R[u(CG`5`[getclass(%#)])])]
-
-&MAX`CHARMS`MORTAL [u(cobj,chargen)]=0
-&MAX`CHARMS`SOLAR [u(cobj,chargen)]=10
-&MAX`CHARMS`TERRESTIAL [u(cobj,chargen)]=switch(u(getstat,%#,D`INFO,nation),Realm,7,Lookshy,8,7)
-
-&CG`5`MORTAL [u(cobj,chargen)]=Mortals can only learn Terrestrial Circle Sorcery spells and Terrestrial Martial Arts. Take the Terrestrial Circle Sorcery Merit for the option to show up.[if(cor(words(u(wildgrepi,%#,D`MERITS`*,TERRESTRIAL CIRCLE SORCERY)),words(u(wildgrepi,%#,D`MERITS`*,SHAPING RITUAL))),%R%R[u(CG`5`SORCERY)])],%R%R[u(CG`5`MACHARMS)]
-&CG`5`SOLAR [u(cobj,chargen)]=Solars begin play with 10 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(cor(strmatch(Eclipse,u(getstat,%#,D`INFO,Caste)),u(getstat,%#,D`CHARMS`SOLAR`OCCULT,BLACK MIRROR REVELATION)),%R%R[u(CG`5`OTHERCHARMS)])]%R%R[u(CG`5`MACHARMS)][if(words(graball(get(%#/D`CHARMS`SOLAR`OCCULT),* CIRCLE *,|,|),|),%R%R[u(CG`5`SORCERY)])]
-
-&CG`5`LUNAR [u(cobj,chargen)]=Lunars begin play with 8 Charms/Spells\, at least 1 of which must be a Knack and 4 Minimum Charms from Favored/Caste Attributes.%R%R[u(CG`5`NATIVECHARMS)][if(u(getstat,%#,D`CHARMS`LUNAR`KNACKS,SHIFTING WYLD TIDES),%R%R[u(CG`5`OTHERCHARMS)])]%R%R[u(CG`5`MACHARMS)][if(words(graball(get(%#/D`CHARMS`LUNAR`INTELLIGENCE),* CIRCLE *,|,|),|),%R%R[u(CG`5`SORCERY)])]
-
-&CG`5`ABYSSAL [u(cobj,chargen)]=Abyssals begin play with 10 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(cor(strmatch(Moonshadow,u(getstat,%#,D`INFO,Caste)),u(getstat,%#,D`CHARMS`ABYSSAL`INTEGRITY,UNCONQUERED HERO'S FAITH)),%R%R[u(CG`5`OTHERCHARMS)])]%R%R[u(CG`5`MACHARMS)][if(words(graball(get(%#/D`CHARMS`ABYSSAL`OCCULT),* CIRCLE *,|,|),|),%R%R[u(CG`5`SORCERY)])]
-
-&CG`5`INFERNAL [u(cobj,chargen)]=Infernals begin play with 10 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(strmatch(Fiend,u(getstat,%#,D`INFO,Caste)),%R%R[u(CG`5`OTHERCHARMS)])]%R%R[u(CG`5`MACHARMS)][if(words(grepi(%#,D`CHARMS`INFERNAL`*,SORCEROUS INITIATION)),%R%R[u(CG`5`SORCERY)])]
-
-&CG`5`TERRESTRIAL [u(cobj,chargen)]=switch(u(setr,nation,u(getstat,%#,D`INFO,Nation)),Realm,Dynastic,Lookshy,Lookshyan,Outcaste) Dragon-Blooded start with [switch(%q<nation>,Realm,7 Charms/Spells\, minimum 4 from Aspect/Favored Abilities. Immaculates instead choose 5 Celestial martial arts charms from a Dragon Style.,Lookshy,Lookshyan Dragon-Blooded start with Wind-Carried Words\, Elemental Bolt Attack\, and 6 more charms/spells\, Minimum 4 in Favored/Aspect Abilities.,Outcaste Dragon-Blooded start with 7 Charms/Spells\, Minimum 4 in Favored/Aspect abilities.)]%R%R[u(CG`5`NATIVECHARMS)][if(words(graball(get(%#/D`CHARMS`TERRESTRIAL`INTELLIGENCE),* CIRCLE *,|,|),|))]
-
-&CG`5`RAKSHA [u(cobj,chargen)]=Raksha Nobles begin with 10 Charms, one free Assumption, and any Charms gained from Birth.%RRaksha Commoners begin with 8 Charms and any gained from Birth. Minimum 5 Charms must be associated with the Major Grace.%RMartial Arts requires the Sword Charm 'Root of the Perfected Lotus'%R%R[u(CG`5`NATIVECHARMS)]%R%R[ansi(h,+grace <grace>=<rank>)] to set your graces.[if(u(getstat,%#,D`CHARMS`RAKSHA`SWORD,ROOT OF THE PERFECTED LOTUS),%R%R[u(CG`5`MACHARMS)])]
-
-&CG`5`SIDEREAL [u(cobj,chargen)]=Employed Sidereals begin with 12 Charms\, minimum 5 from Auspicious or Favored Abilities\, maximum 3 Sidereal Martial Arts Charms. Ronin start with 8 and the same minimums\, no SMA.%R%R[u(CG`5`NATIVECHARMS)]%R%R[u(CG`5`MACHARMS)][if(words(graball(get(%#/D`CHARMS`SIDEREAL`OCCULT),* CIRCLE *,|,|),|),%R%R[u(CG`5`SORCERY)])]%R%R[ansi(h,+maidenfavcoll)] to set your Caste Colleges.%R[ansi(h,+college <college>=<value>)] to set Astrology.%rYour choices are: [u(itemize,u(u(cobj,data)/FUN`GET`COLLEGES),|,and,\,)]
-
-&CG`5`ALCHEMICAL [u(cobj,chargen)]=Alchemicals begin with 4 General and 4 Dedicated Charm Slots and 8 Charms filling every slot.%R%R[u(CG`5`NATIVECHARMS)]%R%R[ansi(h,+slot <type>=<#>)] - to set your slots.[if(words(grepi(%#,D`CHARMS`ALCHEMICAL`*,Weaving Engine)),%R%R[u(CG`5`PROTO)])]
-
-&CG`5`PROTO [u(cobj,chargen)]=ansi(h,+addproto <tier>=<protocol1>|<protocol2>|<protocol3>|etc) to add Weaving Protocols.%R[ansi(h,+delproto <tier>=<protocol1>|<protocol2>|<protocol3>|etc)] to delete Weaving Protocols.%R%R[ansi(h,+slots <type>=<number>)] to set Charm Slots.
-
-&CG`5`DRAGON-KING [u(cobj,chargen)]=ansi(h,+breedfavpath) to set your Breed Favored Paths%r[ansi(h,+path <path>=<value>)] to set how your Path points.%rYour choices are: [u(itemize,u(u(cobj,data)/FUN`GET`PATHS),|,and,\,)]%r%R[ansi(h,+favpath <path>)] to set a Favored Path%r[ansi(h,+unfavpath <path>)] to remove a Favored Path
-
-&CG`5`SPIRIT [u(cobj,chargen)]=Please consult with staff if designing a Spirit!
-
-&CG`5`NATIVECHARMS [u(cobj,chargen)]=[ansi(h,+addcharm <category>=<charm1|charm2|charm3|etc>) to add native Charms.]%R[ansi(h,+delcharm <category>=<charm1|charm2|charm3|etc>)] to delete native Charms.%RCategories for your character type's Native Charms: [u(itemize,u(u(cobj,data)/FUN`GET`CHARMTYPES`[u(u(cobj,data)/charmtype,%#)]),|,and,\,)]%RAdd/Remove the same charm multiple times or append it with number (example: Ox-Body Technique 3) to purchase them multiple times. Check +checknames <type> to ensure Overdrive, mote expanders, and similar are spelled right! Mis-spelled Charms will not be detected.
-
-&CG`5`OTHERCHARMS [u(cobj,chargen)]=[ansi(h,+addocharm <splat>/<category>=<charm1|charm2|charm3|etc>)] to add Other Splat Charms.%R[ansi(h,+delocharm <splat>/<category>=<charm1|charm2|charm3|etc>)] to delete Other Splat Charms.
-
-&CG`5`MACHARMS [u(cobj,chargen)]=[ansi(h,+addmacharm <tier>/<slot>=<charm1|charm2|charm3|etc>)] to add Martial Arts Charms.%R[ansi(h,+delmacharm <tier>/<slot>=<charm1|charm2|charm3|etc>)] to delete Martial Arts Charms.%R[ansi(h,+setma <tier>/<slot>=<name>)]%R<tier> is Terrestrial, Celestial, etc. <slot> is a number. 1, 2, etc. Each Slot holds a different style.
-
-&CG`5`EVOCATIONS [u(cobj,chargen)]=[ansi(h,+addevocation <artifact>=<charm1|charm2|charm3|etc>)] to add Evocation Charms.%R[ansi(h,+delevocation <artifact>=<charm1|charm2|charm3|etc>)] to delete Evocation Charms.
-
-&CG`5`SORCERY [u(cobj,chargen)]=[ansi(h,+addspell <circle>=<spell1|spell2|spell3|etc>)] to add Sorcery or Necromancy spells.%R[ansi(h,+delspell <circle>=<spell1|spell2|spell3|etc>] to delete Sorcery or Necromancy spells.
-
-&CMD`+CASTEFAVOREDBREEDMAIDEN [u(cobj,chargen)]=$^\+(breedfavpath|maidenfavcoll)$:@check strlen(u(getstat,%#,D`INFO,Caste))=@attach %!/INC`MSG=You do not have a Caste set!;@check strlen(u(setr,newfavored,v(DAT`4`FAVORED`[if(strmatch(%1,breedfavpath),PATHS,COLLEGES)]`[edit(u(getstat,%#,D`INFO,Caste),%B,_)])))=@attach %!/INC`MSG=Your Caste does not have any listed Favored [if(strmatch(%1,breedfavpath),Paths,Colleges)].;@attach %!/INC`MSG=You set your Favored [if(strmatch(%1,breedfavpath),Paths,Colleges)] to those of the [ansi(h,u(getstat,%#,D`INFO,Caste))] Caste.;@cpattr me/D`FAVORED`[if(strmatch(%1,breedfavpath),PATHS,COLLEGES)]=%#/D`FAVORED`[if(strmatch(%1,breedfavpath),PATHS,COLLEGES)]
-
-&CMD`+CHARM [u(cobj,chargen)]=$^\+(add|del)charm(?\: +(.+?))?(?\:=(.+?))?$:th u(setq,mode,switch(%1,add,ADD,del,REM));@attach u(cobj,data)/DO`%q<mode>`CHARM=%#,u(u(cobj,data)/charmtype,%#)/%2,%3;th u(setq,have,ansi(h,u(capnames,%q<find> %q<find2>)) Charms [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of change: %q<returnformat>);@attach %!/INC`MSG=You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
-@set [u(cobj,chargen)]/CMD`+CHARM=regexp
-
-&CMD`+OCHARM [u(cobj,chargen)]=$^\+(add|del)ocharm(?\: +(.+?))?(?\:=(.+?))?$:th u(setq,mode,switch(%1,add,ADD,del,REM));@attach u(cobj,data)/DO`%q<mode>`CHARM=%#,%2,%3;th u(setq,have,ansi(h,u(capnames,%q<find> %q<find2>)) Charms [u(itemize,iter(%q<entry>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)]);@attach %!/INC`MSG=You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
-@set [u(cobj,chargen)]/CMD`+OCHARM=regexp
-
-&CMD`+FAVPATHCOLLEGE [u(cobj,chargen)]=$^\+(un)?fav(path|college)(?\: +(.+))?$:@check strlen(%3)=@attach %!/INC`MSG=Which [u(capnames,%2)] will you [if(strlen(%2),un-Favor,Favor)]?;@attach [u(cobj,data)]/DO`[switch(%1,un,rem,add)]`FAVORED=%#,%2,%3;@attach %!/INC`MSG=You [switch(%1,un,no longer,now)] [u(capnames,%2)] Favor: %3
-@set [u(cobj,chargen)]/CMD`+FAVPATHCOLLEGE=regexp
-
-&CMD`+MAGIC [u(cobj,chargen)]=$^\+(add|del)(spell|proto)(?\: +(.+?))?(?\:=(.+))?$:th u(setq,mode,switch(%1,add,ADD,del,REM));@attach u(cobj,data)/DO`%q<mode>`[switch(%2,spell,SPELL,PROTO,PROTOCOL)]=%#,%3,%4;th u(setq,have,ansi(h,u(capnames,%q<find>)) [switch(%2,spell,Spells,Proto,Protocols)] [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of modifications: %q<returnformat>);@attach %!/INC`MSG=You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
-@set [u(cobj,chargen)]/CMD`+MAGIC=regexp
-
-&CMD`+SETMA [u(cobj,chargen)]=$^\+setma(?\: +(.+?))?(?\:/(.+?))?(?\:=(.+?))?$:@check strlen(%1)=@attach %!/INC`MSG=No tier entered.;@attach %!/INC`PARTIAL=%1,TERRESTRIAL|CELESTIAL|SIDEREAL,|,tier,tier;@attach %!/INC`VALID`POSINT=%2,Style Slot;@check hasattr(%#/D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<value>)=@attach %!/INC`MSG=You have no Style in that slot!;@check strlen(%3)=@attach %!/INC`MSG=No style name entered!;@attach %!/INC`MSG=Your [u(numth,%q<value>)] %q<tier> Martial Arts Style is now called: %3;&D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<value>`NAME %#=%3
-@set [u(cobj,chargen)]/CMD`+SETMA=regexp
-
-&CMD`+MACHARM [u(cobj,chargen)]=$^\+(add|del)macharm(?\: +(.+?))?(?\:/(.+?))(?\:=(.+))?$:th u(setq,mode,switch(%1,add,ADD,del,REM));@attach u(cobj,data)/DO`%q<mode>`MACHARM=%#,%2|%3,%4;th u(setq,have,gained [ansi(h,u(u(cobj,data)/FUN`GET`STYLENAME,%#,%q<tier>_MARTIAL_ARTS,%q<slot>))] Charms: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of addition: %q<returnformat>);@attach %!/INC`MSG=You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
-@set [u(cobj,chargen)]/CMD`+MACHARM=regexp
-
-@@ &CMD`+EVOCATION [u(cobj,chargen)]=$^\+(add|del)evocation(?\: +(.+?))?(?\:=(.+))?$:th u(setq,mode,switch(%1,add,ADD,del,REM));@attach u(cobj,data)/DO`%q<mode>`EVOCATION=%#,%2,%3;th u(setq,have,ansi(h,u(capnames,%q<style>)) Evocations [u(itemize,iter(%q<entry>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)]);@attach %!/INC`MSG=You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
-@set [u(cobj,chargen)]/CMD`+EVOCATION=regexp
-
-&CMD`+PATHCOLLEGE [u(cobj,chargen)]=$^\+(path|college|slot)(?\: +(.+?))?(?\:=(.+?))?$:@attach [u(cobj,data)]/DO`SET`%1=%#,%2,if(eq(%3,0),,%3);@attach %!/INC`MSG=%q<find> is now: %3
-@set [u(cobj,chargen)]/CMD`+PATHCOLLEGE=regexp
-
-&CMD`+MAIDENFAVCOLL [u(cobj,chargen)]=$+maidenfavcoll:@check hasattr(u(cg)/DAT`4`FAVORED`COLLEGES`[u(setr,caste,u(getstat,%#,D`INFO,Caste))])=@attach %!/INC`MSG=ERROR: Your Caste has no In-House Colleges!;@attach %!/INC`MSG=You set your In-House Colleges to those of the Chosen of %q<caste>.;@cpattr u(cg)/DAT`4`FAVORED`COLLEGES`%q<caste>=%#/D`COLLEGES`FAVORED
-
-&DAT`4`FAVORED`COLLEGES`BATTLES [u(cobj,chargen)]=The Banner|The Gauntlet|The Quiver|The Shield|The Spear
-&DAT`4`FAVORED`COLLEGES`ENDINGS [u(cobj,chargen)]=The Corpse|The Crow|The Haywain|The Rising Smoke|The Sword
-&DAT`4`FAVORED`COLLEGES`JOURNEYS [u(cobj,chargen)]=The Captain|The Gull|The Mast|The Messenger|The Ship's Wheel
-&DAT`4`FAVORED`COLLEGES`SECRETS [u(cobj,chargen)]=The Guardians|The Key|The Mask|The Sorcerer|The Treasure Trove
-&DAT`4`FAVORED`COLLEGES`SERENITY [u(cobj,chargen)]=The Ewer|The Lovers|The Musician|The Peacok|The Pillar
-
-&DAT`4`FAVORED`PATHS`ANKLOK [u(cobj,chargen)]=Blazing Fire|Flickering Fire
-&DAT`4`FAVORED`PATHS`MOSOK [u(cobj,chargen)]=Flowing Water|Shimmering Water
-&DAT`4`FAVORED`PATHS`PTEROK [u(cobj,chargen)]=Celestial Air|Clear Air
-&DAT`4`FAVORED`PATHS`RAPTOK [u(cobj,chargen)]=Yielding Earth|Growing Wood
 
 &CG`6 [u(cobj,chargen)]=[u(SEPARATOR,Step 6: Finishing Touches)]%R[u(CG`6`ESSENCE)]%R%R[u(CG`6`WILLPOWER)]%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`HEALTH)]%R%R[u(CG`6`VIRTUES)]%R%R[u(CG`6`LANGUAGES)]%R%R[u(CG`6`FINISH)]
 
@@ -308,15 +132,7 @@
 
 &CMD`+ESS [u(cobj,chargen)]=$+ess *:@attach u(cobj,data)/DO`SET`POWER=%#,,%0;@attach %!/INC`MSG=You set your permanent Essence to %0.
 
-&CMD`+HL [u(cobj,chargen)]=$+hl *:@wipe %#/D`HEALTH;@attach u(cobj,data)/DO`ADD`HEALTH=%#,,%0;@attach %!/INC`MSG=You set your health level progression to '[get(%#/D`HEALTH)]'.
-
-&CMD`+VIRTUES [u(cobj,chargen)]=$^\+(virtue|Grace)(?\: (.+?))?(?\:=(.+?))?$:@check strlen(%2)=@attach %!/INC`MSG=What [u(capnames,%1)] will you set?;@check strlen(%3)=@attach %!/INC`MSG=What will you set it to?;@attach [u(cobj,data)]/DO`SET`%1=%#,%2,if(eq(%3,0),,%3);@attach %!/INC`MSG=You set your %q<find> [u(capnames,%1)] to: %3
-@set [u(cobj,chargen)]/CMD`+VIRTUES=regexp
-
 &CMD`+WP [u(cobj,chargen)]=$+wp *:@attach u(cobj,data)/DO`SET`WILLPOWER=%#,,%0;@attach %!/INC`MSG=You set your Willpower to %0.
-
-&CMD`+LANG [u(cobj,chargen)]=$^\+(add|del)lang(?\: (.*))$:th setq(0,iter(%2,u(capnames,trim(%i0)),|,|));@select/inline %1=add,{@attach %!/INC`MSG=You add '%q0' to your list of known languages.;&D`LANGUAGES %#=ucstr(setunion(get(%#/D`LANGUAGES),squish(trim(%q0)),|,|))},del,{@switch/inline t(match(ucstr(get(%#/D`LANGUAGES)),ucstr(%q0),|))=1,{@attach %!/INC`MSG=You remove '%q0' from your list of known languages.;&D`LANGUAGES %#=setdiff(ucstr(get(%#/D`LANGUAGES)),ucstr(%q0),|,|)},{@attach %!/INC`MSG=You don't seem to know that language. "+sheet" to check which languages you're presently listed as understanding.}}
-@set [u(cobj,chargen)]/CMD`+LANG=regexp
 
 &CMD`+RESET [u(cobj,chargen)]=$^\+reset(?\: +(.*))?$:@check strlen(%1)=@attach %!/INC`MSG=What will you reset? Your options are: [u(itemize,ALL|SPLAT|ATTRIBUTES|ABILITIES|THAUMATURGY|PATHS|COLLEGES|CHARMS|SPELLS|BACKGROUNDS|MUTATIONS|VIRTUES|GRACES,|,and,\,)];@attach %!/INC`PARTIAL=%1,ALL|SPLAT|ATTRIBUTES|ABILITIES|THAUMATURGY|PATHS|COLLEGES|CHARMS|SPELLS|BACKGROUNDS|MUTATIONS|VIRTUES|GRACES,|,CHARGEN,choice,choice;@select/inline %q<choice>=ALL,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will remove ALL data entered on your character. You will have to start over entirely from scratch. This will even remove your +info files! Are you sure? enter +reset all again to verify!},RESET ALL,CHARGEN;@dolist/inline setdiff(u(lattr,%#/D`*),D`XP D`INFOFILE D`ACCOUNT D`IPLOG)=@wipe %#/%i0;@attach %!/INC`MSG=You have reset back to square one!;@stop 1},SPLAT,{@wipe %#/D`INFO},THAUMATURGY,{@wipe %#/D`ARTS;@wipe %#/D`SCIENCES},MUTATIONS,{@wipe %#/D`* MUTATIONS},{@wipe %#/D`%q<choice>};@attach %!/INC`MSG=You have reset your %q<choice>!
 @set [u(cobj,chargen)]/CMD`+RESET=regexp

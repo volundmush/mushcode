@@ -3,9 +3,9 @@
 th u(NEWCOBJ,Lock Management System <LMS>,lms,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 th u(NEWCOBJ,Key Object Parent <KOP>,kop,u(cobj,lms),,,WIZARD SAFE,INHERIT SIDEFX SAFE)
 
-&FUN`ISADMIN [u(cobj,kop)]=isadmin(%#)
+&FUN`ISADMIN [u(cobj,kop)]=u(isadmin,%#)
 &FUN`AUTHCHECK`MODERATE [u(cobj,kop)]=[cor(match(v(MODERATORS),u(objid,%#)),match(v(OWNERS),u(objid,%#)))]
-&FUN`AUTHCHECK`MEMBER [u(cobj,kop)]=[cor(match(v(MEMBERS),u(objid,%#)),u(FUN`AUTHCHECK`MODERATE),u(FUN`AUTHCHECK`OR,u(objid,%#)))]
+&FUN`AUTHCHECK`MEMBER [u(cobj,kop)]=[cor(match(v(MEMBERS),u(objid,%#)),u(FUN`AUTHCHECK`MODERATE),u(FUN`AUTHCHECK,u(objid,%#)))]
 
 @@ Member Lock
 @lock/basic [u(cobj,kop)]=FUN`AUTHCHECK`MEMBER/1
@@ -17,13 +17,13 @@ th u(NEWCOBJ,Key Object Parent <KOP>,kop,u(cobj,lms),,,WIZARD SAFE,INHERIT SIDEF
 @lset [u(cobj,kop)]/enter=visual
 @lset [u(cobj,kop)]/enter=!no_inherit
 
-
+&FUN`AUTHCHECK [u(cobj,kop)]=if(v(CONF`APPROVED),if(u(isapproved,%0),u(FUN`AUTHCHECK`OR,%0)),u(FUN`AUTHCHECK`OR,%0))
 &FUN`AUTHCHECK`OR [u(cobj,kop)]=u(lmax,iter(u(lattrp,%!/FUN`AUTHCHECK`OR`*),u(%i0,%0)))
 &FUN`AUTHCHECK`OR`BUILDER [u(cobj,kop)]=if(default(CONF`BUILDER,0),haspower(%0,BUILDER),0)
-&FUN`AUTHCHECK`OR`NOAPPROVED [u(cobj,kop)]=if(v(CONF`NOAPPROVED),isapproved(%0))
+&FUN`AUTHCHECK`OR`NOAPPROVED [u(cobj,kop)]=if(v(CONF`NOAPPROVED),u(isapproved,%0))
 &FUN`AUTHCHECK`OR`CLASS [u(cobj,kop)]=if(strlen(v(CONF`CLASS)),match(v(CONF`CLASS),getclass(%0)),0)
-&FUN`AUTHCHECK`OR`ADMIN [u(cobj,kop)]=if(v(CONF`NOSTAFFCHECK),,isadmin(%0))
-&FUN`AUTHCHECK`OR`NOFACTION u(kop)=if(v(CONF`NOFACTION),not(words(u(getproperty,%0,factionsdb))))
+&FUN`AUTHCHECK`OR`ADMIN [u(cobj,kop)]=if(v(CONF`NOSTAFFCHECK),,u(isadmin,%0))
+&FUN`AUTHCHECK`OR`NOFACTION [u(cobj,kop)]=if(v(CONF`NOFACTION),not(words(u(getproperty,%0,factionsdb))))
 
 &CMD`+KEY`PENNMUSH [u(cobj,lms)]=$^(?s)(?\:\+)?(key)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+KEY`MAIN
 @set [u(cobj,lms)]/CMD`+KEY`PENNMUSH=regexp
