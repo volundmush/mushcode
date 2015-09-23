@@ -251,6 +251,7 @@ th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request categ
 
 &INC`CHECKTIME [u(cobj,jms)]=@check strlen(%0)=@attach %!/INC`MSG=You didn't enter a date!;@check gt(u(setr,time,convtime(%0,u(gettz,%#))),0)=@attach %!/INC`MSG=The entered date was not recognized. Did you typo? Dates should be in abbreviated 24-hour <month> <day> <hour>:<minute> format using YOUR timezone\, such as Jun 26 7:00 or Oct 31 13:00.;@select/inline t(%1)=0,{@check gt(%q<time>,secs())=@attach %!/INC`MSG=That would be in the past!}
 
+&OBJECT`RENAME [u(cobj,jms)]=@dolist/inline u(lattr,%!/OBJECT`RENAME`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 &OBJECT`RENAME`CHARID [u(cobj,jms)]=@select/inline type(%0)=PLAYER,{@check u(setr,pid,u(mysql,get`playerid,%0));th u(mysql,rename`player,%1,%0)}
 
 &Q`RENAME`PLAYER [u(cobj,jms)]=UPDATE $PLAYERS$ SET player_name=? WHERE objid=?

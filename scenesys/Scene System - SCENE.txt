@@ -58,7 +58,7 @@ th u(NEWCONF,pconf,ALERTS,SCENES,0,Show upcoming scenes on logon?,BOOL)
 
 &STARTUP`OVERRIDE [u(cobj,scene)]=@select/inline v(game)=PennMUSH,{@dolist/inline @emit pose say semipose=@hook/override/inline %i0=%!,override`ic},RhostMUSH,{@dolist/inline @emit pose say semipose P S=@hook/ignore %d0}
 
-&LOOP`IDLECHECK [u(cobj,scene)]=@dolist u(MYSQL,SCENE`IDLECHECK)={@attach %!/INC`MSGSCENE=##,{Scene ## - '[u(mysql,get`scenetitle,##)]' has been automatically marked Unfinished for idleness. Use [u(pueblize,+scene/continue ##)] to resume it.};@attach %!/INC`DOSQL=SET`SCENESTATE,2,##};@wait u(game_config,scenesys,idle)=@trigger %!/LOOP`IDLECHECK
+&LOOP`IDLECHECK [u(cobj,scene)]=@dolist u(MYSQL,SCENE`GETACTIVE)={@wait #@={@check lte(u(mysql,get`idlecheck,##),sub(secs(),mul(60,60,3)));@attach %!/INC`MSGSCENE=##,{Scene ## - '[u(mysql,get`scenetitle,##)]' has been automatically marked Unfinished for idleness. Use [u(pueblize,+scene/continue ##)] to resume it.};@attach %!/INC`DOSQL=SET`SCENESTATE,2,##}};@wait u(game_config,scenesys,idle)=@trigger %!/LOOP`IDLECHECK
 
 &LOOP`CLEANPOT [u(cobj,scene)]=@dolist u(choosegame,lsearch(all,eval,\[nattr(##/D`POSES`*)\]),search(EVAL=\[u(nattr,##/D`POSES`*)\]))={@wait #@=@trigger %!/LOOP`CLEANPOT`DOCLEAN=##};@wait u(game_config,pot,interval)=@trigger %!/LOOP`CLEANPOT
 
@@ -66,7 +66,9 @@ th u(NEWCONF,pconf,ALERTS,SCENES,0,Show upcoming scenes on logon?,BOOL)
 
 &FIL`TIMEDOUT [u(cobj,scene)]=gte(sub(secs(),get(%2/%0`WHEN)),%1)
 
-&Q`SCENE`IDLECHECK [u(cobj,scene)]=SELECT DISTINCT scene.scene_id from $SCENES$ as scene LEFT JOIN $POSES$ as poses ON scene.scene_id=poses.scene_id where scene.scene_state='0' and not poses.pose_time > UTC_TIMESTAMP() - INTERVAL 3 HOUR
+&Q`SCENE`GETACTIVE [u(cobj,scene)]=SELECT scene_id from $SCENES$ where scene_state='0'
+
+&Q`GET`IDLECHECK [u(cobj,scene)]=SELECT max(pose_time) from $POSES$ WHERE scene_id=? AND pose_ignore=0
 
 &OVERRIDE`IC [u(cobj,scene)]=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@check strlen(%2)=@pemit %#=Huh? (Type "help" for help.);th u(setq,cansql,not(strmatch(sql(SELECT DATABASE()),#-*)));@select/inline %q<cansql>=1,{@attach %!/INC`USERCHECK=u(objid,owner(%#))};th u(setq,locid,u(objid,%l));th u(setq,custloc,uldefault(%l/D`CUSTLOC,%l,%#));@select/inline %q<cansql>=1,{th u(setq,sceneactive,u(mysql,get`activehere,%q<locid>,%q<custloc>))};th u(setq,custrecp,uldefault(%l/D`CUSTRECP,lcon(%l),%#));@select/inline %q<cansql>=1,{th u(setq,logged,u(FUN`ISLOGGED,u(objid,owner(%#)),%q<pid>,%2,get(%#/D`SCENE`ACTIVE),%q<sceneactive>))},0,{th u(setq,logged,0)};;th u(setq,basic,u(basicspeak,if(%q<logged>,u(firstof,get(%#/D`SCENE`SPOOF),owner(%#)),%#),switch(%1,pose,:,semipose,;,say,",@emit,|)%2));@attach/nobreak %!/INC`HEADER=%q<logged>,%q<sceneactive>;@attach/nobreak %!/INC`POTRECORD=%1,%2;@select/inline v(game)=PennMUSH,{@message %q<custrecp>=%q<basic>,%!/FUN`FORMATPOSE,##,if(%q<logged>,u(firstof,get(%#/D`SCENE`SPOOF),owner(%#)),%#),switch(%1,pose,:,semipose,;,say,",@emit,|),%2,%q<custrecp>},RhostMUSH,{@pemit/list %q<custrecp>=udefault(%!/FUN`FORMATPOSE,%q<basic>,##,if(%q<logged>,u(firstof,get(%#/D`SCENE`SPOOF),owner(%#)),%#),switch(%1,pose,:,semipose,;,say,",@emit,|),%2,%q<custrecp>)};@attach %!/INC`FOOTER=%q<logged>,%q<sceneactive>;@select/inline %q<cansql>=1,{@attach %!/INC`POSEERROR=%q<logged>;@attach/nobreak %!/INC`RECPOSE=u(objid,owner(%#)),%q<logged>,u(trimlines,u(trimtabs,%q<basic>))};@dolist/inline/nobreak u(lattr,%!/OVERRIDE`EXTRA`*)={@attach %!/%i0}
 @set u(cobj,scene)/OVERRIDE`IC=regexp
