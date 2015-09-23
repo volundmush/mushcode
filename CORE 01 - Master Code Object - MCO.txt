@@ -560,10 +560,10 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &INC`VALID`LOCK [u(cobj,mco)]=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th u(setq,value,%0)
 
 @@ MESSAGING SECTION
-&INC`MSG [u(cobj,mco)]=@select/inline v(game)=PennMUSH,{@message u(strfirstof,%1,%#)=%0,%!/MSG,##,%0,%1,u(SYSTEM`NAME),%2,%3,%4,%5,%6,%7,%8,%9},RhostMUSH,{@pemit/list u(strfirstof,%1,%#)=udefault(%!/MSG,%0,##,%0,%1,u(SYSTEM`NAME),%2,%3,%4,%5,%6,%7,%8,%9)}
+&INC`MSG [u(cobj,mco)]=@select/inline v(game)=PennMUSH,{@message u(strfirstof,%1,%#)=%0,%!/MSG,##,%0,%1,u(SYSTEM`NAME)},RhostMUSH,{@pemit/list u(strfirstof,%1,%#)=udefault(%!/MSG,%0,##,%0,%1,u(SYSTEM`NAME))}
 @@ %0 - Message. %1 - Recipients. %2 - Format obj/attr.
 
-&INC`MSG`ROOM [u(cobj,mco)]=@select/inline v(game)=PennMUSH,{@message u(strfirstof,%1,lcon(%l))=%0,%!/RMSG,##,%0,%1,u(SYSTEM`NAME),%2,%#,%3,%4,%5,%6,%7,%8,%9},RhostMUSH,{@pemit/list u(strfirstof,%1,lcon(%l))=udefault(%!/RMSG,%0,##,%0,%1,u(SYSTEM`NAME),%2,%#,%3,%4,%5,%6,%7,%8,%9)}
+&INC`MSG`ROOM [u(cobj,mco)]=@select/inline v(game)=PennMUSH,{@message u(strfirstof,%1,lcon(%l))=%0,%!/RMSG,##,%0,%1,u(SYSTEM`NAME),u(strfirstof,%4,%#)},RhostMUSH,{@pemit/list u(strfirstof,%1,lcon(%l))=udefault(%!/RMSG,%0,##,%0,%1,u(SYSTEM`NAME),u(strfirstof,%4,%#))}
 
 &INC`MSG`NOTICE [u(cobj,mco)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(config,ADMIN`ANONYMOUSNOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
