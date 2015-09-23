@@ -57,7 +57,7 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &INC`FINDDIST [u(cobj,grid)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No District entered to check.;@check words(u(setr,dist,namegraball(u(FUN`LISTDISTRICTS),%0)))=@attach %!/INC`MSG=ERROR: District '%0' not found.;@stop gt(words(%q<dist>),1)=@attach %!/INC`MSG=ERROR: '%0' matched [u(itemize,iter(%q<dist>,pueblize(name(%i0),+district %i0),%b,|),|,and,\,)]. Please be more specific!;th u(setq,distname,name(%q<dist>))
 
-&INC`DISTRICT`LOCK [u(cobj,grid)]=@check isdbref(u(cobj,lock))=@attach %!/INC`MSG=ERROR: Lock Management System <LMS> not installed. Use @lock instead.;@attach %!/INC`FINDDIST=before(%0,/);@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach u(kls)/INC`DOLOCK=%q<dist>,after(%0,/),%1,v(VAR`MSGHEAD),1
+&INC`DISTRICT`LOCK [u(cobj,grid)]=@check isdbref(u(cobj,lms))=@attach %!/INC`MSG=ERROR: Lock Management System <LMS> not installed. Use @lock instead.;@attach %!/INC`FINDDIST=before(%0,/);@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach u(cobj,lms)/INC`DOLOCK=%q<dist>,after(%0,/),%1,1
 &INC`DISTRICT`UNLOCK [u(cobj,grid)]=@attach %!/INC`MSG=To Unlock, use the @unlock command directly.
 
 &INC`DISTCHECK [u(cobj,grid)]=@check strlen(u(setr,dist,get(%#/D`DISTRICT)))=@attach %!/INC`MSG=Please choose a District using +district <name>.;@check match(u(FUN`LISTDISTRICTS),%q<dist>)=@attach %!/INC`MSG=ERROR: District no longer valid. Please choose a District using +district <name>.;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;th u(setq,distname,name(%q<dist>))

@@ -1,0 +1,35 @@
+@@ DEPENDENCIES: Core
+th u(newcobj,Ambience Management System <AMBIENCE>,ambience,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+AMBIENCE`PENNMUSH [u(cobj,ambience)]=$^(?\:\+)?ambience(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+AMBIENCE`MAIN
+@set [u(cobj,ambience)]/CMD`+ACCOUNT`PENNMUSH=regexp
+&CMD`+AMBIENCE`RHOSTMUSH [u(cobj,ambience)]=$^(?\:\+)?ambience(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+AMBIENCE`MAIN
+@set [u(cobj,ambience)]/CMD`+ACCOUNT`RHOSTMUSH=regexp
+&CMD`+AMBIENCE`MAIN [u(cobj,ams)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,ambience)]/CMD`+AMBIENCE`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&SWITCHES`PLAYER [u(cobj,ambience)]=
+&SWITCHES`ADMIN [u(cobj,ambience)]=ENABLE|DISABLE
+
+&INC`MAIN [u(cobj,ambience)]=@check controls(%#,%l)=@attach %!/INC`MSG=ERROR: Permission denied. You do not control this location.;@check nattr(%l/Ambience*)=@attach %!/INC`MSG=ERROR: This location has no Ambience messages.;@pemit %#=u(header,u(moniker,%l) Ambience);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(14 50,Name,Contents));@pemit %#=u(separator);@dolist/inline lattr(%l/Ambience*)={@pemit %#=align(14 50,%i0,get(%l/%i0))};@pemit %#=u(subheader)
+
+&INC`ENABLE [u(cobj,ambience)]=@check controls(%#,%l)=@attach %!/INC`MSG=ERROR: Permission denied. You do not control this location.;&ROOM_LIST %!=u(filter,isdbref,setunion(v(ROOM_LIST),%l));@attach %!/INC`MSG=This room has been added to the Ambience list.
+
+&INC`DISABLE [u(cobj,ambience)]=@check controls(%#,%l)=@attach %!/INC`MSG=ERROR: Permission denied. You do not control this location.;@check match(v(ROOM_LIST),%l)=@attach %!/INC`MSG=ERROR: This room is not on the Ambience list.;&ROOM_LIST %!=u(filter,isdbref,setdiff(v(ROOM_LIST),%l));@attach %!/INC`MSG=This room has been remvoed from the Ambience List.
+
+th u(newconf,CONFIG,AMBIENCE,Enable,1,Use Ambience system?,BOOL)
+th u(newconf,CONFIG,AMBIENCE,BaseInterval,300,Base alert interval?,POSINT)
+th u(newconf,CONFIG,AMBIENCE,RandInterval,601,Random extra interval time?,POSINT)
+th u(newconf,PCONF,ALERTS,Ambience,1,Receive Ambience messages?,BOOL)
+
+&EMITTER [u(cobj,ambience)]=@dolist u(filter,isdbref,v(ROOM_LIST))={th u(setq,attr,randword(u(lattr,%i0/Ambience*)));@pemit/list u(filter,AMBIENCE,u(lplayers,%i0))=get_eval(%i0/%q<attr>)}
+
+&FIL`AMBIENCE [u(cobj,ambience)]=u(player_config,%0,ALERTS,Ambience)
+
+&LOOP`AMBIENCE [u(cobj,ambience)]=@wait add(u(game_config,AMBIENCE,baseinterval),rand(u(game_config,AMBIENCE,randinterval)))={@trigger %!/emitter;@trigger %!/LOOP`AMBIENCE}
+
+&STARTUP [u(cobj,ambience)]=@trigger %!/LOOP`AMBIENCE
+
++help/add +ambience=[u(cobj,ambience)]/HLP`AMBIENCE
++help/category +ambience=Navigation
+&HLP`AMBIENCE [u(cobj,ambience)]=The Ambience System is atmospheric code that periodically emits messages to players in certain locations.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+ambience)] - Lists all Ambience messages in the local room if you control it.%R[ansi(h,+ambience/enable)] - Make your current location an Ambience location.%R[ansi(h,+ambience/disable)] - Remove your current location from the Ambience system.%R%RThe Ambience system checks for Ambience* named attributes on the location and picks one randomly. They can be set like this:%R%R&Ambience1 here=The sound of running water teases your ears.%RAmbiences can take advantage of basic evaluation such as substitions.)]

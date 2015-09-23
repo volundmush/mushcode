@@ -50,6 +50,10 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 
 &INC`DISPLAY [u(cobj,merit)]=@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@pemit %#=get(%q<target>/%q<attr>`DESC);@pemit %#=u(SEPARATOR);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(20 20,Setby,Seton));@pemit %#=u(separator);@pemit %#=align(20 20,get(%q<target>/%q<attr>`BY),u(fancytime,get(%q<target>/%q<attr>`ON),%#));@pemit %#=u(SUBHEADER)
 
+&STARTUP [u(cobj,merit)]=@select/inline v(game)=PennMUSH,{@function getmerit=%!,getmerit;@function/restrict getmerit=localize},RhostMUSH,{@function/privileged getmerit=%!,getmerit}
+
+&GETMERIT [u(cobj,merit)]=u(lmax,iter(u(wildgrepi,%0,D`%1`*,%2),get(%0/%i0`RANK)))
+
 @@ CHARACTER - +INFO
 +help/add +merits=[u(cobj,merit)]/HLP`+MERITS
 +help/category +merits=Character
