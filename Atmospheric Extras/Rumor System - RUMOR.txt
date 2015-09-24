@@ -1,0 +1,99 @@
+@@ DEPENDENCIES - CORE
+
+th u(NEWCOBJ,Rumor Management System <RUMOR>,rumor,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Rumor Database <RUMORDB>,rumordb,u(cobj,rumor),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
+
+@lock/basic u(cobj,rumordb)=#TRUE
+@lset u(cobj,rumordb)/basic=!no_inherit
+@lock/enter u(cobj,rumordb)=#TRUE
+@lset u(cobj,rumordb)/enter=!no_inherit
+
+&CMD`+RUMOR`PENNMUSH [u(cobj,rumor)]=$^(?s)(?\:\+)?(?\:rumor|rumour)(?\:/(\S+))?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+RUMOR`MAIN
+@set [u(cobj,rumor)]/CMD`+RUMOR`PENNMUSH=regexp
+&CMD`+RUMOR`RHOSTMUSH [u(cobj,rumor)]=$^(?s)(?\:\+)?(?\:rumor|rumour)(?\:/(\\S+))?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+RUMOR`MAIN
+@set [u(cobj,rumor)]/CMD`+RUMOR`RHOSTMUSH=regexp
+&CMD`+RUMOR`MAIN [u(cobj,rumor)]=th u(setq,sysname,%1);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%2),trim(%3),trim(%4)
+@set [u(cobj,rumor)]/CMD`+RUMOR`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&SWITCHES`ADMIN [u(cobj,rumor)]=MAKECIRCLE|DELCIRCLE|RENCIRCLE|LOCKCIRCLE|UNLOCKCIRCLE|DESCCIRCLE|REMRUMOR
+&SWITCHES`PLAYER [u(cobj,rumor)]=NEW|QUASH|PROMOTE|CIRCLES
+&SYSTEM`NAME [u(cobj,rumor)]=RUMOR
+
+&INC`CIRCLENAMECHECK [u(cobj,rumor)]=@check strlen(%0)=@attach %!/INC`MSG=You must enter the new category name!;@check cand(valid(name,%0),lte(strlen(%0),14))=@attach %!/INC`MSG='%0' is not a valid category name. Categories must be valid object names and be 14 characters or less.;@stop u(find_in,u(cobj,rumordb),%0,TXxi)=@attach %!/INC`MSG=ERROR: Circle already exists.
+
+&INC`MAKECIRCLE [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`CIRCLENAMECHECK=%0;@attach %!/INC`CATEXIST=%0;@tel u(setr,cat,create(%0))=u(cobj,rumordb);@set %q<cat>=WIZARD SAFE;@parent %q<cat>=u(cobj,rumordb);@attach %!/INC`MSG=Circle '%0' created! Make sure to use +rumor/lockcircle to restrict it!;@attach %!/INC`MSG`CHAN=Circle '%0' created!
+
+&INC`DELCIRCLE [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`FINDCIRCLE=%0;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will delete Rumor Circle '%q<catname>'. All Rumors in that category will be deleted. Are you sure you want to do this? Enter the same command again within ten seconds to verify!},DELETE %q<cat>;@attach %!/INC`MSG=Circle '%0' Deleted!;@attach %!/INC`MSG`CHAN={Deleted Rumor Circle '%q<catname>'!};@set %q<cat>=!SAFE;@nuke %q<cat>;@nuke %q<cat>;@dolist/inline iter(u(wildgrepi,u(cobj,rumordb),*`CIRCLE,%q<cat>),first(%i0,`))={@trigger u(rumor)/TRG`DELRUMOR=%i0}
+
+&INC`DESCCIRCLE [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`FINDCIRCLE=%0;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No description entered!;@attach %!/INC`MSG=Desc set.;@describe %q<cat>=%2
+
+&INC`CIRCLES [u(cobj,rumor)]=@pemit %#=u(HEADER,Rumor Circles);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(10 9 57,Name,Access,Description));@pemit %#=u(SEPARATOR);@dolist/inline u(FUN`VALIDCIRCLES,%#,Post)={@pemit %#=align(10 9 57,u(moniker,%i0),u(strfirstof,if(u(FUN`PERMCHECK,%i0,ADMIN,%#),ADMIN),if(u(FUN`PERMCHECK,%i0,POST,%#),POST),if(u(FUN`PERMCHECK,%i0,READ,%#),READ)),get(%i0/DESCRIBE))};@pemit %#=u(SUBHEADER)
+
+&INC`FINDCIRCLE [u(cobj,rumor)]=@check strlen(%0)=@attach %!/INC`MSG=No Category Name entered!;@check words(u(setr,cats,if(strlen(%1),u(FUN`VALIDCIRCLES,%#,%1),u(FUN`LISTCIRCLES))))=@attach %!/INC`MSG=There are no Categories.;@check isdbref(u(setr,cat,objid(namegrab(%q<cats>,%0))))=@attach %!/INC`MSG=Category '%0' not found.;th u(setq,catname,name(%q<cat>))
+
+&FUN`PERMCHECK [u(cobj,rumor)]=switch(%1,READ,cor(u(FUN`PERMCHECK,%0,POST,%2),elock(%0/%1,%2)),POST,cor(u(FUN`PERMCHECK,%0,Admin,%2),elock(%0/%1,%2)),ADMIN,u(isadmin,%2))
+
+&FUN`LISTCIRCLES [u(cobj,rumor)]=iter(setinter(children(u(cobj,rumordb)),lthings(u(cobj,rumordb)),%b,namei),objid(%i0))
+&FUN`LISTCIRCLES`NAMES [u(cobj,rumor)]=iter(u(strfirstof,%0,u(FUN`LISTCIRCLES)),name(%i0),%b,|)
+
+&FUN`VALIDCIRCLES [u(cobj,rumor)]=filterbool(#lambda/u(FUN`PERMCHECK,\%0,%1,%0),u(FUN`LISTCIRCLES))
+
+&INC`RENCIRCLE [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`FINDCIRCLE=%0;@attach %!/INC`CIRCLENAMECHECK=%2;@name %q<cat>=%2;@attach %!/INC`MSG`CHAN=Renamed Rumor Circle %q<catname> to %2.;@attach %!/INC`MSG=Rename successful.
+
+&INC`LOCKCIRCLE [u(cobj,rumor)]=@attach %!/INC`LOCK;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No lock string entered. See [u(pueblize,+help +key)] for more information.;@attach u(kls)/INC`DOLOCK=%q<cat>,switch(%q<lock>,READ,basic,POST,enter),%2
+&INC`UNLOCKCIRCLE [u(cobj,rumor)]=@attach %!/INC`LOCK;@force me=@unlock/[switch(%q<lock>,READ,basic,POST,enter)] %q<cat>;@attach %!/INC`MSG=You release the %q<lock> lock on %q<catname>;@attach %!/INC`MSG`CHAN={Released the %q<lock> Lock on Rumor Circle %q<catname>}
+
+&INC`LOCK [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission Denied. This command is Wizard-only.;@attach %!/INC`FINDCIRCLE=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Lock Type field empty.;@attach %!/INC`PARTIAL=%1,READ|POST,|,lock,lock
+
+&INC`NEW [u(cobj,rumor)]=@check u(isapproved,%#)=@attach %!/INC`MSG=ERROR: Approved only.;@attach %!/INC`FINDCIRCLE=%0,POST;@select/inline t(strlen(%1))=1,{@check u(lmin,iter(u(setr,subjdbs,namelist(%1,FUN`NAMEERROR)),isdbref(%i0)))=@attach %!/INC`MSG=ERROR: One or more names did not resolve\, cannot continue.;th u(setq,subjids,iter(%q<subjdbs>,objid(%i0)))};@check strlen(%2)=@attach %!/INC`MSG=ERROR: Rumor text field is empty.;th u(attrib_set,u(cobj,rumordb),u(setr,attr,RUM`[u(setr,slotid,u(nextslot,u(cobj,rumordb),RUM))])`BYDB,u(objid,%#));&%q<attr>`BY u(cobj,rumordb)=%n;&%q<attr>`ON u(cobj,rumordb)=secs();&%q<attr>`SUBJECT u(cobj,rumordb)=%q<subjids>;&%q<attr>`CIRCLE u(cobj,rumordb)=%q<cat>;&%q<attr>`TEXT u(cobj,rumordb)=%2;&%q<attr>`DURATION u(cobj,rumordb)=0;&%q<attr>`ID u(cobj,rumordb)=u(setr,newid,u(baseconv,v(VAR`CURRENT`ID),10,64));&VAR`CURRENT`ID [u(cobj,rumor)]=add(1,v(VAR`CURRENT`ID));&VAR`RUMORIDS [u(cobj,rumor)]=setunion(%q<newid>,v(VAR`RUMORIDS));&%q<attr>`COMMID u(cobj,rumordb)=0;@attach %!/INC`MSG`CHAN={Posted new %q<catname> Rumor[if(words(%q<subjids>),%babout [u(itemize,iter(%q<subjids>,name(%i0),%b,|),|,and,\,)])]: [u(pueblize,+rumor %q<slotid>,+rumor %q<slotid>)]};@attach %!/INC`MSG=Rumor posted!;@attach %!/INC`MSG`ROOM={New %q<catname> Rumor Posted[if(words(%q<subjids>),%babout [u(itemize,iter(%q<subjids>,name(%i0),%b,|),|,and,\,)])]: [u(pueblize,+rumor %q<slotid>,+rumor %q<slotid>)]},u(filter,CANREAD,u(lwhoid),%b,%b,%q<cat>)
+
+&FUN`GETIDS [u(cobj,rumor)]=iter(u(lattr,u(cobj,rumordb)/RUM`*`ID),get(u(cobj,rumordb)/%i0))
+
+th u(newconf,CONFIG,RUMOR,TIMEOUT,mul(60,60,24,7),Timeout for a rumor?,DURATION)
+th u(newconf,CONFIG,RUMOR,FINALCOUNTDOWN,mul(60,60,24,3),How long does final countdown last?,DURATION)
+th u(newconf,CONFIG,RUMOR,PROMOTE,mul(60,60,24),How much a Promote extends a rumor?,DURATION)
+th u(newconf,CONFIG,RUMOR,QUASH,mul(60,60,24),How much a Quash shortens a rumor?,DURATION)
+
+&INC`QUASH [u(cobj,rumor)]=@attach %!/INC`COMMENT=%0,%1,%2,-
+&INC`PROMOTE [u(cobj,rumor)]=@attach %!/INC`COMMENT=%0,%1,%2,+
+
+&INC`FINDRUMOR [u(cobj,rumor)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No ID entered to check.;@check u(valnum,%0)=@attach %!/INC`MSG=ERROR: IDs must be whole, positive numbers.;@check match(u(FUN`VALIDRUMORS,%#),%0)=@attach %!/INC`MSG=ERROR: Rumor '%0' not found.;th u(setq,rumattr,RUM`[u(setr,id,trim(%0))])
+
+&FUN`VALIDRUMORS [u(cobj,rumor)]=edit(u(filter,VALRUMOR,u(sortattr,u(lattr,u(cobj,rumordb)/RUM`*)),%b,%b,%0),RUM`,)
+
+&FIL`VALRUMOR [u(cobj,rumor)]=u(FUN`CANSEE,%0,%1)
+
+&FUN`CANSEE [u(cobj,rumor)]=localize(if(u(isobjid,u(setr,circ,get(u(cobj,rumordb)/%0`CIRCLE))),elock(%q<circ>/READ,%1),1))
+
+&INC`COMMENT [u(cobj,rumor)]=@check u(isapproved,%#)=@attach %!/INC`MSG=ERROR: Approved only.;@attach %!/INC`FINDRUMOR=%0;@check u(FUN`PERMCHECK,get(u(cobj,rumordb)/%q<rumattr>`CIRCLE),POST,%#)=@attach %!/INC`MSG=Permission denied.;@stop cand(match(get(u(cobj,rumordb)/%q<rumattr>`COMMENTERS),u(objid,%#)),not(u(FUN`PERMCHECK,get(u(cobj,rumordb)/%q<rumattr>`CIRCLE),ADMIN,%#)))=@attach %!/INC`MSG=You have already influenced this rumor.;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Nothing entered to [switch(%3,-,quash,promote)] with.;@select/inline %3=+,{@wipe u(cobj,rumordb)/%q<rumattr>`DAYSLEFT};&%q<rumattr>`DURATION u(cobj,rumordb)=add(get(u(cobj,rumordb)/%q<rumattr>`DURATION),mul(u(game_config,RUMOR,switch(%3,+,PROMOTE,-,QUASH)),%31));&%q<rumattr>`COMMENTERS u(cobj,rumordb)=setunion(u(objid,%#),get(u(cobj,rumordb)/%q<rumattr>`COMMENTERS));@attach %!/INC`MSG=Rumor [switch(%3,+,promoted,-,quashed)]!;th u(attrib_set,u(cobj,rumordb),u(setr,attr,%q<rumattr>`COMM`[u(nextslot,u(cobj,rumordb),%q<rumattr>`COMM)]),%3);&%q<attr>`ON u(cobj,rumordb)=secs();&%q<attr>`TEXT u(cobj,rumordb)=%2;&%q<attr>`BY u(cobj,rumordb)=%n;&%q<attr>`BYDB u(cobj,rumordb)=u(objid,%#);&%q<attr>`ID u(cobj,rumordb)=u(setr,newid,u(baseconv,get(u(cobj,rumordb)/%q<rumattr>`COMMID),10,64));&%q<rumattr>`COMMID u(cobj,rumordb)=add(1,get(u(cobj,rumordb)/%q<rumattr>`COMMID));&%q<rumattr>`POSTIDS u(cobj,rumordb)=setunion(%q<newid>,get(u(cobj,rumordb)/%q<rumattr>`POSTIDS));&D`RUMOR`READ`u(setr,id,get(u(cobj,rumordb)/%q<rumattr>`ID))] %#=setunion(get(%#/D`RUMOR`READ`%q<id>),%q<newid>);@attach %!/INC`MSG`CHAN={switch(%3,+,Promoted,-,Quashed) [u(pueblize,name(get(u(cobj,rumordb)/%q<rumattr>`CIRCLE)) Rumor %q<id>,+rumor %q<id>)]};th u(setq,cat,objid(get(u(cobj,rumordb)/%q<rumattr>`CIRCLE)));@attach %!/INC`MSG`ROOM={[u(pueblize,name(get(u(cobj,rumordb)/%q<rumattr>`CIRCLE)) Rumor %q<id>,+rumor %q<id>)] has been [switch(%3,+,promoted,-,quashed)].},setdiff(u(filter,CANREAD,u(lwhoid),%b,%b,%q<cat>),u(objid,%#))
+
+&FIL`CANREAD [u(cobj,rumor)]=u(FUN`PERMCHECK,%1,READ,%0)
+
+&INC`REMRUMOR [u(cobj,rumor)]=@attach %!/INC`FINDRUMOR=%0;@check u(FUN`PERMCHECK,get(u(cobj,rumordb)/%q<rumattr>`CIRCLE),ADMIN,%#)=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will delete Rumor %q<id>. Are you sure? Enter the command again to verify.},DELETE RUMOR %q<id>;@trigger %!/TRG`DELRUMOR=%q<rumattr>;@attach %!/INC`MSG=Rumor Deleted!
+
+&INC`MAIN [u(cobj,rumor)]=@select/inline t(strlen(%0))=1,{@attach %!/INC`SHOWRUMOR},0,{@attach %!/INC`RUMORLIST}
+
+&INC`SHOWRUMOR [u(cobj,rumor)]=@attach %!/INC`FINDRUMOR=%0;th u(setq,admin,u(FUN`PERMCHECK,get(u(cobj,rumordb)/%q<rumattr>`CIRCLE),ADMIN,%#));@pemit %#=u(HEADER,Rumor %q<id>);@pemit %#=get(u(cobj,rumordb)/%q<rumattr>`TEXT);@select/inline %q<admin>=1,{@pemit %#=(By [if(isdbref(get(u(cobj,rumordb)/%q<rumattr>`BYDB)),name(get(u(cobj,rumordb)/%q<rumattr>`BYDB)),get(u(cobj,rumordb)/%q<rumattr>`BY))] on [u(fancytime,get(u(cobj,rumordb)/%q<rumattr>`ON),%#)])};@select/inline t(nattr(u(cobj,rumordb)/%q<rumattr>`COMM`*))=1,{@pemit %#=u(SEPARATOR);@dolist/inline u(sortattr,u(lattr,u(cobj,rumordb)/%q<rumattr>`COMM`*))={@pemit %#=align(>5 72,switch(get(u(cobj,rumordb)/##),+,ansi(hg,+),-,ansi(hr,-)),get(u(cobj,rumordb)/##`TEXT)[if(%q<admin>,%b(By [if(isdbref(get(u(cobj,rumordb)/##`BYDB)),name(get(u(cobj,rumordb)/##`BYDB)),get(u(cobj,rumordb)/##`BY))] on [u(fancytime,get(u(cobj,rumordb)/##`ON),%#)]))])}};@pemit %#=u(SUBHEADER);&D`RUMOR`READ %#=setinter(setunion(get(%#/D`RUMOR`READ),u(setr,id,get(u(cobj,rumordb)/%q<rumattr>`ID))),v(VAR`RUMORIDS));@cpattr u(cobj,rumordb)/%q<rumattr>`POSTIDS=%#/D`RUMOR`READ`%q<id>
+
+&INC`RUMORLIST [u(cobj,rumor)]=@pemit %#=u(HEADER,Rumors);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(4 6 16 20 14 10,#,Known,Circle,Subject,Rating,Remain));@pemit %#=u(SEPARATOR);@dolist/inline u(FUN`VALIDRUMORS,%#)={@pemit %#=align(4 6 16 20 14 10,u(pueblize,##,+rumor ##),if(match(get(%#/D`RUMOR`READ),u(setr,id,get(u(cobj,rumordb)/RUM`##`ID))),if(not(words(setdiff(get(u(cobj,rumordb)/RUM`##`POSTIDS),get(%#/D`RUMOR`READ`%q<id>)))),Yes,Upd),No),if(u(isobjid,get(u(cobj,rumordb)/RUM`##`CIRCLE)),name(get(u(cobj,rumordb)/RUM`##`CIRCLE)),???),if(words(u(setr,subj,u(filter,ISOBJID,get(u(cobj,rumordb)/RUM`##`SUBJECT)))),u(itemize,iter(%q<subj>,name(%i0),%b,|),|,and,\,),General),switch(u(setr,rating,sub(u(setr,prom,words(u(wildgrepi,u(cobj,rumordb),RUM`##`COMM`*,+))),u(setr,quash,words(u(wildgrepi,u(cobj,rumordb),RUM`##`COMM`*,-))))),-*,-[rjust(abs(%q<rating>),2,0)],%b[rjust(%q<rating>,2,0)])%B(+[rjust(%q<prom>,2,0)]/-[rjust(%q<quash>,2,0)]),if(hasattr(u(cobj,rumordb)/RUm`##`DAYSLEFT),ansi(hr,squish(etime(sub(u(game_config,RUMOR,FINALCOUNTDOWN),get(u(cobj,rumordb)/RUM`##`DAYSLEFT)),6))),squish(etime(sub(u(game_config,RUMOR,TIMEOUT),get(u(cobj,rumordb)/RUm`##`DURATION)),6))))};@pemit %#=u(SUBHEADER)
+
+&STARTUP [u(cobj,rumor)]=@trigger %!/LOOP`RUMORMILL
+
+&LOOP`RUMORMILL [u(cobj,rumor)]=th unsetq();th u(setq,fcountd,u(game_config,RUMOR,FINALCOUNTDOWN));th u(setq,deftimeout,u(game_config,RUMOR,TIMEOUT));th u(setq,tick,mul(60,5));th u(setq,rumors,u(lattr,u(cobj,rumordb)/RUM`*));th u(setq,infinal,u(filter,INFINAL,%q<rumors>));th u(setq,normals,setdiff(%q<rumors>,%q<infinal>));@dolist/inline/nobreak %q<infinal>={&##`DAYSLEFT u(cobj,rumordb)=add(%q<tick>,get(u(cobj,rumordb)/##`DAYSLEFT));@check gte(get(u(cobj,rumordb)/##`DAYSLEFT),%q<fcountd>);th u(setq,timedout,setunion(%q<timedout>,##))};@dolist/inline/nobreak %q<normals>={&##`DURATION u(cobj,rumordb)=add(%q<tick>,get(u(cobj,rumordb)/##`DURATION));@check gte(get(u(cobj,rumordb)/##`DURATION),%q<deftimeout>);th u(setq,finals,setunion(%q<finals>,##));&##`DAYSLEFT u(cobj,rumordb)=0};@select/inline t(words(setdiff(%q<finals>,%q<infinal>)))=1,{@attach %!/INC`MSG`SYSCHAN={Rumors [u(itemize,sort(edit(setdiff(%q<finals>,%q<infinal>),RUM`,)),%b,and,\,)] have been put on Final Countdown.}};@select/inline t(words(%q<timedout>))=1,{@attach %!/INC`MSG`SYSCHAN={Rumors [u(itemize,sort(edit(%q<timedout>,RUM`,)),%b,and,\,)] have TIMED OUT.}};@dolist %q<timedout>={@trigger %!/TRG`DELRUMOR=##};@wait %q<tick>=@trigger %!/LOOP`RUMORMILL
+
+&FIL`INFINAL [u(cobj,rumor)]=hasattr(u(cobj,rumordb)/%0`DAYSLEFT)
+
+&TRG`DELRUMOR [u(cobj,rumor)]=th u(setq,id,get(u(cobj,rumordb)/%0`ID));@attach %!/WIPE=u(cobj,rumordb),%0;th u(setq,ids,u(FUN`GETIDS));&VAR`RUMORIDS [u(cobj,rumor)]=%q<ids>;@dolist/inline u(choosegame,lsearch(all,type,player),search(type=players))={&D`RUMOR`READ ##=setinter(get(##/D`RUMOR`READ),%q<ids>);@wipe ##/D`RUMOR`READ`%q<id>}
+
+@@ MIGRATE
+
+&MIGRATE`RUMOR [u(cobj,migrate)]=@check isdbref(u(setr,rdb,u(coi,rumordb)));@dolist children(%q<rdb>)={@tel %i0=u(cobj,rumordb);@parent %i0=u(cobj,rumordb)};@dolist reglattr(%q<rdb>/^\\d+)={@attach %!/INC`CPTREE=%q<rdb>,%i0,u(cobj,rumordb),RUM`%i0};@attach %!/INC`MSG`CHAN=WARNING: Rumor Migration will only be complete if they are re-locked!
+
+@@ RUMOR SYSTEM
++help/add +rumor=[u(cobj,rumor)]/HLP`+RUMOR
++help/category +rumor=Communications
+&HLP`+RUMOR [u(cobj,rumor)]=The Rumor system is designed to represent in-character rumors spreading around town - or various social circles. Rumor posters remain anonymous to all but staff members, and rumors can be anonymously promoted or quashed by players - only one or the other per each rumor, so choose wisely. Over time they are removed, but more pervasively supported rumors take longer to time out.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+rumor)] - Show the list of rumors.%R[ansi(h,+rumor <id>)] - Show a specific rumor's details.%R[ansi(h,+rumor/circles)] - Shows circles available to you and what permissions you hold.%R[ansi(h,+rumor/new <circle>\[/<subject>\]=<text>)] - Create a new rumor. Subject takes a player-name-list the same way that page does \(names are separated by spaces\, multi-word names are in ""\). Subject is optional.%R[ansi(h,+rumor/promote <id>=<text>)] - Adds a promotional anonymous comment to a Rumor. Example would be more details\, related events\, etc. This keeps the Rumor around longer.%R[ansi(h,+rumor/quash <id>=<text>)] - Like /promote\, but is negative. Makes Rumors time out quicker.)]%R%RA NOTE on Rumor timeouts:%R%RWhen a Rumor has been around for the max duration, it will be marked for Final Countdown - a 3 day period. If the Rumor receives a Promote, then the countdown is reset and the Rumor will be pushed back into the normal timeout. Quashes during the Final Countdown have no effect but are still registered.
+
++shelp/add +rumor=[u(cobj,rumor)]/SHLP`+RUMOR
++shelp/category +rumor=Communications
+&SHLP`+RUMOR [u(cobj,rumor)]=[ansi(hc,Wizard Commands)]%R[align(5 [sub(u(width,%#),6)],,{[ansi(h,+rumor/makecircle <name>)] - Create a new Circle. They're locked READ:<everyone>, POST:<everyone>, ADMIN:<staff> by default. Name must be something simple and short, like a race name or a topic.%R[ansi(h,+rumor/lockcircle <circle>/<type>=<lockstring>)] - Lock a category using the +key system. <type> must be READ, POST, or ADMIN. READ: who can see the circle's rumors. POST: Who can post. (Very rarely would you want READ: Yes and POST: No. Remember to set both!). POST implicitly grants READ.%R[ansi(h,+rumor/unlockcircle <circle>/<type>)] - Clears the lock back to its default.%R[ansi(h,+rumor/rencircle <circle>=<newname>)] - Renames a Circle.%R[ansi(h,+rumor/delcircle <circle>)] - Deletes a Circle. WARNING: DANGEROUS COMMAND.%R[ansi(h,+rumor/desccircle <circle>=<description>)] - Describe a circle for the /circles display.%R[ansi(h,+rumor/delrumor <id>)] - Deletes a rumor. Dangerous!})]%R%RStaff can use /quash and /promote without limit for plot flexibility.

@@ -40,7 +40,7 @@ th u(NEWCOBJ,Places Management System <PLACES>,places,,,,WIZARD SAFE !NO_COMMAND
 
 &INC`SLOT [u(cobj,places)]=@attach %!/INC`FIND;@check strlen(%2)=@attach %!/INC`MSG=ERROR: New slot number empty.;@check u(valnum,%2)=@attach %!/INC`MSG=ERROR: New slot must be a whole, positive number.;@stop hasattr(%l/PLACE`%2)=@attach %!/INC`MSG=ERROR: Slot is already occupied.;@attach %!/INC`MVTREE=%l,%q<attr>,%l,PLACE`%2;@attach %!/INC`MSG=Place '%q<id>: %q<pname>' Relocated to slot %2.
 
-&INC`MAIN [u(cobj,places)]=@check words(u(setr,list,u(sortattr,u(lattr,%l/PLACE`*))))=@attach %!/INC`MSG=There are no Places here!;@pemit %#=u(HEADER,Places at [u(moniker,%l)]);@pemit %#=align(5 25 10 34,ID,Name,Capacity,Occupants);@pemit %#=u(SEPARATOR);@dolist/inline %q<list>={@pemit %#=align(5 25 10 34,last(%i0,`),get(%l/%i0),words(u(setr,occup,u(filter,ISOBJID,get(%l/%i0`OCCUPANTS))))/[u(FUN`CONF,%l,last(%i0,`),MAX)],itemize(iter(%q<occup>,name(%i0),%b,|),|,and,\,))};@pemit %#=u(SUBHEADER)
+&INC`MAIN [u(cobj,places)]=@check words(u(setr,list,u(sortattr,u(lattr,%l/PLACE`*))))=@attach %!/INC`MSG=There are no Places here!;@pemit %#=u(HEADER,Places at [u(moniker,%l)]);@pemit %#=align(5 25 10 34,ID,Name,Capacity,Occupants);@pemit %#=u(SEPARATOR);@dolist/inline %q<list>={@pemit %#=align(5 25 10 34,last(%i0,`),get(%l/%i0),words(u(setr,occup,u(filter,ISOBJID,get(%l/%i0`OCCUPANTS))))/[u(FUN`CONF,%l,last(%i0,`),MAX)],u(itemize,iter(%q<occup>,name(%i0),%b,|),|,and,\,))};@pemit %#=u(SUBHEADER)
 
 @ALEAVE [u(cobj,ancestor_room)]=@trigger me/CLEAN_PLACES=u(objid,%#)
 

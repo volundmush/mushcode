@@ -1,0 +1,31 @@
+@@ DEPENDENCIES: Core
+
+th u(NEWCOBJ,View Management System <VIEW>,view,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+VIEW`PENNMUSH [u(cobj,view)]=$^(?s)(?\:\+)?(view|lore)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+VIEW`MAIN
+@set [u(cobj,view)]/CMD`+VIEW`PENNMUSH=regexp
+&CMD`+VIEW`RHOSTMUSH [u(cobj,view)]=$^(?s)(?\:\+)?(view|lore)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+VIEW`MAIN
+@set [u(cobj,view)]/CMD`+VIEW`RHOSTMUSH=regexp
+&CMD`+VIEW`MAIN [u(cobj,view)]=th u(setq,sysname,%1);@attach %!/INC`GETSWITCH=%2;@attach %!/INC`VIEW`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,view)]/CMD`+VIEW`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&SWITCHES`ADMIN [u(cobj,view)]=ADD|SET|DEL|REN
+&SYSTEM`NAME [u(Cobj,view)]=VIEW
+
+&STARTUP [U(cobj,view)]=@select/inline v(game)=PennMUSH,{@function views=%!,views;@function/restrict views=localize},RhostMUSH,{@function/privileged views=%!,views}
+
+&VIEWS [u(cobj,view)]=iter(u(lattr,%0/VIEW`*),u(capnames,get(%0/%i0)),%b,|)
+
+&FUN`FINDVIEW [u(cobj,view)]=u(sortviews,u(wildgrepi,%0,VIEW`*,%1*))
+
+&SORTVIEWS [u(cobj,view)]=u(SORTVIEWS`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTVIEWS`PENNMUSH [u(cobj,view)]=sortkey(#lambda/get(%l/\%0),%0,i,%1,%2)
+&SORTVIEWS`RHOSTMUSH [u(cobj,view)]=sortby(#lambda/[lit([comp(lcstr(get(%l/%0)),lcstr(get(%l/%1)))])],%0,%1,%2)
+
+&INC`VIEW`MAIN [u(cobj,view)]=@check strlen(%0)=@attach %!/INC`MSG=You can view the following: [u(itemize,iter(views(%l),u(pueblize,%i0,view %i0),|,|),|,and,\,)];@check words(u(setr,views,u(FUN`FINDVIEW,%l,%0)))=@attach %!/INC`MSG=There's no view named %0 here.;@stop gt(words(%q<views>),1)=@attach %!/INC`MSG=That view name is ambiguous. Please be more specific in the view name.;@pemit %#=u(header,View: [get(%l/%q<views>)]);@pemit %#=u(%l/%q<views>`DESC);@pemit %#=u(subheader)
+
+&INC`VIEW`ADD [u(cobj,view)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: View name empty.;@stop words(grepi(%l,VIEW`*,%0))=@attach %!/INC`MSG=ERROR: There is already a View here by that name. Use /set to change its contents\, /ren to rename it\, or /del to remove it.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: View text empty.;th u(attrib_set,%l,VIEW`[u(nextslot,%l,VIEW)],%0);&%q<attr>`DESC %l=%1;@attach %!/INC`MSG=View set!
+
+&INC`VIEW`REN [u(cobj,view)]=@check strlen(%0)=@pemit %#=What will you rename?;@check words(u(setr,views,u(FUN`FINDVIEW,%l,%0)))=@pemit %#=There's no view named %0 here.;@stop gt(words(%q<views>),1)=@pemit %#=That view name is ambiguous. Please be more specific in the view name.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No new name entered.;@stop words(grepi(%l,VIEW`*,%1))=@attach %!/INC`MSG=ERROR: There is already a View here by that name.;&%q<views> %l=%0;@attach %!/INC`MSG=Rename complete.
+
+&INC`VIEW`DEL [u(cobj,view)]=@check strlen(%0)=@pemit %#=What will you rename?;@check words(u(setr,views,u(FUN`FINDVIEW,%l,%0)))=@pemit %#=There's no view named %0 here.;@stop gt(words(%q<views>),1)=@pemit %#=That view name is ambiguous. Please be more specific in the view name.;@wipe %l/%q<views>;@attach %!/INC`MSG=Deleted!
