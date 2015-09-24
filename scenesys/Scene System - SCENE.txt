@@ -58,7 +58,7 @@ th u(NEWCONF,pconf,ALERTS,SCENES,0,Show upcoming scenes on logon?,BOOL)
 
 &STARTUP`OVERRIDE [u(cobj,scene)]=@select/inline v(game)=PennMUSH,{@dolist/inline @emit pose say semipose=@hook/override/inline %i0=%!,override`ic},RhostMUSH,{@dolist/inline @emit pose say semipose P S=@hook/ignore %d0}
 
-&LOOP`IDLECHECK [u(cobj,scene)]=@dolist u(MYSQL,SCENE`GETACTIVE)={@wait #@={@check lte(u(mysql,get`idlecheck,##),sub(secs(),mul(60,60,3)));@attach %!/INC`MSGSCENE=##,{Scene ## - '[u(mysql,get`scenetitle,##)]' has been automatically marked Unfinished for idleness. Use [u(pueblize,+scene/continue ##)] to resume it.};@attach %!/INC`DOSQL=SET`SCENESTATE,2,##}};@wait u(game_config,scenesys,idle)=@trigger %!/LOOP`IDLECHECK
+&LOOP`IDLECHECK [u(cobj,scene)]=@dolist u(MYSQL,SCENE`GETACTIVE)={@wait #@={@check u(mysql,scene`hasposes,##);@check lte(u(mysql,get`idlecheck,##),sub(secs(),mul(60,60,3)));@attach %!/INC`MSGSCENE=##,{Scene ## - '[u(mysql,get`scenetitle,##)]' has been automatically marked Unfinished for idleness. Use [u(pueblize,+scene/continue ##)] to resume it.};@attach %!/INC`DOSQL=SET`SCENESTATE,2,##}};@wait u(game_config,scenesys,idle)=@trigger %!/LOOP`IDLECHECK
 
 &LOOP`CLEANPOT [u(cobj,scene)]=@dolist u(choosegame,lsearch(all,eval,\[nattr(##/D`POSES`*)\]),search(EVAL=\[u(nattr,##/D`POSES`*)\]))={@wait #@=@trigger %!/LOOP`CLEANPOT`DOCLEAN=##};@wait u(game_config,pot,interval)=@trigger %!/LOOP`CLEANPOT
 
@@ -66,6 +66,7 @@ th u(NEWCONF,pconf,ALERTS,SCENES,0,Show upcoming scenes on logon?,BOOL)
 
 &FIL`TIMEDOUT [u(cobj,scene)]=gte(sub(secs(),get(%2/%0`WHEN)),%1)
 
+&Q`SCENE`HASPOSES [u(cobj,scene)]=SELECT count(pose_id) FROM $POSES$ where scene_id=?
 &Q`SCENE`GETACTIVE [u(cobj,scene)]=SELECT scene_id from $SCENES$ where scene_state='0'
 
 &Q`GET`IDLECHECK [u(cobj,scene)]=SELECT max(pose_time) from $POSES$ WHERE scene_id=? AND pose_ignore=0

@@ -4,14 +4,14 @@ th u(NEWCOBJ,Places Management System <PLACES>,places,,,,WIZARD SAFE !NO_COMMAND
 @set [u(cobj,places)]/CMD`+PLACES`PENNMUSH=regexp
 &CMD`+PLACES`RHOSTMUSH [u(cobj,places)]=$^(?s)(?\:\+)?places(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+PLACES`MAIN
 @set [u(cobj,places)]/CMD`+PLACES`RHOSTMUSH=regexp
-&CMD`+PLACES`MAIN [u(cobj,places)]=th u(setq,sysname,%1);@attach %!/INC`GETSWITCH=%2;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,%4,%2[if(strlen(%3),/%3)]
+&CMD`+PLACES`MAIN [u(cobj,places)]=th u(setq,sysname,%1);@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,%4,%2[if(strlen(%3),/%3)]
 @set [u(cobj,places)]/CMD`+PLACES`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,places)]=
 &SWITCHES`ADMIN [u(cobj,places)]=CREATE|DELETE|CONFIG|RENAME|DESC|SLOT
 &SYSTEM`NAME [u(cobj,places)]=PLACES
 
-&INC`CREATE [u(cobj,places)]=@check hastype(%l,ROOM)=@attach %!/INC`MSG=ERROR: Places can only be created in Rooms.;@check strlen(%3)=@attach %!/INC`MSG=ERROR: Must include a name for the location.;@stop u(valnum,%3)=@attach %!/INC`MSG=ERROR: Names cannot be integers.;@stop strmatch(%3,*/*)=@attach %!/INC`MSG=ERROR: Places cannot have a / in their name.;@stop strlen(u(FUN`FINDEXACT,%l,%3))=@attach %!/INC`MSG=ERROR: A Place with that name already exists.;&[u(setr,attr,PLACE`[u(setr,id,u(nextslot,%l,PLACE))])] %l=%0;@select/inline t(strlen(%2))=1,{&%q<attr>`DESC %l=%2};@attach %!/INC`MSG=Place '%0' Created in Slot %q<id>.
+&INC`CREATE [u(cobj,places)]=@check hastype(%l,ROOM)=@attach %!/INC`MSG=ERROR: Places can only be created in Rooms.;@check strlen(%3)=@attach %!/INC`MSG=ERROR: Must include a name for the location.;@stop u(valnum,%3)=@attach %!/INC`MSG=ERROR: Names cannot be integers.;@stop strmatch(%3,*/*)=@attach %!/INC`MSG=ERROR: Places cannot have a / in their name.;@stop strlen(u(FUN`FINDEXACT,%l,%3))=@attach %!/INC`MSG=ERROR: A Place with that name already exists.;th u(attrib_set,%l,u(setr,attr,PLACE`[u(setr,id,u(nextslot,%l,PLACE))]),%0);@select/inline t(strlen(%2))=1,{&%q<attr>`DESC %l=%2};@attach %!/INC`MSG=Place '%0' Created in Slot %q<id>.
 
 &FUN`FINDEXACT [u(cobj,places)]=if(u(valnum,%1),if(hasattr(%0/PLACE`%1),%1),after(first(u(wildgrepi,%0,PLACE`*,%1)),`))
 
@@ -28,12 +28,12 @@ th u(NEWCOBJ,Places Management System <PLACES>,places,,,,WIZARD SAFE !NO_COMMAND
 &VAR`CONFIG [u(cobj,places)]=MAX|FULL|JOIN|OJOIN|DEPART|ODEPART|PREFIX|MUFFLE
 
 &VALID`MAX [u(cobj,places)]=@check u(valnum,u(setr,entry,%0))=@attach %!/INC`MSG=ERROR: Entry must be a whole positive number.
-&VALID`FULL [u(cobj,places)]=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
-&VALID`JOIN [u(cobj,places)]=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
-&VALID`OJOIN [u(cobj,places)]=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
-&VALID`DEPART [u(cobj,places)]=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
-&VALID`ODEPART [u(cobj,places)]=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
-&VALID`PREFIX [u(cobj,places)]=@check if(hasflag(%l,WIZARD),hasflag(%#,WIZARD),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`FULL [u(cobj,places)]=@check if(hasflag(%l,WIZARD),u(iswizard,%#),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`JOIN [u(cobj,places)]=@check if(hasflag(%l,WIZARD),u(iswizard,%#),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`OJOIN [u(cobj,places)]=@check if(hasflag(%l,WIZARD),u(iswizard,%#),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`DEPART [u(cobj,places)]=@check if(hasflag(%l,WIZARD),u(iswizard,%#),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`ODEPART [u(cobj,places)]=@check if(hasflag(%l,WIZARD),u(iswizard,%#),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
+&VALID`PREFIX [u(cobj,places)]=@check if(hasflag(%l,WIZARD),u(iswizard,%#),1)=@attach %!/INC`MSG=ERROR: For security reasons\, only Wizards may set messages on this room.;th u(setq,entry,%0)
 &VALID`MUFFLE [u(cobj,places)]=@check match(lnum(0,100),u(setr,entry,%0))=@attach %!/INC`MSG=ERROR: Entry must be a number 0-100.
 
 &INC`RENAME [u(cobj,places)]=@attach %!/INC`FIND;@check strlen(%2)=@attach %!/INC`MSG=ERROR: New name field is empty.;@stop strmatch(%2,*/*)=@attach %!/INC`MSG=ERROR: Place names may not include a /.;@stop u(FUN`FINDEXACT,%l,%2)=@attach %!/INC`MSG=ERROR: That name is already used here!;&%q<attr> %l=%2;@attach %!/INC`MSG=Place '%q<id>: %q<pname>' renamed to %2.

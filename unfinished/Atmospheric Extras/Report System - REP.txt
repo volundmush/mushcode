@@ -7,14 +7,14 @@ th u(NEWCOBJ,Report Database <REPDB>,repdb,u(cobj,report),,1,WIZARD SAFE,INHERIT
 @set [u(cobj,report)]/CMD`+REPORT`PENNMUSH=regexp
 &CMD`+REPORT`RHOSTMUSH [u(cobj,report)]=$^(?s)(?\:\+)?report(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REPORT`MAIN
 @set [u(cobj,report)]/CMD`+REPORT`RHOSTMUSH=regexp
-&CMD`+REPORT`MAIN [u(cobj,report)]=th u(setq,sysname,%1);@attach %!/INC`GETSWITCH=%1;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%2),trim(%3),trim(before(%2,/)),trim(after(%2,/)),trim(before(%3,/)),trim(after(%3,/))
+&CMD`+REPORT`MAIN [u(cobj,report)]=th u(setq,sysname,%1);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%2),trim(%3),trim(before(%2,/)),trim(after(%2,/)),trim(before(%3,/)),trim(after(%3,/))
 @set [u(cobj,report)]/CMD`+REPORT`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,report)]=
 &SWITCHES`ADMIN [u(cobj,report)]=ADDSECTION|DELSECTION|RENSECTION|ORDSECTION|ADDPARAMETER|DELPARAMETER|RENPARAMETER|ORDPARAMETER|SET
 &SYSTEM`NAME [u(cobj,report)]=REPORT
 
-&INC`ADDSECTION [u(cobj,report)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No Section name entered.;@stop words(u(wildgrepi,u(cobj,repdb),*,%0))=@attach %!/INC`MSG=ERROR: That name is already in use.;th u(attrib_set,u(cobj,repdb),u(nextslot,u(cobj,repdb),SEC),%0);@attach %!/INC`MSG`CHAN={[ansi(h,\[%n\])] New Report Section added: %0};@attach %!/INC`MSG=Added new Report Section: %0
+&INC`ADDSECTION [u(cobj,report)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No Section name entered.;@stop words(u(wildgrepi,u(cobj,repdb),*,%0))=@attach %!/INC`MSG=ERROR: That name is already in use.;th u(attrib_set,u(cobj,repdb),SEC`[u(nextslot,u(cobj,repdb),SEC)],%0);@attach %!/INC`MSG`CHAN={[ansi(h,\[%n\])] New Report Section added: %0};@attach %!/INC`MSG=Added new Report Section: %0
 
 &INC`DELSECTION [u(cobj,report)]=@attach %!/INC`FINDSECTION=%0;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will delete Report Section %q<section>: [get(u(cobj,repdb)/%q<section>)]. All Parameters and change history will be lost. Are you sure? Enter the same command again within 10 seconds to verify.},DELETE REPORT SECTION %q<section>;@attach %!/INC`MSG`CHAN={[ansi(h,\[%n\])] Report Section DELETED: %q<section> - [get(u(cobj,repdb)/%q<section>)]};@attach %!/INC`MSG=Deleted!;@attach %!/WIPE=u(cobj,repdb),%q<section>
 

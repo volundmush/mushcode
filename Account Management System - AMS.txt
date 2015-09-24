@@ -91,7 +91,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 &SWITCHES`ALTS`PLAYER [u(cobj,ams)]=LIST|PRIORITY
 &SWITCHES`ALTS`ADMIN [u(cobj,ams)]=
 
-&INC`ALTS`MAIN [u(cobj,ams)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@check get(%q<t1>/D`ALTS)=@attach %!/INC`MSG=[name(%q<t1>)] is not on any alts lists.;@attach %!/IN`MSG=Alts of [ansi(h,%q<t1name>)] ([u(hideidle,%q<t1>)]): [u(FUN`ALTS`LIST,%q<t1>)]
+&INC`ALTS`MAIN [u(cobj,ams)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@check get(%q<t1>/D`ALTS)=@attach %!/INC`MSG=[name(%q<t1>)] is not on any alts lists.;@attach %!/INC`MSG=Alts of [ansi(h,%q<t1name>)] ([u(hideidle,%q<t1>)]): [u(FUN`ALTS`LIST,%q<t1>)]
 
 &INC`ALTS`LIST [u(cobj,ams)]=@check u(setr,accid,accid(%:))=@attach %!/INC`MSG=ERROR: This character is not bound to an account.;@check strlen(%0)=@attach %!/INC`MSG=ERROR: List or target field empty. Please enter a name or a number to list this alt under.;@select/inline cand(strlen(%0),strlen(%1))=1,{@attach %!/INC`CHECKPC=%0,1;@check strmatch(accid(%q<t1objid>),%q<accid>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not one of your registered characters.;@check cand(gte(u(setr,list,%1),0),isint(%1))=@attach %!/INC`MSG=ERROR: Alts list must be a whole number 0 or greater.},0,{@attach %!/INC`CHECKPC=%#,1;@check cand(gte(u(setr,list,%0),0),isint(%0))=@attach %!/INC`MSG=ERROR: Alts list must be a whole number 0 or greater.};&D`ALTS %q<t1>=%q<list>;@attach %!/INC`MSG=Okay! %q<t1name> will [if(%q<list>,now appear in Alts List #%q<list>.,not appear in any Alts lists.)]
 
