@@ -54,9 +54,9 @@ th u(NEWCOBJ,Places Management System <PLACES>,places,,,,WIZARD SAFE !NO_COMMAND
 
 &PLACES`PLOOK [u(cobj,places)]=@attach %!/INC`FIND;@check hasattrval(%l/%q<attr>`DESC)=@attach %!/INC`MSG=Place %q<pname> has no Description!;@pemit %#=u(HEADER,u(moniker,%l) - [get(%l/%q<attr>)]);@pemit %#=get(%l/%q<attr>`DESC);@select/inline u(isadmin,%#)=1,{@pemit %#=u(SEPARATOR,Admin Section);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(10 40 10,Option,Value,Default?));@pemit %#=u(SEPARATOR);@dolist/inline MAX MUFFLE FULL JOIN OJOIN DEPART ODEPART PREFIX={@pemit %#=align(10 40 10,%i0,u(FUN`CONF,%l,%q<id>,%i0),if(hasattrval(%l/%q<attr>`CONFIG`%i0),No,Yes))}};@pemit %#=u(SUBHEADER)
 
-&PLACES`DEPART [u(cobj,places)]=@check cand(u(setr,id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@attach %!/INC`MSG=You are not occupying any places!;@trigger %l/CLEAN_PLACES=u(objid,%#),PLACE`%q<id>`OCCUPANTS;@attach u(cobj,places)/MSG`DEPART;@attach u(cobj,places)/MSG`ODEPART
+&PLACES`DEPART [u(cobj,places)]=@check cand(u(setr,id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@attach %!/INC`MSG=You are not occupying any places!;@trigger %l/CLEAN_PLACES=u(objid,%#),PLACE`%q<id>`OCCUPANTS;@attach %!/PLAMSG`DEPART;@attach %!/PLAMSG`ODEPART
 
-&PLACES`PLACE [u(cobj,places)]=@stop cand(u(setr,id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@attach %!/INC`MSG=You are already occupying Place %q<id>: [get(%l/PLACE`%q<id>)]! Depart first!;@attach %!/INC`FIND;@stop cand(gte(words(get(%l/%q<attr>`OCCUPANTS)),u(FUN`CONF,%l,%q<id>,MAX)),not(u(isadmin,%#)))=@attach u(cobj,places)/MSG`FULL;&%q<attr>`OCCUPANTS %l=u(sortname,setunion(u(filter,ISOBJID,get(%l/%q<attr>`OCCUPANTS)),u(objid,%#)));&PLACE_%# %l=%q<id>;@attach u(cobj,places)/MSG`JOIN;@attach u(cobj,places)/MSG`OJOIN
+&PLACES`PLACE [u(cobj,places)]=@stop cand(u(setr,id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@attach %!/INC`MSG=You are already occupying Place %q<id>: [get(%l/PLACE`%q<id>)]! Depart first!;@attach %!/INC`FIND;@stop cand(gte(words(get(%l/%q<attr>`OCCUPANTS)),u(FUN`CONF,%l,%q<id>,MAX)),not(u(isadmin,%#)))=@attach %!/PLAMSG`FULL;&%q<attr>`OCCUPANTS %l=u(sortname,setunion(u(filter,ISOBJID,get(%l/%q<attr>`OCCUPANTS)),u(objid,%#)));&PLACE_%# %l=%q<id>;@attach %!/PLAMSG`JOIN;@attach %!/PLAMSG`OJOIN
 
 &PLACES`MUTTER [u(cobj,places)]=@check cand(u(setr,id,get(%l/PLACE_%#)),hasattr(%l/PLACE`%q<id>))=@attach %!/INC`MSG=You are not occupying any places!;@check strlen(%0)=@attach %!/INC`MSG=What will you say?;@stop match(| ; :,left(%0,1))=@attach %!/INC`MSG=Sorry, no posing in Mutter mode.;@pemit/list u(setr,occup,get(%l/PLACE`%q<id>`OCCUPANTS))=u(FUN`CONF,%l,%q<id>,PREFIX)%b[speak(%#,%0,mutters\,)];@select/inline t(u(FUN`CONF,%l,%q<id>,MUFFLE))=1,{@nsoemit %l/%q<occup>=From [get(%l/PLACE`%q<id>)], [speak(%#,%0,mutters\,,%l/MUTTER)]}
 
@@ -66,11 +66,11 @@ th u(NEWCOBJ,Places Management System <PLACES>,places,,,,WIZARD SAFE !NO_COMMAND
 
 &FUN`MSG [u(cobj,places)]=udefault(%0/PLACE`%1`CONFIG`%2,u(DEF`%2,name(%3),subj(%3),obj(%3),poss(%3),aposs(%3),%1,get(%0/PLACE`%1)),name(%3),subj(%3),obj(%3),poss(%3),aposs(%3),%1,get(%0/PLACE`%1))
 
-&MSG`FULL [u(cobj,places)]=@pemit %#=u(FUN`MSG,%l,%q<id>,FULL,u(objid,%#))
-&MSG`JOIN [u(cobj,places)]=@pemit %#=u(FUN`MSG,%l,%q<id>,JOIN,u(objid,%#))
-&MSG`OJOIN [u(cobj,places)]=@oemit %#=u(FUN`MSG,%l,%q<id>,OJOIN,u(objid,%#))
-&MSG`DEPART [u(cobj,places)]=@pemit %#=u(FUN`MSG,%l,%q<id>,DEPART,u(objid,%#))
-&MSG`ODEPART [u(cobj,places)]=@oemit %#=u(FUN`MSG,%l,%q<id>,ODEPART,u(objid,%#))
+&PLAMSG`FULL [u(cobj,places)]=@pemit %#=u(FUN`MSG,%l,%q<id>,FULL,u(objid,%#))
+&PLAMSG`JOIN [u(cobj,places)]=@pemit %#=u(FUN`MSG,%l,%q<id>,JOIN,u(objid,%#))
+&PLAMSG`OJOIN [u(cobj,places)]=@oemit %#=u(FUN`MSG,%l,%q<id>,OJOIN,u(objid,%#))
+&PLAMSG`DEPART [u(cobj,places)]=@pemit %#=u(FUN`MSG,%l,%q<id>,DEPART,u(objid,%#))
+&PLAMSG`ODEPART [u(cobj,places)]=@oemit %#=u(FUN`MSG,%l,%q<id>,ODEPART,u(objid,%#))
 
 &DEF`FULL [u(cobj,places)]=That location is full!
 &DEF`MAX [u(cobj,places)]=5

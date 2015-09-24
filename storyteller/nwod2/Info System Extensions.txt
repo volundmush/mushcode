@@ -1,0 +1,7 @@
+&CMD`+INFO`PENNMUSH [u(cobj,ims)]=$^(?s)(?\:\+)?(info|pinfo|bg|condition)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
+@set [u(cobj,ims)]/CMD`+INFO`PENNMUSH=regexp
+&CMD`+INFO`RHOSTMUSH [u(cobj,ims)]=$^(?s)(?\:\+)?(info|pinfo|bg|condition)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
+@set [u(cobj,ims)]/CMD`+INFO`RHOSTMUSH=regexp
+
+&INIT`BG [u(cobj,ims)]=th u(setq,sysname,BG);th u(setq,root,D`BGFILE);th u(setq,private,1);th u(setq,comm,+bg)
+&INIT`CONDITION [u(cobj,ims)]=th u(setq,sysname,CONDITION);th u(setq,root,D`CONDITIONFILE);th u(setq,private,1);th u(setq,comm,+condition)

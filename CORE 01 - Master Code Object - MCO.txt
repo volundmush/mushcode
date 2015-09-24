@@ -591,7 +591,6 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &HEADER`PREP [u(cobj,mco)]=u(setq,target,u(firstof,owner(u(firstof,%0,%#))))[u(setq,bordercolor,u(color,%q<target>,COLOR,BORDER))][u(setq,bordermode,%1)][u(setq,width,sub(u(width,%q<target>),if(%q<bordermode>,2,0)))][u(setq,fill,u(game_config,SYSTEM,%2_FILL))]
 
 &HEADER`RENDER [u(cobj,mco)]=u(setr,end,if(%q<bordermode>,ansi(%q<bordercolor>,+)))[u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>
-@@ %0 - display text (optional), %1 - viewer (optional), %2 - Disable headertext coloring. %3 - Bordered mode. %4 - Border color override. %5 - Border star color override. %6 - Header text color override.
 
 &SPEECH [u(cobj,mco)]=localize(u(SPEECH`[v(game)],%0,%1,%2,%3,%4,%5))
 &SPEECH`PENNMUSH [u(cobj,mco)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>)
