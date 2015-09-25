@@ -109,16 +109,16 @@ th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request categ
 
 &FIL`UNREADCAT [u(cobj,jms)]=t(u(mysql,GET`NEWJOBSCATCOUNT,%1,%0,%1))
 
-&Q`GET`NEWJOBSCAT [u(cobj,jms)]=SELECT jobs.job_id FROM $DATABASE$.$JOBS$ as jobs LEFT JOIN $DATABASE$.$CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL OR jobs.job_status=0 OR (jobs.job_status>0 AND jobs.close_date>= UTC_TIMESTAMP() - INTERVAL 7 DAY)) order by jobs.job_id ASC
-&Q`GET`NEWJOBSCATCOUNT [u(cobj,jms)]=SELECT count(jobs.job_id) FROM $DATABASE$.$JOBS$ as jobs LEFT JOIN $DATABASE$.$CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL OR jobs.job_status=0 OR (jobs.job_status>0 AND jobs.close_date>= UTC_TIMESTAMP() - INTERVAL 7 DAY)) order by jobs.job_id ASC
+&Q`GET`NEWJOBSCAT [u(cobj,jms)]=SELECT jobs.job_id FROM $DATABASE$.$JOBS$ as jobs LEFT JOIN $DATABASE$.$CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) AND NOT (jobs.job_status>0 AND jobs.close_date <= UTC_TIMESTAMP() - INTERVAL 14 DAY) order by jobs.job_id ASC LIMIT 20
+&Q`GET`NEWJOBSCATCOUNT [u(cobj,jms)]=SELECT count(jobs.job_id) FROM $DATABASE$.$JOBS$ as jobs LEFT JOIN $DATABASE$.$CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) AND NOT (jobs.job_status>0 AND jobs.close_date <= UTC_TIMESTAMP() - INTERVAL 14 DAY) order by jobs.job_id
 
 &INC`NEXT [u(cobj,jms)]=@check u(setr,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)))=@attach %!/INC`MSG=Permission denied.;@check u(setr,next,u(mysql,GET`NEXTJOB,%q<pid>,u(SQL`IN`STRING,%q<cats>)))=@attach %!/INC`MSG=There are no unread jobs to see!;@attach %!/INC`DISPLAYJOB=%q<next>
 
 &FIL`NEXTJOBS [u(cobj,jms)]=t(u(mysql,GET`NEXTJOBSCATCOUNT,%1,%0,%1))
 
-&Q`GET`NEXTJOB [u(cobj,jms)]=SELECT jobs.job_id FROM $JOBS$ as jobs LEFT JOIN $CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid IN (!) AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) order by jobs.job_id ASC LIMIT 1
+&Q`GET`NEXTJOB [u(cobj,jms)]=SELECT jobs.job_id FROM $JOBS$ as jobs LEFT JOIN $CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid IN (!) AND (readtime.check_date<=jobs.job_activity OR readtime.player_id IS NULL) AND NOT (jobs.job_status>0 AND jobs.close_date <= UTC_TIMESTAMP() - INTERVAL 14 DAY) order by jobs.job_id ASC LIMIT 1
 
-@@ AND NOT (jobs.job_status>0 AND jobs.close_date <= UTC_TIMESTAMP() - INTERVAL 14 DAY)
+@@ 
 
 &INC`PENDING [u(cobj,jms)]=@check u(setr,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)))=@attach %!/INC`MSG=Permission denied.;@dolist/inline u(setr,maincount,u(filter,PENDINGCOUNT,%q<cats>,%b,%B,%q<pid>))={th u(setq,had,1);@pemit %#=u(HEADER,mudname() - New [if(u(isobjid,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),name(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),Uncategorized)] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,GET`PENJOBSCAT,%q<pid>,if(isint(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),%q<pid>)={@pemit %#=u(FUN`LISTJOBSTAFF,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))};@select/inline #@=1,{@pemit %#=u(SUBHEADER,Showing 20 Per Category)}};@select/inline not(%q<had>)=1,{@attach %!/INC`MSG=There are no new jobs in the system!}
 

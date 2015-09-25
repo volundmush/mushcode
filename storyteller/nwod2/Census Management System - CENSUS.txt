@@ -1,10 +1,10 @@
 @@ DEPENDENCIES - CORE
 th u(newcobj,STORYTELLER: Census Management System <CENSUS>,census,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&CMD`+CENSUS [u(cobj,census)]=$^\+census(?\: +(.*))?$:@check words(u(setr,list,u(sortname,lsearch(all,eplayer,\[cand(nor(haspower(##,GUEST),u(isadmin,##)),u(approved,##))\]))))=@attach %!/INC`MSG=No active players in the +census!;@attach %!/INC`[switch(stlren(%1),>0,SUB,MAIN)]=%1
+&CMD`+CENSUS [u(cobj,census)]=$^\+census(?\: +(.*))?$:@check words(u(setr,list,u(sortname,lsearch(all,eplayer,\[cand(nor(haspower(##,GUEST),u(isadmin,##)),u(approved,##))\]))))=@attach %!/INC`MSG=No active players in the +census!;@attach %!/INC`[switch(strlen(%1),>0,SUB,MAIN)]=%1
 @set [u(cobj,census)]/CMD`+CENSUS=regexp
 
-&INC`MAIN [u(cobj,census)]=@pemit %#=u(header,mudname() Census Data);@dolist/inline/delimit | [u(game_config,storyteller,CLASSES)]={@switch/inline gt(words(setr(racelist,filterbool(#lambda/strmatch(%i0,strfirstof(u(getstat,\%0,D`INFO,Class),Mortal)),%q<list>))),0)=1,{@pemit %#=ljust(ansi(h,pueblize(u(capnames,%i0),+census [u(capnames,%i0)])),70,.)[rjust(words(%q<racelist>),2,0)];@switch/inline if(and(words(%q<racelist>),u(isadmin,%#)),1,0)=0,{},{@pemit %#=u(itemize,iter(%q<racelist>,name(%i0),%b,|),|,and,\,)%R}}};@pemit %#=u(subheader,Total Player Characters: [words(%q<list>)])
+&INC`MAIN [u(cobj,census)]=@pemit %#=u(header,mudname() Census Data);@dolist/inline/delimit | [u(game_config,storyteller,CLASSES)]={@select/inline gt(words(u(setr,racelist,filterbool(#lambda/strmatch(%i0,getclass(\%0)),%q<list>))),0)=1,{@pemit %#=ljust(ansi(h,u(pueblize,u(capnames,%i0),+census [u(capnames,%i0)])),70,.)[rjust(words(%q<racelist>),2,0)];@select/inline if(and(words(%q<racelist>),u(isadmin,%#)),1,0)=0,{},{@pemit %#=u(itemize,iter(%q<racelist>,name(%i0),%b,|),|,and,\,)%R}}};@pemit %#=u(subheader,Total Player Characters: [words(%q<list>)])
 
 &INC`SUB [u(cobj,census)]=@attach %!/INC`PARTIAL=%0,u(game_config,storyteller,CLASSES),|,choice,Sphere;@attach %!/INC`SUB`SPHERE=switch(%q<choice>,MORTAL,Ghoul,HUNTER,Tier,VAMPIRE,Covenant,WEREWOLF,Lodge,GEIST,,CHANGELING,Court,MAGE,Order),switch(%q<choice>,MORTAL,,HUNTER,Organization,VAMPIRE,Clan,WEREWOLF,Auspice,GEIST,Archetype,CHANGELING,Seeming,MAGE,Path),switch(%q<choice>,MORTAL,,HUNTER,Profession,VAMPIRE,Bloodline,WEREWOLF,Tribe,GEIST,Threshold,CHANGELING,Kith,MAGE,Legacy)
 

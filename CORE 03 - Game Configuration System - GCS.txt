@@ -34,7 +34,7 @@ th u(NEWCOBJ,Game Configuration Data Storage <CONFIG>,config,u(cobj,gcs),,1,WIZA
 
 @@ STARTUP EXTRA is used by individual games.
 &PLAYER`CREATE [u(cobj,gcs)]=@dolist/inline u(lattr,%!/PLAYER`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&PLAYER`CREATE`CHANNELS [u(cobj,gcs)]=@select/inline 1=u(isguest,%0),{@@ @dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_GUESTS)]=@select/inline v(game)=PennMUSH,{@chan/on %i0=%0},RhostMUSH,{}},0,{@dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_PLAYERS)]=@select/inline v(game)=PennMUSH,{@chan/on %i0=%0},RhostMUSH,{}}
+&PLAYER`CREATE`CHANNELS [u(cobj,gcs)]=@select/inline 1=u(isguest,%0),{@@ @dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_GUESTS)]=@select/inline v(game)=PennMUSH,{@chan/on %i0=%0},RhostMUSH,{}},{@dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_PLAYERS)]=@select/inline v(game)=PennMUSH,{@chan/on %i0=%0},RhostMUSH,{}}
 
 @@ CONFIG DEFAULTS - Don't change these! +config can change them.
 

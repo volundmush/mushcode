@@ -1,7 +1,7 @@
 @@ DEPENDENCIES - CORE
 th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&SWITCHES`PLAYER [u(cobj,merit)]=ADD|RANK|GET|DESC|CONTEXT|DELETE
+&SWITCHES`PLAYER [u(cobj,merit)]=ADD|RANK|GET|DESC|CONTEXT|DELETE|NOTES
 &SWITCHES`ADMIN [u(cobj,merit)]=
 &SYSTEM`NAME [u(cobj,merit)]=u(strfirstof,%q<sysname>,MERITS)
 
@@ -20,7 +20,7 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 
 &INC`BEGIN [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline strmatch(%#,%q<target>)=0,{@check u(isadmin,%#)=@attach %!/INC`MSG=Permission denied.};@stop cand(u(isapproved,%q<target>),not(u(isadmin,%#)))=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`MERNAME=%q<filename>
 
-&INC`BEGIN2 [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline strmatch(%#,%q<target>)=0,{@check u(isadmin,%#)=@attach %!/INC`MSG=Permission denied.};@stop cand(u(isapproved,%q<target>),not(u(isadmin,%#)))=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`MERNAME=%q<filename>;@attach %!/INC`EXISTING=%q<filename>
+&INC`BEGIN2 [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline strmatch(%#,%q<target>)=0,{@check u(isadmin,%#)=@attach %!/INC`MSG=Permission denied.};@stop cand(u(isapproved,%q<target>),nor(u(isadmin,%#),%q<notes>))=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`MERNAME=%q<filename>;@attach %!/INC`EXISTING=%q<filename>
 
 &INC`ADD [u(cobj,merit)]=@attach %!/INC`BEGIN;@stop strlen(u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<context>))=@attach %!/INC`MSG=ERROR: Conflicting Merit. Contexts must be unique.;th u(setq,attr,%q<root>`[u(nextslot,%q<target>,%q<root>)]);@check cand(isint(%1),gte(%1,0))=@attach %!/INC`MSG=[capstr(%2)] must have a rank. Ranks must be 0 or greater.;@attach %!/DO`ADD=%q<attr>,%q<target>,%q<merit>,%q<context>,%1;th u(setq,msg,gained a new %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)] (%1));@select/inline strmatch(%#,%q<target>)=0,{th u(setq,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
 
@@ -38,7 +38,9 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 
 &INC`DESC [u(cobj,merit)]=@attach %!/INC`BEGIN2;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Desc empty!;&%q<attr>`DESC %q<target>=%1;@attach %!/DO`UPD=%q<target>,%q<attr>;th u(setq,msg,had a %q<type> Desc Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to %1);@select/inline strmatch(%#,%q<target>)=0,{th u(setq,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
 
-&INC`GET [u(cobj,merit)]=@attach %!/INC`TARGET;@attach %!/INC`MERNAME;@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s [u(FUN`MERNAME,%q<target>,%q<attr>)] Desc);@pemit %#=decompile(get(%q<target>/%q<attr>`DESC));@pemit %#=u(SUBHEADER)
+&INC`NOTES [u(cobj,merit)]=th u(setq,notes,1);@attach %!/INC`BEGIN2;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Notes empty!;&%q<attr>`NOTES %q<target>=%1;@attach %!/DO`UPD=%q<target>,%q<attr>;th u(setq,msg,had a %q<type> Note Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to %1);@select/inline strmatch(%#,%q<target>)=0,{th u(setq,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
+
+&INC`GET [u(cobj,merit)]=@attach %!/INC`TARGET;@attach %!/INC`MERNAME;@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s [u(FUN`MERNAME,%q<target>,%q<attr>)] Desc);@pemit %#=decompose(get(%q<target>/%q<attr>`DESC));@select/inline strlen(u(setr,notes,get(%q<target>/%q<attr>`NOTES)))=>0,{@pemit %#=u(separator,Notes);@pemit %#=decompose(%q<notes>)};@pemit %#=u(SUBHEADER)
 
 &INC`MAIN [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline t(strlen(%q<filename>))=1,{@attach %!/INC`MERNAME=%q<filename>;@attach %!/INC`EXISTING;@attach %!/INC`DISPLAY},0,{@attach %!/INC`LIST}
 
@@ -48,7 +50,7 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 &SORTMER`PENNMUSH [u(cobj,merit)]=sortkey(#lambda/u(FUN`MERNAME,%q<target>,\%0),%0,i,%1,%2)
 &SORTMER`RHOSTMUSH [u(cobj,merit)]=sortby(#lambda/[lit([comp(lcstr(u(FUN`MERNAME,%q<target>,%0)),lcstr(u(FUN`MERNAME,%q<target>,%1)))])],%0,%1,%2)
 
-&INC`DISPLAY [u(cobj,merit)]=@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@pemit %#=get(%q<target>/%q<attr>`DESC);@pemit %#=u(SEPARATOR);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(20 20,Setby,Seton));@pemit %#=u(separator);@pemit %#=align(20 20,get(%q<target>/%q<attr>`BY),u(fancytime,get(%q<target>/%q<attr>`ON),%#));@pemit %#=u(SUBHEADER)
+&INC`DISPLAY [u(cobj,merit)]=@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@pemit %#=get(%q<target>/%q<attr>`DESC);@select/inline strlen(u(setr,notes,get(%q<target>/%q<attr>`NOTES)))=>0,{@pemit %#=u(SEPARATOR,Notes);@pemit %#=%q<notes>;@pemit %#=u(separator)},1,{@pemit %#=u(SEPARATOR)};@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(20 20,Setby,Seton));@pemit %#=u(separator);@pemit %#=align(20 20,get(%q<target>/%q<attr>`BY),u(fancytime,get(%q<target>/%q<attr>`ON),%#));@pemit %#=u(SUBHEADER)
 
 &STARTUP [u(cobj,merit)]=@select/inline v(game)=PennMUSH,{@function getmerit=%!,getmerit;@function/restrict getmerit=localize},RhostMUSH,{@function/privileged getmerit=%!,getmerit}
 
@@ -58,7 +60,7 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 +help/add +merits=[u(cobj,merit)]/HLP`+MERITS
 +help/category +merits=Character
 +help/metatags +merits=+backgrounds +flaws +mutations +pacts
-&HLP`+MERITS [u(cobj,merit)]=The Merit system allows Players to mark down their character's Merits, Flaws, and other notes.%R%R[ansi(hc,Concepts)]%R[align(5 [sub(width(%#),6)],,[ansi(h,Types)] - The actual type of the merit. Examples: Haven\, Resources\, Artifact\, Contacts\, Patron\, etc.%R[ansi(h,context)] - Merits and equivalents can have a CONTEXT\, such as the name of an Artifact or the source of one's resources. When a Merit name is neded\, the context is added in the following style: Artifact: Volcano Cutter. Contexts must be unique for each TYPE you have! You can have an Artifact: Volcano Cutter and an Artifact: Orichalcum Breastplate\, but not two Volcano cutters.)]%R%R[ansi(hc,Managing Merits)]%RNote: Merits may only be edited freely while in Chargen. Only admin may edit them otherwise.%R%R[align(5 [sub(width(%#),6)],,[ansi(h,+merits)] - Lists your current Merits.%R[ansi(h,+merits <merit>)] - View details about a Merit.%R[ansi(h,+merits/add <merit>=<value>)] - Creates new Merit. Value must be a number.%R[ansi(h,+merits/rank <merit>=<value>)] - Change's a merit's value.%R[ansi(h,+merits/desc <merit>=<text>)] - Describes a merit with a text entry visible when it's viewed.%R[ansi(h,+merits/context <merit>=<new context>)] - Change a merit's context.%R[ansi(h,+merits/get <merit>)] - Retrieve an unformatted version of a Merit's /desc for easy editing.%R[ansi(h,+merits/delete %q<merit>)] - Delete a merit.)]%R%R[u(HLP`MERITS`GAME)]
+&HLP`+MERITS [u(cobj,merit)]=The Merit system allows Players to mark down their character's Merits, Flaws, and other notes.%R%R[ansi(hc,Concepts)]%R[align(5 [sub(width(%#),6)],,[ansi(h,Types)] - The actual type of the merit. Examples: Haven\, Resources\, Artifact\, Contacts\, Patron\, etc.%R[ansi(h,context)] - Merits and equivalents can have a CONTEXT\, such as the name of an Artifact or the source of one's resources. When a Merit name is neded\, the context is added in the following style: Artifact: Volcano Cutter. Contexts must be unique for each TYPE you have! You can have an Artifact: Volcano Cutter and an Artifact: Orichalcum Breastplate\, but not two Volcano cutters.)]%R%R[ansi(hc,Managing Merits)]%RNote: Merits may only be edited freely while in Chargen. Only admin may edit them otherwise.%R%R[align(5 [sub(width(%#),6)],,[ansi(h,+merits)] - Lists your current Merits.%R[ansi(h,+merits <merit>)] - View details about a Merit.%R[ansi(h,+merits/add <merit>=<value>)] - Creates new Merit. Value must be a number.%R[ansi(h,+merits/rank <merit>=<value>)] - Change's a merit's value.%R[ansi(h,+merits/desc <merit>=<text>)] - Describes a merit with a text entry visible when it's viewed. This is locked on approval.%R[ansi(h,+merits/notes <merit>=<text>)] - Similar to desc\, but doesn't get admin-locked on approval. Useful for keeping notes regarding a Merit.%R[ansi(h,+merits/context <merit>=<new context>)] - Change a merit's context.%R[ansi(h,+merits/get <merit>)] - Retrieve an unformatted version of a Merit's /desc for easy editing.%R[ansi(h,+merits/delete %q<merit>)] - Delete a merit.)]%R%R[u(HLP`MERITS`GAME)]
 
 +shelp/add +merits=[u(cobj,merit)]/SHLP`+MERITS
 +shelp/category +merits=Character

@@ -13,8 +13,6 @@ th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERI
 &GETPOWER [u(cobj,data)]=u(strfirstof,u(getstat,switch(type(%0),THING,get(%0/OWNER),%0),D`INFO,Power),1)
 &GETBONUS [u(cobj,data)]=add(u(getstat,%0,D`BONUS,%1),u(GETBONUS`[u(getclass,%0)],%0,%1))
 
-
-
 &STARTUP [u(cobj,data)]=@select/inline v(game)=PennMUSH,{@dolist/inline getclass getpower getbonus={@function %i0=%!,%i0}},RhostMUSH,{@dolist/inline getclass getpower getbonus={@function/privileged getclass=%!,GETCLASS}}
 
 &SWITCHES`ADMIN [u(cobj,data)]=SET|REM|ADD

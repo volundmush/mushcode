@@ -152,7 +152,7 @@
 &POOL`SATIETY [u(cobj,pool)]=Pool
 &POOL`SATIETY`UNITNAME [u(cobj,pool)]=Points
 &POOL`SATIETY`UNITTYPE [u(cobj,pool)]=Satiety
-&POOL`SATIETY`MAX [u(cobj,pool)]=switch(getpower(%0),1,10,2,11,3,12,4,13,5,14,6,15,7,20,8,30,9,50,10,100)
+&POOL`SATIETY`MAX [u(cobj,pool)]=10
 &POOL`SATIETY`INIT [u(cobj,pool)]=u(POOL`SATIETY`MAX,%0)
 &POOL`SATIETY`ORDER [u(cobj,pool)]=10
 &POOL`SATIETY`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH

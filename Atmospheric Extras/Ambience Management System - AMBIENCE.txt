@@ -2,10 +2,10 @@
 th u(newcobj,Ambience Management System <AMBIENCE>,ambience,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
 &CMD`+AMBIENCE`PENNMUSH [u(cobj,ambience)]=$^(?\:\+)?ambience(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+AMBIENCE`MAIN
-@set [u(cobj,ambience)]/CMD`+ACCOUNT`PENNMUSH=regexp
+@set [u(cobj,ambience)]/CMD`+AMBIENCE`PENNMUSH=regexp
 &CMD`+AMBIENCE`RHOSTMUSH [u(cobj,ambience)]=$^(?\:\+)?ambience(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+AMBIENCE`MAIN
-@set [u(cobj,ambience)]/CMD`+ACCOUNT`RHOSTMUSH=regexp
-&CMD`+AMBIENCE`MAIN [u(cobj,ams)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,ambience)]/CMD`+AMBIENCE`RHOSTMUSH=regexp
+&CMD`+AMBIENCE`MAIN [u(cobj,ambience)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
 @set [u(cobj,ambience)]/CMD`+AMBIENCE`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,ambience)]=

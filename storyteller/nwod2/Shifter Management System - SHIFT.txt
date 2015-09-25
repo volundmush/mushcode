@@ -10,8 +10,8 @@ th u(newcobj,STORYTELLER: Shapeshift Management System <SHIFT>,shift,,,,WIZARD S
 &STARTUP [u(Cobj,shift)]=@select/inline v(game)=PennMUSH,{@dolist/inline getform ensorcel ghoul={@function %i0=%!,%i0;@function/restrict %i0=localize}},RhostMUSH,{@dolist/inline getform ensorcel ghoul=@function/privileged %i0=%!,%i0}
 
 &GETFORM [u(cobj,shift)]=switch(getclass(%0),WEREWOLF,u(strfirstof,u(getstat,%0,D`INFO,Form),Hishu))
-&ENSORCEL [u(Cobj,shift)]=t(u(wildgrepi,%0,D`MERITS`*,ENSORCELED))
-&GHOUL [u(Cobj,shift)]=t(u(wildgrepi,%0,D`MERITS`*,GHOUL))
+&ENSORCEL [u(Cobj,shift)]=getmerit(%0,MERITS,ENSORCELED)
+&GHOUL [u(Cobj,shift)]=getmerit(%0,MERITS,GHOUL)
 
 &GETBONUS`WEREWOLF [u(cobj,data)]=u(getstat,u(cobj,shift),WEREWOLF`[getform(%0)],%1)
 

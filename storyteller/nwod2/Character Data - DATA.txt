@@ -1,5 +1,7 @@
 @@ Advantages
 
+&PLAYER`CREATE [u(cobj,data)]=&D`ATTRIBUTES %0=iter(u(FUN`GET`ATTRIBUTES),%i0~1,|,|)
+
 &INC`SET`SPHERE [u(cobj,data)]=@attach [u(cobj,data)]/INC`SET`CLASS
 
 th u(newconf,config,STORYTELLER,CLASSES,MORTAL|HUNTER|VAMPIRE|WEREWOLF|SIN-EATER|CHANGELING|MAGE|PROMETHEAN|DEMON|BEAST,Available Classes,LIST)

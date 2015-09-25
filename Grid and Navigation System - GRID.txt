@@ -35,8 +35,6 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &INC`BUILDER`REMOVE [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1;@check haspower(%q<t1>,BUILDER)=@attach %!/INC`MSG=ERROR: They are not a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=!builder;@select/inline lt(money(%q<t1>),100000)=1,{give %q<t1>=100000};give %q<t1>=-99000;@attach %!/INC`MSG=You have revoked %q<t1name>'s Builder powers.;@pemit %q<t1>=msghead(BUILDER) %n has revoked your Builder powers.;@select/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy u(VAR`BUILDER`ALERTSCHANNEL)=%n 
 
-
-
 &FUN`LISTDISTRICTS [u(cobj,grid)]=u(sortorder,u(sortname,children(u(cobj,district))))
 
 &INC`DISTRICT`MAIN [u(cobj,grid)]=@select/inline strlen(%0)=>0,{@attach %!/INC`DISTRICT`CHOOSE},{@attach %!/INC`DISTRICT`LIST}

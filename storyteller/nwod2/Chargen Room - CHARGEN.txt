@@ -36,14 +36,13 @@
 
 &CG`1`CASTE [u(Cobj,chargen)]=[ansi(h,+%0 <%0>)] to set your [u(capnames,%0)].%R%TYour choices are: [u(itemize,get(u(cobj,data)/[getclass(%#)]),|,and,\,)]
 
-
 &CMD`+CLASS [u(cobj,chargen)]=$^\+(?\:sphere|class)(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CLASS=%#,,%1;@force/inline %#=look;@attach %!/INC`MSG=You are now a [ansi(h,u(capnames,%q<find>))].
 @set [u(cobj,chargen)]/CMD`+class=regexp
 
-&CMD`+CASTE [u(cobj,chargen)]=$^\+(?\:clan|auspice|path|seeming|incarnation|family)(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CASTE=%#,,%1;@attach %!/INC`MSG=Your Caste is now [ansi(h,u(capnames,%q<find>))].
+&CMD`+CASTE [u(cobj,chargen)]=$^\+(clan|auspice|path|seeming|incarnation|family)(?\: +(.+))?$:@attach %!/INC`PARTIAL=%2,get(u(cobj,data)/[getclass(%#)]),|,choice,choice;th u(setstat,%#,D`INFO,ucstr(%1),%q<choice>);@attach %!/INC`MSG=Your [u(capnames,%1)] is now [ansi(h,u(capnames,%q<choice>))].
 @set [u(cobj,chargen)]/CMD`+CASTE=regexp
 
-&CMD`INFOSET [u(cobj,chargen)]=$^\+(mask|dirge|covenant|bloodline)(?\: +(.+))?$:th u(setq,type,switch(%1,flawedvirtue,Flawed Virtue,virtueflaw,Virtue Flaw,doom,Doom,liege,Liege,lure,Lure,totem,Totem Animal,urge,Urge,house,House,yozi,Favored Yozi,nation,Nation,parent,Parent));@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Class!;th u(setstat,%#,D`INFO,%q<type>,%2)
+&CMD`INFOSET [u(cobj,chargen)]=$^\+(virtue|vice|mask|dirge|covenant|bloodline|blood|bone|lodge|tribe|profession|tier|organization|hunger|life|legend|court|kith|agenda|order|legacy)(?\: +(.+))?$:th u(setq,type,u(capnames,%1));@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Class!;th u(setstat,%#,D`INFO,%q<type>,%2)
 @set [u(cobj,chargen)]/CMD`INFOSET=regexp
 
 &CG`2 [u(cobj,chargen)]=[u(SEPARATOR,Step 2: Attributes)]%R%tTo set an attribute:%r%r[ansi(h,%t+attr <attribute>=<value>)] (<attribute> may be a partial match. <value> must be 0 or greater.)%R%TYour choices are: [u(itemize,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,and,\,)]%R%R%TAll Attributes begin with 1 dot free, unless your Template states otherwise.%r%r%tIn order of Primary/Secondary/Tertiary...[udefault(CG`2`[getclass(%#)],Your Class appears unset or has no data entered.)]
@@ -84,7 +83,7 @@
 &CMD`+SPEC [u(cobj,chargen)]=$^\+spec(?\: +(.+?))?(?\:=(.+))?$:@attach u(cobj,data)/DO`SET`SPECIALTY=%#,%1,if(eq(%2,0),,%2);@select/inline t(%2)=1,{@attach %!/INC`MSG=You set [ansi(h,u(capnames,%q<find>/%q<spec>))] to [ansi(h,%2)]},0,{@attach %!/INC`MSG=You remove [ansi(h,u(capnames,%q<find>/%q<spec>))]}
 @set [u(cobj,chargen)]/CMD`+SPEC=regexp
 
-&CG`4 [u(cobj,chargen)]=[u(SEPARATOR,Step 4: Merits)]%R[ansi(h,+help +merits)] to see how to set your Merits. Make sure to give them descriptions and contexts as appropriate![if(cand(strlen(getclass(%#)),hasattr(%!/CG`4`[getclass(%#)])),%R%R%T[u(CG`4`[getclass(%#)])])]
+&CG`4 [u(cobj,chargen)]=[u(SEPARATOR,Step 4: Merits and Power Stat)]%R[ansi(h,+help +merits)] to see how to set your Merits. Make sure to give them descriptions and contexts as appropriate![if(cand(strlen(getclass(%#)),hasattr(%!/CG`4`[getclass(%#)])),%R%R%T[u(CG`4`[getclass(%#)])])][switch(getclass(%#),Mortal,,Hunter,,%R%R[ansi(h,+power <#>)] to set your [get(u(cobj,data)/POWER`[getclass(%#)])].)]
 
 &CG`4`MORTAL [u(cobj,chargen)]=Mortals receive 10 Points to spend on Merits.%R%RIf you are a Ghoul, create a Ghoul Merit.
 &CG`4`VAMPIRE [u(cobj,chargen)]=Vampires receive 10 Points to spend on Merits.
@@ -94,6 +93,11 @@
 &CG`4`CHANGELING [u(cobj,chargen)]=Changelings receive 10 Points to spend on Merits.
 &CG`4`DEMON [u(cobj,chargen)]=Demons receive 10 Points to spend on Merits.
 &CG`4`MAGE [u(cobj,chargen)]=Mages receive 10 Points to spend on Merits.
+
+
+&CMD`+POWER [u(cobj,chargen)]=$+power *:@attach u(cobj,data)/DO`SET`POWER=%#,,%0;@attach %!/INC`MSG=You set your [get(u(cobj,data)/POWER`[getclass(%#)])] to %0.
+
+
 
 &CG`5 [u(cobj,chargen)]=[u(SEPARATOR,Step 5: Advantages)][if(cand(strlen(getclass(%#)),hasattr(%!/CG`5`[getclass(%#)])),%R%R[u(CG`5`[getclass(%#)])])]
 
@@ -117,25 +121,12 @@
 
 @@ [if(cand(strlen(getclass(%#)),hasattr(%!/CG`6`[getclass(%#)])),%R[u(CG`6`[getclass(%#)])])]
 
-&CG`6`MORTAL [u(cobj,chargen)]=[u(CG`6`ESSENCE)]%RMortals begin with Essence 1.%R%R[u(CG`6`WILLPOWER)]%RMortals begin with 3 Willpower.%R%R[u(CG`6`INTIMACY)]%R%R[u(CG`6`HEALTH)]%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`FINISH)]
-&CG`6`SOLAR [u(cobj,chargen)]=[u(CG`6`ESSENCE)]%RSolars begin with Essence 1.%R%R[u(CG`6`WILLPOWER)]%RSolars begin with 5 Willpower.%R%R[u(CG`6`INTIMACY)]%R%R[u(CG`6`HEALTH)]%R%R[ansi(h,+info Trigger=<limit trigger>)] to set your Limit Trigger.%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`FINISH)]
 
-&CG`6`INTIMACY [u(cobj,chargen)]=[ansi(h,+help +intimacy)] for instructions on setting your Intimacies.%RChoose at least 4 intimacies. At least one must be Defining, one must be Major, one must be positive, one must be negative.
-&CG`6`HEALTH [u(cobj,chargen)]=[ansi(h,+hl <Health level list>)] to set your health levels. If you lack extra levels, use "+hl -0 -1 -1 -2 -2 -4 I [iter(lnum(u(getstat,%#,D`ATTRIBUTES,Stamina)),D)]". The system will sort for you if you goof!
-&CG`6`WILLPOWER [u(cobj,chargen)]=[ansi(h,+wp <value>)] to set your willpower.
-&CG`6`ESSENCE [u(cobj,chargen)]=[ansi(h,+ess <value>)] to set your Essence rating.
+
 &CG`6`BGSTORY [u(cobj,chargen)]=[ansi(h,+info BGStory=<story>)] to set your background story. A few paragraphs will do. The file has a limit of 4kb of text, use BGStory2, 3, etc, if necessary. \%R can linebreak, \%T indents. Readability counts!
 &CG`6`CHARGENXP [u(cobj,chargen)]=As mentioned in page 1, mark down how much XP you spent (and what on) in an +info using [ansi(h,+info Chargen=<description of XP spent>)]. Your +sheet should reflect the final result.
 &CG`6`FINISH [u(cobj,chargen)]=When complete, paste the following command to your client: %r%t[ansi(h,+request/apps Finished with chargen!=Look me over please!)]
-&CG`6`VIRTUES [u(cobj,chargen)]=[ansi(h,+virtue <virtue>=<rank>)] to set your Virtues.
-&CG`6`LANGUAGES [u(cobj,chargen)]=[ansi(h,+addlang <language>)] - to gain a language, +dellang to remove one!
 
-&CMD`+ESS [u(cobj,chargen)]=$+ess *:@attach u(cobj,data)/DO`SET`POWER=%#,,%0;@attach %!/INC`MSG=You set your permanent Essence to %0.
-
-&CMD`+WP [u(cobj,chargen)]=$+wp *:@attach u(cobj,data)/DO`SET`WILLPOWER=%#,,%0;@attach %!/INC`MSG=You set your Willpower to %0.
-
-&CMD`+RESET [u(cobj,chargen)]=$^\+reset(?\: +(.*))?$:@check strlen(%1)=@attach %!/INC`MSG=What will you reset? Your options are: [u(itemize,ALL|SPLAT|ATTRIBUTES|ABILITIES|THAUMATURGY|PATHS|COLLEGES|CHARMS|SPELLS|BACKGROUNDS|MUTATIONS|VIRTUES|GRACES,|,and,\,)];@attach %!/INC`PARTIAL=%1,ALL|SPLAT|ATTRIBUTES|ABILITIES|THAUMATURGY|PATHS|COLLEGES|CHARMS|SPELLS|BACKGROUNDS|MUTATIONS|VIRTUES|GRACES,|,CHARGEN,choice,choice;@select/inline %q<choice>=ALL,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will remove ALL data entered on your character. You will have to start over entirely from scratch. This will even remove your +info files! Are you sure? enter +reset all again to verify!},RESET ALL,CHARGEN;@dolist/inline setdiff(u(lattr,%#/D`*),D`XP D`INFOFILE D`ACCOUNT D`IPLOG)=@wipe %#/%i0;@attach %!/INC`MSG=You have reset back to square one!;@stop 1},SPLAT,{@wipe %#/D`INFO},THAUMATURGY,{@wipe %#/D`ARTS;@wipe %#/D`SCIENCES},MUTATIONS,{@wipe %#/D`* MUTATIONS},{@wipe %#/D`%q<choice>};@attach %!/INC`MSG=You have reset your %q<choice>!
-@set [u(cobj,chargen)]/CMD`+RESET=regexp
 
 
 

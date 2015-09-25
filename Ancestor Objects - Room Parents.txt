@@ -18,7 +18,7 @@
 &CONFORMAT`THINGS`MASTER_ROOM [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(sortname(lvthings(%!)),align(40 28 8,name(%i0),name(owner(%i0)),switch(isadmin(%#)[hasflag(%i0,ENTER_OK)],11,ansi(hg,%i0),1*,ansi(hr,%i0),01,ansi(hg,enter_ok),ansi(hr,can't))),%b,%R)]
 
 &CONFORMAT`EXTRA [u(cobj,ancestor_room)]=[if(cor(nattr(%!/VIEW`*),nattr(%!/MUSIC`*),nattr(%!/PLACE`*)),separator(Extra)%R[iter(filterbool(#lambda/nattr(%!/\%0`*),PLACE VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)]
-&FUN`EXTRA`VIEW [u(cobj,ancestor_room)]=This room has views! Type [pueblize(ansi(h,views),views)] to list!
+&FUN`EXTRA`VIEW [u(cobj,ancestor_room)]=This room has views! Type [pueblize(ansi(h,+view),+view)] to list!
 &FUN`EXTRA`MUSIC [u(cobj,ancestor_room)]=[ansi(hc,This room has a soundtrack! Type)] [pueblize(ansi(h,soundtrack),soundtrack)] [ansi(hc,to list!)]
 &FUN`EXTRA`PLACE [u(cobj,ancestor_room)]=This room has places! Type [pueblize(ansi(h,places),places)] to list!
 
