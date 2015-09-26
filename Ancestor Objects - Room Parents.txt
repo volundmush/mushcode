@@ -26,6 +26,15 @@
 
 &EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[table(iter(sortorder(sortname(lvexits(%!))),ljust(if(strlen(alias(%i0)),<[ansi(color(%#,ROOM,EXITALIAS),pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(color(%#,ROOM,EXITNAME),pueblize(moniker(%i0),name(%i0)))] to [ansi(color(%#,ROOM,EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))],%b,|),37,width(%#),|)]%R[u(SUBHEADER)]
 
+&EXITFORMAT`CARDINAL [u(cobj,ancestor_room)]=[setq(a,filter(FIL`VISIBLE,setr(1,sortorder(sortname(lexits(%!))))))][setq(b,filter(FIL`DARK,%q1))][setq(c,filter(FIL`CARDINAl,%q1))][setq(d,filter(FIL`NOTCARDINAL,%q1))][if(words(%qc),u(SEPARATOR,Directions)%R[u(EXITFORMAT`CARDINAL`TABLE,%qc)])][if(words(%qd),if(words(%qc),%R)[u(separator,Exits)]%R[u(EXITFORMAT`CARDINAL`TABLE,%qd)])][if(cor(words(%qd),words(%qc)),%R[u(subheader)],u(subheader))]
+
+&EXITFORMAT`CARDINAL`TABLE [u(cobj,ancestor_room)]=table(iter(%0,ljust(if(strlen(alias(%i0)),<[ansi(color(%#,ROOM,EXITALIAS),pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(color(%#,ROOM,EXITNAME),pueblize(moniker(%i0),name(%i0)))],%b,|),37,width(%#),|)
+
+&FIL`CARDINAL [u(cobj,ancestor_room)]=t(match(n e s w ne nw se sw d u o i,alias(%0)))
+&FIL`NOTCARDINAL [u(cobj,ancestor_room)]=not(u(FIL`CARDINAL,%0))
+&FIL`VISIBLE [u(cobj,ancestor_room)]=not(u(FIL`DARK,%0))
+&FIL`DARK [u(cobj,ancestor_room)]=hasflag(%0,DARK)
+
 th u(NEWCONF,config,ROOM,PLAYERS_MODE,DEFAULT,Changes room format for PLAYERS.,WORD)
 th u(NEWCONF,config,ROOM,THINGS_MODE,DEFAULT,Changes room format for THINGS.,WORD)
 th u(NEWCONF,config,ROOM,EXITS_MODE,DEFAULT,Changes room format for EXITS.,WORD)

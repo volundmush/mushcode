@@ -12,7 +12,7 @@
 
 &SYSTEM`NAME [u(cobj,chargen)]=CHARGEN
 
-@desc [u(cobj,chargen)]=%TWelcome to [mudname()] Chargen! In this room you will setup your sheet and other aspects and prepare for admin review for approval. Remember to check out any House Rules at [u(weblink,mudurl())]%R%R%T[ansi(h,INSTRUCTIONS:)] Set your sheet as it would be after spending all your available points, including starting experience awarded by house rules. Approval will require an +info (+help +info) file detailing your spends so keep track of how you spend your XP.%R%R%TTo see your sheet, type [ansi(h,+sheet)]%R[u(u(strfirstof,u(getstat,%#,D`CHARGEN,Page),CG`1),getclass(%#))]%R[u(SEPARATOR,Chargen)]%RViewing Page [ansi(h,u(strfirstof,last(u(getstat,%#,D`CHARGEN,Page),`),1))] of [ansi(h,u(lmax,edit(u(filter,ISPAGE,u(lattr,%!/CG`*)),CG`,)))]. Use [ansi(h,+page <number>)] to change. For example, +page 2.%RIf you'd like to undo certain steps, use [ansi(h,+reset)] to view your options.
+@desc [u(cobj,chargen)]=%TWelcome to [mudname()] Chargen! In this room you will setup your sheet and other aspects and prepare for admin review for approval. Remember to check out any House Rules at [u(weblink,mudurl())]%R%R%T[ansi(h,INSTRUCTIONS:)] Set your sheet as it would be after spending all your available points, including starting experience awarded by house rules. Approval will require a +pinfo (+help +info) file detailing your spends so keep track of how you spend your XP.%R%R%TTo see your sheet, type [ansi(h,+sheet)]%R[u(u(strfirstof,u(getstat,%#,D`CHARGEN,Page),CG`1),getclass(%#))]%R[u(SEPARATOR,Chargen)]%RViewing Page [ansi(h,u(strfirstof,last(u(getstat,%#,D`CHARGEN,Page),`),1))] of [ansi(h,u(lmax,edit(u(filter,ISPAGE,u(lattr,%!/CG`*)),CG`,)))]. Use [ansi(h,+page <number>)] to change. For example, +page 2.%RIf you'd like to undo certain steps, use [ansi(h,+reset)] to view your options.
 
 &FUN`STATS [u(cobj,chargen)]=[u(SEPARATOR,Progress)]%R[ansi(h,ATTRIBUTES:)] [rjust(u(FUN`COUNT,%#,ATTRIBUTES),2,0)]. Physical/Social/Mental: [rjust(add(u(getstat,%#,D`ATTRIBUTES,Strength),u(getstat,%#,D`ATTRIBUTES,Dexterity),u(getstat,%#,D`ATTRIBUTES,Stamina)),2,0)]/[rjust(add(u(getstat,%#,D`ATTRIBUTES,Charisma),u(getstat,%#,D`ATTRIBUTES,Manipulation),u(getstat,%#,D`ATTRIBUTES,Appearance)),2,0)]/[rjust(add(u(getstat,%#,D`ATTRIBUTES,Perception),u(getstat,%#,D`ATTRIBUTES,Intelligence),u(getstat,%#,D`ATTRIBUTES,Wits)),2,0)]%R[ansi(h,ABILITIES:)] [rjust(add(u(FUN`COUNT,%#,ABILITIES),u(FUN`COUNT,%#,STYLES),u(FUN`COUNT,%#,CRAFTS)),2,0)]/[rjust(u(strfirstof,v(MAX`ABILITIES`[u(setr,class,getclass(%#))]),??),2,0)]%R[ansi(h,BACKGROUNDS:)] [rjust(u(FUN`COUNT`BACKGROUNDS,%#),2,0)]/[rjust(u(strfirstof,v(MAX`MERITS`%q<class>),??),2,0)]%R[ansi(h,CHARMS:)] [rjust(add(u(FUN`COUNT`CHARMS,%#),u(FUN`COUNT`SPELLS,%#)),2,0)]/[rjust(u(strfirstof,v(MAX`CHARMS`%q<class>),??),2,0)]
 
@@ -117,15 +117,21 @@
 @set [u(cobj,chargen)]/CMD`+POWER2=regexp
 
 
-&CG`6 [u(cobj,chargen)]=[u(SEPARATOR,Step 6: Finishing Touches)]%R[u(CG`6`ESSENCE)]%R%R[u(CG`6`WILLPOWER)]%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`HEALTH)]%R%R[u(CG`6`VIRTUES)]%R%R[u(CG`6`LANGUAGES)]%R%R[u(CG`6`FINISH)]
+&CG`6 [u(cobj,chargen)]=[u(SEPARATOR,Step 6: Finishing Touches)][if(cand(strlen(getclass(%#)),hasattr(%!/CG`6`[getclass(%#)])),%R[u(CG`6`[getclass(%#)])])]%R%R[u(CG`6`XP)]%R%R[u(CG`6`FINISH)]
 
-@@ [if(cand(strlen(getclass(%#)),hasattr(%!/CG`6`[getclass(%#)])),%R[u(CG`6`[getclass(%#)])])]
+&CG`6`MORTAL [u(cobj,chargen)]=[u(CG`6`DESC)]%R[u(CG`6`INFO,Aspirations|Childhood|Employment|Personality|Public Knowledge|Extra Notes)]
+&CG`6`VAMPIRE [u(cobj,chargen)]=[u(CG`6`DESC)]%R[u(CG`6`INFO,Aspirations|Childhood|Embrace|Touchstone|Personality|Politics|Public Knowledge|Extra Notes)]
+&CG`6`CHANGELING [u(cobj,chargen)]=[u(CG`6`DESC)]%R%TChangelings should also create a +desc called Mien for other Changelings to see. +desc/save Mien=<text>.%R%TSimilarly, use roomdesc/mien <short description> to set a Mien short-desc.%R[u(CG`6`INFO,Aspirations|Childhood|Durance|Keeper|Personality|Public Knowledge|Extra Notes)]
+&CG`6`WEREWOLF [u(cobj,chargen)]=[u(CG`6`DESC)]%R%TWerewolves should also create a saved +desc named for each of their forms. It will be used whenever you +shift. Similarly\, use roomdesc/<formname> <short description> to set a short description for each form.%R[u(CG`6`INFO,Aspirations|Childhood|First change|Touchstones|Personality|Pack Role|Public Knowledge|Extra Notes)]
+&CG`6`BEAST [u(cobj,chargen)]=[u(CG`6`DESC)]%R%TBeasts should also create a +desc called Horror for other Beasts to see. +desc/save Horror=<text>.%R[u(CG`6`INFO,Aspirations|Childhood|Devouring|Horror|Personality|Public Knowledge|Extra Notes)]
 
-
+&CG`6`DESC [u(cobj,chargen)]=%TIt's a good idea to set a description! See +help +desc
+&CG`6`INFO [u(cobj,chargen)]=%TBe sure and use the following commands to fill out your Background Story:%R%T[iter(%0,ansi(h,+bg [u(capnames,%i0)]=<text>),|,%R%T)]%R%R%TRemember that you can use \%R for a linebreak and \%T for an indent. Please use them to make the files easy to read. Each section can only hold a few paragraphs so keep them to the point.
+&CG`6`XP [u(cobj,chargen)]=%THope you've been taking notes on how you spent your Chargen XP like we asked!%R%T[ansi(h,+pinfo XP=<notes go here>)]
 
 &CG`6`BGSTORY [u(cobj,chargen)]=[ansi(h,+info BGStory=<story>)] to set your background story. A few paragraphs will do. The file has a limit of 4kb of text, use BGStory2, 3, etc, if necessary. \%R can linebreak, \%T indents. Readability counts!
 &CG`6`CHARGENXP [u(cobj,chargen)]=As mentioned in page 1, mark down how much XP you spent (and what on) in an +info using [ansi(h,+info Chargen=<description of XP spent>)]. Your +sheet should reflect the final result.
-&CG`6`FINISH [u(cobj,chargen)]=When complete, paste the following command to your client: %r%t[ansi(h,+request/apps Finished with chargen!=Look me over please!)]
+&CG`6`FINISH [u(cobj,chargen)]=When complete, paste the following command to your client: %r%t[ansi(h,+request/approval Finished with chargen!=Look me over please!)]
 
 
 

@@ -223,7 +223,7 @@ th u(NEWCONF,config,CHANNELS,APPROVAL,,Channel to announce Approvals on.,LIST)
 
 &SWITCHES`STAFF`ADMIN [u(cobj,ams)]=ADD|REMOVE|ORDER|POSITION|DUTY|VACATION
 
-&INC`STAFF`MAIN [u(cobj,ams)]=@check words(u(setr,staff,u(FUN`FINDSTAFF)))=@attach %!/INC`MSG=ERROR: There are no Staff registered!;@pemit %#=u(header,mudname() Staff);@pemit %#=ansi(u(color,%#,%q<sysname>,COLUMN_NAMES),align(3 20 3 40 9,Idl,Name,Bit,Position,Duty));@pemit %#=u(separator);@dolist/inline %q<staff>=@pemit %#=u(FUN`WIZLIST,##,%#);@select/inline t(strlen(u(setr,smsg,u(game_config,STAFF,WIZLIST_FOOTER))))=1,{@pemit %#=u(separator);@pemit %#=%q<smsg>};@pemit %#=u(subheader)
+&INC`STAFF`MAIN [u(cobj,ams)]=@check words(u(setr,staff,u(FUN`FINDSTAFF)))=@attach %!/INC`MSG=ERROR: There are no Staff registered!;@pemit %#=u(header,mudname() Staff);@pemit %#=ansi(u(color,%#,%q<sysname>,COLUMN_NAMES),align(3 20 3 40 8,Idl,Name,Bit,Position,Duty));@pemit %#=u(separator);@dolist/inline %q<staff>=@pemit %#=u(FUN`WIZLIST,##,%#);@select/inline t(strlen(u(setr,smsg,u(game_config,STAFF,WIZLIST_FOOTER))))=1,{@pemit %#=u(separator);@pemit %#=%q<smsg>};@pemit %#=u(subheader)
 
 th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WORD)
 
@@ -233,7 +233,7 @@ th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WOR
 &SORTSTAFF`PENNMUSH [u(cobj,ams)]=sortkey(#lambda/default(\%0/D`STAFF`ORDER,99),%0,n,%1,%2)
 &SORTSTAFF`RHOSTMUSH [u(cobj,ams)]=sortby(#lambda/[lit([ncomp(default(%0/D`STAFF`ORDER,99),default(%1/D`STAFF`ORDER,99))])],%0,%1,%2)
 
-&FUN`WIZLIST [u(cobj,ams)]=align(3 20 3 40 9,u(hideidle,%0),u(moniker,%0),u(choosegame,switch(1,u(iswizard,%0),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hc,ROY),ansi(hx,N/A)),bittype(%0)),default(%0/D`STAFF`POSITION,???),if(objeval(%#,conn(%0)),switch(1,get(%0/D`STAFF`VACATION),ansi(hx,Vac),get(%0/D`STAFF`DUTY),ansi(if(u(ishidden,%0),hx,hg),On),ansi(hx,Off)),switch(1,get(%0/D`STAFF`VACATION),ansi(hx,Vac),ansi(hx,Off))))
+&FUN`WIZLIST [u(cobj,ams)]=align(3 20 3 40 8,u(hideidle,%0),u(moniker,%0),u(choosegame,switch(1,u(iswizard,%0),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hc,ROY),ansi(hx,N/A)),bittype(%0)),default(%0/D`STAFF`POSITION,???),if(objeval(%#,conn(%0)),switch(1,get(%0/D`STAFF`VACATION),ansi(hx,Vac),get(%0/D`STAFF`DUTY),ansi(if(u(ishidden,%0),hx,hg),On),ansi(hx,Off)),switch(1,get(%0/D`STAFF`VACATION),ansi(hx,Vac),ansi(hx,Off))))
 
 &INC`STAFF`ADD [u(cobj,ams)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=%0,1;@stop get(%q<t1>/D`STAFF)=@attach %!/INC`MSG=ERROR: %q<t1name> is already on the Staff list!;@select/inline gt(strlen(%1),0)=1,{@check u(valnum,%1)=@attach %!/INC`MSG=ERROR: Order Must be a whole positive number.;th u(attrib_set,%q<t1>,D`STAFF`ORDER,%1)};th u(attrib_set,%q<t1>,D`STAFF,1);@attach %!/INC`MSG=You have added %q<t1name> to Staff!;@attach %!/INC`MSG`NOTICE=You have been added to Staff!,%q<t1>;@attach %!/INC`MSG`CHAN=%q<t1name> added to Staff.;@dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_ADMIN)]={@chan/on %i0=%q<t1>}
 

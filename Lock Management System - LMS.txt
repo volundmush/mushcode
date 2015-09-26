@@ -12,10 +12,14 @@ th u(NEWCOBJ,Key Object Parent <KOP>,kop,u(cobj,lms),,,WIZARD SAFE,INHERIT SIDEF
 @lset [u(cobj,kop)]/basic=visual
 @lset [u(cobj,kop)]/basic=!no_inherit
 
+@select/inline v(game)=PennMUSH,{@lock/user:MEMBER u(cobj,kop)=FUN`AUTHCHECK`MEMBER/1;@lset u(cobj,kop)/member=visual;@lset u(cobj,kop)/member=!no_inherit}
+
 @@ Moderate lock.
 @lock/enter [u(cobj,kop)]=FUN`AUTHCHECK`MODERATE/1
 @lset [u(cobj,kop)]/enter=visual
 @lset [u(cobj,kop)]/enter=!no_inherit
+
+@select/inline v(game)=PennMUSH,{@lock/user:MODERATE u(cobj,kop)=FUN`AUTHCHECK`MODERATE/1;@lset u(cobj,kop)/moderate=visual;@lset u(cobj,kop)/moderate=!no_inherit}
 
 &FUN`AUTHCHECK [u(cobj,kop)]=if(v(CONF`APPROVED),if(u(isapproved,%0),u(FUN`AUTHCHECK`OR,%0)),u(FUN`AUTHCHECK`OR,%0))
 &FUN`AUTHCHECK`OR [u(cobj,kop)]=u(lmax,iter(u(lattrp,%!/FUN`AUTHCHECK`OR`*),u(%i0,%0)))
@@ -86,7 +90,7 @@ th u(NEWCOBJ,Key Object Parent <KOP>,kop,u(cobj,lms),,,WIZARD SAFE,INHERIT SIDEF
 
 &CONFCATS [u(cobj,lms)]=CATEGORY|BUILDER|APPROVED|NOAPPROVED|GROUP|CLASS|KEY|NOSTAFFCHECK|NOFACTION
 
-&INC`CONFIG`NOFACTION u(kls)=th u(setq,entry,t(%1))
+&INC`CONFIG`NOFACTION [u(cobj,lms)]=th u(setq,entry,t(%1))
 &INC`CONFIG`CATEGORY [u(cobj,lms)]=th u(setq,entry,%1)
 &INC`CONFIG`BUILDER [u(cobj,lms)]=th u(setq,entry,t(%1))
 &INC`CONFIG`APPROVED [u(cobj,lms)]=th u(setq,entry,t(%1))
