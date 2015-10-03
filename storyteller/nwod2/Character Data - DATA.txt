@@ -105,8 +105,8 @@ th u(newconf,CONFIG,STORYTELLER,DISCIPLINES,CELERITY|RESILIENCE|VIGOR|ANIMALISM|
 th u(newconf,CONFIG,STORYTELLER,RENOWN,CUNNING|GLORY|HONOR|PURITY|WISDOM,Types of Werewolf Renown,LIST)
 
 @@ Moon Gifts
-&INC`ADD`GIFT [u(cobj,data)]=@attach %!/DO`ADD`GIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Moon Gifts [u(itemize,iter(u(capnames,%q<return>),%i0,|,|),|,and,\,)].)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`GIFT [u(cobj,data)]=@attach %!/DO`REM`GIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Moon Gifts: [u(itemize,iter(u(capnames,%q<return>),%i0,|,|),|,and,\,)].)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`GIFT [u(cobj,data)]=@attach %!/DO`ADD`GIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Moon Gifts [u(itemize,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`GIFT [u(cobj,data)]=@attach %!/DO`REM`GIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Moon Gifts: [u(itemize,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You no longer have the %q<have>},{%q<msg>}
 
 &DO`VAL`GIFT [u(cobj,data)]=@check strlen(u(setr,find,%1))=@attach %!/INC`MSG=ERROR: No Moon Gift category entered!;@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Moon Gifts ranks entered.
 
@@ -114,8 +114,8 @@ th u(newconf,CONFIG,STORYTELLER,RENOWN,CUNNING|GLORY|HONOR|PURITY|WISDOM,Types o
 &DO`REM`GIFT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`GIFT;@attach [u(cobj,data)]/GIFT`REM=%0,D`GIFTS,%q<find>,%q<value>;@select/inline strlen(get(%0/D`GIFTS))=0,{@attach %!/WIPE=%0,D`GIFTS}
 
 @@ Shadow/Wolf Gifts
-&INC`ADD`SGIFT [u(cobj,data)]=@attach %!/DO`ADD`SGIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Shadow/Wolf Gifts [u(itemize,iter(u(capnames,%q<return>),%i0,|,|),|,and,\,)].)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`SGIFT [u(cobj,data)]=@attach %!/DO`REM`SGIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Shadow/Wolf Gifts: [u(itemize,iter(u(capnames,%2),%i0,|,|),|,and,\,)].)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`SGIFT [u(cobj,data)]=@attach %!/DO`ADD`SGIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Shadow/Wolf Gifts [u(itemize,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`SGIFT [u(cobj,data)]=@attach %!/DO`REM`SGIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Shadow/Wolf Gifts: [u(itemize,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You no longer have the %q<have>},{%q<msg>}
 
 &DO`VAL`SGIFT [u(cobj,data)]=@check strlen(u(setr,find,%1))=@attach %!/INC`MSG=ERROR: No Shadow/Wolf Gift category entered!;@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Shadow/Wolf Gifts ranks entered.
 
@@ -358,9 +358,9 @@ th u(newconf,CONFIG,STORYTELLER,ARCANA,DEATH|FATE|FORCES|LIFE|MATTER|MIND|PRIME|
 &SGIFT`ADD [u(cobj,data)]=@attach [u(cobj,data)]/SGIFT`VAL;th u(setstat,%0,%1,ucstr(%2),u(setr,return,u(sortsgift,setunion(ucstr(u(getstat,%0,%1,ucstr(%2))),%3))))
 &SGIFT`REM [u(cobj,data)]=@attach [u(cobj,data)]/SGIFT`VAL;th u(setstat,%0,%1,ucstr(%2),u(setr,return,u(sortsgift,setdiff(ucstr(u(getstat,%0,%1,ucstr(%2))),%3))));@select/inline strlen(u(getstat,%0,%1,ucstr(%2)))=0,{th u(delstat,%0,%1,ucstr(%2))}
 
-&SORTSGIFT [u(cobj,data)]=u(SORTSGIFT`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTSGIFT`PENNMUSH [u(cobj,data)]=sortkey(u(cobj,data)/SGIFT`KEY,%0,n,%1,%2)
-&SORTSGIFT`RHOSTMUSH [u(cobj,data)]=sortby(#lambda/[lit([ncomp(u(u(cobj,data)/SGIFT`KEY,%0),u(u(cobj,data)/SGIFT`KEY,%1))])],%0,%1,%2)
+&SORTSGIFT [u(cobj,mco)]=u(SORTSGIFT`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTSGIFT`PENNMUSH [u(cobj,mco)]=sortkey(u(cobj,data)/SGIFT`KEY,%0,n,%1,%2)
+&SORTSGIFT`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(u(u(cobj,data)/SGIFT`KEY,%0),u(u(cobj,data)/SGIFT`KEY,%1))])],%0,%1,%2)
 
 @@ SHELP - CHARACTERS - +EDITCHAR
 +shelp/add +editchar=+editchar is used to modify all parts of a character's +sheet!%R%R[ansi(h,+editchar/<flag> <player>|<categories|and|objects>\[=<modification>\])]%r%r[ansi(h,FLAG: SET)]%r[ansi(h,Class)]%t%t=<class>%R[ansi(h,Power)]%t%t=<value> (power stat! Blood Potency, Primal Urge, etc)%R[ansi(h,Willpower)]%t=<value>%R[ansi(h,Attribute)]%t<attribute>=<value>%r[ansi(h,Skill)]%t%t<skill>=<value>%r[ansi(h,Specialty)]%t<skill>/<specialty>=<value>%r[ansi(h,Info)]%t%t<infotype>=<value>%R[ansi(h,Pool)]%t%t<pool>=<value> (added to normal calc for max size, can create pool)%r%rValid INFOTYPES: [u(itemize,u(game_config,STORYTELLER,INFOTYPES),|,and,\,)]%R%RSET can also be used on the following categories: BONUS, DISCIPLINE, RENOWN, RITE, ARCANA, CONTRACT, ENDOWMENT, MANIFESTATION, CEREMONY, TRANSMUTATION, BESTOWMENT, EMBED, EXPLOIT.%R%R[ansi(h,FLAG: ADD & REM)]%r[ansi(h,Gift)]%t%t<giftname>=<values> (Moon Gifts. Values must be numbers, like 1 3.)%r[ansi(h,SGift)]%t%t<giftname>=<values> (Shadow/Wolf Gifts. Values must be initials of Aspects. C for Cunning, G for Glory, etc.)%r[ansi(h,Asset)]%T%TSkill=<skill> (Asset Skills for hunters)%R[ansi(h,<field>)]%t%t=<power1>|<power2>|etc (Word-list based powers. See below:)%R%RADD/REM <fields>: ECHO, KEY, ATAVISM, NIGHTMARE, LAIRTRAIT.%R%RLeave values absolutely clear to remove them entirely.%R%RNote, many categories support partial matching! You can use Attr instead of Attribute, etc. capitalization is rarely important for entries.%R%RExamples:%R+editchar/set Lark|Attr|Composure=3%R+editchar/set Lark|Power=4%R+editchar/add Lark|Gift|Father Wolf=1 4%R+editchar/add Lark|Atavism=Eye of Heaven|Infestation%R%R[ansi(h,MERITS and Etc)]%RThese are addressed through the +merit system. Check +help +merits and +shelp +merits%R%RGive someone a Ghoul or Ensorceled Merit of any rating to mark them as such.

@@ -3,32 +3,32 @@
 @@ ANCESTOR ROOM
 @select/inline isdbref(u(coi,ar))=1,{&COBJ`ANCESTOR_ROOM [u(cobj,mco)]=[u(coi,ar)]},0,{@select/inline isdbref(u(cobj,ancestor_room))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_ROOM,dig(Ancestor Room))}}
 
-&HEADER [u(cobj,ancestor_room)]=header(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
-&SEPARATOR [u(cobj,ancestor_room)]=separator(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
-&SUBHEADER [u(cobj,ancestor_room)]=subheader(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
+&HEADER [u(cobj,ancestor_room)]=vol_header(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
+&SEPARATOR [u(cobj,ancestor_room)]=vol_separator(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
+&SUBHEADER [u(cobj,ancestor_room)]=vol_subheader(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
 
-&NAMEFORMAT [u(cobj,ancestor_room)]=[choosegame(endtag(a),)][u(HEADER,moniker(%!)[if(cor(controls(%#,%!),isadmin(%#)),%(%!%))],1)]
+&NAMEFORMAT [u(cobj,ancestor_room)]=[vol_choosegame(endtag(a),)][u(HEADER,moniker(%!)[if(cor(controls(%#,%!),vol_isadmin(%#)),%(%!%))],1)]
 
-&CONFORMAT [u(cobj,ancestor_room)]=[u(CONFORMAT`EXTRA)][if(words(lvplayers(%!)),u(CONFORMAT`PLAYERS`[strfirstof(v(MODE`PLAYERS_MODE),game_config(ROOM,PLAYERS_MODE))]))][if(words(lvthings(%!)),%R[u(CONFORMAT`THINGS`[strfirstof(if(strmatch(%!,choosegame(config(master_room),globalroom())),MASTER_ROOM),v(MODE`THINGS_MODE),game_config(ROOM,THINGS_MODE))])])][switch(type(%!),THING,%R[u(SUBHEADER)])]
+&CONFORMAT [u(cobj,ancestor_room)]=[u(CONFORMAT`EXTRA)][if(words(lvplayers(%!)),u(CONFORMAT`PLAYERS`[strfirstof(v(MODE`PLAYERS_MODE),vol_game_config(ROOM,PLAYERS_MODE))]))][if(words(lvthings(%!)),%R[u(CONFORMAT`THINGS`[strfirstof(if(strmatch(%!,vol_choosegame(config(master_room),globalroom())),MASTER_ROOM),v(MODE`THINGS_MODE),vol_game_config(ROOM,THINGS_MODE))])])][switch(type(%!),THING,%R[u(SUBHEADER)])]
 
-&CONFORMAT`PLAYERS`DEFAULT [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(19,Name))]%R[iter(sortname(lvplayers(%!)),align(19,mxpmenu(moniker(%i0),look [name(%i0)])),%b,%R)]
+&CONFORMAT`PLAYERS`DEFAULT [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(19,Name))]%R[iter(vol_sortname(lvplayers(%!)),align(19,vol_mxpmenu(moniker(%i0),look [name(%i0)])),%b,%R)]
 
-&CONFORMAT`THINGS`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(sortname(lvthings(%!)),align(40 28 8,pueblize(name(%i0),look [name(%i0)]),pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(isadmin(%#)[hasflag(%i0,ENTER_OK)],11,pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R)]
+&CONFORMAT`THINGS`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,vol_pueblize(name(%i0),look [name(%i0)]),vol_pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,vol_pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,vol_pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R)]
 
-&CONFORMAT`THINGS`MASTER_ROOM [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(sortname(lvthings(%!)),align(40 28 8,name(%i0),name(owner(%i0)),switch(isadmin(%#)[hasflag(%i0,ENTER_OK)],11,ansi(hg,%i0),1*,ansi(hr,%i0),01,ansi(hg,enter_ok),ansi(hr,can't))),%b,%R)]
+&CONFORMAT`THINGS`MASTER_ROOM [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(vol_isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,name(%i0),name(owner(%i0)),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,ansi(hg,%i0),1*,ansi(hr,%i0),01,ansi(hg,enter_ok),ansi(hr,can't))),%b,%R)]
 
 &CONFORMAT`EXTRA [u(cobj,ancestor_room)]=[if(cor(nattr(%!/VIEW`*),nattr(%!/MUSIC`*),nattr(%!/PLACE`*)),separator(Extra)%R[iter(filterbool(#lambda/nattr(%!/\%0`*),PLACE VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)]
-&FUN`EXTRA`VIEW [u(cobj,ancestor_room)]=This room has views! Type [pueblize(ansi(h,+view),+view)] to list!
-&FUN`EXTRA`MUSIC [u(cobj,ancestor_room)]=[ansi(hc,This room has a soundtrack! Type)] [pueblize(ansi(h,soundtrack),soundtrack)] [ansi(hc,to list!)]
-&FUN`EXTRA`PLACE [u(cobj,ancestor_room)]=This room has places! Type [pueblize(ansi(h,places),places)] to list!
+&FUN`EXTRA`VIEW [u(cobj,ancestor_room)]=This room has views! Type [vol_pueblize(ansi(h,+view),+view)] to list!
+&FUN`EXTRA`MUSIC [u(cobj,ancestor_room)]=[ansi(hc,This room has a soundtrack! Type)] [vol_pueblize(ansi(h,soundtrack),soundtrack)] [ansi(hc,to list!)]
+&FUN`EXTRA`PLACE [u(cobj,ancestor_room)]=This room has places! Type [vol_pueblize(ansi(h,places),places)] to list!
 
-&EXITFORMAT [u(cobj,ancestor_room)]=[if(words(lvexits(%!)),u(EXITFORMAT`[strfirstof(v(MODE`EXITS_MODE),game_config(ROOM,EXITS_MODE))]),u(SUBHEADER))]
+&EXITFORMAT [u(cobj,ancestor_room)]=[if(words(lvexits(%!)),u(EXITFORMAT`[strfirstof(v(MODE`EXITS_MODE),vol_game_config(ROOM,EXITS_MODE))]),u(SUBHEADER))]
 
-&EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[table(iter(sortorder(sortname(lvexits(%!))),ljust(if(strlen(alias(%i0)),<[ansi(color(%#,ROOM,EXITALIAS),pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(color(%#,ROOM,EXITNAME),pueblize(moniker(%i0),name(%i0)))] to [ansi(color(%#,ROOM,EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))],%b,|),37,width(%#),|)]%R[u(SUBHEADER)]
+&EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[table(iter(vol_sortorder(vol_sortname(lvexits(%!))),ljust(if(strlen(alias(%i0)),<[ansi(vol_color(%#,ROOM,EXITALIAS),vol_pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(vol_color(%#,ROOM,EXITNAME),vol_pueblize(moniker(%i0),name(%i0)))] to [ansi(vol_color(%#,ROOM,EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))],%b,|),37,width(%#),|)]%R[u(SUBHEADER)]
 
-&EXITFORMAT`CARDINAL [u(cobj,ancestor_room)]=[setq(a,filter(FIL`VISIBLE,setr(1,sortorder(sortname(lexits(%!))))))][setq(b,filter(FIL`DARK,%q1))][setq(c,filter(FIL`CARDINAl,%q1))][setq(d,filter(FIL`NOTCARDINAL,%q1))][if(words(%qc),u(SEPARATOR,Directions)%R[u(EXITFORMAT`CARDINAL`TABLE,%qc)])][if(words(%qd),if(words(%qc),%R)[u(separator,Exits)]%R[u(EXITFORMAT`CARDINAL`TABLE,%qd)])][if(cor(words(%qd),words(%qc)),%R[u(subheader)],u(subheader))]
+&EXITFORMAT`CARDINAL [u(cobj,ancestor_room)]=[setq(a,filter(FIL`VISIBLE,setr(1,vol_sortorder(vol_sortname(lexits(%!))))))][setq(b,filter(FIL`DARK,%q1))][setq(c,filter(FIL`CARDINAl,%q1))][setq(d,filter(FIL`NOTCARDINAL,%q1))][if(words(%qc),u(SEPARATOR,Directions)%R[u(EXITFORMAT`CARDINAL`TABLE,%qc)])][if(words(%qd),if(words(%qc),%R)[u(separator,Exits)]%R[u(EXITFORMAT`CARDINAL`TABLE,%qd)])][if(cor(words(%qd),words(%qc)),%R[u(subheader)],u(subheader))]
 
-&EXITFORMAT`CARDINAL`TABLE [u(cobj,ancestor_room)]=table(iter(%0,ljust(if(strlen(alias(%i0)),<[ansi(color(%#,ROOM,EXITALIAS),pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(color(%#,ROOM,EXITNAME),pueblize(moniker(%i0),name(%i0)))],%b,|),37,width(%#),|)
+&EXITFORMAT`CARDINAL`TABLE [u(cobj,ancestor_room)]=table(iter(%0,ljust(if(strlen(alias(%i0)),<[ansi(vol_color(%#,ROOM,EXITALIAS),vol_pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(vol_color(%#,ROOM,EXITNAME),vol_pueblize(moniker(%i0),name(%i0)))],%b,|),37,width(%#),|)
 
 &FIL`CARDINAL [u(cobj,ancestor_room)]=t(match(n e s w ne nw se sw d u o i,alias(%0)))
 &FIL`NOTCARDINAL [u(cobj,ancestor_room)]=not(u(FIL`CARDINAL,%0))
@@ -60,12 +60,12 @@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
 @select/inline isdbref(u(setr,ap,u(coi,ap)))=1,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_PLAYER,%q<ap>)},0,{@select/inline isdbref(u(cobj,ancestor_player))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_PLAYER,pcreate(Ancestor Player,digest(md5,secs())))}}
 @tel [u(cobj,ancestor_player)]=[u(cobj,ancestor_room)]
 
-@pageformat [u(cobj,ancestor_player)]=ansi(color(%@,COLOR,PAGE),colornames(%!,%4,PAGES,lwho(%!),%#))
-@outpageformat [u(cobj,ancestor_player)]=ansi(color(%@,COLOR,OUTPAGE),colornames(%!,%4,PAGES,lwho(%!),%#))
-@adescribe [u(cobj,ancestor_player)]=@check [my_config(ALERTS,ADESC)];think GAME> %n just looked at you.
-@idle [u(cobj,ancestor_player)]=if(gte(idle(%!),my_config(ALERTS,IDLE)),Currently idle\, please try again later!)
+@pageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,COLOR,PAGE),vol_colornames(%!,%4,PAGES,lwho(%!),%#))
+@outpageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,COLOR,OUTPAGE),vol_colornames(%!,%4,PAGES,lwho(%!),%#))
+@adescribe [u(cobj,ancestor_player)]=@check [vol_my_config(ALERTS,ADESC)];think GAME> %n just looked at you.
+@idle [u(cobj,ancestor_player)]=if(gte(idle(%!),vol_my_config(ALERTS,IDLE)),Currently idle\, please try again later!)
 
-@chatformat [u(cobj,ancestor_player)]=if(cor(chanpriority(%1),strmatch(%#,%!)),if(strlen(u(setr,color,chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][speech(%#,switch(%0,@,|,%0)%2,%!,if(my_config(CHANNELS,NAMELINK),namelink(%#)),CHANNELS,cwho(%1,on,1))],<%1>[if(strlen(%4),%B%4%B,%B)][speech(%#,switch(%0,@,|,%0)%2,%!,if(my_config(CHANNELS,NAMELINK),namelink(%#)),CHANNELS,cwho(%1,on,1))]))
+@chatformat [u(cobj,ancestor_player)]=if(cor(vol_chanpriority(%1),strmatch(%#,%!)),if(strlen(u(setr,color,vol_chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))],<%1>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))]))
 
 th u(NEWCONF,pconf,ALERTS,ADESC,0,Signal when looked at.,BOOL)
 th u(NEWCONF,pconf,ALERTS,IDLE,1800,Minutes until pagers receive idle message.,DURATION)

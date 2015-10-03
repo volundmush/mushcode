@@ -113,7 +113,7 @@
 &CMD`+POWER1 [u(cobj,chargen)]=$^\+(discipline|renown|rite|arcana|contract|endowment|manifestation|ceremony)(?\: +(.+?))?(?\:=(.+?))?$:@attach [u(cobj,data)]/DO`SET`%1=%#,%2,if(eq(%3,0),,%3);@attach %!/INC`MSG=%q<find> is now: %3
 @set [u(cobj,chargen)]/CMD`+POWER1=regexp
 
-&CMD`+POWER2 [u(cobj,chargen)]=$^\+(del)?(atavism|gift|sgift|nightmare|lairtrait|echo|key|transmutation|bestowment|embed|exploit)(?\: +(.+?))?(?\:=(.+))?$:th u(setq,mode,switch(%1,add,ADD,del,REM,ADD));@select/inline t(match(GIFT SGIFT,%2))=1,{@attach u(cobj,data)/DO`%q<mode>`%2=%#,%3,%4},0,{@attach u(cobj,data)/DO`%q<mode>`%2=%#,,%3};th u(setq,have,ansi(h,u(capnames,%q<find>)) [u(capnames,%2s)]. [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of modifications: %q<returnformat>);@attach %!/INC`MSG=You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
+&CMD`+POWER2 [u(cobj,chargen)]=$^\+(del)?(atavism|gift|sgift|nightmare|lairtrait|echo|key|transmutation|bestowment|embed|exploit)(?\: +(.+?))?(?\:=(.+))?$:th u(setq,mode,switch(%1,add,ADD,del,REM,ADD));@select/inline t(match(GIFT SGIFT,%2))=1,{@attach u(cobj,data)/DO`%q<mode>`%2=%#,%3,%4},0,{@attach u(cobj,data)/DO`%q<mode>`%2=%#,,%3};th u(setq,have,ansi(h,u(capnames,%q<find>)) [u(capnames,%2s)] [u(itemize,iter(u(capnames,u(strfirstof,%q<filtered>,%q<return>)),%i0,switch(%2,gift,%b,sgift,%b,|),|),|,and,\,)].[switch(%2,gift,,sgift,,Result of modifications: %q<returnformat>)]);@attach %!/INC`MSG=You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
 @set [u(cobj,chargen)]/CMD`+POWER2=regexp
 
 

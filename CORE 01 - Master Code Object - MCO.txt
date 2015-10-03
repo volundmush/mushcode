@@ -45,8 +45,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &STARTUP [u(cobj,mco)]=@dolist/inline u(lattr,%!/STARTUP`*)={@include/nobreak %!/##}
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
-&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config speech chancolor colornames choosegame sortorder namelink weblink,v(FUNCTIONLIST`EXTRA))={@function %i0=u(cobj,mco),%i0;@function/restrict %i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(align lalign sortkey game_config header subheader separator isadmin isapproved approved moniker lvplayers lvthings lvexits sortname color mxpmenu pueblize strfirstof table my_config speech chancolor colornames choosegame sortorder objid namelink weblink,v(FUNCTIONLIST`EXTRA))={@function/privileged %d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=%d0 wizard}
+&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech chancolor colornames choosegame sortorder namelink weblink,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,mco),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech chancolor colornames choosegame sortorder namelink weblink,v(FUNCTIONLIST`EXTRA))={@function/privileged vol_%d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=vol_%d0 wizard};@dolist/inline moniker lvplayers lvthings lvexits objid align lalign sortkey strfirstof table width=@function/privileged %d0=%!/%d0
 
 &FUNCTIONLIST`EXTRA [u(cobj,mco)]=
 &FUNCTIONLIST`ADMIN [u(cobj,mco)]=
@@ -601,7 +601,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &REG`URL [u(cobj,mco)]=\w+\://\S+[^"]
 
 &COLORNAMES [u(cobj,mco)]=localize(u(COLORNAMES`[v(game)],%0,%1,%2,%3,%4))
-&COLORNAMES`PENNMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,\\b[name(%i0)]\\b^[switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[u(setq,final,fold(COLORNAME`PENN,%q<colstring>,%1,beep()))]%q<final>
+@@ Old one, in case I need it again
+@@ &COLORNAMES`PENNMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,\\b[name(%i0)]\\b^[switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[u(setq,final,fold(COLORNAME`PENN,%q<colstring>,%1,beep()))]%q<final>
+
+@@ New one, more efficient.
+&COLORNAMES`PENNMUSH [u(cobj,mco)]=setq(names,sortkey(#lambda/strlen(\%0),iter(setr(dbs,setunion(%3,u(get_names,%0))),localize(setr(norname,name(%i0))[if(not(strmatch(%q<norname>,setr(accname,accname(%i0)))),|%q<accname>)]),%b,|),-n,|,|))[regeditalli(%1,\\b\(%q<names>\)\\b,if(match(name(%0)|[accname(%0)],setr(fname,$0),|),if(strlen(setr(fcolor,strfirstof(u(color,%0,NAMES,%0,,1),u(color,%0,NAMES,MINE,,1)))),ansi(%q<fcolor>,accname(%0)),u(moniker,%0)),if(isdbref(setr(fdb,namegrab(%q<dbs>,stripaccents(%q<fname>)))),if(strlen(setr(fcolor,strfirstof(u(color,%0,NAMES,%q<fdb>,,1),u(color,%0,NAMES,switch(%q<fdb>,%4,SPEAKER,OTHER),,1)))),ansi(%q<fcolor>,accname(%q<fdb>)),u(moniker,%q<fdb>)),%q<fname>)))]
 
 &COLORNAMES`RHOSTMUSH [u(cobj,mco)]=u(setq,colstring,iter(%3,lit(%\b)[name(%i0)][lit(%\b)][beep()][switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,OTHER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[strfunc(regeditalli,%1[beep()]%q<colstring>,beep())]
 &COLORNAME`PENN [u(cobj,mco)]=regeditalli(%0,before(%1,^),after(%1,^))
@@ -621,12 +625,13 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GAME_CONFIG [u(cobj,mco)]=u(strfirstof,get(u(cobj,config)/CONFIG`%0`%1),get(u(cobj,config)/DEFAULT`%0`%1))
 
 &MY_CONFIG [u(cobj,mco)]=u(PLAYER_CONFIG,%@,%0,%1)
+&MY_NAMES [u(cobj,mco)]=u(get_names,%@)
+&GET_NAMES [u(cobj,mco)]=localize(u(filter,ISDBREF,edit(u(lattr,u(setr,accid,u(firstof,u(accid,%0),%0))/D`CONFIG`NAMES`#*),D`CONFIG`NAMES`,)))
 
 &PLAYER_CONFIG [u(cobj,mco)]=localize(u(strfirstof,if(isdbref(u(setr,accid,u(accid,%0))),get(%q<accid>/D`CONFIG`%1`%2)),get(%0/D`CONFIG`%1`%2),get(u(cobj,pconf)/DEFAULT`%1`%2)))
 
 &APPROVED [u(cobj,mco)]=u(isapproved,%0)
 &APPROVED2 [u(cobj,mco)]=u(isapproved,%#)
-
 
 &ISAPPROVED [u(cobj,mco)]=cor(u(isadmin,%0),if(u(game_config,SYSTEM,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1))
 

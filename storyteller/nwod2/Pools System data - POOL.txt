@@ -15,7 +15,7 @@
 &POOL`INTEGRITY`MAX [u(cobj,pool)]=10
 &POOL`INTEGRITY`INIT [u(cobj,pool)]=7
 &POOL`INTEGRITY`ORDER [u(cobj,pool)]=200
-&POOL`INTEGRITY`OPTIONS [u(cobj,pool)]=
+&POOL`INTEGRITY`OPTIONS [u(cobj,pool)]=GAIN SPEND
 
 @@ HUNTER
 &CLASS`HUNTER [u(cobj,pool)]=WILLPOWER INTEGRITY
@@ -55,7 +55,7 @@
 &POOL`SYNERGY`MAX [u(cobj,pool)]=10
 &POOL`SYNERGY`INIT [u(cobj,pool)]=7
 &POOL`SYNERGY`ORDER [u(cobj,pool)]=200
-&POOL`SYNERGY`OPTIONS [u(cobj,pool)]=
+&POOL`SYNERGY`OPTIONS [u(cobj,pool)]=GAIN SPEND
 
 @@ CHANGELING
 &CLASS`CHANGELING [u(cobj,pool)]=GLAMOUR WILLPOWER CLARITY
@@ -73,7 +73,7 @@
 &POOL`CLARITY`MAX [u(cobj,pool)]=10
 &POOL`CLARITY`INIT [u(cobj,pool)]=7
 &POOL`CLARITY`ORDER [u(cobj,pool)]=200
-&POOL`CLARITY`OPTIONS [u(cobj,pool)]=
+&POOL`CLARITY`OPTIONS [u(cobj,pool)]=GAIN SPEND
 
 @@ PROMETHEAN
 &CLASS`PROMETHEAN [u(cobj,pool)]=PYROS REAGENT HUMANITY
@@ -109,7 +109,7 @@
 &POOL`HARMONY`MAX [u(cobj,pool)]=10
 &POOL`HARMONY`INIT [u(cobj,pool)]=7
 &POOL`HARMONY`ORDER [u(cobj,pool)]=200
-&POOL`HARMONY`OPTIONS [u(cobj,pool)]=
+&POOL`HARMONY`OPTIONS [u(cobj,pool)]=GAIN SPEND
 
 @@ MAGE
 &CLASS`MAGE [u(cobj,pool)]=MANA WILLPOWER WISDOM
@@ -127,7 +127,7 @@
 &POOL`WISDOM`MAX [u(cobj,pool)]=10
 &POOL`WISDOM`INIT [u(cobj,pool)]=7
 &POOL`WISDOM`ORDER [u(cobj,pool)]=200
-&POOL`WISDOM`OPTIONS [u(cobj,pool)]=
+&POOL`WISDOM`OPTIONS [u(cobj,pool)]=GAIN SPEND
 
 @@ DEMON
 &CLASS`DEMON [u(cobj,pool)]=AETHER WILLPOWER COVER
@@ -145,7 +145,7 @@
 &POOL`COVER`MAX [u(cobj,pool)]=10
 &POOL`COVER`INIT [u(cobj,pool)]=7
 &POOL`COVER`ORDER [u(cobj,pool)]=200
-&POOL`COVER`OPTIONS [u(cobj,pool)]=
+&POOL`COVER`OPTIONS [u(cobj,pool)]=GAIN SPEND
 
 @@ BEAST
 &CLASS`BEAST [u(cobj,pool)]=SATIETY WILLPOWER
