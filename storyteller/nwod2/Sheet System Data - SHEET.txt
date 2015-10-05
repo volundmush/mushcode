@@ -5,7 +5,7 @@
 &FUN`SMERITS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,SMERITS,+smerits,Shared Merits)
 &FUN`SFLAWS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,SFLAWS,+sflaws,Shared Flaws)
 
-&FUN`CLASSINFO`MORTAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|VIRTUE~Virtue~Unset,CLASS~Class|VICE~Vice~Unset)
+&FUN`CLASSINFO`MORTAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|VIRTUE~Virtue~Unset,CLASS~Class~Mortal|VICE~Vice~Unset)
 &FUN`CLASSINFO`VAMPIRE [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|MASK~Mask~Unset|CLAN~Clan~Unset|COVENANT~Covenant~None,CLASS~Class|DIRGE~Dirge~Unset|POWER~Blood Potency~1)
 &FUN`CLASSINFO`MAGE [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|VIRTUE~Virtue~Unset|PATH~Path~Unset|ORDER~Order~None,CLASS~Class|VICE~Vice~Unset|POWER~Gnosis~1|LEGACY~Legacy~None)
 &FUN`CLASSINFO`CHANGELING [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|VIRTUE~Virtue~Unset|SEEMING~Seeming~None|COURT~Court~None,CLASS~Class|VICE~Vice~Unset|POWER~Wyrd~1|KITH~Kith~None)

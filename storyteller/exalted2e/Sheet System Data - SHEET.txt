@@ -61,7 +61,7 @@
 
 &FUN`SECTIONHEADER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,\})[center(u(FUN`COLOR,%1,FRONTSLASH,/)[u(FUN`COLOR,%1,HEADER,edit(%2,_,%b))][u(FUN`COLOR,%1,FRONTSLASH,/)],sub(u(width,%#),2),u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,\{)]
 
-&INC`LANGUAGES [u(cobj,sheet)]=@select/inline gt(strlen(get(%0/D`LANGUAGES)),0)=1,{@pemit %#=u(FUN`SECTIONHEADER,%0,%1,Languages);@pemit %#=u(FUN`BORDER,%0,%1,u(itemize,sort(get(%0/D`LANGUAGES),a,|),|,and,\,))}
+&INC`LANGUAGES [u(cobj,sheet)]=@select/inline gt(strlen(get(%0/D`LANGUAGES)),0)=1,{@pemit %#=u(FUN`SECTIONHEADER,%0,%1,Languages);@pemit %#=u(FUN`BORDER,%0,%1,u(itemize,sort(u(capnames,get(%0/D`LANGUAGES)),a,|),|,and,\,))}
 
 &FUN`POOLS [u(cobj,sheet)]=localize(align(1. [u(setr,c1,floor(u(setr,c0,fdiv(sub(u(width,%#),4),3))))] 1. [u(setr,c2,ceil(%q<c0>))] 1. [u(setr,c3,sub(u(width,%#),4,%q<c1>,%q<c2>))] 1.,u(FUN`COLOR,%1,BORDER,|),u(FUN`FORMATPOOLS,%0,Pool),u(FUN`COLOR,%1,BORDER,|),u(FUN`FORMATPOOLS,%0,Channel),u(FUN`COLOR,%1,BORDER,|),u(FUN`FORMATPOOLS,%0,Track),u(FUN`COLOR,%1,BORDER,|),,,%R))
 
