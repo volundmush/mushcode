@@ -42,8 +42,9 @@ th u(newcobj,STORYTELLER: Experience Management System <XP>,xp,,,,WIZARD SAFE !N
 
 
 
-&INC`DELETE [u(cobj,xp)]=@attach %!/INC`CHECKPC=%0,1;@check u(valnum,%2)=@attach %!/INC`MSG=%q<type> entries must be addressed via whole and positive numbers!;@check u(setr,rowid,u(mysql,GET`XP_ID_ROW,%q<t1objid>,%q<root>,sub(%2,1)))=@attach %!/INC`MSG=ERROR: %q<t1name> does not have a [u(numth,%2)] XP entry.;th u(setq,amount,u(mysql,GET`AMOUNT,%q<rowid>));th u(setq,reason,u(mysql,GET`REASON,%q<rowid>));@attach %!/INC`DOSQL=DELETE`ROW,%q<rowid>;th u(setq,msg,%q<type> Entry %2 was [ansi(hr,DELETED)]. Amount Was: %q<amount>. Reason Was: %q<reason>);@attach %!/DO`ANNOUNCE=%q<t1>,{[ansi(h,%q<t1name>)]'s %q<msg>},{Your %q<msg>},{[ansi(h,%q<t1name>)]'s %q<msg>};@attach %!/WIPE=%q<t1>,D`%q<root>`%1`%2
+&INC`DELETE [u(cobj,xp)]=@attach %!/INC`CHECKPC=%0,1;@check u(valnum,%1)=@attach %!/INC`MSG=%q<type> entries must be addressed via whole and positive numbers!;@check u(setr,rowid,u(mysql,GET`XP_ID_ROW,%q<t1objid>,%q<root>,sub(%1,1)))=@attach %!/INC`MSG=ERROR: %q<t1name> does not have a [u(numth,%1)] XP entry.;th u(setq,amount,u(mysql,GET`AMOUNT,%q<rowid>));th u(setq,reason,u(mysql,GET`REASON,%q<rowid>));@attach %!/INC`DOSQL=DELETE`ROW,%q<rowid>;th u(setq,msg,%q<type> Entry %1 was [ansi(hr,DELETED)]. Amount Was: %q<amount>. Reason Was: %q<reason>);@attach %!/DO`ANNOUNCE=%q<t1>,{[ansi(h,%q<t1name>)]'s %q<msg>},{Your %q<msg>},{[ansi(h,%q<t1name>)]'s %q<msg>}
 
+&Q`DELETE`ROW [u(cobj,xp)]=DELETE from $EXPERIENCE$ where xp_id=?
 &Q`GET`XP_ID_ROW [u(cobj,xp)]=SELECT xp_id FROM $EXPERIENCE$ WHERE xp_objid=? AND xp_type=? ORDER BY xp_id LIMIT 1 OFFSET ?
 &Q`GET`AMOUNT [u(cobj,xp)]=SELECT xp_amount FROM $EXPERIENCE$ WHERE xp_id=?
 &Q`GET`REASON [u(cobj,xp)]=SELECT xp_reason FROM $EXPERIENCE$ WHERE xp_id=?

@@ -120,12 +120,12 @@ th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request categ
 
 @@ 
 
-&INC`PENDING [u(cobj,jms)]=@check u(setr,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)))=@attach %!/INC`MSG=Permission denied.;@dolist/inline u(setr,maincount,u(filter,PENDINGCOUNT,%q<cats>,%b,%B,%q<pid>))={th u(setq,had,1);@pemit %#=u(HEADER,mudname() - New [if(u(isobjid,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),name(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),Uncategorized)] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,GET`PENJOBSCAT,%q<pid>,if(isint(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),%q<pid>)={@pemit %#=u(FUN`LISTJOBSTAFF,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))};@select/inline #@=1,{@pemit %#=u(SUBHEADER,Showing 20 Per Category)}};@select/inline not(%q<had>)=1,{@attach %!/INC`MSG=There are no new jobs in the system!}
+&INC`PENDING [u(cobj,jms)]=@check u(setr,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)))=@attach %!/INC`MSG=Permission denied.;@dolist/inline u(setr,maincount,u(filter,PENDINGCOUNT,%q<cats>))={th u(setq,had,1);@pemit %#=u(HEADER,mudname() - New [name(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,GET`PENJOBSCAT,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0),%q<pid>)={@pemit %#=u(FUN`LISTJOBSTAFF,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))};@select/inline #@=words(%q<maincount>),{@pemit %#=u(SUBHEADER,Showing 20 Per Category)}};@select/inline not(%q<had>)=1,{@attach %!/INC`MSG=There are no new jobs in the system!}
 
-&FIL`PENDINGCOUNT [u(cobj,jms)]=t(u(mysql,GET`PENJOBSCATCOUNT,%q<pid>,if(isint(\%0),,\%0),%q<pid>))
+&FIL`PENDINGCOUNT [u(cobj,jms)]=t(u(mysql,GET`PENJOBSCATCOUNT,%0))
 
-&Q`GET`PENJOBSCAT [u(cobj,jms)]=SELECT jobs.job_id FROM $JOBS$ as jobs LEFT JOIN $CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND jobs.job_status=0 order by jobs.job_id ASC LIMIT 20
-&Q`GET`PENJOBSCATCOUNT [u(cobj,jms)]=SELECT count(jobs.job_id) FROM $JOBS$ as jobs LEFT JOIN $CHECK$ as readtime ON jobs.job_id=readtime.job_id AND readtime.player_id=? WHERE jobs.job_objid=? AND jobs.job_status=0 order by jobs.job_id
+&Q`GET`PENJOBSCAT [u(cobj,jms)]=SELECT jobs.job_id FROM $JOBS$ as jobs WHERE jobs.job_objid=? AND jobs.job_status=0 order by jobs.job_id ASC LIMIT 20
+&Q`GET`PENJOBSCATCOUNT [u(cobj,jms)]=SELECT count(jobs.job_id) FROM $JOBS$ as jobs WHERE jobs.job_objid=? AND jobs.job_status=0 order by jobs.job_id
 
 &INC`MYJOBS`LIST [u(cobj,jms)]=th set(valcats,u(FUN`VALIDCATS,%#,ADMIN));th u(setq,total,u(mysql,GET`MYJOBLISTCOUNT%q<old>,%q<pid>,%q<pid>));@select/inline u(valnum,%1)=1,{th u(setq,page,bound(%1,1,u(setr,max,ceil(fdiv(%q<total>,30)))))},{th u(setq,page,1,max,ceil(fdiv(%q<total>,30)))};@pemit %#=u(HEADER,mudname() - Your Jobs);@pemit %#=align(2 >4 8 15 15 5 9 5 6,*,ID,Category,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline revwords(u(mysql,GET`MYJOBLIST%q<old>,%q<pid>,%q<pid>,mul(30,sub(%q<page>,1))))={@pemit %#=u(FUN`MYLIST,##)};@pemit %#=u(SUBHEADER,if(gt(%q<page>,1),ansi(hg,u(pueblize,<,+myjob[if(strlen(%q<old>),/old)] =[sub(%q<page>,1)])),ansi(hx,<))%BPage %q<page> of [bound(%q<max>,1)]%B[if(lt(%q<page>,%q<max>),ansi(hg,u(pueblize,>,+myjob[if(strlen(%q<old>),/old)] =[add(%q<page>,1)])),ansi(hx,>))])
 
@@ -245,7 +245,7 @@ th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request categ
 
 &Q`SET`JOBSTATUS [u(cobj,jms)]=UPDATE $JOBS$ SET job_status=?,close_date=UTC_TIMESTAMP(),job_activity=UTC_TIMESTAMP(),job_pactivity=UTC_TIMESTAMP() WHERE job_id=?
 
-&INC`DUE [u(cobj,jms)]=@check u(setr,jid,u(mysql,GET`JOBID,%0))=@attach %!/INC`MSG=ERROR: Job %0 not found.;@check u(FUN`PERMCHECK,u(setr,cat,u(mysql,GET`JOBCAT,%q<jid>)),ADMIN,%#)=@attach %!/INC`MSG=ERROR: Permission Denied.;@attach %!/INC`CHECKTIME=%1;@attach %!/INC`DOSQL=SET`JOBDUE,%q<time>,%q<jid>;@attach %!/INC`MSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] was rescheduled for [u(fancytime,%q<time>,UTC)] by [u(FUN`MASKNAME,%q<cat>)]!};@attach %!/INC`UPDJOB=1,%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+&INC`DUE [u(cobj,jms)]=@check u(setr,jid,u(mysql,GET`JOBID,%0))=@attach %!/INC`MSG=ERROR: Job %0 not found.;@check u(FUN`PERMCHECK,u(setr,cat,u(mysql,GET`JOBCAT,%q<jid>)),ADMIN,%#)=@attach %!/INC`MSG=ERROR: Permission Denied.;@attach %!/INC`CHECKTIME=%1;@attach %!/INC`DOSQL=SET`JOBDUE,%q<time>,%q<jid>;@attach %!/INC`MSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] was rescheduled for [convsecs(%q<time>)] by [u(FUN`MASKNAME,%q<cat>)]!};@attach %!/INC`UPDJOB=1,%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
 
 &Q`SET`JOBDUE [u(cobj,jms)]=UPDATE $JOBS$ SET due_date=FROM_UNIXTIME(?) WHERE job_id=?
 
@@ -288,7 +288,7 @@ th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request categ
 @trigger [u(cobj,jms)]/TRG`INSTALL
 
 &PLAYER`CONNECT [u(cobj,jms)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&PLAYER`CONNECT`MYJOBS [u(cobj,jms)]=@wait 2=@select/inline u(isadmin,%0)=1,{@force %0=+job/scan},0,{@force %0=+myjobs}
+&PLAYER`CONNECT`MYJOBS [u(cobj,jms)]=@wait 2=@select/inline u(isadmin,%0)=1,{@force %0=+job/pending},0,{@force %0=+myjobs}
 
 +help/add +job=[u(cobj,jms)]/HLP`+JOB
 +help/category +job=Communications

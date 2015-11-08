@@ -96,6 +96,19 @@ th u(NEWCONF,config,CHANNELS,DEFAULT_PRIVS,PQ,Default priveleges for new channel
 
 &INC`UNMUZZLE`ACCALL [u(cobj,channel)]=@attach %!/INC`CHECKPC=%0,1;@check isdbref(u(setr,accid,%q<t1acc>))=@attach %!/INC`MSG=ERROR: %q<t1name> is not bound to an account.;@check u(setr,until,get(u(cobj,muzzle)/ACCALL`%q<accid>))=@attach %!/INC`MSG=ERROR: %q<t1name> is not Account Muzzled on %q<channel>.;@attach %!/WIPE=u(cobj,muzzle),ACCALL`%q<accid>;@attach %!/INC`MSG=Global Unmuzzled [u(setr,target,[name(%q<accid>)] \([u(itemize,iter(u(filter,ISOBJID,get(%q<accid>/CHARACTERS)),name(%i0),%b,|),|,and,\,)]\))] from [ansi(hr,ALL CHANNELS)].;@attach %!/INC`MSG`NOTICE=Your Account Muzzled from [ansi(hr,ALL CHANNELS)] was released.,u(alts,%q<t1>);@attach %!/INC`MSG`CHAN=Unmuzzled %q<target> from [ansi(hr,ALL CHANNELS)].
 
+@@ Addcom Section
+
+&CMD`ADDCOM [u(cobj,channel)]=$^(addcom|delcom)(?\: +(.+?))?(?\:=(.*))?$:@attach %!/INC`%1=%2,%3
+@set [u(cobj,channel)]/CMD`ADDCOM=regexp
+@select/inline v(game)=RhostMUSH,{@set [u(cobj,channel)]/CMD`ADDCOM=no_command}
+
+&INC`ADDCOM [u(cobj,channel)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No alias entered.;@check eq(words(%0),1)=@attach %!/INC`MSG=ERROR: Aliases must be single words.;@check valid(name,D`COM`%0)=@attach %!/INC`MSG=ERROR: Aliases cannot include some of those characters.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No channel entered.;@attach %!/INC`PARTIAL=%1,objeval(%#,channels(|)),|,channel,channel;&D`COM`%0 %#=%1;@attach %!/INC`MSG=You can now speak on '%1' using '%0 <message>'.
+
+&INC`DELCOM [u(cobj,channel)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No alias entered.;@check hasattr(%#/D`COM`%0)=@attach %!/INC`MSG=ERROR: You do not have alias '%0'.;@wipe %#/D`COM`%0;@attach %!/INC`MSG=Alias '%0' removed.
+
+&CMD`COM [u(cobj,channel)]=$huh_command *:@check cand(hasattr(%#/D`COM`[setr(alias,first(%0))]),strlen(setr(message,trim(rest(%0)))))=@pemit %#=Huh?  \(Type "help" for help.\);@check strmatch(cstatus(setr(channel,get(%#/D`COM`%q<alias>)),%#),On)=@attach %!/INC`MSG=ERROR: You are not listening to channel '%q<channel>'. Turn it on or ungag it first.;@force/inline/noeval %#={@chat %q<channel>=%q<message>}
+
+@@ @cemit/spoof %q<channel>=if(strlen(setr(title,ctitle(%q<channel>,%#))),%q<title>%b,)[speak(%#,%q<message>)]
 
 @@ +clock section
 &CMD`+CLOCK [u(cobj,channel)]=$^(?\:\+)?(?\:chanlock|clock)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:th u(setq,sysname,CLOCK);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`CLOCK=%2,%3
@@ -110,7 +123,7 @@ th u(NEWCONF,config,CHANNELS,DEFAULT_PRIVS,PQ,Default priveleges for new channel
 
 &INC`CLOCK`AUTOSET [u(cobj,channel)]=@clock/see %q<channel>=if(strlen(%1),iter(%1,@[namegrab(%q<dbs>,%i0)]/BASIC,%B,|));@clock/join %q<channel>=if(strlen(%1),iter(%1,@[namegrab(%q<dbs>,%i0)]/BASIC,%B,|));@clock/speak %q<channel>=if(strlen(%1),iter(%1,@[namegrab(%q<dbs>,%i0)]/BASIC,%B,|));@clock/hide %q<channel>=if(strlen(%1),iter(%1,@[namegrab(%q<dbs>,%i0)]/ENTER,%B,|));@lock/user:muzzle %q<mog>=if(strlen(%1),iter(%1,@[namegrab(%q<dbs>,%i0)]/ENTER,%B,|))
 
-&STARTUP [u(cobj,channel)]=@hook/ignore @channel=%!,HOOK`IGNORECHECK;@trigger %!/LOOP`CLEANMUZZLE
+&STARTUP [u(cobj,channel)]=@hook/ignore @channel=%!,HOOK`IGNORECHECK;@trigger %!/LOOP`CLEANMUZZLE;@hook/override/inline HUH_COMMAND=%!,CMD`COM
 &HOOK`IGNORECHECK [u(cobj,channel)]=if(cand(cor(strmatch(first(after(%u,/)),a*),strmatch(first(after(%u,/)),ren*)),hastype(%#,PLAYER)),0[nspemit(%#,u(MSGHEAD,u(SYSTEm`NAME)) ERROR: Please use +channel for this purpose!)],1)
 
 &LOOP`CLEANMUZZLE [u(cobj,channel)]=@dolist/inline setunion(lattr(u(cobj,muzzle)/ALL`*),setunion(lattr(u(cobj,muzzle)/CHAR`*`*),setunion(lattr(u(cobj,muzzle)/ACCALL`*),lattr(u(cobj,muzzle)/ACC`*`*))))={@select/inline gt(get(u(cobj,muzzle)/%i0),secs())=1,{@attach %!/WIPE=u(cobj,muzzle),%i0}};@wait u(game_config,channels,interval)=@trigger %!/LOOP`CLEANMUZZLE

@@ -40,7 +40,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),CH
 
 &VAR`CHANNEL`DEFAULTPRIVS u(cmo)=PQ
 
-&INC`CHANNEL`DELETE u(cmo)=@include u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@include u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)] This will delete channel %q<name>. Are you sure? Enter the same command within ten seconds to continue!},CHANNEL DELETE %q<channel>,CHANNEL;@switch/inline isdbref(setr(mog,cmogrifier(%q<channel>)))=1,{@set %q<mog>=!SAFE;@nuke %q<mog>;@nuke %q<mog>};@channel/delete %q<channel>;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) has deleted the %q<channel> channel!}
+&INC`CHANNEL`DELETE u(cmo)=@include u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@include u(ccs)/INC`VERIFY={[ansi(hr,WARNING:)] This will delete channel %q<name>. Are you sure? Enter the same command within ten seconds to continue!},CHANNEL DELETE %q<channel>,CHANNEL;@switch/inline cand(not(regmatchi(%q<channel>,^\\d+X)),isdbref(setr(mog,cmogrifier(%q<channel>))))=1,{@set %q<mog>=!SAFE;@nuke %q<mog>;@nuke %q<mog>};@channel/delete %q<channel>;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) has deleted the %q<channel> channel!}
 
 &INC`CHANNEL`RENAME u(cmo)=@include u(ccs)/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,CHANNEL,channel,channel;@assert cor(isadmin(%#),objeval(%#,testlock(clock(%q<channel>/Mod),%#)))=@nspemit %#=u(RFN`MSGHEAD) ERROR: Permission denied.;@assert strlen(%1)=@nspemit %#=u(RFN`MSGHEAD) ERROR: New Name field Empty.;@assert valid(channel,stripansi(%1),%q<channel>)=@nspemit %#=u(RFN`MSGHEAD) ERROR: Either a channel by that name already exists, or the entered new name wasn't an acceptable channel name.;@channel/name %q<channel>=trim(%1);@nspemit %#=u(RFN`MSGHEAD) You have renamed channel %q<channel> to: [trim(%1)]!;@switch/inline gt(v(VAR`ALERTMODE),0)=1,{@nscemit/noisy u(VAR`ALERTSCHANNEL)=ansi(h,%n) has renamed the %q<name> channel to [trim(%1)]!}
 
@@ -153,7 +153,7 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),CH
 &FUN`TITLE`TRIM u(cdb)=trim(if(v(MOGCONF`TITLE`TRIM),left(%0,v(MOGCONF`TITLE`TRIM)),%0))
 &MOGCONF`TITLE`TRIM u(cdb)=0
 
-&MOGRIFY`BLOCK u(cdb)=localize(null(iter(v(MOGUSE`BLOCK),if(strlen(setr(block,u(FUN`BLOCK`%i0,,%1))),ibreak())))%q<block>)
+&MOGRIFY`BLOCK u(cdb)=localize(null(iter(v(MOGUSE`BLOCK),if(strlen(setr(block,u(FUN`BLOCK`%i0,%2,%1))),ibreak())))%q<block>)
 &MOGORDER`BLOCK u(cdb)=muzzle accmuzzle nostaffspoof nocodename badcodename badwords
 &MOGUSE`BLOCK u(cdb)=muzzle accmuzzle nostaffspoof nocodename badcodename badwords
 

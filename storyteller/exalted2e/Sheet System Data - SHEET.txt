@@ -73,7 +73,7 @@
 
 &INC`HEALTH [u(cobj,sheet)]=@select/inline strlen(get(%0/D`HEALTH))=>0,{@pemit %#=u(FUN`SECTIONHEADER,%0,%1,Health);@pemit %#=u(FUN`BORDER,%0,%1,u(u(cobj,damage)/FUN`FORMATHEALTH,%0))}
 
-&FUN`GETSERIES [u(cobj,sheet)]=switch(%0,SOLAR,ansi(hy,Solars):%B[ansi(hy,The Lawgivers)],ABYSSAL,ansi(hx,Abyssals):%B[ansi(hx,The Deathknights)],INFERNAL,ansi(hg,Infernals):%B[ansi(hg,The Green Sun Princes)],LUNAR,ansi(hc,Lunars):%B[ansi(hc,The Stewards)],SIDEREAL,ansi(hm,Sidereals):%B[ansi(hm,The Viziers)],TERRESTRIAL,ansi(hr,Terrestrials):%B[ansi(hr,The TERRESTRIAL)],ALCHEMICAL,ansi(c,Alchemicals):%B[ansi(c,The Champions)],JADEBORN,ansi(y,Jadeborn),RAKSHA,ansi(m,Raksha):%B[ansi(m,The Fair Folk)],MORTAL,Mortals:%BThe Heroes,GHOST,Ghosts,DRAGON-KING,Dragon-Kings,GOD-BLOODED,ansi(h,GOD-BLOODED):%B[ansi(h,The Children of the Mighty)],Exalted 2.5e)
+&FUN`GETSERIES [u(cobj,sheet)]=switch(%0,SOLAR,ansi(hy,Solars):%B[ansi(hy,The Lawgivers)],ABYSSAL,ansi(hx,Abyssals):%B[ansi(hx,The Deathknights)],INFERNAL,ansi(hg,Infernals):%B[ansi(hg,The Green Sun Princes)],LUNAR,ansi(hc,Lunars):%B[ansi(hc,The Stewards)],SIDEREAL,ansi(hm,Sidereals):%B[ansi(hm,The Viziers)],TERRESTRIAL,ansi(hr,Terrestrials):%B[ansi(hr,The Dragon-Blooded)],ALCHEMICAL,ansi(c,Alchemicals):%B[ansi(c,The Champions)],JADEBORN,ansi(y,Jadeborn),RAKSHA,ansi(m,Raksha):%B[ansi(m,The Fair Folk)],MORTAL,Mortals:%BThe Heroes,GHOST,Ghosts,DRAGON-KING,Dragon-Kings,GOD-BLOODED,ansi(h,GOD-BLOODED):%B[ansi(h,The Children of the Mighty)],Exalted 2.5e)
 
 
 &SOLAR`BORDER [u(cobj,sheet)]=y
@@ -110,3 +110,6 @@
 &RAKSHA`FRONTSLASH [u(cobj,sheet)]=+powderblue
 &RAKSHA`HEADER [u(cobj,sheet)]=+powderblue
 &RAKSHA`CHARMHEADER [u(cobj,sheet)]=+powderblue
+
+
+| Strength.............**| Charisma.............*** | Perception..........*** |

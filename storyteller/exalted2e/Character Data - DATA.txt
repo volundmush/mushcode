@@ -143,8 +143,8 @@ th u(newconf,config,STORYTELLER,VIRTUES,COMPASSION|CONVICTION|TEMPERANCE|VALOR,V
 &FUN`GET`CHARMTYPES`TERRESTRIAL [u(cobj,data)]=u(FUN`GET`ABILITIES)
 &FUN`GET`CHARMTYPES`LUNAR [u(cobj,data)]=u(FUN`GET`ATTRIBUTES)|KNACKS
 &FUN`GET`CHARMTYPES`SIDEREAL [u(cobj,data)]=setunion(u(FUN`GET`ABILITIES),u(FUN`GET`COLLEGES),|,|)
-&FUN`GET`CHARMTYPES`INFERNAL [u(cobj,data)]=MALFEAS|CECELYNE|SWLIHN|ADORJAN|EBON DRAGON|KIMBERY|THEION|MARTIAL ARTS
-&FUN`GET`CHARMTYPES`SPIRIT [u(cobj,data)]=UNIVERSAL
+&FUN`GET`CHARMTYPES`INFERNAL [u(cobj,data)]=MALFEAS|CECELYNE|SWLIHN|ADORJAN|EBON DRAGON|KIMBERY|THEION|MARTIAL ARTS|HERETICAL|HEGRA
+
 &FUN`GET`CHARMTYPES`ALCHEMICAL [u(cobj,data)]=COMBAT|SURVIVAL|SPEED AND MOBILITY|SOCIAL|STEALTH AND DISGUISE|ANALYTIC AND COGNITIVE|LABOR AND UTILITY|SUBMODULES|GENERAL|MASS COMBAT|SPIRITUAL
 &FUN`GET`CHARMTYPES`RAKSHA [u(cobj,data)]=MASK|HEART|CUP|RING|STAFF|SWORD|WAY
 &FUN`GET`CHARMTYPES`SPIRIT [u(cobj,data)]=GENERAL|UNIVERSAL|AEGIS|BLESSINGS|CURSES|DIVINATIONS|DIVINE WORKS|EDGES|EIDOLA|ENCHANTMENTS|INHABITINGS|RELOCATIONS|SENDINGS|TANTRA
@@ -153,7 +153,7 @@ th u(newconf,config,STORYTELLER,VIRTUES,COMPASSION|CONVICTION|TEMPERANCE|VALOR,V
 &FUN`GET`CHARMTYPES`JADEBORN [u(cobj,data)]=FOUNDATION|WORKER|WARRIOR|ARTISAN|ENLIGHTENED|CHAOS
 
 @@ Martial ARTS
-&FUN`GET`STYLENAME [u(cobj,data)]=u(capnames,default(%0/D`CHARMS`%0`%1`NAME,Unnamed Style))
+&FUN`GET`STYLENAME [u(cobj,data)]=u(capnames,default(%0/D`CHARMS`%1`%2`NAME,Unnamed Style))
 
 &INC`ADD`MACHARM [u(cobj,data)]=@attach %!/DO`ADD`MACHARM=%0,elements(%1,2 3,|,|),%2;@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))] [u(setr,have,gained [ansi(h,u(u(cobj,data)/FUN`GET`STYLENAME,%0,%q<tier>_MARTIAL_ARTS,%q<slot>))] Charms: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of addition: %q<returnformat>)]},{You %q<have>},{[ansi(h,name(%0))] gained %q<have>}
 
@@ -163,7 +163,7 @@ th u(newconf,config,STORYTELLER,VIRTUES,COMPASSION|CONVICTION|TEMPERANCE|VALOR,V
 
 &DO`ADD`MACHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`MACHARM;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<slot>,%q<value>
 
-&DO`REM`MACHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`MACHARM;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`CHARMS`%q<tier> MARTIAL ARTS`%q<slot>,%q<value>;@select/inline strlen(get(%0/D`CHARMS`%q<tier> MARTIAL ARTS`%q<slot>))=0,{@attach %!/WIPE=%0,D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<slot>}
+&DO`REM`MACHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`MACHARM;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<slot>,%q<value>;@select/inline strlen(get(%0/D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<slot>))=0,{@attach %!/WIPE=%0,D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<slot>}
 
 @@ Health
 
@@ -240,8 +240,8 @@ th u(newconf,CONFIG,STORYTELLER,PROTOCOLS,MAN-MACHINE|GOD-MACHINE,Available Prot
 &FUN`GET`FAVORED`PATHS [u(cobj,data)]=u(FUN`GET`PATHS)
 
 @@ Charmnames
-&CMD`+CHARMNAMES [u(cobj,data)]=$^\+charmnames(?\: +(.+))?$:@check strlen(%1)=@pemit %#=What Class's Charm names will you check?;@attach %!/INC`PARTIAL=%1,u(FUN`GET`CHARMTYPES),|,splat,Splat;@check words(u(lattr,u(cobj,pool)/%q<splat>`*))=@pemit %#=That Splat has no pool data to display.;@pemit %#=u(header,u(capnames,%q<splat>) Pool Charms);@select/inline words(u(setr,slots,u(sortattr,u(lattr,u(cobj,pool)/%q<splat>`EXPANDED`*))))=>0,{@pemit %#=ansi(h,* EXPANDED POOL *);@dolist/inline %q<slots>={@pemit %#=ansi(h,last(##,`) Motes:) [edit(u(capnames,get(u(cobj,pool)/##)),|,\,%b)]}};@select/inline words(u(setr,slots,u(sortattr,u(lattr,u(cobj,pool)/%q<splat>`OVERDRIVE`*))))=>0,{@pemit %#=ansi(h,* OVERDRIVE POOL *);@dolist/inline %q<slots>={@pemit %#=ansi(h,last(##,`) Motes:) [edit(u(capnames,get(u(cobj,pool)/##)),|,\,%b)]}};@pemit %#=%RTo codedly take advantage of these Charms so that they affect your pools, they must be entered exactly as spelled above. Expanders must have a number on the end such as Immanent Solar Glory 4 to denote how many times they were purchased (without such a number, it defaults to 1) and will be collectively checked in all Charm categories and added together. For Infernal Expanders, simply having them listed is enough. God-Blooded use the expanders of their parent Splats.;@pemit %#=u(subheader)
-@set [u(cobj,data)]/CMD`+CHARMNAMES=regexp
+&CMD`+CHARMNAMES [u(cobj,player_globals)]=$^\+charmnames(?\: +(.+))?$:@check strlen(%1)=@pemit %#=What Class's Charm names will you check?;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`CHARMTYPES),|,splat,Splat;@check words(u(lattr,u(cobj,pool)/%q<splat>`*))=@pemit %#=That Splat has no pool data to display.;@pemit %#=u(header,u(capnames,%q<splat>) Pool Charms);@select/inline words(u(setr,slots,u(sortattr,u(lattr,u(cobj,pool)/%q<splat>`EXPANDED`*))))=>0,{@pemit %#=ansi(h,* EXPANDED POOL *);@dolist/inline %q<slots>={@pemit %#=ansi(h,last(##,`) Motes:) [edit(u(capnames,get(u(cobj,pool)/##)),|,\,%b)]}};@select/inline words(u(setr,slots,u(sortattr,u(lattr,u(cobj,pool)/%q<splat>`OVERDRIVE`*))))=>0,{@pemit %#=ansi(h,* OVERDRIVE POOL *);@dolist/inline %q<slots>={@pemit %#=ansi(h,last(##,`) Motes:) [edit(u(capnames,get(u(cobj,pool)/##)),|,\,%b)]}};@pemit %#=%RTo codedly take advantage of these Charms so that they affect your pools, they must be entered exactly as spelled above. Expanders must have a number on the end such as Immanent Solar Glory 4 to denote how many times they were purchased (without such a number, it defaults to 1) and will be collectively checked in all Charm categories and added together. For Infernal Expanders, simply having them listed is enough. God-Blooded use the expanders of their parent Splats.;@pemit %#=u(subheader)
+@set [u(cobj,player_globals)]/CMD`+CHARMNAMES=regexp
 
 
 

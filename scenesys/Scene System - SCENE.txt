@@ -30,7 +30,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &SWITCHES`SUMMARY`PLAYER [u(cobj,scene)]=SILENT
 
 th u(NEWCONF,config,SCENESYS,URL,example.org,Path to website.,WORD)
-th u(NEWCONF,config,SCENESYS,PATH,example.org,/scene/view.php?id=,WORD)
+th u(NEWCONF,config,SCENESYS,PATH,/scene/view.php?id=,/scene/view.php?id=,WORD)
 th u(NEWCONF,config,SCENESYS,IDLE,1800,Duration between idle checks?,DURATION)
 th u(NEWCONF,config,SCENESYS,BOARD,,Board for scene announcements?,DBREF)
 
@@ -40,7 +40,7 @@ th u(NEWCONF,config,POT,TIMEOUT,28800,Time to keep poses?,DURATION)
 th u(NEWCONF,pconf,IC,QUOTES,,For IC quotations.,COLOR)
 th u(NEWCONF,pconf,IC,SPEECH,,For IC dialogue.,COLOR)
 th u(NEWCONF,pconf,IC,BORDERS,1,Show borders around poses?,BOOL)
-th u(NEWCONF,pconf,ALERTS,SCENES,0,Show upcoming scenes on logon?,BOOL)
+th u(NEWCONF,pconf,ALERTS,SCENES,1,Show upcoming scenes on logon?,BOOL)
 
 &SYSTEM`NAME [u(cobj,scene)]=SCENESYS
 
@@ -186,7 +186,7 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 &Q`GET`OWNERID [u(cobj,scene)]=SELECT player_id from $SCENES$ WHERE scene_id=?
 &Q`GET`PLOTOWNERID [u(cobj,scene)]=SELECT player_id from $PLOTS$ WHERE plot_id=?
 
-&INC`SCENE`SPOOF [u(cobj,scene)]=@select/inline strlen(%0)=>0,{@check u(setr,accid,u(accid,u(objid,owner(%#))))=@attach %!/INC`MSG=You don't have an account!;@check isdbref(u(setr,spoof,u(namegrab,alts(owner(%#)))))=@attach %!/INC`MSG=ERROR: '%0' is not one of your alts.;&D`SCENE`SPOOF %#=%q<spoof>;@attach %!/INC`MSG=Your poses will now appear to be from %q<t1name>.},{&D`SCENE`SPOOF %#;@attach %!/INC`MSG=Your poses will appear to be from yourself.}
+&INC`SCENE`SPOOF [u(cobj,scene)]=@select/inline strlen(%0)=>0,{@check u(setr,accid,u(accid,u(objid,owner(%#))))=@attach %!/INC`MSG=You don't have an account!;@check isdbref(u(setr,spoof,u(namegrab,u(alts,owner(%#)),%0)))=@attach %!/INC`MSG=ERROR: '%0' is not one of your alts.;&D`SCENE`SPOOF %#=%q<spoof>;@attach %!/INC`MSG=Your poses will now appear to be from [name(%q<spoof>)].},{&D`SCENE`SPOOF %#;@attach %!/INC`MSG=Your poses will appear to be from yourself.}
 
 &INC`VALSCENE [u(cobj,scene)]=@check strlen(%0)=@attach %!/INC`MSG=Scene ID field empty.;@check u(valnum,%0)=@attach %!/INC`MSG=Scenes must be addressed by their IDs.;@check gt(u(setr,scene,u(mysql,get`scenecheck,%0)),0)=@attach %!/INC`MSG=Scene '%0' could not be found.
 &Q`GET`SCENECHECK [u(cobj,scene)]=SELECT scene_id FROM $SCENES$ WHERE scene_id=?
@@ -271,6 +271,8 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 &INC`SCENES`ADD [u(cobj,scene)]=@attach %!/INC`USERCHECK=u(objid,%#);@attach %!/INC`CHECKTIME=trim(before(%0,/));@check strlen(u(setr,title,trim(after(%0,/))))=@attach %!/INC`MSG=You need to give the scene a title!;@stop u(charsearch,%q<title>,/ %r %t)=@attach %!/INC`MSG=The following characters are not permitted in titles: /, \%r, \%t.;@check strlen(u(setr,desc,%1))=@attach %!/INC`MSG=Your scene needs a description!;@attach %!/INC`DOSQL=INSERT`NEWSCHEDULE,%q<pid>,u(trimtabs,u(trimlines,%q<title>)),u(trimtabs,u(trimlines,%q<desc>)),%q<time>;th u(setq,schedid,u(mysql,get`newschedule,%q<pid>));@trigger u(cobj,bbs)/INC`POST=BB,u(game_config,SCENESYS,BOARD),#%q<schedid>: %q<title>,u(FUN`FORMATPOST,%q<title>,[u(moniker,%#)],u(fancytime,%q<time>,,UTC),%q<desc>),%#;@attach %!/INC`MSG=You schedule a new scene- Scenes %q<schedid>: %q<title> on [u(fancytime,%q<time>,%#)];@wait 1={@attach %!/INC`DOSQL=SET`SCHEDULEBB,u(setr,postid,elements(first(u(wildgrepi,u(game_config,SCENESYS,BOARD),~`*`HDR,#%q<schedid>:*)),2,`)),%q<schedid>}
 
 &INC`SCENES`TAG [u(cobj,scene)]=@attach %!/INC`USERCHECK=u(objid,%#);@attach %!/INC`VALSCHED=%0;@stop u(mysql,get`tagcheck,%q<schedule>,%q<pid>)=@attach %!/INC`MSG=You are already signed up for that scene.;@attach %!/INC`DOSQL=INSERT`NEWTAG,%q<pid>,%q<schedule>;@attach %!/INC`MSG=You have tagged Scheduled Scene %0!
+
+&INC`SCENES`INVITE [u(cobj,scene)]=@attach %!/INC`USERCHECK=u(objid,%#);@attach u(cobj,scene)/INC`VALSCHED=%0;@attach u(cobj,scene)/INC`OWNSCHED=%q<schedule>,%q<pid>;@check words(setr(invites,setr(tagged,u(filter,ISOBJID,u(mysql,get`taggedobj,%q<schedule>)))))=@attach %!/INC`MSG=ERROR: No valid recipients to invite.;@dolist/inline %q<invites>={@force %#=+summon ##}
 
 &INC`SCENES`UNTAG [u(cobj,scene)]=@attach %!/INC`USERCHECK=u(objid,%#);@attach %!/INC`VALSCHED=%0;@check u(mysql,get`tagcheck,%q<schedule>,%q<pid>)=@attach %!/INC`MSG=You are not signed up for that scene.;@attach %!/INC`DOSQL=DELETE`TAG,%q<pid>,%q<schedule>;@attach %!/INC`MSG=You have untagged Scheduled Scene %0!
 &Q`INSERT`NEWTAG [u(cobj,scene)]=INSERT INTO $TAGS$ (player_id,schedule_id) VALUES (?,?)

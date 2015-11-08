@@ -11,11 +11,11 @@ th u(newcobj,STORYTELLER: Damage Management System <DAMAGE>,damage,,,,WIZARD SAF
 
 &INC`TYPE [u(cobj,damage)]=@attach %!/INC`PARTIAL=%0,v(VAR`TYPES),|,find,Damage Track
 
-&FUN`INC`BASHING [u(cobj,damage)]=switch(1,gt(u(FUN`GET`EMPTY,%0),0),setstat(%0/D`DAMAGE,Bashing,add(u(FUN`GET`BASHING,%0),1))[u(setq,bashcount,add(1,%q<bashcount>))],u(FUN`INC`LETHAL,%#))
+&FUN`INC`BASHING [u(cobj,damage)]=switch(1,gt(u(FUN`GET`EMPTY,%0),0),u(setstat,%0,D`DAMAGE,Bashing,add(u(FUN`GET`BASHING,%0),1))[u(setq,bashcount,add(1,%q<bashcount>))],u(FUN`INC`LETHAL,%#))
 
-&FUN`INC`LETHAL [u(cobj,damage)]=switch(1,gt(or(u(FUN`GET`EMPTY,%0),u(FUN`GET`BASHING,%0)),0),setstat(%0/D`DAMAGE,Lethal,add(u(FUN`GET`Lethal,%0),1))[u(setq,lethcount,add(1,%q<lethcount>))],u(FUN`INC`AGGRAVATED,%#))
+&FUN`INC`LETHAL [u(cobj,damage)]=switch(1,gt(or(u(FUN`GET`EMPTY,%0),u(FUN`GET`BASHING,%0)),0),u(setstat,%0,D`DAMAGE,Lethal,add(u(FUN`GET`Lethal,%0),1))[u(setq,lethcount,add(1,%q<lethcount>))],u(FUN`INC`AGGRAVATED,%#))
 
-&FUN`INC`AGGRAVATED [u(cobj,damage)]=setstat(%0/D`DAMAGE,Aggravated,add(u(FUN`GET`Aggravated,%0),1))[u(setq,aggcount,add(1,%q<aggcount>))]
+&FUN`INC`AGGRAVATED [u(cobj,damage)]=u(setstat,%0,D`DAMAGE,Aggravated,add(u(FUN`GET`Aggravated,%0),1))[u(setq,aggcount,add(1,%q<aggcount>))]
 
 &VAR`TYPES [u(cobj,damage)]=AGGRAVATED|LETHAL|BASHING
 

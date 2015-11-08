@@ -10,7 +10,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &COI [u(cobj,mco)]=localize(if(isdbref(u(setr,db,u(find_in,u(master_room),Code Object Index <COI>))),u(%q<db>/%0)))
 
-&ATTRIB_SET [u(cobj,mco)]=u(ATTRIB_SET`[v(game)],%0,%1,%2)
+&ATTRIB_SET [u(cobj,mco)]=if(strmatch(num(%0),num(u(cobj,ancestor_player))),,u(ATTRIB_SET`[v(game)],%0,%1,%2))
 &ATTRIB_SET`PENNMUSH [u(cobj,mco)]=attrib_set(%0/%1,%2)
 &ATTRIB_SET`RHOSTMUSH [u(cobj,mco)]=set(%0,%1:%2,strmatch(%1,*`*))
 
@@ -365,6 +365,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`MONIKER [u(cobj,mco)]=u(moniker,%0)
 &GETPROPERTY`ALIASNAME [u(cobj,mco)]=name(%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
 &GETPROPERTY`ALIASMONIKER [u(cobj,mco)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`ALIASMONIKERAPPROVED [u(cobj,mco)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))][if(not(u(approved,%0)),%b- [ansi(hr,UNAPPROVED)])]
 &GETPROPERTY`NAMELINK [u(cobj,mco)]=u(namelink,%0)
 &GETPROPERTY`HIDEIDLE [u(cobj,mco)]=u(hideidle,%0)
 &GETPROPERTY`HIDECONN [u(cobj,mco)]=u(hideconn,%0)
@@ -439,8 +440,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`ALLRANKLIST [u(cobj,mco)]=localize(if(words(u(setr,facs,u(GETPROPERTY`GROUPS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`RANK,%0,%i0),%b,beep()),beep(),if(%1,%R,\,%b))))
 &GETPROPERTY`ALLRANKLISTLINE [u(cobj,mco)]=u(GETPROPERTY`ALLRANKLIST,%0,1)
 
-&SORTGROUPS [u(cobj,mco)]=u(SORTGROUPS`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTGROUPS`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/default(\%0/SET`SORT,99),%0,n,%1,%2)
+&SORTGROUPS [u(cobj,mco)]=localize(u(SORTGROUPS`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B)))
+&SORTGROUPS`PENNMUSH [u(cobj,mco)]=u(setq,min,u(filter,MINOR,%0))[u(setq,maj,u(filter,MAJOR,%0))][squish(sortkey(#lambda/default(\%0/SET`SORT,99),%q<maj>,n,%1,%2)%b[sortkey(#lambda/default(\%0/SET`SORT,99),%q<min>,n,%1,%2)])]
 &SORTGROUPS`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/SET`SORT,99),default(%1/SET`SORT,99))])],%0,%1,%2)
 
 &FIL`MAJOR [u(cobj,mco)]=t(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR))

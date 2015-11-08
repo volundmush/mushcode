@@ -107,7 +107,10 @@ th u(NEWCOBJ,Key Object Parent <KOP>,kop,u(cobj,lms),,,WIZARD SAFE,INHERIT SIDEF
 
 &FIL`KEYCHOICES [u(cobj,mco)]=not(isdbref(u(namegrab,%1,before(%0,/))))
 
-&INC`GENLOCK [u(cobj,lms)]=th u(setq,keydbs,setunion(u(u(cobj,lms)/FUN`LISTKEYS),if(isdbref(u(cobj,gms)),u(u(cobj,gms)/FUN`LISTGROUPS))));@stop words(u(setr,choices,u(filter,KEYCHOICES,%0,%b,%b,%q<keydbs>)))=@attach %!/INC`MSG=ERROR: Following Master Keys not found: [u(itemize,%q<choices>,|,and,\,)];@dolist/inline %0={@check isdbref(u(setr,grab,u(namegrab,%q<keydbs>,before(##,/))))=@attach %!/INC`MSG=ERROR: Master Key Not Found: [before(##,/)];@check match(u(u(cobj,lms)/FUN`LISTLOCKS,%q<grab>),u(strfirstof,after(##,/),BASIC),|)=@attach %!/INC`MSG=ERROR: Lock Type for [before(##,/)] Not Found: [after(##,/)]};th u(setq,value,iter(%0,@[u(namegrab,%q<keydbs>,before(%i0,/))][if(cand(strlen(after(%i0,/)),strmatch(v(game),PennMUSH)),/[after(%i0,/)])],%B,|))
+&INC`GENLOCK [u(cobj,lms)]=th u(setq,keydbs,setunion(u(u(cobj,lms)/FUN`LISTKEYS),if(isdbref(u(cobj,gms)),u(u(cobj,gms)/FUN`LISTGROUPS))));@stop words(u(setr,choices,u(filter,KEYCHOICES,%0,%b,%b,%q<keydbs>)))=@attach %!/INC`MSG=ERROR: Following Master Keys not found: [u(itemize,%q<choices>,|,and,\,)];@dolist/inline %0={@check isdbref(u(setr,grab,u(namegrab,%q<keydbs>,before(##,/))))=@attach %!/INC`MSG=ERROR: Master Key Not Found: [before(##,/)];@check match(u(u(cobj,lms)/FUN`LISTLOCKS,%q<grab>),u(strfirstof,after(##,/),BASIC),|)=@attach %!/INC`MSG=ERROR: Lock Type for [before(##,/)] Not Found: [after(##,/)]};th u(setq,value,iter(%0,@[u(namegrab,%q<keydbs>,before(%i0,/))][if(cand(strlen(u(strfirstof,after(%i0,/),%1)),strmatch(v(game),PennMUSH)),/[u(strfirstof,after(%i0,/),%1)])],%B,|))
+@@ %0 - Lock list. %1 - destination lock override.
+
+
 
 &DEFAULT`LOCKS [u(cobj,config)]=@@ Empty attr for Rhost.
 &DEFAULT`LOCKS`PLAYER_MAKE [u(cobj,config)]=0
