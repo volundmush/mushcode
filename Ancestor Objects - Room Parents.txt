@@ -11,11 +11,11 @@
 
 &CONFORMAT [u(cobj,ancestor_room)]=[u(CONFORMAT`EXTRA)][if(words(lvplayers(%!)),u(CONFORMAT`PLAYERS`[strfirstof(v(MODE`PLAYERS_MODE),vol_game_config(ROOM,PLAYERS_MODE))]))][if(words(lvthings(%!)),%R[u(CONFORMAT`THINGS`[strfirstof(if(strmatch(%!,vol_choosegame(config(master_room),globalroom())),MASTER_ROOM),v(MODE`THINGS_MODE),vol_game_config(ROOM,THINGS_MODE))])])][switch(type(%!),THING,%R[u(SUBHEADER)])]
 
-&CONFORMAT`PLAYERS`DEFAULT [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(19,Name))]%R[iter(vol_sortname(lvplayers(%!)),align(19,vol_mxpmenu(moniker(%i0),look [name(%i0)])),%b,%R)]
+&CONFORMAT`PLAYERS`DEFAULT [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(vol_color(%#,ROOM,COLUMN_NAMES),align(19,Name))]%R[iter(vol_sortname(lvplayers(%!)),align(19,vol_mxpmenu(moniker(%i0),look [name(%i0)])),%b,%R)]
 
-&CONFORMAT`THINGS`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,vol_pueblize(name(%i0),look [name(%i0)]),vol_pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,vol_pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,vol_pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R)]
+&CONFORMAT`THINGS`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(vol_color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,vol_pueblize(name(%i0),look [name(%i0)]),vol_pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,vol_pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,vol_pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R)]
 
-&CONFORMAT`THINGS`MASTER_ROOM [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(vol_isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,name(%i0),name(owner(%i0)),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,ansi(hg,%i0),1*,ansi(hr,%i0),01,ansi(hg,enter_ok),ansi(hr,can't))),%b,%R)]
+&CONFORMAT`THINGS`MASTER_ROOM [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(vol_color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(vol_isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,name(%i0),name(owner(%i0)),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,ansi(hg,%i0),1*,ansi(hr,%i0),01,ansi(hg,enter_ok),ansi(hr,can't))),%b,%R)]
 
 &CONFORMAT`EXTRA [u(cobj,ancestor_room)]=[if(cor(nattr(%!/VIEW`*),nattr(%!/MUSIC`*),nattr(%!/PLACE`*)),separator(Extra)%R[iter(filterbool(#lambda/nattr(%!/\%0`*),PLACE VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)]
 &FUN`EXTRA`VIEW [u(cobj,ancestor_room)]=This room has views! Type [vol_pueblize(ansi(h,+view),+view)] to list!

@@ -5,7 +5,7 @@
 th u(NEWCOBJ,Group Management System <GMS>,gms,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 th u(NEWCOBJ,Group Object Parent <GOP>,gop,u(cobj,gms),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
 
-&FUN`ISADMIN [u(cobj,gop)]=isadmin(%#)
+&FUN`ISADMIN [u(cobj,gop)]=vol_isadmin(%#)
 &FUN`MEMBER [u(cobj,gop)]=[cor(match(v(MEMBERS),objid(%#)),u(FUN`ISADMIN))]
 @lock/basic [u(cobj,gop)]=FUN`MEMBER/1
 @lset [u(cobj,gop)]/basic=visual

@@ -17,7 +17,7 @@ th u(NEWCOBJ,FCList Database <FCLIST-DB>,fclist-db,u(cobj,fclist),,1,WIZARD SAFE
 
 &INC`MAIN [u(cobj,fclist)]=@switch/inline strlen(%0)=>0,{@attach %!/INC`LIST},0,{@attach %!/INC`LISTALL}
 
-&INC`LISTALL [u(cobj,fclist)]=@pemit %#=u(HEADER,mudname()'s Themes);@pemit %#=u(table,iter(u(sortattr,lattr(u(cobj,fclist-db)/F`*)),pueblize(get(u(cobj,fclist-db)/%i0),%q<com> [get(u(cobj,fclist-db)/%i0)]),%b,|),26,u(width,%#),|);@pemit %#=u(SUBHEADER,%q<com> <group> for listing - %q<com>/info <group> for Info)
+&INC`LISTALL [u(cobj,fclist)]=@pemit %#=u(HEADER,mudname()'s Themes);@pemit %#=u(table,iter(u(sortattr,lattr(u(cobj,fclist-db)/F`*)),u(pueblize,get(u(cobj,fclist-db)/%i0),%q<com> [get(u(cobj,fclist-db)/%i0)]),%b,|),26,u(width,%#),|);@pemit %#=u(SUBHEADER,%q<com> <group> for listing - %q<com>/info <group> for Info)
 
 &INC`LIST [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@pemit %#=u(HEADER,%q<gname> Roster);@select/inline strlen(u(setr,desc,get(u(cobj,fclist-db)/%q<group>`DESC)))=>0,{@pemit %#=%q<desc>;@pemit %#=u(separator)};@pemit %#=ansi(u(color,%#,FCLIST,COLUMN_NAMES),align(23 21 10 8 10,Name,Faction,Last On,Type,Available));@pemit %#=u(SEPARATOR);@dolist/inline u(sortname,u(filter,ISOBJID,get(u(cobj,fclist-db)/%q<group>`LIST)))={@pemit %#=align(23 21 10 8 10,u(moniker,##),u(strfirstof,u(getproperty,##,MAJORNAMECLICK),Unaffiliated),u(lastidle,##),default(##/D`FINGER`TYPE,FC),u(capnames,default(##/D`FINGER`STATUS,Open)))};@pemit %#=u(SUBHEADER)
 
@@ -27,7 +27,7 @@ th u(NEWCOBJ,FCList Database <FCLIST-DB>,fclist-db,u(cobj,fclist),,1,WIZARD SAFE
 
 &INC`CREATE [u(cobj,fclist)]=@stop u(FUN`FINDEXACT,%0)=@attach %!/INC`MSG=ERROR: Group already exists!;th u(attrib_set,u(cobj,fclist-db),u(setr,attr,F`[u(nextslot,u(cobj,fclist-db),F)]),%0);@attach %!/INC`MSG=Group '%0' created!;@attach %!/INC`MSG`CHAN={Group '%0' created!}
 
-&INC`FIND [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No group name entered!;@select/inline gt(strlen(u(setr,group,u(FUN`FINDEXACT,%0))),0)=0,{@check words(u(setr,group,u(FUN`FINDWILD,%0)))=@attach %!/INC`MSG=ERROR: Group not found!;@stop gt(words(%q<group>),1)=@attach %!/INC`MSG=ERROR: '%0' matched [u(itemize,iter(%q<group>,pueblize(get(u(cobj,fclist-db)/%i0),%q<com> [get(u(cobj,fclist-db)/%i0)]),%b,|),|,and,\,)]. Please be more specific.};th u(setq,gname,get(u(cobj,fclist-db)/%q<group>))
+&INC`FIND [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No group name entered!;@select/inline gt(strlen(u(setr,group,u(FUN`FINDEXACT,%0))),0)=0,{@check words(u(setr,group,u(FUN`FINDWILD,%0)))=@attach %!/INC`MSG=ERROR: Group not found!;@stop gt(words(%q<group>),1)=@attach %!/INC`MSG=ERROR: '%0' matched [u(itemize,iter(%q<group>,u(pueblize,get(u(cobj,fclist-db)/%i0),%q<com> [get(u(cobj,fclist-db)/%i0)]),%b,|),|,and,\,)]. Please be more specific.};th u(setq,gname,get(u(cobj,fclist-db)/%q<group>))
 
 &INC`RENAME [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: New name field empty.;@stop strlen(u(FUN`FINDEXACT,%1))=@attach %!/INC`MSG=ERROR: Group '%1' already exists.;@attach %!/INC`MSG=Group '%q<gname>' Renamed to '%1'!;@attach %!/INC`MSG`CHAN={Group '%q<gname>' Renamed to '%1'};&%q<group> u(cobj,fclist-db)=%1
 

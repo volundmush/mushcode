@@ -233,7 +233,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 
 @@ JADEBORN
 &CLASS`JADEBORN [u(cobj,pool)]=PERSONAL WILLPOWER DIVERGENCE
-&POOL`PERSONAL`MAX`JADEBORN [u(cobj,pool)]=add(mul(10,getpower(%0)))
+&POOL`PERSONAL`MAX`JADEBORN [u(cobj,pool)]=add(mul(10,getpower(%0)),0)
 
 &POOL`DIVERGENCE [u(cobj,pool)]=Track
 &POOL`DIVERGENCE`UNITNAME [u(cobj,pool)]=Points

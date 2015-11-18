@@ -119,7 +119,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 
 &INC`IP`IP [u(cobj,ams)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: An IP address is required.;@attach %!/INC`IP`IPSHOW=%0,1,1
 
-&INC`IP`IPSHOW [u(cobj,ams)]=@check gt(words(u(setr,ips,if(%2,%0,u(mysql,GET`LOGIN_[if(%1,GUEST,ID)],%q<t1id>)))),0)=@attach %!/INC`MSG=ERROR: No IP logs found to match against.;th u(setq,pcs,u(sortname,u(filter,ISOBJID,u(mysql,GET`OBJIDS_FROM_IPS[if(%1,_GUEST)],u(SQL`IN`STRING,%q<ips>)))));th if(%1,u(setq,pcs,u(filter,NOTGUEST,%q<pcs>)));@check words(%q<pcs>)=@attach %!/INC`MSG=ERROR: No Matching Logs found.;@pemit %#=u(header,Site matches for [if(%2,%0,name(%0))][if(%1,%B\(Showing Guests\))]);@dolist/inline %q<pcs>={@pemit %#=u(separator,ansi(h,u(pueblize,u(moniker,##),+finger [name(##)]))[ansi(h,\(##\))] - [u(lastidle,##)]);@pemit %#=ansi(u(color,%#,%q<sysname>,COLUMN_NAMES),align(20 22 25,Date,Address,Result));@pemit %#=iter(u(mysql2,get`logins,u(objid,##)),align(20 22 25,u(fancytime,elements(%i0,3,^),%#),elements(%i0,2,^),if(elements(%i0,1,^),Success,elements(%i0,4,^))),|,%R)};@pemit %#=u(subheader)
+&INC`IP`IPSHOW [u(cobj,ams)]=@check gt(words(u(setr,ips,if(%2,%0,u(mysql,GET`LOGIN_[if(%1,GUEST,ID)],%q<t1id>)))),0)=@attach %!/INC`MSG=ERROR: No IP logs found to match against.;th u(setq,pcs,u(sortname,u(filter,ISOBJID,u(mysql,GET`OBJIDS_FROM_IPS[if(%1,_GUEST)],u(SQL`IN`STRING,%q<ips>)))));th if(%1,u(setq,pcs,u(filter,NOTGUEST,%q<pcs>)));@check words(%q<pcs>)=@attach %!/INC`MSG=ERROR: No Matching Logs found.;@pemit %#=u(header,Site matches for [if(%2,%0,name(%0))][if(%1,%B\(Showing Guests\))]);@dolist/inline %q<pcs>={@pemit %#=u(separator,ansi(h,u(pueblize,u(moniker,##),+finger [name(##)]))[ansi(h,\(##\))] - [u(lastidle,##)]);@pemit %#=ansi(u(color,%#,%q<sysname>,COLUMN_NAMES),align(20 22 25,Date,Address,Result));@pemit %#=iter(revwords(iter(u(mysql2,get`logins,u(objid,##)),align(20 22 25,u(fancytime,elements(%i0,3,^),%#),elements(%i0,2,^),if(elements(%i0,1,^),Success,elements(%i0,4,^))),|,beep()),beep()),%i0,beep(),%R)};@pemit %#=u(subheader)
 
 &Q`GET`LOGIN_ID [u(cobj,ams)]=SELECT DISTINCT login_address FROM $LOGINS$ WHERE player_id=? AND login_guest=0 AND login_result=1
 &Q`GET`LOGIN_GUEST [u(cobj,ams)]=SELECT DISTINCT login_address FROM $LOGINS$ WHERE player_id=? AND login_result=1
@@ -127,7 +127,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 &Q`GET`OBJIDS_FROM_IPS [u(cobj,ams)]=SELECT DISTINCT objid from $LOGINS$ as logins LEFT JOIN $PLAYERS$ as players ON players.player_id=logins.player_id WHERE logins.login_address IN (!) AND logins.login_guest=0
 &Q`GET`OBJIDS_FROM_IPS_GUEST [u(cobj,ams)]=SELECT DISTINCT objid from $LOGINS$ as logins LEFT JOIN $PLAYERS$ as players ON players.player_id=logins.player_id WHERE logins.login_address IN (!)
 
-&Q`GET`LOGINS [u(cobj,ams)]=SELECT login_result,login_address,UNIX_TIMESTAMP(login_date),login_reason from $LOGINS$ as logins LEFT JOIN $PLAYERS$ as players ON players.player_id=logins.player_id WHERE players.objid=? ORDER BY login_date ASC LIMIT 10
+&Q`GET`LOGINS [u(cobj,ams)]=SELECT login_result,login_address,UNIX_TIMESTAMP(login_date),login_reason from $LOGINS$ as logins LEFT JOIN $PLAYERS$ as players ON players.player_id=logins.player_id WHERE players.objid=? ORDER BY login_date DESC LIMIT 10
 
 &TRG`IP`CLEANCONNLOGS [u(cobj,ams)]=@attach %!/INC`IDCHECK=%0;@check %q<id>;th u(setq,keepids,u(mysql,GET`GOOD_LOGINS,%q<id>));@attach %!/INC`DOSQL=DELETE`OLD_LOGINS,%q<id>,u(SQL`IN`NUMBER,%q<keepids>)
 
