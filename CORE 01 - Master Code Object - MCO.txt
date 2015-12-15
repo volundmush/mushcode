@@ -10,7 +10,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &COI [u(cobj,mco)]=localize(if(isdbref(u(setr,db,u(find_in,u(master_room),Code Object Index <COI>))),u(%q<db>/%0)))
 
-&ATTRIB_SET [u(cobj,mco)]=if(strmatch(num(%0),num(u(cobj,ancestor_player))),,u(ATTRIB_SET`[v(game)],%0,%1,%2))
+&ATTRIB_SET [u(cobj,mco)]=if(cand(hasattr(u(cobj,mco),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player)))),,u(ATTRIB_SET`[v(game)],%0,%1,%2))
 &ATTRIB_SET`PENNMUSH [u(cobj,mco)]=attrib_set(%0/%1,%2)
 &ATTRIB_SET`RHOSTMUSH [u(cobj,mco)]=set(%0,%1:%2,strmatch(%1,*`*))
 
@@ -556,8 +556,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &INC`VALID`DBREF [u(cobj,mco)]=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th u(setq,value,u(objid,%0))
 &INC`VALID`TZ [u(cobj,mco)]=@check valid(timezone,u(setr,value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone}
 &INC`VALID`DURATION [u(cobj,mco)]=@check u(setr,value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()}
-&INC`VALID`POSINT [u(cobj,mco)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[u(strfirstof,%1,%0)]' must be a whole number 0 or greater.};th u(setq,value,%0)
-&INC`VALID`INT [u(cobj,mco)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0.};th u(setq,value,%0)
+&INC`VALID`POSINT [u(cobj,mco)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[u(strfirstof,%1,%0)]' must be a whole number 1 or greater.};th u(setq,value,%0)
+&INC`VALID`INT [u(cobj,mco)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th u(setq,value,%0)
 &INC`VALID`LOCK [u(cobj,mco)]=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th u(setq,value,%0)
 
 @@ MESSAGING SECTION

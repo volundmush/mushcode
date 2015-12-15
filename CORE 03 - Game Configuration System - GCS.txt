@@ -20,7 +20,7 @@ th u(NEWCOBJ,Game Configuration Data Storage <CONFIG>,config,u(cobj,gcs),,1,WIZA
 
 &INC`MAIN [u(cobj,gcs)]=@switch/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`SET}
 
-&INC`LIST [u(cobj,gcs)]=@pemit %#=u(header,mudname() Configuration);@dolist/inline/delimit | [u(FUN`CATEGORIES)]={th u(setq,category,##);@pemit %#=u(subheader,u(capnames,%q<category>));@pemit %#=ansi(u(color,%#,u(SYSTEM`NAME),COLUMN_NAMES),align(14 19 43,Setting,Value,Type and Description));@pemit %#=iter(u(FUN`SETTINGS,%q<category>),align(14 19 43,%i0,if(gt(strlen(u(setr,found,u(game_config,%q<category>,%i0))),20),left(%q<found>,17)... %(use /get%),%q<found>),<[default(u(cobj,config)/TYPE`%q<category>`%i0,unknown)]> [default(u(cobj,config)/DESC`%q<category>`%i0,Unset)]),|,%R)};@pemit %#=u(subheader)
+&INC`LIST [u(cobj,gcs)]=@pemit %#=u(header,mudname() Configuration);@dolist/inline/delimit | [u(FUN`CATEGORIES)]={th u(setq,category,##);@pemit %#=u(subheader,u(capnames,%q<category>));@pemit %#=ansi(u(color,%#,u(SYSTEM`NAME),COLUMN_NAMES),align(14 19 43,Setting,Value,Type and Description));@pemit %#=iter(u(FUN`SETTINGS,%q<category>),align(14 19 43,%i0,if(gt(strlen(u(setr,found,u(game_config,%q<category>,%i0))),20),left(%q<found>,17)... %(use /get%),%q<found>)[switch(u(setr,type,get(u(cobj,config)/TYPE`%q<category>`%i0)),BOOL,%B[if(t(%q<found>),%(True%),%(False%))],DURATION,%B%([u(smalltime,%q<found>)]%))],<%q<type>> [default(u(cobj,config)/DESC`%q<category>`%i0,Unset)]),|,%R)};@pemit %#=u(subheader)
 
 &FUN`CATEGORIES [u(cobj,gcs)]=sort(get(u(cobj,config)/CATEGORIES),|,|)
 
