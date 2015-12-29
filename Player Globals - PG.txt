@@ -14,8 +14,10 @@ th u(NEWCOBJ,Player Globals <PG>,player_globals,,,,WIZARD SAFE !NO_COMMAND,INHER
 &CMD`DICE [u(cobj,player_globals)]=$+dice *d*:think [u(setq,0,0)][if(strmatch(%1,*+*),[u(setq,a,[before(%1,+)])][u(setq,b,[after(%1,+)])],[u(setq,a,%1)][u(setq,b,0)])] [switch([and([gt(%0,0)],[lt(%0,50)],[gt(%qa,0)],[lt(%qa,250)],[gte(%qb,-10)],[lt(%0,250)],[isint(%0)],[isint(%qa)],[isint(%qb)])],0,[pemit(%#,I'm sorry but you can only have positive integers when you roll dice. The addition at the end must be between -10 and 250.)],[remit([loc(%#)],<[ansi(xterm130,DICE ROLLER)]> %N rolled %0d%qa [map(me/full_die,[lnum(%0)], ,[space(1)])] + %qb = [if(%qb,[u(setq,0,[add(%q0,%qb)])])]%q0)])]
 &FULL_DIE [u(cobj,player_globals)]=[u(setq,1,add(rand(%qa),1))][u(setq,0,add(%q0,%q1))]<%q1>
 
-&CMD`+OOC [u(cobj,player_globals)]=$^(?s)(\+ooc|osay|\+osay)(?\: +(.*))?$:@check elock(%l/speech,%#)=@attach %!/INC`MSG=ERROR: Permission denied by local speech lock.;@check strlen(%2)=@attach %!/INC`MSG=What will you say?;@stop strmatch(left(%2,1),|)=@attach %!/INC`MSG=Emit feature is disabled.;th u(setq,players,u(lplayers,%l));@select/inline v(game)=PennMUSH,{@message lcon(%l)=%2,%!/FUN`MSGOOC,%#,##,%2,%q<players>},RhostMUSH,{@pemit/list lcon(%l)=udefault(FUN`MSGOOC,%2,%#,##,%2,%q<players>)}
+&CMD`+OOC [u(cobj,player_globals)]=$^(?s)(\+ooc|osay|\+osay|ooc)(?\: +(.*))?$:@check elock(%l/speech,%#)=@attach %!/INC`MSG=ERROR: Permission denied by local speech lock.;@check strlen(%2)=@attach %!/INC`MSG=What will you say?;@stop strmatch(left(%2,1),|)=@attach %!/INC`MSG=Emit feature is disabled.;th u(setq,players,u(lplayers,%l));@select/inline v(game)=PennMUSH,{@message lcon(%l)=%2,%!/FUN`MSGOOC,%#,##,%2,%q<players>},RhostMUSH,{@pemit/list lcon(%l)=udefault(FUN`MSGOOC,%2,%#,##,%2,%q<players>)}
 @set [u(cobj,player_globals)]/CMD`+OOC=regexp
+
+&CMD`+OOC-ALT [u(cobj,player_globals)]=$'*:@attach %!/CMD`+OOC=,,%0
 
 &CMD`QUIT [u(cobj,player_globals)]=$^(quit|logoff|logout)$:@select/inline v(game)=PennMUSH,{@boot/silent %#},RhostMUSH,{@boot/quiet %#}
 @set [u(cobj,player_globals)]/CMD`QUIT=regexp

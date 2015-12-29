@@ -22,7 +22,7 @@ th u(NEWCONF,config,CHANNELS,JOIN_GUESTS,,Default Channels for Guests.,LIST)
 
 &CMD`+LISTGUESTS [u(cobj,guest)]=$+listguests:@check words(u(setr,guests,u(choosegame,lsearch(all,type,player,elock,POWER^GUEST),search(FLAGS=!))))=@attach %!/INC`MSG=ERROR: No Guests in the system.;@pemit %#=u(header,mudname() Guests);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(7 18 26 24,DBREF,Name,Current Name,Alias));@pemit %#=u(separator);@dolist/inline %q<guests>={@pemit %#=align(7 18 26 24,##,default(##/D`OLDNAME,name(##)),name(##),fullalias(##))};@pemit %#=u(subheader)
 
-@select/inline v(game)=RhostMUSH,{th u(setq,guests,search(EPLAYER=\[hasflag(##,GUEST)\]))@admin guest_namelist=!ALL %q<guests>}
+@select/inline v(game)=RhostMUSH,{th u(setq,guests,search(EPLAYER=\[hasflag(##,GUEST)\]));@admin guest_namelist=!ALL %q<guests>}
 
 +shelp/add +makeguest=[u(cobj,guest)]/SHLP`+MAKEGUEST
 +shelp/category +makeguest=Administration

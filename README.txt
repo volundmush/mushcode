@@ -126,6 +126,11 @@ F) Under Flags section: You may also want to include ANSI and COLOR256 as a defa
 
 Be sure you are saving the .conf files with UNIX linebreaks if you're on Windows! I recommend notepad++ for the job.
 
+netrhost.conf options:
+A) includenest 15
+B) includecount 50
+
+Steps:
 1. Logon to your Immortal character who will own the code. Run the CORE 01 file to create the Master Code Object.
 2. Run CORE 02. Unlike Penn this will be run off the same character, not #1.
 3. Run CORE 03 and CORE 04.
