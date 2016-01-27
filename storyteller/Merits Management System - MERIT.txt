@@ -44,7 +44,7 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 
 &INC`MAIN [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline t(strlen(%q<filename>))=1,{@attach %!/INC`MERNAME=%q<filename>;@attach %!/INC`EXISTING;@attach %!/INC`DISPLAY},0,{@attach %!/INC`LIST}
 
-&INC`LIST [u(cobj,merit)]=@pemit %#=u(HEADER,name(%q<target>)'s [u(capnames,%q<sysname>)]);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(40 30 6,Name,Desc,Rank));@pemit %#=u(SEPARATOR);@dolist/inline u(sortmer,u(lattr,%q<target>/%q<root>`*))={@pemit %#=align(40 30 6,pueblize(u(FUN`MERNAME,%q<target>,##),%q<comm> [name(%q<target>)]/[u(FUN`MERNAME,%q<target>,##)]),left(get(%q<target>/##`DESC),20),repeat(*,get(%q<target>/##`RANK)))};@pemit %#=u(SUBHEADER)
+&INC`LIST [u(cobj,merit)]=@pemit %#=u(HEADER,name(%q<target>)'s [u(capnames,%q<sysname>)]);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(40 30 6,Name,Desc,Rank));@pemit %#=u(SEPARATOR);@dolist/inline u(sortmer,u(lattr,%q<target>/%q<root>`*))={@pemit %#=align(40 30 6,u(pueblize,u(FUN`MERNAME,%q<target>,##),%q<comm> [name(%q<target>)]/[u(FUN`MERNAME,%q<target>,##)]),left(get(%q<target>/##`DESC),20),repeat(*,get(%q<target>/##`RANK)))};@pemit %#=u(SUBHEADER)
 
 &SORTMER [u(cobj,merit)]=u(SORTMER`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTMER`PENNMUSH [u(cobj,merit)]=sortkey(#lambda/u(FUN`MERNAME,%q<target>,\%0),%0,i,%1,%2)

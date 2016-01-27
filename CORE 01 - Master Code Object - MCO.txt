@@ -45,8 +45,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &STARTUP [u(cobj,mco)]=@dolist/inline u(lattr,%!/STARTUP`*)={@include/nobreak %!/##}
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`[v(game)]
-&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech chancolor colornames choosegame sortorder namelink weblink,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,mco),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech chancolor colornames choosegame sortorder namelink weblink,v(FUNCTIONLIST`EXTRA))={@function/privileged vol_%d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=vol_%d0 wizard};@dolist/inline moniker lvplayers lvthings lvexits objid align lalign sortkey strfirstof table width=@function/privileged %d0=%!/%d0
+&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,mco),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle,v(FUNCTIONLIST`EXTRA))={@function/privileged vol_%d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=vol_%d0 wizard};@dolist/inline moniker lvplayers lvthings lvexits objid align lalign sortkey strfirstof table width=@function/privileged %d0=%!/%d0
 
 &FUNCTIONLIST`EXTRA [u(cobj,mco)]=
 &FUNCTIONLIST`ADMIN [u(cobj,mco)]=
@@ -356,12 +356,16 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &UMAIL`PENNMUSH [u(cobj,mco)]=elements(mail(%0),2)
 &UMAIL`RHOSTMUSH [u(cobj,mco)]=elements(mailquick(%0,,1),2)
 
+&FULLALIAS [u(cobj,mco)]=u(FULLALIAS`[v(game)],%0)
+&FULLALIAS`PENNMUSH [u(cobj,mco)]=fullalias(%0)
+&FULLALIAS`RHOSTMUSH [u(cobj,mco)]=get(%0/ALIAS)
 
 @@ PROPERTY SECTION
 &GETPROPERTY [u(cobj,mco)]=localize(if(isdbref(%0),u(GETPROPERTY`%1,%0,%2,%3,%4)))
 
 &GETPROPERTY`SEX [u(cobj,mco)]=get(%0/SEX)
 &GETPROPERTY`NAME [u(cobj,mco)]=name(%0)
+&GETPROPERTY`FULLALIAS [u(cobj,mco)]=u(fullalias,%0)
 &GETPROPERTY`MONIKER [u(cobj,mco)]=u(moniker,%0)
 &GETPROPERTY`ALIASNAME [u(cobj,mco)]=name(%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
 &GETPROPERTY`ALIASMONIKER [u(cobj,mco)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
@@ -370,7 +374,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`HIDEIDLE [u(cobj,mco)]=u(hideidle,%0)
 &GETPROPERTY`HIDECONN [u(cobj,mco)]=u(hideconn,%0)
 &GETPROPERTY`SEXLETTER [u(cobj,mco)]=left(get(%0/SEX),1)
-&GETPROPERTY`LOCATION [u(cobj,mco)]=if(findable(%#,%0),name(loc(%0)),*UNFINDABLE*)
+&GETPROPERTY`LOCATION [u(cobj,mco)]=if(findable(%#,%0),u(moniker,loc(%0)),*UNFINDABLE*)
 
 &GETPROPERTY`WIKI [u(cobj,mco)]=u(weblink,get(%0/D`FINGER`WIKI))
 &GETPROPERTY`GROUPNAMES2 [u(cobj,mco)]=u(getproperty`groupnames,%0,1)

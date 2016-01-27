@@ -21,9 +21,6 @@
 &FUN`COUNT`CHARMS [u(cobj,chargen)]=u(ladd,iter(u(lattr,%0/D`CHARMS`*`*),u(ladd,iter(get(%0/%i0),u(strfirstof,last(%i0,~),1),|,%b))))
 &FUN`COUNT`SPELLS [u(cobj,chargen)]=u(ladd,iter(u(lattr,%0/D`SPELLS`*),u(ladd,iter(get(%0/%i0),u(strfirstof,last(%i0,~),1),|,%b))))
 
-
-
-
 &CG [u(cobj,chargen)]=@@ Empty attrib for Rhost.
 
 &CG`1 [u(cobj,chargen)]=[u(SEPARATOR,Step 1: Concept and Caste)]%R[ansi(h,+class <type>)]%R%TYour choices are: [u(itemize,u(setr,classes,u(game_config,STORYTELLER,CLASSES)),|,and,\,)][if(strlen(u(setr,castes,get(u(cobj,data)/CASTE`%0))),%R%R[ansi(h,+caste <type>)] to set your [switch(%0,Terrestrial,Aspect,Caste)]%R%TYour choices are: [u(itemize,%q<castes>,|,and,\,)][if(hasattr(%!/CG`1`%0),%R%R[u(CG`1`%0)])])]%R%R[ansi(h,&sex me=<gender>)] to set your Gender (Male, Female, or None)

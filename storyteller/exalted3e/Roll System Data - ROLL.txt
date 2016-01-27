@@ -4,7 +4,7 @@ th u(newconf,CONFIG,ROLLER,AGAIN_NUMBER,11,Default #-Again.,POSINT)
 th u(newconf,CONFIG,ROLLER,REROLL_NUMBER,11,Default Re-#.,POSINT)
 th u(newconf,CONFIG,ROLLER,BOTCHES,1,Enable botches?,BOOL)
 th u(newconf,CONFIG,ROLLER,CHANNEL,,Channel to report dice rolls?,LIST)
-th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|ABILITIES|COLLEGES|GRACES|VIRTUES|PATHS|INFO,D`Attributes to stat search?,LIST)
+th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|ABILITIES|STYLES|CRAFTS|INFO,D`Attributes to stat search?,LIST)
 
 &ROLL`DYNAMICSTATS [u(cobj,roll)]=MARTIAL ARTS|ESSENCE
 &ROLL`DYNAMICSTATS`MARTIAL_ARTS [u(cobj,roll)]=u(getstat,%0,D`ABILITIES,Martial Arts)

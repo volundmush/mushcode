@@ -58,4 +58,4 @@ th u(NEWCONF,pconf,OOC,SPEECH,,For +ooc dialogue.,COLOR)
 @@ TECHNICAL - +Charset
 +help/add +charset=[u(cobj,player_globals)]/HLP`+CHARSET
 +Help/category +charset=Technical
-&HLP`+CHARSET [u(cobj,player_globals)]=[ansi(hc,See Also:)] [u(pueblize,help chr(),help chr())]%R%R[ansi(h,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+charset)] - Display most special characters the game supports.)]
+&HLP`+CHARSET [u(cobj,player_globals)]=[ansi(hc,See Also:)] [u(pueblize,help chr\(\))]%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+charset)] - Display most special characters the game supports.)]

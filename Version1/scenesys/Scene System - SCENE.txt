@@ -291,6 +291,14 @@
 
 &SQL`GET`UPCOMING`SCENES u(scene)=SELECT schedule_id FROM $DATABASE$.$SCHEDULE$ WHERE schedule_date >= NOW() AND schedule_date <= NOW() + INTERVAL 24 HOUR
 
+&PLAYER`CREATE`IDCHECK u(scene)=@assert words(setr(old,filterbool(#lambda/not(isobjid(\%0)),sql(SELECT objid FROM scene_players WHERE player_name LIKE '\%[sqlescape(%1)]\%'))));@assert setr(oldids,sql(SELECT objid\,player_id\,player_name FROM scene_players WHERE objid in \([iter(%q<old>,%i0,%b,\,%b)]\),|,^));@switch/inline %2=PCREATE,{@nscemit/noisy v(CMO`STAFFREP)=ALERT: Character '%1' created. Possible previous IDs: [iter(%q<oldids>,elements(%i0,2,|)%b\([elements(%i0,1,|)]\): [elements(%i0,3,|)],^,\,%b)]. Please use +scene/merge %1=<old id> if this is a re-creation of an old character!},CREATE,{}
+
+
+
+
+&SQL`GET`SIMILAR_NAME u(scene)=SELECT player_id FROM $DATABASE$.$PLAYERS$ WHERE player_name LIKE '%?%'
+&SQL`GET`SIMILAR_OBJID u(scene)=SELECT objid FROM $DATABASE$.$PLAYERS$ WHERE player_name LIKE '%?%'
+
 &INC`PLOT`MAIN u(scene)=@switch/inline gt(strlen(%0),0)=1,{@include u(scene)/INC`PLOT`DETAILS},0,{@include u(scene)/INC`PLOT`LIST}
 
 &INC`PLOT`ALL u(scene)=@include u(scene)/INC`PLOT`LIST=%0,1

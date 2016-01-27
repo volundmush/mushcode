@@ -1,0 +1,122 @@
+@@ DEPENDENCIES - CORE
+
+
+&INC`MAIN [u(cobj,sheet)]=@pemit %#=u(FUN`SHEETHEADER,%0,u(setr,class,getclass(%0)));@select/inline gt(strlen(setunion(u(u(cobj,data)/FUN`RET`ATTRIBUTES,%0),setunion(get(%0/D`FAVORED`ATTRIBUTES),get(%0/D`SUPERNAL`ATTRIBUTES),|,|),|,|)),0)=1,{@pemit %#=u(FUN`ATTRIBUTES,%0,%q<class>)};@select/inline gt(strlen(setunion(u(u(cobj,data)/FUN`RET`ABILITIES,%0),setunion(get(%0/D`FAVORED`ABILITIES),get(%0/D`SUPERNAL`ABILITIES),|,|),|,|)),0)=1,{@pemit %#=u(FUN`ABILITIES,%0,%q<class>)};@select/inline gt(strlen(setunion(u(u(cobj,data)/FUN`RET`CRAFTS,%0),setunion(get(%0/D`FAVORED`CRAFTS),get(%0/D`SUPERNAL`CRAFTS),|,|),|,|)),0)=1,{@pemit %#=u(FUN`CRAFTS,%0,%q<class>)};@select/inline gt(strlen(setunion(u(u(cobj,data)/FUN`RET`STYLES,%0),setunion(get(%0/D`FAVORED`STYLES),get(%0/D`SUPERNAL`STYLES),|,|),|,|)),0)=1,{@pemit %#=u(FUN`STYLES,%0,%q<class>)};@select/inline gt(strlen(get(%0/D`SPECIALTIES)),0)=1,{@pemit %#=u(FUN`SPECIALTIES,%0,%q<class>)};@select/inline t(nattr(%0/D`MERITS`*))=1,{@pemit %#=u(FUN`MERITS,%0,%q<class>)};@select/inline t(nattr(%0/D`FLAWS`*))=1,{@pemit %#=u(FUN`FLAWS,%0,%q<class>)};@select/inline t(nattr(%0/D`PACTS`*))=1,{@pemit %#=u(FUN`PACTS,%0,%q<class>)};@attach %!/INC`ADVANTAGES;@attach %!/INC`FOOTER
+
+&FUN`CLASSINFO`MORTAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|SEX~Sex,POWER~Essence~1)
+&FUN`CLASSINFO`SOLAR [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|SEX~Sex,POWER~Essence~1|CASTE~Caste~N/A)
+
+
+&FUN`CLASSINFO`ABYSSAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|[if(u(game_config,STORYTELLER,RESONANCE),FLAWED VIRTUE~Flawed Virtue~None,DOOM~Doom~None)],POWER~Essence~1|LIEGE~Liege~None)
+&FUN`CLASSINFO`LUNAR [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|VIRTUE FLAW~Virtue Flaw~None,POWER~Essence~1|TOTEM ANIMAL~Totem Animal~None)
+&FUN`CLASSINFO`SIDEREAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|VIRTUE FLAW~Virtue Flaw~None,POWER~Essence~1|FACTION~Faction~None)
+&FUN`CLASSINFO`TERRESTRIAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Aspect~N/A|VIRTUE FLAW~Virtue Flaw~None,POWER~Essence~1|NATION~Nation~Outcaste|HOUSE~House~None)
+&FUN`CLASSINFO`INFERNAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|URGE~Urge~None,POWER~Essence~1|FAVORED YOZI~Favored Yozi~None)
+&FUN`CLASSINFO`ALCHEMICAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A,POWER~Essence~1|NATION~Nation~None)
+&FUN`CLASSINFO`RAKSHA [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A,POWER~Essence~1|LURE~Lure~None)
+&FUN`CLASSINFO`DRAGON-KING [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A,POWER~Essence~1)
+&FUN`CLASSINFO`JADEBORN [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A,POWER~Essence~1)
+&FUN`CLASSINFO`GOD-BLOODED [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A,POWER~Essence~1)
+
+
+&ATTRIBUTES`PHYSICAL [u(cobj,sheet)]=STRENGTH|DEXTERITY|STAMINA
+&ATTRIBUTES`SOCIAL [u(cobj,sheet)]=CHARISMA|MANIPULATION|APPEARANCE
+&ATTRIBUTES`MENTAL [u(cobj,sheet)]=PERCEPTION|INTELLIGENCE|WITS
+
+@@ u(FUN`COLOR,%1,BORDER,\}[repeat(-,8)])[u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,PSM,Physical)][u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,15))][u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,PSM,Social)][u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,16))][u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,PSM,Mental)][u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,11)\{)]%R
+
+&FUN`CHARMHEADER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,\})[center(u(FUN`COLOR,%1,SLASH,/)[u(FUN`COLOR,%1,CHARMHEADER,%2)][u(FUN`COLOR,%1,SLASH,/)],sub(u(width,%#),2),u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,\{)]
+
+&FUN`CHARMSUBHEADER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,|)[center(u(FUN`COLOR,%1,CHARMSUBHEADERBORDER,====)[u(FUN`COLOR,%1,CHARMSUBHEADER,%2)][u(FUN`COLOR,%1,CHARMSUBHEADERBORDER,====)],sub(u(width,%#),2))][u(FUN`COLOR,%1,BORDER,|)]
+
+&FUN`SECTIONHEADER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,\})[center(u(FUN`COLOR,%1,SLASH,/)[u(FUN`COLOR,%1,HEADER,edit(%2,_,%b))][u(FUN`COLOR,%1,SLASH,/)],sub(u(width,%#),2),u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,\{)]
+
+&FUN`DOTFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,%4%5)%R[u(setq,sorted,if(strlen(%8),u(filter,DOTMATCH,%8,|,|,%7),%7))][if(%9,u(setq,first,u(filter,LTSTRLEN,%q<sorted>,|,|,%3))[u(setq,second,u(filter,GTESTRLEN,%q<sorted>,|,|,sub(%3,10)))],u(setq,first,%q<sorted>))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`STATFORMAT,%0,%1,%2,%3,%6,%q<first>)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`STATFORMAT2,%0,%1,%2,sub(u(width,%#),4),%6,%q<second>)))][switch(t(strlen(%q<firstsec>))[t(strlen(%q<secondsec>))],11,%q<firstsec>%R%q<secondsec>,10,%q<firstsec>,01,%q<secondsec>)])
+
+&FUN`ABILITIES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,ABILITIES,23,A,bilities,D`ABILITIES,setunion(u(u(cobj,data)/FUN`RET`ABILITIES,%0),setunion(get(%0/D`FAVORED`ABILITIES),get(%0/D`SUPERNAL`ABILITIES),|,|),|,|),u(u(cobj,data)/FUN`GET`ABILITIES`EXTRA))
+
+&FUN`CRAFTS [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,CRAFTS,23,C,rafts,D`CRAFTS,sort(u(u(cobj,data)/FUN`RET`CRAFTS,%0),i,|,|),,1)
+&FUN`STYLES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,STYLES,23,S,tyles,D`STYLES,sort(u(u(cobj,data)/FUN`RET`STYLES,%0),i,|,|),,1)
+&FUN`SPECIALTIES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,SPECIALTIES,36,S,pecialties,D`SPECIALTIES,sort(u(u(cobj,data)/FUN`RET`SPECIALTIES,%0),i,|,|),,1)
+
+&FUN`MERITS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,MERITS,+merits)
+&FUN`FLAWS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,FLAWS,+flaws)
+&FUN`PACTS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,PACTS,+pacts)
+
+&FUN`STATFORMAT`STAT [u(cobj,sheet)]=localize([u(setq,namedisp,if(%9,left(%3,%9),%3))][u(setq,val,u(strfirstof,%5,u(getstat,%0,D`%2,%3)))][u(setq,bon,u(strfirstof,%6,getbonus(%0,%3)))][u(setq,totval,add(%q<val>,if(%7,%q<bon>)))][if(%7,u(setq,valdisp,if(%7,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<val>)))),[u(setq,astlen,if(lte(%q<bon>,-1),bound(add(%q<val>,%q<bon>),0),%q<val>))][u(setq,minlen,if(lte(%q<bon>,-1),abs(%q<bon>)))][u(setq,pluslen,if(gte(%q<bon>,1),%q<bon>))][u(setq,valdisp,[if(%q<astlen>,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<astlen>)))][if(%q<minlen>,u(FUN`COLOR,%1,STATDOT,repeat(-,%q<minlen>)))][if(%q<pluslen>,u(FUN`COLOR,%1,STATDOT,repeat(+,%q<pluslen>)))])])][if(%8,,u(setq,fav,t(match(get(%0/D`FAVORED`%2),switch(%3,MARTIAL ARTS,BRAWL,%3),|)))[u(setq,sup,t(match(get(%0/D`SUPERNAL`%2),%3,|)))])][u(setq,statlen,strlen(%q<namedisp>))][if(lte(sub(%4,1,%q<statlen>,strlen(%q<valdisp>)),0),u(setq,valdisp,%q<totval>,dotlen,strlen(%q<totval>)),u(setq,dotlen,strlen(%q<valdisp>)))][u(setq,linelen,sub(%4,1,%q<dotlen>,%q<statlen>))][switch(1,%q<sup>,u(FUN`COLOR,%1,SUPMARK,+),%q<fav>,u(FUN`COLOR,%1,FAVMARK,+),%b)][u(FUN`COLOR,%1,STATNAME,if(%5,%q<namedisp>,u(capnames,%q<namedisp>)))][if(gt(%q<linelen>,0),repeat(u(FUN`COLOR,%1,STATFILL,.),%q<linelen>))]%q<valdisp>)
+
+
+@@ %0 = Player. %1 = Splat. %2 = Attribute. %3 = Entry. %4 = Length. %5 = manual value. %6 = Manual bonus. %7 = Don't show bonus. %8 = No favoreds. %9 = Truncate.
+
+
+&INC`ADVANTAGES [u(cobj,sheet)]=@attach %!/INC`CHARMS;@attach %!/INC`MACHARMS;@attach %!/INC`SPELLS
+
+&INC`CHARMS [u(cobj,sheet)]=@dolist/inline u(filter,HASCHARMS,CHARMS`SOLAR CHARMS`LUNAR CHARMS`ABYSSAL CHARMS`ALCHEMICAL CHARMS`INFERNAL CHARMS`TERRESTRIAL CHARMS`JADEBORN CHARMS`RAKSHA CHARMS`SIDEREAL CHARMS`SPIRIT CHARMS`MORTAL CHARMS`GHOST,%b,%b,%0)={@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,before(##,`))\, [u(capnames,after(##,`))]);@dolist/inline u(filter,HASATTRVAL,u(lattr,%0/D`%i0`*),%b,%b,%0)={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,u(capnames,last(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0),`)));@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,get(%0/[switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)])))}}
+
+&FIL`HASCHARMS [u(cobj,sheet)]=t(regrepi(%1,D`%0`*,.+))
+&FIL`HASATTRVAL [u(cobj,sheet)]=u(hasattrval,%1/%0)
+&FIL`HASATTRVAL2 [u(cobj,sheet)]=u(hasattrval,%1/D`%0)
+
+&INC`MACHARMS [u(cobj,sheet)]=@dolist/inline u(filter,HASCHARMS,CHARMS`EVOCATIONS CHARMS`MACHARMS CHARMS`SMACHARMS,%b,%b,%0)={@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,switch(elements(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0),2,`),MACHARMS,Martial Arts,SMACHARMS,Sidereal Martial Arts,EVOCATIONS,Evocations)));@dolist/inline u(filter,HASATTRVAL,u(lattr,%0/D`%i0`*),%B,%B,%0)={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,[u(setq,attr,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))][u(capnames,default(%0/%q<attr>`NAME,Unnamed Style))]);@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,get(%0/%q<attr>)))}}
+
+&INC`SPELLS [u(cobj,sheet)]=@dolist/inline u(filter,HASCHARMS,SPELLS,%b,%b,%0)={@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,u(setr,entry,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0))));@dolist/inline u(filter,HASATTRVAL,switch(%q<entry>,SPELLS,D`SPELLS`TERRESTRIAL D`SPELLS`CELESTIAL D`SPELLS`SOLAR D`SPELLS`SHADOWLANDS D`SPELLS`LABYRINTH D`SPELLS`VOID,PROTOCOLS,D`PROTOCOLS`MAN-MACHINE D`PROTOCOLS`GOD-MACHINE),%b,%b,%0)={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,u(capnames,last(u(setr,attr,switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)),`)));@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,get(%0/%q<attr>)))}}
+
+&INC`FOOTER [u(cobj,sheet)]=@attach %!/INC`HEALTH;@attach %!/INC`POOLS;@pemit %#=u(FUN`FOOTER,%0,%1)
+
+&INC`HEALTH [u(cobj,sheet)]=@select/inline strlen(get(%0/D`HEALTH))=>0,{@pemit %#=u(FUN`SECTIONHEADER,%0,%1,Health);@pemit %#=u(FUN`BORDER,%0,%1,u(u(cobj,damage)/FUN`FORMATHEALTH,%0))}
+
+&INC`POOLS [u(cobj,sheet)]=@select/inline gt(words(u(u(cobj,pool)/FUN`LISTPOOLS,%0),|),0)=1,{@pemit %#=u(FUN`3HEADER,%0,%1,Pools|Tracks|Experience);@pemit %#=u(FUN`POOLS,%0,%1)
+
+&FUN`POOLS [u(cobj,sheet)]=localize(align(1. [u(setr,c1,floor(u(setr,c0,fdiv(sub(u(width,%#),4),3))))] 1. [u(setr,c2,ceil(%q<c0>))] 1. [u(setr,c3,sub(u(width,%#),4,%q<c1>,%q<c2>))] 1.,u(FUN`COLOR,%1,BORDER,|),u(FUN`FORMATPOOLS,%0,Pool),u(FUN`COLOR,%1,BORDER,|),u(FUN`FORMATPOOLS,%0,Track),u(FUN`COLOR,%1,BORDER,|),u(FUN`XP,%0,%1),u(FUN`COLOR,%1,BORDER,|),,,%R))
+
+&FUN`XP [u(cobj,sheet)]=localize([u(setq,xpdata,u(u(cobj,xp)/mysql2,GET`TOTALS_PLAYER,u(objid,%0)))][u(setq,filxp,u(filter,XPTYPE,XP|SOLXP|SILXP|GOLXP|WHIXP,|,|,%q<xpdata>))][u(setq,finalxp,iter(%q<filxp>,grab(%q<xpdata>,%i0^*,|),|,|))][u(trimlines,iter(%q<finalxp>,u(FUN`COLOR,%1,PSM,rjust(switch(elements(%i0,1,^),XP,Experience,SOLXP,Solar XP,SILXP,Silver XP,GOLXP,Gold XP,WHIXP,White XP),13): [rjust(add(elements(%i0,2,^),0),3,0)]/[rjust(add(elements(%i0,3,^),0),3,0)]),|,%R))])
+
+&FIL`XPTYPE [u(cobj,sheet)]=t(strlen(grab(%1,%0^*,|)))
+
+&SORTXP [u(cobj,sheet)]=u(SORTXP`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTXP`PENNMUSH [u(cobj,sheet)]=sortkey(#lambda/last(\%0,`),%0,n,%1,%2)
+&SORTXP`RHOSTMUSH [u(cobj,sheet)]=sortby(#lambda/[lit([ncomp(last(%0,`),last(%1,`))])],%0,%1,%2)
+
+&FUN`FOOTER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,|----------------------------------------------------------------------------|)%R%B[u(FUN`COLOR,%1,BORDER,\\)]%B[center(u(FUN`GETSERIES,%1),72)]%B[u(FUN`COLOR,%1,BORDER,/)]%R%B%B[u(FUN`COLOR,%1,BORDER,'------------------------------------------------------------------------')]
+
+&FUN`GETSERIES [u(cobj,sheet)]=switch(%0,SOLAR,ansi(hy,Solars):%B[ansi(hy,The Lawgivers)],ABYSSAL,ansi(hx,Abyssals):%B[ansi(hx,The Deathknights)],INFERNAL,ansi(hg,Infernals):%B[ansi(hg,The Green Sun Princes)],LUNAR,ansi(hc,Lunars):%B[ansi(hc,The Stewards)],SIDEREAL,ansi(hm,Sidereals):%B[ansi(hm,The Viziers)],TERRESTRIAL,ansi(hr,Terrestrials):%B[ansi(hr,The TERRESTRIAL)],ALCHEMICAL,ansi(c,Alchemicals):%B[ansi(c,The Champions)],JADEBORN,ansi(y,Jadeborn),RAKSHA,ansi(m,Raksha):%B[ansi(m,The Fair Folk)],MORTAL,Mortals:%BThe Heroes,GHOST,Ghosts,DRAGON-KING,Dragon-Kings,GOD-BLOODED,ansi(h,GOD-BLOODED):%B[ansi(h,The Children of the Mighty)],Exalted 2.5e)
+
+&DEFAULT`STATNAME [u(cobj,sheet)]=
+&DEFAULT`FAVMARK [u(cobj,sheet)]=c
+&DEFAULT`SUPMARK [u(cobj,sheet)]=hr
+
+&SOLAR`BORDER [u(cobj,sheet)]=y
+&SOLAR`SLASH [u(cobj,sheet)]=hr
+&SOLAR`HEADER [u(cobj,sheet)]=hy
+&SOLAR`CHARMHEADER [u(cobj,sheet)]=hy
+&SOLAR`3COLUMNNAME [u(cobj,sheet)]=hy
+
+&LUNAR`BORDER [u(cobj,sheet)]=+lightblue1
+&LUNAR`SLASH [u(cobj,sheet)]=hb
+&LUNAR`HEADER [u(cobj,sheet)]=hc
+&LUNAR`CHARMHEADER [u(cobj,sheet)]=hc
+
+&INFERNAL`BORDER [u(cobj,sheet)]=g
+&INFERNAL`SLASH [u(cobj,sheet)]=y
+&INFERNAL`HEADER [u(cobj,sheet)]=hg
+&INFERNAL`CHARMHEADER [u(cobj,sheet)]=hg
+
+&ABYSSAL`BORDER [u(cobj,sheet)]=+gray18
+&ABYSSAL`SLASH [u(cobj,sheet)]=+grey93
+&ABYSSAL`HEADER [u(cobj,sheet)]=+red3
+&ABYSSAL`CHARMHEADER [u(cobj,sheet)]=+red3
+
+&SIDEREAL`BORDER [u(cobj,sheet)]=hm
+&SIDEREAL`SLASH [u(cobj,sheet)]=m
+&SIDEREAL`HEADER [u(cobj,sheet)]=hw
+&SIDEREAL`CHARMHEADER [u(cobj,sheet)]=hw
+
+&TERRESTRIAL`BORDER [u(cobj,sheet)]=hr
+&TERRESTRIAL`SLASH [u(cobj,sheet)]=c
+&TERRESTRIAL`HEADER [u(cobj,sheet)]=hc
+&TERRESTRIAL`CHARMHEADER [u(cobj,sheet)]=c
+
+&RAKSHA`BORDER [u(cobj,sheet)]=+springgreen3
+&RAKSHA`SLASH [u(cobj,sheet)]=+powderblue
+&RAKSHA`HEADER [u(cobj,sheet)]=+powderblue
+&RAKSHA`CHARMHEADER [u(cobj,sheet)]=+powderblue

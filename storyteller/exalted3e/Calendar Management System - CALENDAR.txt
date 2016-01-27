@@ -1,0 +1,47 @@
+@@ DEPENDENCIES - CORE
+th u(newcobj,STORYTELLER: Calendar Management System <CALENDAR>,calendar,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+
+&CMD`+TIME [u(cobj,calendar)]=$^(?s)\+time(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+))?$:@attach u(ccs)/INC`PARTIAL=%1,setunion(get(%!/VAR`PLAYFLAGS),if(isadmin(%#),get(%!/VAR`ADMINFLAGS)),|),|,TIME,switch,switch;@attach %!/INC`[strfirstof(%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,calendar)]/CMD`+TIME=regexp
+
+&FUN`GETSEASON [u(cobj,calendar)]=ucstr(if(lte(v(VAR`CURDAY),420),reswitchi(stripansi(elements(u(VAR`MONTHNAMES),ceil(fdiv(v(VAR`CURDAY),28)),|)),^(DESCENDING WATER)$,FRIGID,^(ASCENDING EARTH|RESPLENDENT EARTH)$,SPRING,^(DESCENDING EARTH|ASCENDING WOOD|RESPLENDENT WOOD)$,CROP,^(DESCENDING WOOD|ASCENDING FIRE|RESPLENDENT FIRE)$,SUMMER,^(DESCENDING FIRE)$,BLAZING,^(ASCENDING AIR|RESPLENDENT AIR)$,AUTUMN,^(DESCENDING AIR|ASCENDING WATER|RESPLENDENT WATER)$,WINTER),AUTUMN))
+
+&FUN`SHOWDATE [u(cobj,calendar)]=It is [u(FUN`SHOWTIME)]\,%B[if(lte(v(VAR`CURDAY),420),[u(FUN`SHOWDAYNAME)] the [u(FUN`SHOWDAY)] of [u(FUN`SHOWMONTH)]\, [v(VAR`CURYEAR)] R.Y.,the [u(numth,sub(v(VAR`CURDAY),420))] Day of [ansi(hx,Calibration)] between [v(VAR`CURYEAR)] and [add(1,v(VAR`CURYEAR))] R.Y.)]
+
+&FUN`SHOWDAY [u(cobj,calendar)]=if(lte(v(VAR`CURDAY),420),u(numth,add(mod(v(VAR`CURDAY),28),1)),u(numth,sub(v(VAR`CURDAY),420)))
+
+&FUN`SHOWDAYNAME [u(cobj,calendar)]=s(elements(v(VAR`DAYNAMES),if(mod(v(VAR`CURDAY),7),mod(v(VAR`CURDAY),7),7),|))
+
+&FUN`SHOWHOUR [u(cobj,calendar)]=rjust(div(v(VAR`CURSECS),3600),2,0):[rjust(div(mod(v(VAR`CURSECS),3600),60),2,0)]
+
+&FUN`SHOWMONTH [u(cobj,calendar)]=if(lte(v(VAR`CURDAY),420),s(elements(v(VAR`MONTHNAMES),ceil(fdiv(v(VAR`CURDAY),28)),|)),ansi(hx,Calibration))
+
+&FUN`SHOWMOON [u(cobj,calendar)]=if(lte(v(VAR`CURDAY),420),The Moon is currently in its [elements(u(VAR`MOONNAMES),if(mod(v(VAR`CURDAY),28),mod(v(VAR`CURDAY),28),28),|)] Phase,The Moon and Stars are [ansi(hx,GONE!)])
+
+&FUN`SHOWTIME [u(cobj,calendar)]=rjust(div(v(VAR`CURSECS),3600),2,0):[rjust(div(mod(v(VAR`CURSECS),3600),60),2,0)]
+
+&INC`MAIN [u(cobj,calendar)]=@pemit %#=u(header,Current IC Time);@pemit %#=u(%!/FUN`SHOWDATE);@pemit %#=u(FUN`SHOWMOON);@pemit %#=u(subheader)
+
+&TRG`ANNOUNCE [u(cobj,calendar)]=@attach %!/INC`MSG`CHAN=u(FUN`SHOWDATE) - [u(FUN`SHOWMOON)],u(game_config,CHANNELS,ROLEPLAY),,1,,1
+
+&TRG`TICKER [u(cobj,calendar)]=@select/inline t(v(VAR`ENABLED))=1,{@select/inline gt(u(setr,newsecs,add(v(VAR`CURSECS),u(setr,secsadd,round(mul(60,v(VAR`MULTIPLIER)),0)))),86400)=1,{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS [u(cobj,calendar)]=sub(%q<newsecs>,86400);@select/inline gt(u(setr,newdays,add(v(VAR`CURDAY),1)),425)=1,{&VAR`CURDAY [u(cobj,calendar)]=sub(%q<newdays>,425);&VAR`CURYEAR [u(cobj,calendar)]=add(v(VAR`CURYEAR),1);@trigger %!/TRG`ANNOUNCE},{&VAR`CURDAY [u(cobj,calendar)]=%q<newdays>;@trigger me/TRG`ANNOUNCE}},{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS [u(cobj,calendar)]=%q<newsecs>}};@wait 60={@trigger %!/TRG`TICKER}
+
+&VAR`ADMINFLAGS [u(cobj,calendar)]=STOP|START
+&VAR`ANNOUNCE [u(cobj,calendar)]=1
+&VAR`ANNOUNCECHANNEL [u(cobj,calendar)]=RP Alerts
+&VAR`CURDAY [u(cobj,calendar)]=1
+&VAR`CURSECS [u(cobj,calendar)]=1
+&VAR`CURYEAR [u(cobj,calendar)]=775
+&VAR`DAYNAMES [u(cobj,calendar)]=[ansi(hy,Sunday)]|[ansi(hw,Moonday)]|[ansi(hr,Marsday)]|[ansi(y,Mercuryday)]|[ansi(hg,Jupiterday)]|[ansi(hc,Venusday)]|[ansi(hm,Saturnday)]
+&VAR`ENABLED [u(cobj,calendar)]=1
+&VAR`MONTHNAMES [u(cobj,calendar)]=[ansi(hc,Ascending Air)]|[ansi(hc,Resplendent Air)]|[ansi(hc,Descending Air)]|[ansi(hb,Ascending Water)]|[ansi(hb,Resplendent Water)]|[ansi(hb,Descending Water)]|[ansi(y,Ascending Earth)]|[ansi(y,Resplendent Earth)]|[ansi(y,Descending Earth)]|[ansi(hg,Ascending Wood)]|[ansi(hg,Resplendent Wood)]|[ansi(hg,Descending Wood)]|[ansi(hr,Ascending Fire)]|[ansi(hr,Resplendent Fire)]|[ansi(hr,Descending Fire)]
+&VAR`MOONNAMES [u(cobj,calendar)]=[ansi(hx,Waxing Cresc)][ansi(hw,ent)]|[ansi(hx,Waxing Cresc)][ansi(hw,ent)]|[ansi(hx,Waxing Cresc)][ansi(hw,ent)]|[ansi(hx,Waxing Cresc)][ansi(hw,ent)]|[ansi(hx,Waxing Cresc)][ansi(hw,ent)]|[ansi(hx,Waxing)]%B[ansi(hw,Half)]|[ansi(hx,Wax)][ansi(hw,ing Gibbous)]|[ansi(hx,Wax)][ansi(hw,ing Gibbous)]|[ansi(hx,Wax)][ansi(hw,ing Gibbous)]|[ansi(hx,Wax)][ansi(hw,ing Gibbous)]|[ansi(hx,Wax)][ansi(hw,ing Gibbous)]|[ansi(hw,Full)]|[ansi(hw,Full)]|[ansi(hw,Full)]|[ansi(hw,Waning Gibb)][ansi(hx,ous)]|[ansi(hw,Waning Gibb)][ansi(hx,ous)]|[ansi(hw,Waning Gibb)][ansi(hx,ous)]|[ansi(hw,Waning Gibb)][ansi(hx,ous)]|[ansi(hw,Waning Gibb)][ansi(hx,ous)]|[ansi(hw,Waning)]%B[ansi(hx,Half)]|[ansi(hw,Wan)][ansi(hx,ing Crescent)]|[ansi(hw,Wan)][ansi(hx,ing Crescent)]|[ansi(hw,Wan)][ansi(hx,ing Crescent)]|[ansi(hw,Wan)][ansi(hx,ing Crescent)]|[ansi(hw,Wan)][ansi(hx,ing Crescent)]|[ansi(hx,No Moon)]|[ansi(hx,No Moon)]|[ansi(hx,No Moon)]
+&VAR`MULTIPLIER [u(cobj,calendar)]=3
+
+&STARTUP [u(cobj,calendar)]=@trigger %!/TRG`TICKER
+
+@@ ROLEPLAYING - +time
++help/add +time=[u(cobj,calendar)]/HLP`+TIME
++help/category +time=Roleplaying
+&HLP`+TIME [u(cobj,calendar)]=align(5 [sub(u(width,%#),6)],,[ansi(h,+time)] - Shows the current IC time.)

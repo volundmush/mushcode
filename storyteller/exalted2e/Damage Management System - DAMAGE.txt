@@ -19,7 +19,7 @@ th u(newcobj,STORYTELLER: Damage Management System <DAMAGE>,damage,,,,WIZARD SAF
 
 &VAR`TYPES [u(cobj,damage)]=AGGRAVATED|LETHAL|BASHING
 
-&FUN`HEALTHBOXES [u(cobj,damage)]=elements(cat(iter(lnum(add(u(getstat,%0,D`DAMAGE,Aggravated),%3)),A),iter(lnum(add(u(getstat,%0,D`DAMAGE,Lethal),%2)),L),iter(lnum(add(u(getstat,%0,D`DAMAGE,Bashing),%1)),B),iter(lnum(30),E)),lnum(1,u(FUN`MAX`HEALTH,%0)))
+&FUN`HEALTHBOXES [u(cobj,damage)]=elements(cat(iter(lnum(add(u(getstat,%0,D`DAMAGE,Aggravated),%3)),A),iter(lnum(add(u(getstat,%0,D`DAMAGE,Lethal),%2)),L),iter(lnum(add(u(getstat,%0,D`DAMAGE,Bashing),%1)),B),iter(lnum(60),E)),lnum(1,u(FUN`MAX`HEALTH,%0)))
 
 &FUN`FORMATHEALTH [u(cobj,damage)]=[iter(u(FUN`HEALTHBOXES,%0),ansi(switch(%i0,A,hr,L,+orange,B,hy,E,n),[elements(get(%0/D`HEALTH),inum(0))][switch(%i0,A,*,L,X,B,/,E,)]),%B)]
 

@@ -21,7 +21,7 @@ th u(newconf,PCONF,STORYTELLER,SHEET_PUBLIC,0,Make +sheet public?,BOOL)
 
 &FUN`CLASSINFO`MAIN [u(cobj,sheet)]=%R[u(FUN`BORDER,%0,%1,align(floor(fdiv(sub(u(width,%#),6),2)) [ceil(floor(fdiv(sub(u(width,%#),6),2)))],u(FUN`INFOCOLUMN,%0,%1,%2),u(FUN`INFOCOLUMN,%0,%1,%3)))]
 
-&FUN`INFOCOLUMN [u(cobj,sheet)]=localize(u(setq,colwidth,u(lmax,iter(%2,strlen(elements(%i0,2,~)),|,%b)))[iter(%2,rjust(u(FUN`COLOR,%1,TEXTHEAD,elements(%i0,2,~)),%q<colwidth>)[u(FUN`COLOR,%1,COLON,:)]%B[u(FUN`COLOR,%1,TEXTFIELD,u(capnames,u(strfirstof,switch(elements(%i0,1,~),NAME,u(moniker,%0),u(getstat,%0,D`INFO,elements(%i0,1,~))),elements(%i0,3,~))))],|,%R)])
+&FUN`INFOCOLUMN [u(cobj,sheet)]=localize(u(setq,colwidth,u(lmax,iter(%2,strlen(elements(%i0,2,~)),|,%b)))[iter(%2,rjust(u(FUN`COLOR,%1,TEXTHEAD,elements(%i0,2,~)),%q<colwidth>)[u(FUN`COLOR,%1,COLON,:)]%B[u(FUN`COLOR,%1,TEXTFIELD,u(capnames,u(strfirstof,switch(elements(%i0,1,~),NAME,u(moniker,%0),SEX,u(getproperty,%0,SEX),u(getstat,%0,D`INFO,elements(%i0,1,~))),elements(%i0,3,~))))],|,%R)])
 
 &FUN`BORDER [u(cobj,sheet)]=align(1. [sub(u(width,%#),4)] 1.,u(FUN`COLOR,%1,BORDER,|),%2,u(FUN`COLOR,%1,BORDER,|)%R)
 

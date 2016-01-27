@@ -13,9 +13,9 @@
 
 &CONFORMAT`PLAYERS`DEFAULT [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(vol_color(%#,ROOM,COLUMN_NAMES),align(19,Name))]%R[iter(vol_sortname(lvplayers(%!)),align(19,vol_mxpmenu(moniker(%i0),look [name(%i0)])),%b,%R)]
 
-&CONFORMAT`THINGS`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(vol_color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,vol_pueblize(name(%i0),look [name(%i0)]),vol_pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,vol_pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,vol_pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R)]
+&CONFORMAT`THINGS`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(vol_color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,vol_pueblize(moniker(%i0),look [name(%i0)]),vol_pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,vol_pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,vol_pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R)]
 
-&CONFORMAT`THINGS`MASTER_ROOM [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(vol_color(%#,ROOM,COLUMN_NAMES),align(40 28 8,Name,Owner,if(vol_isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,name(%i0),name(owner(%i0)),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,ansi(hg,%i0),1*,ansi(hr,%i0),01,ansi(hg,enter_ok),ansi(hr,can't))),%b,%R)]
+&CONFORMAT`THINGS`MASTER_ROOM [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(vol_color(%#,ROOM,ROOM_COLUMNS),align(40 28 8,Name,Owner,if(vol_isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,name(%i0),name(owner(%i0)),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,ansi(hg,%i0),1*,ansi(hr,%i0),01,ansi(hg,enter_ok),ansi(hr,can't))),%b,%R)]
 
 &CONFORMAT`EXTRA [u(cobj,ancestor_room)]=[if(cor(nattr(%!/VIEW`*),nattr(%!/MUSIC`*),nattr(%!/PLACE`*)),separator(Extra)%R[iter(filterbool(#lambda/nattr(%!/\%0`*),PLACE VIEW MUSIC),%T[u(FUN`EXTRA`%i0)],%b,%R)]%R)]
 &FUN`EXTRA`VIEW [u(cobj,ancestor_room)]=This room has views! Type [vol_pueblize(ansi(h,+view),+view)] to list!
@@ -26,12 +26,6 @@
 
 &EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[table(iter(vol_sortorder(vol_sortname(lvexits(%!))),ljust(if(strlen(alias(%i0)),<[ansi(vol_color(%#,ROOM,EXITALIAS),vol_pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(vol_color(%#,ROOM,EXITNAME),vol_pueblize(moniker(%i0),name(%i0)))] to [ansi(vol_color(%#,ROOM,EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))],%b,|),37,width(%#),|)]%R[u(SUBHEADER)]
 
-&EXITFORMAT`CARDINAL [u(cobj,ancestor_room)]=[setq(a,filter(FIL`VISIBLE,setr(1,vol_sortorder(vol_sortname(lexits(%!))))))][setq(b,filter(FIL`DARK,%q1))][setq(c,filter(FIL`CARDINAl,%q1))][setq(d,filter(FIL`NOTCARDINAL,%q1))][if(words(%qc),u(SEPARATOR,Directions)%R[u(EXITFORMAT`CARDINAL`TABLE,%qc)])][if(words(%qd),if(words(%qc),%R)[u(separator,Exits)]%R[u(EXITFORMAT`CARDINAL`TABLE,%qd)])][if(cor(words(%qd),words(%qc)),%R[u(subheader)],u(subheader))]
-
-&EXITFORMAT`CARDINAL`TABLE [u(cobj,ancestor_room)]=table(iter(%0,ljust(if(strlen(alias(%i0)),<[ansi(vol_color(%#,ROOM,EXITALIAS),vol_pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(vol_color(%#,ROOM,EXITNAME),vol_pueblize(moniker(%i0),name(%i0)))],%b,|),37,width(%#),|)
-
-&FIL`CARDINAL [u(cobj,ancestor_room)]=t(match(n e s w ne nw se sw d u o i,alias(%0)))
-&FIL`NOTCARDINAL [u(cobj,ancestor_room)]=not(u(FIL`CARDINAL,%0))
 &FIL`VISIBLE [u(cobj,ancestor_room)]=not(u(FIL`DARK,%0))
 &FIL`DARK [u(cobj,ancestor_room)]=hasflag(%0,DARK)
 
@@ -39,11 +33,11 @@ th u(NEWCONF,config,ROOM,PLAYERS_MODE,DEFAULT,Changes room format for PLAYERS.,W
 th u(NEWCONF,config,ROOM,THINGS_MODE,DEFAULT,Changes room format for THINGS.,WORD)
 th u(NEWCONF,config,ROOM,EXITS_MODE,DEFAULT,Changes room format for EXITS.,WORD)
 
-th u(NEWCONF,config,ROOM,COLUMN_NAMES,,For column names in room formats,COLOR)
-th u(NEWCONF,config,ROOM,EXITNAME,,Color of exit names.,COLOR)
-th u(NEWCONF,config,ROOM,EXITALIAS,,Color of exit names.,COLOR)
+th u(NEWCONF,config,COLOR,ROOM_COLUMNS,,For column names in room formats,COLOR)
+th u(NEWCONF,config,COLOR,EXITNAME,,Color of exit names.,COLOR)
+th u(NEWCONF,config,COLOR,EXITALIAS,,Color of exit names.,COLOR)
 
-th u(NEWCONF,pconf,ROOM,COLUMN_NAMES,,For column names in room formats,COLOR)
+th u(NEWCONF,pconf,ROOM,ROOM_COLUMNS,,For column names in room formats,COLOR)
 th u(NEWCONF,pconf,ROOM,EXITNAME,,Color of exit names.,COLOR)
 th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
 

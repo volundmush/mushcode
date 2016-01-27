@@ -40,8 +40,6 @@ th u(newcobj,STORYTELLER: Experience Management System <XP>,xp,,,,WIZARD SAFE !N
 
 &Q`INSERT`XP2 [u(cobj,xp)]=INSERT INTO $EXPERIENCE$ (xp_objid,xp_type,xp_amount,xp_reason,xp_admin,xp_date) VALUES (?,?,?,?,?,FROM_UNIXTIME(?))
 
-
-
 &INC`DELETE [u(cobj,xp)]=@attach %!/INC`CHECKPC=%0,1;@check u(valnum,%1)=@attach %!/INC`MSG=%q<type> entries must be addressed via whole and positive numbers!;@check u(setr,rowid,u(mysql,GET`XP_ID_ROW,%q<t1objid>,%q<root>,sub(%1,1)))=@attach %!/INC`MSG=ERROR: %q<t1name> does not have a [u(numth,%1)] XP entry.;th u(setq,amount,u(mysql,GET`AMOUNT,%q<rowid>));th u(setq,reason,u(mysql,GET`REASON,%q<rowid>));@attach %!/INC`DOSQL=DELETE`ROW,%q<rowid>;th u(setq,msg,%q<type> Entry %1 was [ansi(hr,DELETED)]. Amount Was: %q<amount>. Reason Was: %q<reason>);@attach %!/DO`ANNOUNCE=%q<t1>,{[ansi(h,%q<t1name>)]'s %q<msg>},{Your %q<msg>},{[ansi(h,%q<t1name>)]'s %q<msg>}
 
 &Q`DELETE`ROW [u(cobj,xp)]=DELETE from $EXPERIENCE$ where xp_id=?
@@ -63,6 +61,9 @@ th u(newcobj,STORYTELLER: Experience Management System <XP>,xp,,,,WIZARD SAFE !N
 &INC`TOTALS [u(cobj,xp)]=@pemit %#=u(header,mudname() %q<type> Totals);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(25 7 7 7 10,Name,Gained,Spent,Avail,Class));@dolist/inline/delimit | [u(mysql2,GET`TOTALS,%q<root>)]=@pemit %#=align(25 7 7 7 10,u(moniker,elements(##,1,^)),add(elements(##,3,^),u(FUN`EXTRA`%q<root>)),add(elements(##,4,^),0),add(elements(##,2,^),u(FUN`EXTRA`%q<root>)),getclass(elements(##,1,^)));@pemit %#=u(subheader)
 
 &Q`GET`TOTALS [u(cobj,xp)]=SELECT xp_objid,sum(xp_amount) as availxp,sum(CASE WHEN xp_amount>0 THEN xp_amount ELSE 0 END) as gainxp,abs(sum(CASE WHEN xp_amount<0 THEN xp_amount ELSE 0 END)) as spendxp FROM $EXPERIENCE$ WHERE xp_type=? GROUP BY xp_objid ORDER BY gainxp desc
+
+&Q`GET`TOTALS_PLAYER [u(cobj,xp)]=SELECT xp_type,sum(xp_amount) as availxp,sum(CASE WHEN xp_amount>0 THEN xp_amount ELSE 0 END) as gainxp,abs(sum(CASE WHEN xp_amount<0 THEN xp_amount ELSE 0 END)) as spendxp from $EXPERIENCE$ WHERE xp_objid=? GROUP BY xp_type
+
 
 &Q`INSTALL`EXPERIENCE [u(cobj,xp)]=CREATE TABLE IF NOT EXISTS $EXPERIENCE$ (xp_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,xp_objid VARCHAR(25) NOT NULL,xp_type VARCHAR(80),xp_amount DECIMAL(7,3),xp_admin VARCHAR(255),xp_reason TEXT,xp_date DATETIME,PRIMARY KEY(xp_id)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
 

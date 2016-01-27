@@ -141,7 +141,10 @@ th attrib_set(u(cco-db)/VAR`CATEGORIES,setunion(get(u(cco-db)/VAR`CATEGORIES),GR
 
 &INC`CHOOSE`+D`IVISIONS`MAIN u(gso)=@include u(gso)/INC`CODE`VALGROUP=strfirstof(getstat(%#/D`GROUP,Group),0),1;@include u(gso)/INC`CODE`LISTDIVS
 
-&INC`CODE`LISTDIVS u(gso)=@nspemit %#=u(RFN`HEADER,DIVISIONS: %q<gname1>);@nspemit %#=align(24 21 20 10,Name,Rank,Title,Last/Idle);@dolist/inline sortkey(#lambda/get(%q<gid1>/\%0`ORDER),lattr(%q<gid1>/DIVISION`*))={@nspemit %#=separator(ID \([last(%i0,`)]\) - [get(%q<gid1>/%i0)] - ORDER [get(%q<gid1>/%i0`ORDER)]);@dolist/inline sortkey(#lambda/get(\%0/D`GROUP`%q<gid1>`%i0`RANK),filterbool(#lambda/isobjid(\%0),get(%q<gid1>/%i0`MEMBERS)),n)={@nspemit %#=align(24 21 19 >10,pueblize(ansi(custcolor(%#,GROUP`GWHONAME),name(%i0)),+finger [name(%i0)]),get(%q<gid1>/%i1`RANK`[get(%i0/D`GROUP`%q<gid1>`%i1`RANK)]),default(%i0/D`GROUP`%q<gid1>`%i1`TITLE,%i0/D`GROUP`%q<gid1>`TITLE,),lastidle(%i0,%#))}};@nspemit %#=header()
+&INC`CODE`LISTDIVS u(gso)=@nspemit %#=u(RFN`HEADER,DIVISIONS: %q<gname1>);@nspemit %#=align(24 21 20 10,Name,Rank,Title,Last/Idle);@dolist/inline sortkey(#lambda/get(%q<gid1>/\%0`ORDER),sortkey(#lambda/last(\%0,`),lattr(%q<gid1>/DIVISION`*)))={@nspemit %#=separator(ID \([last(%i0,`)]\) - [get(%q<gid1>/%i0)][if(setr(order,get(%q<gid1>/%i0`ORDER)),%b-%bORDER %q<order>)]);@dolist/inline sortkey(#lambda/get(\%0/D`GROUP`%q<gid1>`%i0`RANK),filterbool(#lambda/isobjid(\%0),get(%q<gid1>/%i0`MEMBERS)),n)={@nspemit %#=align(24 21 19 >10,pueblize(ansi(custcolor(%#,GROUP`GWHONAME),name(%i0)),+finger [name(%i0)]),get(%q<gid1>/%i1`RANK`[get(%i0/D`GROUP`%q<gid1>`%i1`RANK)]),default(%i0/D`GROUP`%q<gid1>`%i1`TITLE,%i0/D`GROUP`%q<gid1>`TITLE,),lastidle(%i0,%#))}};@nspemit %#=header()
+
+
+
 
 &INC`CHOOSE`+G`ROUPS`MAIN u(gso)=@include u(gso)/INC`CODE`GROUPLIST
 

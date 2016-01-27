@@ -1,7 +1,7 @@
 &POOL`PERSONAL [u(cobj,pool)]=Pool
 &POOL`PERSONAL`UNITNAME [u(cobj,pool)]=Motes
 &POOL`PERSONAL`UNITTYPE [u(cobj,pool)]=Personal Essence
-&POOL`PERSONAL`MAX [u(cobj,pool)]=add(u(POOL`PERSONAL`MAX`[getclass(%0)],%0),mul(u(getstat,%0,D`POSITIVE_MUTATIONS,Essence Abundance),3))
+&POOL`PERSONAL`MAX [u(cobj,pool)]=add(u(POOL`PERSONAL`MAX`[getclass(%0)],%0),0)
 &POOL`PERSONAL`INIT [u(cobj,pool)]=u(POOL`PERSONAL`MAX,%0)
 &POOL`PERSONAL`ORDER [u(cobj,pool)]=5
 &POOL`PERSONAL`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT
@@ -30,6 +30,9 @@
 &POOL`LIMIT`ORDER [u(cobj,pool)]=100
 &POOL`LIMIT`INIT [u(cobj,pool)]=0
 &POOL`LIMIT`OPTIONS [u(cobj,pool)]=SPEND GAIN COMMIT
+
+@@ MORTAL
+&CLASS`MORTAL [u(cobj,pool)]=WILLPOWER
 
 @@ SOLAR
 &CLASS`SOLAR [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT

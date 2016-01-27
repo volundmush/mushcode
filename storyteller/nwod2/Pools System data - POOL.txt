@@ -37,7 +37,7 @@
 &POOL`HUMANITY`MAX [u(cobj,pool)]=10
 &POOL`HUMANITY`INIT [u(cobj,pool)]=7
 &POOL`HUMANITY`ORDER [u(cobj,pool)]=200
-&POOL`HUMANITY`OPTIONS [u(cobj,pool)]=
+&POOL`HUMANITY`OPTIONS [u(cobj,pool)]=GAIN SPEND
 
 @@ SIN-EATER
 &CLASS`SIN-EATER [u(cobj,pool)]=PLASM WILLPOWER SYNERGY
