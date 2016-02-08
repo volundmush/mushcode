@@ -8,12 +8,11 @@ th u(newconf,CONFIG,ROLLER,BOTCHES,0,Enable botches?,BOOL)
 th u(newconf,CONFIG,ROLLER,CHANNEL,,Channel to report dice rolls?,LIST)
 th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|SKILLS|ARCANA|DISCIPLINES|MANIFESTATIONS|RENOWN,D`Attributes to stat search?,LIST)
 
-
 &CMD`+ROLL`PENNMUSH [u(cobj,roll)]=$^(?\:\+)?(st)?(d)?roll(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ROLL`MAIN
 @set [u(cobj,roll)]/CMD`+ROLL`PENNMUSH=regexp
 &CMD`+ROLL`RHOSTMUSH [u(cobj,roll)]=$^(?\:\+)?(st)?(d)?roll(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ROLL`MAIN
 @set [u(cobj,roll)]/CMD`+ROLL`RHOSTMUSH=regexp
-&CMD`+ROLL`MAIN [u(cobj,roll)]=@stop strmatch(init,%4);@select/inline gt(words(%3,/),0)=1,{@check u(FUN`FLAGCHECK,%3)=@attach %!/INC`MSG=ERROR: [u(itemize,iter(%q<errcheck>,ansi(h,%i0),|,|),|,and,\,)]};@select/inline ucstr(%1)=ST,{@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%4)=@attach %!/INC`MSG=ERROR: Who will you roll for?;@attach %!/INC`CHECKPC=%4,1,,1};@check strlen(u(setr,string,switch(%1,ST,%5,%4)))=@attach %!/INC`MSG=ERROR: You must enter a formula of stats and/or numbers to roll. Example: Dexterity + Melee - 3;@check strlen(u(setr,inflate,u(FUN`NORMALIZE,%q<string>)))=@attach %!/INC`MSG=ERROR: Could not format roll formula. Please contact a coder.;@check strlen(u(setr,findnames,u(FUN`FINDNAMES,%q<inflate>,u(strfirstof,%q<t1>,get(%#/D`COVER),%#))))=@attach %!/INC`MSG=ERROR: Could not perform name finding. Please contact a coder.;@check gt(u(setr,totaldice,ulocal(FUN`CALC,u(setr,calcdice,u(FUN`CALCDICE,%q<findnames>,u(strfirstof,%q<t1>,get(%#/D`COVER),%#))))),0)=@attach %!/INC`MSG=ERROR: You have no dice to roll! Check your spelling and ensure that penalties aren't reducing your roll to nothing.;@attach %!/INC`INIT=%1,%2;@attach %!/INC`%1ROLL
+&CMD`+ROLL`MAIN [u(cobj,roll)]=@stop strmatch(init,%4);@select/inline gt(words(%3,/),0)=1,{@check u(FUN`FLAGCHECK,%3)=@attach %!/INC`MSG=ERROR: [u(itemize,iter(%q<errcheck>,ansi(h,%i0),|,|),|,and,\,)]};@select/inline cand(%q<jid>,isdbref(u(cobj,jms)))=1,{@attach %!/INC`JOBINIT};@select/inline ucstr(%1)=ST,{@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%4)=@attach %!/INC`MSG=ERROR: Who will you roll for?;@attach %!/INC`CHECKPC=%4,1,,1};@check strlen(u(setr,string,switch(%1,ST,%5,%4)))=@attach %!/INC`MSG=ERROR: You must enter a formula of stats and/or numbers to roll. Example: Dexterity + Melee - 3;@check strlen(u(setr,inflate,u(FUN`NORMALIZE,%q<string>)))=@attach %!/INC`MSG=ERROR: Could not format roll formula. Please contact a coder.;@check strlen(u(setr,findnames,u(FUN`FINDNAMES,%q<inflate>,u(strfirstof,%q<t1>,get(%#/D`COVER),%#))))=@attach %!/INC`MSG=ERROR: Could not perform name finding. Please contact a coder.;@check gt(u(setr,totaldice,ulocal(FUN`CALC,u(setr,calcdice,u(FUN`CALCDICE,%q<findnames>,u(strfirstof,%q<t1>,get(%#/D`COVER),%#))))),0)=@attach %!/INC`MSG=ERROR: You have no dice to roll! Check your spelling and ensure that penalties aren't reducing your roll to nothing.;@attach %!/INC`INIT=%1,%2;@attach %!/INC`%1ROLL
 @set [u(cobj,roll)]/CMD`+ROLL`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEm`NAME [u(cobj,roll)]=DICE
@@ -31,6 +30,7 @@ th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|SKILLS|ARCANA|DISCIPLINES|MANIF
 &FUN`FLAGCHECK`DBL [u(cobj,roll)]=if(u(valnum,%0),u(setq,dbl,setunion(%0,%q<dbl>))1,u(FUN`FLAGERROR,Doubles must use whole positive numbers.)0)
 &FUN`FLAGCHECK`PRIVATE [u(cobj,roll)]=u(setq,private,1)1
 &FUN`FLAGCHECK`PUBLIC [u(cobj,roll)]=u(setq,public,1)1
+&FUN`FLAGCHECK`JOB [u(cobj,roll)]=if(u(valnum,%0),u(setq,jid,%0)1,u(FUN`FLAGERROR,Job IDs must be positive integers.)0)
 
 &FUN`FLAGERROR [u(cobj,roll)]=u(setq,errcheck,setunion(%q<errcheck>,%0,|,|))
 
@@ -88,11 +88,23 @@ th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|SKILLS|ARCANA|DISCIPLINES|MANIF
 
 &FUN`RESFORMAT [u(cobj,roll)]=u(setq,formatted,u(FUN`FORMATROLL,%q<findnames>,%q<t1>))[null(iter(lnum(1,%q<mul>),u(FUN`ROLL,%q<totaldice>,%i0)))][switch(%q<dicemode>,ST,if(%q<public>,%n rolls with %q<t1name>'s Stats,You roll for %q<t1name>),job,%n Rolls,if(%q<private>,You Roll,%n rolls))]%b%q<formatted>[if(neq(%q<tn>,u(game_config,ROLLER,TARGET_NUMBER)),%bat TN%q<tn>)][if(%q<def>,\,%bVs DV%q<def>)][if(%q<dif>,\,%bat Difficulty %q<dif>)][if(neq(words(setinter(%q<dbl>,u(game_config,ROLLER,DOUBLE_NUMBER))),words(%q<dbl>)),\,%bWith Double [itemize(sort(%q<dbl>),%b,and,\,)])][if(neq(%q<ag>,u(game_config,ROLLER,AGAIN_NUMBER)),\,%bWith %q<ag>-Again)][if(words(%q<re>),\,%bRe-Rolling [itemize(%q<re>,%b,and,\,)])][if(gt(%q<mul>,1),\,%b%q<mul> times)]: %q<totaldice> Total dice!%R[u(trimlines,iter(lnum(1,%q<mul>),ansi(h,if(gt(%q<mul>,1),u(numth,%i0) Roll,Roll):)%b[u(FUN`GETREG,roll%i0,4)][if(u(setr,rerolls,r(roll%i0-rerolls)),%b[ansi(hx,|)] Re-Rolls:%b[iter(lnum(1,%q<rerolls>),u(FUN`GETREG,roll%i1-reroll%i0,4),%b,|)])][if(u(setr,agains,r(roll%i0-agrolls)),%R[u(trimlines,iter(lnum(1,%q<agains>),ansi(h,if(gt(%q<mul>,1),%t)%q<ag>-Again Roll %i0:)%b[u(FUN`GETREG,roll%i1-agroll%i0,4)],%b,%r))])]%R%TResulting in: [u(FUN`ROLLRESULT,add(sub(%q<sux>,%q<pen>),u(FUN`GETREG,roll%i0,6)),if(%q<def>,1,if(%q<dif>,2,0)),u(strfirstof,%q<def>,%q<dif>))][if(%q<sux>,%R%TBonus Successes: %q<sux>)][if(%q<pen>,%R%TPenalty: %q<pen>)],%b,%r))]
 
-&INC`ROLL [u(cobj,roll)]=th u(setq,results,u(FUN`RESFORMAT));@select/inline t(%q<private>)=1,{@attach %!/INC`MSG=%q<results>},0,{@attach %!/INC`MSG`ROOM=%q<results>};@attach %!/INC`MSG`CHAN=if(%q<private>,\(PRIVATE\)%B)[if(%q<private>,edit(%q<results>,You Roll,%n Rolls),%q<results>)],u(game_config,ROLLER,CHANNEL)
+&INC`ROLL [u(cobj,roll)]=th u(setq,results,u(FUN`RESFORMAT));@select/inline t(%q<private>)=1,{@attach %!/INC`MSG=%q<results>},0,{@attach %!/INC`MSG`ROOM=%q<results>};@attach %!/INC`MSG`CHAN=if(%q<private>,\(PRIVATE\)%B)[if(%q<private>,edit(%q<results>,You Roll,%n Rolls),%q<results>)],u(game_config,ROLLER,CHANNEL);@select/inline %q<jid>=>0,{@trigger u(cobj,jms)/INC`JOBROLL=,%q<results>}
 
 &INC`STROLL [u(cobj,roll)]=th u(setq,results,u(FUN`RESFORMAT,,%q<t1>));@select/inline t(%q<public>)=0,{@attach %!/INC`MSG`ROOM=%q<results>},1,{@attach %!/INC`MSG`ROOM=%q<results>};@attach %!/INC`MSG`CHAN=edit(%q<results>,You roll for,%n rolls for),u(game_config,ROLLER,CHANNEL)
 
 &CMD`+ROLLINIT [u(cobj,roll)]=$roll init:@check words(u(setr,list,lvplayers(%l)))=@attach %!/INC`MSG=Nobody to roll init for!;th iter(%q<list>,u(setq,dex,u(firstof,u(getstat,%i0,D`ATTRIBUTES,DEXTERITY,BONUS),0),comp,u(firstof,u(getstat,%i0,D`ATTRIBUTES,COMPOSURE,BONUS),0),bonus,u(firstof,u(getstat,%i0,D`BONUS,initiative),0),roll,u(firstof,rand(1,10),0))[u(attrib_set,%i0,INITROLL,ansi(h,DEXTERITY\(%q<dex>\) + COMPOSURE\(%q<comp>\) + BONUS\(%q<bonus>\) + ROLL\(%q<roll>\) = )%B[ansi(hg,add(%q<dex>,%q<comp>,%q<bonus>,%q<roll>))])]);@attach %!/INC`MSG`ROOM=%n called for an Initiative Roll!;th iter(sortkey(#lambda/stripansi(last(get(\%0/INITROLL))),%q<list>,n),remit(%l,ljust(left(name(%i0):,add(1,config(player_name_len))),add(1,config(player_name_len)))%B[get(%i0/INITROLL)]))
+
+
+@@ Job add-on
+
+&INC`PLAYERID [u(cobj,roll)]=@check u(objid,%0)=@attach %!/INC`MSG=ERROR: Invalid Objid!;@select/inline gt(u(setr,pid%1,u(u(cobj,jms)/mysql,get`playerid,%0)),0)=0,{@attach %!/INC`DOSQL=NEW`PLAYERID,%0,name(%0);@attach %!/INC`PLAYERID=%0,%1}
+
+&Q`NEW`PLAYERID [u(cobj,roll)]=INSERT INTO $PLAYERS$ (objid,player_name) VALUES (?,?)
+&SQL`TABLE`PLAYERS [u(cobj,roll)]=jobsys_players
+
+&INC`JOBINIT [u(cobj,roll)]=@attach %!/INC`PLAYERID=%:;@check u(u(cobj,jms)/mysql,GET`JOBID,%q<jid>)=@attach %!/INC`MSG=ERROR: Job %0 not found.;@check or(strmatch(u(u(cobj,jms)/mysql,GET`OWNEROBJID,%q<jid>),u(objid,%#)),match(u(u(cobj,jms)/mysql,GET`ANYOBJIDS,%q<jid>),u(objid,%#)),match(u(u(cobj,jms)/mysql,GET`CLAIMOBJIDS,%q<jid>),u(objid,%#)),u(FUN`PERMCHECK,u(setr,cat,u(u(cobj,jms)/mysql,GET`JOBCAT,%q<jid>)),ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission Denied.;@check eq(u(u(cobj,jms)/mysql,GET`JOBSTATUS,%q<jid>),0)=@attach %!/INC`MSG=The job is already finished.
+
+&INC`JOBROLL [u(cobj,jms)]=@attach %!/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,%1;@attach %!/INC`MSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a DICE ROLL in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].};@attach %!/INC`MAILJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a DICE ROLL in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].%R%RMessage:%R%1};@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`DOSQL=SET`JOBATTN,not(strmatch(u(mysql,GET`OWNEROBJID,%q<jid>),u(objid,%#))),%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
 
 
 @@ ROLEPLAYING - +ROLL

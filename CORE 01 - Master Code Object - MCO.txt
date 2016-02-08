@@ -70,12 +70,16 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &FIL`FINDACCOUNT [u(cobj,mco)]=match(get(%0/CHARACTERS),%q<finddb>)
 &FIL`STRLEN [u(cobj,mco)]=t(strlen(%0))
 &FIL`ISINT [u(Cobj,mco)]=isint(%0)
+&FIL`LISTENRHOST [u(cobj,mco)]=orflags(%0,pc)
 
 @@ U-FUNCTION SECTION
 
 &NEWCOBJ [u(cobj,mco)]=localize(if(not(u(cobj,%1)),u(setr,newobj,u(objid,create(%0)))[if(not(%4),parent(%q<newobj>,u(firstof,%3,u(cobj,mco))))][tel(%q<newobj>,u(firstof,%2,u(MASTER_ROOM)))][u(attrib_set,u(cobj,mco),COBJ`%1,%q<newobj>)][set(%q<newobj>,u(choosegame,%5,%6))]))
 @@ %0 - @name. %1 - alias. %2 - location to store. %3 - parent, defaults to MCO. %4 - No parent. %5 - PennMUSH flags. %6 - RhostMUSH flags.
 
+&CANHEAR [u(cobj,mco)]=u(CANHEAR`[v(game)],%0)
+&CANHEAR`PENNMUSH [u(cobj,mco)]=lockfilter(FLAG^CONNECTED|FLAG^PUPPET,%0)
+&CANHEAR`RHOSTMUSH [u(cobj,mco)]=u(filter,LISTENRHOST,%0)
 
 
 &FIND_IN [u(cobj,mco)]=u(FIND_IN`[v(game)],%0,%1)
@@ -572,7 +576,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &INC`MSG`NOTICE [u(cobj,mco)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(config,ADMIN`ANONYMOUSNOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
-&INC`MSG`CHAN [u(cobj,mco)]=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(moniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof,%1,u(CHANNEL`ALERT))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(u(strfirstof,%1,u(CHANNEL`ALERT)))]={@cemit %d0=%q<chanmsg>}}
+&INC`MSG`CHAN [u(cobj,mco)]=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(moniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof,%1,u(CHANNEL`ALERT))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(strfirstof,%1,u(CHANNEL`ALERT))]={@cemit %d0=%q<chanmsg>}}
 @@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
 
 &INC`MSG`SYSCHAN [u(cobj,mco)]=th u(setq,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline v(game)=PennMUSH,{@dolist/inline/delimit | [u(strfirstof(%1,u(CHANNEL`ALERT)))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(strfirstof(%1,u(CHANNEL`ALERT)))]={@cemit %d0=%q<chanmsg>}}

@@ -11,7 +11,7 @@ th u(NEWCOBJ,Desc Management System <DMS>,dms,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 
 &SWITCHES`PLAYER [u(cobj,dms)]=SAVE|DELETE|NOISY|VIEW|RENAME
 
-&INC`MAIN [u(cobj,dms)]=@select/inline strlen(%0)=0,{@pemit %#=header(Your Saved Descriptions);@pemit %#=u(table,iter(u(lattr,%#/D`DESC`*),u(mxpmenu,get(%#/%i0),+desc [get(%#/%i0)]|+desc/noisy [get(%#/%i0)]|+desc/view [get(%#/%i0)],Change|NoisyChange|View),%b,|),26,78,|);@pemit %#=u(subheader)},{@attach %!/INC`PARTIAL=%0,squish(iter(u(lattr,%#/D`DESC`*),get(%#/%i0),%b,|),|),|,DESC,desc,desc;@check strlen(u(setr,attr,u(FUN`LOCDESC,%#,%q<desc>)))=@attach %!/INC`MSG=ERROR: Desc '%0' not found!;@select/inline %2=1,{@attach %!/INC`MSG`ROOM=[ansi(h,%n)] changed to %p '[get(%#/%q<attr>)]' Description!,lcon(%l)},{@attach %!/INC`MSG=You change to your '[get(%#/%q<attr>)]' Description!};@cpattr %#/%q<attr>`DESC=%#/DESCRIBE;&DESC_CUR %#=%q<desc>}
+&INC`MAIN [u(cobj,dms)]=@select/inline strlen(%0)=0,{@pemit %#=u(header,Your Saved Descriptions);@pemit %#=u(table,iter(u(lattr,%#/D`DESC`*),u(mxpmenu,get(%#/%i0),+desc [get(%#/%i0)]|+desc/noisy [get(%#/%i0)]|+desc/view [get(%#/%i0)],Change|NoisyChange|View),%b,|),26,78,|);@pemit %#=u(subheader)},{@attach %!/INC`PARTIAL=%0,squish(iter(u(lattr,%#/D`DESC`*),get(%#/%i0),%b,|),|),|,DESC,desc,desc;@check strlen(u(setr,attr,u(FUN`LOCDESC,%#,%q<desc>)))=@attach %!/INC`MSG=ERROR: Desc '%0' not found!;@select/inline %2=1,{@attach %!/INC`MSG`ROOM=[ansi(h,%n)] changed to %p '[get(%#/%q<attr>)]' Description!,lcon(%l)},{@attach %!/INC`MSG=You change to your '[get(%#/%q<attr>)]' Description!};@cpattr %#/%q<attr>`DESC=%#/DESCRIBE;&DESC_CUR %#=%q<desc>}
 
 &INC`NOISY [u(cobj,dms)]=@attach %!/INC`MAIN=%0,%1,1
 

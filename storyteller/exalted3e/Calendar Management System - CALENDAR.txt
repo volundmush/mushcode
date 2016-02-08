@@ -32,10 +32,10 @@ th u(newcobj,STORYTELLER: Calendar Management System <CALENDAR>,calendar,,,,WIZA
 &VAR`ANNOUNCECHANNEL [u(cobj,calendar)]=RP Alerts
 &VAR`CURDAY [u(cobj,calendar)]=1
 &VAR`CURSECS [u(cobj,calendar)]=1
-&VAR`CURYEAR [u(cobj,calendar)]=775
+&VAR`CURYEAR [u(cobj,calendar)]=768
 &VAR`DAYNAMES [u(cobj,calendar)]=[ansi(hy,Sunday)]|[ansi(hw,Moonday)]|[ansi(hr,Marsday)]|[ansi(y,Mercuryday)]|[ansi(hg,Jupiterday)]|[ansi(hc,Venusday)]|[ansi(hm,Saturnday)]
 &VAR`ENABLED [u(cobj,calendar)]=1
-&VAR`MONTHNAMES [u(cobj,calendar)]=[ansi(hc,Ascending Air)]|[ansi(hc,Resplendent Air)]|[ansi(hc,Descending Air)]|[ansi(hb,Ascending Water)]|[ansi(hb,Resplendent Water)]|[ansi(hb,Descending Water)]|[ansi(y,Ascending Earth)]|[ansi(y,Resplendent Earth)]|[ansi(y,Descending Earth)]|[ansi(hg,Ascending Wood)]|[ansi(hg,Resplendent Wood)]|[ansi(hg,Descending Wood)]|[ansi(hr,Ascending Fire)]|[ansi(hr,Resplendent Fire)]|[ansi(hr,Descending Fire)]
+&VAR`MONTHNAMES [u(cobj,calendar)]=[ansi(hc,Ascending Air)]|[ansi(hc,Resplendent Air)]|[ansi(hc,Descending Air)]|[ansi(hb,Ascending Water)]|[ansi(hb,Resplendent Water)]|[ansi(hb,Descending Water)]|[ansi(hg,Ascending Wood)]|[ansi(hg,Resplendent Wood)]|[ansi(hg,Descending Wood)]|[ansi(hr,Ascending Fire)]|[ansi(hr,Resplendent Fire)]|[ansi(hr,Descending Fire)]|[ansi(y,Ascending Earth)]|[ansi(y,Resplendent Earth)]|[ansi(y,Descending Earth)]
 &VAR`MOONNAMES [u(cobj,calendar)]=[ansi(hx,Waxing Cresc)][ansi(hw,ent)]|[ansi(hx,Waxing Cresc)][ansi(hw,ent)]|[ansi(hx,Waxing Cresc)][ansi(hw,ent)]|[ansi(hx,Waxing Cresc)][ansi(hw,ent)]|[ansi(hx,Waxing Cresc)][ansi(hw,ent)]|[ansi(hx,Waxing)]%B[ansi(hw,Half)]|[ansi(hx,Wax)][ansi(hw,ing Gibbous)]|[ansi(hx,Wax)][ansi(hw,ing Gibbous)]|[ansi(hx,Wax)][ansi(hw,ing Gibbous)]|[ansi(hx,Wax)][ansi(hw,ing Gibbous)]|[ansi(hx,Wax)][ansi(hw,ing Gibbous)]|[ansi(hw,Full)]|[ansi(hw,Full)]|[ansi(hw,Full)]|[ansi(hw,Waning Gibb)][ansi(hx,ous)]|[ansi(hw,Waning Gibb)][ansi(hx,ous)]|[ansi(hw,Waning Gibb)][ansi(hx,ous)]|[ansi(hw,Waning Gibb)][ansi(hx,ous)]|[ansi(hw,Waning Gibb)][ansi(hx,ous)]|[ansi(hw,Waning)]%B[ansi(hx,Half)]|[ansi(hw,Wan)][ansi(hx,ing Crescent)]|[ansi(hw,Wan)][ansi(hx,ing Crescent)]|[ansi(hw,Wan)][ansi(hx,ing Crescent)]|[ansi(hw,Wan)][ansi(hx,ing Crescent)]|[ansi(hw,Wan)][ansi(hx,ing Crescent)]|[ansi(hx,No Moon)]|[ansi(hx,No Moon)]|[ansi(hx,No Moon)]
 &VAR`MULTIPLIER [u(cobj,calendar)]=3
 

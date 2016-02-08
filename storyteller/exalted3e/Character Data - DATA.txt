@@ -127,7 +127,7 @@ th u(newconf,CONFIG,STORYTELLER,CRAFTS,ARTIFACTS|GEOMANCY|FIRST AGE ARTIFICE,Ava
 
 &DO`ADD`MACHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`MACHARM;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`CHARMS`MACHARMS`%q<slot>,%q<value>;&D`CHARMS`MACHARMS`%q<slot>`NAME %0=ucstr(%q<style>)
 
-&DO`REM`MACHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`MACHARM;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`CHARMS`MACHARMS`%q<slot>,%q<value>;@select/inline strlen(get(%0/D`CHARMS`MACHARMS`%q<slot>))=0,{@attach %!/WIPE=%0,D`CHARMS`MACHARMS`%q<slot>}
+&DO`REM`MACHARM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`MACHARM;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`CHARMS`MACHARMS`%q<slot>,%q<value>;@select/inline strlen(get(%0/D`CHARMS`MACHARMS`%q<slot>))=0,{@attach %!/WIPE=%0,D`CHARMS`MACHARMS`%q<slot>}
 
 &FUN`RET`STYLES [u(cobj,data)]=iter(ucstr(get(%0/D`STYLES)),before(%i0,~),|,|)
 &FUN`GET`STYLENAME [u(cobj,data)]=u(capnames,default(%0/D`CHARMS`MACHARMS`%1`NAME,Unnamed Style))
@@ -141,7 +141,7 @@ th u(newconf,CONFIG,STORYTELLER,CRAFTS,ARTIFACTS|GEOMANCY|FIRST AGE ARTIFICE,Ava
 
 &DO`ADD`EVOCATION [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`EVOCATION;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`CHARMS`EVOCATIONS`%q<slot>,%q<value>;&D`CHARMS`EVOCATIONS`%q<slot>`NAME %0=ucstr(%q<style>)
 
-&DO`REM`EVOCATION [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`EVOCATION;@attach [u(cobj,dta)]/WORDLIST`REM=%0,D`CHARMS`EVOCATIONS`%q<slot>,%q<value>;@select/inline strlen(get(%0/D`CHARMS`EVOCATIONS`%q<slot>))=0,{@attach %!/WIPE=%0,D`CHARMS`EVOCATIONS`%q<slot>}
+&DO`REM`EVOCATION [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`EVOCATION;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`CHARMS`EVOCATIONS`%q<slot>,%q<value>;@select/inline strlen(get(%0/D`CHARMS`EVOCATIONS`%q<slot>))=0,{@attach %!/WIPE=%0,D`CHARMS`EVOCATIONS`%q<slot>}
 
 &FUN`RET`EVOCNAME [u(cobj,data)]=u(capnames,default(%0/D`CHARMS`EVOCATIONS`%1`NAME,Unnamed Artifact))
 

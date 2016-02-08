@@ -32,7 +32,7 @@ th u(NEWCOBJ,STORYTELLER: Rec Database <RECDB>,recdb,u(cobj,rec),,1,WIZARD SAFE,
 &Q`GET`EXIST [u(cobj,rec)]=SELECT rec_id FROM $REC$ WHERE rec_id=?
 &Q`GET`CHECK [u(cobj,rec)]=SELECT rec_id FROM $REC$ WHERE rec_objid=? AND rec_id=?
 
-&INC`APPROVE [u(cobj,rec)]=@attach %!/INC`TARGET;th u(setq,orig,add(u(mysql,GET`AMOUNT,%q<id>),0));@check match(0 1 2,u(mysql,GET`STATUS,%q<id>))=@attach %!/INC`MSG=ERROR: Cannot change the status of processed recs.;@attach %!/INC`VALID`POSINT=u(strfirstof,before(%1,/),%q<orig>),XP Amount;th u(setq,reason,after(%1,/));th u(setq,type,u(mysql,GET`TYPE,%q<id>));@attach %!/INC`MSG`CHAN=Rec %q<id> approved for %q<value> %q<type> XP.;@attach %!/INC`DOSQL=SET`APPROVE,%q<value>,u(objid,%#),%q<id>;@attach %!/INC`MSG=Rec %q<id> approved for %q<value> %q<type> XP.;@select/inline %q<type>=SILVER,{@attach %!/INC`DOCRAFT=%q<id>,SXP,%q<value>},GOLD,{@attach %!/INC`DOCRAFT=%q<id>,GXP,%q<value>},WHITE,{@attach %!/INC`DOCRAFT=%q<id>,WXP,%q<value>}
+&INC`APPROVE [u(cobj,rec)]=@attach %!/INC`TARGET;th u(setq,orig,add(u(mysql,GET`AMOUNT,%q<id>),0));@check match(0 1 2,u(mysql,GET`STATUS,%q<id>))=@attach %!/INC`MSG=ERROR: Cannot change the status of processed recs.;@attach %!/INC`VALID`POSINT=u(strfirstof,before(%1,/),%q<orig>),XP Amount;th u(setq,reason,after(%1,/));th u(setq,type,u(mysql,GET`TYPE,%q<id>));@attach %!/INC`MSG`CHAN=Rec %q<id> approved for %q<value> %q<type> XP.;@attach %!/INC`DOSQL=SET`APPROVE,u(objid,%#),%q<value>,%q<id>;@attach %!/INC`MSG=Rec %q<id> approved for %q<value> %q<type> XP.;@select/inline %q<type>=SILVER,{@attach %!/INC`DOCRAFT=%q<id>,SXP,%q<value>},GOLD,{@attach %!/INC`DOCRAFT=%q<id>,GXP,%q<value>},WHITE,{@attach %!/INC`DOCRAFT=%q<id>,WXP,%q<value>}
 
 &Q`GET`AMOUNT [u(cobj,rec)]=SELECT rec_amount FROM $REC$ WHERE rec_id=?
 &Q`GET`TYPE [u(cobj,rec)]=SELECT rec_type FROM $REC$ WHERE rec_id=?
@@ -84,14 +84,16 @@ th u(NEWCOBJ,STORYTELLER: Rec Database <RECDB>,recdb,u(cobj,rec),,1,WIZARD SAFE,
 
 &INC`PROCESS [u(cobj,rec)]=
 
-&LASTPROCESS [u(cobj,rec)]=1453547343
+&LASTPROCESS [u(cobj,rec)]=1454173228
 &ADMINOBJ [u(cobj,rec)]=#1057:1386575067
 
-&TRG`DOPROCESS [u(cobj,rec)]=@check words(u(setr,list,u(mysql,GET`ACTIVE,v(LASTPROCESS))))=@attach %!/INC`MSG`CHAN=No active players to award XP to. Bummer.;@dolist/inline %q<list>={@attach %!/INC`DOSQL=INSERT`XP,%i0,XP,5,Weekly Activity XP,v(ADMINOBJ)};@attach %!/INC`MSG`NOTICE=[ansi(h,u(moniker,v(ADMINOBJ)))] awarded you 5 XP for Weekly Activity.,%q<list>;@attach %!/INC`MSG`CHAN=[ansi(h,u(moniker,v(ADMINOBJ)))] awarded 5 Weekly XP to: [itemize(iter(%q<list>,u(moniker,%i0),%b,|),|,and,\,)];@dolist/inline/nobreak/delimit | [u(setr,solxp,u(mysql2,GET`SOLAR))]={@check u(isobjid,before(%i0,^));@attach %!/INC`DOSQL=INSERT`XP,before(%i0,^),SOLXP,u(setr,amt,bound(after(%i0,^),0,5)),Weekly Solar XP,v(ADMINOBJ);@attach %!/INC`MSG`NOTICE=[ansi(h,u(moniker,v(ADMINOBJ)))] awarded you %q<amt> Solar XP for recommendations!,before(%i0,^)};@attach %!/INC`MSG`CHAN=[ansi(h,u(moniker,v(ADMINOBJ)))] awarded the following Solar XP for Recommendations: [itemize(iter(%q<solxp>,u(moniker,before(%i0,^)) \([bound(after(%i0,^),0,5)]\),|,|),|,and,\,)];&LASTPROCESS [u(cobj,rec)]=secs();@attach %!/INC`DOSQL=FINISH`SOLAR
+&TRG`DOPROCESS [u(cobj,rec)]=@check words(u(setr,list,u(mysql,GET`ACTIVE,v(LASTPROCESS))))=@attach %!/INC`MSG`CHAN=No active players to award XP to. Bummer.;@dolist/inline %q<list>={@attach %!/INC`DOSQL=INSERT`XP,%i0,XP,5,Weekly Activity XP,v(ADMINOBJ)};@attach %!/INC`MSG`NOTICE=[ansi(h,u(moniker,v(ADMINOBJ)))] awarded you 5 XP for Weekly Activity.,%q<list>;@attach %!/INC`MSG`CHAN=[ansi(h,u(moniker,v(ADMINOBJ)))] awarded 5 Weekly XP to: [itemize(iter(%q<list>,u(moniker,%i0),%b,|),|,and,\,)];&LASTPROCESS [u(cobj,rec)]=secs()
 
-&Q`GET`ACTIVE [u(cobj,rec)]=SELECT DISTINCT objid FROM $PLAYERS$ LEFT JOIN $POSES$ ON $PLAYERS$.player_id=$POSES$.player_id WHERE pose_time >= FROM_UNIXTIME(?))
+&TRG`DOSOLAR [u(cobj,rec)]=@dolist/inline/nobreak/delimit | [u(setr,solxp,u(mysql2,GET`SOLAR))]={@check u(isobjid,before(%i0,^));@attach %!/INC`DOSQL=INSERT`XP,before(%i0,^),SOLXP,u(setr,amt,bound(after(%i0,^),0,5)),Weekly Solar XP,v(ADMINOBJ);@attach %!/INC`MSG`NOTICE=[ansi(h,u(moniker,v(ADMINOBJ)))] awarded you %q<amt> Solar XP for recommendations!,before(%i0,^)};@attach %!/INC`MSG`CHAN=[ansi(h,u(moniker,v(ADMINOBJ)))] awarded the following Solar XP for Recommendations: [itemize(iter(%q<solxp>,u(moniker,before(%i0,^)) \([bound(after(%i0,^),0,5)]\),|,|),|,and,\,)];@attach %!/INC`DOSQL=FINISH`SOLAR
 
-&Q`GET`SOLAR [u(cobj,rec)]=SELECT rec_objid,sum(rec_approve_amount) FROM $REC$ WHERE rec_status=1 AND rec_type='SOLAR'
+&Q`GET`ACTIVE [u(cobj,rec)]=SELECT DISTINCT objid FROM $PLAYERS$ LEFT JOIN $POSES$ ON $PLAYERS$.player_id=$POSES$.player_id WHERE pose_time >= FROM_UNIXTIME(?)
+
+&Q`GET`SOLAR [u(cobj,rec)]=SELECT rec_target,sum(rec_approve_amount) FROM $REC$ WHERE rec_status=1 AND rec_type='SOLAR' GROUP BY rec_target
 &Q`FINISH`SOLAR [u(Cobj,rec)]=UPDATE $REC$ SET rec_status=3 WHERE rec_status=1 AND rec_type='SOLAR'
 
 

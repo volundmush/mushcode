@@ -1,57 +1,71 @@
 @@ DEPENDENCIES - CORE
 
 th u(NEWCOBJ,FCList Management System <FCLIST>,fclist,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
-th u(NEWCOBJ,FCList Database <FCLIST-DB>,fclist-db,u(cobj,fclist),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
 
-&CMD`+FCLIST`PENNMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|roster)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
+&CMD`+FCLIST`PENNMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|theme|roster)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
 @set [u(cobj,fclist)]/CMD`+FCLIST`PENNMUSH=regexp
-&CMD`+FCLIST`RHOSTMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|roster)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
+&CMD`+FCLIST`RHOSTMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|theme|roster)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
 @set [u(cobj,fclist)]/CMD`+FCLIST`RHOSTMUSH=regexp
 &CMD`+FCLIST`MAIN [u(cobj,fclist)]=th u(setq,com,lcstr(+%1));@attach %!/INC`GETSWITCH=%2;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
 @set [u(cobj,fclist)]/CMD`+FCLIST`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,fclist)]=INFO
-&SWITCHES`ADMIN [u(cobj,fclist)]=CREATE|RENAME|DELETE|ASSIGN|REMOVE|DESCRIBE|STATUS|TYPE
+&SWITCHES`ADMIN [u(cobj,fclist)]=CREATE|RENAME|DELETE|ASSIGN|REMOVE|DESCRIBE|STATUS|TYPE|SETINFO|CLEARINFO
 
 &SYSTEM`NAME [u(cobj,fclist)]=FCLIST
 
-&INC`MAIN [u(cobj,fclist)]=@switch/inline strlen(%0)=>0,{@attach %!/INC`LIST},0,{@attach %!/INC`LISTALL}
+&INC`MAIN [u(cobj,fclist)]=@switch/inline strlen(%0)=>0,{@include %!/INC`FINDTHEME=%0,1;@pemit %#=u(HEADER,Theme: %q<themename1>);@pemit %#=get(%q<theme1>/DESCRIBE);@switch/inline t(words(u(setr,cast,get(%q<theme1>/CAST))))=1,{@include %!/INC`SHOWCAST=%q<theme1>,Cast};@switch/inline gt(strlen(get(%q<theme1>/INFO)),0)=1,{@pemit %#=u(SUBHEADER,u(pueblize,This theme has info!,+fclist/info %q<themename1>))},0,{@pemit %#=u(SUBHEADER)}},0,{@attach %!/INC`LISTALL}
 
-&INC`LISTALL [u(cobj,fclist)]=@pemit %#=u(HEADER,mudname()'s Themes);@pemit %#=u(table,iter(u(sortattr,lattr(u(cobj,fclist-db)/F`*)),u(pueblize,get(u(cobj,fclist-db)/%i0),%q<com> [get(u(cobj,fclist-db)/%i0)]),%b,|),26,u(width,%#),|);@pemit %#=u(SUBHEADER,%q<com> <group> for listing - %q<com>/info <group> for Info)
+&INC`LIST [u(cobj,fclist)]=@check words(u(setr,themes,sortname(children(u(cobj,fclistdb)))))=@attach %!/INC`MSG=No inhabited themes to display.;@pemit %#=u(HEADER,mudname() - All Themes);th step(FUN`LISTTHEMES,%q<themes>,div(u(width,%#),37));@pemit %#=u(SUBHEADER)
 
-&INC`LIST [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@pemit %#=u(HEADER,%q<gname> Roster);@select/inline strlen(u(setr,desc,get(u(cobj,fclist-db)/%q<group>`DESC)))=>0,{@pemit %#=%q<desc>;@pemit %#=u(separator)};@pemit %#=ansi(u(color,%#,FCLIST,COLUMN_NAMES),align(23 21 10 8 10,Name,Faction,Last On,Type,Available));@pemit %#=u(SEPARATOR);@dolist/inline u(sortname,u(filter,ISOBJID,get(u(cobj,fclist-db)/%q<group>`LIST)))={@pemit %#=align(23 21 10 8 10,u(moniker,##),u(strfirstof,u(getproperty,##,MAJORNAMECLICK),Unaffiliated),u(lastidle,##),default(##/D`FINGER`TYPE,FC),u(capnames,default(##/D`FINGER`STATUS,Open)))};@pemit %#=u(SUBHEADER)
+&FUN`LISTTHEMES [u(cobj,fclist)]=pemit(%#,u(table,iter(lnum(0,sub(%+,1)),u(pueblize,u(setr,name,name(v(%i0))),+fclist %q<name>),%b,|),37,u(width,%#),|))
 
-&INC`INFO [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@pemit %#=u(HEADER,Theme Info: %q<gname>);@pemit %#=get(u(cobj,fclist-db)/%q<group>`DESC);@pemit %#=u(SUBHEADER)
+&INC`SHOWCAST [u(cobj,fclist)]=@pemit %#=u(SEPARATOR,strfirstof(%1,u(pueblize,get(u(tdb)/%0),+fclist [get(u(tdb)/%0)])));@pemit %#=ansi(color(%#,COLOR,COLUMN_NAMES),align(3 20 1 3 18 21 >6,Typ,Name,G,PL,Faction,Rank,LastOn));@dolist/inline u(sortname,u(filter,ISCAST,get(%0/CAST)))={@pemit %#=align(3 20 1 3 18 21 >6,default(%i0/D`FINGER`TYPE,??),u(pueblize,u(moniker,%i0),+finger [name(%i0)]),switch(get(%i0/sex),m*,M,f*,F,n*,N,?),default(%i0/level,??),strfirstof(u(getproperty,%i0,factions,1,,1),Unaffiliated),u(getproperty,%i0,ranks,,,1),if(cand(gte(conn(%i0),0),not(hidden(%i0))),ansi(hg,ago(idle(%i0))),ansi(hx,elements(get(%i0/LAST),2 3))))}
 
-&INC`DESCRIBE [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Theme description empty!;@attach %!/INC`MSG=Theme description changed!;@attach %!/INC`MSG`CHAN=FCLIST Group '%q<gname>' Description changed to: [left(%1,80)]...;&%q<group>`DESC [u(cobj,fclist-db)]=%1
+&INC`LIST [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@pemit %#=u(HEADER,%q<gname> Roster);@select/inline strlen(u(setr,desc,get(u(cobj,themedb)/%q<group>`DESC)))=>0,{@pemit %#=%q<desc>;@pemit %#=u(separator)};@pemit %#=ansi(u(color,%#,FCLIST,COLUMN_NAMES),align(23 21 10 8 10,Name,Faction,Last On,Type,Available));@pemit %#=u(SEPARATOR);@dolist/inline u(sortname,u(filter,ISOBJID,get(u(cobj,themedb)/%q<group>`LIST)))={@pemit %#=align(23 21 10 8 10,u(moniker,##),u(strfirstof,u(getproperty,##,MAJORNAMECLICK),Unaffiliated),u(lastidle,##),default(##/D`FINGER`TYPE,FC),u(capnames,default(##/D`FINGER`STATUS,Open)))};@pemit %#=u(SUBHEADER)
 
-&INC`CREATE [u(cobj,fclist)]=@stop u(FUN`FINDEXACT,%0)=@attach %!/INC`MSG=ERROR: Group already exists!;th u(attrib_set,u(cobj,fclist-db),u(setr,attr,F`[u(nextslot,u(cobj,fclist-db),F)]),%0);@attach %!/INC`MSG=Group '%0' created!;@attach %!/INC`MSG`CHAN={Group '%0' created!}
+&INC`INFO [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@pemit %#=u(HEADER,Theme Info: %q<gname>);@pemit %#=get(u(cobj,themedb)/%q<group>`DESC);@pemit %#=u(SUBHEADER)
 
-&INC`FIND [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No group name entered!;@select/inline gt(strlen(u(setr,group,u(FUN`FINDEXACT,%0))),0)=0,{@check words(u(setr,group,u(FUN`FINDWILD,%0)))=@attach %!/INC`MSG=ERROR: Group not found!;@stop gt(words(%q<group>),1)=@attach %!/INC`MSG=ERROR: '%0' matched [u(itemize,iter(%q<group>,u(pueblize,get(u(cobj,fclist-db)/%i0),%q<com> [get(u(cobj,fclist-db)/%i0)]),%b,|),|,and,\,)]. Please be more specific.};th u(setq,gname,get(u(cobj,fclist-db)/%q<group>))
+&INC`DESCRIBE [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@include %!/INC`FINDTHEME=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Theme description field empty.;@select/inline u(setr,mail,gt(strlen(u(setr,olddesc,get(%q<theme1>/DESCRIBE))),0))=1,{@mail %#=%q<themename1>/OLD THEME WAS:%R%q<olddesc>;@describe %q<theme1>=%1};@attach %!/INC`MSG=You have changed theme %q<themename1>'s description. Its old contents have been @mail'd to you.;@attach %!/INC`MSG`CHAN=Changed the Theme description for '[u(pueblize,%q<themename1>,+fclist %q<themename1>)]'
 
-&INC`RENAME [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: New name field empty.;@stop strlen(u(FUN`FINDEXACT,%1))=@attach %!/INC`MSG=ERROR: Group '%1' already exists.;@attach %!/INC`MSG=Group '%q<gname>' Renamed to '%1'!;@attach %!/INC`MSG`CHAN={Group '%q<gname>' Renamed to '%1'};&%q<group> u(cobj,fclist-db)=%1
+&INC`CREATE [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@stop words(u(find_in,u(cobj,fclistdb),%0))=@attach %!/INC`MSG=ERROR: That theme already exists. Use +fclist/describe to change its description.;@check valid(name,%0)=@attach %!/INC`MSG=ERROR: That would not be a valid name for a THING. Avoid special symbols like &.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Theme description field empty.;@tel u(setr,theme,create(%0))=u(cobj,fclistdb);@parent %q<theme>=u(cobj,fclistdb);@describe %q<theme>=%1;@attach %!/INC`MSG=You have created the '%0' Theme.;@attach %!/INC`MSG`CHAN=Created a new +fclist entry: '[u(pueblize,%0,+fclist %0)]'
 
-&INC`DELETE [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@attach %!/INC`VERIFY={WARNING: This will delete Group '%q<gname>' and all data associated with it. Are you SURE you want to do this? Enter the same command again wtihin ten seconds to verify.},FCLIST DELETE %q<group>;@attach %!/INC`MSG=Group '%q<gname>' deleted!;@attach %!/INC`MSG`CHAN=Group '%q<gname>' Deleted!;@attach %!/WIPE=u(cobj,fclist-db),%q<group>
+&INC`FIND [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No group name entered!;@select/inline gt(strlen(u(setr,group,u(FUN`FINDEXACT,%0))),0)=0,{@check words(u(setr,group,u(FUN`FINDWILD,%0)))=@attach %!/INC`MSG=ERROR: Group not found!;@stop gt(words(%q<group>),1)=@attach %!/INC`MSG=ERROR: '%0' matched [u(itemize,iter(%q<group>,u(pueblize,get(u(cobj,themedb)/%i0),%q<com> [get(u(cobj,themedb)/%i0)]),%b,|),|,and,\,)]. Please be more specific.};th u(setq,gname,get(u(cobj,themedb)/%q<group>))
 
-&INC`ASSIGN [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@attach %!/INC`CHECKPC=%1,1;@stop match(get(u(cobj,fclist-db)/%q<group>`LIST),%q<t1objid>)=@attach %!/INC`MSG=ERROR: %q<t1name> is already listed under '%q<gname>'.;@attach %!/INC`ADDTOLIST=%q<group>,%q<t1objid>;@attach %!/INC`MSG=You added %q<t1name> to FCLIST Group '%q<gname>'!;@attach %!/INC`CMSG=%q<t1name> now listed under '%q<gname>'
+&INC`RENAME [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: New name field empty.;@stop strlen(u(FUN`FINDEXACT,%1))=@attach %!/INC`MSG=ERROR: Group '%1' already exists.;@attach %!/INC`MSG=Group '%q<gname>' Renamed to '%1'!;@attach %!/INC`MSG`CHAN={Group '%q<gname>' Renamed to '%1'};&%q<group> u(cobj,themedb)=%1
 
-&INC`REMOVE [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@attach %!/INC`CHECKPC=%1,1;@check match(get(u(cobj,fclist-db)/%q<group>`LIST),%q<t1objid>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not listed in that group!;@attach %!/INC`REMFROMLIST=%q<group>,%q<t1objid>;@attach %!/INC`MSG=You removed %q<t1name> from FCLIST Group '%q<gname>'!;@attach %!/INC`CMSG=%q<t1name> removed from list '%q<gname>'
+&INC`DELETE [u(cobj,fclist)]=@attach %!/INC`FIND=%0;@attach %!/INC`VERIFY={WARNING: This will delete Group '%q<gname>' and all data associated with it. Are you SURE you want to do this? Enter the same command again wtihin ten seconds to verify.},FCLIST DELETE %q<group>;@attach %!/INC`MSG=Group '%q<gname>' deleted!;@attach %!/INC`MSG`CHAN=Group '%q<gname>' Deleted!;@attach %!/WIPE=u(cobj,themedb),%q<group>
+
+&INC`ASSIGN [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to assign.;@include %!/INC`CHECKPC=%0,1;@include %!/INC`FINDTHEME=%1,1;@select/inline isdbref(u(setr,oldtheme,get(%q<t1>/D`THEME)))=1,{@attach %!/INC`REMFROMTHEME=%q<oldtheme>,%q<t1objid>;@attach %!/INC`MSG=Auto-Removing %q<t1name> from their old theme: [name(%q<oldtheme>)].};@attach %!/INC`ADDTOTHEME=%q<theme1>,%q<t1objid>;@attach %!/INC`MSG=You assign %q<t1name> to Theme '%q<themename1>';@attach %!/INC`MSG`CHAN=Assigned %q<t1name> to Theme '[u(pueblize,%q<themename1>,+fclist %q<themename1>)]'
+
+&INC`ADDTOTHEME [u(cobj,fclist)]=&CAST %0=u(sortname,u(filter,ISOBJID,setunion(get(%0/CAST),u(objid,%1))));&D`THEME %1=%0
+&INC`REMFROMTHEME [u(cobj,fclist)]=&CAST %0=u(sortname,u(filter,ISOBJID,setdiff(get(%0/CAST),u(objid,%1))));&D`THEME %1
+
+&INC`REMOVE [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to assign.;@include %!/INC`CHECKPC=%0,1;@check isdbref(u(setr,theme1,get(%q<t1>/D`THEME)))=@attach %!/INC`MSG=ERROR: They do not belong to any theme!;th u(setq,themename1,name(%q<theme1>));@attach %!/INC`REMFROMTHEME=%q<old>,%q<t1objid>;@attach %!/INC`MSG=You remove %q<t1name> from Theme '%q<themename1>';@attach %!/INC`MSG`CHAN=Removed %q<t1name> from Theme '[u(pueblize,%q<themename1>,+fclist %q<themename1>)]'
+
+&INC`UNASSIGNED [u(cobj,fclist)]=@check words(u(setr,unassigned,sort(lsearch(all,type,player,elock,!D`THEME:?*&!POWER^GUEST&!(FLAG^WIZARD|FLAG^ROYALTY)),namei)))=@attach %!/INC`MSG=No players lack theme assignments.;@pemit %#=u(HEADER,Unassigned Players);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(20 30,Name,Creation Time));@dolist/inline %q<unassigned>={@pemit %#=align(20 30,u(pueblize,name(%i0),+finger [name(%i0)]),ctime(%i0));@switch/inline eq(inum(0),words(%q<unassigned>))=1,{@pemit %#=u(SUBHEADER)}}
+
+&INC`EMPTY [u(cobj,fclist)]=@check words(u(setr,empty,sortname(u(filter,NOCAST,children(u(cobj,fclistdb))))))=@attach %!/INC`MSG=There are no empty themes.;@attach %!/INC`MSG=The following themes have no cast: [u(itemize,iter(%q<empty>,u(pueblize,name(%i0),+fclist [name(%i0)]),,|),|,and,\,)]
+
+&FIL`NOCAST [u(cobj,fclist)]=not(words(u(filter,ISOBJID,get(%0/CAST))))
+
+&OBJECT`DESTROY [u(cobj,fclist)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`DESTROY`PURGETHEME [u(cobj,fclist)]=@select/inline %2=PLAYER,{@dolist/inline u(filter,INCAST,children(u(cobj,fclistdb)),%b,%b,%0)={&CAST %i0=u(filter,ISOBJID,get(%i0/CAST))}}
+
+&FIL`INCAST [u(cobj,fclist)]=t(match(get(%0/CAST),u(objid,%1)))
 
 &INC`STATUS [u(cobj,fclist)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No status entered.;@attach %!/INC`PARTIAL=%1,u(game_config,FCLIST,STATUS),|,status,status;@attach %!/INC`MSG=%q<t1name>'s FCList status is now: %q<status>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<status>.;&D`FINGER`STATUS %q<t1>=%q<status>
 
 th u(newconf,config,FCLIST,STATUS,OPEN|CLOSING|PLAYED|DEAD|TEMP,Character types available,LIST)
 
-&INC`TYPE [u(cobj,fclist)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No type entered.;@attach %!/INC`PARTIAL=%1,u(game_config,FCLIST,TYPES),|,type,type;@attach %!/INC`MSG=%q<t1name>'s FCList Type is now: %q<type>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<type>.;&D`FINGER`TYPE %q<t1>=%q<type>
+&INC`TYPE [u(cobj,fclist)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No type entered.;@attach %!/INC`PARTIAL=%1,u(game_config,FCLIST,TYPES),|,type,type;@attach %!/INC`MSG=%q<t1name>'s Character Type is now: %q<type>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as a %q<type> Character.;&D`FINGER`TYPE %q<t1>=%q<type>
 
 th u(newconf,config,FCLIST,TYPES,FC|OC|OFC|EFC|SFC,Character types available,LIST)
 
-&EXTRATYPES [u(cobj,fclist)]=DC|WS|VT
+&STARTUP [u(cobj,fclist)]=@trigger %!/LOOP`REPORTEMPTY
 
-&INC`ADDTOLIST [u(cobj,fclist)]=&%0`LIST u(cobj,fclist-db)=u(filter,ISOBJID,u(sortname,setunion(get(u(cobj,fclist-db)/%0`LIST),%1)))
-&INC`REMFROMLIST [u(cobj,fclist)]=&%0`LIST u(cobj,fclist-db)=u(filter,ISOBJID,u(sortname,setdiff(get(u(cobj,fclist-db)/%0`LIST),%1)))
-
-&FUN`FINDEXACT [u(cobj,fclist)]=u(wildgrepi,u(cobj,fclist-db),F`*,%0)
-&FUN`FINDWILD [u(cobj,fclist)]=grepi(u(cobj,fclist-db),F`*,%0)
+&LOOP`REPORTEMPTY [u(cobj,fclist)]=@select/inline words(u(setr,empty,sortname(u(filter,NOCAST,children(u(cobj,themedb))))))=>0,{@attach %!/INC`MSG`CHAN=EMPTY THEMES: The following themes have no Cast: [u(itemize,iter(%q<empty>,u(pueblize,name(%i0),+fclist [name(%i0)]),,|),|,and,\,)]};@wait mul(60,60,6)=@trigger %!/LOOP`REPORTEMPTY
 
 +help/add +fclist=[u(cobj,fclist)]/HLP`+FCLIST
 +help/category +fclist=Community
@@ -61,7 +75,3 @@ th u(newconf,config,FCLIST,TYPES,FC|OC|OFC|EFC|SFC,Character types available,LIS
 +shelp/add +fclist=[u(cobj,fclist)]/SHLP`+FCLIST
 +shelp/category +fclist=Character
 &SHLP`+FCLIST [u(cobj,fclist)]=The FCList system allows characters to be added to one or more groups for listing purposes.%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+fclist/create <listname>)] - Creates a list to group characters under.%R[ansi(h,+fclist/rename <list>=<newname)] - Rename a list.%R[ansi(h,+fclist/delete <listname>)] - Deletes a list.%R[ansi(h,+fclist/assign <list>=<character>)] - Assigns a character to a list. Characters can be on more than one!%R[ansi(h,+fclist/remove <list>=<character>)] - Removes a character from a list.%R[ansi(h,+fclist/describe <list>=<description>)] - Explain an FCList.%R[ansi(h,+fclist/status <character>=<status>)] - Change a character's status. Choices are OPEN\, CLOSING\, PLAYED\, DEAD\, and TEMP.%R[ansi(h,+fclist/type <character=<type>)] - Choices are FC\, OC\, OFC\, EFC\, and SFC.)]
-
-&MIGRATE`FCLIST [u(cobj,migrate)]=@dolist/inline u(lattr,u(coi,fcdb)/*)={@attach %!/INC`CPTREE=u(coi,fcdb),%i0,u(cobj,fclist-db),F`%i0};@dolist/inline lsearch(all,type,player,elock,D`APPROVED:1)={&D`FINGER`STATUS %i0=PLAYED}
-
-&CONFLICT`FCLIST [u(cobj,migrate)]=@set u(coi,fcl)=NO_COMMAND HALT;@tel u(coi,fcl)=u(cobj,oldbox)

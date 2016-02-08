@@ -121,7 +121,7 @@ th u(NEWCONF,config,NAVIGATION,OOC_NEXUS,#-1,Room +ooc leads to.,DBREF)
 +help/add +invite=[u(cobj,grid)]/HLP`INVITE
 +help/category +invite=Navigation
 +help/metatags +invite=join meetme summon
-&HLP`INVITE [u(cobj,grid)]=The [ansi(h,+invite)] system lets players warp across the game to directly join other players no matter where they are.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,{[ansi(h,+invite <player>)] - Extends an invitation for another player to +join or +summon you. Invites expire after 10 minutes.%R[ansi(h,+join <player>)] - Warp to a player, or extend a request for <player> to +summon you. You can also +join to someone if they are within reach of +port.%R[ansi(h,+summon <player>)] - Bring <player> to you, or extend a request for <player> to +join you.%R%RStaff can skip the invite process and simply join or summon players. However they can still extend invites.})]
+&HLP`INVITE [u(cobj,grid)]=The [ansi(h,+invite)] system lets players warp across the game to directly join other players no matter where they are.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+invite <player>)] - Extends an invitation for another player to +join or +summon you. Invites expire after 10 minutes.%R[ansi(h,+join <player>)] - Warp to a player\, or extend a request for <player> to +summon you. You can also +join to someone if they are within reach of +port.%R[ansi(h,+summon <player>)] - Bring <player> to you\, or extend a request for <player> to +join you.%R%RStaff can skip the invite process and simply join or summon players. However they can still extend invites.)]
 
 @@ NAVIGATION - +RECALL
 +help/add Grid=[u(cobj,grid)]/HLP`GRID
