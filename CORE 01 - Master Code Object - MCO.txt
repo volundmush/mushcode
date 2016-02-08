@@ -548,7 +548,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &INC`GETSWITCH [u(cobj,mco)]=@attach %!/INC`PARTIAL=%0,u(SYSTEM`SWITCHES),|,switch,switch
 
-&SYSTEM`SWITCHES [u(cobj,mco)]=setunion(u(SWITCHES`PLAYER),if(u(isadmin,%#),u(SWITCHES`ADMIN)),|,|)
+&SYSTEM`SWITCHES [u(cobj,mco)]=setunion(setunion(u(SWITCHES`PLAYER),u(SWITCHES`PLAYER`EXTRA),|,|),if(u(isadmin,%#),setunion(u(SWITCHES`ADMIN),u(SWITCHES`ADMIN`EXTRA),|,|)),|,|)
 
 &INC`PARTIAL [u(cobj,mco)]=@select/inline or(not(strlen(%0)),u(setr,matched,match(%1,u(setr,u(strfirstof,%3,choice),%0),u(strfirstof,%2,%b))))=0,{@check words(u(setr,u(strfirstof,%3,choice),graball(%1,%0*,u(strfirstof,%2,%b),u(strfirstof,%2,%b))))=@attach %!/INC`MSG={ERROR: Invalid %4! Valid choices are: [u(itemize,%1,u(strfirstof,%2,%b),and,\,)]};@stop gt(words(r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b)),1)=@attach %!/INC`MSG={ERROR: %0 matched [u(itemize,r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b),and,\,)]. Please be more specific.}},1,{@select/inline cand(t(strlen(%0)),t(%q<matched>))=1,{th u(setq,u(strfirstof,%3,choice),elements(%1,%q<matched>,u(strfirstof,%2,%b)))}}
 @@ PARTIAL %0 = entry, %1 = choices, %2 = delimiter, %3 = register name, %4 = topic name

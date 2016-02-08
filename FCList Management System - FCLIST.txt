@@ -3,15 +3,15 @@
 th u(NEWCOBJ,FCList Management System <FCLIST>,fclist,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
 
-&CMD`+FCLIST`PENNMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|theme|roster)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
+&CMD`+FCLIST`PENNMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|theme|series)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
 @set [u(cobj,fclist)]/CMD`+FCLIST`PENNMUSH=regexp
-&CMD`+FCLIST`RHOSTMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|theme|roster)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
+&CMD`+FCLIST`RHOSTMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|theme|series)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
 @set [u(cobj,fclist)]/CMD`+FCLIST`RHOSTMUSH=regexp
 &CMD`+FCLIST`MAIN [u(cobj,fclist)]=th u(setq,com,lcstr(+%1));@attach %!/INC`GETSWITCH=%2;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
 @set [u(cobj,fclist)]/CMD`+FCLIST`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,fclist)]=INFO
-&SWITCHES`ADMIN [u(cobj,fclist)]=CREATE|RENAME|DELETE|ASSIGN|REMOVE|DESCRIBE|STATUS|TYPE|SETINFO|CLEARINFO
+&SWITCHES`ADMIN [u(cobj,fclist)]=CREATE|RENAME|DELETE|ASSIGN|REMOVE|DESCRIBE|STATUS|TYPE|SETINFO|CLEARINFO|UNASSIGNED
 
 &SYSTEM`NAME [u(cobj,fclist)]=FCLIST
 
@@ -51,7 +51,7 @@ th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,WIZARD SA
 &FIL`NOCAST [u(cobj,fclist)]=not(words(u(filter,ISOBJID,get(%0/CAST))))
 
 &OBJECT`DESTROY [u(cobj,fclist)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&OBJECT`DESTROY`PURGETHEME [u(cobj,fclist)]=@select/inline %2=PLAYER,{@dolist/inline u(filter,INCAST,children(u(cobj,fclistdb)),%b,%b,%0)={&CAST %i0=u(filter,ISOBJID,get(%i0/CAST))}}
+&OBJECT`DESTROY`PURGETHEME [u(cobj,fclist)]=@select/inline %2=PLAYER,{@dolist/inline u(filter,INCAST,children(u(cobj,fclistdb)),%b,%b,%0)={&CAST ##=u(filter,ISOBJID,get(##/CAST))}}
 
 &FIL`INCAST [u(cobj,fclist)]=t(match(get(%0/CAST),u(objid,%1)))
 
