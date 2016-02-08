@@ -97,14 +97,14 @@ th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|SKILLS|ARCANA|DISCIPLINES|MANIF
 
 @@ Job add-on
 
-&INC`PLAYERID [u(cobj,roll)]=@check u(objid,%0)=@attach %!/INC`MSG=ERROR: Invalid Objid!;@select/inline gt(u(setr,pid%1,u(u(cobj,jms)/mysql,get`playerid,%0)),0)=0,{@attach %!/INC`DOSQL=NEW`PLAYERID,%0,name(%0);@attach %!/INC`PLAYERID=%0,%1}
+&INC`PLAYERID [u(cobj,roll)]=@check objid(%0)=@attach %!/INC`MSG=ERROR: Invalid Objid!;@select/inline gt(u(setr,pid%1,u(u(cobj,jms)/mysql,get`playerid,%0)),0)=0,{@attach %!/INC`DOSQL=NEW`PLAYERID,%0,name(%0);@attach %!/INC`PLAYERID=%0,%1}
 
 &Q`NEW`PLAYERID [u(cobj,roll)]=INSERT INTO $PLAYERS$ (objid,player_name) VALUES (?,?)
 &SQL`TABLE`PLAYERS [u(cobj,roll)]=jobsys_players
 
-&INC`JOBINIT [u(cobj,roll)]=@attach %!/INC`PLAYERID=%:;@check u(u(cobj,jms)/mysql,GET`JOBID,%q<jid>)=@attach %!/INC`MSG=ERROR: Job %0 not found.;@check or(strmatch(u(u(cobj,jms)/mysql,GET`OWNEROBJID,%q<jid>),u(objid,%#)),match(u(u(cobj,jms)/mysql,GET`ANYOBJIDS,%q<jid>),u(objid,%#)),match(u(u(cobj,jms)/mysql,GET`CLAIMOBJIDS,%q<jid>),u(objid,%#)),u(FUN`PERMCHECK,u(setr,cat,u(u(cobj,jms)/mysql,GET`JOBCAT,%q<jid>)),ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission Denied.;@check eq(u(u(cobj,jms)/mysql,GET`JOBSTATUS,%q<jid>),0)=@attach %!/INC`MSG=The job is already finished.
+&INC`JOBINIT [u(cobj,roll)]=@attach %!/INC`PLAYERID=%:;@check u(u(cobj,jms)/mysql,GET`JOBID,%q<jid>)=@attach %!/INC`MSG=ERROR: Job %0 not found.;@check or(strmatch(u(u(cobj,jms)/mysql,GET`OWNEROBJID,%q<jid>),%:),match(u(u(cobj,jms)/mysql,GET`ANYOBJIDS,%q<jid>),%:),match(u(u(cobj,jms)/mysql,GET`CLAIMOBJIDS,%q<jid>),%:),u(FUN`PERMCHECK,u(setr,cat,u(u(cobj,jms)/mysql,GET`JOBCAT,%q<jid>)),ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission Denied.;@check eq(u(u(cobj,jms)/mysql,GET`JOBSTATUS,%q<jid>),0)=@attach %!/INC`MSG=The job is already finished.
 
-&INC`JOBROLL [u(cobj,jms)]=@attach %!/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,%1;@attach %!/INC`MSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a DICE ROLL in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].};@attach %!/INC`MAILJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a DICE ROLL in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].%R%RMessage:%R%1};@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`DOSQL=SET`JOBATTN,not(strmatch(u(mysql,GET`OWNEROBJID,%q<jid>),u(objid,%#))),%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+&INC`JOBROLL [u(cobj,jms)]=@attach %!/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,%1;@attach %!/INC`MSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a DICE ROLL in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].};@attach %!/INC`MAILJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a DICE ROLL in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].%R%RMessage:%R%1};@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`DOSQL=SET`JOBATTN,not(strmatch(u(mysql,GET`OWNEROBJID,%q<jid>),%:)),%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
 
 
 @@ ROLEPLAYING - +ROLL

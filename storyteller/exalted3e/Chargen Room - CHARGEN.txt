@@ -1,6 +1,6 @@
 @@ DEPENDENCIES - CORE
 
-@select/inline isdbref(u(cobj,chargen))=0,{@dig/teleport Chargen;th u(attrib_set,u(cobj,mco),COBJ`CHARGEN,u(objid,%l));@parent %l=u(cobj,mco)}
+@select/inline isdbref(u(cobj,chargen))=0,{@dig/teleport Chargen;th u(attrib_set,u(cobj,mco),COBJ`CHARGEN,objid(%l));@parent %l=u(cobj,mco)}
 @select/inline v(game)=PennMUSH,{@set u(cobj,chargen)=WIZARD !NO COMMAND},RhostMUSH,{@set u(cobj,chargen)=INHERIT SIDEFX !NO COMMAND}
 
 @cpattr u(cobj,ancestor_room)/HEADER=u(cobj,chargen)/HEADER

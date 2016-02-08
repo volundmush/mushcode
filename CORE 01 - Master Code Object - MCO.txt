@@ -14,10 +14,6 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &ATTRIB_SET`PENNMUSH [u(cobj,mco)]=attrib_set(%0/%1,%2)
 &ATTRIB_SET`RHOSTMUSH [u(cobj,mco)]=set(%0,%1:%2,strmatch(%1,*`*))
 
-&OBJID [u(cobj,mco)]=u(OBJID`[v(game)],%0)
-&OBJID`PENNMUSH [u(cobj,mco)]=objid(%0)
-&OBJID`RHOSTMUSH [u(cobj,mco)]=num(%0)
-
 &LATTR [u(cobj,mco)]=u(LATTR`[v(game)],%0,%1)
 &LATTR`PENNMUSH [u(cobj,mco)]=lattr(%0,%1)
 &LATTR`RHOSTMUSH [u(cobj,mco)]=if(strlen(%1),iter(lattr(%0,,,,,1),%i0,%b,%1),lattr(%0,,,,,1))
@@ -62,8 +58,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 @@ FILTER SECTION
 
 &FIL`ISDBREF [u(cobj,mco)]=isdbref(%0)
-&FIL`ISOBJID [u(cobj,mco)]=u(isobjid,%0)
-&FIL`OLDOBJID [u(cobj,mco)]=not(u(isobjid,before(%0,~)))
+&FIL`ISOBJID [u(cobj,mco)]=isobjid(%0)
+&FIL`OLDOBJID [u(cobj,mco)]=not(isobjid(before(%0,~)))
 &FIL`ISSLOT [u(cobj,mco)]=isint(last(%0,`))
 &FIL`ALIASMATCH [u(cobj,mco)]=strmatch(alias(%0),%1*)
 &FIL`NOTGUEST [u(cobj,mco)]=not(u(isguest,%0))
@@ -74,7 +70,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 @@ U-FUNCTION SECTION
 
-&NEWCOBJ [u(cobj,mco)]=localize(if(not(u(cobj,%1)),u(setr,newobj,u(objid,create(%0)))[if(not(%4),parent(%q<newobj>,u(firstof,%3,u(cobj,mco))))][tel(%q<newobj>,u(firstof,%2,u(MASTER_ROOM)))][u(attrib_set,u(cobj,mco),COBJ`%1,%q<newobj>)][set(%q<newobj>,u(choosegame,%5,%6))]))
+&NEWCOBJ [u(cobj,mco)]=localize(if(not(u(cobj,%1)),u(setr,newobj,objid(create(%0)))[if(not(%4),parent(%q<newobj>,u(firstof,%3,u(cobj,mco))))][tel(%q<newobj>,u(firstof,%2,u(MASTER_ROOM)))][u(attrib_set,u(cobj,mco),COBJ`%1,%q<newobj>)][set(%q<newobj>,u(choosegame,%5,%6))]))
 @@ %0 - @name. %1 - alias. %2 - location to store. %3 - parent, defaults to MCO. %4 - No parent. %5 - PennMUSH flags. %6 - RhostMUSH flags.
 
 &CANHEAR [u(cobj,mco)]=u(CANHEAR`[v(game)],%0)
@@ -524,10 +520,10 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &SYSTEM`NAME [u(cobj,mco)]=SYSTEM
 
-&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr,t%1,if(%3,u(firstof,u(u(cobj,cover)/FUN`FINDCOVER,%0),pmatch(%0)),pmatch(%0))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq,t%1objid,u(objid,r(t%1)));th u(setq,t%1name,name(r(t%1)));th u(setq,t%1acc,u(accid,r(t%1)));@select/inline t(%2)=1,{th u(setq,t%1id,u(mysql,GET`ID_FROM_OBJID,u(objid,r(t%1))))}
+&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr,t%1,if(%3,u(firstof,u(u(cobj,cover)/FUN`FINDCOVER,%0),pmatch(%0)),pmatch(%0))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq,t%1objid,objid(r(t%1)));th u(setq,t%1name,name(r(t%1)));th u(setq,t%1acc,u(accid,r(t%1)));@select/inline t(%2)=1,{th u(setq,t%1id,u(mysql,GET`ID_FROM_OBJID,objid(r(t%1))))}
 @@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into. %2 - Boolean for also looking up a SQL id. %3 - Use Cover System.
 
-&INC`IDCHECK [u(cobj,mco)]=@select/inline t(u(setr,id,u(mysql,GET`ID_FROM_OBJID,u(objid,%0))))=0,{@attach %!/INC`DOSQL=INSERT`PLAYER,u(objid,%0),name(%0);@attach %!/INC`IDCHECK}
+&INC`IDCHECK [u(cobj,mco)]=@select/inline t(u(setr,id,u(mysql,GET`ID_FROM_OBJID,objid(%0))))=0,{@attach %!/INC`DOSQL=INSERT`PLAYER,objid(%0),name(%0);@attach %!/INC`IDCHECK}
 
 &Q`GET`ID_FROM_OBJID [u(cobj,mco)]=SELECT DISTINCT player_id from $PLAYERS$ WHERE objid=?
 &Q`INSERT`PLAYER [u(cobj,mco)]=INSERT INTO $PLAYERS$ (objid,player_name) VALUES (?,?)
@@ -561,7 +557,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &INC`VALID`WORD [u(cobj,mco)]=th u(setq,value,trim(%0))
 &INC`VALID`LIST [u(cobj,mco)]=th u(setq,value,trim(%0))
 &INC`VALID`BOOL [u(cobj,mco)]=@check match(0 1,u(setr,value,%0))=@attach %!/INC`MSG={ERROR: BOOL options can only be 0 (false) or 1 (true).}
-&INC`VALID`DBREF [u(cobj,mco)]=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th u(setq,value,u(objid,%0))
+&INC`VALID`DBREF [u(cobj,mco)]=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th u(setq,value,objid(%0))
 &INC`VALID`TZ [u(cobj,mco)]=@check valid(timezone,u(setr,value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone}
 &INC`VALID`DURATION [u(cobj,mco)]=@check u(setr,value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()}
 &INC`VALID`POSINT [u(cobj,mco)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[u(strfirstof,%1,%0)]' must be a whole number 1 or greater.};th u(setq,value,%0)

@@ -39,8 +39,8 @@ th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,WIZARD SA
 
 &INC`ASSIGN [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to assign.;@include %!/INC`CHECKPC=%0,1;@include %!/INC`FINDTHEME=%1,1;@select/inline isdbref(u(setr,oldtheme,get(%q<t1>/D`THEME)))=1,{@attach %!/INC`REMFROMTHEME=%q<oldtheme>,%q<t1objid>;@attach %!/INC`MSG=Auto-Removing %q<t1name> from their old theme: [name(%q<oldtheme>)].};@attach %!/INC`ADDTOTHEME=%q<theme1>,%q<t1objid>;@attach %!/INC`MSG=You assign %q<t1name> to Theme '%q<themename1>';@attach %!/INC`MSG`CHAN=Assigned %q<t1name> to Theme '[u(pueblize,%q<themename1>,+fclist %q<themename1>)]'
 
-&INC`ADDTOTHEME [u(cobj,fclist)]=&CAST %0=u(sortname,u(filter,ISOBJID,setunion(get(%0/CAST),u(objid,%1))));&D`THEME %1=%0
-&INC`REMFROMTHEME [u(cobj,fclist)]=&CAST %0=u(sortname,u(filter,ISOBJID,setdiff(get(%0/CAST),u(objid,%1))));&D`THEME %1
+&INC`ADDTOTHEME [u(cobj,fclist)]=&CAST %0=u(sortname,u(filter,ISOBJID,setunion(get(%0/CAST),objid(%1))));&D`THEME %1=%0
+&INC`REMFROMTHEME [u(cobj,fclist)]=&CAST %0=u(sortname,u(filter,ISOBJID,setdiff(get(%0/CAST),objid(%1))));&D`THEME %1
 
 &INC`REMOVE [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to assign.;@include %!/INC`CHECKPC=%0,1;@check isdbref(u(setr,theme1,get(%q<t1>/D`THEME)))=@attach %!/INC`MSG=ERROR: They do not belong to any theme!;th u(setq,themename1,name(%q<theme1>));@attach %!/INC`REMFROMTHEME=%q<old>,%q<t1objid>;@attach %!/INC`MSG=You remove %q<t1name> from Theme '%q<themename1>';@attach %!/INC`MSG`CHAN=Removed %q<t1name> from Theme '[u(pueblize,%q<themename1>,+fclist %q<themename1>)]'
 
@@ -53,7 +53,7 @@ th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,WIZARD SA
 &OBJECT`DESTROY [u(cobj,fclist)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 &OBJECT`DESTROY`PURGETHEME [u(cobj,fclist)]=@select/inline %2=PLAYER,{@dolist/inline u(filter,INCAST,children(u(cobj,fclistdb)),%b,%b,%0)={&CAST ##=u(filter,ISOBJID,get(##/CAST))}}
 
-&FIL`INCAST [u(cobj,fclist)]=t(match(get(%0/CAST),u(objid,%1)))
+&FIL`INCAST [u(cobj,fclist)]=t(match(get(%0/CAST),objid(%1)))
 
 &INC`STATUS [u(cobj,fclist)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No status entered.;@attach %!/INC`PARTIAL=%1,u(game_config,FCLIST,STATUS),|,status,status;@attach %!/INC`MSG=%q<t1name>'s FCList status is now: %q<status>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<status>.;&D`FINGER`STATUS %q<t1>=%q<status>
 

@@ -9,7 +9,7 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 &FUN`ENTER [u(cobj,district)]=cand(approved(%#),not(hasflag(%#,JAILED)))
 &FUN`TELEPORT [u(cobj,district)]=cand(approved(%#),not(hasflag(%#,JAILED)))
 
-@select/inline isdbref(u(setr,builder,pmatch(Buildstaff)))=1,{&COBJ`BUILDSTAFF [u(cobj,mco)]=u(objid,%q<builder>)},0,{@pcreate Buildstaff=[digest(md5,secs())];&COBJ`BUILDSTAFF [u(cobj,mco)]=u(objid,pmatch(Builderstaff))}
+@select/inline isdbref(u(setr,builder,pmatch(Buildstaff)))=1,{&COBJ`BUILDSTAFF [u(cobj,mco)]=objid(%q<builder>)},0,{@pcreate Buildstaff=[digest(md5,secs())];&COBJ`BUILDSTAFF [u(cobj,mco)]=objid(pmatch(Builderstaff))}
 @select/inline v(game)=PennMUSH,{@lock/zone u(cobj,buildstaff)=POWER^BUILDER;@set u(cobj,buildstaff)=!UNREGISTERED SHARED;@power u(cobj,buildstaff)=no_pay no_quota;@lset u(cobj,buildstaff)/zone=visual},RhostMUSH,{}
 
 &CMD`+GRID`PENNMUSH [u(cobj,grid)]=$^(?s)(?\:\+)?(district|dig|open|convert|builder)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
@@ -68,9 +68,9 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 th u(NEWCONF,config,NAVIGATION,IC_NEXUS,#-1,Room +nexus leads to or default +ic,DBREF)
 th u(NEWCONF,config,NAVIGATION,OOC_NEXUS,#-1,Room +ooc leads to.,DBREF)
 
-&CMD`+IC [u(cobj,grid)]=$ic:@stop u(isic,%#)=@attach %!/INC`MSG=You're already IC.;@check approved(%#)=@attach %!/INC`MSG=You are not approved!;@select/inline cand(u(isobjid,u(setr,dest,get(%#/D`ICLOC))),u(isic,%q<dest>))=0,{@attach %!/INC`MSG=Your last IC location is no longer valid. Choose a new one from the exits in the starting nexus.;@check isdbref(u(setr,dest,u(game_config,NAVIGATION,IC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an OOC Nexus set.};@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
+&CMD`+IC [u(cobj,grid)]=$ic:@stop u(isic,%#)=@attach %!/INC`MSG=You're already IC.;@check approved(%#)=@attach %!/INC`MSG=You are not approved!;@select/inline cand(isobjid(u(setr,dest,get(%#/D`ICLOC))),u(isic,%q<dest>))=0,{@attach %!/INC`MSG=Your last IC location is no longer valid. Choose a new one from the exits in the starting nexus.;@check isdbref(u(setr,dest,u(game_config,NAVIGATION,IC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an OOC Nexus set.};@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
 
-&CMD`+OOC [u(cobj,grid)]=$ooc:@check isdbref(u(setr,dest,u(game_config,NAVIGATION,OOC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an OOC Nexus set.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@select/inline u(isic,%#)=0,{@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already in the OOC Nexus.;@attach %!/INC`MSG=You are already OOC. Returning you to the OOC Nexus.};@select/inline u(isic,%#)=1,{&D`ICLOC %#=u(objid,%l)};@attach %!/INC`RELOCATE=%#,%q<dest>
+&CMD`+OOC [u(cobj,grid)]=$ooc:@check isdbref(u(setr,dest,u(game_config,NAVIGATION,OOC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an OOC Nexus set.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@select/inline u(isic,%#)=0,{@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already in the OOC Nexus.;@attach %!/INC`MSG=You are already OOC. Returning you to the OOC Nexus.};@select/inline u(isic,%#)=1,{&D`ICLOC %#=objid(%l)};@attach %!/INC`RELOCATE=%#,%q<dest>
 
 &CMD`+NEXUS [u(cobj,grid)]=$+nexus:@check isdbref(u(setr,dest,u(game_config,NAVIGATION,IC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an OOC Nexus set.;@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already there.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
 
