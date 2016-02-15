@@ -113,7 +113,7 @@ th u(NEWCONF,pconf,ALERTS,SCENES,1,Show upcoming scenes on logon?,BOOL)
 
 &FUN`POT`POSERS [u(cobj,scene)]=setunion(iter(u(FUN`POT`POSES,%0,%1,%2),get(%l/%i0`BY)),)
 
-&FUN`POT`LASTPOSE [u(cobj,scene)]=localize(last(u(filter,poseby,u(FUN`POT`POSES,%0,%1),%b,%b,%2)))
+&FUN`POT`LASTPOSE [u(cobj,scene)]=localize(last(u(filter,poseby,u(FUN`POT`POSES,%0,%1),%b,%b,%0,%2)))
 &FIL`POSEBY [u(cobj,scene)]=strmatch(get(%1/%0`BY),%2)
 
 &INC`POT`BRIEF [u(cobj,scene)]=@check cand(u(isic,%#),not(get(%l/D`NOPOT)))=@attach %!/INC`MSG=ERROR: +pot is disabled in this location.;@select/inline u(strfirstof,%0,get(%#/D`POT`MAX))=0,{th u(setq,max,0)},>0,{th u(setq,max,%0)},{th u(setq,max,15)};@check words(u(setr,poses,if(%q<max>,revwords(elements(revwords(u(FUN`POT`POSES,%l,u(%l/D`CUSTLOC,%#))),lnum(1,%q<max>))),u(FUN`POT`POSES,%l,u(%l/D`CUSTLOC,%#)))))=@attach %!/INC`MSG=No active RP in the room!;@pemit %#=u(HEADER,RP Activity for [u(moniker,%l)]);@pemit %#=ansi(u(color,%#,POT,COLUMN_NAMES),align(20 4 4 [sub(u(width,%#),31)],Name,Pose,Idle,Summary));@pemit %#=u(separator);@dolist/inline %q<poses>=@pemit %#=align(20 4 4 [sub(u(width,%#),31)],u(pueblize,u(moniker,get(%l/##`BY)),+pot/last [name(get(%l/##`BY))]),ansi(u(ryg,round(mul(fdiv(bound(sub(secs(),get(%l/##`WHEN)),0,3600),3600),100),0)),u(smalltime,sub(secs(),get(%l/##`WHEN)))),ansi(u(ryg,round(mul(fdiv(bound(idle(get(%l/##`BY)),0,3600),3600),100),0)),u(smalltime,idle(get(%l/##`BY)))),get(%l/##`SUMMARY));@pemit %#=u(SUBHEADER)

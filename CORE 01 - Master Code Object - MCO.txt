@@ -381,6 +381,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`EMAIL [u(cobj,mco)]=if(strmatch(u(setr,email,get(%0/D`FINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
 &GETPROPERTY`ACCEMAIL [u(cobj,mco)]=if(isdbref(u(accid,%0)),get(u(accid,%0)/EMAIL))
 &GETPROPERTY`ACCALTS [u(cobj,mco)]=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0))
+&GETPROPERTY`THEME [u(cobj,mco)]=if(u(setr,theme,first(get(%0/D`THEME))),u(pueblize,u(setr,mon,u(moniker,%q<theme>)),+fclist %q<mon>))
 
 &GETPROPERTY`GROUPS [u(cobj,mco)]=localize(default(%0/D`CACHE`GROUPS,u(setr,cache,u(sortgroups,u(sortname,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)))))[u(attrib_set,%0,D`CACHE`GROUPS,%q<cache>)]))
 

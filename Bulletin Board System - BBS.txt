@@ -175,11 +175,11 @@ th u(NEWCONF,config,BBS,GBS,1,Enable group boards?,BOOL)
 &FUN`GETOMIT [u(cobj,bbs)]=default(%0/D`BB`%1`OMIT,0)
 &FUN`SETOMIT [u(cobj,bbs)]=attrib_set(%0/D`BB`%1`OMIT,%2)
 
-&INC`SCAN [u(cobj,bbs)]=@attach/nobreak %!/INC`SCAN`DOSCAN;@switch %0=BB,{@check words(u(getproperty,%#,groups));@attach %!/INC`SCAN`GROUPSCAN}
+&INC`SCAN [u(cobj,bbs)]=@attach/nobreak %!/INC`SCAN`DOSCAN;@switch %0=BB,{@check cor(words(u(getproperty,%#,groups)),u(isadmin,%#));@attach %!/INC`SCAN`GROUPSCAN}
 
 &INC`SCAN`DOSCAN [u(cobj,bbs)]=@check words(u(setr,groups,u(FILTER,UNREADBB,%q<readgroups>,%b,%b,%#)))=@attach %!/INC`MSG=There are no unread postings on the [switch(%0,GB,%q<gname1> GBS,BBS)].;@dolist %q<groups>={@select/inline #@=1,{@pemit %#=u(HEADER,u(FUN`NAME,%0,,%q<gid1>) - Unread Postings)};th u(setq,listposts,u(FUN`LISTPOSTS,##));@pemit %#=u(pueblize,u(moniker,##) (#[u(setr,bbnum,match(%q<allboards>,##))]),+[lcstr(%0)]read %q<bbnum>[if(strmatch(%0,GB),=%q<gid1>)]): [u(setr,num,words(u(setr,unread,u(sortposts,setdiff(%q<listposts>,u(FUN`GETREAD,%#,##))))))] unread %([u(itemize,iter(%q<unread>,u(pueblize,u(setr,postnum,match(%q<listposts>,%i0)),+[lcstr(%0)]read %q<bbnum>/%q<postnum>[if(strmatch(%0,GB),=%q<gid1>)])),%b,and,\,)]%);&D`BBTOTAL %#=add(%q<num>,get(%#/D`BBTOTAL));@select/inline #@=words(%q<groups>),{@pemit %#=u(SUBHEADER,Total Unread: [get(%#/D`BBTOTAL)]);@wipe %#/D`BBTOTAL}}
 
-&INC`SCAN`GROUPSCAN [u(cobj,bbs)]=@check u(strfirstof,u(getstat,%#,D`GROUP,ALLGB),1);@check words(u(setr,allgroups,u(filter,LISTENGROUPS,u(u(cobj,gms)/FUN`LISTGROUPS),%b,%b,%#)))=@attach %!/INC`MSG=There are no unread posts on the GBS.;@dolist %q<allgroups>={th u(setq,gid1,##,gname1,name(##));@check lmath(max,iter(u(FUN`VALIDGROUPS,%0,%#,READ)[u(setq,getread,u(FUN`GETREAD,%#,%i0))],iter(u(setr,listposts,u(FUN`LISTPOSTS,%i0)),if(match(%q<getread>,%i0),,1[ibreak(2)]))));@attach %!/INC`MSG=Group '[u(pueblize,%q<gname1>,+group %q<gid1>)]' has unread posts! Type [u(pueblize,+gbscan %q<gname1>,+gbscan %q<gid1>)] to see which!}
+&INC`SCAN`GROUPSCAN [u(cobj,bbs)]=@check u(strfirstof,u(getstat,%#,D`GROUP,ALLGB),1);@check words(u(setr,allgroups,u(filter,LISTENGROUP,u(u(cobj,gms)/FUN`LISTGROUPS),%b,%b,%#)))=@attach %!/INC`MSG=There are no unread posts on the GBS.;@dolist %q<allgroups>={th u(setq,gid1,##,gname1,name(##));@check lmath(max,iter(u(FUN`VALIDGROUPS,GB,READ,%#,u(FUN`LISTGROUPS`GB,%i0),%i0)[u(setq,getread,u(FUN`GETREAD,%#,%i0))],iter(u(setr,listposts,u(FUN`LISTPOSTS,%i0)),if(match(%q<getread>,%i0),,1[ibreak(2)]))));@attach %!/INC`MSG=Group '[u(pueblize,name(%i0),+group %i0)]' has unread posts! Type [u(pueblize,+gbscan [name(%i0)],+gbscan %i0)] to see which!}
 
 &FIL`LISTENGROUP [u(cobj,bbs)]=cand(elock(%0,%1),u(strfirstof,u(getstat,%1,D`GROUP`%0,GB),1))
 
