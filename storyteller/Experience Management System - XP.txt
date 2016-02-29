@@ -58,7 +58,7 @@ th u(newcobj,STORYTELLER: Experience Management System <XP>,xp,,,,WIZARD SAFE !N
 &Q`GET`REASON [u(cobj,xp)]=SELECT xp_reason FROM $EXPERIENCE$ WHERE xp_id=?
 &Q`GET`DETAILS [u(cobj,xp)]=select xp_amount,UNIX_TIMESTAMP(xp_date),xp_admin,xp_reason FROM $EXPERIENCE$ where xp_id=?
 
-&INC`TOTALS [u(cobj,xp)]=@pemit %#=u(header,mudname() %q<type> Totals);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(25 7 7 7 10,Name,Gained,Spent,Avail,Class));@dolist/inline/delimit | [u(mysql2,GET`TOTALS,%q<root>)]=@pemit %#=align(25 7 7 7 10,u(moniker,elements(##,1,^)),add(elements(##,3,^),u(FUN`EXTRA`%q<root>)),add(elements(##,4,^),0),add(elements(##,2,^),u(FUN`EXTRA`%q<root>)),getclass(elements(##,1,^)));@pemit %#=u(subheader)
+&INC`TOTALS [u(cobj,xp)]=@pemit %#=u(header,mudname() %q<type> Totals);@pemit %#=ansi(u(color,%#,XP,COLUMN_NAMES),align(25 7 7 7 10,Name,Gained,Spent,Avail,Class));@pemit %#=u(separator);@dolist/inline/delimit | [u(mysql2,GET`TOTALS,%q<root>)]=@pemit %#=align(25 7 7 7 10,u(moniker,elements(##,1,^)),add(elements(##,3,^),u(FUN`EXTRA`%q<root>)),add(elements(##,4,^),0),add(elements(##,2,^),u(FUN`EXTRA`%q<root>)),getclass(elements(##,1,^)));@pemit %#=u(subheader)
 
 &Q`GET`TOTALS [u(cobj,xp)]=SELECT xp_objid,sum(xp_amount) as availxp,sum(CASE WHEN xp_amount>0 THEN xp_amount ELSE 0 END) as gainxp,abs(sum(CASE WHEN xp_amount<0 THEN xp_amount ELSE 0 END)) as spendxp FROM $EXPERIENCE$ WHERE xp_type=? GROUP BY xp_objid ORDER BY gainxp desc
 

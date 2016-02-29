@@ -12,3 +12,7 @@
 &INIT`WXP [u(cobj,xp)]=th u(setq,root,WHIXP);th u(setq,type,White Craft XP);th u(setq,comm,+wxp);th u(setq,earn,1);th u(setq,use,1)
 
 &HLP`TYPES [u(cobj,xp)]=[ansi(h,+xp)] - Normal experience.%R[ansi(h,+solarxp)] - Solar experience.%R[ansi(h,+sxp)] - Silver Crafting Experience. Can Earn/Use.%R[ansi(h,+gxp)] - Gold Crafting Experience. Can Earn/Use.%R[ansi(h,+wxp)] - White Crafting Experience. Can Earn/Use.
+
+&CMD`REBUILD [u(cobj,xp)]=$+rebuild *:@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will COMPLETELY ERASE all of %q<t1name>'s XP and SOLARP spends. Enter the command again to verify!},REBUILD %q<t1>;@attach %!/INC`MSG=Cleared %q<t1name> for a rebuild!;@attach %!/INC`MSG=You have been cleared for a rebuild!,%q<t1>;@attach %!/INC`MSG`CHAN=Authorized a Rebuild for %q<t1name>.;@attach %!/INC`DOSQL=REBUILD,%q<t1objid>
+
+&Q`REBUILD [u(cobj,xp)]=DELETE FROM $EXPERIENCE$ where xp_objid=? AND xp_type in ('SOLXP', 'XP') AND xp_amount<0

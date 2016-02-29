@@ -69,7 +69,7 @@
 
 &FUN`POOLS [u(cobj,sheet)]=localize(align(1. [u(setr,c1,floor(u(setr,c0,fdiv(sub(u(width,%#),4),3))))] 1. [u(setr,c2,ceil(%q<c0>))] 1. [u(setr,c3,sub(u(width,%#),4,%q<c1>,%q<c2>))] 1.,u(FUN`COLOR,%1,BORDER,|),u(FUN`FORMATPOOLS,%0,Pool),u(FUN`COLOR,%1,BORDER,|),u(FUN`FORMATPOOLS,%0,Track),u(FUN`COLOR,%1,BORDER,|),u(FUN`XP,%0,%1),u(FUN`COLOR,%1,BORDER,|),,,%R))
 
-&FUN`XP [u(cobj,sheet)]=localize([u(setq,xpdata,u(u(cobj,xp)/mysql2,GET`TOTALS_PLAYER,u(objid,%0)))][u(setq,filxp,u(filter,XPTYPE,XP|SOLXP|SILXP|GOLXP|WHIXP,|,|,%q<xpdata>))][u(setq,finalxp,iter(%q<filxp>,grab(%q<xpdata>,%i0^*,|),|,|))][u(trimlines,iter(%q<finalxp>,u(FUN`COLOR,%1,PSM,rjust(switch(elements(%i0,1,^),XP,Experience,SOLXP,Solar XP,SILXP,Silver XP,GOLXP,Gold XP,WHIXP,White XP),13): [rjust(add(elements(%i0,2,^),0),3,0)]/[rjust(add(elements(%i0,3,^),0),3,0)]),|,%R))])
+&FUN`XP [u(cobj,sheet)]=localize([u(setq,xpdata,u(u(cobj,xp)/mysql2,GET`TOTALS_PLAYER,u(objid,%0)))][u(setq,filxp,u(filter,XPTYPE,XP|SOLXP|SILXP|GOLXP|WHIXP,|,|,%q<xpdata>))][u(setq,finalxp,iter(%q<filxp>,grab(%q<xpdata>,%i0^*,|),|,|))][u(trimlines,iter(%q<finalxp>,u(FUN`COLOR,%1,PSM,rjust(switch(elements(%i0,1,^),XP,Experience,SOLXP,Solar XP,SILXP,Silver XP,GOLXP,Gold XP,WHIXP,White XP),13): [rjust(add(elements(%i0,2,^),0),3)]/[add(elements(%i0,3,^),0)]),|,%R))])
 
 &FIL`XPTYPE [u(cobj,sheet)]=t(strlen(grab(%1,%0^*,|)))
 

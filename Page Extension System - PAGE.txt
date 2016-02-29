@@ -20,7 +20,7 @@ th u(NEWCOBJ,Page Extension System,page,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &INC`MAIN [u(cobj,page)]=@select/inline strmatch(setr(old,lock(%#/PAGE)),*!DBREFLIST^IGNORELIST*)=0,{@lock/page %#=!DBREFLIST^IGNORELIST;@include u(ccs)/INC`MSG=PAGE,%#,{Your @lock/page was replaced for +ignore to work. It was: %q<old>}};@select/inline strlen(%0)=0,{@include u(page)/INC`LIST},{@include u(ccs)/INC`CHECKPC=%0,1,PAGE;@select/inline t(match(get(%#/IGNORELIST),%q<t1objid>))=1,{&IGNORELIST %#=filterbool(#lambda/isobjid(\%0),setdiff(get(%#/IGNORELIST),%q<t1objid>));@include u(ccs)/INC`MSG=PAGE,%#,{%q<t1name> is no longer page-ignored.}},0,{&IGNORELIST %#=filterbool(#lambda/isobjid(\%0),setunion(get(%#/IGNORELIST),%q<t1objid>));@include u(ccs)/INC`MSG=PAGE,%#,{%q<t1name> is now page-ignored.}}}
 
-&INC`LIST [u(cobj,page)]=@include u(ccs)/INC`MSG=PAGE,%#,{You are Ignoring: [strfirstof(itemize(iter(filterbool(#lambda/isobjid(\%0),get(%#/IGNORELIST)),name(%i0),%b,|),|,and,\,),Nobody!)]}
+&INC`LIST [u(cobj,page)]=@include %!/INC`MSG={You are Ignoring: [strfirstof(itemize(iter(filterbool(#lambda/isobjid(\%0),get(%#/IGNORELIST)),name(%i0),%b,|),|,and,\,),Nobody!)]}
 
 @@ COMMUNICATIONS - PAGE
 +help/add Page=[u(cobj,page)]/HLP`PAGE

@@ -37,7 +37,7 @@ th u(NEWCOBJ,Player Configuration Data Storage <PCONF>,pconf,u(cobj,pcs),,1,WIZA
 
 &INC`GROUP`SET [u(cobj,pcs)]=@check isdbref(u(setr,gid1,u(namegrab,%q<groups>,%0)))=@attach %!/INC`MSG=ERROR: Group '%0' not found.;@switch/inline strlen(%2)=0,{@attach %!/INC`MSG=GROUP [name(%q<gid1>)] restored to default.;@attach %!/WIPE=u(strfirstof,u(accid,%#),%#),D`CONFIG`GROUP`%q<gid1>},{@attach %!/INC`VALID`COLOR=%2;th u(attrib_set,u(strfirstof,u(accid,%#),%#),D`CONFIG`GROUP`%q<gid1>,%q<value>);@attach %!/INC`MSG=u(setr,msg,GROUP [name(%q<gid1>)] Set to: %q<value>)}
 
-&INC`CHANNEL [u(cobj,pcs)]=th u(setq,channels,u(filter,objeval(%#,channels(|)),%b,%b,u(cobj,mop)));@switch/inline strlen(%0)=0,{@attach %!/INC`CHANNEL`LIST},{@attach %!/INC`CHANNEL`SET}
+&INC`CHANNEL [u(cobj,pcs)]=th u(setq,channels,u(filter,RIGHTMOG,objeval(%#,channels(|)),|,|,num(u(cobj,mop))));@switch/inline strlen(%0)=0,{@attach %!/INC`CHANNEL`LIST},{@attach %!/INC`CHANNEL`SET}
 
 &FIL`RIGHTMOG [u(cobj,pcs)]=strmatch(parent(cmogrifier(%0)),%1)
 

@@ -67,7 +67,7 @@ th u(newconf,PCONF,STORYTELLER,SHEET_PUBLIC,0,Make +sheet public?,BOOL)
 
 &RENDERWORDS [u(cobj,sheet)]=regeditalli(u(capnames,%0),~(\\d+),switch(u(setr,wordnum,$1),>1,%b%(%q<wordnum>%)))
 
-&FUN`FORMATPOOLS [u(cobj,sheet)]=iter(u(capnames,u(u(cobj,pool)/FUN`LISTPOOLS,%0,%1)),rjust(%i0: [rjust(u(u(cobj,pool)/FUN`CUR,%0,%i0),switch(%1,Pool,3,Channel,1,Track,2,3),0)]/[rjust(u(u(cobj,pool)/FUN`MAX,%0,%i0),switch(%1,Pool,3,Channel,1,Track,2,3),0)],switch(%1,Pool,21,Channel,19,Track,19,21)),|,%R)
+&FUN`FORMATPOOLS [u(cobj,sheet)]=iter(u(capnames,u(u(cobj,pool)/FUN`LISTPOOLS,%0,%1)),rjust(%i0: [rjust(add(u(u(cobj,pool)/FUN`CUR,%0,%i0),0),3)]/[u(u(cobj,pool)/FUN`MAX,%0,%i0)],switch(%1,Pool,21,Channel,19,Track,19,21)),|,%R)
 
 &FUN`FOOTER [u(cobj,sheet)]=u(FUN`SECTIONHEADER,%0,%1,Advancement)%R[u(FUN`BORDER,%0,%1,u(table,iter(XP~Experience,after(%i0,~): [rjust(u(u(cobj,xp)/FUN`AVAILABLE,%0,before(%i0,~)),3,0)]/[rjust(u(u(cobj,xp)/FUN`GAINED,%0,before(%i0,~)),3,0)],|,|),36,sub(u(width,%#),4),|))]%R%B[u(FUN`COLOR,%1,BORDER,\\)][space(sub(u(width,%#),4))][u(FUN`COLOR,%1,BORDER,/)]%R%B%B[u(FUN`COLOR,%1,BORDER,')][center([u(FUN`COLOR,%1,BORDER,*)]%B[u(FUN`GETSERIES,%1)]%B[u(FUN`COLOR,%1,BORDER,*)],sub(u(width,%#),6),u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,')]
 

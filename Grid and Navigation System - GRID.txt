@@ -92,7 +92,7 @@ th u(NEWCONF,config,NAVIGATION,OOC_NEXUS,#-1,Room +ooc leads to.,DBREF)
 
 &INC`RELOCATE [u(cobj,grid)]=@select/inline switch(v(game),PennMUSH,1,RhostMUSH,0)[u(ishidden,%0)]=11,,{@tel/silent %0=%1},01,{@tel/quiet %0=%1},*0,{@tel %0=%1}
 
-&CMD`+ROOMLIST [u(cobj,grid)]=$+roomlist:@pemit %#=u(header,mudname() Grid Rooms);@dolist/inline u(FUN`TELDISTS)={@pemit %#=u(SEPARATOR,name(##));th step(FUN`ROOMLIST,u(FUN`LISTDISTROOMS,##),10)};@select/inline words(u(setr,things,u(FUN`LISTTHINGS)))=>0,{@pemit %#=u(SEPARATOR,Player Things);th step(FUN`ROOMLIST,%q<things>,10)};@pemit %#=u(subheader)
+&CMD`+ROOMLIST [u(cobj,grid)]=$+roomlist:@pemit %#=u(header,mudname() Grid Rooms);@dolist/inline u(FUN`TELDISTS)={@pemit %#=u(SEPARATOR,name(##));th step(FUN`ROOMLIST,u(FUN`LISTDISTROOMS,##),30)};@select/inline words(u(setr,things,u(FUN`LISTTHINGS)))=>0,{@pemit %#=u(SEPARATOR,Player Things);th step(FUN`ROOMLIST,%q<things>,10)};@pemit %#=u(subheader)
 
 &CMD`+ROOMLIST`ARG [u(cobj,grid)]=$+roomlist *:think u(setq,l,u(FUN`FINDROOM)); @check strlen(u(setr,m,strfirstof(grab(%ql,%0),u(namegraball,%ql,%0))))=@pemit %#=Nothing matches '%0'.;@pemit %#=u(header,'%0');th step(FUN`ROOMLIST,%qm,10);@pemit %#=u(subheader)
 

@@ -174,8 +174,8 @@
 
 &FUN`SCENEMINE4 u(scene)=nspemit(%#,align(4 43 20 8,pueblize(%1,+scene %1),%2,%3,timefmt($m/$d/$y,%4,gettz(%#))))
 
-&SQL`GET`SCENEMINE u(scene)=SELECT DISTINCT scenes.scene_id FROM $DATABASE$.$SCENES$ AS scenes LEFT JOIN $DATABASE$.$POSES$ AS poses ON scenes.scene_id=poses.scene_id WHERE (scenes.player_id=? OR poses.player_id=?) AND scene_state!='3'
-&SQL`GET`SCENEMINE4 u(scene)=SELECT DISTINCT scenes.scene_id FROM $DATABASE$.$SCENES$ AS scenes LEFT JOIN $DATABASE$.$POSES$ AS poses ON scenes.scene_id=poses.scene_id WHERE (scenes.player_id=? OR poses.player_id=?) AND scene_state='3'
+&SQL`GET`SCENEMINE u(scene)=SELECT DISTINCT scenes.scene_id FROM $DATABASE$.$SCENES$ AS scenes LEFT JOIN $DATABASE$.$POSES$ AS poses ON scenes.scene_id=poses.scene_id WHERE (scenes.player_id=? OR poses.player_id=?) AND scene_state!='3' ORDER BY scenes.scene_id
+&SQL`GET`SCENEMINE4 u(scene)=SELECT DISTINCT scenes.scene_id FROM $DATABASE$.$SCENES$ AS scenes LEFT JOIN $DATABASE$.$POSES$ AS poses ON scenes.scene_id=poses.scene_id WHERE (scenes.player_id=? OR poses.player_id=?) AND scene_state='3' ORDER BY scenes.scene_id
 
 &SQL`GET`SCENEMINE3 u(scene)=SELECT scene_id,scene_title,player_name,scene_state FROM $DATABASE$.$SCENES$ NATURAL LEFT JOIN $DATABASE$.$PLAYERS$ WHERE scene_id=?
 
