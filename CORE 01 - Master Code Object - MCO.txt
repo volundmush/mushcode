@@ -84,7 +84,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &ACCID [u(cobj,mco)]=localize(if(%1,u(filter,FINDACCOUNT,children(u(cobj,accounts)),%b,%b,u(setq,finddb,%0)),switch(1,isint(%0),u(strfirstof,u(FIND_IN,u(cobj,accounts),Account %0),0),isdbref(%0),switch(type(%0),PLAYER,get(%0/D`ACCOUNT),THING,if(u(FIND_IN,u(cobj,accounts),%0),%0,0)))))
 
-&ALTS [u(cobj,mco)]=filter(ISOBJID,get(u(accid,%0)/CHARACTERS))
+&ALTS [u(cobj,mco)]=u(filter,ISOBJID,get(u(accid,%0)/CHARACTERS))
 &PALTS [u(cobj,mco)]=alts(%@)
 
 &ISGUEST [u(cobj,mco)]=u(ISGUEST`[v(game)],%0)
@@ -378,7 +378,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`MAIL [u(cobj,mco)]=u(umail,%0) Unread Messages
 &GETPROPERTY`ALIAS [u(cobj,mco)]=u(getalias,%0)
 &GETPROPERTY`LAST [u(cobj,mco)]=u(lastidle,%0)
-&GETPROPERTY`EMAIL [u(cobj,mco)]=if(strmatch(u(setr,email,get(%0/D`FINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
+&GETPROPERTY`EMAIL [u(cobj,mco)]=if(strmatch(u(setr,email,get(%0/D`OOCFINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
 &GETPROPERTY`ACCEMAIL [u(cobj,mco)]=if(isdbref(u(accid,%0)),get(u(accid,%0)/EMAIL))
 &GETPROPERTY`ACCALTS [u(cobj,mco)]=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0))
 &GETPROPERTY`THEME [u(cobj,mco)]=if(u(setr,theme,first(get(%0/D`THEME))),u(pueblize,u(setr,mon,u(moniker,%q<theme>)),+fclist %q<mon>))
@@ -584,7 +584,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &MSGHEAD [u(cobj,mco)]=localize(ansi(u(setr,msgcolor,u(color,u(firstof,%1,%#),SYSTEM,MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),SYSTEM,MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
 &MSGROOM [u(cobj,mco)]=localize(ansi(u(setr,msgcolor,u(color,u(firstof,%1,%#),SYSTEM,MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),SYSTEM,MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
 
-&COLOR [u(cobj,mco)]=localize(u(strfirstof,u(player_config,%0,%1,%2),if(%4,,u(strfirstof,u(game_config,COLOR,%2),n))))
+&COLOR [u(cobj,mco)]=localize(u(strfirstof,u(player_config,%0,%1,%2),u(player_config,%0,COLOR,%2),if(%4,,u(strfirstof,u(game_config,COLOR,%2),n))))
 
 &HEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,HEADER,%4)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][u(setr,borderstar,ansi(u(color,%q<target>,COLOR,HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,COLOR,HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 

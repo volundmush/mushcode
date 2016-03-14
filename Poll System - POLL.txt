@@ -39,12 +39,12 @@ th u(NEWCOBJ,Poll Database <POLLDB>,polldb,u(cobj,poll),,1,WIZARD SAFE,INHERIT S
 
 &INC`VOTE [u(cobj,poll)]=@attach %!/INC`FINDPOLL=%0,1;@stop get(%q<poll1>/STATUS)=@attach %!/INC`MSG=%q<pollname1> is already closed.;@check match(A B C D E F,u(setr,letter,ucstr(before(%1,/))))=@attach %!/INC`MSG=ERROR: Must pick an option letter A-F.;@check isdbref(u(setr,accid,u(accid,%#)))=@attach %!/INC`MSG=ERROR: No account set for this character! Cannot vote.;@check hasattr(%q<poll1>/OPTION`%q<letter>)=@attach %!/INC`MSG=ERROR: %q<pollname1> does not have a %q<letter> option.;@attach %!/INC`MSG=You have voted for option %q<letter>.;th u(attrib_set,%q<poll1>,VOTER`%q<accid>,%q<letter>)
 
-&INC`OPEN [u(cobj,poll)]=@attach %!/INC`FINDPOLL=%0,1;@check get(%q<poll1>/STATUS)=@attach %!/INC`MSG=%q<pollname1> is already open.;@wipe %q<poll1>/STATUS;@attach %!/INC`MSG=Opened poll %q<pollname1>.;@attach %!/INC`MSG`CHAN=Poll '%q<pollname1>' has been opened!;@attach %!/INC`MSG=Poll '[u(pueblize,%q<pollname1>,+poll %q<pollname1>)]' is now open for voting!,u(lwhoid)
+&INC`OPEN [u(cobj,poll)]=@attach %!/INC`FINDPOLL=%0,1;@@ @check get(%q<poll1>/STATUS)=@attach %!/INC`MSG=%q<pollname1> is already open.;@wipe %q<poll1>/STATUS;@attach %!/INC`MSG=Opened poll %q<pollname1>.;@attach %!/INC`MSG`CHAN=Poll '%q<pollname1>' has been opened!;@attach %!/INC`MSG=Poll '[u(pueblize,%q<pollname1>,+poll %q<pollname1>)]' is now open for voting! [ansi(hw,+poll %q<pollname1>)] to view it!,u(lwhoid)
 
 &INC`CLOSE [u(cobj,poll)]=@attach %!/INC`FINDPOLL=%0,1;@stop get(%q<poll1>/STATUS)=@attach %!/INC`MSG=%q<pollname1> is already closed.;&STATUS %q<poll1>=1;@attach %!/INC`MSG=Closed poll %q<pollname1>.;@attach %!/INC`MSG`CHAN=Poll '%q<pollname1>' has been closed!;@attach %!/INC`MSG=Poll '[u(pueblize,%q<pollname1>,+poll %q<pollname1>)]' is now closed!,u(lwhoid)
 
 &OBJECT`DESTROY [u(cobj,poll)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&OBJECT`DESTROY`PURGETHEME [u(cobj,poll)]=@select/inline %2=PLAYER,{@dolist/inline u(filter,INCAST,children(u(cobj,polldb)),%b,%b,%0)={&CAST ##=u(filter,ISOBJID,get(##/CAST))}}
+&OBJECT`DESTROY`PURGEPOLL [u(cobj,poll)]=@select/inline %2=PLAYER,{@dolist/inline children(u(cobj,polldb))={@attach %!/WIPE=##,VOTER`[before(%0,:)]}}
 
 &SORTCREATED [u(cobj,poll)]=u(SORTCREATED`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTCREATED`PENNMUSH [u(cobj,poll)]=sortkey(#lambda/csecs(\%0),%0,n,%1,%2)

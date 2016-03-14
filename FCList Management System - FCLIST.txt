@@ -10,7 +10,7 @@ th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,WIZARD SA
 &CMD`+FCLIST`MAIN [u(cobj,fclist)]=th u(setq,com,lcstr(+%1));@attach %!/INC`GETSWITCH=%2;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
 @set [u(cobj,fclist)]/CMD`+FCLIST`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&SWITCHES`PLAYER [u(cobj,fclist)]=INFO
+&SWITCHES`PLAYER [u(cobj,fclist)]=INFO|MAIL
 &SWITCHES`ADMIN [u(cobj,fclist)]=CREATE|RENAME|DELETE|ASSIGN|REMOVE|DESCRIBE|STATUS|TYPE|SETINFO|CLEARINFO|UNASSIGNED
 
 &SYSTEM`NAME [u(cobj,fclist)]=FCLIST
@@ -54,6 +54,8 @@ th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,WIZARD SA
 
 &INC`REMOVE [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to assign.;@include %!/INC`CHECKPC=%0,1;@include %!/INC`FINDTHEME=%1,1;@check match(get(%q<t1>/D`THEME),%q<theme1>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not a member of %q<themename1>.;@attach %!/INC`REMFROMTHEME=%q<theme1>,%q<t1objid>;@attach %!/INC`MSG=You remove %q<t1name> from Theme '%q<themename1>';@attach %!/INC`MSG`CHAN=Removed %q<t1name> from Theme '[u(pueblize,%q<themename1>,+fclist %q<themename1>)]'
 
+&INC`MAIL [u(cobj,fclist)]=@include %!/INC`FINDTHEME=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Nothing entered to send!;th u(setq,cast,u(filter,isobjid,get(%q<theme1>/CAST)));@force/inplace %#={@mail %q<cast>=%1}
+
 &INC`UNASSIGNED [u(cobj,fclist)]=@check words(u(setr,unassigned,sort(lsearch(all,type,player,elock,!D`THEME:?*&!POWER^GUEST&!(FLAG^WIZARD|FLAG^ROYALTY)),namei)))=@attach %!/INC`MSG=No players lack theme assignments.;@pemit %#=u(HEADER,Unassigned Players);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(20 30,Name,Creation Time));@dolist/inline %q<unassigned>={@pemit %#=align(20 30,u(pueblize,u(moniker,##),+finger [name(##)]),ctime(##));@switch/inline eq(inum(0),words(%q<unassigned>))=1,{@pemit %#=u(SUBHEADER)}}
 
 &INC`EMPTY [u(cobj,fclist)]=@check words(u(setr,empty,sortname(u(filter,NOCAST,children(u(cobj,themedb))))))=@attach %!/INC`MSG=There are no empty themes.;@attach %!/INC`MSG=The following themes have no cast: [u(itemize,iter(%q<empty>,u(pueblize,name(%i0),+fclist [name(%i0)]),,|),|,and,\,)]
@@ -80,7 +82,7 @@ th u(newconf,config,FCLIST,TYPES,FC|OC|OFC|EFC|SFC,Character types available,LIS
 +help/add +fclist=[u(cobj,fclist)]/HLP`+FCLIST
 +help/category +fclist=Community
 +help/metatags +fclist=theme roster
-&HLP`+FCLIST [u(cobj,fclist)]=The FCList system tracks played characters belonging to themes used in [mudname()].%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+fclist)] - Lists all Themes in use.%R[ansi(hw,+fclist <theme>)] - List the roster of characters in a theme.%R[ansi(hw,+fclist/info <theme>)] - List details about a theme's listing.%R%RSTATUS:%ROpen - The character is available to play.%RClosing - The character is closing but staff is still accepting applications.%RPlayed - The character is played.%RDead - The character is dead and cannot be applied for.%RTemp - The character is being played temporarily for a plot or similar purpose.%R%RTYPE:%RFC - Feature Character. Created by official canon.%ROFC - Original Feature Character. Created for the game.%ROC - Original Character. Generally not listed.%REFC - Essential Feature Character. Crucial to the game's storytelling\, such as faction leaders.%RSFC - Special Feature Character.%R%RThis list is general and doesn't cover every game.)]
+&HLP`+FCLIST [u(cobj,fclist)]=The FCList system tracks played characters belonging to themes used in [mudname()].%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+fclist)] - Lists all Themes in use.%R[ansi(hw,+fclist <theme>)] - List the roster of characters in a theme.%R[ansi(hw,+fclist/info <theme>)] - List details about a theme's listing.%R[ansi(h,+fclist/mail <theme>=<message>)] - Send an entire cast a @mail easily. Works just like @mail <cast>=<message> so help @mail!%R%RSTATUS:%ROpen - The character is available to play.%RClosing - The character is closing but staff is still accepting applications.%RPlayed - The character is played.%RDead - The character is dead and cannot be applied for.%RTemp - The character is being played temporarily for a plot or similar purpose.%R%RTYPE:%RFC - Feature Character. Created by official canon.%ROFC - Original Feature Character. Created for the game.%ROC - Original Character. Generally not listed.%REFC - Essential Feature Character. Crucial to the game's storytelling\, such as faction leaders.%RSFC - Special Feature Character.%R%RThis list is general and doesn't cover every game.)]
 
 +shelp/add +fclist=[u(cobj,fclist)]/SHLP`+FCLIST
 +shelp/category +fclist=Character

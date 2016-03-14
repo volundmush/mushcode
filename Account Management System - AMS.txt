@@ -103,9 +103,9 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 
 @@ ******* IP SECTION *********
 
-&CMD`+IP`PENNMUSH [u(cobj,ams)]=$^(?\:\+)?(?\:ip|sitematch|matchsite)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IP`MAIN
+&CMD`+IP`PENNMUSH [u(cobj,ams)]=$^(?\:\+)?(?\:ip|sitematch|matchsite|site)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IP`MAIN
 @set [u(cobj,ams)]/CMD`+IP`PENNMUSH=regexp
-&CMD`+IP`RHOSTMUSH [u(cobj,ams)]=$^(?\:\+)?(?\:ip|sitematch|matchsite)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IP`MAIN
+&CMD`+IP`RHOSTMUSH [u(cobj,ams)]=$^(?\:\+)?(?\:ip|sitematch|matchsite|site)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IP`MAIN
 @set [u(cobj,ams)]/CMD`+IP`RHOSTMUSH=regexp
 &CMD`+IP`MAIN [u(cobj,ams)]=th u(setq,sysname,IP);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`IP`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
 @set [u(cobj,ams)]/CMD`+IP`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command

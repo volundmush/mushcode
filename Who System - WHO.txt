@@ -14,7 +14,7 @@ th u(NEWCOBJ,Who System <WHO>,who,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE
 &SYSTEM`NAME [u(cobj,who)]=WHO
 &SWITCHES`PLAYER [u(cobj,who)]=IDLE
 
-&INC`WHO`MAIN [u(cobj,who)]=@attach %!/INC`WHO`SORT`MAIN;@select/inline gt(strlen(%1),0)=1,{@attach %!/INC`WHO`SEARCH=%1};@attach %!/INC`WHO`LIST=,%1
+&INC`WHO`MAIN [u(cobj,who)]=@attach %!/INC`WHO`SORT`MAIN;@select/inline gt(strlen(%0),0)=1,{@attach %!/INC`WHO`SEARCH=%0};@attach %!/INC`WHO`LIST=,%0
 
 &FUN`WHO`MAIN [u(cobj,who)]=u(sortname,setunion(u(lwhoid,%#),))
 
@@ -68,7 +68,7 @@ th u(newconf,CONFIG,WHO,COLUMNS,NAMELINK~20|ALIAS~11|MAJORABBR~3|HIDEIDLE~>4|HID
 
 &INC`WHERE`HEADER`MAIN [u(cobj,who)]=@pemit %#=ansi(u(color,%#,WHO,COLUMN_NAMES),align(22 13 9 4 4 -6 7 8,Name,Alias,Fac,Idle,Conn,G,PL,Health))
 
-&FUN`WHERELINE`PLAYER [u(cobj,who)]=align(22 13 9 >4 >4 -6 7 8,u(pueblize,if(u(ishidden,%0),ansi(hx,name(%0)),u(moniker,%0)),+finger [name(%0)]),u(getalias,%0),u(strfirstof,iter(u(getproperty,%0,FACABBRs),%i0,|,\,%b),ansi(hx,N/A)),u(hideidle,%0),u(hideconn,%0),ucstr(left(default(%0/sex,?),1)),rjust(u(getproperty,%0,CURPL),2,0)/[u(getproperty,%0,PL)],if(lte(u(getproperty,%0,CURHP),0),ansi(hr,KO),u(getproperty,%0,CURHP)))
+&FUN`WHERELINE`PLAYER [u(cobj,who)]=align(22 13 9 >4 >4 -6 7 8,u(pueblize,if(u(ishidden,%0),ansi(hx,name(%0)),u(moniker,%0)),+finger [name(%0)]),u(getalias,%0),u(strfirstof,iter(u(getproperty,%0,MAJORABBR),%i0,|,\,%b),ansi(hx,N/A)),u(hideidle,%0),u(hideconn,%0),ucstr(left(default(%0/sex,?),1)),rjust(u(getproperty,%0,CURPL),2,0)/[u(getproperty,%0,PL)],if(lte(u(getproperty,%0,CURHP),0),ansi(hr,KO),u(getproperty,%0,CURHP)))
 
 &FUN`WHERELINE1 [u(cobj,who)]=align(30 1 [sub(u(width,%#),33)],if(match(%q<portable>,%0),pueblize(name(%0),+port %0),name(%0))[if(not(strmatch(%0,room(%0))),%R(IN [if(match(%q<portable>,room(%0)),u(pueblize,name(room(%0)),+port [room(%0)]),name(room(%0)))]))],ansi(u(color,%#,WHO,BORDER),-),u(itemize,iter(u(sortname,u(filter,FINDABLE,u(lvplayers,%0))),u(pueblize,u(moniker,%i0),+finger [name(%i0)])[if(hasflag(%i0,UNFINDABLE),\(Unfindable\))],,|),|,and,\,))
 

@@ -203,9 +203,9 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 &Q`SET`SCENEDESC [u(cobj,scene)]=UPDATE $SCENES$ SET scene_desc=? WHERE scene_id=?
 &Q`SET`SCENEPLOT [u(cobj,scene)]=UPDATE $SCENES$ SET plot_id=? WHERE scene_id=?
 
-&INC`SCENE`FINISH [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=u(strfirstof,%0,get(%#/D`SCENE`ACTIVE));@attach %!/INC`OWNCHECK=%q<scene>,%q<pid>;@attach %!/INC`DOSQL=SET`SCENESTATE,3,%q<scene>;@@ @attach %!/INC`DOSQL=SET`SCENEFINISH;@attach %!/INC`MESSAGE=%q<scene>,[u(moniker,%#)] has marked Scene %q<scene> Finished!
+&INC`SCENE`FINISH [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=u(strfirstof,%0,get(%#/D`SCENE`ACTIVE));@attach %!/INC`OWNCHECK=%q<scene>,%q<pid>;@attach %!/INC`DOSQL=SET`SCENESTATE,3,%q<scene>;@@ @attach %!/INC`DOSQL=SET`SCENEFINISH;@attach %!/INC`MESSAGE=%q<scene>,[u(moniker,%#)] has marked Scene %q<scene> Finished!;@attach %!/INC`MSG=Your scene is available at: [u(weblink,http://[u(game_config,SCENESYS,URL)][u(game_config,SCENESYS,PATH)]%q<scene>)]
 &INC`SCENE`PAUSE [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=u(strfirstof,%0,get(%#/D`SCENE`ACTIVE));@attach %!/INC`OWNCHECK=%q<scene>,%q<pid>;@attach %!/INC`DOSQL=SET`SCENESTATE,1,%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,[u(moniker,%#)] has marked Scene %q<scene> Paused!
-&INC`SCENE`CONTINUE [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=u(strfirstof,%0,get(%#/D`SCENE`ACTIVE));@attach %!/INC`OWNCHECK=%q<scene>,%q<pid>;@attach %!/INC`DOSQL=SET`SCENESTATE,0,%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,[u(moniker,%#)] has continued Scene %q<scene>! It will now record new poses.
+&INC`SCENE`CONTINUE [u(cobj,scene)]=@attach %!/INC`SCENE`MOVE;@attach %!/INC`DOSQL=SET`SCENESTATE,0,%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,[u(moniker,%#)] has continued Scene %q<scene>! It will now record new poses.;@attach %!/INC`SCENE`JOIN=%q<scene>
 
 &Q`SET`SCENESTATE [u(cobj,scene)]=UPDATE $SCENES$ SET scene_state='?' WHERE scene_id=?
 
@@ -232,14 +232,14 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 
 &INC`SCENE`OLD [u(cobj,scene)]=@attach %!/INC`SCENE`MAIN=%0,%1,%2,4
 
-&INC`SCENE`PLAYERLIST [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@attach %!/INC`USERCHECK=%q<t1objid>;@pemit %#=u(HEADER,if(strmatch(%q<t1objid>,%:),Your,%q<t1name>'s) [if(%3,Finished,Incomplete)] Scenes);th u(setq,target,%#);@pemit %#=ansi(u(color,%#,SCENESYS,COLUMN_NAMES),align(4 43 20 8,ID,Title,Owner,if(%3,Date,Status)));@select/inline v(game)=PennMUSH,{@dolist/inline u(mysql,GET`SCENEMINE%3,%q<pid>,%q<pid>)={th mapsql(FUN`SCENEMINE%3,u(SQL`FORMAT,GET`SCENEMINE3%3,##))};@pemit %#=u(SUBHEADER)},RhostMUSH,{@dolist/inline u(mysql,GET`SCENEMINE%3,%q<pid>,%q<pid>)={th u(setq,det,u(mysql2,GET`SCENEMINE3%3,##));@pemit %#=u(FUN`SCENEMINE%3,,elements(%q<det>,1,^),elements(%q<det>,2,^),elements(%q<det>,3,^),elements(%q<det>,4,^))}};@pemit %#=u(SUBHEADER)
+&INC`SCENE`PLAYERLIST [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@attach %!/INC`USERCHECK=%q<t1objid>;@pemit %#=u(HEADER,if(strmatch(%q<t1objid>,%:),Your,%q<t1name>'s) [if(%3,Finished,Incomplete)] Scenes);th u(setq,target,%#);@pemit %#=ansi(u(color,%#,SCENESYS,COLUMN_NAMES),align(4 41 20 10,ID,Title,Owner,if(%3,Date,Status)));@select/inline v(game)=PennMUSH,{@dolist/inline u(mysql,GET`SCENEMINE%3,%q<pid>,%q<pid>)={th mapsql(FUN`SCENEMINE%3,u(SQL`FORMAT,GET`SCENEMINE3%3,##))};@pemit %#=u(SUBHEADER)},RhostMUSH,{@dolist/inline u(mysql,GET`SCENEMINE%3,%q<pid>,%q<pid>)={th u(setq,det,u(mysql2,GET`SCENEMINE3%3,##));@pemit %#=u(FUN`SCENEMINE%3,,elements(%q<det>,1,^),elements(%q<det>,2,^),elements(%q<det>,3,^),elements(%q<det>,4,^))}};@pemit %#=u(SUBHEADER)
 
-&FUN`SCENEMINE [u(cobj,scene)]=pemit(%#,align(4 43 20 8,u(pueblize,%1,+scene %1),%2,%3,switch(%4,0,Active,1,Paused,2,Unfinished,3,Finished,???)))
+&FUN`SCENEMINE [u(cobj,scene)]=pemit(%#,align(4 41 20 10,u(pueblize,%1,+scene %1),%2,%3,switch(%4,0,Active,1,Paused,2,Unfinished,3,Finished,???)))
 
-&FUN`SCENEMINE4 [u(cobj,scene)]=pemit(%#,align(4 43 20 8,u(pueblize,%1,+scene %1),%2,%3,u(choosegame,timefmt($m/$d/$y,%4,u(gettz,%#)),ptimefmt($m/$d/$y,%4,u(gettz,%#)))))
+&FUN`SCENEMINE4 [u(cobj,scene)]=pemit(%#,align(4 41 20 10,u(pueblize,%1,+scene %1),%2,%3,u(choosegame,timefmt($m/$d/$y,%4,u(gettz,%#)),ptimefmt($m/$d/$y,%4,u(gettz,%#)))))
 
-&Q`GET`SCENEMINE [u(cobj,scene)]=SELECT DISTINCT scenes.scene_id FROM $SCENES$ AS scenes LEFT JOIN $POSES$ AS poses ON scenes.scene_id=poses.scene_id WHERE (scenes.player_id=? OR poses.player_id=?) AND scene_state in ('0','1','2')
-&Q`GET`SCENEMINE4 [u(cobj,scene)]=SELECT DISTINCT scenes.scene_id FROM $SCENES$ AS scenes LEFT JOIN $POSES$ AS poses ON scenes.scene_id=poses.scene_id WHERE (scenes.player_id=? OR poses.player_id=?) AND scene_state='3'
+&Q`GET`SCENEMINE [u(cobj,scene)]=SELECT DISTINCT scenes.scene_id FROM $SCENES$ AS scenes LEFT JOIN $POSES$ AS poses ON scenes.scene_id=poses.scene_id WHERE (scenes.player_id=? OR poses.player_id=?) AND scene_state in ('0','1','2') ORDER BY scenes.scene_id
+&Q`GET`SCENEMINE4 [u(cobj,scene)]=SELECT DISTINCT scenes.scene_id FROM $SCENES$ AS scenes LEFT JOIN $POSES$ AS poses ON scenes.scene_id=poses.scene_id WHERE (scenes.player_id=? OR poses.player_id=?) AND scene_state='3' ORDER BY scenes.scene_id
 
 &Q`GET`SCENEMINE3 [u(cobj,scene)]=SELECT scene_id,scene_title,player_name,scene_state FROM $SCENES$ NATURAL LEFT JOIN $PLAYERS$ WHERE scene_id=?
 
@@ -293,11 +293,11 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 
 &INC`SCENES`MINE [u(cobj,scene)]=@attach %!/INC`SCENES`LIST=1
 
-&INC`SCENES`LIST [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@pemit %#=u(HEADER,if(%0,Your%b)Current Schedule - [u(choosegame,timefmt($Z,,u(gettz,%#)),ptimefmt($Z,,u(gettz,%#)))]);@dolist/inline if(%0,u(filter,SCENESMINE,u(mysql,GET`UPCOMING),%b,%b,alts(%#)),u(mysql,GET`UPCOMING))={th u(setq,time,u(mysql,get`scheduletime,##));@select/inline not(strmatch(%q<last>,u(setr,last,u(choosegame,timefmt($a $b $d $Y $Z,%q<time>,u(gettz,%#)),ptimefmt($a $b $d $Y $Z,%q<time>,u(gettz,%#))))))=1,{@pemit %#=u(HEADER,%q<last>)};@pemit %#=u(FUN`FORMATSCHEDULE2,%q<pid>,##,u(mysql,get`scheduletitle,##),u(mysql,get`scheduleplayername,##),%q<time>,u(mysql,get`schedownerid,##))};@pemit %#=u(SUBHEADER)
+&INC`SCENES`LIST [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@pemit %#=u(HEADER,if(%0,Your%b)Current Schedule - [u(choosegame,timefmt($Z,,u(gettz,%#)),ptimefmt($Z,,u(gettz,%#)))]);@dolist/inline if(%0,u(filter,SCENESMINE,u(mysql,GET`UPCOMING),%b,%b,u(alts,%:)),u(mysql,GET`UPCOMING))={th u(setq,time,u(mysql,get`scheduletime,##));@select/inline not(strmatch(%q<last>,u(setr,last,u(choosegame,timefmt($a $b $d $Y $Z,%q<time>,u(gettz,%#)),ptimefmt($a $b $d $Y $Z,%q<time>,u(gettz,%#))))))=1,{@pemit %#=u(HEADER,%q<last>)};@pemit %#=u(FUN`FORMATSCHEDULE2,%q<pid>,##,u(mysql,get`scheduletitle,##),u(mysql,get`scheduleplayername,##),%q<time>,u(mysql,get`schedownerid,##))};@pemit %#=u(SUBHEADER)
 
 &FIL`SCENESMINE [u(cobj,scene)]=cor(t(words(setinter(u(mysql,get`SCHEDOWNEROBJ,%0),%1))),t(words(setinter(u(mysql,get`tagobjids,%0),%1))))
 
-&FUN`FORMATSCHEDULE2 [u(cobj,scene)]=align(3 4 40 20 7,ljust(switch(1,eq(%0,%5),ansi(hg,*),t(words(setinter(u(mysql,get`playerobjid,%5),alts(%:)))),ansi(hg,*),t(u(mysql,get`tagcheck,%1,%0)),ansi(hr,*),t(words(setinter(u(mysql,get`tagobjids,%1),alts(%:)))),ansi(c,*)),1)[u(mysql,get`tagcount,%1)],u(pueblize,%1,+schedule %1),%2,%3,elements(u(fancytime,%4,%#),3))
+&FUN`FORMATSCHEDULE2 [u(cobj,scene)]=align(3 4 40 20 7,ljust(switch(1,eq(%0,%5),ansi(hg,*),t(words(setinter(u(mysql,get`playerobjid,%5),u(alts,%:)))),ansi(hg,*),t(u(mysql,get`tagcheck,%1,%0)),ansi(hr,*),t(words(setinter(u(mysql,get`tagobjids,%1),u(alts,%:)))),ansi(c,*)),1)[u(mysql,get`tagcount,%1)],u(pueblize,%1,+schedule %1),%2,%3,elements(u(fancytime,%4,%#),3))
 
 &Q`GET`TAGCOUNT [u(cobj,scene)]=SELECT count(tag_id) FROM $TAGS$ WHERE schedule_id=?
 &Q`GET`TAGOBJIDS [u(cobj,scene)]=SELECT DISTINCT objid from $TAGS$ NATURAL LEFT JOIN $PLAYERS$ WHERE schedule_id=?
@@ -314,9 +314,9 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 
 &INC`OWNSCHED [u(cobj,scene)]=@check cor(u(isadmin,%#),eq(u(mysql,get`schedownerid,%0),%1),if(%2,eq(u(mysql,get`plotrunner,%2),%0)))=@attach %!/INC`MSG=Permission denied.
 &Q`GET`SCHEDOWNERID [u(cobj,scene)]=SELECT player_id from $SCHEDULE$ WHERE schedule_id=?
-&Q`GET`SCHEDOWNEROBJID [u(cobj,scene)]=SELECT player_id from $SCHEDULE$ NATURAL LEFT JOIN $PLAYERS$ WHERE schedule_id=?
+&Q`GET`SCHEDOWNEROBJID [u(cobj,scene)]=SELECT objid from $SCHEDULE$ NATURAL LEFT JOIN $PLAYERS$ WHERE schedule_id=?
 
-&INC`SCENES`DETAILS [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCHED=%0;@pemit %#=u(HEADER,Scheduled ID %q<schedule>: [u(mysql,get`scheduletitle,%q<schedule>)]);@pemit %#=ansi(h,Owner:) [u(mysql,get`scheduleplayername,%q<schedule>)]%R[u(mysql,get`scheduledesc,%q<schedule>)];@pemit %#=u(SEPARATOR,Scheduled Time);@pemit %#=align(-38 -38,u(choosegame,timefmt(u(setr,fmt,$a $b $d $I:$M$p $Z),u(setr,time,u(mysql,get`scheduletime,%q<schedule>)),UTC),ptimefmt(u(setr,fmt,$a $b $d $I:$M$p $Z),u(setr,time,u(mysql,get`scheduletime,%q<schedule>)),UTC)),u(choosegame,timefmt(%q<fmt>,%q<time>,u(gettz,%#)),ptimefmt(%q<fmt>,%q<time>,u(gettz,%#))));@select/inline cand(words(u(setr,interest,u(mysql,get`interest,%q<schedule>))),cor(u(isadmin,%#),eq(u(mysql,get`schedownerid,%q<schedule>),%q<pid>)))=1,{@pemit %#=u(SEPARATOR,Interested Players);@pemit %#=u(table,iter(%q<interest>,u(moniker,%i0),%b,|),30,u(width,%#),|)};@pemit %#=u(SUBHEADER)
+&INC`SCENES`DETAILS [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCHED=%0;@pemit %#=u(HEADER,Scheduled ID %q<schedule>: [u(mysql,get`scheduletitle,%q<schedule>)]);@pemit %#=ansi(h,Owner:) [u(mysql,get`scheduleplayername,%q<schedule>)]%R[u(mysql,get`scheduledesc,%q<schedule>)];@pemit %#=u(SEPARATOR,Scheduled Time);@pemit %#=align(-38 -38,u(choosegame,timefmt(u(setr,fmt,$a $b $d $I:$M$p $Z),u(setr,time,u(mysql,get`scheduletime,%q<schedule>)),UTC),ptimefmt(u(setr,fmt,$a $b $d $I:$M$p $Z),u(setr,time,u(mysql,get`scheduletime,%q<schedule>)),UTC)),u(choosegame,timefmt(%q<fmt>,%q<time>,u(gettz,%#)),ptimefmt(%q<fmt>,%q<time>,u(gettz,%#))));@select/inline cand(words(u(setr,interest,u(mysql,get`interest,%q<schedule>))),cor(u(isadmin,%#),match(u(alts,%:),u(mysql,get`SCHEDOWNEROBJID,%q<schedule>))))=1,{@pemit %#=u(SEPARATOR,Interested Players);@pemit %#=u(table,iter(%q<interest>,u(moniker,%i0),%b,|),30,u(width,%#),|)};@pemit %#=u(SUBHEADER)
 
 &FUN`INTERESTPLAY [u(cobj,scene)]=nspemit(%#,if(isobjid(%2),%1,%1 (deleted)))
 &Q`GET`INTEREST [u(cobj,scene)]=SELECT objid from $TAGS$ NATURAL LEFT JOIN $PLAYERS$ WHERE schedule_id=?

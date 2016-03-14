@@ -14,7 +14,7 @@ th u(NEWCONF,config,CHANNELS,JOIN_GUESTS,,Default Channels for Guests.,LIST)
 
 &PLAYER`DISCONNECT`TELGUEST [u(cobj,guest)]=@stop %1;@select/inline u(isguest,%0)=1,{@select/inline v(game)=PennMUSH,{@tel/silent %0=u(game_config,NAVIGATION,GUEST_START,#0)},RhostMUSH,{@tel/quiet %0=u(game_config,NAVIGATION,GUEST_START,#0)}}
 
-&PLAYER`CONNECT`GUEST [u(cobj,guest)]=@check u(isguest,%0);th u(setq,chan,first(u(setr,chans,u(game_config,CHANNELS,JOIN_GUESTS)),|));@wait 2=@attach %!/INC`MSG=Welcome to [mudname()]\, [name(%0)]! You can speak on the %q<chan> channel with +[left(%q<chan>,1)] <text here>. You can give yourself a custom Guest name by typing +myname <word>.,%0;@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))] connected to [mudname()]!,%q<chans>,,1,,1
+&PLAYER`CONNECT`GUEST [u(cobj,guest)]=@check u(isguest,%0);th u(setq,chan,first(u(setr,chans,u(game_config,CHANNELS,JOIN_GUESTS)),|));@wait 4=@attach %!/INC`MSG=Welcome to [mudname()]\, [name(%0)]! You can speak on the %q<chan> channel with [ansi(h,+[left(%q<chan>,1)] <text here>)]. You can give yourself a custom Guest name by typing [ansi(h,+myname <word>)]. You can find our website at [u(weblink,mudurl())],%0;@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))] connected to [mudname()]!,%q<chans>,,1,,1
 
 &CMD`+MYNAME [u(cobj,guest)]=$+myname *:@check u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Guest only!;@check valid(playername,%0 Guest)=@attach %!/INC`MSG=Sorry\, you may not rename yourself to that. Try something simpler.;@select/inline hasattr(%#/D`OLDNAME)=0,{&D`OLDNAME %#=[name(%#)]};@attach %!/INC`MSG`CHAN=[ansi(h,%n)] renamed to %0 Guest,u(game_config,CHANNELS,JOIN_GUESTS),,1,,1;@name %#=%0 Guest;@attach %!/INC`MSG=You are now known as '%0 Guest'.
 
