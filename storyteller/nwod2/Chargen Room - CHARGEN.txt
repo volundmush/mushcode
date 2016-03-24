@@ -1,29 +1,29 @@
 @@ DEPENDENCIES - CORE
 
-@select/inline isdbref(u(cobj,chargen))=0,{@dig/teleport Chargen;th u(attrib_set,u(cobj,mco),COBJ`CHARGEN,u(objid,%l));@parent %l=u(cobj,mco)}
+@select/inline isdbref(u(cobj,chargen))=0,{@dig/teleport Chargen;th u(attrib_set`%va,u(cobj,mco),COBJ`CHARGEN,u(objid,%l));@parent %l=u(cobj,mco)}
 @select/inline v(game)=PennMUSH,{@set u(cobj,chargen)=WIZARD !NO COMMAND},RhostMUSH,{@set u(cobj,chargen)=INHERIT SIDEFX !NO COMMAND}
 
 @cpattr u(cobj,ancestor_room)/HEADER=u(cobj,chargen)/HEADER
 
-&CMD`+PAGE [u(cobj,chargen)]=$^\+page(?\: +(.+))?$:@check strlen(%1)=@attach %!/INC`MSG=ERROR: +page requires a page to turn to. Your options are: [u(itemize,u(filter,ISPAGE,u(lattr,%!/CG`*,|),|,|),|,and,\,)];@check u(valnum,%1)=@attach %!/INC`MSG=ERROR: Pages must be whole\, positive numbers.;@check match(u(filter,ISPAGE,u(lattr,%!/CG`*,|),|,|),CG`%1,|)=@attach %!/INC`MSG=ERROR: Page not found!;th u(setstat,%#,D`CHARGEN,Page,CG`%1);@force/inline %#=look;@attach %!/INC`MSG=You are now viewing Page %1!
+&CMD`+PAGE [u(cobj,chargen)]=$^\+page(?\: +(.+))?$:@check strlen(%1)=@attach %!/INC`MSG=ERROR: +page requires a page to turn to. Your options are: [u(itemize`%va,u(filter,ISPAGE,u(lattr`%va,%!/CG`*,|),|,|),|,and,\,)];@check u(valnum,%1)=@attach %!/INC`MSG=ERROR: Pages must be whole\, positive numbers.;@check match(u(filter,ISPAGE,u(lattr`%va,%!/CG`*,|),|,|),CG`%1,|)=@attach %!/INC`MSG=ERROR: Page not found!;th u(setstat`%va,%#,D`CHARGEN,Page,CG`%1);@force/inline %#=look;@attach %!/INC`MSG=You are now viewing Page %1!
 @set [u(cobj,chargen)]/CMD`+PAGE=regexp
 
 &FIL`ISPAGE [u(cobj,chargen)]=isint(last(%0,`))
 
 &SYSTEM`NAME [u(cobj,chargen)]=CHARGEN
 
-@desc [u(cobj,chargen)]=%TWelcome to [mudname()] Chargen! In this room you will setup your sheet and other aspects and prepare for admin review for approval. Remember to check out any House Rules at [u(weblink,mudurl())]%R%R%T[ansi(h,INSTRUCTIONS:)] Set your sheet as it would be after spending all your available points, including starting experience awarded by house rules. Approval will require a +pinfo (+help +info) file detailing your spends so keep track of how you spend your XP.%R%R%TTo see your sheet, type [ansi(h,+sheet)]%R[u(u(strfirstof,u(getstat,%#,D`CHARGEN,Page),CG`1),getclass(%#))]%R[u(SEPARATOR,Chargen)]%RViewing Page [ansi(h,u(strfirstof,last(u(getstat,%#,D`CHARGEN,Page),`),1))] of [ansi(h,u(lmax,edit(u(filter,ISPAGE,u(lattr,%!/CG`*)),CG`,)))]. Use [ansi(h,+page <number>)] to change. For example, +page 2.%RIf you'd like to undo certain steps, use [ansi(h,+reset)] to view your options.
+@desc [u(cobj,chargen)]=%TWelcome to [mudname()] Chargen! In this room you will setup your sheet and other aspects and prepare for admin review for approval. Remember to check out any House Rules at [u(weblink`%va,mudurl())]%R%R%T[ansi(h,INSTRUCTIONS:)] Set your sheet as it would be after spending all your available points, including starting experience awarded by house rules. Approval will require a +pinfo (+help +info) file detailing your spends so keep track of how you spend your XP.%R%R%TTo see your sheet, type [ansi(h,+sheet)]%R[u(u(strfirstof`%va,u(getstat`%va,%#,D`CHARGEN,Page),CG`1),getclass(%#))]%R[u(SEPARATOR,Chargen)]%RViewing Page [ansi(h,u(strfirstof`%va,last(u(getstat`%va,%#,D`CHARGEN,Page),`),1))] of [ansi(h,u(lmax`%va,edit(u(filter,ISPAGE,u(lattr`%va,%!/CG`*)),CG`,)))]. Use [ansi(h,+page <number>)] to change. For example, +page 2.%RIf you'd like to undo certain steps, use [ansi(h,+reset)] to view your options.
 
-&FUN`STATS [u(cobj,chargen)]=[u(SEPARATOR,Progress)]%R[ansi(h,ATTRIBUTES:)] [rjust(u(FUN`COUNT,%#,ATTRIBUTES),2,0)]. Physical/Social/Mental: [rjust(add(u(getstat,%#,D`ATTRIBUTES,Strength),u(getstat,%#,D`ATTRIBUTES,Dexterity),u(getstat,%#,D`ATTRIBUTES,Stamina)),2,0)]/[rjust(add(u(getstat,%#,D`ATTRIBUTES,Charisma),u(getstat,%#,D`ATTRIBUTES,Manipulation),u(getstat,%#,D`ATTRIBUTES,Appearance)),2,0)]/[rjust(add(u(getstat,%#,D`ATTRIBUTES,Perception),u(getstat,%#,D`ATTRIBUTES,Intelligence),u(getstat,%#,D`ATTRIBUTES,Wits)),2,0)]%R[ansi(h,ABILITIES:)] [rjust(add(u(FUN`COUNT,%#,ABILITIES),u(FUN`COUNT,%#,STYLES),u(FUN`COUNT,%#,CRAFTS)),2,0)]/[rjust(u(strfirstof,v(MAX`ABILITIES`[u(setr,class,getclass(%#))]),??),2,0)]%R[ansi(h,BACKGROUNDS:)] [rjust(u(FUN`COUNT`BACKGROUNDS,%#),2,0)]/[rjust(u(strfirstof,v(MAX`MERITS`%q<class>),??),2,0)]%R[ansi(h,CHARMS:)] [rjust(add(u(FUN`COUNT`CHARMS,%#),u(FUN`COUNT`SPELLS,%#)),2,0)]/[rjust(u(strfirstof,v(MAX`CHARMS`%q<class>),??),2,0)]
+&FUN`STATS [u(cobj,chargen)]=[u(SEPARATOR,Progress)]%R[ansi(h,ATTRIBUTES:)] [rjust(u(FUN`COUNT,%#,ATTRIBUTES),2,0)]. Physical/Social/Mental: [rjust(add(u(getstat`%va,%#,D`ATTRIBUTES,Strength),u(getstat`%va,%#,D`ATTRIBUTES,Dexterity),u(getstat`%va,%#,D`ATTRIBUTES,Stamina)),2,0)]/[rjust(add(u(getstat`%va,%#,D`ATTRIBUTES,Charisma),u(getstat`%va,%#,D`ATTRIBUTES,Manipulation),u(getstat`%va,%#,D`ATTRIBUTES,Appearance)),2,0)]/[rjust(add(u(getstat`%va,%#,D`ATTRIBUTES,Perception),u(getstat`%va,%#,D`ATTRIBUTES,Intelligence),u(getstat`%va,%#,D`ATTRIBUTES,Wits)),2,0)]%R[ansi(h,ABILITIES:)] [rjust(add(u(FUN`COUNT,%#,ABILITIES),u(FUN`COUNT,%#,STYLES),u(FUN`COUNT,%#,CRAFTS)),2,0)]/[rjust(u(strfirstof`%va,v(MAX`ABILITIES`[u(setr`%va,class,getclass(%#))]),??),2,0)]%R[ansi(h,BACKGROUNDS:)] [rjust(u(FUN`COUNT`BACKGROUNDS,%#),2,0)]/[rjust(u(strfirstof`%va,v(MAX`MERITS`%q<class>),??),2,0)]%R[ansi(h,CHARMS:)] [rjust(add(u(FUN`COUNT`CHARMS,%#),u(FUN`COUNT`SPELLS,%#)),2,0)]/[rjust(u(strfirstof`%va,v(MAX`CHARMS`%q<class>),??),2,0)]
 
-&FUN`COUNT [u(cobj,chargen)]=u(ladd,iter(get(%0/D`%1),last(%i0,~),|,%b))
-&FUN`COUNT`BACKGROUNDS [u(cobj,chargen)]=u(ladd,iter(u(lattr,%0/D`BACKGROUNDS`*`RANK),get(%0/%i0)))
-&FUN`COUNT`CHARMS [u(cobj,chargen)]=u(ladd,iter(u(lattr,%0/D`CHARMS`*`*),words(get(%0/%i0),|)))
-&FUN`COUNT`SPELLS [u(cobj,chargen)]=u(ladd,iter(u(lattr,%0/D`SPELLS`*),words(get(%0/%i0),|)))
+&FUN`COUNT [u(cobj,chargen)]=u(ladd`%va,iter(get(%0/D`%1),last(%i0,~),|,%b))
+&FUN`COUNT`BACKGROUNDS [u(cobj,chargen)]=u(ladd`%va,iter(u(lattr`%va,%0/D`BACKGROUNDS`*`RANK),get(%0/%i0)))
+&FUN`COUNT`CHARMS [u(cobj,chargen)]=u(ladd`%va,iter(u(lattr`%va,%0/D`CHARMS`*`*),words(get(%0/%i0),|)))
+&FUN`COUNT`SPELLS [u(cobj,chargen)]=u(ladd`%va,iter(u(lattr`%va,%0/D`SPELLS`*),words(get(%0/%i0),|)))
 
 &CG [u(cobj,chargen)]=@@ Empty attrib for Rhost.
 
-&CG`1 [u(cobj,chargen)]=[u(SEPARATOR,Step 1: Concept and Class)]%R[ansi(h,+class <type>)]%R%TYour choices are: [u(itemize,u(setr,classes,u(game_config,STORYTELLER,CLASSES)),|,and,\,)][if(hasattr(%!/CG`1`%0),%R%R[u(CG`1`%0)])]%R%R[ansi(h,&sex me=<gender>)] to set your Gender (Male, Female, etc)
+&CG`1 [u(cobj,chargen)]=[u(SEPARATOR,Step 1: Concept and Class)]%R[ansi(h,+class <type>)]%R%TYour choices are: [u(itemize`%va,u(setr`%va,classes,u(game_config,STORYTELLER,CLASSES)),|,and,\,)][if(hasattr(%!/CG`1`%0),%R%R[u(CG`1`%0)])]%R%R[ansi(h,&sex me=<gender>)] to set your Gender (Male, Female, etc)
 
 &CG`1`MORTAL [u(cobj,chargen)]=[ansi(h,+virtue <virtue>)] to set your Virtue.%R%R[ansi(h,+vice <vice>)] to set your Vice.
 &CG`1`VAMPIRE [u(cobj,chargen)]=[u(CG`1`CASTE,clan)]%R%R[ansi(h,+mask <mask>)] to set your Mask.%R[ansi(h,+dirge <dirge>)] to choose your Dirge.%R[ansi(h,+covenant <covenant>)] to choose your Covenant.
@@ -34,18 +34,18 @@
 &CG`1`DEMON [u(cobj,chargen)]=[u(CG`1`CASTE,incarnation)]%R%R[ansi(h,+agenda <agenda>)] to set your Agenda.%R%RPlease set your stats for your primary Cover. Additional Covers can be created by admin later.
 &CG`1`MAGE [u(cobj,chargen)]=[u(CG`1`CASTE,path)]%R%R[ansi(h,+virtue <virtue>)] to set your Virtue.%R%R[ansi(h,+vice <vice>)] to set your Vice.%R%R[ansi(h,+order <order>)] to set your Order.%R[ansi(h,+legacy <legacy>)] to set your Legacy.
 
-&CG`1`CASTE [u(Cobj,chargen)]=[ansi(h,+%0 <%0>)] to set your [u(capnames,%0)].%R%TYour choices are: [u(itemize,get(u(cobj,data)/[getclass(%#)]),|,and,\,)]
+&CG`1`CASTE [u(Cobj,chargen)]=[ansi(h,+%0 <%0>)] to set your [u(capnames,%0)].%R%TYour choices are: [u(itemize`%va,get(u(cobj,data)/[getclass(%#)]),|,and,\,)]
 
 &CMD`+CLASS [u(cobj,chargen)]=$^\+(?\:sphere|class)(?\: +(.+))?$:@attach u(cobj,data)/DO`SET`CLASS=%#,,%1;@force/inline %#=look;@attach %!/INC`MSG=You are now a [ansi(h,u(capnames,%q<find>))].
 @set [u(cobj,chargen)]/CMD`+class=regexp
 
-&CMD`+CASTE [u(cobj,chargen)]=$^\+(clan|auspice|path|seeming|incarnation|family)(?\: +(.+))?$:@attach %!/INC`PARTIAL=%2,get(u(cobj,data)/[getclass(%#)]),|,choice,choice;th u(setstat,%#,D`INFO,ucstr(%1),%q<choice>);@attach %!/INC`MSG=Your [u(capnames,%1)] is now [ansi(h,u(capnames,%q<choice>))].
+&CMD`+CASTE [u(cobj,chargen)]=$^\+(clan|auspice|path|seeming|incarnation|family)(?\: +(.+))?$:@attach %!/INC`PARTIAL=%2,get(u(cobj,data)/[getclass(%#)]),|,choice,choice;th u(setstat`%va,%#,D`INFO,ucstr(%1),%q<choice>);@attach %!/INC`MSG=Your [u(capnames,%1)] is now [ansi(h,u(capnames,%q<choice>))].
 @set [u(cobj,chargen)]/CMD`+CASTE=regexp
 
-&CMD`INFOSET [u(cobj,chargen)]=$^\+(virtue|vice|mask|dirge|covenant|bloodline|blood|bone|lodge|tribe|profession|tier|organization|hunger|life|legend|court|kith|agenda|order|legacy)(?\: +(.+))?$:th u(setq,type,u(capnames,%1));@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Class!;th u(setstat,%#,D`INFO,%q<type>,%2)
+&CMD`INFOSET [u(cobj,chargen)]=$^\+(virtue|vice|mask|dirge|covenant|bloodline|blood|bone|lodge|tribe|profession|tier|organization|hunger|life|legend|court|kith|agenda|order|legacy)(?\: +(.+))?$:th u(setq`%va,type,u(capnames,%1));@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Class!;th u(setstat`%va,%#,D`INFO,%q<type>,%2)
 @set [u(cobj,chargen)]/CMD`INFOSET=regexp
 
-&CG`2 [u(cobj,chargen)]=[u(SEPARATOR,Step 2: Attributes)]%R%tTo set an attribute:%r%r[ansi(h,%t+attr <attribute>=<value>)] (<attribute> may be a partial match. <value> must be 0 or greater.)%R%TYour choices are: [u(itemize,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,and,\,)]%R%R%TAll Attributes begin with 1 dot free, unless your Template states otherwise.%r%r%tIn order of Primary/Secondary/Tertiary...[udefault(CG`2`[getclass(%#)],Your Class appears unset or has no data entered.)]
+&CG`2 [u(cobj,chargen)]=[u(SEPARATOR,Step 2: Attributes)]%R%tTo set an attribute:%r%r[ansi(h,%t+attr <attribute>=<value>)] (<attribute> may be a partial match. <value> must be 0 or greater.)%R%TYour choices are: [u(itemize`%va,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,and,\,)]%R%R%TAll Attributes begin with 1 dot free, unless your Template states otherwise.%r%r%tIn order of Primary/Secondary/Tertiary...[udefault(CG`2`[getclass(%#)],Your Class appears unset or has no data entered.)]
 
 &CG`2`MORTAL [u(cobj,chargen)]=Mortals receive 5/4/3 Attribute points for Primary/Secondary/Social.
 &CG`2`VAMPIRE [u(cobj,chargen)]=Vampires receive 5/4/3 Attribute points for Primary/Secondary/Social.
@@ -70,14 +70,14 @@
 &CG`3`DEMON [u(cobj,chargen)]=Demons receive 11/7/4 Skill points for Primary/Secondary/Social.%R%R[u(CG`3`SKILL)]
 &CG`3`MAGE [u(cobj,chargen)]=Mages receive 11/7/4 Skill points for Primary/Secondary/Social.%R%R[u(CG`3`SKILL)]
 
-&CG`3`SKILL [u(cobj,chargen)]=%t[ansi(h,+skill <skill>=<value>)] to set a Skill (<skill> may be a partial match, <value> must be a number 0 or higher.)%R%t[ansi(h,+spec <skill>/<specialization>=<points>)] to set a Specialty. (Set to 1\, no higher.)%R%TYour Skill choices are: [u(itemize,u(capnames,u(u(cobj,data)/FUN`GET`SKILLS)),|,and,\,)]
+&CG`3`SKILL [u(cobj,chargen)]=%t[ansi(h,+skill <skill>=<value>)] to set a Skill (<skill> may be a partial match, <value> must be a number 0 or higher.)%R%t[ansi(h,+spec <skill>/<specialization>=<points>)] to set a Specialty. (Set to 1\, no higher.)%R%TYour Skill choices are: [u(itemize`%va,u(capnames,u(u(cobj,data)/FUN`GET`SKILLS)),|,and,\,)]
 
 &CG`3`ASSET [u(cobj,chargen)]=%t[ansi(h,+asset <Ability>)] to set a Skill as an Asset Skill.%r%t[ansi(h,+unasset <skill>)] to unset an Asset Skill.
 
 &CMD`+SKILL [u(cobj,chargen)]=$^\+skill(?\: +(.+?))?(?\:=(.+))?$:@attach u(cobj,data)/DO`SET`SKILL=%#,%1,if(eq(%2,0),,%2);@attach %!/INC`MSG=[if(%2,You set [ansi(h,u(capnames,%q<find>))] to %2,You remove [ansi(h,u(capnames,%q<find>))])].
 @set [u(cobj,chargen)]/CMD`+SKILL=regexp
 
-&CMD`+ASSET [u(cobj,chargen)]=$^\+(un)?asset(?\: +(.+))?$:th switch(%1,un,u(setq,mode,rem),u(setq,mode,add));th u(setq,mode2,switch(fav,fav,FAVORED,sup,SUPERNAL));@attach u(cobj,data)/DO`%q<mode>`%q<mode2>=%#,SKILLS,%3;@attach %!/INC`MSG=You [switch(%q<mode>,add,gained,removed)] an Asset Skill: [u(itemize,iter(%q<entry>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)].
+&CMD`+ASSET [u(cobj,chargen)]=$^\+(un)?asset(?\: +(.+))?$:th switch(%1,un,u(setq`%va,mode,rem),u(setq`%va,mode,add));th u(setq`%va,mode2,switch(fav,fav,FAVORED,sup,SUPERNAL));@attach u(cobj,data)/DO`%q<mode>`%q<mode2>=%#,SKILLS,%3;@attach %!/INC`MSG=You [switch(%q<mode>,add,gained,removed)] an Asset Skill: [u(itemize`%va,iter(%q<entry>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)].
 @set [u(cobj,chargen)]/CMD`+ASSET=regexp
 
 &CMD`+SPEC [u(cobj,chargen)]=$^\+spec(?\: +(.+?))?(?\:=(.+))?$:@attach u(cobj,data)/DO`SET`SPECIALTY=%#,%1,if(eq(%2,0),,%2);@select/inline t(%2)=1,{@attach %!/INC`MSG=You set [ansi(h,u(capnames,%q<find>/%q<spec>))] to [ansi(h,%2)]},0,{@attach %!/INC`MSG=You remove [ansi(h,u(capnames,%q<find>/%q<spec>))]}
@@ -102,8 +102,8 @@
 &CG`5 [u(cobj,chargen)]=[u(SEPARATOR,Step 5: Advantages)][if(cand(strlen(getclass(%#)),hasattr(%!/CG`5`[getclass(%#)])),%R%R[u(CG`5`[getclass(%#)])])]
 
 &CG`5`MORTAL [u(cobj,chargen)]=[if(ghoul(%#),u(CG`5`VAMPIRE),Mortals have nothing more to do here! Move on.)]
-&CG`5`VAMPIRE [u(cobj,chargen)]=Vampires begin with 3 dots to distribute for disciplines. Two dots must be put into clan disciplines. The third is free to use as you wish.%R%R[ansi(h,+discipline <discipline>=<rank>)] to set your disciplines.%R%TChoices: [u(itemize,u(u(cobj,data)/FUn`GET`DISCIPLINES),|,and,\,)]
-&CG`5`WEREWOLF [u(cobj,chargen)]=Werewolves begin with 3 dots to distribute for Renown. Two dots must be put into Tribe or Auspice Renown. The third is free to use as you wish. Renown is important, as if you have two or more dots in your Auspice's Renown, you gain the second dot of that Auspice's Moon Gift for free.%R%R[ansi(h,+renown <renown>=<rank>)] to set your Renown.%R%TChoices: [u(itemize,u(u(cobj,data)/FUN`GET`RENOWN),|,and,\,)]%R%RWerewolves start with 1 Moon Gift dot, determined by Auspice. You also start with 2 Shadow Gifts, determined by your Tribe or Auspice. You get one free facet of each. Finally, you have 1 Wolf Gift to assign if your tribe renown is only a single dot.%R%R[ansi(h,+gift <gift>=<ranks>)] to set your Moon Gifts. Ranks can be 1, 2, 3, 4, 5, etc.%R[ansi(h,+delgift <gift>=<ranks>)] to remove Moon Gifts.%R[ansi(h,+sgift <gift>=<ranks>)] to add Wolf or Shadow Gifts. Ranks can be P, H, C, W, or G.%R[ansi(h,+delsgift <gift>=<ranks>)] to remove Shadow/Wolf Gifts.%R%RYou begin with 2 dots in Rites.%R[ansi(h,+rite <rite>=<rank>)] to set your Rites.
+&CG`5`VAMPIRE [u(cobj,chargen)]=Vampires begin with 3 dots to distribute for disciplines. Two dots must be put into clan disciplines. The third is free to use as you wish.%R%R[ansi(h,+discipline <discipline>=<rank>)] to set your disciplines.%R%TChoices: [u(itemize`%va,u(u(cobj,data)/FUn`GET`DISCIPLINES),|,and,\,)]
+&CG`5`WEREWOLF [u(cobj,chargen)]=Werewolves begin with 3 dots to distribute for Renown. Two dots must be put into Tribe or Auspice Renown. The third is free to use as you wish. Renown is important, as if you have two or more dots in your Auspice's Renown, you gain the second dot of that Auspice's Moon Gift for free.%R%R[ansi(h,+renown <renown>=<rank>)] to set your Renown.%R%TChoices: [u(itemize`%va,u(u(cobj,data)/FUN`GET`RENOWN),|,and,\,)]%R%RWerewolves start with 1 Moon Gift dot, determined by Auspice. You also start with 2 Shadow Gifts, determined by your Tribe or Auspice. You get one free facet of each. Finally, you have 1 Wolf Gift to assign if your tribe renown is only a single dot.%R%R[ansi(h,+gift <gift>=<ranks>)] to set your Moon Gifts. Ranks can be 1, 2, 3, 4, 5, etc.%R[ansi(h,+delgift <gift>=<ranks>)] to remove Moon Gifts.%R[ansi(h,+sgift <gift>=<ranks>)] to add Wolf or Shadow Gifts. Ranks can be P, H, C, W, or G.%R[ansi(h,+delsgift <gift>=<ranks>)] to remove Shadow/Wolf Gifts.%R%RYou begin with 2 dots in Rites.%R[ansi(h,+rite <rite>=<rank>)] to set your Rites.
 &CG`5`BEAST [u(cobj,chargen)]=Beasts begin with 2 Atavisms (One must be tied to your Family), 2 Nightmares (If you have an established Kinship with another supernatural, you may begin with one bonus Kinship Nightmare in connection to that supernatural), and 2 Lair Traits (One of the two must be Minor and both must be associated with the look and feel of your Lair).%R%R[ansi(h,+atavism <atavism>)] to add an Atavism.%R[ansi(h,+delatavism <atavism>)] to remove an Atavism.%R[ansi(h,+nightmare <nightmare>)] to add a Nightmare.%R[ansi(h,+delnightmare <nightmare>)] to remove a Nightmare.%R[ansi(h,+lairtrait <trait>)] to add a Lair Trait.%R[ansi(h,+dellairtrait <trait>)] to remove a Lair Trait.
 &CG`5`CHANGELING [u(cobj,chargen)]=Changelings begin with 5 points in Contracts to allocate. 2 of the 5 points must be spent on Court and Seeming Contracts.%R%R[ansi(h,+contract <contract>=<rank>)] to set your Contracts.
 &CG`5`DEMON [u(cobj,chargen)]=A starting demon has four Embeds and/or Exploits. One Embed must be from his Incarnation's favored category.%R%R[ansi(h,+embed <embed>)] to add an Embed.%R[ansi(h,+delembed <embed>)] to remove an Embed.%R[ansi(h,+exploit <exploit>)] to add an Exploit.%R[ansi(h,+delexploit <exploit>)] to remove an Exploit.
@@ -113,7 +113,7 @@
 &CMD`+POWER1 [u(cobj,chargen)]=$^\+(discipline|renown|rite|arcana|contract|endowment|manifestation|ceremony)(?\: +(.+?))?(?\:=(.+?))?$:@attach [u(cobj,data)]/DO`SET`%1=%#,%2,if(eq(%3,0),,%3);@attach %!/INC`MSG=%q<find> is now: %3
 @set [u(cobj,chargen)]/CMD`+POWER1=regexp
 
-&CMD`+POWER2 [u(cobj,chargen)]=$^\+(del)?(atavism|gift|sgift|nightmare|lairtrait|echo|key|transmutation|bestowment|embed|exploit)(?\: +(.+?))?(?\:=(.+))?$:th u(setq,mode,switch(%1,add,ADD,del,REM,ADD));@select/inline t(match(GIFT SGIFT,%2))=1,{@attach u(cobj,data)/DO`%q<mode>`%2=%#,%3,%4},0,{@attach u(cobj,data)/DO`%q<mode>`%2=%#,,%3};th u(setq,have,ansi(h,u(capnames,%q<find>)) [u(capnames,%2s)] [u(itemize,iter(u(capnames,u(strfirstof,%q<filtered>,%q<return>)),%i0,switch(%2,gift,%b,sgift,%b,|),|),|,and,\,)].[switch(%2,gift,,sgift,,Result of modifications: %q<returnformat>)]);@attach %!/INC`MSG=You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
+&CMD`+POWER2 [u(cobj,chargen)]=$^\+(del)?(atavism|gift|sgift|nightmare|lairtrait|echo|key|transmutation|bestowment|embed|exploit)(?\: +(.+?))?(?\:=(.+))?$:th u(setq`%va,mode,switch(%1,add,ADD,del,REM,ADD));@select/inline t(match(GIFT SGIFT,%2))=1,{@attach u(cobj,data)/DO`%q<mode>`%2=%#,%3,%4},0,{@attach u(cobj,data)/DO`%q<mode>`%2=%#,,%3};th u(setq`%va,have,ansi(h,u(capnames,%q<find>)) [u(capnames,%2s)] [u(itemize`%va,iter(u(capnames,u(strfirstof`%va,%q<filtered>,%q<return>)),%i0,switch(%2,gift,%b,sgift,%b,|),|),|,and,\,)].[switch(%2,gift,,sgift,,Result of modifications: %q<returnformat>)]);@attach %!/INC`MSG=You [switch(%q<mode>,ADD,now have,REM,no longer have)] the %q<have>
 @set [u(cobj,chargen)]/CMD`+POWER2=regexp
 
 

@@ -3,58 +3,58 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 
 &SWITCHES`PLAYER [u(cobj,merit)]=ADD|RANK|GET|DESC|CONTEXT|DELETE|NOTES
 &SWITCHES`ADMIN [u(cobj,merit)]=
-&SYSTEM`NAME [u(cobj,merit)]=u(strfirstof,%q<sysname>,MERITS)
+&SYSTEM`NAME [u(cobj,merit)]=u(strfirstof`%va,%q<sysname>,MERITS)
 
 &DO`ANNOUNCE [u(cobj,merit)]=@select/inline t(strlen(%1))=1,{@attach %!/INC`MSG`CHAN=%1};@select/inline strmatch(%#,%0)=0,{@attach %!/INC`MSG`NOTICE=%2,%0;@attach %!/INC`MSG=%3},1,{@attach %!/INC`MSG`NOTICE=%2,%0}
 @@ %0 - player being modified. %1 - message for admin channel. %2 - message for player. %3 - message for admin.
 
-&INC`TARGET [u(cobj,merit)]=@select/inline strmatch(%0,*/*)=1,{@attach %!/INC`CHECKPC=before(%0,/),1,,1;th u(setq,target,%q<t1>)[u(setq,filename,after(%0,/))]},0,{th u(setq,target,u(firstof,get(%#/D`COVER),%#))[u(setq,filename,%0)]}
+&INC`TARGET [u(cobj,merit)]=@select/inline strmatch(%0,*/*)=1,{@attach %!/INC`CHECKPC=before(%0,/),1,,1;th u(setq`%va,target,%q<t1>)[u(setq`%va,filename,after(%0,/))]},0,{th u(setq`%va,target,u(firstof`%va,get(%#/D`COVER),%#))[u(setq`%va,filename,%0)]}
 
-&INC`MERNAME [u(cobj,merit)]=@check strlen(u(setr,merit,trim(squish(before(%0,:)))))=@attach %!/INC`MSG=ERROR: [capstr(%q<type>)] field empty.;th u(setq,context,squish(trim(after(%0,:))));@stop u(charsearch,%q<context>,| ~)=@attach %!/INC`MSG=ERROR: Contexts may not contain a ~ or |.
+&INC`MERNAME [u(cobj,merit)]=@check strlen(u(setr`%va,merit,trim(squish(before(%0,:)))))=@attach %!/INC`MSG=ERROR: [capstr(%q<type>)] field empty.;th u(setq`%va,context,squish(trim(after(%0,:))));@stop u(charsearch,%q<context>,| ~)=@attach %!/INC`MSG=ERROR: Contexts may not contain a ~ or |.
 
-&INC`EXISTING [u(cobj,merit)]=@check strlen(u(setr,attr,first(u(filter,FINDMERIT,u(lattr,%q<target>/%q<root>`*),%b,%b,%q<target>,%q<merit>,%q<context>))))=@attach %!/INC`MSG=ERROR: Cannot find '%q<merit>[if(strlen(%q<context>),:%b%q<context>)]'.;th u(setq,merit,get(%q<target>/%q<attr>));th u(setq,context,get(%q<target>/%q<attr>`CONTEXT))
+&INC`EXISTING [u(cobj,merit)]=@check strlen(u(setr`%va,attr,first(u(filter,FINDMERIT,u(lattr`%va,%q<target>/%q<root>`*),%b,%b,%q<target>,%q<merit>,%q<context>))))=@attach %!/INC`MSG=ERROR: Cannot find '%q<merit>[if(strlen(%q<context>),:%b%q<context>)]'.;th u(setq`%va,merit,get(%q<target>/%q<attr>));th u(setq`%va,context,get(%q<target>/%q<attr>`CONTEXT))
 
 &FIL`FINDMERIT [u(cobj,merit)]=if(strlen(%3),cand(cor(strmatch(get(%1/%0),%2),strmatch(get(%1/%0),%2*)),cor(strmatch(get(%1/%0`CONTEXT),%3),strmatch(get(%1/%0`CONTEXT),%3*))),cand(strmatch(get(%1/%0),%2*),not(strlen(get(%1/%0`CONTEXT)))))
 
-&FUN`MERNAME [u(cobj,merit)]=localize(u(capnames,get(%0/%1)[if(strlen(u(setr,context,get(%0/%1`CONTEXT))),:%b%q<context>)]))
+&FUN`MERNAME [u(cobj,merit)]=localize(u(capnames,get(%0/%1)[if(strlen(u(setr`%va,context,get(%0/%1`CONTEXT))),:%b%q<context>)]))
 
-&INC`BEGIN [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline strmatch(%#,%q<target>)=0,{@check u(isadmin,%#)=@attach %!/INC`MSG=Permission denied.};@stop cand(u(isapproved,%q<target>),not(u(isadmin,%#)))=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`MERNAME=%q<filename>
+&INC`BEGIN [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline strmatch(%#,%q<target>)=0,{@check u(isadmin`%va,%#)=@attach %!/INC`MSG=Permission denied.};@stop cand(u(isapproved,%q<target>),not(u(isadmin`%va,%#)))=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`MERNAME=%q<filename>
 
-&INC`BEGIN2 [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline strmatch(%#,%q<target>)=0,{@check u(isadmin,%#)=@attach %!/INC`MSG=Permission denied.};@stop cand(u(isapproved,%q<target>),nor(u(isadmin,%#),%q<notes>))=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`MERNAME=%q<filename>;@attach %!/INC`EXISTING=%q<filename>
+&INC`BEGIN2 [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline strmatch(%#,%q<target>)=0,{@check u(isadmin`%va,%#)=@attach %!/INC`MSG=Permission denied.};@stop cand(u(isapproved,%q<target>),nor(u(isadmin`%va,%#),%q<notes>))=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`MERNAME=%q<filename>;@attach %!/INC`EXISTING=%q<filename>
 
-&INC`ADD [u(cobj,merit)]=@attach %!/INC`BEGIN;@stop strlen(u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<context>))=@attach %!/INC`MSG=ERROR: Conflicting Merit. Contexts must be unique.;th u(setq,attr,%q<root>`[u(nextslot,%q<target>,%q<root>)]);@check cand(isint(%1),gte(%1,0))=@attach %!/INC`MSG=[capstr(%2)] must have a rank. Ranks must be 0 or greater.;@attach %!/DO`ADD=%q<attr>,%q<target>,%q<merit>,%q<context>,%1;th u(setq,msg,gained a new %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)] (%1));@select/inline strmatch(%#,%q<target>)=0,{th u(setq,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
+&INC`ADD [u(cobj,merit)]=@attach %!/INC`BEGIN;@stop strlen(u(FUN`FINDMER,%q<target>,%2,%q<merit>,%q<context>))=@attach %!/INC`MSG=ERROR: Conflicting Merit. Contexts must be unique.;th u(setq`%va,attr,%q<root>`[u(nextslot,%q<target>,%q<root>)]);@check cand(isint(%1),gte(%1,0))=@attach %!/INC`MSG=[capstr(%2)] must have a rank. Ranks must be 0 or greater.;@attach %!/DO`ADD=%q<attr>,%q<target>,%q<merit>,%q<context>,%1;th u(setq`%va,msg,gained a new %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)] (%1));@select/inline strmatch(%#,%q<target>)=0,{th u(setq`%va,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
 
 &DO`ADD [u(cobj,merit)]=&%0 %1=%2;&%0`CONTEXT %1=%3;&%0`RANK %1=%4;@attach %!/DO`UPD=%0,%1
 
 &DO`UPD [u(cobj,merit)]=&%0`ON %1=secs();&%0`BY %1=%n;&%0`BYDB %1=u(objid,%#)
 
-&INC`DELETE [u(cobj,merit)]=@attach %!/INC`BEGIN2;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)]%BDeleting the [u(FUN`MERNAME,%q<target>,%q<attr>)] %q<type>. Are you sure? Enter the same command again within ten seconds to verify.},%q<type> DELETE %q<attr>,;th u(setq,msg,lost a %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)] ([get(%q<target>/%q<attr>`RANK)]));@select/inline strmatch(%#,%q<target>)=0,{th u(setq,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>};@attach %!/WIPE=%q<target>,%q<attr>
+&INC`DELETE [u(cobj,merit)]=@attach %!/INC`BEGIN2;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)]%BDeleting the [u(FUN`MERNAME,%q<target>,%q<attr>)] %q<type>. Are you sure? Enter the same command again within ten seconds to verify.},%q<type> DELETE %q<attr>,;th u(setq`%va,msg,lost a %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)] ([get(%q<target>/%q<attr>`RANK)]));@select/inline strmatch(%#,%q<target>)=0,{th u(setq`%va,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>};@attach %!/WIPE=%q<target>,%q<attr>
 
-&INC`RANK [u(cobj,merit)]=@attach %!/INC`BEGIN2;@check cand(isint(%1),gte(%1,0))=@attach %!/INC`MSG=[capstr(%2)] must have a rank. Ranks must be 0 or greater.;&%q<attr>`RANK %q<target>=%1;@attach %!/DO`UPD=%q<target>,%q<attr>;th u(setq,msg,had a %q<type> Rank Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to [ansi(h,%1)]);@select/inline strmatch(%#,%q<target>)=0,{th u(setq,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
+&INC`RANK [u(cobj,merit)]=@attach %!/INC`BEGIN2;@check cand(isint(%1),gte(%1,0))=@attach %!/INC`MSG=[capstr(%2)] must have a rank. Ranks must be 0 or greater.;&%q<attr>`RANK %q<target>=%1;@attach %!/DO`UPD=%q<target>,%q<attr>;th u(setq`%va,msg,had a %q<type> Rank Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to [ansi(h,%1)]);@select/inline strmatch(%#,%q<target>)=0,{th u(setq`%va,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
 
-&INC`CONTEXT [u(cobj,merit)]=@attach %!/INC`BEGIN2;@check strlen(u(setr,newcon,squish(trim(%1))))=@attach %!/INC`MSG=ERROR: Context empty.;@stop strlen(u(FILTER,SAMECONTEXT,u(lattr,%q<target>/%q<root>`*),%b,%b,%q<target>,%q<merit>,%q<newcon>))=@attach %!/INC`MSG=ERROR: Conflicting Merit. Contexts must be unique.;&%q<attr>`CONTEXT %q<target>=%q<newcon>;@attach %!/DO`UPD=%q<target>,%q<attr>;th u(setq,msg,had a %q<type> Context Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to %q<newcon>);@select/inline strmatch(%#,%q<target>)=0,{th u(setq,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
+&INC`CONTEXT [u(cobj,merit)]=@attach %!/INC`BEGIN2;@check strlen(u(setr`%va,newcon,squish(trim(%1))))=@attach %!/INC`MSG=ERROR: Context empty.;@stop strlen(u(FILTER,SAMECONTEXT,u(lattr`%va,%q<target>/%q<root>`*),%b,%b,%q<target>,%q<merit>,%q<newcon>))=@attach %!/INC`MSG=ERROR: Conflicting Merit. Contexts must be unique.;&%q<attr>`CONTEXT %q<target>=%q<newcon>;@attach %!/DO`UPD=%q<target>,%q<attr>;th u(setq`%va,msg,had a %q<type> Context Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to %q<newcon>);@select/inline strmatch(%#,%q<target>)=0,{th u(setq`%va,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
 
 &FIL`SAMECONTEXT [u(cobj,merit)]=cand(strmatch(get(%1/%0),%2),strmatch(get(%1/%0`CONTEXT),%3))
 
-&INC`DESC [u(cobj,merit)]=@attach %!/INC`BEGIN2;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Desc empty!;&%q<attr>`DESC %q<target>=%1;@attach %!/DO`UPD=%q<target>,%q<attr>;th u(setq,msg,had a %q<type> Desc Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to %1);@select/inline strmatch(%#,%q<target>)=0,{th u(setq,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
+&INC`DESC [u(cobj,merit)]=@attach %!/INC`BEGIN2;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Desc empty!;&%q<attr>`DESC %q<target>=%1;@attach %!/DO`UPD=%q<target>,%q<attr>;th u(setq`%va,msg,had a %q<type> Desc Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to %1);@select/inline strmatch(%#,%q<target>)=0,{th u(setq`%va,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
 
-&INC`NOTES [u(cobj,merit)]=th u(setq,notes,1);@attach %!/INC`BEGIN2;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Notes empty!;&%q<attr>`NOTES %q<target>=%1;@attach %!/DO`UPD=%q<target>,%q<attr>;th u(setq,msg,had a %q<type> Note Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to %1);@select/inline strmatch(%#,%q<target>)=0,{th u(setq,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
+&INC`NOTES [u(cobj,merit)]=th u(setq`%va,notes,1);@attach %!/INC`BEGIN2;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Notes empty!;&%q<attr>`NOTES %q<target>=%1;@attach %!/DO`UPD=%q<target>,%q<attr>;th u(setq`%va,msg,had a %q<type> Note Changed: [u(FUN`MERNAME,%q<target>,%q<attr>)] to %1);@select/inline strmatch(%#,%q<target>)=0,{th u(setq`%va,amsg,ansi(h,name(%q<target>)) %q<msg>)};@attach %!/DO`ANNOUNCE=%q<target>,{%q<amsg>},{You %q<msg>},{[ansi(h,name(%q<target>))] %q<msg>}
 
-&INC`GET [u(cobj,merit)]=@attach %!/INC`TARGET;@attach %!/INC`MERNAME;@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s [u(FUN`MERNAME,%q<target>,%q<attr>)] Desc);@pemit %#=decompose(get(%q<target>/%q<attr>`DESC));@select/inline strlen(u(setr,notes,get(%q<target>/%q<attr>`NOTES)))=>0,{@pemit %#=u(separator,Notes);@pemit %#=decompose(%q<notes>)};@pemit %#=u(SUBHEADER)
+&INC`GET [u(cobj,merit)]=@attach %!/INC`TARGET;@attach %!/INC`MERNAME;@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s [u(FUN`MERNAME,%q<target>,%q<attr>)] Desc);@pemit %#=decompose(get(%q<target>/%q<attr>`DESC));@select/inline strlen(u(setr`%va,notes,get(%q<target>/%q<attr>`NOTES)))=>0,{@pemit %#=u(separator,Notes);@pemit %#=decompose(%q<notes>)};@pemit %#=u(SUBHEADER)
 
 &INC`MAIN [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline t(strlen(%q<filename>))=1,{@attach %!/INC`MERNAME=%q<filename>;@attach %!/INC`EXISTING;@attach %!/INC`DISPLAY},0,{@attach %!/INC`LIST}
 
-&INC`LIST [u(cobj,merit)]=@pemit %#=u(HEADER,name(%q<target>)'s [u(capnames,%q<sysname>)]);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(40 30 6,Name,Desc,Rank));@pemit %#=u(SEPARATOR);@dolist/inline u(sortmer,u(lattr,%q<target>/%q<root>`*))={@pemit %#=align(40 30 6,u(pueblize,u(FUN`MERNAME,%q<target>,##),%q<comm> [name(%q<target>)]/[u(FUN`MERNAME,%q<target>,##)]),left(get(%q<target>/##`DESC),20),repeat(*,get(%q<target>/##`RANK)))};@pemit %#=u(SUBHEADER)
+&INC`LIST [u(cobj,merit)]=@pemit %#=u(HEADER,name(%q<target>)'s [u(capnames,%q<sysname>)]);@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(40 30 6,Name,Desc,Rank));@pemit %#=u(SEPARATOR);@dolist/inline u(sortmer,u(lattr`%va,%q<target>/%q<root>`*))={@pemit %#=align(40 30 6,u(pueblize,u(FUN`MERNAME,%q<target>,##),%q<comm> [name(%q<target>)]/[u(FUN`MERNAME,%q<target>,##)]),left(get(%q<target>/##`DESC),20),repeat(*,get(%q<target>/##`RANK)))};@pemit %#=u(SUBHEADER)
 
 &SORTMER [u(cobj,merit)]=u(SORTMER`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTMER`PENNMUSH [u(cobj,merit)]=sortkey(#lambda/u(FUN`MERNAME,%q<target>,\%0),%0,i,%1,%2)
 &SORTMER`RHOSTMUSH [u(cobj,merit)]=sortby(#lambda/[lit([comp(lcstr(u(FUN`MERNAME,%q<target>,%0)),lcstr(u(FUN`MERNAME,%q<target>,%1)))])],%0,%1,%2)
 
-&INC`DISPLAY [u(cobj,merit)]=@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@pemit %#=get(%q<target>/%q<attr>`DESC);@select/inline strlen(u(setr,notes,get(%q<target>/%q<attr>`NOTES)))=>0,{@pemit %#=u(SEPARATOR,Notes);@pemit %#=%q<notes>;@pemit %#=u(separator)},1,{@pemit %#=u(SEPARATOR)};@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(20 20,Setby,Seton));@pemit %#=u(separator);@pemit %#=align(20 20,get(%q<target>/%q<attr>`BY),u(fancytime,get(%q<target>/%q<attr>`ON),%#));@pemit %#=u(SUBHEADER)
+&INC`DISPLAY [u(cobj,merit)]=@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@pemit %#=get(%q<target>/%q<attr>`DESC);@select/inline strlen(u(setr`%va,notes,get(%q<target>/%q<attr>`NOTES)))=>0,{@pemit %#=u(SEPARATOR,Notes);@pemit %#=%q<notes>;@pemit %#=u(separator)},1,{@pemit %#=u(SEPARATOR)};@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(20 20,Setby,Seton));@pemit %#=u(separator);@pemit %#=align(20 20,get(%q<target>/%q<attr>`BY),u(fancytime`%va,get(%q<target>/%q<attr>`ON),%#));@pemit %#=u(SUBHEADER)
 
 &STARTUP [u(cobj,merit)]=@select/inline v(game)=PennMUSH,{@function getmerit=%!,getmerit;@function/restrict getmerit=localize},RhostMUSH,{@function/privileged getmerit=%!,getmerit}
 
-&GETMERIT [u(cobj,merit)]=u(lmax,iter(u(wildgrepi,%0,D`%1`*,%2),get(%0/%i0`RANK)))
+&GETMERIT [u(cobj,merit)]=u(lmax`%va,iter(u(wildgrepi`%va,%0,D`%1`*,%2),get(%0/%i0`RANK)))
 
 @@ CHARACTER - +INFO
 +help/add +merits=[u(cobj,merit)]/HLP`+MERITS

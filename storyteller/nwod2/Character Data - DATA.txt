@@ -64,7 +64,7 @@ th u(newconf,config,STORYTELLER,SKILLS,ACADEMICS|COMPUTER|CRAFTS|INVESTIGATION|M
 @@ Specialties
 &INC`SET`SPECIALTY [u(cobj,data)]=@attach [u(cobj,data)]/Do`SET`SPECIALTY=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Specialty,%q<find>/%q<spec>
 
-&DO`VAL`SPECIALTY [u(cobj,data)]=@check strlen(u(setr,enstat,before(%1,/)))=@attach %!/INC`MSG=ERROR: No stat entered to specialize in.;@attach %!/INC`PARTIAL=%q<enstat>,setunion(u(u(cobj,data)/FUN`GET`SKILLS),@@(u(u(cobj,data)/FUN`GET`ATTRIBUTES)),|,|),|,find,stat;@check strlen(u(setr,spec,after(%1,/)))=@attach %!/INC`MSG=ERROR: No Specialty name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Specialties,%2
+&DO`VAL`SPECIALTY [u(cobj,data)]=@check strlen(u(setr`%va,enstat,before(%1,/)))=@attach %!/INC`MSG=ERROR: No stat entered to specialize in.;@attach %!/INC`PARTIAL=%q<enstat>,setunion(u(u(cobj,data)/FUN`GET`SKILLS),@@(u(u(cobj,data)/FUN`GET`ATTRIBUTES)),|,|),|,find,stat;@check strlen(u(setr`%va,spec,after(%1,/)))=@attach %!/INC`MSG=ERROR: No Specialty name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Specialties,%2
 &DO`SET`SPECIALTY [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SPECIALTY;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`SPECIALTIES,%q<find>/%q<spec>,%q<value>
 
 &FUN`RET`SPECIALTIES [u(cobj,data)]=iter(ucstr(get(%0/D`SPECIALTIES)),before(%i0,~),|,|)
@@ -72,7 +72,7 @@ th u(newconf,config,STORYTELLER,SKILLS,ACADEMICS|COMPUTER|CRAFTS|INVESTIGATION|M
 @@ Bonus
 &INC`SET`BONUS [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`BONUS=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Bonus,%q<find>
 
-&DO`VAL`BONUS [u(cobj,data)]=@check strlen(u(setr,enstat,before(%1,/)))=@attach %!/INC`MSG=ERROR: No stat entered to gain a bonus in.;@attach %!/INC`PARTIAL=%q<enstat>,setunion(u(u(cobj,data)/FUN`GET`SKILLS),u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,|),|,find,stat;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Bonus,%2
+&DO`VAL`BONUS [u(cobj,data)]=@check strlen(u(setr`%va,enstat,before(%1,/)))=@attach %!/INC`MSG=ERROR: No stat entered to gain a bonus in.;@attach %!/INC`PARTIAL=%q<enstat>,setunion(u(u(cobj,data)/FUN`GET`SKILLS),u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,|),|,find,stat;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Bonus,%2
 &DO`SET`BONUS [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`BONUS;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`BONUS,%q<find>,%q<value>
 
 &FUN`RET`BONUS [u(cobj,data)]=iter(ucstr(get(%0/D`BONUS)),before(%i0,~),|,|)
@@ -82,7 +82,7 @@ th u(newconf,config,STORYTELLER,SKILLS,ACADEMICS|COMPUTER|CRAFTS|INVESTIGATION|M
 @@ Disciplines
 &INC`SET`DISCIPLINE [u(cobj,data)]=@attach %!/DO`SET`DISCIPLINE=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Discipline
 
-&DO`VAL`DISCIPLINE [u(cobj,data)]=@check strlen(u(setr,find,%1))=@attach %!/INC`MSG=ERROR: No Discipline name entered.;@attach %!/INC`PARTIAL=%q<find>,u(u(cobj,data)/FUN`GET`DISCIPLINES),|,find,discipline;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Disciplines,%2
+&DO`VAL`DISCIPLINE [u(cobj,data)]=@check strlen(u(setr`%va,find,%1))=@attach %!/INC`MSG=ERROR: No Discipline name entered.;@attach %!/INC`PARTIAL=%q<find>,u(u(cobj,data)/FUN`GET`DISCIPLINES),|,find,discipline;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Disciplines,%2
 &DO`SET`DISCIPLINE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`DISCIPLINE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`DISCIPLINES,%q<find>,%q<value>;@select/inline strlen(get(%0/D`DISCIPLINES))=0,{@attach %!/WIPE=%0,D`DISCIPLINES}
 
 &FUN`GET`DISCIPLINES [u(cobj,data)]=u(game_config,STORYTELLER,DISCIPLINES)
@@ -97,7 +97,7 @@ th u(newconf,CONFIG,STORYTELLER,DISCIPLINES,CELERITY|RESILIENCE|VIGOR|ANIMALISM|
 @@ Renown
 &INC`SET`RENOWN [u(cobj,data)]=@attach %!/DO`SET`RENOWN=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Renown
 
-&DO`VAL`RENOWN [u(cobj,data)]=@check strlen(u(setr,find,%1))=@attach %!/INC`MSG=ERROR: No Renown name entered.;@attach %!/INC`PARTIAL=%q<find>,u(u(cobj,data)/FUN`GET`RENOWN),|,find,renown;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Renown,%2
+&DO`VAL`RENOWN [u(cobj,data)]=@check strlen(u(setr`%va,find,%1))=@attach %!/INC`MSG=ERROR: No Renown name entered.;@attach %!/INC`PARTIAL=%q<find>,u(u(cobj,data)/FUN`GET`RENOWN),|,find,renown;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Renown,%2
 &DO`SET`RENOWN [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`RENOWN;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`RENOWN,%q<find>,%q<value>;@select/inline strlen(get(%0/D`RENOWN))=0,{@attach %!/WIPE=%0,D`RENOWN}
 
 &FUN`GET`RENOWN [u(cobj,data)]=u(game_config,STORYTELLER,RENOWN)
@@ -105,19 +105,19 @@ th u(newconf,CONFIG,STORYTELLER,DISCIPLINES,CELERITY|RESILIENCE|VIGOR|ANIMALISM|
 th u(newconf,CONFIG,STORYTELLER,RENOWN,CUNNING|GLORY|HONOR|PURITY|WISDOM,Types of Werewolf Renown,LIST)
 
 @@ Moon Gifts
-&INC`ADD`GIFT [u(cobj,data)]=@attach %!/DO`ADD`GIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Moon Gifts [u(itemize,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`GIFT [u(cobj,data)]=@attach %!/DO`REM`GIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Moon Gifts: [u(itemize,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`GIFT [u(cobj,data)]=@attach %!/DO`ADD`GIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Moon Gifts [u(itemize`%va,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`GIFT [u(cobj,data)]=@attach %!/DO`REM`GIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Moon Gifts: [u(itemize`%va,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`GIFT [u(cobj,data)]=@check strlen(u(setr,find,%1))=@attach %!/INC`MSG=ERROR: No Moon Gift category entered!;@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Moon Gifts ranks entered.
+&DO`VAL`GIFT [u(cobj,data)]=@check strlen(u(setr`%va,find,%1))=@attach %!/INC`MSG=ERROR: No Moon Gift category entered!;@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Moon Gifts ranks entered.
 
 &DO`ADD`GIFT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`GIFT;@attach [u(cobj,data)]/GIFT`ADD=%0,D`GIFTS,%q<find>,%q<value>
 &DO`REM`GIFT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`GIFT;@attach [u(cobj,data)]/GIFT`REM=%0,D`GIFTS,%q<find>,%q<value>;@select/inline strlen(get(%0/D`GIFTS))=0,{@attach %!/WIPE=%0,D`GIFTS}
 
 @@ Shadow/Wolf Gifts
-&INC`ADD`SGIFT [u(cobj,data)]=@attach %!/DO`ADD`SGIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Shadow/Wolf Gifts [u(itemize,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`SGIFT [u(cobj,data)]=@attach %!/DO`REM`SGIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Shadow/Wolf Gifts: [u(itemize,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`SGIFT [u(cobj,data)]=@attach %!/DO`ADD`SGIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Shadow/Wolf Gifts [u(itemize`%va,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`SGIFT [u(cobj,data)]=@attach %!/DO`REM`SGIFT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Shadow/Wolf Gifts: [u(itemize`%va,iter(u(capnames,%q<return>),%i0,%b,|),|,and,\,)].)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`SGIFT [u(cobj,data)]=@check strlen(u(setr,find,%1))=@attach %!/INC`MSG=ERROR: No Shadow/Wolf Gift category entered!;@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Shadow/Wolf Gifts ranks entered.
+&DO`VAL`SGIFT [u(cobj,data)]=@check strlen(u(setr`%va,find,%1))=@attach %!/INC`MSG=ERROR: No Shadow/Wolf Gift category entered!;@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Shadow/Wolf Gifts ranks entered.
 
 &DO`ADD`SGIFT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SGIFT;@attach [u(cobj,data)]/SGIFT`ADD=%0,D`SGIFTS,%q<find>,%q<value>
 &DO`REM`SGIFT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SGIFT;@attach [u(cobj,data)]/SGIFT`REM=%0,D`SGIFTS,%q<find>,%q<value>;@select/inline strlen(get(%0/D`SGIFTS))=0,{@attach %!/WIPE=%0,D`SGIFTS}
@@ -125,7 +125,7 @@ th u(newconf,CONFIG,STORYTELLER,RENOWN,CUNNING|GLORY|HONOR|PURITY|WISDOM,Types o
 @@ Rites
 &INC`SET`RITE [u(cobj,data)]=@attach %!/DO`SET`RITE=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Rite
 
-&DO`VAL`RITE [u(cobj,data)]=@check strlen(u(setr,find,ucstr(%1)))=@attach %!/INC`MSG=ERROR: No Rite name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Rites,%2
+&DO`VAL`RITE [u(cobj,data)]=@check strlen(u(setr`%va,find,ucstr(%1)))=@attach %!/INC`MSG=ERROR: No Rite name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Rites,%2
 &DO`SET`RITE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`RITE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`RITES,%q<find>,%q<value>;@select/inline strlen(get(%0/D`RITES))=0,{@attach %!/WIPE=%0,D`RITES}
 
 &FUN`RET`RITES [u(cobj,data)]=iter(ucstr(get(%0/D`RITE)),before(%i0,~),|,|)
@@ -150,7 +150,7 @@ th u(newconf,CONFIG,STORYTELLER,RENOWN,CUNNING|GLORY|HONOR|PURITY|WISDOM,Types o
 @@ Arcana
 &INC`SET`ARCANA [u(cobj,data)]=@attach %!/DO`SET`ARCANA=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Arcana
 
-&DO`VAL`ARCANA [u(cobj,data)]=@check strlen(u(setr,find,%1))=@attach %!/INC`MSG=ERROR: No Arcaba name entered.;@attach %!/INC`PARTIAL=%q<find>,u(u(cobj,data)/FUN`GET`ARCANA),|,find,arcana;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Arcana,%2
+&DO`VAL`ARCANA [u(cobj,data)]=@check strlen(u(setr`%va,find,%1))=@attach %!/INC`MSG=ERROR: No Arcaba name entered.;@attach %!/INC`PARTIAL=%q<find>,u(u(cobj,data)/FUN`GET`ARCANA),|,find,arcana;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Arcana,%2
 &DO`SET`ARCANA [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ARCANA;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`ARCANA,%q<find>,%q<value>;@select/inline strlen(get(%0/D`ARCANA))=0,{@attach %!/WIPE=%0,D`ARCANA}
 
 &FUN`GET`ARCANA [u(cobj,data)]=u(game_config,STORYTELLER,ARCANA)
@@ -165,16 +165,16 @@ th u(newconf,CONFIG,STORYTELLER,ARCANA,DEATH|FATE|FORCES|LIFE|MATTER|MIND|PRIME|
 @@ Contracts
 &INC`SET`CONTRACT [u(cobj,data)]=@attach %!/DO`SET`CONTRACT=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Contract
 
-&DO`VAL`CONTRACT [u(cobj,data)]=@check strlen(u(setr,find,ucstr(%1)))=@attach %!/INC`MSG=ERROR: No Contract name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Rites,%2
+&DO`VAL`CONTRACT [u(cobj,data)]=@check strlen(u(setr`%va,find,ucstr(%1)))=@attach %!/INC`MSG=ERROR: No Contract name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Rites,%2
 &DO`SET`CONTRACT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`CONTRACT;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`CONTRACTS,%q<find>,%q<value>;@select/inline strlen(get(%0/D`CONTRACTS))=0,{@attach %!/WIPE=%0,D`CONTRACTS}
 
 &FUN`RET`CONTRACTS [u(cobj,data)]=iter(ucstr(get(%0/D`CONTRACTS)),before(%i0,~),|,|)
 
 @@ Echoes
-&INC`ADD`ECHO [u(cobj,data)]=@attach %!/DO`ADD`ECHO=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Echoes [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`ECHO [u(cobj,data)]=@attach %!/DO`REM`ECHO=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Echoes: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`ECHO [u(cobj,data)]=@attach %!/DO`ADD`ECHO=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Echoes [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`ECHO [u(cobj,data)]=@attach %!/DO`REM`ECHO=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Echoes: [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`ECHO [u(cobj,data)]=@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Echoes entered.
+&DO`VAL`ECHO [u(cobj,data)]=@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Echoes entered.
 
 &DO`ADD`ECHO [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ECHO;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`ECHOES,%q<value>
 &DO`REM`ECHO [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ECHO;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`ECHOES,%q<value>;@select/inline strlen(get(%0/D`ECHOES))=0,{@attach %!/WIPE=%0,D`ECHOES}
@@ -196,7 +196,7 @@ th u(newconf,CONFIG,STORYTELLER,ARCANA,DEATH|FATE|FORCES|LIFE|MATTER|MIND|PRIME|
 @@ Endowments
 &INC`SET`ENDOWMENT [u(cobj,data)]=@attach %!/DO`SET`ENDOWMENT=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Endowment
 
-&DO`VAL`ENDOWMENT [u(cobj,data)]=@check strlen(u(setr,find,ucstr(%1)))=@attach %!/INC`MSG=ERROR: No Endowment name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Endowments,%2
+&DO`VAL`ENDOWMENT [u(cobj,data)]=@check strlen(u(setr`%va,find,ucstr(%1)))=@attach %!/INC`MSG=ERROR: No Endowment name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Endowments,%2
 &DO`SET`ENDOWMENT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ENDOWMENT;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`ENDOWMENTS,%q<find>,%q<value>;@select/inline strlen(get(%0/D`ENDOWMENTS))=0,{@attach %!/WIPE=%0,D`ENDOWMENTS}
 
 &FUN`RET`ENDOWMENTS [u(cobj,data)]=iter(ucstr(get(%0/D`ENDOWMENTS)),before(%i0,~),|,|)
@@ -209,7 +209,7 @@ th u(newconf,CONFIG,STORYTELLER,ARCANA,DEATH|FATE|FORCES|LIFE|MATTER|MIND|PRIME|
 @@ Manifestations
 &INC`SET`MANIFESTATION [u(cobj,data)]=@attach %!/DO`SET`MANIFESTATION=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Manifestation
 
-&DO`VAL`MANIFESTATION [u(cobj,data)]=@check strlen(u(setr,find,ucstr(%1)))=@attach %!/INC`MSG=ERROR: No Manifestation name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Manifestations,%2
+&DO`VAL`MANIFESTATION [u(cobj,data)]=@check strlen(u(setr`%va,find,ucstr(%1)))=@attach %!/INC`MSG=ERROR: No Manifestation name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Manifestations,%2
 &DO`SET`MANIFESTATION [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`MANIFESTATION;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`MANIFESTATIONS,%q<find>,%q<value>
 
 &FUN`RET`MANIFESTATIONS [u(cobj,data)]=iter(ucstr(get(%0/D`MANIFESTATIONS)),before(%i0,~),|,|)
@@ -217,16 +217,16 @@ th u(newconf,CONFIG,STORYTELLER,ARCANA,DEATH|FATE|FORCES|LIFE|MATTER|MIND|PRIME|
 @@ Ceremonies
 &INC`SET`CEREMONY [u(cobj,data)]=@attach %!/DO`SET`CEREMONY=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Ceremony
 
-&DO`VAL`CEREMONY [u(cobj,data)]=@check strlen(u(setr,find,ucstr(%1)))=@attach %!/INC`MSG=ERROR: No Ceremony name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Ceremonies,%2
+&DO`VAL`CEREMONY [u(cobj,data)]=@check strlen(u(setr`%va,find,ucstr(%1)))=@attach %!/INC`MSG=ERROR: No Ceremony name entered.;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Ceremonies,%2
 &DO`SET`CEREMONY [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`CEREMONY;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`CEREMONIES,%q<find>,%q<value>;@select/inline strlen(get(%0/D`CEREMONIES))=0,{@attach %!/WIPE=%0,D`CEREMONIES}
 
 &FUN`RET`CEREMONIES [u(cobj,data)]=iter(ucstr(get(%0/D`CEREMONIES)),before(%i0,~),|,|)
 
 @@ Keys
-&INC`ADD`KEY [u(cobj,data)]=@attach %!/DO`ADD`KEY=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Keys [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`KEY [u(cobj,data)]=@attach %!/DO`REM`KEY=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Keys: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`KEY [u(cobj,data)]=@attach %!/DO`ADD`KEY=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Keys [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`KEY [u(cobj,data)]=@attach %!/DO`REM`KEY=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Keys: [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`KEY [u(cobj,data)]=@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Keys entered.
+&DO`VAL`KEY [u(cobj,data)]=@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Keys entered.
 
 &DO`ADD`KEY [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`KEY;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`KEYS,%q<value>
 &DO`REM`KEY [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`KEY;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`KEYS,%q<value>;@select/inline strlen(get(%0/D`KEYS))=0,{@attach %!/WIPE=%0,D`KEYS}
@@ -245,19 +245,19 @@ th u(newconf,CONFIG,STORYTELLER,ARCANA,DEATH|FATE|FORCES|LIFE|MATTER|MIND|PRIME|
 
 @@ PROMETHEAN
 @@ Transmutations
-&INC`ADD`TRANSMUTATION [u(cobj,data)]=@attach %!/DO`ADD`TRANSMUTATION=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Transmutations [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`TRANSMUTATION [u(cobj,data)]=@attach %!/DO`REM`TRANSMUTATION=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Transmutations: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`TRANSMUTATION [u(cobj,data)]=@attach %!/DO`ADD`TRANSMUTATION=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Transmutations [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`TRANSMUTATION [u(cobj,data)]=@attach %!/DO`REM`TRANSMUTATION=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Transmutations: [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`TRANSMUTATION [u(cobj,data)]=@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Transmutations entered.
+&DO`VAL`TRANSMUTATION [u(cobj,data)]=@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Transmutations entered.
 
 &DO`ADD`TRANSMUTATION [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`TRANSMUTATION;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`TRANSMUTATIONS,%q<value>
 &DO`REM`TRANSMUTATION [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`BESTOWMENT;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`TRANSMUTATIONS,%q<value>;@select/inline strlen(get(%0/D`TRANSMUTATIONS))=0,{@attach %!/WIPE=%0,D`TRANSMUTATIONS}
 
 @@ Bestowments
-&INC`ADD`BESTOWMENT [u(cobj,data)]=@attach %!/DO`ADD`BESTOWMENT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Bestowments [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`BESTOWMENT [u(cobj,data)]=@attach %!/DO`REM`BESTOWMENT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Bestowments: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`BESTOWMENT [u(cobj,data)]=@attach %!/DO`ADD`BESTOWMENT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Bestowments [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`BESTOWMENT [u(cobj,data)]=@attach %!/DO`REM`BESTOWMENT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Bestowments: [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`BESTOWMENT [u(cobj,data)]=@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Bestowments entered.
+&DO`VAL`BESTOWMENT [u(cobj,data)]=@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Bestowments entered.
 
 &DO`ADD`BESTOWMENT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`BESTOWMENT;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`BESTOWMENTS,%q<value>
 &DO`REM`BESTOWMENT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`BESTOWMENT;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`BESTOWMENTS,%q<value>;@select/inline strlen(get(%0/D`BESTOWMENTS))=0,{@attach %!/WIPE=%0,D`BESTOWMENTS}
@@ -272,47 +272,47 @@ th u(newconf,CONFIG,STORYTELLER,ARCANA,DEATH|FATE|FORCES|LIFE|MATTER|MIND|PRIME|
 
 @@ DEMON POWERS
 @@ Embeds
-&INC`ADD`EMBED [u(cobj,data)]=@attach %!/DO`ADD`EMBED=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Embeds [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`EMBED [u(cobj,data)]=@attach %!/DO`REM`EMBED=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Embeds: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`EMBED [u(cobj,data)]=@attach %!/DO`ADD`EMBED=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Embeds [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`EMBED [u(cobj,data)]=@attach %!/DO`REM`EMBED=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Embeds: [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`EMBED [u(cobj,data)]=@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Embeds entered.
+&DO`VAL`EMBED [u(cobj,data)]=@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Embeds entered.
 
 &DO`ADD`EMBED [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`EMBED;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`EMBEDS,%q<value>
 &DO`REM`EMBED [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`EMBED;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`EMBEDS,%q<value>;@select/inline strlen(get(%0/D`EMBEDS))=0,{@attach %!/WIPE=%0,D`EMBEDS}
 
 @@ Exploits
-&INC`ADD`EXPLOIT [u(cobj,data)]=@attach %!/DO`ADD`EXPLOIT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Exploits [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`EXPLOIT [u(cobj,data)]=@attach %!/DO`REM`EXPLOIT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Exploits: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`EXPLOIT [u(cobj,data)]=@attach %!/DO`ADD`EXPLOIT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Exploits [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`EXPLOIT [u(cobj,data)]=@attach %!/DO`REM`EXPLOIT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Exploits: [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`EXPLOIT [u(cobj,data)]=@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Exploits entered.
+&DO`VAL`EXPLOIT [u(cobj,data)]=@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Exploits entered.
 
 &DO`ADD`EXPLOIT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`EXPLOIT;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`EXPLOITS,%q<value>
 &DO`REM`EXPLOIT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`EXPLOIT;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`EXPLOITS,%q<value>;@select/inline strlen(get(%0/D`EXPLOITS))=0,{@attach %!/WIPE=%0,D`EXPLOITS}
 
 @@ BEAST POWERS
 @@ Atavisms
-&INC`ADD`ATAVISM [u(cobj,data)]=@attach %!/DO`ADD`ATAVISM=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Atavisms [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`ATAVISM [u(cobj,data)]=@attach %!/DO`REM`ATAVISM=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Atavisms: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`ATAVISM [u(cobj,data)]=@attach %!/DO`ADD`ATAVISM=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Atavisms [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`ATAVISM [u(cobj,data)]=@attach %!/DO`REM`ATAVISM=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Atavisms: [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`ATAVISM [u(cobj,data)]=@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Atavisms entered.
+&DO`VAL`ATAVISM [u(cobj,data)]=@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Atavisms entered.
 
 &DO`ADD`ATAVISM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ATAVISM;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`ATAVISMS,%q<value>
 &DO`REM`ATAVISM [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ATAVISM;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`ATAVISMS,%q<value>;@select/inline strlen(get(%0/D`ATAVISMS))=0,{@attach %!/WIPE=%0,D`ATAVISMS}
 
 @@ Nightmares
-&INC`ADD`NIGHTMARE [u(cobj,data)]=@attach %!/DO`ADD`NIGHTMARE=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Nightmares [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`NIGHTMARE [u(cobj,data)]=@attach %!/DO`REM`NIGHTMARE=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Nightmares: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`NIGHTMARE [u(cobj,data)]=@attach %!/DO`ADD`NIGHTMARE=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Nightmares [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`NIGHTMARE [u(cobj,data)]=@attach %!/DO`REM`NIGHTMARE=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Nightmares: [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`NIGHTMARE [u(cobj,data)]=@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Nightmares entered.
+&DO`VAL`NIGHTMARE [u(cobj,data)]=@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Nightmares entered.
 
 &DO`ADD`NIGHTMARE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`NIGHTMARE;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`NIGHTMARES,%q<value>
 &DO`REM`NIGHTMARE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`NIGHTMARE;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`NIGHTMARES,%q<value>;@select/inline strlen(get(%0/D`NIGHTMARES))=0,{@attach %!/WIPE=%0,D`NIGHTMARES}
 
 @@ Lair Traits
-&INC`ADD`LAIRTRAIT [u(cobj,data)]=@attach %!/DO`ADD`LAIRTRAIT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now has the [u(setr,have,ansi(h,u(capnames,%q<find>)) Lair Traits [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
-&INC`REM`LAIRTRAIT [u(cobj,data)]=@attach %!/DO`REM`LAIRTRAIT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer have the [u(setr,have,ansi(h,u(capnames,%q<find>)) Lair Traits: [u(itemize,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
+&INC`ADD`LAIRTRAIT [u(cobj,data)]=@attach %!/DO`ADD`LAIRTRAIT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now has the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Lair Traits [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of additions: %q<returnformat>)])]},{You now have the %q<have>},{%q<msg>}
+&INC`REM`LAIRTRAIT [u(cobj,data)]=@attach %!/DO`REM`LAIRTRAIT=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer have the [u(setr`%va,have,ansi(h,u(capnames,%q<find>)) Lair Traits: [u(itemize`%va,iter(u(capnames,%q<filtered>),%i0,|,|),|,and,\,)]. Result of removal: %q<returnformat>)])]},{You no longer have the %q<have>},{%q<msg>}
 
-&DO`VAL`LAIRTRAIT [u(cobj,data)]=@check strlen(u(setr,value,%2))=@attach %!/INC`MSG=ERROR: No Lair Traits entered.
+&DO`VAL`LAIRTRAIT [u(cobj,data)]=@check strlen(u(setr`%va,value,%2))=@attach %!/INC`MSG=ERROR: No Lair Traits entered.
 
 &DO`ADD`LAIRTRAIT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`LAIRTRAIT;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`LAIRTRAITS,%q<value>
 &DO`REM`LAIRTRAIT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`LAIRTRAIT;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`LAIRTRAITS,%q<value>;@select/inline strlen(get(%0/D`LAIRTRAITS))=0,{@attach %!/WIPE=%0,D`LAIRTRAITS}
@@ -337,31 +337,31 @@ th u(newconf,CONFIG,STORYTELLER,ARCANA,DEATH|FATE|FORCES|LIFE|MATTER|MIND|PRIME|
 &DO`REM`ASSET [u(cobj,data)]=@attach %!/DO`REM`FAVORED
 &DO`ADD`ASSET [u(cobj,data)]=@attach %!/DO`ADD`FAVORED
 
-&INC`ADD`FAVORED [u(cobj,data)]=@attach %!/DO`ADD`FAVORED=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) now [u(setr,have,[ansi(h,u(capnames,%q<find>))] Favors: [u(itemize,iter(%q<value>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)])])]},{You now %q<have>},{%q<msg>}
-&INC`REM`FAVORED [u(cobj,data)]=@attach %!/DO`REM`FAVORED=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0)) no longer [u(setr,have,[ansi(h,u(capnames,%q<find>))] Favor: [u(itemize,iter(%q<value>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)])])]},{You no longer %q<have>},{%q<msg>}
+&INC`ADD`FAVORED [u(cobj,data)]=@attach %!/DO`ADD`FAVORED=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) now [u(setr`%va,have,[ansi(h,u(capnames,%q<find>))] Favors: [u(itemize`%va,iter(%q<value>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)])])]},{You now %q<have>},{%q<msg>}
+&INC`REM`FAVORED [u(cobj,data)]=@attach %!/DO`REM`FAVORED=%0,elements(%1,2,|),%2;@attach %!/DO`ANNOUNCE=%0,{[u(setr`%va,msg,ansi(h,name(%0)) no longer [u(setr`%va,have,[ansi(h,u(capnames,%q<find>))] Favor: [u(itemize`%va,iter(%q<value>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)])])]},{You no longer %q<have>},{%q<msg>}
 
-&DO`VAL`FAVORED [u(cobj,data)]=@check strlen(before(%1,/))=@attach %!/INC`MSG=ERROR: No Favored Type entered.;@attach %!/INC`PARTIAL=before(%1,/),u(u(cobj,data)/FUN`GET`FAVORED),|,find,Favored Type;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No [u(capnames,%q<find>)] entered.;th u(setq,find2,u(u(cobj,data)/FUN`GET`FAVORED`%q<find>));th u(setq,value,iter(ucstr(%2),grab(%q<find2>,if(strlen(%i0),%i0*),|),|,|));@check lmath(min,iter(%q<value>,strlen(%i0),|,%b))=@attach %!/INC`MSG=ERROR: One or more [u(capnames,%q<find>)] didn't resolve. Please check your entry.
+&DO`VAL`FAVORED [u(cobj,data)]=@check strlen(before(%1,/))=@attach %!/INC`MSG=ERROR: No Favored Type entered.;@attach %!/INC`PARTIAL=before(%1,/),u(u(cobj,data)/FUN`GET`FAVORED),|,find,Favored Type;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No [u(capnames,%q<find>)] entered.;th u(setq`%va,find2,u(u(cobj,data)/FUN`GET`FAVORED`%q<find>));th u(setq`%va,value,iter(ucstr(%2),grab(%q<find2>,if(strlen(%i0),%i0*),|),|,|));@check lmath(min,iter(%q<value>,strlen(%i0),|,%b))=@attach %!/INC`MSG=ERROR: One or more [u(capnames,%q<find>)] didn't resolve. Please check your entry.
 
-&DO`ADD`FAVORED [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`FAVORED;@stop words(u(setr,conflict,setinter(u(setr,oldcharms,ucstr(get(%0/D`FAVORED`%q<find>))),ucstr(%q<value>),|,|)),|)=@attach %!/INC`MSG=[switch(%0,%#,You already have,name(%0) already has)] the [u(itemize,u(capnames,%q<conflict>),|,and,\,)] [ansi(h,u(capnames,%q<find>))] Favored.;&D`FAVORED`%q<find> %0=u(setr,newcharms,setunion(%q<oldcharms>,ucstr(%q<value>),|,|))
-&DO`REM`FAVORED [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`FAVORED;@stop words(u(setr,conflict,setdiff(ucstr(%q<value>),u(setr,oldcharms,ucstr(get(%0/D`FAVORED`%q<find>))),|,|)),|)=@attach %!/INC`MSG=[switch(%0,%#,You don't have have,name(%0) doesn't have)] the [u(itemize,u(capnames,%q<conflict>),|,and,\,)] [ansi(h,u(capnames,%q<find>))] Favored.;&D`FAVORED`%q<find> %0=u(setr,newcharms,setdiff(get(%0/D`FAVORED`%q<find>),ucstr(%q<value>),|,|));@select/inline strlen(%q<newcharms>)=0,{@attach %!/WIPE=%0,D`FAVORED`%q<find>}
+&DO`ADD`FAVORED [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`FAVORED;@stop words(u(setr`%va,conflict,setinter(u(setr`%va,oldcharms,ucstr(get(%0/D`FAVORED`%q<find>))),ucstr(%q<value>),|,|)),|)=@attach %!/INC`MSG=[switch(%0,%#,You already have,name(%0) already has)] the [u(itemize`%va,u(capnames,%q<conflict>),|,and,\,)] [ansi(h,u(capnames,%q<find>))] Favored.;&D`FAVORED`%q<find> %0=u(setr`%va,newcharms,setunion(%q<oldcharms>,ucstr(%q<value>),|,|))
+&DO`REM`FAVORED [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`FAVORED;@stop words(u(setr`%va,conflict,setdiff(ucstr(%q<value>),u(setr`%va,oldcharms,ucstr(get(%0/D`FAVORED`%q<find>))),|,|)),|)=@attach %!/INC`MSG=[switch(%0,%#,You don't have have,name(%0) doesn't have)] the [u(itemize`%va,u(capnames,%q<conflict>),|,and,\,)] [ansi(h,u(capnames,%q<find>))] Favored.;&D`FAVORED`%q<find> %0=u(setr`%va,newcharms,setdiff(get(%0/D`FAVORED`%q<find>),ucstr(%q<value>),|,|));@select/inline strlen(%q<newcharms>)=0,{@attach %!/WIPE=%0,D`FAVORED`%q<find>}
 
 &FUN`GET`FAVORED u(cobj,data)=SKILLS
 &FUN`GET`FAVORED`ATTRIBUTES u(cobj,data)=u(FUN`GET`ATTRIBUTES)
 &FUN`GET`FAVORED`SKILLS u(cobj,data)=u(FUN`GET`SKILLS)
 
-&GIFT`VAL [u(cobj,data)]=@stop u(charsearch,%2,~)=@attach %!/INC`MSG=ERROR: ~ is a system-reserved character.;@check u(valnum,u(ladd,%3))=@attach %!/INC`MSG=ERROR: Entries must be whole numbers.
-&GIFT`ADD [u(cobj,data)]=@attach [u(cobj,data)]/GIFT`VAL;th u(setstat,%0,%1,ucstr(%2),u(setr,return,setunion(u(getstat,%0,%1,ucstr(%2)),%3)))
-&GIFT`REM [u(cobj,data)]=@attach [u(cobj,data)]/GIFT`VAL;th u(setstat,%0,%1,ucstr(%2),u(setr,return,setdiff(u(getstat,%0,%1,ucstr(%2)),%3)));@select/inline strlen(u(getstat,%0,%1,ucstr(%2)))=0,{th u(delstat,%0,%1,ucstr(%2))}
+&GIFT`VAL [u(cobj,data)]=@stop u(charsearch,%2,~)=@attach %!/INC`MSG=ERROR: ~ is a system-reserved character.;@check u(valnum,u(ladd`%va,%3))=@attach %!/INC`MSG=ERROR: Entries must be whole numbers.
+&GIFT`ADD [u(cobj,data)]=@attach [u(cobj,data)]/GIFT`VAL;th u(setstat`%va,%0,%1,ucstr(%2),u(setr`%va,return,setunion(u(getstat`%va,%0,%1,ucstr(%2)),%3)))
+&GIFT`REM [u(cobj,data)]=@attach [u(cobj,data)]/GIFT`VAL;th u(setstat`%va,%0,%1,ucstr(%2),u(setr`%va,return,setdiff(u(getstat`%va,%0,%1,ucstr(%2)),%3)));@select/inline strlen(u(getstat`%va,%0,%1,ucstr(%2)))=0,{th u(delstat`%va,%0,%1,ucstr(%2))}
 
 &SGIFT`KEY [u(cobj,data)]=switch(%0,P,1,H,2,C,3,W,4,G,5)
-&SGIFT`VAL [u(cobj,data)]=@stop u(charsearch,%2,~)=@attach %!/INC`MSG=ERROR: ~ is a system-reserved character.;@check u(valnum,u(ladd,iter(%3,match(P H C W G,%i0))))=@attach %!/INC`MSG=ERROR: Entries must consist of the following characters: P H C W G
-&SGIFT`ADD [u(cobj,data)]=@attach [u(cobj,data)]/SGIFT`VAL;th u(setstat,%0,%1,ucstr(%2),u(setr,return,u(sortsgift,setunion(ucstr(u(getstat,%0,%1,ucstr(%2))),%3))))
-&SGIFT`REM [u(cobj,data)]=@attach [u(cobj,data)]/SGIFT`VAL;th u(setstat,%0,%1,ucstr(%2),u(setr,return,u(sortsgift,setdiff(ucstr(u(getstat,%0,%1,ucstr(%2))),%3))));@select/inline strlen(u(getstat,%0,%1,ucstr(%2)))=0,{th u(delstat,%0,%1,ucstr(%2))}
+&SGIFT`VAL [u(cobj,data)]=@stop u(charsearch,%2,~)=@attach %!/INC`MSG=ERROR: ~ is a system-reserved character.;@check u(valnum,u(ladd`%va,iter(%3,match(P H C W G,%i0))))=@attach %!/INC`MSG=ERROR: Entries must consist of the following characters: P H C W G
+&SGIFT`ADD [u(cobj,data)]=@attach [u(cobj,data)]/SGIFT`VAL;th u(setstat`%va,%0,%1,ucstr(%2),u(setr`%va,return,u(sortsgift,setunion(ucstr(u(getstat`%va,%0,%1,ucstr(%2))),%3))))
+&SGIFT`REM [u(cobj,data)]=@attach [u(cobj,data)]/SGIFT`VAL;th u(setstat`%va,%0,%1,ucstr(%2),u(setr`%va,return,u(sortsgift,setdiff(ucstr(u(getstat`%va,%0,%1,ucstr(%2))),%3))));@select/inline strlen(u(getstat`%va,%0,%1,ucstr(%2)))=0,{th u(delstat`%va,%0,%1,ucstr(%2))}
 
 &SORTSGIFT [u(cobj,mco)]=u(SORTSGIFT`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTSGIFT`PENNMUSH [u(cobj,mco)]=sortkey(u(cobj,data)/SGIFT`KEY,%0,n,%1,%2)
 &SORTSGIFT`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(u(u(cobj,data)/SGIFT`KEY,%0),u(u(cobj,data)/SGIFT`KEY,%1))])],%0,%1,%2)
 
 @@ SHELP - CHARACTERS - +EDITCHAR
-+shelp/add +editchar=+editchar is used to modify all parts of a character's +sheet!%R%R[ansi(h,+editchar/<flag> <player>|<categories|and|objects>\[=<modification>\])]%r%r[ansi(h,FLAG: SET)]%r[ansi(h,Class)]%t%t=<class>%R[ansi(h,Power)]%t%t=<value> (power stat! Blood Potency, Primal Urge, etc)%R[ansi(h,Willpower)]%t=<value>%R[ansi(h,Attribute)]%t<attribute>=<value>%r[ansi(h,Skill)]%t%t<skill>=<value>%r[ansi(h,Specialty)]%t<skill>/<specialty>=<value>%r[ansi(h,Info)]%t%t<infotype>=<value>%R[ansi(h,Pool)]%t%t<pool>=<value> (added to normal calc for max size, can create pool)%r%rValid INFOTYPES: [u(itemize,u(game_config,STORYTELLER,INFOTYPES),|,and,\,)]%R%RSET can also be used on the following categories: BONUS, DISCIPLINE, RENOWN, RITE, ARCANA, CONTRACT, ENDOWMENT, MANIFESTATION, CEREMONY, TRANSMUTATION, BESTOWMENT, EMBED, EXPLOIT.%R%R[ansi(h,FLAG: ADD & REM)]%r[ansi(h,Gift)]%t%t<giftname>=<values> (Moon Gifts. Values must be numbers, like 1 3.)%r[ansi(h,SGift)]%t%t<giftname>=<values> (Shadow/Wolf Gifts. Values must be initials of Aspects. C for Cunning, G for Glory, etc.)%r[ansi(h,Asset)]%T%TSkill=<skill> (Asset Skills for hunters)%R[ansi(h,<field>)]%t%t=<power1>|<power2>|etc (Word-list based powers. See below:)%R%RADD/REM <fields>: ECHO, KEY, ATAVISM, NIGHTMARE, LAIRTRAIT.%R%RLeave values absolutely clear to remove them entirely.%R%RNote, many categories support partial matching! You can use Attr instead of Attribute, etc. capitalization is rarely important for entries.%R%RExamples:%R+editchar/set Lark|Attr|Composure=3%R+editchar/set Lark|Power=4%R+editchar/add Lark|Gift|Father Wolf=1 4%R+editchar/add Lark|Atavism=Eye of Heaven|Infestation%R%R[ansi(h,MERITS and Etc)]%RThese are addressed through the +merit system. Check +help +merits and +shelp +merits%R%RGive someone a Ghoul or Ensorceled Merit of any rating to mark them as such.
++shelp/add +editchar=+editchar is used to modify all parts of a character's +sheet!%R%R[ansi(h,+editchar/<flag> <player>|<categories|and|objects>\[=<modification>\])]%r%r[ansi(h,FLAG: SET)]%r[ansi(h,Class)]%t%t=<class>%R[ansi(h,Power)]%t%t=<value> (power stat! Blood Potency, Primal Urge, etc)%R[ansi(h,Willpower)]%t=<value>%R[ansi(h,Attribute)]%t<attribute>=<value>%r[ansi(h,Skill)]%t%t<skill>=<value>%r[ansi(h,Specialty)]%t<skill>/<specialty>=<value>%r[ansi(h,Info)]%t%t<infotype>=<value>%R[ansi(h,Pool)]%t%t<pool>=<value> (added to normal calc for max size, can create pool)%r%rValid INFOTYPES: [u(itemize`%va,u(game_config,STORYTELLER,INFOTYPES),|,and,\,)]%R%RSET can also be used on the following categories: BONUS, DISCIPLINE, RENOWN, RITE, ARCANA, CONTRACT, ENDOWMENT, MANIFESTATION, CEREMONY, TRANSMUTATION, BESTOWMENT, EMBED, EXPLOIT.%R%R[ansi(h,FLAG: ADD & REM)]%r[ansi(h,Gift)]%t%t<giftname>=<values> (Moon Gifts. Values must be numbers, like 1 3.)%r[ansi(h,SGift)]%t%t<giftname>=<values> (Shadow/Wolf Gifts. Values must be initials of Aspects. C for Cunning, G for Glory, etc.)%r[ansi(h,Asset)]%T%TSkill=<skill> (Asset Skills for hunters)%R[ansi(h,<field>)]%t%t=<power1>|<power2>|etc (Word-list based powers. See below:)%R%RADD/REM <fields>: ECHO, KEY, ATAVISM, NIGHTMARE, LAIRTRAIT.%R%RLeave values absolutely clear to remove them entirely.%R%RNote, many categories support partial matching! You can use Attr instead of Attribute, etc. capitalization is rarely important for entries.%R%RExamples:%R+editchar/set Lark|Attr|Composure=3%R+editchar/set Lark|Power=4%R+editchar/add Lark|Gift|Father Wolf=1 4%R+editchar/add Lark|Atavism=Eye of Heaven|Infestation%R%R[ansi(h,MERITS and Etc)]%RThese are addressed through the +merit system. Check +help +merits and +shelp +merits%R%RGive someone a Ghoul or Ensorceled Merit of any rating to mark them as such.
 +shelp/category +editchar=Characters

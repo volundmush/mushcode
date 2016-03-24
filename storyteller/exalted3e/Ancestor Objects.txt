@@ -1,6 +1,6 @@
 
 &VAR`MODE u(ar)=EXALTED
 
-&FUN`CONFORMAT`PLAYERS`EXALTED u(ar)=u(RFN`SEPARATOR,Players)%R[align(19 [sub(width(%#),20)],Name,Description)]%R[trim(iter(sort(lvplayers(me),namei),align(19 [sub(width(%#),20)],pueblize(ansi(u(color,%#,ROOM`PLAYERNAME),name(%i0)),look [name(%i0)]),get(%i0/short-desc)),%b,%R),%r)]
+&FUN`CONFORMAT`PLAYERS`EXALTED u(ar)=u(RFN`SEPARATOR,Players)%R[align(19 [sub(width(%#),20)],Name,Description)]%R[trim(iter(sort(lvplayers(me),namei),align(19 [sub(width(%#),20)],pueblize(ansi(u(color`%va,%#,ROOM`PLAYERNAME),name(%i0)),look [name(%i0)]),get(%i0/short-desc)),%b,%R),%r)]
 
 &CONFORMAT`PLAYERS`EXALTED [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(vol_color(%#,ROOM,COLUMN_NAMES),align(28 10 35,Name,Class,Short-Desc))]%R[iter(vol_sortname(lvplayers(%!)),align(28 10 35,vol_mxpmenu(moniker(%i0),look [name(%i0)]),capstr(lcstr(getclass(%i0))),get(%i0/short-desc)),%b,%R)]

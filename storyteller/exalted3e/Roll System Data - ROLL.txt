@@ -7,7 +7,7 @@ th u(newconf,CONFIG,ROLLER,CHANNEL,,Channel to report dice rolls?,LIST)
 th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|ABILITIES|STYLES|CRAFTS|INFO,D`Attributes to stat search?,LIST)
 
 &ROLL`DYNAMICSTATS [u(cobj,roll)]=MARTIAL ARTS|ESSENCE
-&ROLL`DYNAMICSTATS`MARTIAL_ARTS [u(cobj,roll)]=u(getstat,%0,D`ABILITIES,Martial Arts)
+&ROLL`DYNAMICSTATS`MARTIAL_ARTS [u(cobj,roll)]=u(getstat`%va,%0,D`ABILITIES,Martial Arts)
 &ROLL`DYNAMICSTATS`ESSENCE [u(cobj,roll)]=getpower(%0)
 
 @@ ROLEPLAYING - +ROLL

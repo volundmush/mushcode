@@ -4,25 +4,25 @@ th u(newcobj,STORYTELLER: Intimacy Management System <INTIMACY>,intimacy,,,,WIZA
 @set [u(cobj,intimacy)]/CMD`+INTIMACY`PENNMUSH=regexp
 &CMD`+INTIMACY`RHOSTMUSH [u(cobj,intimacy)]=$^\+intimacy(?\:/(\\S+))?(?\: +(.*))?$:@attach %!/CMD`+INTIMACY`MAIN
 @set [u(cobj,intimacy)]/CMD`+INTIMACY`RHOSTMUSH=regexp
-&CMD`+INTIMACY`MAIN [u(cobj,intimacy)]=@attach %!/INC`GETSWITCH=%#;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=squish(trim(%2))
+&CMD`+INTIMACY`MAIN [u(cobj,intimacy)]=@attach %!/INC`GETSWITCH=%#;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=squish(trim(%2))
 @set [u(cobj,intimacy)]/CMD`+INTIMACY`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,intimacy)]=INTIMACY
 &SWITCHES`PLAYER [u(cobj,intimacy)]=GAIN|LOSE|STRENGTHEN|WEAKEN|RENAME|SLOT
 
-&INC`GAIN [u(cobj,intimacy)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Intimacy context field empty.;&[u(setr,attr,D`INTIMACIES`[u(nextslot,%#,D`INTIMACIES)])] %#=%0;&%q<attr>`CUR %#=2;@attach %!/INC`MSG=Intimacy '%0' added.
+&INC`GAIN [u(cobj,intimacy)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Intimacy context field empty.;&[u(setr`%va,attr,D`INTIMACIES`[u(nextslot,%#,D`INTIMACIES)])] %#=%0;&%q<attr>`CUR %#=2;@attach %!/INC`MSG=Intimacy '%0' added.
 
 &INC`LOSE [u(cobj,intimacy)]=@attach %!/INC`CHECKINT;@attach %!/INC`MSG=You have removed the Intimacy '[get(%#/D`INTIMACIES`%0)]';@attach %!/WIPE=%#,D`INTIMACIES`%0
 
 &INC`CHECKINT [u(cobj,intimacy)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Intimacy field empty.;@check u(valnum,%0)=@attach %!/INC`MSG=ERROR: Intimacies may only be addressed by their slot number.;@check hasattr(%#/D`INTIMACIES`%0)=@attach %!/INC`MSG=ERROR: Intimacy not found.
 
-&INC`STRENGTHEN [u(cobj,intimacy)]=@attach %!/INC`CHECKINT;@stop gt(get(%#/D`INTIMACIES`%0`CUR),4)=@attach %!/INC`MSG=Intimacies cannot be strengthened past Defining.;&D`INTIMACIES`%0`CUR %#=u(setr,new,add(get(%#/D`INTIMACIES`%0`CUR),2));@attach %!/INC`MSG=You reinforced your '[get(%#/D`INTIMACIES`%0)]' Intimacy to [switch(%q<new>,2,Minor,4,Major,6,Defining)].
+&INC`STRENGTHEN [u(cobj,intimacy)]=@attach %!/INC`CHECKINT;@stop gt(get(%#/D`INTIMACIES`%0`CUR),4)=@attach %!/INC`MSG=Intimacies cannot be strengthened past Defining.;&D`INTIMACIES`%0`CUR %#=u(setr`%va,new,add(get(%#/D`INTIMACIES`%0`CUR),2));@attach %!/INC`MSG=You reinforced your '[get(%#/D`INTIMACIES`%0)]' Intimacy to [switch(%q<new>,2,Minor,4,Major,6,Defining)].
 
-&INC`WEAKEN [u(cobj,intimacy)]=@attach %!/INC`CHECKINT;@stop lt(get(%#/D`INTIMACIES`%0`CUR),4)=@attach %!/INC`MSG=Intimacies cannot be weakened past Minor. Use /lose for that.;&D`INTIMACIES`%0`CUR %#=u(setr,new,sub(get(%#/D`INTIMACIES`%0`CUR),2));@attach %!/INC`MSG=You weakened your '[get(%#/D`INTIMACIES`%0)]' Intimacy to [switch(%q<new>,2,Minor,4,Major,6,Defining)].
+&INC`WEAKEN [u(cobj,intimacy)]=@attach %!/INC`CHECKINT;@stop lt(get(%#/D`INTIMACIES`%0`CUR),4)=@attach %!/INC`MSG=Intimacies cannot be weakened past Minor. Use /lose for that.;&D`INTIMACIES`%0`CUR %#=u(setr`%va,new,sub(get(%#/D`INTIMACIES`%0`CUR),2));@attach %!/INC`MSG=You weakened your '[get(%#/D`INTIMACIES`%0)]' Intimacy to [switch(%q<new>,2,Minor,4,Major,6,Defining)].
 
 &INC`SLOT [u(Cobj,intimacy)]=@attach %!/INC`CHECKINT=before(%0,=);@attach %!/INC`VALID`POSINT=after(%0,=),Intimacy Slot;@break hasattr(%#/D`INTIMACIES`%q<value>)=@attach %!/INC`MSG=ERROR: Cannot move intimacy to an occupied slot.;@attach %!/INC`MVTREE=%#,D`INTIMACIES`[before(%0,=)],%#,D`INTIMACIES`%q<value>;@attach %!/INC`MSG=Intimacy moved to slot %q<value>!
 
-&INC`MAIN [u(cobj,intimacy)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin,%#),%0),%0,%#),1;@pemit %#=u(HEADER,+intimacies for %q<t1name>);@pemit %#=ansi(u(color,%#,SYSTEM,COLUMN_NAMES),align(2 60 15,ID,Name,Status));@pemit %#=u(SEPARATOR);@dolist/inline u(sortattr,u(lattr,%q<t1>/D`INTIMACIES`*))=@pemit %#=align(2 60 15,last(%i0,`),get(%q<t1>/%i0),switch(get(%q<t1>/%i0`CUR),2,Minor,4,Major,6,Defining));@pemit %#=u(SUBHEADER)
+&INC`MAIN [u(cobj,intimacy)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin`%va,%#),%0),%0,%#),1;@pemit %#=u(HEADER,+intimacies for %q<t1name>);@pemit %#=ansi(u(color`%va,%#,SYSTEM,COLUMN_NAMES),align(2 60 15,ID,Name,Status));@pemit %#=u(SEPARATOR);@dolist/inline u(sortattr`%va,u(lattr`%va,%q<t1>/D`INTIMACIES`*))=@pemit %#=align(2 60 15,last(%i0,`),get(%q<t1>/%i0),switch(get(%q<t1>/%i0`CUR),2,Minor,4,Major,6,Defining));@pemit %#=u(SUBHEADER)
 
 @@ ROLEPLAYING - +INTIMACY
 +help/add +intimacy=[u(cobj,intimacy)]/HLP`+INTIMACY

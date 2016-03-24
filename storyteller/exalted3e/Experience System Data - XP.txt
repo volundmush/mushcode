@@ -2,14 +2,14 @@
 @set [u(cobj,xp)]/CMD`+XP`PENNMUSH=regexp
 &CMD`+XP`RHOSTMUSH [u(cobj,xp)]=$^(?s)(?\:\+)?(xp|solarxp|sxp|gxp|wxp)(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:/(.*))?$:@attach %!/CMD`+XP`MAIN
 @set [u(cobj,xp)]/CMD`+XP`RHOSTMUSH=regexp
-&CMD`+XP`MAIN [u(cobj,xp)]=@attach %!/INIT`%1;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=squish(trim(%3)),squish(trim(%4)),squish(trim(%5))
+&CMD`+XP`MAIN [u(cobj,xp)]=@attach %!/INIT`%1;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=squish(trim(%3)),squish(trim(%4)),squish(trim(%5))
 @set [u(cobj,xp)]/CMD`+XP`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&INIT`XP [u(cobj,xp)]=th u(setq,root,XP);th u(setq,type,Experience);th u(setq,comm,+xp);th u(setq,earn,0);th u(setq,use,0)
-&INIT`SOLARXP [u(cobj,xp)]=th u(setq,root,SOLXP);th u(setq,type,Solar XP);th u(setq,comm,+solarxp);th u(setq,earn,0);th u(setq,use,0)
-&INIT`SXP [u(cobj,xp)]=th u(setq,root,SILXP);th u(setq,type,Silver Craft XP);th u(setq,comm,+sxp);th u(setq,earn,1);th u(setq,use,1)
-&INIT`GXP [u(cobj,xp)]=th u(setq,root,GOLXP);th u(setq,type,Gold Craft XP);th u(setq,comm,+gxp);th u(setq,earn,1);th u(setq,use,1)
-&INIT`WXP [u(cobj,xp)]=th u(setq,root,WHIXP);th u(setq,type,White Craft XP);th u(setq,comm,+wxp);th u(setq,earn,1);th u(setq,use,1)
+&INIT`XP [u(cobj,xp)]=th u(setq`%va,root,XP);th u(setq`%va,type,Experience);th u(setq`%va,comm,+xp);th u(setq`%va,earn,0);th u(setq`%va,use,0)
+&INIT`SOLARXP [u(cobj,xp)]=th u(setq`%va,root,SOLXP);th u(setq`%va,type,Solar XP);th u(setq`%va,comm,+solarxp);th u(setq`%va,earn,0);th u(setq`%va,use,0)
+&INIT`SXP [u(cobj,xp)]=th u(setq`%va,root,SILXP);th u(setq`%va,type,Silver Craft XP);th u(setq`%va,comm,+sxp);th u(setq`%va,earn,1);th u(setq`%va,use,1)
+&INIT`GXP [u(cobj,xp)]=th u(setq`%va,root,GOLXP);th u(setq`%va,type,Gold Craft XP);th u(setq`%va,comm,+gxp);th u(setq`%va,earn,1);th u(setq`%va,use,1)
+&INIT`WXP [u(cobj,xp)]=th u(setq`%va,root,WHIXP);th u(setq`%va,type,White Craft XP);th u(setq`%va,comm,+wxp);th u(setq`%va,earn,1);th u(setq`%va,use,1)
 
 &HLP`TYPES [u(cobj,xp)]=[ansi(h,+xp)] - Normal experience.%R[ansi(h,+solarxp)] - Solar experience.%R[ansi(h,+sxp)] - Silver Crafting Experience. Can Earn/Use.%R[ansi(h,+gxp)] - Gold Crafting Experience. Can Earn/Use.%R[ansi(h,+wxp)] - White Crafting Experience. Can Earn/Use.
 

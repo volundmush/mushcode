@@ -17,7 +17,7 @@
 &POOL`WILLPOWER [u(cobj,pool)]=Pool
 &POOL`WILLPOWER`UNITNAME [u(cobj,pool)]=Points
 &POOL`WILLPOWER`UNITTYPE [u(cobj,pool)]=Willpower
-&POOL`WILLPOWER`MAX [u(cobj,pool)]=u(strfirstof,u(getstat,%0,D`INFO,Willpower),0)
+&POOL`WILLPOWER`MAX [u(cobj,pool)]=u(strfirstof`%va,u(getstat`%va,%0,D`INFO,Willpower),0)
 &POOL`WILLPOWER`INIT [u(cobj,pool)]=u(POOL`WILLPOWER`MAX,%0)
 &POOL`WILLPOWER`ORDER [u(cobj,pool)]=15
 

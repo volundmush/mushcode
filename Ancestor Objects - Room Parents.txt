@@ -1,7 +1,7 @@
 @@ DEPENDENCIES: CORE
 
 @@ ANCESTOR ROOM
-@select/inline isdbref(u(coi,ar))=1,{&COBJ`ANCESTOR_ROOM [u(cobj,mco)]=[u(coi,ar)]},0,{@select/inline isdbref(u(cobj,ancestor_room))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_ROOM,dig(Ancestor Room))}}
+@select/inline isdbref(u(coi,ar))=1,{&COBJ`ANCESTOR_ROOM [u(cobj,mco)]=[u(coi,ar)]},0,{@select/inline isdbref(u(cobj,ancestor_room))=0,{th u(attrib_set`%va,u(cobj,mco),COBJ`ANCESTOR_ROOM,dig(Ancestor Room))}}
 
 &HEADER [u(cobj,ancestor_room)]=vol_header(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
 &SEPARATOR [u(cobj,ancestor_room)]=vol_separator(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
@@ -43,7 +43,7 @@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
 
 @@ ANCESTOR EXIT
 
-@select/inline isdbref(u(coi,ae))=1,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_EXIT,u(coi,ae))},0,{@select/inline isdbref(u(cobj,ancestor_exit))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_EXIT,open(Ancestor Exit,#0,u(cobj,ancestor_room)))}}
+@select/inline isdbref(u(coi,ae))=1,{th u(attrib_set`%va,u(cobj,mco),COBJ`ANCESTOR_EXIT,u(coi,ae))},0,{@select/inline isdbref(u(cobj,ancestor_exit))=0,{th u(attrib_set`%va,u(cobj,mco),COBJ`ANCESTOR_EXIT,open(Ancestor Exit,#0,u(cobj,ancestor_room)))}}
 
 &ODROP [u(cobj,ancestor_exit)]=heads over from [fullname(home(me))]
 &OSUCCESS [u(cobj,ancestor_exit)]=heads over to [fullname(loc(me))]
@@ -51,7 +51,7 @@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
 
 @@ ANCESTOR PLAYER
 
-@select/inline isdbref(u(setr,ap,u(coi,ap)))=1,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_PLAYER,%q<ap>)},0,{@select/inline isdbref(u(cobj,ancestor_player))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_PLAYER,pcreate(Ancestor Player,digest(md5,secs())))}}
+@select/inline isdbref(u(setr`%va,ap,u(coi,ap)))=1,{th u(attrib_set`%va,u(cobj,mco),COBJ`ANCESTOR_PLAYER,%q<ap>)},0,{@select/inline isdbref(u(cobj,ancestor_player))=0,{th u(attrib_set`%va,u(cobj,mco),COBJ`ANCESTOR_PLAYER,pcreate(Ancestor Player,digest(md5,secs())))}}
 @tel [u(cobj,ancestor_player)]=[u(cobj,ancestor_room)]
 
 @pageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,COLOR,PAGE),vol_colornames(%!,%4,PAGES,lwho(%!),%#))
@@ -59,7 +59,14 @@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
 @adescribe [u(cobj,ancestor_player)]=@check [vol_my_config(ALERTS,ADESC)];think GAME> %n just looked at you.
 @idle [u(cobj,ancestor_player)]=if(gte(idle(%!),vol_my_config(ALERTS,IDLE)),Currently idle\, please try again later!)
 
-@chatformat [u(cobj,ancestor_player)]=if(cor(vol_chanpriority(%1),strmatch(%#,%!)),if(strlen(setr(color,vol_chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))],<%1>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))]))
+@chatformat [u(cobj,ancestor_player)]=if(cor(vol_chanpriority(%1),strmatch(%#,%!)),if(strlen(setr(color,vol_chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))],<%1>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)[vol_colormarkup(%!,%2,%#)],%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))]))
+
+@chatformat [u(cobj,ancestor_player)]=if(cor(vol_chanpriority(%1),strmatch(%#,%!)),<[if(strlen(setr(color,vol_chancolor(%1))),ansi(%q<color>,stripansi(%1)),%1)]>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))])
+
+
+
+if(strlen(setr(color,vol_chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))],<%1>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)[vol_colormarkup(%!,%2,%#)],%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))])
+
 
 th u(NEWCONF,pconf,ALERTS,ADESC,0,Signal when looked at.,BOOL)
 th u(NEWCONF,pconf,ALERTS,IDLE,1800,Minutes until pagers receive idle message.,DURATION)
@@ -70,5 +77,5 @@ th u(NEWCONF,pconf,COLOR,PAGE,,For incoming pages.,COLOR)
 th u(NEWCONF,pconf,COLOR,OUTPAGE,,For outgoing pages.,COLOR)
 
 @@ ANCESTOR THING
-@select/inline isdbref(u(coi,at))=1,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_THING,u(coi,at))},0,{@select/inline isdbref(u(coi,ae))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_THING,create(Ancestor Thing <AT>))}}
+@select/inline isdbref(u(coi,at))=1,{th u(attrib_set`%va,u(cobj,mco),COBJ`ANCESTOR_THING,u(coi,at))},0,{@select/inline isdbref(u(coi,ae))=0,{th u(attrib_set`%va,u(cobj,mco),COBJ`ANCESTOR_THING,create(Ancestor Thing <AT>))}}
 @tel [u(cobj,ancestor_thing)]=[u(cobj,ancestor_room)]

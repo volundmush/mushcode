@@ -25,7 +25,7 @@ th u(newcobj,STORYTELLER: Calendar Management System <CALENDAR>,calendar,,,,WIZA
 
 &TRG`ANNOUNCE [u(cobj,calendar)]=@attach %!/INC`MSG`CHAN=u(FUN`SHOWDATE) - [u(FUN`SHOWMOON)],u(game_config,CHANNELS,ROLEPLAY),,1,,1
 
-&TRG`TICKER [u(cobj,calendar)]=@select/inline t(v(VAR`ENABLED))=1,{@select/inline gt(u(setr,newsecs,add(v(VAR`CURSECS),u(setr,secsadd,round(mul(60,v(VAR`MULTIPLIER)),0)))),86400)=1,{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS [u(cobj,calendar)]=sub(%q<newsecs>,86400);@select/inline gt(u(setr,newdays,add(v(VAR`CURDAY),1)),425)=1,{&VAR`CURDAY [u(cobj,calendar)]=sub(%q<newdays>,425);&VAR`CURYEAR [u(cobj,calendar)]=add(v(VAR`CURYEAR),1);@trigger %!/TRG`ANNOUNCE},{&VAR`CURDAY [u(cobj,calendar)]=%q<newdays>;@trigger me/TRG`ANNOUNCE}},{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS [u(cobj,calendar)]=%q<newsecs>}};@wait 60={@trigger %!/TRG`TICKER}
+&TRG`TICKER [u(cobj,calendar)]=@select/inline t(v(VAR`ENABLED))=1,{@select/inline gt(u(setr`%va,newsecs,add(v(VAR`CURSECS),u(setr`%va,secsadd,round(mul(60,v(VAR`MULTIPLIER)),0)))),86400)=1,{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS [u(cobj,calendar)]=sub(%q<newsecs>,86400);@select/inline gt(u(setr`%va,newdays,add(v(VAR`CURDAY),1)),425)=1,{&VAR`CURDAY [u(cobj,calendar)]=sub(%q<newdays>,425);&VAR`CURYEAR [u(cobj,calendar)]=add(v(VAR`CURYEAR),1);@trigger %!/TRG`ANNOUNCE},{&VAR`CURDAY [u(cobj,calendar)]=%q<newdays>;@trigger me/TRG`ANNOUNCE}},{@trigger u(ex-proj)/TRG`TICKDOWN=%q<secsadd>;&VAR`CURSECS [u(cobj,calendar)]=%q<newsecs>}};@wait 60={@trigger %!/TRG`TICKER}
 
 &VAR`ADMINFLAGS [u(cobj,calendar)]=STOP|START
 &VAR`ANNOUNCE [u(cobj,calendar)]=1
@@ -44,4 +44,4 @@ th u(newcobj,STORYTELLER: Calendar Management System <CALENDAR>,calendar,,,,WIZA
 @@ ROLEPLAYING - +time
 +help/add +time=[u(cobj,calendar)]/HLP`+TIME
 +help/category +time=Roleplaying
-&HLP`+TIME [u(cobj,calendar)]=align(5 [sub(u(width,%#),6)],,[ansi(h,+time)] - Shows the current IC time.)
+&HLP`+TIME [u(cobj,calendar)]=align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+time)] - Shows the current IC time.)
