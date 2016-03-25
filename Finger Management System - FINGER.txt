@@ -8,7 +8,7 @@ th u(NEWCOBJ,Finger Management System <FINGER>,finger,,,,WIZARD SAFE !NO_COMMAND
 &CMD`+FINGER`RHOSTMUSH [u(cobj,finger)]=$^(?s)(?\:\+)?(oocfinger|finger)(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+FINGER`MAIN
 @set [u(cobj,finger)]/CMD`+FINGER`RHOSTMUSH=regexp
 &CMD`+FINGER`MAIN [u(cobj,finger)]=th u(setq`%va,sysname,%1);@attach %!/INC`GETSWITCH=%2;@include %!/INC`%1`[u(strfirstof`%va,%q<switch>,MAIN)]=%3,%4
-@set [u(cobj,finger)]/CMD`+FINGER`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,finger)]/CMD`+FINGER`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,finger)]=FINGER
 

@@ -7,7 +7,7 @@ th u(NEWCOBJ,Appointment System,app,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 &CMD`+APPOINTMENT`RHOSTMUSH [u(cobj,app)]=$^(?s)(?\:\+)?(?\:rsvp|appointment)(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+APPOINTMENT`MAIN
 @set [u(cobj,app)]/CMD`+APPOINTMENT`RHOSTMUSH=regexp
 &CMD`+APPOINTMENT`MAIN [u(cobj,app)]=@attach %!/INC`GETSWITCH=%1;@include %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,app)]/CMD`+APPOINTMENT`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,app)]/CMD`+APPOINTMENT`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,app)]=APPOINTMENT
 
@@ -42,11 +42,11 @@ th u(NEWCOBJ,Appointment System,app,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 
 &Q`GET`ALLMEET [u(cobj,app)]=SELECT appointment_id as main_id,player_objid,requester_objid,UNIX_TIMESTAMP(schedule_date),reason,status,(SELECT count(message_id) FROM $MESSAGE$ WHERE appointment_id=main_id) FROM $APPOINTMENT$ WHERE admin_objid=?
 
-&FUN`MEETLINE [u(cobj,app)]=pemit(%#,align(20 5 5 3 42,u(pueblize,u(moniker`%va,%1),+rsvp [u(moniker`%va,%1)]),switch(u(setr`%va,remain,sub(%2,secs())),<1,ansi(hr,Late!),u(smalltime`%va,%q<remain>)),u(lastidle,%1),%5,left(%3,80)))
+&FUN`MEETLINE [u(cobj,app)]=pemit(%#,align(20 5 5 3 42,u(mxpmenu`%va,u(moniker`%va,%1),+rsvp [u(moniker`%va,%1)]),switch(u(setr`%va,remain,sub(%2,secs())),<1,ansi(hr,Late!),u(smalltime`%va,%q<remain>)),u(lastidle,%1),%5,left(%3,80)))
 
-&FUN`ALLMEETLINE [u(cobj,app)]=pemit(%#,align(4 20 5 1 5 3 31,u(pueblize,%1,+rsvp %1),u(moniker`%va,%2),switch(u(setr`%va,remain,sub(%4,secs())),<1,ansi(hr,Late!),u(smalltime`%va,%q<remain>)),if(%6,ansi(hg,Y),ansi(hr,N)),u(lastidle,%2),%7,left(%5,80)))
+&FUN`ALLMEETLINE [u(cobj,app)]=pemit(%#,align(4 20 5 1 5 3 31,u(mxpmenu`%va,%1,+rsvp %1),u(moniker`%va,%2),switch(u(setr`%va,remain,sub(%4,secs())),<1,ansi(hr,Late!),u(smalltime`%va,%q<remain>)),if(%6,ansi(hg,Y),ansi(hr,N)),u(lastidle,%2),%7,left(%5,80)))
 
-&SORTSTAFF [u(cobj,app)]=u(SORTSTAFF`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTSTAFF [u(cobj,app)]=u(SORTSTAFF`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTSTAFF`PENNMUSH [u(cobj,app)]=sortkey(#lambda/default(\%0/D`STAFF`ORDER,99),%0,n,%1,%2)
 &SORTSTAFF`RHOSTMUSH [u(cobj,app)]=sortby(#lambda/[lit([ncomp(default(%0/D`STAFF`ORDER,99),default(%1/D`STAFF`ORDER,99))])],%0,%1,%2)
 
@@ -56,13 +56,13 @@ th u(NEWCOBJ,Appointment System,app,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 
 &Q`GET`MESSAGES [u(cobj,app)]=SELECT sender_objid,UNIX_TIMESTAMP(message_date),body FROM $MESSAGE$ WHERE appointment_id=? ORDER BY message_id
 
-&INC`REQUEST [u(cobj,app)]=@attach %!/INC`CHECKPC=%0,1;@stop strmatch(%#,%q<t1>)=@attach %!/INC`MSG=ERROR: Cannot schedule with yourself!;@check cor(u(isadmin`%va,%#),u(isadmin`%va,%q<t1>))=@attach %!/INC`MSG=ERROR: Can only request appointments with an admin.;@select/inline u(isadmin`%va,%#)=1,{th u(setq`%va,admobj,%:);th u(setq`%va,playobj,%q<t1objid>)},0,{th u(setq`%va,admobj,%q<t1objid>);th u(setq`%va,playobj,%:)};th u(setq`%va,accobj,objid(u(accid,%q<playobj>)));@stop u(mysql,GET`EXISTING,%q<admobj>,%q<playobj>)=@attach %!/INC`MSG=ERROR: There is already a meeting scheduled between [name(%q<admobj>)] and [name(%q<playobj>)].;@check strlen(%1)=ERROR: No reason included!;@attach %!/INC`DOSQL=NEW`APPOINTMENT,%q<admobj>,%q<playobj>,%q<accobj>,%:,%1,u(isadmin`%va,%#);@attach %!/INC`MSG=You've requested a meeting with %q<t1name> within the next week!;@attach %!/INC`MSG=%n requested a meeting with you within the next week! Check [u(pueblize,ansi(h,+appointment))] for details.,%q<t1>;@attach %!/INC`MSG`CHAN=%n requested a meeting with %q<t1name> within the next week!;@mail %q<t1>=Appointment Requested/%n requested a meeting with you within the next week! Check [u(pueblize,ansi(h,+appointment))] for details.%R%RReason:%R%1
+&INC`REQUEST [u(cobj,app)]=@attach %!/INC`CHECKPC=%0,1;@stop strmatch(%#,%q<t1>)=@attach %!/INC`MSG=ERROR: Cannot schedule with yourself!;@check cor(u(isadmin`%va,%#),u(isadmin`%va,%q<t1>))=@attach %!/INC`MSG=ERROR: Can only request appointments with an admin.;@select/inline u(isadmin`%va,%#)=1,{th u(setq`%va,admobj,%:);th u(setq`%va,playobj,%q<t1objid>)},0,{th u(setq`%va,admobj,%q<t1objid>);th u(setq`%va,playobj,%:)};th u(setq`%va,accobj,objid(u(accid,%q<playobj>)));@stop u(mysql,GET`EXISTING,%q<admobj>,%q<playobj>)=@attach %!/INC`MSG=ERROR: There is already a meeting scheduled between [name(%q<admobj>)] and [name(%q<playobj>)].;@check strlen(%1)=ERROR: No reason included!;@attach %!/INC`DOSQL=NEW`APPOINTMENT,%q<admobj>,%q<playobj>,%q<accobj>,%:,%1,u(isadmin`%va,%#);@attach %!/INC`MSG=You've requested a meeting with %q<t1name> within the next week!;@attach %!/INC`MSG=%n requested a meeting with you within the next week! Check [u(mxpmenu`%va,ansi(h,+appointment))] for details.,%q<t1>;@attach %!/INC`MSG`CHAN=%n requested a meeting with %q<t1name> within the next week!;@mail %q<t1>=Appointment Requested/%n requested a meeting with you within the next week! Check [u(mxpmenu`%va,ansi(h,+appointment))] for details.%R%RReason:%R%1
 
 &Q`GET`EXISTING [u(cobj,app)]=SELECT appointment_id FROM $APPOINTMENT$ WHERE admin_objid=? AND player_objid=?
 
 &Q`NEW`APPOINTMENT [u(cobj,app)]=INSERT INTO $APPOINTMENT$ (admin_objid,player_objid,account_objid,requester_objid,reason,schedule_date,status) VALUES (?,?,?,?,?,UTC_TIMESTAMP() + INTERVAL 1 WEEK,?)
 
-&INC`APPROVE [u(cobj,app)]=@attach %!/INC`TARGET;@stop %q<status>=@attach %!/INC`MSG=ERROR: That appointment is already approved.;@attach %!/INC`DOSQL=SET`APPROVE,%q<appoint>;@attach %!/INC`MSG=Your meeting with %n has been approved!,%q<playobj>;@attach %!/INC`MSG=Your approved a meeting with [u(moniker`%va,%q<playobj>)].;@attach %!/INC`MSG`CHAN=[u(pueblize,Appointment %q<appoint>,+rsvp %q<appoint>)] \([u(moniker`%va,%q<admobj>)] <-> [u(moniker`%va,%q<playobj>)]\) is now approved.
+&INC`APPROVE [u(cobj,app)]=@attach %!/INC`TARGET;@stop %q<status>=@attach %!/INC`MSG=ERROR: That appointment is already approved.;@attach %!/INC`DOSQL=SET`APPROVE,%q<appoint>;@attach %!/INC`MSG=Your meeting with %n has been approved!,%q<playobj>;@attach %!/INC`MSG=Your approved a meeting with [u(moniker`%va,%q<playobj>)].;@attach %!/INC`MSG`CHAN=[u(mxpmenu`%va,Appointment %q<appoint>,+rsvp %q<appoint>)] \([u(moniker`%va,%q<admobj>)] <-> [u(moniker`%va,%q<playobj>)]\) is now approved.
 
 &Q`SET`APPROVE [u(cobj,app)]=UPDATE $APPOINTMENT$ SET status=1 WHERE appointment_id=?
 
@@ -72,13 +72,13 @@ th u(NEWCOBJ,Appointment System,app,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 
 &Q`DELETE`APPOINTMENT [u(cobj,app)]=DELETE FROM $APPOINTMENT$ WHERE appointment_id=?
 
-&INC`SCHEDULE [u(cobj,app)]=@attach %!/INC`TARGET;@check cor(strmatch(%:,%q<reqobj>),u(isadmin`%va,%#))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No time entry provided!;@attach %!/INC`VALID`DURATION=%1;th u(setq`%va,newtime,add(secs(),%q<value>));@attach %!/INC`DOSQL=SET`NEWTIME,%q<newtime>,%q<appoint>;@attach %!/INC`MSG=Your meeting with %n has been rescheduled to 'within [u(etime`%va,%q<value>)]'.,if(strmatch(%:,%q<admobj>),%q<playobj>,%q<admobj>);@attach %!/INC`MSG=Rescheduled to 'within [u(etime`%va,%q<value>)]'.;@attach %!/INC`MSG`CHAN=[u(pueblize,Appointment %q<appoint>,+rsvp %q<appoint>)] \([u(moniker`%va,%q<admobj>)] <-> [u(moniker`%va,%q<playobj>)]\) was rescheduled to 'within [u(etime`%va,%q<value>)]'.
+&INC`SCHEDULE [u(cobj,app)]=@attach %!/INC`TARGET;@check cor(strmatch(%:,%q<reqobj>),u(isadmin`%va,%#))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No time entry provided!;@attach %!/INC`VALID`DURATION=%1;th u(setq`%va,newtime,add(secs(),%q<value>));@attach %!/INC`DOSQL=SET`NEWTIME,%q<newtime>,%q<appoint>;@attach %!/INC`MSG=Your meeting with %n has been rescheduled to 'within [u(etime`%va,%q<value>)]'.,if(strmatch(%:,%q<admobj>),%q<playobj>,%q<admobj>);@attach %!/INC`MSG=Rescheduled to 'within [u(etime`%va,%q<value>)]'.;@attach %!/INC`MSG`CHAN=[u(mxpmenu`%va,Appointment %q<appoint>,+rsvp %q<appoint>)] \([u(moniker`%va,%q<admobj>)] <-> [u(moniker`%va,%q<playobj>)]\) was rescheduled to 'within [u(etime`%va,%q<value>)]'.
 
 &Q`SET`NEWTIME [u(cobj,app)]=UPDATE $APPOINTMENT$ SET schedule_date=FROM_UNIXTIME(?) WHERE appointment_id=?
 
 &INC`COMMENT [u(cobj,app)]=@attach %!/INC`MESSAGE
 &INC`REPLY [u(cobj,app)]=@attach %!/INC`MESSAGE
-&INC`MESSAGE [u(cobj,app)]=@attach %!/INC`TARGET;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Message field empty.;@attach %!/INC`DOSQL=NEW`MESSAGE,%q<appoint>,%:,%1;@attach %!/INC`MSG=Message sent!;@attach %!/INC`MSG=A new message has arrived concerning your appointment with %n. Type [u(pueblize,ansi(h,+appointment %n))] to see it.,if(strmatch(%:,%q<admobj>),%q<playobj>,%q<admobj>);@attach %!/INC`MSG`CHAN=Added a new message to [u(pueblize,Appointment %q<appoint>,+rsvp %q<appoint>)] \([u(moniker`%va,%q<admobj>)] <-> [u(moniker`%va,%q<playobj>)]\).
+&INC`MESSAGE [u(cobj,app)]=@attach %!/INC`TARGET;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Message field empty.;@attach %!/INC`DOSQL=NEW`MESSAGE,%q<appoint>,%:,%1;@attach %!/INC`MSG=Message sent!;@attach %!/INC`MSG=A new message has arrived concerning your appointment with %n. Type [u(mxpmenu`%va,ansi(h,+appointment %n))] to see it.,if(strmatch(%:,%q<admobj>),%q<playobj>,%q<admobj>);@attach %!/INC`MSG`CHAN=Added a new message to [u(mxpmenu`%va,Appointment %q<appoint>,+rsvp %q<appoint>)] \([u(moniker`%va,%q<admobj>)] <-> [u(moniker`%va,%q<playobj>)]\).
 
 &Q`NEW`MESSAGE [u(cobj,app)]=INSERT INTO $MESSAGE$ (appointment_id,sender_objid,body,message_date) VALUES (?,?,?,UTC_TIMESTAMP())
 

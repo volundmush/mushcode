@@ -17,7 +17,7 @@
 &POOL`WILLPOWER [u(cobj,pool)]=Pool
 &POOL`WILLPOWER`UNITNAME [u(cobj,pool)]=Points
 &POOL`WILLPOWER`UNITTYPE [u(cobj,pool)]=Willpower
-&POOL`WILLPOWER`MAX [u(cobj,pool)]=u(strfirstof`%va,u(getstat`%va,%0,D`INFO,Willpower),0)
+&POOL`WILLPOWER`MAX [u(cobj,pool)]=u(strfirstof`%va,u(getstat,%0,D`INFO,Willpower),0)
 &POOL`WILLPOWER`INIT [u(cobj,pool)]=u(POOL`WILLPOWER`MAX,%0)
 &POOL`WILLPOWER`ORDER [u(cobj,pool)]=15
 
@@ -63,8 +63,6 @@
 &POOL`PERIPHERAL`MAX`ABYSSAL [u(cobj,pool)]=add(mul(7,getpower(%0)),26)
 
 
-
-
-
-+help/addmain Roleplaying/+pools=[u(ex-pso)]/HLP`+POOLS
++help/add +pools=[u(cobj,pools)]/HLP`+POOLS
++help/category +pools=Roleplaying
 &HLP`+POOLS [u(cobj,pool)]=[ansi(h,+pools)]%RDisplays your current Pool information, including Commitments.%R%R[ansi(h,+burn <poolname>=<#>)]%RUses up some of a pool, aka subtracts from it. Used for spending Essence, clearing up Limit, etc.%R%R[ansi(h,+gain <poolname>=<#>)]%RRestores a Pool, aka adds to it. Used for refilling Essence, gaining Limit, etc.%R%R[ansi(h,+refresh)]%RRestores all Pools and Channels (willpower, virtues, etc) but leaves Tracks such as Limit alone.%R%R[ansi(h,+commit <poolname>/<#>=<reason>)]%RCommits a number of points for a given reason. Example: +commit Peripheral/5=Daiklave%RIf used on Tracks like Limit, Commits raise the minimum instead of lowering maximum- 2 points of Committed Limit mean you're always at least at 2/10, for instance.%R%R[ansi(h,+uncommit <pool>=<commit ID>)]%RRemoves a commitment. Use +pools to see which commitment slot to free up.%R%RNote: Pool names take partial matches!

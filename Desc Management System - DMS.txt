@@ -7,7 +7,7 @@ th u(NEWCOBJ,Desc Management System <DMS>,dms,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 &CMD`+DESC`RHOSTMUSH [u(cobj,dms)]=$^(?s)(?\:\+)?desc(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+DESC`MAIN
 @set [u(cobj,dms)]/CMD`+DESC`RHOSTMUSH=regexp
 &CMD`+DESC`MAIN [u(cobj,dms)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,dms)]/CMD`+DESC`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,dms)]/CMD`+DESC`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,dms)]=SAVE|DELETE|NOISY|VIEW|RENAME
 
@@ -31,6 +31,6 @@ th u(NEWCOBJ,Desc Management System <DMS>,dms,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 +help/add +desc=[u(cobj,dms)]/HLP`@DESC
 +help/category +desc=Character
 +help/metatags +desc=describe description appearance
-&HLP`@DESC [u(cobj,dms)]=Your character's DESCRIPTION (or @desc) is what others will see when they [ansi(h,look)] at you. These commands are used to manage your DESCRIPTION.%R%R[ansi(hc,See Also:)] [u(pueblize,help @desc)], [u(pueblize,help look)]%R%R[ansi(hc,Basic Commands)]%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,@desc me=<text>)] - Sets your current description. Use \%R for linebreaks and \%T for indents.%R[ansi(h,&short-desc me=<text>)] - Sets your short-desc shown in the room display.)]%R%R[ansi(hc,Multidescer Commands)]%RThe Multidescer stores your Descriptions for later retrieval. Handy for maintaining a versatile 'wardrobe' of appearances!%R[ansi(hc,Aliases:)] desc%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+desc)] - Shows all your saved descriptions.%R[ansi(h,+desc <name>)] - Sets your desc to a stored one.%R[ansi(h,+desc/noisy <name>)] - Like above but emits to the room. Useful for dramatics!%R[ansi(h,+desc/save <name>)] - Saves your currently worn description to a <name>.%R[ansi(h,+desc/save <name>=<text>)] - Creates a new saved desc with specified text.%R[ansi(h,+desc/rename <name>=<newname>)] - Renames a saved desc.%R[ansi(h,+desc/view <name>)] - Shows you a saved desc.)]
+&HLP`@DESC [u(cobj,dms)]=Your character's DESCRIPTION (or @desc) is what others will see when they [ansi(h,look)] at you. These commands are used to manage your DESCRIPTION.%R%R[ansi(hc,See Also:)] [u(mxpmenu`%va,help @desc)], [u(mxpmenu`%va,help look)]%R%R[ansi(hc,Basic Commands)]%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,@desc me=<text>)] - Sets your current description. Use \%R for linebreaks and \%T for indents.%R[ansi(h,&short-desc me=<text>)] - Sets your short-desc shown in the room display.)]%R%R[ansi(hc,Multidescer Commands)]%RThe Multidescer stores your Descriptions for later retrieval. Handy for maintaining a versatile 'wardrobe' of appearances!%R[ansi(hc,Aliases:)] desc%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+desc)] - Shows all your saved descriptions.%R[ansi(h,+desc <name>)] - Sets your desc to a stored one.%R[ansi(h,+desc/noisy <name>)] - Like above but emits to the room. Useful for dramatics!%R[ansi(h,+desc/save <name>)] - Saves your currently worn description to a <name>.%R[ansi(h,+desc/save <name>=<text>)] - Creates a new saved desc with specified text.%R[ansi(h,+desc/rename <name>=<newname>)] - Renames a saved desc.%R[ansi(h,+desc/view <name>)] - Shows you a saved desc.)]
 
 &CONFLICT`DESC [u(cobj,migrate)]=@tel [u(coi,desc)]=u(cobj,oldbox);@set u(coi,desc)=NO_COMMAND HALT

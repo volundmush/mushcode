@@ -6,13 +6,13 @@ th u(NEWCOBJ,STORYTELLER: Rec Database <RECDB>,recdb,u(cobj,rec),,1,WIZARD SAFE,
 &CMD`+REC`RHOSTMUSH [u(cobj,rec)]=$^(?s)\+rec(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REC`MAIN
 @set [u(cobj,rec)]/CMD`+REC`RHOSTMUSH=regexp
 &CMD`+REC`MAIN [u(cobj,rec)]=th u(setq`%va,sysname,ACCOUNT);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,rec)]/CMD`+REC`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,rec)]/CMD`+REC`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,rec)]=REC
 &SWITCHES`PLAYER [u(cobj,rec)]=READ|LIST|DELETE|AMOUNT|DESCRIBE|TYPE
 &SWITCHES`ADMIN [u(cobj,rec)]=APPROVE|UNAPPROVE|DENY|PROCESS
 
-&INC`MAIN [u(cobj,rec)]=@break cor(u(isguest,%#),not(u(isapproved,%#)))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=elements(%0,1,/),1;@check u(isapproved,%q<t1>)=@attach %!/INC`MSG=ERROR: Cannot recommend unapproved characters.;@attach %!/INC`PARTIAL=u(strfirstof`%va,elements(%0,2,/),SOLAR),SOLAR|SILVER|GOLD|WHITE,|,type,XP Type;@attach %!/INC`VALID`POSINT=u(strfirstof`%va,elements(%0,3,/),1),XP Type;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No reason entered to rec for!;@break u(charsearch,%1,| ^)=@attach %!/INC`MSG=ERROR: The characters ^ and | are not allowed in a reason.;@attach %!/INC`DOSQL=INSERT`REC,%:,%q<t1objid>,%q<type>,%q<value>,%1;th u(setq`%va,newid,u(mysql,GET`LATEST));@attach %!/INC`MSG=You have recommended %q<t1name> for %q<value> %q<type> XP.;@attach %!/INC`MSG`CHAN=[ansi(h,%q<t1name>)] received a [u(pueblize,recommendation,+rec/read %q<newid>)] for %q<value> %q<type> XP from [ansi(h,%n)].
+&INC`MAIN [u(cobj,rec)]=@break cor(u(isguest,%#),not(u(isapproved,%#)))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=elements(%0,1,/),1;@check u(isapproved,%q<t1>)=@attach %!/INC`MSG=ERROR: Cannot recommend unapproved characters.;@attach %!/INC`PARTIAL=u(strfirstof`%va,elements(%0,2,/),SOLAR),SOLAR|SILVER|GOLD|WHITE,|,type,XP Type;@attach %!/INC`VALID`POSINT=u(strfirstof`%va,elements(%0,3,/),1),XP Type;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No reason entered to rec for!;@break u(charsearch,%1,| ^)=@attach %!/INC`MSG=ERROR: The characters ^ and | are not allowed in a reason.;@attach %!/INC`DOSQL=INSERT`REC,%:,%q<t1objid>,%q<type>,%q<value>,%1;th u(setq`%va,newid,u(mysql,GET`LATEST));@attach %!/INC`MSG=You have recommended %q<t1name> for %q<value> %q<type> XP.;@attach %!/INC`MSG`CHAN=[ansi(h,%q<t1name>)] received a [u(mxpmenu`%va,recommendation,+rec/read %q<newid>)] for %q<value> %q<type> XP from [ansi(h,%n)].
 
 &Q`INSERT`REC [u(cobj,rec)]=INSERT INTO $REC$ (rec_objid,rec_target,rec_type,rec_amount,rec_reason,rec_date) VALUES (?,?,?,?,?,UTC_TIMESTAMP())
 &Q`GET`LATEST [u(cobj,rec)]=SELECT max(rec_id) from $REC$
@@ -25,7 +25,7 @@ th u(NEWCOBJ,STORYTELLER: Rec Database <RECDB>,recdb,u(cobj,rec),,1,WIZARD SAFE,
 &Q`GET`LIST [u(cobj,rec)]=SELECT rec_id,rec_objid,rec_target,UNIX_TIMESTAMP(rec_date),rec_type,rec_amount,rec_approve_amount,rec_status FROM $REC$ WHERE rec_objid=? ORDER BY rec_id DESC LIMIT 30 OFFSET ?
 &Q`GET`PAGECOUNT [u(cobj,rec)]=SELECT count(rec_id) FROM $REC$ WHERE rec_objid=?
 
-&MAP`LIST [u(cobj,rec)]=nspemit(%#,align(4 18 18 6 2 2 18 3,u(pueblize,%1,+rec/read %1),if(isobjid(%2),u(moniker`%va,%2),*DELETED*),if(isobjid(%3),u(moniker`%va,%3),*DELETED*),capstr(lcstr(%5)),add(%6,0),add(%7,0),u(fancytime`%va,%4,%#),switch(%8,0,ansi(r,Pen),1,ansi(g,App),2,ansi(hr,Dny),3,ansi(hg,Fin)))
+&MAP`LIST [u(cobj,rec)]=nspemit(%#,align(4 18 18 6 2 2 18 3,u(mxpmenu`%va,%1,+rec/read %1),if(isobjid(%2),u(moniker`%va,%2),*DELETED*),if(isobjid(%3),u(moniker`%va,%3),*DELETED*),capstr(lcstr(%5)),add(%6,0),add(%7,0),u(fancytime`%va,%4,%#),switch(%8,0,ansi(r,Pen),1,ansi(g,App),2,ansi(hr,Dny),3,ansi(hg,Fin)))
 
 &INC`TARGET [u(cobj,rec)]=@attach %!/INC`VALID`POSINT=%0,Rec ID;@check u(setr`%va,id,u(mysql,GET`EXIST,%q<value>))=@attach %!/INC`MSG=ERROR: Rec '%q<value>' does not exist.;@select/inline %2=1,{@check cor(u(isadmin`%va,%#),u(mysql,GET`CHECK,%:,%q<id>))=@attach %!/INC`MSG=ERROR: Permission denied.}
 
@@ -55,11 +55,11 @@ th u(NEWCOBJ,STORYTELLER: Rec Database <RECDB>,recdb,u(cobj,rec),,1,WIZARD SAFE,
 
 &INC`DELETE [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,u(mysql,GET`STATUS,%q<id>))=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@attach %!/INC`VERIFY=ansi(hr,WARNING:) This will delete Rec %q<id>. It cannot be recovered. Enter the same command to verify.,DELETE REC %q<id>;@attach %!/INC`DOSQL=DEL`REC,%q<id>;@attach %!/INC`MSG`CHAN=Deleted Rec %q<id>!;@attach %!/INC`MSG=Deleted Rec %q<id>!
 
-&INC`AMOUNT [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,u(mysql,GET`STATUS,%q<id>))=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No amount entered.;@attach %!/INC`VALID`POSINT=%1,XP Amount;@attach %!/INC`DOSQL=SET`AMOUNT,%q<value>,%q<id>;@attach %!/INC`MSG`CHAN=Changed amount of [u(pueblize,Rec %q<id>,+rec/read %q<id>)] to %q<value>.;@attach %!/INC`MSG=Changed amount of [u(pueblize,Rec %q<id>,+rec/read %q<id>)] to %q<value>.
+&INC`AMOUNT [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,u(mysql,GET`STATUS,%q<id>))=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No amount entered.;@attach %!/INC`VALID`POSINT=%1,XP Amount;@attach %!/INC`DOSQL=SET`AMOUNT,%q<value>,%q<id>;@attach %!/INC`MSG`CHAN=Changed amount of [u(mxpmenu`%va,Rec %q<id>,+rec/read %q<id>)] to %q<value>.;@attach %!/INC`MSG=Changed amount of [u(mxpmenu`%va,Rec %q<id>,+rec/read %q<id>)] to %q<value>.
 
-&INC`DESCRIBE [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,u(mysql,GET`STATUS,%q<id>))=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No new reason entered!;@attach %!/INC`DOSQL=SET`REASON,%1,%q<id>;@attach %!/INC`MSG`CHAN=Changed reason of [u(pueblize,Rec %q<id>,+rec/read %q<id>)].;@attach %!/INC`MSG=Changed reason of [u(pueblize,Rec %q<id>,+rec/read %q<id>)].
+&INC`DESCRIBE [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,u(mysql,GET`STATUS,%q<id>))=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No new reason entered!;@attach %!/INC`DOSQL=SET`REASON,%1,%q<id>;@attach %!/INC`MSG`CHAN=Changed reason of [u(mxpmenu`%va,Rec %q<id>,+rec/read %q<id>)].;@attach %!/INC`MSG=Changed reason of [u(mxpmenu`%va,Rec %q<id>,+rec/read %q<id>)].
 
-&INC`TYPE [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,u(mysql,GET`STATUS,%q<id>))=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No new type entered!;@attach %!/INC`PARTIAL=%1,SOLAR|SILVER|GOLD|WHITE,|,type,XP Type;@attach %!/INC`DOSQL=SET`TYPE,%q<type>,%q<id>;@attach %!/INC`MSG`CHAN=Changed type of [u(pueblize,Rec %q<id>,+rec/read %q<id>)] to %q<type>.;@attach %!/INC`MSG=Changed type of [u(pueblize,Rec %q<id>,+rec/read %q<id>)] to %q<type>.
+&INC`TYPE [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,u(mysql,GET`STATUS,%q<id>))=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No new type entered!;@attach %!/INC`PARTIAL=%1,SOLAR|SILVER|GOLD|WHITE,|,type,XP Type;@attach %!/INC`DOSQL=SET`TYPE,%q<type>,%q<id>;@attach %!/INC`MSG`CHAN=Changed type of [u(mxpmenu`%va,Rec %q<id>,+rec/read %q<id>)] to %q<type>.;@attach %!/INC`MSG=Changed type of [u(mxpmenu`%va,Rec %q<id>,+rec/read %q<id>)] to %q<type>.
 
 &Q`SET`TYPE [u(cobj,rec)]=UPDATE $REC$ set rec_type=? WHERE rec_id=?
 &Q`SET`REASON [u(cobj,rec)]=UPDATE $REC$ set rec_reason=? WHERE rec_id=?

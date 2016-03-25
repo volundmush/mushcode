@@ -14,7 +14,7 @@ th u(NEWCOBJ,Old Code Box,oldbox,u(cobj,migrate),,1,WIZARD SAFE,INHERIT SIDEFX S
 &CMD`+MIGRATE`RHOSTMUSH [u(cobj,migrate)]=$^(?s)(?\:\+)?(migrate|cleanup|conflict)(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+MIGRATE`MAIN
 @set [u(cobj,migrate)]/CMD`+MIGRATE`RHOSTMUSH=regexp
 &CMD`+MIGRATE`MAIN [u(cobj,migrate)]=@attach %!/INC`GETSWITCH=%2;@include %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%3,%1
-@set [u(cobj,migrate)]/CMD`+MIGRATE`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,migrate)]/CMD`+MIGRATE`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &MIGRATE [u(cobj,migrate)]=iter(u(lattr`%va,%!/MIGRATE`*),last(%i0,`),%b,|)
 &CLEANUP [u(cobj,migrate)]=iter(u(lattr`%va,%!/CLEANUP`*),last(%i0,`),%b,|)

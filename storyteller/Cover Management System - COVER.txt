@@ -6,7 +6,7 @@ th u(NEWCOBJ,STORYTELLER: Cover Object Parent <COVOP>,covop,u(cobj,ams),,1,WIZAR
 &CMD`+COVER`RHOSTMUSH [u(cobj,cover)]=$^(?s)(?\:\+)?(?\:cover)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+COVER`MAIN
 @set [u(cobj,cover)]/CMD`+COVER`RHOSTMUSH=regexp
 &CMD`+COVER`MAIN [u(cobj,cover)]=@attach %!/INC`GETSWITCH=%1;@include %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,cover)]/CMD`+COVER`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,cover)]/CMD`+COVER`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,cover)]=COVER
 
@@ -23,7 +23,7 @@ th u(NEWCOBJ,STORYTELLER: Cover Object Parent <COVOP>,covop,u(cobj,ams),,1,WIZAR
 
 &INC`DELETE [u(cobj,cover)]=@check isdbref(u(setr`%va,cover,u(namegrab`%va,u(FUN`LISTCOVERS),%0)))=@attach %!/INC`MSG=ERROR: Cover '%0' not found.;@stop cand(strlen(u(setr`%va,owner,get(%q<owner>/OWNER))),strmatch(get(%q<owner>/D`COVER),%q<cover>))=@attach %!/INC`MSG=ERROR: Cover is currently in use by [u(moniker`%va,%q<owner>)].;@attach %!/INC`MSG=Cover '[name(%q<cover>)]' deleted!;@attach %!/INC`MSG`CHAN=Cover '[name(%q<cover>)]' deleted!;@attach %!/DELETE=%q<cover>
 
-&FUN`MYCOVERS [u(cobj,cover)]=u(sortname,u(filter,OWNER,u(FUN`LISTCOVERS),%b,%b,u(objid,%0)))
+&FUN`MYCOVERS [u(cobj,cover)]=u(sortname`%va,u(filter,OWNER,u(FUN`LISTCOVERS),%b,%b,u(objid,%0)))
 
 &FUN`LISTCOVERS [u(cobj,cover)]=children(u(cobj,covop))
 
@@ -35,7 +35,7 @@ th u(NEWCOBJ,STORYTELLER: Cover Object Parent <COVOP>,covop,u(cobj,ams),,1,WIZAR
 
 &INC`RETURN [u(cobj,cover)]=@check strlen(u(setr`%va,cover,get(%#/D`COVER)))=@attach %!/INC`MSG=You are not in a Secondary Cover!;@check valid(playername,get(%#/D`MAINCOVER),%#)=@attach %!/INC`MSG=ERROR: Cannot return @name to normal. Please contact staff.;@attach %!/INC`MSG=You return to your Main Cover.;@attach %!/INC`MSG`CHAN=Returned to Main Cover.;@name %#=get(%#/D`MAINCOVER);@wipe %#/D`COVER
 
-&INC`ALL [u(cobj,cover)]=@check words(u(setr`%va,covers,u(sortname,u(FUN`LISTCOVERS))))=@attach %!/INC`MSG=There are no covers in the system!;@pemit %#=u(header);@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(6 25 35,DBREF,Name,Owner));@pemit %#=u(SEPARATOR);@dolist/inline %q<covers>={@pemit %#=align(6 25 35,%i0,name(%i0),if(hasattr(%i0/OWNER),u(moniker`%va,get(%i0/OWNER))))};@pemit %#=u(header)
+&INC`ALL [u(cobj,cover)]=@check words(u(setr`%va,covers,u(sortname`%va,u(FUN`LISTCOVERS))))=@attach %!/INC`MSG=There are no covers in the system!;@pemit %#=u(header);@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(6 25 35,DBREF,Name,Owner));@pemit %#=u(SEPARATOR);@dolist/inline %q<covers>={@pemit %#=align(6 25 35,%i0,name(%i0),if(hasattr(%i0/OWNER),u(moniker`%va,get(%i0/OWNER))))};@pemit %#=u(header)
 
 &INC`MAKEMAIN [u(cobj,cover)]=@check isdbref(u(setr`%va,cover,u(namegrab`%va,u(FUN`LISTCOVERS),%0)))=@attach %!/INC`MSG=ERROR: Cover '%0' not found.;@check isdbref(u(setr`%va,owner,get(%q<cover>/OWNER)))=@attach %!/INC`MSG=ERROR: Cover '[name(%q<cover>)]' does not have an owner. Cannot make it the main.;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will transfer the Attributes\, Skills\, Specialties\, Merits\, and Flaws of Cover '[name(%q<cover>)]' to [name(%q<owner>)]. All conflicting data on [name(%q<owner>)] will be OVERWRITTEN. This cannot be undone. Enter the same command again to confirm.},MAKEMAIN %q<cover>;@check valid(playername,name(%q<cover>),%q<owner>)=@attach %!/INC`MSG=CODE ERROR: Could not change owner's name due to a conflict.;th u(setq`%va,oldname,name(%q<owner>));@name %q<owner>=name(%q<cover>);@dolist/inline D`ATTRIBUTES D`SKILLS D`SPECIALTIES={@cpattr %q<cover>/%i0=%q<owner>/%i0};@dolist/inline D`MERITS D`FLAWS={@attach %!/WIPE=%q<owner>,%i0};@dolist/inline D`MERITS D`FLAWS={@attach %!/INC`CPTREE=%q<cover>,%i0,%q<owner>,%i0};@wait 4={@attach %!/DELETE=%q<cover>};@attach %!/INC`MSG=Transfer complete.;@attach %!/INC`MSG=Your new Main Cover is [name(%q<owner>)],%q<owner>;@attach %!/INC`MSG`CHAN=MAKEMAIN For [name(%q<cover>)] over %q<oldname>.
 

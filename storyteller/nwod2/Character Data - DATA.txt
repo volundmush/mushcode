@@ -350,15 +350,15 @@ th u(newconf,CONFIG,STORYTELLER,ARCANA,DEATH|FATE|FORCES|LIFE|MATTER|MIND|PRIME|
 &FUN`GET`FAVORED`SKILLS u(cobj,data)=u(FUN`GET`SKILLS)
 
 &GIFT`VAL [u(cobj,data)]=@stop u(charsearch,%2,~)=@attach %!/INC`MSG=ERROR: ~ is a system-reserved character.;@check u(valnum,u(ladd`%va,%3))=@attach %!/INC`MSG=ERROR: Entries must be whole numbers.
-&GIFT`ADD [u(cobj,data)]=@attach [u(cobj,data)]/GIFT`VAL;th u(setstat`%va,%0,%1,ucstr(%2),u(setr`%va,return,setunion(u(getstat`%va,%0,%1,ucstr(%2)),%3)))
-&GIFT`REM [u(cobj,data)]=@attach [u(cobj,data)]/GIFT`VAL;th u(setstat`%va,%0,%1,ucstr(%2),u(setr`%va,return,setdiff(u(getstat`%va,%0,%1,ucstr(%2)),%3)));@select/inline strlen(u(getstat`%va,%0,%1,ucstr(%2)))=0,{th u(delstat`%va,%0,%1,ucstr(%2))}
+&GIFT`ADD [u(cobj,data)]=@attach [u(cobj,data)]/GIFT`VAL;th u(setstat,%0,%1,ucstr(%2),u(setr`%va,return,setunion(u(getstat,%0,%1,ucstr(%2)),%3)))
+&GIFT`REM [u(cobj,data)]=@attach [u(cobj,data)]/GIFT`VAL;th u(setstat,%0,%1,ucstr(%2),u(setr`%va,return,setdiff(u(getstat,%0,%1,ucstr(%2)),%3)));@select/inline strlen(u(getstat,%0,%1,ucstr(%2)))=0,{th u(delstat,%0,%1,ucstr(%2))}
 
 &SGIFT`KEY [u(cobj,data)]=switch(%0,P,1,H,2,C,3,W,4,G,5)
 &SGIFT`VAL [u(cobj,data)]=@stop u(charsearch,%2,~)=@attach %!/INC`MSG=ERROR: ~ is a system-reserved character.;@check u(valnum,u(ladd`%va,iter(%3,match(P H C W G,%i0))))=@attach %!/INC`MSG=ERROR: Entries must consist of the following characters: P H C W G
-&SGIFT`ADD [u(cobj,data)]=@attach [u(cobj,data)]/SGIFT`VAL;th u(setstat`%va,%0,%1,ucstr(%2),u(setr`%va,return,u(sortsgift,setunion(ucstr(u(getstat`%va,%0,%1,ucstr(%2))),%3))))
-&SGIFT`REM [u(cobj,data)]=@attach [u(cobj,data)]/SGIFT`VAL;th u(setstat`%va,%0,%1,ucstr(%2),u(setr`%va,return,u(sortsgift,setdiff(ucstr(u(getstat`%va,%0,%1,ucstr(%2))),%3))));@select/inline strlen(u(getstat`%va,%0,%1,ucstr(%2)))=0,{th u(delstat`%va,%0,%1,ucstr(%2))}
+&SGIFT`ADD [u(cobj,data)]=@attach [u(cobj,data)]/SGIFT`VAL;th u(setstat,%0,%1,ucstr(%2),u(setr`%va,return,u(sortsgift,setunion(ucstr(u(getstat,%0,%1,ucstr(%2))),%3))))
+&SGIFT`REM [u(cobj,data)]=@attach [u(cobj,data)]/SGIFT`VAL;th u(setstat,%0,%1,ucstr(%2),u(setr`%va,return,u(sortsgift,setdiff(ucstr(u(getstat,%0,%1,ucstr(%2))),%3))));@select/inline strlen(u(getstat,%0,%1,ucstr(%2)))=0,{th u(delstat,%0,%1,ucstr(%2))}
 
-&SORTSGIFT [u(cobj,mco)]=u(SORTSGIFT`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTSGIFT [u(cobj,mco)]=u(SORTSGIFT`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTSGIFT`PENNMUSH [u(cobj,mco)]=sortkey(u(cobj,data)/SGIFT`KEY,%0,n,%1,%2)
 &SORTSGIFT`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(u(u(cobj,data)/SGIFT`KEY,%0),u(u(cobj,data)/SGIFT`KEY,%1))])],%0,%1,%2)
 

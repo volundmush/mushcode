@@ -10,7 +10,7 @@ th u(NEWCOBJ,Player Configuration Data Storage <PCONF>,pconf,u(cobj,pcs),,1,WIZA
 &CMD`+CONFIG`RHOSTMUSH [u(cobj,pcs)]=$^(?\:\+)?config(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+CONFIG`MAIN
 @set [u(cobj,pcs)]/CMD`+CONFIG`RHOSTMUSH=regexp
 &CMD`+CONFIG`MAIN [u(cobj,pcs)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3,%4
-@set [u(cobj,pcs)]/CMD`+CONFIG`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,pcs)]/CMD`+CONFIG`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,pcs)]=[if(isdbref(u(cobj,channel)),CHANNEL|)][if(isdbref(u(cobj,gms)),GROUP|)]NAME
 &SWITCHES`ADMIN [u(cobj,pcs)]=
@@ -53,7 +53,7 @@ th u(NEWCOBJ,Player Configuration Data Storage <PCONF>,pconf,u(cobj,pcs),,1,WIZA
 
 &PLAYER`CONNECT [u(cobj,pcs)]=@dolist/inline u(lattr`%va,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 
-&PLAYER`CONNECT`MAIL [u(cobj,pcs)]=@stop u(isguest,%0);@check u(player_config`%va,%0,ALERTS,MAIL);@wait 2={@select/inline t(isdbref(u(setr`%va,accid,u(accid,%0))))=1,{th u(setq`%va,ualts,u(FILTER,UMAIL,u(alts,%0)));@select/inline t(words(%q<ualts>))=1,{@pemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(u(sortname,%q<ualts>),ansi(h,name(%i0)) ([u(umail`%va,%i0)]),%b,\,%b)]},0,{@pemit %0=ansi(hy,You have no unread mail.)}},0,{@pemit %0=[ansi(yh,You have [u(umail`%va,%0)] unread @mail(s) in your inbox)]}}
+&PLAYER`CONNECT`MAIL [u(cobj,pcs)]=@stop u(isguest,%0);@check u(player_config`%va,%0,ALERTS,MAIL);@wait 2={@select/inline t(isdbref(u(setr`%va,accid,u(accid,%0))))=1,{th u(setq`%va,ualts,u(FILTER,UMAIL,u(alts,%0)));@select/inline t(words(%q<ualts>))=1,{@pemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(u(sortname`%va,%q<ualts>),ansi(h,name(%i0)) ([u(umail`%va,%i0)]),%b,\,%b)]},0,{@pemit %0=ansi(hy,You have no unread mail.)}},0,{@pemit %0=[ansi(yh,You have [u(umail`%va,%0)] unread @mail(s) in your inbox)]}}
 
 &FIL`UMAIL [u(cobj,pcs)]=t(u(umail`%va,%0))
 

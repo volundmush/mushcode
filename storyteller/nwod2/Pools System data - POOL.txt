@@ -4,7 +4,7 @@
 &POOL`WILLPOWER [u(cobj,pool)]=Pool
 &POOL`WILLPOWER`UNITNAME [u(cobj,pool)]=Points
 &POOL`WILLPOWER`UNITTYPE [u(cobj,pool)]=Willpower
-&POOL`WILLPOWER`MAX [u(cobj,pool)]=add(u(getstat`%va,%0,D`ATTRIBUTES,Composure),u(getstat`%va,%0,D`ATTRIBUTES,Resolve),getbonus(%0,WILLPOWER))
+&POOL`WILLPOWER`MAX [u(cobj,pool)]=add(u(getstat,%0,D`ATTRIBUTES,Composure),u(getstat,%0,D`ATTRIBUTES,Resolve),getbonus(%0,WILLPOWER))
 &POOL`WILLPOWER`INIT [u(cobj,pool)]=u(POOL`WILLPOWER`MAX,%0)
 &POOL`WILLPOWER`ORDER [u(cobj,pool)]=100
 &POOL`WILLPOWER`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT
@@ -25,7 +25,7 @@
 &POOL`VITAE [u(cobj,pool)]=Pool
 &POOL`VITAE`UNITNAME [u(cobj,pool)]=Points
 &POOL`VITAE`UNITTYPE [u(cobj,pool)]=Vitae
-&POOL`VITAE`MAX [u(cobj,pool)]=switch(getclass(%0),VAMPIRE,switch(getpower(%0),1,10,2,11,3,12,4,13,5,14,6,15,7,20,8,30,9,50,10,100),u(getstat`%va,%0,D`ATTRIBUTES,Stamina))
+&POOL`VITAE`MAX [u(cobj,pool)]=switch(getclass(%0),VAMPIRE,switch(getpower(%0),1,10,2,11,3,12,4,13,5,14,6,15,7,20,8,30,9,50,10,100),u(getstat,%0,D`ATTRIBUTES,Stamina))
 &POOL`VITAE`INIT [u(cobj,pool)]=u(POOL`VITAE`MAX,%0)
 &POOL`VITAE`HAVE [u(cobj,pool)]=ghoul(%0)
 &POOL`VITAE`ORDER [u(cobj,pool)]=5
