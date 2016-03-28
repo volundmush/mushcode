@@ -51,8 +51,8 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 &INC`ACCOUNT`BIND [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1;@stop strmatch(%q<t1>,#1)=@attach %!/INC`MSG=ERROR: #1 cannot be bound to an Account.;@select/inline u(valnum,%1)=1,{@select/inline not(u(setr`%va,accid,u(find_in`%va,u(cobj,accounts),Account %1)))=1,{@attach %!/INC`ACCOUNT`MAKENUM=%1}},{@check strlen(%1)=@attach %!/INC`MSG={ERROR: Destination Account Empty. It must be an Account ID, player name, or NEW};@select/inline %1=NEW,{@attach %!/INC`ACCOUNT`MAKENEW},{@attach %!/INC`CHECKPC=%1,2;@check isdbref(u(setr`%va,accid,u(accid,%q<t2objid>)))=@attach %!/INC`MSG={ERROR: That player doesn't have an account.}}};@select/inline isdbref(u(setr`%va,oldid,u(accid,%q<t1objid>)))=1,{@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<oldid>,%q<t1objid>};@attach %!/INC`ACCOUNT`ADDTOACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG`NOTICE={You have been Bound to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])].},%q<t1>;@attach %!/INC`MSG={You have Bound %q<t1name> to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])]};@attach %!/INC`MSG`CHAN={Bound %q<t1name> to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])]}
 
-&INC`ACCOUNT`ADDTOACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setunion(get(%0/CHARACTERS),objid(%1)));th u(attrib_set`%va,%1,D`ACCOUNT,%0);th u(setstat`%va,%0,OLD,objid(%1),name(%1))
-&INC`ACCOUNT`REMFROMACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setdiff(get(%0/CHARACTERS),objid(%1)));@wipe %1/D`ACCOUNT;@select/inline t(%1)=1,{th u(delstat`%va,%0,OLD,objid(%1))}
+&INC`ACCOUNT`ADDTOACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setunion(get(%0/CHARACTERS),objid(%1)));th u(attrib_set`%va,%1,D`ACCOUNT,%0);th u(setstat,%0,OLD,objid(%1),name(%1))
+&INC`ACCOUNT`REMFROMACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setdiff(get(%0/CHARACTERS),objid(%1)));@wipe %1/D`ACCOUNT;@select/inline t(%1)=1,{th u(delstat,%0,OLD,objid(%1))}
 
 &INC`ACCOUNT`UNBIND [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1;@check u(setr`%va,accid,%q<t1acc>)=@attach %!/INC`MSG={ERROR: %q<t1name> is not a member of any accounts.};@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG={You have removed %q<t1name> from Account [name(%q<accid>)]};@attach %!/INC`MSG`NOTICE={You were removed you from [name(%q<accid>)]},%q<t1>;@attach %!/INC`MSG`CHAN={Removed %q<t1name> from [name(%q<accid>)]}
 
@@ -75,7 +75,7 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 
-&OBJECT`RENAME`FIXACCOUNT [u(cobj,ams)]=@select/inline %2=PLAYER,{@check isdbref(u(setr`%va,accid,accid(%0)));th u(setstat`%va,u(adb)/%q<accid>`OLD,%0,%1)}
+&OBJECT`RENAME`FIXACCOUNT [u(cobj,ams)]=@select/inline %2=PLAYER,{@check isdbref(u(setr`%va,accid,accid(%0)));th u(setstat,u(adb)/%q<accid>`OLD,%0,%1)}
 
 &OBJECT`DESTROY`CLEANACCOUNTS [u(cobj,ams)]=@select/inline %2=PLAYER,{@check isdbref(u(setr`%va,accid,accid(%0,1)));@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<accid>,%0}
 

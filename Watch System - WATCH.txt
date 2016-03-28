@@ -36,7 +36,7 @@ th u(NEWCOBJ,Watch System <WATCH>,watch,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &STARTUP [u(cobj,watch)]=@trigger %!/TRG`INDEXIDLE
 
-&TRG`INDEXIDLE [u(cobj,watch)]=th setq(idlers,u(filter,IDLING,u(setr`%va,who,setunion(u(lwhoid),))));@dolist setdiff(v(IDLERS),%q<idlers>)={@attach %!/INC`MSG=[name(%i0)] is no longer idle.,u(filter,ISADMIN,u(filter,NOTMUTE,u(filter,MATCHWATCH,%q<sho>)));@switch/inline cand(gt(u(getstat`%va,%!/IDLERS`TIMES,##),u(stringsecs`%va,config(idle_timeout))),u(ishidden`%va,##))=1,{@switch/inline hasflag(%i0,DARK)=1,{@attach %!/INC`MSG=You are both Hidden and Dark.,##},0,{@attach %!/INC`MSG=Coming out of @hide from unidling.,##;@hide/off ##}}};&IDLERS [u(cobj,watch)]=%q<idlers>;&IDLERS`TIMES [u(cobj,watch)]=iter(%q<idlers>,%i0~[idle(%i0)],%b,|);@wait 60=@trigger %!/TRG`INDEXIDLE
+&TRG`INDEXIDLE [u(cobj,watch)]=th setq(idlers,u(filter,IDLING,u(setr`%va,who,setunion(u(lwhoid),))));@dolist setdiff(v(IDLERS),%q<idlers>)={@attach %!/INC`MSG=[name(%i0)] is no longer idle.,u(filter,ISADMIN,u(filter,NOTMUTE,u(filter,MATCHWATCH,%q<sho>)));@switch/inline cand(gt(u(getstat,%!/IDLERS`TIMES,##),u(stringsecs`%va,config(idle_timeout))),u(ishidden`%va,##))=1,{@switch/inline hasflag(%i0,DARK)=1,{@attach %!/INC`MSG=You are both Hidden and Dark.,##},0,{@attach %!/INC`MSG=Coming out of @hide from unidling.,##;@hide/off ##}}};&IDLERS [u(cobj,watch)]=%q<idlers>;&IDLERS`TIMES [u(cobj,watch)]=iter(%q<idlers>,%i0~[idle(%i0)],%b,|);@wait 60=@trigger %!/TRG`INDEXIDLE
 
 &FIL`IDLING [u(cobj,watch)]=gt(idle(%0),mul(60,60))
 

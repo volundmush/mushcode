@@ -9,9 +9,9 @@ th u(NEWCOBJ,Muzzle Database <MUZZLE>,muzzle,u(cobj,channel),,,WIZARD SAFE !NO_C
 
 &SYSTEM`SWITCHES [u(cobj,channel)]=setunion(setunion(v(SWITCHES`%q<sysname>`PLAYER),v(SWITCHES`%q<sysname>`PLAYER`EXTRA),|,|),if(u(isadmin`%va,%#),setunion(v(SWITCHES`%q<sysname>`ADMIN),v(SWITCHES`%q<sysname>`ADMIN`EXTRA),|,|)),|,|)
 
-&CMD`+CHANNEL`PENNMUSH [u(cobj,channel)]=$^(?s)(?\:\+)?(?\:channel|chan)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.*?))?(?\:=(.*))?$:@attach %!/CMD`+CHANNEL`MAIN
+&CMD`+CHANNEL`PENNMUSH [u(cobj,channel)]=$^(?s)(?\:\+)?(?\:channel|chan|channels)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.*?))?(?\:=(.*))?$:@attach %!/CMD`+CHANNEL`MAIN
 @set [u(cobj,channel)]/CMD`+CHANNEL`PENNMUSH=regexp
-&CMD`+CHANNEL`RHOSTMUSH [u(cobj,channel)]=$^(?s)(?\:\+)?(?\:channel|chan)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.*?))?(?\:=(.*))?$:@attach %!/CMD`+CHANNEL`MAIN
+&CMD`+CHANNEL`RHOSTMUSH [u(cobj,channel)]=$^(?s)(?\:\+)?(?\:channel|chan|channels)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.*?))?(?\:=(.*))?$:@attach %!/CMD`+CHANNEL`MAIN
 @set [u(cobj,channel)]/CMD`+CHANNEL`RHOSTMUSH=regexp
 &CMD`+CHANNEL`MAIN [u(cobj,channel)]=th setq(sysname,CHANNEL);@attach %!/INC`GETSWITCH=%1;@include %!/INC`CHANNEL`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3,%4
 @set [u(cobj,channel)]/CMD`+CHANNEL`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
