@@ -35,7 +35,7 @@
 
 
 &FIL`HASADVANTAGE [u(Cobj,sheet)]=cor(hasattr(%1/D`%0),u(u(cobj,data)/%0`HAVE,%1))
-&SORTADV [u(cobj,sheet)]=u(SORTADV`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTADV [u(cobj,sheet)]=u(SORTADV`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTADV`PENNMUSH [u(cobj,sheet)]=sortkey(#lambda/default(u(cobj,data)/%0`ORDER,99),%0,n,%1,%2)
 &SORTADV`RHOSTMUSH [u(cobj,sheet)]=sortby(#lambda/[lit([ncomp(default(u(cobj,data)/%0`ORDER,99),default(u(cobj,data)/%1`ORDER,99))])],%0,%1,%2)
 
@@ -45,7 +45,7 @@
 
 &ADV`GIFT [u(cobj,sheet)]=u(table`%va,iter(sortkey(#lambda/before(\%0,~),u(capnames,get(%0/D`%2)),i,|,|),u(FUN`STATFORMAT`GIFT,%0,%1,D`%2,before(%i0,~),24,after(%i0,~)),|,|),24,sub(u(width`%va,%#),2),|)
 
-&ADV`MANTLE [u(cobj,sheet)]=center(u(FUN`DOTBOX,5,u(strfirstof`%va,u(getstat,%0,D`INFO,Court Mantle),0)),sub(u(width`%va,%#),4))
+&ADV`MANTLE [u(cobj,sheet)]=center(u(FUN`DOTBOX,5,u(strfirstof`%va,u(getstat`%va,%0,D`INFO,Court Mantle),0)),sub(u(width`%va,%#),4))
 
 &ADV`WORD [u(cobj,sheet)]=if(strlen(u(setr`%va,short,u(table`%va,sort(u(filter,LTESTRLEN,u(setr`%va,capped,iter(u(renderwords,get(%0/D`%2)),center(%i0,24),|,|)),|,|,24),i,|,|),24,sub(u(width`%va,%#),4),|))),%q<short>)[if(words(u(setr`%va,toolong,u(filter,GTESTRLEN,%q<capped>,|,|,37)),|),if(strlen(%q<short>),%R)[iter(%q<toolong>,%i0,|,%R)])]
 

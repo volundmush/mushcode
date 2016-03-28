@@ -6,8 +6,6 @@
 th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,switch(version(),PennMUSH*,config(master_room),RhostMUSH**,globalroom()))][parent(%#,%q0)][set(%q0,VA:[first(version())])][set(%q0,COBJ`MCO:[switch(version(),PennMUSH*,objid(%q0),RhostMUSH*,%q0)])][set(%q0,switch(version(),PennMUSH*,WIZARD SAFE,RhostMUSH*,INHERIT SAFE SIDEFX))])
 @@ Yeah, it's an awful hodgepodge of side effect functions. For a good cause.
 
-@set [parent(%#)]=VA:[switch(version(),PennMUSH*,PennMUSH,RhostMUSH*,RhostMUSH)]
-
 &COBJ [parent(%#)]=v(COBJ`%0)
 
 &COI [u(cobj,mco)]=localize(if(isdbref(u(setr`%va,db,u(find_in`%va,u(master_room),Code Object Index <COI>))),u(%q<db>/%0)))
@@ -50,7 +48,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &FUNCTIONLIST`ADMIN [u(cobj,mco)]=
 @@ These are meant to be added to by game packages.
 
-&STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`%va;@include/nobreak %!/STARTUP`MAIN`EXTRA
+&STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`[%va];@include/nobreak %!/STARTUP`MAIN`EXTRA
 
 &STARTUP`MAIN`PENNMUSH [u(cobj,mco)]=@command/disable kill;@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc playstatus={@attribute/access/retroactive %i0=visual};@dolist/inline D={@attribute/access/retroactive %i0=mortal_dark WIZARD}
 &STARTUP`MAIN`RHOSTMUSH [u(cobj,mco)]=@dolist/inline @name @nuke @toad @turtle={@hook/before %d0;@hook/after %d0}
@@ -193,7 +191,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 @@ Maybe universal?
 @@ [switch(flip(foreach(#lambda/[lit([if(mod(%1,3),%0,%,%0)])],flip(%0))),%,)]
 
-&SETSTAT [u(cobj,mco)]=localize(u(delstat,%0,%1,%2)[u(attrib_set`%va,%0,%1,setunion(get(%0/%1),%2~%3,|))])
+&SETSTAT [u(cobj,mco)]=localize(u(delstat`%va,%0,%1,%2)[u(attrib_set`%va,%0,%1,setunion(get(%0/%1),%2~%3,|))])
 &DELSTAT [u(cobj,mco)]=u(attrib_set`%va,%0,%1,setdiff(get(%0/%1),grab(get(%0/%1),%2~*,|),|))
 &GETSTAT [u(cobj,mco)]=if(strlen(%3),add(rest(grab(get(%0/%1),%2~*,|),~),rest(grab(get(%0/D`%3),%2~*,|),~)),rest(grab(get(%0/%1),%2~*,|),~))
 &GRABSTAT [u(cobj,mco)]=rest(grab(get(%0/%1),%2~*,|),~)
@@ -369,7 +367,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`ALIASNAME [u(cobj,mco)]=name(%0)[if(strlen(u(getalias`%va,%0)),%B\([u(getalias`%va,%0)]\))]
 &GETPROPERTY`ALIASMONIKER [u(cobj,mco)]=u(moniker`%va,%0)[if(strlen(u(getalias`%va,%0)),%B\([u(getalias`%va,%0)]\))]
 &GETPROPERTY`ALIASMONIKERAPPROVED [u(cobj,mco)]=u(moniker`%va,%0)[if(strlen(u(getalias`%va,%0)),%B\([u(getalias`%va,%0)]\))][if(not(u(approved,%0)),%b- [ansi(hr,UNAPPROVED)])]
-&GETPROPERTY`NAMELINK [u(cobj,mco)]=u(namelink,%0)
+&GETPROPERTY`NAMELINK [u(cobj,mco)]=u(namelink`%va,%0)
 &GETPROPERTY`HIDEIDLE [u(cobj,mco)]=u(hideidle,%0)
 &GETPROPERTY`HIDECONN [u(cobj,mco)]=u(hideconn,%0)
 &GETPROPERTY`SEXLETTER [u(cobj,mco)]=left(get(%0/SEX),1)
@@ -384,22 +382,22 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`EMAIL [u(cobj,mco)]=if(strmatch(u(setr`%va,email,get(%0/D`OOCFINGER`EMAIL)),!*),if(u(isadmin`%va,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
 &GETPROPERTY`ACCEMAIL [u(cobj,mco)]=if(isdbref(u(accid,%0)),get(u(accid,%0)/EMAIL))
 &GETPROPERTY`ACCALTS [u(cobj,mco)]=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0))
-&GETPROPERTY`THEME [u(cobj,mco)]=if(u(setr`%va,theme,first(get(%0/D`THEME))),u(mxpmenu`%va,u(setr`%va,mon,u(moniker`%va,%q<theme>)),+fclist %q<mon>))
+&GETPROPERTY`THEME [u(cobj,mco)]=if(u(setr`%va,theme,first(get(%0/D`THEME))),u(pueblize,u(setr`%va,mon,u(moniker`%va,%q<theme>)),+fclist %q<mon>))
 &GETPROPERTY`TYPE [u(cobj,mco)]=default(%0/D`FINGER`TYPE,??)
 
 
-&GETPROPERTY`GROUPS [u(cobj,mco)]=localize(default(%0/D`CACHE`GROUPS,u(setr`%va,cache,u(sortgroups,u(sortname`%va,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)))))[u(attrib_set`%va,%0,D`CACHE`GROUPS,%q<cache>)]))
+&GETPROPERTY`GROUPS [u(cobj,mco)]=localize(default(%0/D`CACHE`GROUPS,u(setr`%va,cache,u(sortgroups,u(sortname,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)))))[u(attrib_set`%va,%0,D`CACHE`GROUPS,%q<cache>)]))
 
-&GETPROPERTY`MAJORDBS [u(cobj,mco)]=localize(default(%0/D`CACHE`MAJORDBS,u(setr`%va,cache,u(sortgroups,u(sortname`%va,u(filter,MAJOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set`%va,%0,D`CACHE`MAJORDBS,%q<cache>)]))
+&GETPROPERTY`MAJORDBS [u(cobj,mco)]=localize(default(%0/D`CACHE`MAJORDBS,u(setr`%va,cache,u(sortgroups,u(sortname,u(filter,MAJOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set`%va,%0,D`CACHE`MAJORDBS,%q<cache>)]))
 &GETPROPERTY`MAJORDB [u(cobj,mco)]=first(u(GETPROPERTY`MAJORDBS,%0))
-&GETPROPERTY`MINORDBS [u(cobj,mco)]=localize(default(%0/D`CACHE`MINORDBS,u(setr`%va,cache,u(sortgroups,u(sortname`%va,u(filter,MINOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set`%va,%0,D`CACHE`MINORDBS,%q<cache>)]))
+&GETPROPERTY`MINORDBS [u(cobj,mco)]=localize(default(%0/D`CACHE`MINORDBS,u(setr`%va,cache,u(sortgroups,u(sortname,u(filter,MINOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set`%va,%0,D`CACHE`MINORDBS,%q<cache>)]))
 &GETPROPERTY`MINORDB [u(cobj,mco)]=first(u(GETPROPERTY`MINORDBS,%0))
 &GETPROPERTY`FIRSTDB [u(cobj,mco)]=u(strfirstof`%va,u(GETPROPERTY`MAJORDB,%0),u(GETPROPERTY`MINORDB,%0))
 
 
-&GETPROPERTY`GROUPNAMES [u(cobj,mco)]=iter(u(sortgroups,u(sortname`%va,setdiff(u(getproperty`groups,%0),u(getproperty,%0,MAJORDB)))),u(getproperty,%i0,GROUPNAME,1),%b,if(%1,\,%B,|))
+&GETPROPERTY`GROUPNAMES [u(cobj,mco)]=iter(u(sortgroups,u(sortname,setdiff(u(getproperty`groups,%0),u(getproperty,%0,MAJORDB)))),u(getproperty,%i0,GROUPNAME,1),%b,if(%1,\,%B,|))
 
-&GETPROPERTY`GROUPNAME [u(cobj,mco)]=localize(u(setq`%va,gname,ansi(u(GETPROPERTY`GROUPCOLOR,%0),u(moniker`%va,%0)))[if(%1,u(mxpmenu`%va,%q<gname>,+group [name(%0)]),%q<gname>)])
+&GETPROPERTY`GROUPNAME [u(cobj,mco)]=localize(u(setq`%va,gname,ansi(u(GETPROPERTY`GROUPCOLOR,%0),u(moniker`%va,%0)))[if(%1,u(pueblize,%q<gname>,+group [name(%0)]),%q<gname>)])
 &GETPROPERTY`GROUPCOLOR [u(cobj,mco)]=u(strfirstof`%va,u(color`%va,%#,GROUP,%0,,1),get(%0/SET`COLOR),n)
 &GETPROPERTY`GROUPABBR [u(cobj,mco)]=ansi(u(GETPROPERTY`GROUPCOLOR,%0),default(%0/SET`ABBREVIATION,left(name(%0),3)))
 &GETPROPERTY`GROUPLETTER [u(cobj,mco)]=ansi(u(GETPROPERTY`GROUPCOLOR,%0),default(%0/SET`LETTER,u(strfirstof`%va,left(get(%0/SET`ABBREVIATION),1),left(name(%0),1))))
@@ -467,32 +465,32 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 @@ Sort section.
 
 &SORTATTR [u(cobj,mco)]=u(SORTATTR`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTATTR`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/last(\%0,`),%0,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTATTR`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(last(%0,`),last(%1,`))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTATTR`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/last(\%0,`),%0,n,%1,%2)
+&SORTATTR`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(last(%0,`),last(%1,`))])],%0,%1,%2)
 
 &SORTIDLE [u(cobj,mco)]=u(SORTIDLE`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTIDLE`PENNMUSH [u(cobj,mco)]=sort(%0,idle,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTIDLE`PENNMUSH [u(cobj,mco)]=sort(%0,idle,%1,%2)
 &SORTIDLE`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(idle(%0),idle(%1))])],%0,%1,%2)
 
 &SORTNAME [u(cobj,mco)]=u(SORTNAME`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTNAME`PENNMUSH [u(cobj,mco)]=sort(%0,namei,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTNAME`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([comp(lcstr(name(%0)),lcstr(name(%1)))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTNAME`PENNMUSH [u(cobj,mco)]=sort(%0,namei,%1,%2)
+&SORTNAME`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([comp(lcstr(name(%0)),lcstr(name(%1)))])],%0,%1,%2)
 
 &SORTALIAS [u(cobj,mco)]=u(SORTALIAS`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTALIAS`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/lcstr(alias(\%0)),%0,i,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTALIAS`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([comp(lcstr(u(alias,%0)),lcstr(u(alias,%1)))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTALIAS`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/lcstr(alias(\%0)),%0,i,%1,%2)
+&SORTALIAS`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([comp(lcstr(u(alias,%0)),lcstr(u(alias,%1)))])],%0,%1,%2)
 
 &SORTOLDID [u(cobj,mco)]=u(SORTOLDID`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTOLDID`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/after(\%0,~),%0,i,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTOLDID`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(after(%0,~),after(%1,~))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTOLDID`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/after(\%0,~),%0,i,%1,%2)
+&SORTOLDID`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(after(%0,~),after(%1,~))])],%0,%1,%2)
 
 &SORTPRIORITY [u(cobj,mco)]=u(SORTPRIORITY`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTPRIORITY`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/default(\%0/D`ALTS`PRIORITY,0),%0,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTPRIORITY`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/D`ALTS`PRIORITY,0),default(%1/D`ALTS`PRIORITY,0))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTPRIORITY`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/default(\%0/D`ALTS`PRIORITY,0),%0,n,%1,%2)
+&SORTPRIORITY`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/D`ALTS`PRIORITY,0),default(%1/D`ALTS`PRIORITY,0))])],%0,%1,%2)
 
 &SORTORDER [u(cobj,mco)]=u(SORTORDER`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTORDER`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/default(\%0/ORDER,99),%0,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTORDER`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/ORDER,99),default(%1/ORDER,99))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTORDER`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/default(\%0/ORDER,99),%0,n,%1,%2)
+&SORTORDER`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/ORDER,99),default(%1/ORDER,99))])],%0,%1,%2)
 
 &CHOOSEGAME [u(cobj,mco)]=switch(%va,PennMUSH,%0,RhostMUSH,%1)
 

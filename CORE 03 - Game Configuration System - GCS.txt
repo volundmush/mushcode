@@ -12,7 +12,7 @@ th u(NEWCOBJ,Game Configuration Data Storage <CONFIG>,config,u(cobj,gcs),,1,WIZA
 &CMD`+GAMECONFIG`RHOSTMUSH [u(cobj,gcs)]=$^\+gameconfig(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GAMECONFIG`MAIN
 @set [u(cobj,gcs)]/CMD`+GAMECONFIG`RHOSTMUSH=regexp
 &CMD`+GAMECONFIG`MAIN [u(cobj,gcs)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3,%4
-@set [u(cobj,gcs)]/CMD`+GAMECONFIG`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,gcs)]/CMD`+GAMECONFIG`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,gcs)]=
 &SWITCHES`ADMIN [u(cobj,gcs)]=GET
@@ -34,7 +34,7 @@ th u(NEWCOBJ,Game Configuration Data Storage <CONFIG>,config,u(cobj,gcs),,1,WIZA
 
 @@ STARTUP EXTRA is used by individual games.
 &PLAYER`CREATE [u(cobj,gcs)]=@dolist/inline u(lattr`%va,%!/PLAYER`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&PLAYER`CREATE`CHANNELS [u(cobj,gcs)]=@select/inline 1=u(isguest,%0),{@@ @dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_GUESTS)]=@select/inline %va=PennMUSH,{@chan/on %i0=%0},RhostMUSH,{}},{@dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_PLAYERS)]=@select/inline %va=PennMUSH,{@chan/on %i0=%0},RhostMUSH,{}}
+&PLAYER`CREATE`CHANNELS [u(cobj,gcs)]=@select/inline 1=u(isguest,%0),{@@ @dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_GUESTS)]=@select/inline v(game)=PennMUSH,{@chan/on %i0=%0},RhostMUSH,{}},{@dolist/inline/delimit | [u(game_config,CHANNELS,JOIN_PLAYERS)]=@select/inline v(game)=PennMUSH,{@chan/on %i0=%0},RhostMUSH,{}}
 
 @@ CONFIG DEFAULTS - Don't change these! +config can change them.
 

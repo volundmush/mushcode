@@ -44,15 +44,15 @@ th u(newcobj,STORYTELLER: Merits Management System <MERIT>,merit,,,,WIZARD SAFE 
 
 &INC`MAIN [u(cobj,merit)]=@attach %!/INC`TARGET;@select/inline t(strlen(%q<filename>))=1,{@attach %!/INC`MERNAME=%q<filename>;@attach %!/INC`EXISTING;@attach %!/INC`DISPLAY},0,{@attach %!/INC`LIST}
 
-&INC`LIST [u(cobj,merit)]=@pemit %#=u(HEADER,name(%q<target>)'s [u(capnames,%q<sysname>)]);@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(40 30 6,Name,Desc,Rank));@pemit %#=u(SEPARATOR);@dolist/inline u(sortmer,u(lattr`%va,%q<target>/%q<root>`*))={@pemit %#=align(40 30 6,u(mxpmenu`%va,u(FUN`MERNAME,%q<target>,##),%q<comm> [name(%q<target>)]/[u(FUN`MERNAME,%q<target>,##)]),left(get(%q<target>/##`DESC),20),repeat(*,get(%q<target>/##`RANK)))};@pemit %#=u(SUBHEADER)
+&INC`LIST [u(cobj,merit)]=@pemit %#=u(HEADER,name(%q<target>)'s [u(capnames,%q<sysname>)]);@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(40 30 6,Name,Desc,Rank));@pemit %#=u(SEPARATOR);@dolist/inline u(sortmer,u(lattr`%va,%q<target>/%q<root>`*))={@pemit %#=align(40 30 6,u(pueblize,u(FUN`MERNAME,%q<target>,##),%q<comm> [name(%q<target>)]/[u(FUN`MERNAME,%q<target>,##)]),left(get(%q<target>/##`DESC),20),repeat(*,get(%q<target>/##`RANK)))};@pemit %#=u(SUBHEADER)
 
-&SORTMER [u(cobj,merit)]=u(SORTMER`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTMER [u(cobj,merit)]=u(SORTMER`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTMER`PENNMUSH [u(cobj,merit)]=sortkey(#lambda/u(FUN`MERNAME,%q<target>,\%0),%0,i,%1,%2)
 &SORTMER`RHOSTMUSH [u(cobj,merit)]=sortby(#lambda/[lit([comp(lcstr(u(FUN`MERNAME,%q<target>,%0)),lcstr(u(FUN`MERNAME,%q<target>,%1)))])],%0,%1,%2)
 
 &INC`DISPLAY [u(cobj,merit)]=@attach %!/INC`EXISTING;@pemit %#=u(HEADER,name(%q<target>)'s %q<type>: [u(FUN`MERNAME,%q<target>,%q<attr>)]);@pemit %#=get(%q<target>/%q<attr>`DESC);@select/inline strlen(u(setr`%va,notes,get(%q<target>/%q<attr>`NOTES)))=>0,{@pemit %#=u(SEPARATOR,Notes);@pemit %#=%q<notes>;@pemit %#=u(separator)},1,{@pemit %#=u(SEPARATOR)};@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(20 20,Setby,Seton));@pemit %#=u(separator);@pemit %#=align(20 20,get(%q<target>/%q<attr>`BY),u(fancytime`%va,get(%q<target>/%q<attr>`ON),%#));@pemit %#=u(SUBHEADER)
 
-&STARTUP [u(cobj,merit)]=@select/inline %va=PennMUSH,{@function getmerit=%!,getmerit;@function/restrict getmerit=localize},RhostMUSH,{@function/privileged getmerit=%!,getmerit}
+&STARTUP [u(cobj,merit)]=@select/inline v(game)=PennMUSH,{@function getmerit=%!,getmerit;@function/restrict getmerit=localize},RhostMUSH,{@function/privileged getmerit=%!,getmerit}
 
 &GETMERIT [u(cobj,merit)]=u(lmax`%va,iter(u(wildgrepi`%va,%0,D`%1`*,%2),get(%0/%i0`RANK)))
 

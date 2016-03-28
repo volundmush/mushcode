@@ -3,7 +3,7 @@
 &CMD`+MERITS`RHOSTMUSH [u(cobj,merit)]=$^(?s)(?\:\+)?(merits|flaws|pacts)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
 @set [u(cobj,merit)]/CMD`+MERITS`RHOSTMUSH=regexp
 &CMD`+MERITS`MAIN [u(cobj,merit)]=@attach %!/INIT`%1;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[strfirstof(%q<switch>,MAIN)]=squish(trim(%3)),trim(%4)
-@set [u(cobj,merit)]/CMD`+MERITS`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,merit)]/CMD`+MERITS`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &INIT`MERITS [u(cobj,merit)]=th u(setq`%va,sysname,MERITS);th u(setq`%va,root,D`MERITS);th u(setq`%va,type,Merit)
 &INIT`FLAWS [u(cobj,merit)]=th u(setq`%va,sysname,FLAWS);th u(setq`%va,root,D`FLAWS);th u(setq`%va,type,Flaw)

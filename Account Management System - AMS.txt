@@ -18,7 +18,7 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 &CMD`+ACCOUNT`RHOSTMUSH [u(cobj,ams)]=$^(?\:\+)?account(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ACCOUNT`MAIN
 @set [u(cobj,ams)]/CMD`+ACCOUNT`RHOSTMUSH=regexp
 &CMD`+ACCOUNT`MAIN [u(cobj,ams)]=th u(setq`%va,sysname,ACCOUNT);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`ACCOUNT`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,ams)]/CMD`+ACCOUNT`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,ams)]/CMD`+ACCOUNT`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`ACCOUNT`PLAYER [u(cobj,ams)]=EMAIL
 &SWITCHES`ACCOUNT`ADMIN [u(cobj,ams)]=BIND|UNBIND|UNBOUND|DELETE|CREATED|ACTIVE
@@ -28,15 +28,15 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 &INC`ACCOUNT`MAIN [u(cobj,ams)]=@select/inline u(isadmin`%va,%#)=1,{@select/inline strlen(%0)=0,{@attach %!/INC`ACCOUNT`LIST},{@select/inline u(valnum,%0)=1,{@attach %!/INC`ACCOUNT`FIND=%0},{@attach %!/INC`CHECKPC=%0,1;@check isdbref(u(setr`%va,accid,%q<t1acc>))=@attach %!/INC`MSG={ERROR: %q<t1name> is not bound to an Account.}};@attach %!/INC`ACCOUNT`SHOW}},{@attach %!/INC`CHECKPC=%#,1;@check isdbref(u(setr`%va,accid,%q<t1acc>))=@attach %!/INC`MSG={ERROR: You are not bound to an Account. Please check with an Admin to correct this!};@attach %!/INC`ACCOUNT`SHOW}
 
-&INC`ACCOUNT`LIST [u(cobj,ams)]=@check words(u(setr`%va,accounts,u(strfirstof`%va,%q<listing>,u(sortacc,children(u(cobj,accounts))))))=@attach %!/INC`MSG={ERROR: There are no accounts entered in the system.};@pemit %#=u(header,mudname() Player Accounts);@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(-5 25 [sub(u(width`%va,%#),32)],ACC,Email,Characters));@pemit %#=u(separator);@dolist/inline %q<accounts>={@pemit %#=align(-5 25 [sub(u(width`%va,%#),32)],u(mxpmenu`%va,last(name(##)),+account [last(name(##))]),default(##/EMAIL,Unset),u(strfirstof`%va,u(itemize`%va,iter(u(filter,ISOBJID,get(##/CHARACTERS)),u(mxpmenu`%va,u(moniker`%va,%i0),+finger [name(%i0)]),,|),|,and,\,),OLD: [u(itemize`%va,iter(get(##/OLD),ansi(c,after(%i0,~)),|,|),|,and,\,)]))};@pemit %#=u(subheader,+account <id or player> for details)
+&INC`ACCOUNT`LIST [u(cobj,ams)]=@check words(u(setr`%va,accounts,u(strfirstof`%va,%q<listing>,u(sortacc,children(u(cobj,accounts))))))=@attach %!/INC`MSG={ERROR: There are no accounts entered in the system.};@pemit %#=u(header,mudname() Player Accounts);@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(-5 25 [sub(u(width`%va,%#),32)],ACC,Email,Characters));@pemit %#=u(separator);@dolist/inline %q<accounts>={@pemit %#=align(-5 25 [sub(u(width`%va,%#),32)],u(pueblize,last(name(##)),+account [last(name(##))]),default(##/EMAIL,Unset),u(strfirstof`%va,u(itemize`%va,iter(u(filter,ISOBJID,get(##/CHARACTERS)),u(pueblize,u(moniker`%va,%i0),+finger [name(%i0)]),,|),|,and,\,),OLD: [u(itemize`%va,iter(get(##/OLD),ansi(c,after(%i0,~)),|,|),|,and,\,)]))};@pemit %#=u(subheader,+account <id or player> for details)
 
-&SORTACC [u(cobj,mco)]=u(SORTACC`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTACC [u(cobj,mco)]=u(SORTACC`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTACC`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/last(name(\%0)),%0,n,%1,%2)
 &SORTACC`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(last(name(%0)),last(name(%1)))])],%0,%1,%2)
 
 &INC`ACCOUNT`ACTIVE [u(cobj,ams)]=th u(setq`%va,listing,sortkey(#lambda/lmath(min,iter(get(u(adb)/\%0),if(isobjid(\%i0),if(lte(sub(secs(),convtime(get(\%i0/LAST))),mul(60,60,24,30)),csecs(\%i0))))),filterbool(#lambda/lmath(max,iter(get(u(adb)/\%0),if(isobjid(\%i0),if(lte(sub(secs(),convtime(get(\%i0/LAST))),mul(60,60,24,30)),1)))),u(lattr`%va,u(adb)/*)),n));@attach %!/INC`ACCOUNT`LIST
 
-&FUN`ACCOUNT`CHARLINE [u(cobj,ams)]=align(-6 3 -2 -3 -4 21 -4 21 6,num(%0),switch(1,u(iswizard`%va,%0),ansi(u(game_config,SYSTEM,WIZTAG),WIZ),hasflag(%0,ROYALTY),ansi(u(game_config,SYSTEM,ROYTAG),ROY),u(isadmin`%va,%0),ansi(hy,ADM),haspower(%0,BUILDER),ansi(hm,BUI),u(isapproved,%0),ansi(hg,APP),ansi(hr,---)),default(%0/D`ALTS,0),u(getproperty,%0,MAJORABBR),default(%0/D`FINGER`TYPE,??),u(mxpmenu`%va,u(moniker`%va,%0),+finger [name(%0)]),elements(maildstats(%0),5),u(mxpmenu`%va,get(%0/LASTIP),+ip [name(%0)]),u(lastidle,%0))
+&FUN`ACCOUNT`CHARLINE [u(cobj,ams)]=align(-6 3 -2 -3 -4 21 -4 21 6,num(%0),switch(1,u(iswizard`%va,%0),ansi(u(game_config,SYSTEM,WIZTAG),WIZ),hasflag(%0,ROYALTY),ansi(u(game_config,SYSTEM,ROYTAG),ROY),u(isadmin`%va,%0),ansi(hy,ADM),haspower(%0,BUILDER),ansi(hm,BUI),u(isapproved,%0),ansi(hg,APP),ansi(hr,---)),default(%0/D`ALTS,0),u(getproperty,%0,MAJORABBR),default(%0/D`FINGER`TYPE,??),u(pueblize,u(moniker`%va,%0),+finger [name(%0)]),elements(maildstats(%0),5),u(pueblize,get(%0/LASTIP),+ip [name(%0)]),u(lastidle,%0))
 
 &INC`ACCOUNT`SHOW [u(cobj,ams)]=th u(setq`%va,pcs,u(filter,ISOBJID,get(%q<accid>/CHARACTERS)));@pemit %#=u(HEADER,name(%q<accid>)[if(strlen(u(setr`%va,email,get(%q<accid>/EMAIL))),:%B%q<email>)]);@pemit %#=align(-6 3 2 3 4 21 4 21 6,Dbref,Sta,Al,Fac,Type,Name,Mail,IP,LastOn);@pemit %#=u(SEPARATOR);@dolist/inline %q<pcs>={@pemit %#=u(FUN`ACCOUNT`CHARLINE,##)};@select/inline cand(u(isadmin`%va,%#),gt(words(u(setr`%va,old,u(filter,OLDOBJID,get(%q<accid>/OLD),|,|)),|),0))=1,{@pemit %#=u(SEPARATOR,Old Characters);@pemit %#=align(-6 3 3 21 8 21,Dbref,,,Name,,Objid);@dolist/inline/delimit | [u(sortoldid`%va,%q<old>,|,|)]={@pemit %#=align(-6 3 -3 21 8 21,before(##,:),,,after(##,~),,before(##,~))}};@pemit %#=u(HEADER)
 
@@ -45,18 +45,18 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 &INC`ACCOUNT`NEW [u(cobj,ams)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@stop strmatch(%#,#1)=@attach %!/INC`MSG=ERROR: #1 cannot be bound to an Account.;@stop isdbref(u(setr`%va,accid,u(accid,%#)))=@attach %!/INC`MSG={ERROR: You are already bound to [name(%q<accid>)]!};@attach %!/INC`ACCOUNT`MAKENEW;@attach %!/INC`ACCOUNT`ADDTOACCOUNT=%q<accid>,%#;@attach %!/INC`MSG={You are now bound to [name(%q<accid>)]!};@attach %!/INC`MSG`CHAN={Bound to new [name(%q<accid>)] via +account/new}
 
-&INC`ACCOUNT`REQUEST [u(cobj,ams)]=@stop isdbref(u(setr`%va,accid,u(accid,%#)))=@attach %!/INC`MSG=ERROR: You already belong to [name(%q<accid>)]!;@attach %!/INC`CHECKPC=%0,1;@check u(setr`%va,reqacc,u(accid,%q<t1>))=@attach %!/INC`MSG=ERROR: %q<t1name> does not have an account!;@attach %!/INC`MSG=Request sent! Please use +request/accept %n on any character for that account to confirm.;th u(attrib_set`%va,%q<reqacc>,REQUESTS,setunion(get(%q<reqacc>/REQUESTS),%:));@attach %!/INC`MSG=%n has requested to join this account. Use [u(mxpmenu`%va,+account/accept %n)] to confirm.,u(alts,%q<t1>);@attach %!/INC`MSG`CHAN=Sent add request to [name(%q<reqacc>)].
+&INC`ACCOUNT`REQUEST [u(cobj,ams)]=@stop isdbref(u(setr`%va,accid,u(accid,%#)))=@attach %!/INC`MSG=ERROR: You already belong to [name(%q<accid>)]!;@attach %!/INC`CHECKPC=%0,1;@check u(setr`%va,reqacc,u(accid,%q<t1>))=@attach %!/INC`MSG=ERROR: %q<t1name> does not have an account!;@attach %!/INC`MSG=Request sent! Please use +request/accept %n on any character for that account to confirm.;th u(attrib_set`%va,%q<reqacc>,REQUESTS,setunion(get(%q<reqacc>/REQUESTS),%:));@attach %!/INC`MSG=%n has requested to join this account. Use [u(pueblize,+account/accept %n)] to confirm.,u(alts,%q<t1>);@attach %!/INC`MSG`CHAN=Sent add request to [name(%q<reqacc>)].
 
 &INC`ACCOUNT`ACCEPT [u(cobj,ams)]=@check isdbref(u(setr`%va,accid,u(accid,%#)))=@attach %!/INC`MSG=ERROR: You do not have an account!;@attach %!/INC`CHECKPC=%0,1;@stop u(setr`%va,reqacc,u(accid,%q<t1>))=@attach %!/INC`MSG=ERROR: %q<t1name> already has an account!;@check match(get(%q<accid>/REQUESTS),%q<t1objid>)=@attach %!/INC`MSG=ERROR: No request pending from %q<t1name>.;th u(attrib_set`%va,%q<accid>,REQUESTS,setdiff(get(%q<accid>/REQUESTS),%q<t1objid>));@attach %!/INC`MSG=%q<t1name> has been added to [name(%q<accid>)],u(alts,%#);@attach %!/INC`MSG`CHAN=Account request for %q<t1name> to [name(%q<accid>)] confirmed.;@attach %!/INC`ACCOUNT`ADDTOACCOUNT=%q<accid>,%q<t1objid>
 
-&INC`ACCOUNT`BIND [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1;@stop strmatch(%q<t1>,#1)=@attach %!/INC`MSG=ERROR: #1 cannot be bound to an Account.;@select/inline u(valnum,%1)=1,{@select/inline not(u(setr`%va,accid,u(find_in`%va,u(cobj,accounts),Account %1)))=1,{@attach %!/INC`ACCOUNT`MAKENUM=%1}},{@check strlen(%1)=@attach %!/INC`MSG={ERROR: Destination Account Empty. It must be an Account ID, player name, or NEW};@select/inline %1=NEW,{@attach %!/INC`ACCOUNT`MAKENEW},{@attach %!/INC`CHECKPC=%1,2;@check isdbref(u(setr`%va,accid,u(accid,%q<t2objid>)))=@attach %!/INC`MSG={ERROR: That player doesn't have an account.}}};@select/inline isdbref(u(setr`%va,oldid,u(accid,%q<t1objid>)))=1,{@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<oldid>,%q<t1objid>};@attach %!/INC`ACCOUNT`ADDTOACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG`NOTICE={You have been Bound to [u(mxpmenu`%va,name(%q<accid>),+account [last(name(%q<accid>))])].},%q<t1>;@attach %!/INC`MSG={You have Bound %q<t1name> to [u(mxpmenu`%va,name(%q<accid>),+account [last(name(%q<accid>))])]};@attach %!/INC`MSG`CHAN={Bound %q<t1name> to [u(mxpmenu`%va,name(%q<accid>),+account [last(name(%q<accid>))])]}
+&INC`ACCOUNT`BIND [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1;@stop strmatch(%q<t1>,#1)=@attach %!/INC`MSG=ERROR: #1 cannot be bound to an Account.;@select/inline u(valnum,%1)=1,{@select/inline not(u(setr`%va,accid,u(find_in`%va,u(cobj,accounts),Account %1)))=1,{@attach %!/INC`ACCOUNT`MAKENUM=%1}},{@check strlen(%1)=@attach %!/INC`MSG={ERROR: Destination Account Empty. It must be an Account ID, player name, or NEW};@select/inline %1=NEW,{@attach %!/INC`ACCOUNT`MAKENEW},{@attach %!/INC`CHECKPC=%1,2;@check isdbref(u(setr`%va,accid,u(accid,%q<t2objid>)))=@attach %!/INC`MSG={ERROR: That player doesn't have an account.}}};@select/inline isdbref(u(setr`%va,oldid,u(accid,%q<t1objid>)))=1,{@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<oldid>,%q<t1objid>};@attach %!/INC`ACCOUNT`ADDTOACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG`NOTICE={You have been Bound to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])].},%q<t1>;@attach %!/INC`MSG={You have Bound %q<t1name> to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])]};@attach %!/INC`MSG`CHAN={Bound %q<t1name> to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])]}
 
-&INC`ACCOUNT`ADDTOACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setunion(get(%0/CHARACTERS),objid(%1)));th u(attrib_set`%va,%1,D`ACCOUNT,%0);th u(setstat,%0,OLD,objid(%1),name(%1))
-&INC`ACCOUNT`REMFROMACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setdiff(get(%0/CHARACTERS),objid(%1)));@wipe %1/D`ACCOUNT;@select/inline t(%1)=1,{th u(delstat,%0,OLD,objid(%1))}
+&INC`ACCOUNT`ADDTOACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setunion(get(%0/CHARACTERS),objid(%1)));th u(attrib_set`%va,%1,D`ACCOUNT,%0);th u(setstat`%va,%0,OLD,objid(%1),name(%1))
+&INC`ACCOUNT`REMFROMACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setdiff(get(%0/CHARACTERS),objid(%1)));@wipe %1/D`ACCOUNT;@select/inline t(%1)=1,{th u(delstat`%va,%0,OLD,objid(%1))}
 
 &INC`ACCOUNT`UNBIND [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1;@check u(setr`%va,accid,%q<t1acc>)=@attach %!/INC`MSG={ERROR: %q<t1name> is not a member of any accounts.};@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG={You have removed %q<t1name> from Account [name(%q<accid>)]};@attach %!/INC`MSG`NOTICE={You were removed you from [name(%q<accid>)]},%q<t1>;@attach %!/INC`MSG`CHAN={Removed %q<t1name> from [name(%q<accid>)]}
 
-&INC`ACCOUNT`UNBOUND [u(cobj,ams)]=@check words(u(setr`%va,unbound,switch(%va,PennMUSH,lsearch(all,type,player,elock,!D`ACCOUNT:?*),search(eplayer=!hasattr(##,D`ACCOUNT)))))=@attach %!/INC`MSG={There are no accountless PCs in the Database. Hooray!};@pemit %#=u(HEADER,Unbound Characters);@pemit %#=align(-6 3 3 27 25 9,Dbref,Sta,Alt,Name,IP,Last On);@pemit %#=u(SEPARATOR);@dolist/inline %q<unbound>={@pemit %#=u(FUN`ACCOUNT`CHARLINE,##)};@pemit %#=u(SUBHEADER)
+&INC`ACCOUNT`UNBOUND [u(cobj,ams)]=@check words(u(setr`%va,unbound,switch(v(game),PennMUSH,lsearch(all,type,player,elock,!D`ACCOUNT:?*),search(eplayer=!hasattr(##,D`ACCOUNT)))))=@attach %!/INC`MSG={There are no accountless PCs in the Database. Hooray!};@pemit %#=u(HEADER,Unbound Characters);@pemit %#=align(-6 3 3 27 25 9,Dbref,Sta,Alt,Name,IP,Last On);@pemit %#=u(SEPARATOR);@dolist/inline %q<unbound>={@pemit %#=u(FUN`ACCOUNT`CHARLINE,##)};@pemit %#=u(SUBHEADER)
 
 &INC`ACCOUNT`EMAIL [u(cobj,ams)]=@select/inline u(OPEN_CREATION)=1,{@check isdbref(u(setr`%va,accid,u(accid,%#)))=@pemit %#=ERROR: This character is not bound to an Account.;th u(attrib_set`%va,%q<accid>,EMAIL,%0);@attach %!/INC`MSG={You have [if(strlen(%0),set your Account email to: %0,unset your Account email.)]}},{@check u(isadmin`%va,%#)=@attach %!/INC`MSG={Only Staff may set emails!};@attach %!/INC`CHECKPC=%0,1;@check u(setr`%va,accid,%q<t1acc>)=@pemit %#=ERROR: %q<t1name> is not bound to an Account.;th u(attrib_set`%va,%q<accid>,EMAIL,%1);@attach %!/INC`MSG={%q<t1name>'s Email has been set to: %1};@attach %!/INC`MSG`NOTICE={Your Email was set to: %1},get(%q<accid>/CHARACTERS)}
 
@@ -75,7 +75,7 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 
-&OBJECT`RENAME`FIXACCOUNT [u(cobj,ams)]=@select/inline %2=PLAYER,{@check isdbref(u(setr`%va,accid,accid(%0)));th u(setstat,u(adb)/%q<accid>`OLD,%0,%1)}
+&OBJECT`RENAME`FIXACCOUNT [u(cobj,ams)]=@select/inline %2=PLAYER,{@check isdbref(u(setr`%va,accid,accid(%0)));th u(setstat`%va,u(adb)/%q<accid>`OLD,%0,%1)}
 
 &OBJECT`DESTROY`CLEANACCOUNTS [u(cobj,ams)]=@select/inline %2=PLAYER,{@check isdbref(u(setr`%va,accid,accid(%0,1)));@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<accid>,%0}
 
@@ -86,7 +86,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 &CMD`+ALTS`RHOSTMUSH [u(cobj,ams)]=$^(?\:\+)?alts(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ALTS`MAIN
 @set [u(cobj,ams)]/CMD`+ALTS`RHOSTMUSH=regexp
 &CMD`+ALTS`MAIN [u(cobj,ams)]=th u(setq`%va,sysname,ALTS);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`ALTS`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,ams)]/CMD`+ALTS`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,ams)]/CMD`+ALTS`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`ALTS`PLAYER [u(cobj,ams)]=LIST|PRIORITY
 &SWITCHES`ALTS`ADMIN [u(cobj,ams)]=
@@ -95,7 +95,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 
 &INC`ALTS`LIST [u(cobj,ams)]=@check u(setr`%va,accid,u(accid,%#))=@attach %!/INC`MSG=ERROR: This character is not bound to an account.;@check strlen(%0)=@attach %!/INC`MSG=ERROR: List or target field empty. Please enter a name or a number to list this alt under.;@select/inline cand(strlen(%0),strlen(%1))=1,{@attach %!/INC`CHECKPC=%0,1;@check strmatch(u(accid,%q<t1objid>),%q<accid>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not one of your registered characters.;@check cand(gte(u(setr`%va,list,%1),0),isint(%1))=@attach %!/INC`MSG=ERROR: Alts list must be a whole number 0 or greater.},0,{@attach %!/INC`CHECKPC=%#,1;@check cand(gte(u(setr`%va,list,%0),0),isint(%0))=@attach %!/INC`MSG=ERROR: Alts list must be a whole number 0 or greater.};&D`ALTS %q<t1>=%q<list>;@attach %!/INC`MSG=Okay! %q<t1name> will [if(%q<list>,now appear in Alts List #%q<list>.,not appear in any Alts lists.)]
 
-&FUN`ALTS`LIST [u(cobj,ams)]=if(get(%0/D`ALTS),u(strfirstof`%va,u(itemize`%va,iter(u(sortname`%va,squish(iter(get(u(accid,%0)/CHARACTERS),if(eq(default(%0/D`ALTS,0),default(%i0/D`ALTS,0)),%i0)))),u(moniker`%va,%i0)[if(not(%1),\([u(hideidle,%i0)]\))],%b,|),|,and,\,),None),None)
+&FUN`ALTS`LIST [u(cobj,ams)]=if(get(%0/D`ALTS),u(strfirstof`%va,u(itemize`%va,iter(u(sortname,squish(iter(get(u(accid,%0)/CHARACTERS),if(eq(default(%0/D`ALTS,0),default(%i0/D`ALTS,0)),%i0)))),u(moniker`%va,%i0)[if(not(%1),\([u(hideidle,%i0)]\))],%b,|),|,and,\,),None),None)
 
 &INC`ALTS`PRIORITY [u(cobj,ams)]=@check u(setr`%va,accid,u(accid,%#))=@attach %!/INC`MSG=ERROR: This character is not bound to an account.;@select/inline t(strlen(%0))=1,{@select/inline cand(strlen(%0),strlen(%1))=1,{@attach %!/INC`CHECKPC=%0,1;@check strmatch(u(accid,%q<t1objid>),%q<accid>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not one of your registered characters.;@check cand(gte(u(setr`%va,list,%1),0),isint(%1))=@attach %!/INC`MSG=ERROR: Alts priority must be a whole number 0 or greater.},0,{@attach %!/INC`CHECKPC=%#,1;@check cand(gte(u(setr`%va,list,%0),0),isint(%0))=@attach %!/INC`MSG=ERROR: Alts priority must be a whole number 0 or greater.};&D`ALTS`PRIORITY %q<t1>=%q<list>;@attach %!/INC`MSG=Okay! %q<t1name>'s Priority is now: %q<list>},0,{@attach %!/INC`ALTS`PRIORITY`LIST}
 
@@ -108,7 +108,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 &CMD`+IP`RHOSTMUSH [u(cobj,ams)]=$^(?\:\+)?(?\:ip|sitematch|matchsite|site)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IP`MAIN
 @set [u(cobj,ams)]/CMD`+IP`RHOSTMUSH=regexp
 &CMD`+IP`MAIN [u(cobj,ams)]=th u(setq`%va,sysname,IP);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`IP`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,ams)]/CMD`+IP`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,ams)]/CMD`+IP`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`IP`PLAYER [u(cobj,ams)]=
 &SWITCHES`IP`ADMIN [u(cobj,ams)]=IP|GUESTS
@@ -117,7 +117,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 
 &INC`IP`IP [u(cobj,ams)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: An IP address is required.;@attach %!/INC`IP`IPSHOW=%0,1,1
 
-&INC`IP`IPSHOW [u(cobj,ams)]=@check gt(words(u(setr`%va,ips,if(%2,%0,u(mysql,GET`LOGIN,%q<t1id>)))),0)=@attach %!/INC`MSG=ERROR: No IP logs found to match against.;th u(setq`%va,pcs,u(sortname`%va,u(filter,ISOBJID,u(mysql,GET`OBJIDS_FROM_IPS,u(SQL`IN`STRING,%q<ips>)))));@check words(%q<pcs>)=@attach %!/INC`MSG=ERROR: No Matching Logs found.;@pemit %#=u(header,Site matches for [if(%2,%0,name(%0))]);@dolist/inline %q<pcs>={@pemit %#=u(separator,ansi(h,u(mxpmenu`%va,u(moniker`%va,##),+finger [name(##)]))[ansi(h,\(##\))] - [u(lastidle,##)]);@pemit %#=ansi(u(color`%va,%#,%q<sysname>,COLUMN_NAMES),align(20 22 25,Date,Address,Result));@pemit %#=iter(revwords(iter(u(mysql2,get`logins,objid(##)),align(20 22 25,u(fancytime`%va,elements(%i0,3,^),%#),elements(%i0,2,^),if(elements(%i0,1,^),Success,elements(%i0,4,^))),|,beep()),beep()),%i0,beep(),%R)};@pemit %#=u(subheader)
+&INC`IP`IPSHOW [u(cobj,ams)]=@check gt(words(u(setr`%va,ips,if(%2,%0,u(mysql,GET`LOGIN,%q<t1id>)))),0)=@attach %!/INC`MSG=ERROR: No IP logs found to match against.;th u(setq`%va,pcs,u(sortname,u(filter,ISOBJID,u(mysql,GET`OBJIDS_FROM_IPS,u(SQL`IN`STRING,%q<ips>)))));@check words(%q<pcs>)=@attach %!/INC`MSG=ERROR: No Matching Logs found.;@pemit %#=u(header,Site matches for [if(%2,%0,name(%0))]);@dolist/inline %q<pcs>={@pemit %#=u(separator,ansi(h,u(pueblize,u(moniker`%va,##),+finger [name(##)]))[ansi(h,\(##\))] - [u(lastidle,##)]);@pemit %#=ansi(u(color`%va,%#,%q<sysname>,COLUMN_NAMES),align(20 22 25,Date,Address,Result));@pemit %#=iter(revwords(iter(u(mysql2,get`logins,objid(##)),align(20 22 25,u(fancytime`%va,elements(%i0,3,^),%#),elements(%i0,2,^),if(elements(%i0,1,^),Success,elements(%i0,4,^))),|,beep()),beep()),%i0,beep(),%R)};@pemit %#=u(subheader)
 
 &Q`GET`LOGIN [u(cobj,ams)]=SELECT DISTINCT login_address FROM $LOGINS$ WHERE player_id=? AND login_result=1
 
@@ -147,7 +147,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 &CMD`+BANLIST`RHOSTMUSH [u(cobj,ams)]=$^(?\:\+)?banlist(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+BANLIST`MAIN
 @set [u(cobj,ams)]/CMD`+BANLIST`RHOSTMUSH=regexp
 &CMD`+BANLIST`MAIN [u(cobj,ams)]=@check u(isadmin`%va,%#)=@force/inline %#=HUH_COMMAND;th u(setq`%va,sysname,BANLIST);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`BANLIST`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,ams)]/CMD`+BANLIST`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,ams)]/CMD`+BANLIST`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`BANLIST`PLAYER [u(cobj,ams)]=
 &SWITCHES`BANLIST`ADMIN [u(cobj,ams)]=BANIP|BANPLAYER|DELETE|DURATION|COMMENT|MESSAGE
@@ -178,7 +178,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 
 &INC`BANLIST`MESSAGE [u(cobj,ams)]=@check u(iswizard`%va,%#)=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`BANLIST`ID
 
-&FUN`BANAFFECTS [u(cobj,ams)]=u(sortname`%va,setunion(iter(wildgrepi(u(ipdb),*`*,%0),first(%i0,`)),))
+&FUN`BANAFFECTS [u(cobj,ams)]=u(sortname,setunion(iter(wildgrepi(u(ipdb),*`*,%0),first(%i0,`)),))
 
 &FUN`CHECKBAN [u(cobj,ams)]=filterbool(#lambda/eq(comp(%0,get(u(cobj,bandb)/\%0),I),0),reglattr(u(cobj,bandb)/^\\d+$))
 
@@ -195,7 +195,7 @@ th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 &CMD`+APPROVE`RHOSTMUSH [u(cobj,ams)]=$^(?\:\+)?(approve|unapprove)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+APPROVE`MAIN
 @set [u(cobj,ams)]/CMD`+APPROVE`RHOSTMUSH=regexp
 &CMD`+APPROVE`MAIN [u(cobj,ams)]=th u(setq`%va,sysname,APPROVE);@attach %!/INC`GETSWITCH=%2;@attach %!/INC`%1`[u(strfirstof`%va,%q<switch>,MAIN)]=%3,%4
-@set [u(cobj,ams)]/CMD`+APPROVE`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,ams)]/CMD`+APPROVE`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &INC`APPROVE`MAIN [u(cobj,ams)]=@select/inline cand(u(isadmin`%va,%#),strlen(%0))=1,{@attach %!/INC`CHECKPC=%0,1;@stop u(isapproved,%q<t1>)=@attach %!/INC`MSG=ERROR: They are already approved!;@attach %!/INC`APPROVE`DOAPPROVE=%q<t1>;@attach %!/INC`MSG=You have approved %q<t1name> for play!;@attach %!/INC`MSG`CHAN=%q<t1name> approved for play!},{@attach %!/INC`MSG=You [if(u(isapproved,%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
 
@@ -215,7 +215,7 @@ th u(NEWCONF,config,CHANNELS,APPROVAL,,Channel to announce Approvals on.,LIST)
 &CMD`+STAFF`RHOSTMUSH [u(cobj,ams)]=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+STAFF`MAIN
 @set [u(cobj,ams)]/CMD`+STAFF`RHOSTMUSH=regexp
 &CMD`+STAFF`MAIN [u(cobj,ams)]=th u(setq`%va,sysname,STAFF);@attach %!/INC`GETSWITCH=%2;@attach %!/INC`STAFF`[u(strfirstof`%va,%q<switch>,MAIN)]=%3,%4
-@set [u(cobj,ams)]/CMD`+STAFF`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,ams)]/CMD`+STAFF`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`STAFF`ADMIN [u(cobj,ams)]=ADD|REMOVE|ORDER|POSITION|DUTY|VACATION
 
@@ -223,9 +223,9 @@ th u(NEWCONF,config,CHANNELS,APPROVAL,,Channel to announce Approvals on.,LIST)
 
 th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WORD)
 
-&FUN`FINDSTAFF [u(cobj,ams)]=u(sortstaff,switch(%va,PennMUSH,lsearch(all,type,player,elock,D`STAFF:>0),RhostMUSH,search(EPLAYER=[lit(hasattr(##/D`STAFF))])))
+&FUN`FINDSTAFF [u(cobj,ams)]=u(sortstaff,switch(v(game),PennMUSH,lsearch(all,type,player,elock,D`STAFF:>0),RhostMUSH,search(EPLAYER=[lit(hasattr(##/D`STAFF))])))
 
-&SORTSTAFF [u(cobj,ams)]=u(SORTSTAFF`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTSTAFF [u(cobj,ams)]=u(SORTSTAFF`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTSTAFF`PENNMUSH [u(cobj,ams)]=sortkey(#lambda/default(\%0/D`STAFF`ORDER,99),%0,n,%1,%2)
 &SORTSTAFF`RHOSTMUSH [u(cobj,ams)]=sortby(#lambda/[lit([ncomp(default(%0/D`STAFF`ORDER,99),default(%1/D`STAFF`ORDER,99))])],%0,%1,%2)
 
@@ -291,15 +291,15 @@ th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WOR
 +shelp/category +Staff=Administration
 &SHLP`+STAFF [u(cobj,ams)]=Keep in mind that anyone on this list is able to use all softcoded admin commands!%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+staff)] - Lists staff. Identical to wizlist.%R[ansi(h,+staff/add <name>\[=<order>\])] and [ansi(h,+Staff/rem <name>)] - Hires or Removes Staff list. This does NOT affect flags or @powers! An optional Order can be provided for how they display. \(Tip: Use large numbers like 10\, 20\, 30\, for your staff to make re-organization easy.\)%R[ansi(h,+staff/order <name>=<order>)] - Changes the staff display order. Wizard only. Lower numbers show first. Equal order numbers sort by DBREF.%R[ansi(h,+staff/position <name>=<text>)] - Change a staff member's position. Wizard only.)]%R%R[ansi(hc,Staff List Display)]%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+staff/duty)] - Toggle duty status on or off.%R[ansi(h,+staff/vacation)] - Go 'on vacation' or toggle it off.)]
 
-+shelp/add Permissions=[u(cobj,ams)]/SHLP`%va
++shelp/add Permissions=[u(cobj,ams)]/SHLP`[v(game)]
 +shelp/category Permissions=Administration
 +shelp/metatags Permissions=wizard royalty bitlevel
-&SHLP`PENNMUSH [u(cobj,ams)]=[ansi(hc,See Also:)] [u(mxpmenu`%va,help CONTROL)], [u(mxpmenu`%va,help WIZARD)], [u(mxpmenu`%va,help ROYALTY)], [u(mxpmenu`%va,help @set)], [u(mxpmenu`%va,help @power)]%R%RStaff are characters able to use Admin commands. For this package anyone who is either WIZARD\, ROYALTY\, or on the +staff list is able to use admin commands\, but Penn's built-in commands use other standards.%R%RPennMUSH has 3 Staff tiers.%R%R1. The [ansi(hr,GOD)] (#1) is a special WIZARD capable of granting or removing the WIZARD flag to other characters. It can use @config/save and several other dangerous commands. Only login as #1 when truly necessary. Since even WIZARDS cannot control() it\, code objects cannot set attributes on #1 and it cannot use many softcoded systems properly.%R%R2. [ansi(hy,WIZARD)] flagged characters have command of everything in the game including dangerous commands such as @force (on players)\, @shutdown\, @hook\, and @config/set. It should be reserved for staff who absolutely need these privileges\, typically the coder(s) and owner. Some potentially dangerous softcoded commands are restricted to Wizard.%R%R3. [ansi(hc,ROYALTY)] have 'see but not touch' compared to WIZARDS - they have several implicit @powers like being able to @tel anywhere but can't change the game's code. This is a good flag for general staff.
+&SHLP`PENNMUSH [u(cobj,ams)]=[ansi(hc,See Also:)] [u(pueblize,help CONTROL)], [u(pueblize,help WIZARD)], [u(pueblize,help ROYALTY)], [u(pueblize,help @set)], [u(pueblize,help @power)]%R%RStaff are characters able to use Admin commands. For this package anyone who is either WIZARD\, ROYALTY\, or on the +staff list is able to use admin commands\, but Penn's built-in commands use other standards.%R%RPennMUSH has 3 Staff tiers.%R%R1. The [ansi(hr,GOD)] (#1) is a special WIZARD capable of granting or removing the WIZARD flag to other characters. It can use @config/save and several other dangerous commands. Only login as #1 when truly necessary. Since even WIZARDS cannot control() it\, code objects cannot set attributes on #1 and it cannot use many softcoded systems properly.%R%R2. [ansi(hy,WIZARD)] flagged characters have command of everything in the game including dangerous commands such as @force (on players)\, @shutdown\, @hook\, and @config/set. It should be reserved for staff who absolutely need these privileges\, typically the coder(s) and owner. Some potentially dangerous softcoded commands are restricted to Wizard.%R%R3. [ansi(hc,ROYALTY)] have 'see but not touch' compared to WIZARDS - they have several implicit @powers like being able to @tel anywhere but can't change the game's code. This is a good flag for general staff.
 &SHLP`RHOSTMUSH [u(cobj,ams)]=
 
 +shelp/add Player Management=[u(cobj,ams)]/SHLP`PMANAGE
 +shelp/category Player Management=Administration
-&SHLP`PMANAGE [u(cobj,ams)]=WIZARDS have a great deal of hardcoded control over players for security and management. Most of these commands can only be used by them.%R%R[align(5 [sub(width(%#),6)],,[ansi(h,@pcreate <name>=<password>)] - Creates a player.%R%R[ansi(h,@newpass *<name>=<newpassword>)] - Changes a password. the * is necessary for hardcoded command lookups.%R%R[ansi(h,@sitelock/ban/player <name>)] - Bans a player. Be very careful with this! Check [u(mxpmenu`%va,ansi(h,help @sitelock),help @sitelock)] for more info.%R%R[ansi(h,@nuke *<name>)] - Deletes a character AND EVERYTHING THEY OWN\, which by default includes EVERYTHING THEY MADE. use [ansi(h,@search *<name>)] to see what that would be before you @nuke! use [ansi(h,@chown <dbref>=me)] to save objects.)]
+&SHLP`PMANAGE [u(cobj,ams)]=WIZARDS have a great deal of hardcoded control over players for security and management. Most of these commands can only be used by them.%R%R[align(5 [sub(width(%#),6)],,[ansi(h,@pcreate <name>=<password>)] - Creates a player.%R%R[ansi(h,@newpass *<name>=<newpassword>)] - Changes a password. the * is necessary for hardcoded command lookups.%R%R[ansi(h,@sitelock/ban/player <name>)] - Bans a player. Be very careful with this! Check [u(pueblize,ansi(h,help @sitelock),help @sitelock)] for more info.%R%R[ansi(h,@nuke *<name>)] - Deletes a character AND EVERYTHING THEY OWN\, which by default includes EVERYTHING THEY MADE. use [ansi(h,@search *<name>)] to see what that would be before you @nuke! use [ansi(h,@chown <dbref>=me)] to save objects.)]
 
 +shelp/add +banlist=[u(cobj,ams)]/SHLP`BANLIST
 +shelp/category +banlist=Administration
@@ -311,7 +311,7 @@ th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WOR
 +help/add +staff=[u(cobj,ams)]/HLP`+STAFF
 +help/category +staff=Community
 +help/metatags +staff=imms wizlist admin
-&HLP`+STAFF [u(cobj,ams)]=+staff lists the game's administrators and their current status.%R[ansi(hc,See Also:)] [u(mxpmenu`%va,help JUDGE)], [u(mxpmenu`%va,help ROYALTY)], [u(mxpmenu`%va,help WIZARD)]%R%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+staff)] - Show game's staff members.)]
+&HLP`+STAFF [u(cobj,ams)]=+staff lists the game's administrators and their current status.%R[ansi(hc,See Also:)] [u(pueblize,help JUDGE)], [u(pueblize,help ROYALTY)], [u(pueblize,help WIZARD)]%R%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+staff)] - Show game's staff members.)]
 
 @@ MIGRATION TOOL
 &MIGRATE`ACCOUNTS [u(cobj,migrate)]=@check isdbref(u(cobj,accounts))=@attach %!/INC`MSG=ERROR: Cannot locate 2.0 Account Database. Cannot continue.;@check isdbref(u(setr`%va,adb,u(%q<index>/adb)))=@attach %!/INC`MSG=ERROR: Cannot locate 1.0 Account Database <ADB>. Cannot continue.;@check words(u(setr`%va,oldids,sort(u(lattr`%va,%q<adb>/*))))=@attach %!/INC`MSG=ERROR: No accounts to import.;@dolist %q<oldids>={@attach [u(cobj,ams)]/INC`ACCOUNT`MAKENUM=##;th u(attrib_set`%va,%q<accid>,CHARACTERS,u(setr`%va,chars,get(%q<adb>/##)));@attach %!/INC`CPTREE=%q<adb>,##`BB,%q<accid>,D`BB;@attach %!/INC`CPTREE=%q<adb>,##`COLOR,%q<accid>,D`COLOR;@cpattr %q<adb>/##`OLD=%q<accid>/OLD;@cpattr %q<adb>/##`EMAIL=%q<accid>/EMAIL;@cpattr %q<adb>/##`TZ=%q<accid>/D`CONFIG`SYSTEM`TIMEZONE;th iter(%q<chars>,u(attrib_set`%va,%i0,D`ACCOUNT,%q<accid>))}

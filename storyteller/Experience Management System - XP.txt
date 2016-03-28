@@ -7,7 +7,7 @@ th u(newcobj,STORYTELLER: Experience Management System <XP>,xp,,,,WIZARD SAFE !N
 &CMD`+XP`RHOSTMUSH [u(cobj,xp)]=$^(?s)(?\:\+)?(xp)(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:/(.*))?$:@attach %!/CMD`+XP`MAIN
 @set [u(cobj,xp)]/CMD`+XP`RHOSTMUSH=regexp
 &CMD`+XP`MAIN [u(cobj,xp)]=@attach %!/INIT`%1;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=squish(trim(%3)),squish(trim(%4)),squish(trim(%5))
-@set [u(cobj,xp)]/CMD`+XP`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,xp)]/CMD`+XP`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &INIT`XP [u(cobj,xp)]=th u(setq`%va,root,XP);th u(setq`%va,type,Experience);th u(setq`%va,comm,+xp);th u(setq`%va,earn,0);th u(setq`%va,use,0)
 
