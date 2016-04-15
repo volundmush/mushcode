@@ -8,11 +8,13 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &COBJ [parent(%#)]=v(COBJ`%0)
 
+th set(parent(%#),VA:[first(version())])
+
 &COI [u(cobj,mco)]=localize(if(isdbref(u(setr`%va,db,u(find_in`%va,u(master_room),Code Object Index <COI>))),u(%q<db>/%0)))
 
 &ATTRIB_SET [u(cobj,mco)]=if(cand(hasattr(u(cobj,mco),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player)))),,u(ATTRIB_SET`%va,%0,%1,%2))
-&ATTRIB_SET`PENNMUSH [u(cobj,mco)]=attrib_set(%0/%1,%2)
-&ATTRIB_SET`RHOSTMUSH [u(cobj,mco)]=set(%0,%1:%2,strmatch(%1,*`*))
+&ATTRIB_SET`PENNMUSH [u(cobj,mco)]=if(cand(hasattr(u(cobj,mco),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player)))),,attrib_set(%0/%1,%2))
+&ATTRIB_SET`RHOSTMUSH [u(cobj,mco)]=if(cand(hasattr(u(cobj,mco),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player)))),,set(%0,%1:%2,strmatch(%1,*`*)))
 
 &LATTR [u(cobj,mco)]=u(LATTR`%va,%0,%1)
 &LATTR`PENNMUSH [u(cobj,mco)]=lattr(%0,%1)
@@ -41,7 +43,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &STARTUP [u(cobj,mco)]=@dolist/inline u(lattr`%va,%!/STARTUP`*)={@include/nobreak %!/##}
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`%va
-&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,mco),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,mco),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
 &STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle,v(FUNCTIONLIST`EXTRA))={@function/privileged vol_%d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=vol_%d0 wizard};@dolist/inline moniker lvplayers lvthings lvexits objid align lalign sortkey strfirstof table width=@function/privileged %d0=%!/%d0
 
 &FUNCTIONLIST`EXTRA [u(cobj,mco)]=
@@ -62,7 +64,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &FIL`OLDOBJID [u(cobj,mco)]=not(isobjid(before(%0,~)))
 &FIL`ISSLOT [u(cobj,mco)]=isint(last(%0,`))
 &FIL`ALIASMATCH [u(cobj,mco)]=strmatch(alias(%0),%1*)
-&FIL`NOTGUEST [u(cobj,mco)]=not(u(isguest,%0))
+&FIL`NOTGUEST [u(cobj,mco)]=not(u(isguest`%va,%0))
 &FIL`FINDACCOUNT [u(cobj,mco)]=match(get(%0/CHARACTERS),%q<finddb>)
 &FIL`STRLEN [u(cobj,mco)]=t(strlen(%0))
 &FIL`ISINT [u(Cobj,mco)]=isint(%0)
@@ -83,7 +85,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &FIND_IN`PENNMUSH [u(cobj,mco)]=locate(%0,%1,TXxi)
 &FIND_IN`RHOSTMUSH [u(cobj,mco)]=u(firstof`%va,locate(%0,%1,Tia),locate(%0,%1,Ti))
 
-&ACCID [u(cobj,mco)]=default(%0/D`ACCOUNT,%0)
+&ACCID [u(cobj,mco)]=default(%0/D`ACCOUNT,if(%1,,%0))
 
 &ALTS [u(cobj,mco)]=u(filter,ISOBJID,get(u(accid,%0)/CHARACTERS))
 &PALTS [u(cobj,mco)]=alts(%@)
@@ -201,10 +203,10 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &NEXTSLOT [u(cobj,mco)]=add(1,u(lmax`%va,iter(u(filter,ISSLOT,u(lattr`%va,%0/[if(strlen(%1),%1`*,*)])),last(%i0,`))))
 
 &MONIKER [u(cobj,mco)]=u(MONIKER`%va,%0)
-&MONIKER`PENNMUSH [u(cobj,mco)]=moniker(%0)
+&MONIKER`PENNMUSH [u(cobj,mco)]=localize(if(%1,if(setr(col,strfirstof(u(color`Pennmush,%1,NAMES,%0,,1),switch(1,strmatch(num(%0),num(%1)),u(color`Pennmush,%1,NAMES,MINE,,1),strmatch(num(%0),%#),u(color`Pennmush,%1,NAMES,SPEAKER,,1),u(color`Pennmush,%1,NAMES,OTHER,,1)))),ansi(%q<col>,name(%0)),moniker(%0)),moniker(%0)))
 &MONIKER`RHOSTMUSH [u(cobj,mco)]=cname(%0)
 
-&NAMELINK [u(cobj,mco)]=localize(u(mxpmenu`%va,u(moniker`%va,%0),iter(u(setr`%va,com,u(game_config,SYSTEM,NAMELINK)),%i0 [name(%0)],|,|),%q<com>))
+&NAMELINK [u(cobj,mco)]=localize(u(mxpmenu`%va,u(moniker`%va,%0,%1),iter(u(setr`%va,com,u(game_config,SYSTEM,NAMELINK)),%i0 [name(%0)],|,|),%q<com>))
 
 &NAMEGRAB [u(cobj,mco)]=u(NAMEGRAB`%va,%0,%1)
 &NAMEGRAB`PENNMUSH [u(cobj,mco)]=namegrab(%0,%1)
@@ -384,18 +386,20 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`ACCALTS [u(cobj,mco)]=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0))
 &GETPROPERTY`THEME [u(cobj,mco)]=if(u(setr`%va,theme,first(get(%0/D`THEME))),u(pueblize,u(setr`%va,mon,u(moniker`%va,%q<theme>)),+fclist %q<mon>))
 &GETPROPERTY`TYPE [u(cobj,mco)]=default(%0/D`FINGER`TYPE,??)
+&GETPROPERTY`EMAILSET [u(cobj,mco)]=if(not(u(setr,acc,u(accid,%0,1))),pemit(%0,You do not have an Account!)0,if(not(get(%q<acc>/EMAIL)),pemit(%0,You have no account email set! Use +account/email <email> to correct this.)0,1))
 
 
-&GETPROPERTY`GROUPS [u(cobj,mco)]=localize(default(%0/D`CACHE`GROUPS,u(setr`%va,cache,u(sortgroups,u(sortname,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)))))[u(attrib_set`%va,%0,D`CACHE`GROUPS,%q<cache>)]))
 
-&GETPROPERTY`MAJORDBS [u(cobj,mco)]=localize(default(%0/D`CACHE`MAJORDBS,u(setr`%va,cache,u(sortgroups,u(sortname,u(filter,MAJOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set`%va,%0,D`CACHE`MAJORDBS,%q<cache>)]))
+&GETPROPERTY`GROUPS [u(cobj,mco)]=localize(default(%0/D`CACHE`GROUPS,u(setr`%va,cache,u(sortgroups`%va,u(sortname`%va,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)))))[u(attrib_set`%va,%0,D`CACHE`GROUPS,%q<cache>)]))
+
+&GETPROPERTY`MAJORDBS [u(cobj,mco)]=localize(default(%0/D`CACHE`MAJORDBS,u(setr`%va,cache,u(sortgroups`%va,u(sortname`%va,u(filter,MAJOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set`%va,%0,D`CACHE`MAJORDBS,%q<cache>)]))
 &GETPROPERTY`MAJORDB [u(cobj,mco)]=first(u(GETPROPERTY`MAJORDBS,%0))
-&GETPROPERTY`MINORDBS [u(cobj,mco)]=localize(default(%0/D`CACHE`MINORDBS,u(setr`%va,cache,u(sortgroups,u(sortname,u(filter,MINOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set`%va,%0,D`CACHE`MINORDBS,%q<cache>)]))
+&GETPROPERTY`MINORDBS [u(cobj,mco)]=localize(default(%0/D`CACHE`MINORDBS,u(setr`%va,cache,u(sortgroups`%va,u(sortname`%va,u(filter,MINOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set`%va,%0,D`CACHE`MINORDBS,%q<cache>)]))
 &GETPROPERTY`MINORDB [u(cobj,mco)]=first(u(GETPROPERTY`MINORDBS,%0))
 &GETPROPERTY`FIRSTDB [u(cobj,mco)]=u(strfirstof`%va,u(GETPROPERTY`MAJORDB,%0),u(GETPROPERTY`MINORDB,%0))
 
 
-&GETPROPERTY`GROUPNAMES [u(cobj,mco)]=iter(u(sortgroups,u(sortname,setdiff(u(getproperty`groups,%0),u(getproperty,%0,MAJORDB)))),u(getproperty,%i0,GROUPNAME,1),%b,if(%1,\,%B,|))
+&GETPROPERTY`GROUPNAMES [u(cobj,mco)]=iter(u(sortgroups`%va,u(sortname`%va,setdiff(u(getproperty`groups,%0),u(getproperty,%0,MAJORDB)))),u(getproperty,%i0,GROUPNAME,1),%b,if(%1,\,%B,|))
 
 &GETPROPERTY`GROUPNAME [u(cobj,mco)]=localize(u(setq`%va,gname,ansi(u(GETPROPERTY`GROUPCOLOR,%0),u(moniker`%va,%0)))[if(%1,u(pueblize,%q<gname>,+group [name(%0)]),%q<gname>)])
 &GETPROPERTY`GROUPCOLOR [u(cobj,mco)]=u(strfirstof`%va,u(color`%va,%#,GROUP,%0,,1),get(%0/SET`COLOR),n)
@@ -448,8 +452,8 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`ALLRANKLISTLINE [u(cobj,mco)]=u(GETPROPERTY`ALLRANKLIST,%0,1)
 
 &SORTGROUPS [u(cobj,mco)]=localize(u(SORTGROUPS`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B)))
-&SORTGROUPS`PENNMUSH [u(cobj,mco)]=u(setq`%va,min,u(filter,MINOR,%0))[u(setq`%va,maj,u(filter,MAJOR,%0))][squish(sortkey(#lambda/default(\%0/SET`SORT,99),%q<maj>,n,%1,%2)%b[sortkey(#lambda/default(\%0/SET`SORT,99),%q<min>,n,%1,%2)])]
-&SORTGROUPS`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/SET`SORT,99),default(%1/SET`SORT,99))])],%0,%1,%2)
+&SORTGROUPS`PENNMUSH [u(cobj,mco)]=u(setq`%va,min,u(filter,MINOR,%0))[u(setq`%va,maj,u(filter,MAJOR,%0))][squish(sortkey(#lambda/default(\%0/SET`SORT,99),%q<maj>,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))%b[sortkey(#lambda/default(\%0/SET`SORT,99),%q<min>,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))])]
+&SORTGROUPS`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/SET`SORT,99),default(%1/SET`SORT,99))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 
 &FIL`MAJOR [u(cobj,mco)]=t(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR))
 &FIL`MINOR [u(cobj,mco)]=not(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR))
@@ -523,7 +527,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &SYSTEM`NAME [u(cobj,mco)]=SYSTEM
 
-&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr`%va,t%1,if(%3,u(firstof`%va,u(u(cobj,cover)/FUN`FINDCOVER,%0),pmatch(%0)),pmatch(%0))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq`%va,t%1objid,objid(r(t%1)));th u(setq`%va,t%1name,name(r(t%1)));th u(setq`%va,t%1acc,u(accid,r(t%1)));@select/inline t(%2)=1,{th u(setq`%va,t%1id,u(mysql,GET`ID_FROM_OBJID,objid(r(t%1))))}
+&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr`%va,t%1,if(%3,u(firstof`%va,u(u(cobj,cover)/FUN`FINDCOVER,%0),pmatch(%0)),pmatch(%0))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq`%va,t%1objid,objid(r(t%1)));th u(setq`%va,t%1name,name(r(t%1)));th u(setq`%va,t%1acc,u(accid,r(t%1),1));@select/inline t(%2)=1,{th u(setq`%va,t%1id,u(mysql,GET`ID_FROM_OBJID,objid(r(t%1))))}
 @@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into. %2 - Boolean for also looking up a SQL id. %3 - Use Cover System.
 
 &INC`IDCHECK [u(cobj,mco)]=@select/inline t(u(setr`%va,id,u(mysql,GET`ID_FROM_OBJID,objid(%0))))=0,{@attach %!/INC`DOSQL=INSERT`PLAYER,objid(%0),name(%0);@attach %!/INC`IDCHECK}
@@ -605,11 +609,13 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 @@ HEADER family args: %0 - Title. %1 - Viewer dbref. %2 - True: Do not color title. %3 - Border mode bool. %4 - Width.
 
 &MARKUP [u(cobj,mco)]=localize(u(MARKUP`%va,%0,%1,%2,%3,%4,%5))
-&MARKUP`PENNMUSH [u(cobj,mco)]=regeditalli(%0,\\b\([edit(edit(iter(%1,name(%i0),%b,|),-,\\-),.,\\.)]\)\\b,switch(comp(left(setr(found,$0),1),lcstr(left($0,1))),1,^^^[pmatch(%q<found>)]:%q<found>^^^,0,%q<found>))
-&MARKUP`RHOSTMUSH [u(cobj,mco)]=regeditalli(%0,\\b\([iter(%1,name(%i0),%b,|)]\)\\b,switch(comp(left(setr(found,$0),1),lcstr(left($0,1))),1,^^^[pmatch(%q<found>)]:%q<found>^^^,0,%q<found>))
+&MARKUP`PENNMUSH [u(cobj,mco)]=regeditalli(%0,\\b\([edit(edit(iter(%1,name(%i0),%b,|),-,\\-),.,\\.)]\)\\b,if(neq(ord(left(setr(found,$0),1)),ord(lcstr(left($0,1)))),^^^[pmatch(%q<found>)]:%q<found>^^^,%q<found>))
+&MARKUP`RHOSTMUSH [u(cobj,mco)]=regeditalli(%0,\\b\([iter(%1,name(%i0),%b,|)]\)\\b,if(neq(ord(left(setr(found,$0),1)),ord(lcstr(left($0,1)))),^^^[pmatch(%q<found>)]:%q<found>^^^,%q<found>))
 @@ %0 - Text to search. %1 - Dbrefs to check.
 
 &COLORMARKUP [u(cobj,mco)]=localize(if(%3,regeditalli(%1,v(REG`MARKUP),$2),regeditalli(%1,v(REG`MARKUP),if(strlen(setr(a,if(strlen(setr(b,u(color`%va,%0,NAMES,$1,,1))),%qb,if(strlen(setr(c,switch($1,%0,u(color`%va,%0,NAMES,MINE,,1),%2,u(color`%va,%0,NAMES,SPEAKER,,1),u(color`%va,%0,NAMES,OTHER,,1)))),%qc,)))),ansi(%qa,$2),$2))))
+
+&CHANHASH [u(cobj,mco)]=default(cmogrifier(%0)/HASH`[digest(md5,%1)],%1)
 
 @@ %0 - Viewer. %1 - Text to search. %2 - Speaker. %3 - Bool for 'just demarkup'
 
@@ -619,7 +625,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 
 &SPEECH [u(cobj,mco)]=localize(u(SPEECH`%va,%0,%1,%2,%3,%4,%5))
-&SPEECH`PENNMUSH [u(cobj,mco)]=[setq(quote,ansi(u(player_config`%va,%2,%4,QUOTES),"))][setq(speechcol,u(player_config`%va,%2,%4,SPEECH))][regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker`pennmush,%0))],%1),v(REG`URL),u(weblink`pennmush,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)]
+&SPEECH`PENNMUSH [u(cobj,mco)]=[setq(quote,ansi(u(player_config`%va,%2,%4,QUOTES),"))][setq(speechcol,u(player_config`%va,%2,%4,SPEECH))][regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker`pennmush,%0,%2))],%1),v(REG`URL),u(weblink`pennmush,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)]
 &SPEECH`RHOSTMUSH [u(cobj,mco)]=regeditalli(parsestr(u(colornames`%va,%2,escape(%1),%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(moniker`%va,%0))]),v(REG`SPEECH),u(setr`%va,quote,ansi(u(player_config`%va,%2,%4,QUOTES),"))[ansi(u(player_config`%va,%2,%4,SPEECH),$1)]%q<quote>)
 @@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup.
 

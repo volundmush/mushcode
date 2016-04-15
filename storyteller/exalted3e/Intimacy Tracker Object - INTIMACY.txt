@@ -4,7 +4,7 @@ th u(newcobj,STORYTELLER: Intimacy Management System <INTIMACY>,intimacy,,,,WIZA
 @set [u(cobj,intimacy)]/CMD`+INTIMACY`PENNMUSH=regexp
 &CMD`+INTIMACY`RHOSTMUSH [u(cobj,intimacy)]=$^\+intimacy(?\:/(\\S+))?(?\: +(.*))?$:@attach %!/CMD`+INTIMACY`MAIN
 @set [u(cobj,intimacy)]/CMD`+INTIMACY`RHOSTMUSH=regexp
-&CMD`+INTIMACY`MAIN [u(cobj,intimacy)]=@attach %!/INC`GETSWITCH=%#;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=squish(trim(%2))
+&CMD`+INTIMACY`MAIN [u(cobj,intimacy)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=squish(trim(%2))
 @set [u(cobj,intimacy)]/CMD`+INTIMACY`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,intimacy)]=INTIMACY

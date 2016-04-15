@@ -123,7 +123,7 @@ th u(NEWCONF,config,CHANNELS,DEFAULT_PRIVS,PQ,Default priveleges for new channel
 
 &INC`CLOCK`AUTOSET [u(cobj,channel)]=@clock/see %q<channel>=if(strlen(%1),iter(%1,@[namegrab(%q<dbs>,%i0)]/BASIC,%B,|));@clock/join %q<channel>=if(strlen(%1),iter(%1,@[namegrab(%q<dbs>,%i0)]/BASIC,%B,|));@clock/speak %q<channel>=if(strlen(%1),iter(%1,@[namegrab(%q<dbs>,%i0)]/BASIC,%B,|));@clock/hide %q<channel>=if(strlen(%1),iter(%1,@[namegrab(%q<dbs>,%i0)]/ENTER,%B,|));@lock/user:muzzle %q<mog>=if(strlen(%1),iter(%1,@[namegrab(%q<dbs>,%i0)]/ENTER,%B,|))
 
-&STARTUP [u(cobj,channel)]=@hook/ignore @channel=%!,HOOK`IGNORECHECK;@trigger %!/LOOP`CLEANMUZZLE;@hook/override/inline HUH_COMMAND=%!,CMD`COM
+&STARTUP [u(cobj,channel)]=@hook/ignore @channel=%!,HOOK`IGNORECHECK;@trigger %!/LOOP`CLEANMUZZLE;@trigger %!/LOOP`CLEANHASH;@hook/override/inline HUH_COMMAND=%!,CMD`COM
 &HOOK`IGNORECHECK [u(cobj,channel)]=if(cand(cor(strmatch(first(after(%u,/)),a*),strmatch(first(after(%u,/)),ren*)),hastype(%#,PLAYER)),0[nspemit(%#,u(MSGHEAD,u(SYSTEm`NAME)) ERROR: Please use +channel for this purpose!)],1)
 
 &LOOP`CLEANMUZZLE [u(cobj,channel)]=@dolist/inline setunion(lattr(u(cobj,muzzle)/ALL`*),setunion(lattr(u(cobj,muzzle)/CHAR`*`*),setunion(lattr(u(cobj,muzzle)/ACCALL`*),lattr(u(cobj,muzzle)/ACC`*`*))))={@select/inline gt(get(u(cobj,muzzle)/%i0),secs())=1,{@attach %!/WIPE=u(cobj,muzzle),%i0}};@wait u(game_config,channels,interval)=@trigger %!/LOOP`CLEANMUZZLE
@@ -131,14 +131,16 @@ th u(NEWCONF,config,CHANNELS,DEFAULT_PRIVS,PQ,Default priveleges for new channel
 th u(NEWCONF,config,CHANNELS,INTERVAL,3600,Interval between Muzzle cleaning?,DURATION)
 th u(NEWCONF,config,CHANNELS,STAFFTAG,hR,Color of Staff tag?,COLOR)
 
+&LOOP`CLEANHASH [u(cobj,channel)]=@dolist children(u(cobj,mop))={@dolist/inline filterbool(#lambda/gte(sub(secs(),get(%i0/\%0`TIMESTAMP)),300),lattr(%i0/HASH`*))=@attach %!/WIPE=%i1,%i0};@wait 300=@trigger %!/LOOP`CLEANHASH
+
 @@ Mogrify and CDB section
 @lock/user:muzzle u(cobj,mop)=FLAG^ROYALTY|FLAG^WIZARD
 @lset u(cobj,mop)/muzzle=v
 @lset u(cobj,mop)/muzzle=!no_inherit
 
 &MOGRIFY`MESSAGE [u(cobj,mop)]=localize(null(iter(v(MOGUSE`MESSAGE),u(setr`%va,message,u(FUN`MESSAGE`%i0,strfirstof(%q<message>,%0)))))[strfirstof(%q<message>,%0)])
-&MOGORDER`MESSAGE [u(cobj,mop)]=
-&MOGUSE`MESSAGE [u(cobj,mop)]=
+&MOGORDER`MESSAGE [u(cobj,mop)]=markup
+&MOGUSE`MESSAGE [u(cobj,mop)]=markup
 
 &MOGRIFY`PLAYERNAME [u(cobj,mop)]=localize(null(iter(v(MOGUSE`PLAYERNAME),u(setr`%va,playname,u(FUN`PLAYERNAME`%i0,strfirstof(%q<playname>,%0)))))[strfirstof(%q<playname>,%0)])
 &MOGORDER`PLAYERNAME [u(cobj,mop)]=
@@ -148,7 +150,7 @@ th u(NEWCONF,config,CHANNELS,STAFFTAG,hR,Color of Staff tag?,COLOR)
 &MOGORDER`TITLE [u(cobj,mop)]=noansi trim stafftag
 &MOGUSE`TITLE [u(cobj,mop)]=trim stafftag
 
-&FUN`MESSAGE`MARKUP [u(cobj,mop)]=u(markup`%va,%0,u(lwhoid))
+&FUN`MESSAGE`MARKUP [u(cobj,mop)]=%0[null(attrib_set(%!/[setr(attr,HASH`[digest(md5,%0)])],u(markup`%va,%0,u(lwhoid)))[attrib_set(%!/%q<attr>`TIMESTAMP,secs())])]
 
 &FUN`TITLE`STAFFTAG [u(cobj,mop)]=if(cand(v(MOGCONF`TITLE`STAFFTAG),match(v(VAR`STAFFTAG),%:),u(isadmin`%va,%#)),\[[ansi(u(game_config,CHANNELS,STAFFTAG),Staff)]\][if(strlen(%0),%B%0)],%0)
 &MOGCONF`TITLE`STAFFTAG [u(cobj,mop)]=1

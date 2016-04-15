@@ -65,7 +65,7 @@ th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|SKILLS|ARCANA|DISCIPLINES|MANIF
 
 &REG`FORMATROLL [u(cobj,roll)]=(\b\S+(?:\b\s\S+)*\b\)?)
 
-&FUN`FORMATNUM [u(cobj,roll)]=localize(if(isnum(%0),floor(%0),if(u(setr`%va,stat,u(u(cobj,roll)/FUN`STATNUM,%0,%1))[u(setq`%va,bonus,getbonus(%1,before(%0,/)),spec,u(getstat`%va,%1,D`SPECIALTIES,%0))],switch(%0,*/*,if(%q<spec>,ansi(h,ucstr(%0)),ansi(h,ucstr(before(%0,/))[ansi(hx,/[after(%0,/)])])),ansi(h,ucstr(%0)))[ansi(h,<)][ansi(h,sub(%q<stat>,%q<spec>,%q<bonus>))][if(%q<bonus>,ansi(hg,+%q<bonus>))][if(%q<spec>,ansi(hy,+%q<spec>))][ansi(h,>)],ansi(hx,%0<0>))))
+&FUN`FORMATNUM [u(cobj,roll)]=localize(if(isnum(%0),floor(%0),if(u(setr`%va,stat,u(u(cobj,roll)/FUN`STATNUM,%0,%1))[u(setq`%va,bonus,getbonus(%1,before(%0,/)),spec,u(getstat,%1,D`SPECIALTIES,%0))],switch(%0,*/*,if(%q<spec>,ansi(h,ucstr(%0)),ansi(h,ucstr(before(%0,/))[ansi(hx,/[after(%0,/)])])),ansi(h,ucstr(%0)))[ansi(h,<)][ansi(h,sub(%q<stat>,%q<spec>,%q<bonus>))][if(%q<bonus>,ansi(hg,+%q<bonus>))][if(%q<spec>,ansi(hy,+%q<spec>))][ansi(h,>)],ansi(hx,%0<0>))))
 
 &FUN`NORMALIZE [u(cobj,roll)]=squish(regeditall(%0,v(REG`NORMALIZE),%b$<sym>%b))
 
@@ -92,7 +92,7 @@ th u(newconf,CONFIG,ROLLER,CATEGORIES,ATTRIBUTES|SKILLS|ARCANA|DISCIPLINES|MANIF
 
 &INC`STROLL [u(cobj,roll)]=th u(setq`%va,results,u(FUN`RESFORMAT,,%q<t1>));@select/inline t(%q<public>)=0,{@attach %!/INC`MSG`ROOM=%q<results>},1,{@attach %!/INC`MSG`ROOM=%q<results>};@attach %!/INC`MSG`CHAN=edit(%q<results>,You roll for,%n rolls for),u(game_config,ROLLER,CHANNEL)
 
-&CMD`+ROLLINIT [u(cobj,roll)]=$roll init:@check words(u(setr`%va,list,lvplayers(%l)))=@attach %!/INC`MSG=Nobody to roll init for!;th iter(%q<list>,u(setq`%va,dex,u(firstof`%va,u(getstat`%va,%i0,D`ATTRIBUTES,DEXTERITY,BONUS),0),comp,u(firstof`%va,u(getstat`%va,%i0,D`ATTRIBUTES,COMPOSURE,BONUS),0),bonus,u(firstof`%va,u(getstat`%va,%i0,D`BONUS,initiative),0),roll,u(firstof`%va,rand(1,10),0))[u(attrib_set`%va,%i0,INITROLL,ansi(h,DEXTERITY\(%q<dex>\) + COMPOSURE\(%q<comp>\) + BONUS\(%q<bonus>\) + ROLL\(%q<roll>\) = )%B[ansi(hg,add(%q<dex>,%q<comp>,%q<bonus>,%q<roll>))])]);@attach %!/INC`MSG`ROOM=%n called for an Initiative Roll!;th iter(sortkey(#lambda/stripansi(last(get(\%0/INITROLL))),%q<list>,n),remit(%l,ljust(left(name(%i0):,add(1,config(player_name_len))),add(1,config(player_name_len)))%B[get(%i0/INITROLL)]))
+&CMD`+ROLLINIT [u(cobj,roll)]=$roll init:@check words(u(setr`%va,list,lvplayers(%l)))=@attach %!/INC`MSG=Nobody to roll init for!;th iter(%q<list>,u(setq`%va,dex,u(firstof`%va,u(getstat,%i0,D`ATTRIBUTES,DEXTERITY,BONUS),0),comp,u(firstof`%va,u(getstat,%i0,D`ATTRIBUTES,COMPOSURE,BONUS),0),bonus,u(firstof`%va,u(getstat,%i0,D`BONUS,initiative),0),roll,u(firstof`%va,rand(1,10),0))[u(attrib_set`%va,%i0,INITROLL,ansi(h,DEXTERITY\(%q<dex>\) + COMPOSURE\(%q<comp>\) + BONUS\(%q<bonus>\) + ROLL\(%q<roll>\) = )%B[ansi(hg,add(%q<dex>,%q<comp>,%q<bonus>,%q<roll>))])]);@attach %!/INC`MSG`ROOM=%n called for an Initiative Roll!;th iter(sortkey(#lambda/stripansi(last(get(\%0/INITROLL))),%q<list>,n),remit(%l,ljust(left(name(%i0):,add(1,config(player_name_len))),add(1,config(player_name_len)))%B[get(%i0/INITROLL)]))
 
 
 @@ Job add-on

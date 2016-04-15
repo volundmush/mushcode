@@ -23,13 +23,13 @@ th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,WIZARD SA
 
 &INC`FINDTHEME [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@select/inline words(u(setr`%va,themecheck,if(isdbref(u(setr`%va,find,u(find_in`%va,u(cobj,themedb),%0))),%q<find>,namegraball(children(u(cobj,themedb)),%0))))=0,{@stop 1=@attach %!/INC`MSG=ERROR: Theme '%0' was not found.},>1,{@stop 1=@attach %!/INC`MSG=ERROR: Multiple Themes found with a similar name. Which do you mean? Matches: [itemize(iter(%q<themecheck>,u(pueblize,name(%i0),+theme [name(%i0)]),%b,|),|,and,\,)]},1,{th u(setq`%va,theme%1,objid(%q<themecheck>));th u(setq`%va,themename%1,name(%q<themecheck>))}
 
-&INC`DISPLAY [u(cobj,fclist)]=@include %!/INC`FINDTHEME=%0,1;@pemit %#=u(HEADER,Theme: %q<themename1>);@pemit %#=get(%q<theme1>/DESCRIBE);@pemit %#=u(separator,Cast);@switch/inline t(words(u(setr`%va,cast,get(%q<theme1>/CAST))))=1,{@include %!/INC`CASTLIST=%q<theme1>,Cast};@switch/inline gt(strlen(get(%q<theme1>/INFO)),0)=1,{@pemit %#=u(SUBHEADER,u(pueblize,This theme has info!,+fclist/info %q<themename1>))},0,{@pemit %#=u(subheader)}
+&INC`DISPLAY [u(cobj,fclist)]=@include %!/INC`FINDTHEME=%0,1;@pemit %#=u(HEADER,Theme: %q<themename1>);@pemit %#=get(%q<theme1>/DESCRIBE);@pemit %#=u(separator,Cast);@switch/inline t(words(u(setr`%va,cast,get(%q<theme1>/CAST))))=1,{@include %!/INC`CASTLIST=%q<theme1>};@switch/inline gt(strlen(get(%q<theme1>/INFO)),0)=1,{@pemit %#=u(SUBHEADER,u(pueblize,This theme has info!,+fclist/info %q<themename1>))},0,{@pemit %#=u(subheader)}
 
-&INC`CASTLIST [u(cobj,fclist)]=@select/inline t(%1)=0,{@pemit %#=u(FUN`CASTCOLUMN)};@dolist/inline u(sortname,u(filter,ISCAST,get(%0/CAST)))={@pemit %#=u(FUN`CASTROW,##)}
+&INC`CASTLIST [u(cobj,fclist)]=@select/inline t(%1)=0,{@pemit %#=u(FUN`CASTCOLUMN);@pemit %#=u(separator)};@dolist/inline u(sortname,u(filter,ISCAST,get(%0/CAST)))={@pemit %#=u(FUN`CASTROW,##)}
 
 &FUN`CASTCOLUMN [u(cobj,fclist)]=ansi(u(color`%va,%#,FCLIST,COLUMN_NAMES),align(26 24 8 8 10,Name,Faction,Last On,Type,Available))
 
-&FUN`CASTROW [u(cobj,fclist)]=align(26 24 8 8 10,u(namelink`%va,%0),u(strfirstof`%va,u(getproperty,%0,FIRSTNAMECLICK),Unaffiliated),u(lastidle,%0),default(%0/D`FINGER`TYPE,??),u(capnames,default(%0/D`FINGER`STATUS,Open)))
+&FUN`CASTROW [u(cobj,fclist)]=align(26 24 8 8 10,u(namelink,%0),u(strfirstof`%va,u(getproperty,%0,FIRSTNAMECLICK),Unaffiliated),u(lastidle,%0),default(%0/D`FINGER`TYPE,??),u(capnames,default(%0/D`FINGER`STATUS,Open)))
 
 @@ @pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(3 20 1 3 18 21 >6,Typ,Name,G,PL,Faction,Rank,LastOn));
 

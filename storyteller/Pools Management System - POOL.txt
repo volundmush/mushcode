@@ -18,7 +18,7 @@ th u(newconf,CONFIG,STORYTELLER,PLAYER_GAIN,1,Players can refill pools?,BOOL)
 
 &FUN`ALLPOOLS [u(cobj,pool)]=edit(u(lattr`%va,%!/POOL`*,|),POOL`,)
 
-&FIL`HASPOOL [u(cobj,pool)]=cand(strmatch(v(POOL`%0),%3),cor(match(%4,%0),u(POOL`%0`HAVE,%1),u(getstat`%va,%0,D`HASPOOL,%0)))
+&FIL`HASPOOL [u(cobj,pool)]=cand(strmatch(v(POOL`%0),%3),cor(match(%4,%0),u(POOL`%0`HAVE,%1),u(getstat,%0,D`HASPOOL,%0)))
 
 &SORTPOOLS [u(cobj,pool)]=u(SORTPOOLS`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTPOOLS`PENNMUSH [u(cobj,pool)]=sortkey(#lambda/default(%!/POOL`\%0`ORDER,99),%0,n,%1,%2)
@@ -38,7 +38,7 @@ th u(newconf,CONFIG,STORYTELLER,PLAYER_GAIN,1,Players can refill pools?,BOOL)
 &FUN`TOTALCOMMIT [u(cobj,pool)]=lmath(add,iter(u(lattr`%va,%0/D`POOLS`%1`COMMIT`*),get(%0/%i0)))
 
 &FUN`CUR [u(cobj,pool)]=bound(get(%0/D`POOLS`%1`CUR),0,sub(u(FUN`MAX,%0,%1),u(FUN`TOTALCOMMIT,%0,%1)))
-&FUN`MAX [u(cobj,pool)]=add(u(POOL`%1`MAX,%0),u(getstat`%va,%0,D`POOLBONUS,%1))
+&FUN`MAX [u(cobj,pool)]=add(u(POOL`%1`MAX,%0),u(getstat,%0,D`POOLBONUS,%1))
 
 &INC`REFRESH [u(cobj,pool)]=@check cor(u(isadmin`%va,%#),u(game_config,STORYTELLER,POOLS,PLAYER_GAIN))=@attach %!/INC`MSG=ERROR: Permission denied. Players must rely on Storytellers or 'hunts' to re-fill their resources.;@dolist/inline/delimit | [u(filter,OPTIONS,u(FUN`LISTPOOLS,%#),|,|,REFRESH)]=&D`POOLS`##`CUR %#=bound(u(strfirstof`%va,u(POOL`##`INIT,%#),0),0,sub(u(FUN`MAX,%#,##),u(FUN`TOTALCOMMIT,%#,##)));@attach %!/INC`MSG`ROOM=Refreshed %p resources!;@attach %!/INC`MSG`CHAN=Refresh %p resources!
 
