@@ -8,7 +8,7 @@ th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,WIZARD SA
 &CMD`+FCLIST`RHOSTMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|theme|series)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
 @set [u(cobj,fclist)]/CMD`+FCLIST`RHOSTMUSH=regexp
 &CMD`+FCLIST`MAIN [u(cobj,fclist)]=th u(setq`%va,com,lcstr(+%1));@attach %!/INC`GETSWITCH=%2;@include %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%3,%4
-@set [u(cobj,fclist)]/CMD`+FCLIST`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,fclist)]/CMD`+FCLIST`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,fclist)]=INFO|MAIL
 &SWITCHES`ADMIN [u(cobj,fclist)]=CREATE|RENAME|DELETE|ASSIGN|REMOVE|DESCRIBE|STATUS|TYPE|SETINFO|CLEARINFO|UNASSIGNED
@@ -45,9 +45,9 @@ th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,WIZARD SA
 
 &INC`DESCRIBE [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@include %!/INC`FINDTHEME=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Theme description field empty.;@select/inline u(setr`%va,mail,gt(strlen(u(setr`%va,olddesc,get(%q<theme1>/DESCRIBE))),0))=1,{@mail %#=%q<themename1>/OLD THEME WAS:%R%q<olddesc>;@describe %q<theme1>=%1};@attach %!/INC`MSG=You have changed theme %q<themename1>'s description. Its old contents have been @mail'd to you.;@attach %!/INC`MSG`CHAN=Changed the Theme description for '[u(pueblize,%q<themename1>,+fclist %q<themename1>)]'
 
-&INC`CREATE [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@stop isobjid(u(find_in`%va,u(cobj,themedb),%0))=@attach %!/INC`MSG=ERROR: That theme already exists. Use +fclist/describe to change its description.;@check valid(name,%0)=@attach %!/INC`MSG=ERROR: That would not be a valid name for a THING. Avoid special symbols like &.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Theme description field empty.;@tel u(setr`%va,theme,create(%0))=u(cobj,themedb);@parent %q<theme>=u(cobj,themedb);@describe %q<theme>=%1;@attach %!/INC`MSG=You have created the '%0' Theme.;@attach %!/INC`MSG`CHAN=Created a new +fclist entry: '[u(pueblize,%0,+fclist %0)]'
+&INC`CREATE [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@stop isdbref(u(find_in`%va,u(cobj,themedb),%0))=@attach %!/INC`MSG=ERROR: That theme already exists. Use +fclist/describe to change its description.;@check valid(name,%0)=@attach %!/INC`MSG=ERROR: That would not be a valid name for a THING. Avoid special symbols like &.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Theme description field empty.;@tel u(setr`%va,theme,create(%0))=u(cobj,themedb);@parent %q<theme>=u(cobj,themedb);@describe %q<theme>=%1;@attach %!/INC`MSG=You have created the '%0' Theme.;@attach %!/INC`MSG`CHAN=Created a new +fclist entry: '[u(pueblize,%0,+fclist %0)]'
 
-&INC`RENAME [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: New name field empty.;@check valid(name,%1)=@attach %!/INC`MSG=ERROR: '%1' is not a valid theme name. Themes are stored as THING objects. Avoid characters like &.;@stop isobjid(u(find_in`%va,u(cobj,themedb),%1))=@attach %!/INC`MSG=ERROR: Theme '%1' already exists.;@attach %!/INC`MSG=Theme '%q<themename1>' Renamed to '%1'!;@attach %!/INC`MSG`CHAN={Theme '%q<themename1>' Renamed to '%1'};@name %q<theme1>=%1
+&INC`RENAME [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: New name field empty.;@check valid(name,%1)=@attach %!/INC`MSG=ERROR: '%1' is not a valid theme name. Themes are stored as THING objects. Avoid characters like &.;@stop isdbref(u(find_in`%va,u(cobj,themedb),%1))=@attach %!/INC`MSG=ERROR: Theme '%1' already exists.;@attach %!/INC`MSG=Theme '%q<themename1>' Renamed to '%1'!;@attach %!/INC`MSG`CHAN={Theme '%q<themename1>' Renamed to '%1'};@name %q<theme1>=%1
 
 &INC`DELETE [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0,1;@attach %!/INC`VERIFY={WARNING: This will delete Theme '%q<themename1>' and all data associated with it. Are you SURE you want to do this? Enter the same command again within ten seconds to verify.},FCLIST DELETE %q<theme1>;@attach %!/INC`MSG=Theme '%q<themename1>' deleted!;@attach %!/INC`MSG`CHAN=Theme '%q<themename1>' Deleted!;@attach %!/DELETE=%q<theme1>
 
@@ -81,7 +81,9 @@ th u(newconf,config,FCLIST,TYPES,FC|OC|OFC|EFC|SFC,Character types available,LIS
 
 &STARTUP [u(cobj,fclist)]=@trigger %!/LOOP`REPORTEMPTY
 
-&LOOP`REPORTEMPTY [u(cobj,fclist)]=@select/inline words(u(setr`%va,empty,u(sortname,u(filter,NOCAST,children(u(cobj,themedb))))))=>0,{@attach %!/INC`MSG`CHAN=EMPTY THEMES: The following themes have no Cast: [u(itemize`%va,iter(%q<empty>,u(pueblize,name(%i0),+fclist [name(%i0)]),,|),|,and,\,)]};@wait mul(60,60,6)=@trigger %!/LOOP`REPORTEMPTY
+&LOOP`REPORTEMPTY [u(cobj,fclist)]=@select/inline cand(words(u(setr`%va,empty,u(sortname,u(filter,NOCAST,children(u(cobj,themedb)))))),u(game_config,FCLIST,REPORT_EMPTY))=>0,{@attach %!/INC`MSG`CHAN=EMPTY THEMES: The following themes have no Cast: [u(itemize`%va,iter(%q<empty>,u(pueblize,name(%i0),+fclist [name(%i0)]),,|),|,and,\,)]};@wait mul(60,60,6)=@trigger %!/LOOP`REPORTEMPTY
+
+th u(newconf,config,FCLIST,REPORT_EMPTY,0,Report empty themes on alerts channel?,BOOL)
 
 +help/add +fclist=[u(cobj,fclist)]/HLP`+FCLIST
 +help/category +fclist=Community

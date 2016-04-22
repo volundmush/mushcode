@@ -7,7 +7,7 @@ th u(NEWCOBJ,Appointment System,app,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 &CMD`+APPOINTMENT`RHOSTMUSH [u(cobj,app)]=$^(?s)(?\:\+)?(?\:rsvp|appointment)(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+APPOINTMENT`MAIN
 @set [u(cobj,app)]/CMD`+APPOINTMENT`RHOSTMUSH=regexp
 &CMD`+APPOINTMENT`MAIN [u(cobj,app)]=@attach %!/INC`GETSWITCH=%1;@include %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,app)]/CMD`+APPOINTMENT`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,app)]/CMD`+APPOINTMENT`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,app)]=APPOINTMENT
 
@@ -46,7 +46,7 @@ th u(NEWCOBJ,Appointment System,app,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 
 &FUN`ALLMEETLINE [u(cobj,app)]=pemit(%#,align(4 20 5 1 5 3 31,u(pueblize,%1,+rsvp %1),u(moniker`%va,%2),switch(u(setr`%va,remain,sub(%4,secs())),<1,ansi(hr,Late!),u(smalltime`%va,%q<remain>)),if(%6,ansi(hg,Y),ansi(hr,N)),u(lastidle,%2),%7,left(%5,80)))
 
-&SORTSTAFF [u(cobj,app)]=u(SORTSTAFF`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTSTAFF [u(cobj,app)]=u(SORTSTAFF`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTSTAFF`PENNMUSH [u(cobj,app)]=sortkey(#lambda/default(\%0/D`STAFF`ORDER,99),%0,n,%1,%2)
 &SORTSTAFF`RHOSTMUSH [u(cobj,app)]=sortby(#lambda/[lit([ncomp(default(%0/D`STAFF`ORDER,99),default(%1/D`STAFF`ORDER,99))])],%0,%1,%2)
 

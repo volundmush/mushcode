@@ -10,7 +10,7 @@ th u(NEWCOBJ,Player Configuration Data Storage <PCONF>,pconf,u(cobj,pcs),,1,WIZA
 &CMD`+CONFIG`RHOSTMUSH [u(cobj,pcs)]=$^(?\:\+)?config(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+CONFIG`MAIN
 @set [u(cobj,pcs)]/CMD`+CONFIG`RHOSTMUSH=regexp
 &CMD`+CONFIG`MAIN [u(cobj,pcs)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3,%4
-@set [u(cobj,pcs)]/CMD`+CONFIG`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,pcs)]/CMD`+CONFIG`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,pcs)]=[if(isdbref(u(cobj,channel)),CHANNEL|)][if(isdbref(u(cobj,gms)),GROUP|)]NAME
 &SWITCHES`ADMIN [u(cobj,pcs)]=

@@ -14,7 +14,7 @@ th u(NEWCOBJ,Muzzle Database <MUZZLE>,muzzle,u(cobj,channel),,,WIZARD SAFE !NO_C
 &CMD`+CHANNEL`RHOSTMUSH [u(cobj,channel)]=$^(?s)(?\:\+)?(?\:channel|chan|channels)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.*?))?(?\:=(.*))?$:@attach %!/CMD`+CHANNEL`MAIN
 @set [u(cobj,channel)]/CMD`+CHANNEL`RHOSTMUSH=regexp
 &CMD`+CHANNEL`MAIN [u(cobj,channel)]=th setq(sysname,CHANNEL);@attach %!/INC`GETSWITCH=%1;@include %!/INC`CHANNEL`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3,%4
-@set [u(cobj,channel)]/CMD`+CHANNEL`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,channel)]/CMD`+CHANNEL`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,channel)]=u(strfirstof`%va,%q<sysname>,CHANNEL)
 
@@ -100,7 +100,7 @@ th u(NEWCONF,config,CHANNELS,DEFAULT_PRIVS,PQ,Default priveleges for new channel
 
 &CMD`ADDCOM [u(cobj,channel)]=$^(addcom|delcom)(?\: +(.+?))?(?\:=(.*))?$:@attach %!/INC`%1=%2,%3
 @set [u(cobj,channel)]/CMD`ADDCOM=regexp
-@select/inline v(game)=RhostMUSH,{@set [u(cobj,channel)]/CMD`ADDCOM=no_command}
+@select/inline %va=RhostMUSH,{@set [u(cobj,channel)]/CMD`ADDCOM=no_command}
 
 &INC`ADDCOM [u(cobj,channel)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No alias entered.;@check eq(words(%0),1)=@attach %!/INC`MSG=ERROR: Aliases must be single words.;@check valid(name,D`COM`%0)=@attach %!/INC`MSG=ERROR: Aliases cannot include some of those characters.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No channel entered.;@attach %!/INC`PARTIAL=%1,objeval(%#,channels(|)),|,channel,channel;&D`COM`%0 %#=%1;@attach %!/INC`MSG=You can now speak on '%1' using '%0 <message>'.
 

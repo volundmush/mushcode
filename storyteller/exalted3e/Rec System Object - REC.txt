@@ -6,7 +6,7 @@ th u(NEWCOBJ,STORYTELLER: Rec Database <RECDB>,recdb,u(cobj,rec),,1,WIZARD SAFE,
 &CMD`+REC`RHOSTMUSH [u(cobj,rec)]=$^(?s)\+rec(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REC`MAIN
 @set [u(cobj,rec)]/CMD`+REC`RHOSTMUSH=regexp
 &CMD`+REC`MAIN [u(cobj,rec)]=th u(setq`%va,sysname,ACCOUNT);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,rec)]/CMD`+REC`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,rec)]/CMD`+REC`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,rec)]=REC
 &SWITCHES`PLAYER [u(cobj,rec)]=READ|LIST|DELETE|AMOUNT|DESCRIBE|TYPE

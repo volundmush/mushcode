@@ -14,12 +14,12 @@ th u(NEWCOBJ,Player Globals <PG>,player_globals,,,,WIZARD SAFE !NO_COMMAND,INHER
 &CMD`DICE [u(cobj,player_globals)]=$+dice *d*:think [u(setq`%va,0,0)][if(strmatch(%1,*+*),[u(setq`%va,a,[before(%1,+)])][u(setq`%va,b,[after(%1,+)])],[u(setq`%va,a,%1)][u(setq`%va,b,0)])] [switch([and([gt(%0,0)],[lt(%0,50)],[gt(%qa,0)],[lt(%qa,250)],[gte(%qb,-10)],[lt(%0,250)],[isint(%0)],[isint(%qa)],[isint(%qb)])],0,[pemit(%#,I'm sorry but you can only have positive integers when you roll dice. The addition at the end must be between -10 and 250.)],[remit([loc(%#)],<[ansi(xterm130,DICE ROLLER)]> %N rolled %0d%qa [map(me/full_die,[lnum(%0)], ,[space(1)])] + %qb = [if(%qb,[u(setq`%va,0,[add(%q0,%qb)])])]%q0)])]
 &FULL_DIE [u(cobj,player_globals)]=[u(setq`%va,1,add(rand(%qa),1))][u(setq`%va,0,add(%q0,%q1))]<%q1>
 
-&CMD`+OOC [u(cobj,player_globals)]=$^(?s)(\+ooc|osay|\+osay|ooc)(?\: +(.*))$:@check elock(%l/speech,%#)=@attach %!/INC`MSG=ERROR: Permission denied by local speech lock.;@check strlen(%2)=@attach %!/INC`MSG=What will you say?;@stop strmatch(left(%2,1),|)=@attach %!/INC`MSG=Emit feature is disabled.;th u(setq`%va,players,u(lplayers`%va,%l));th u(setq`%va,markup,u(markup,%2,%q<players>));@select/inline v(game)=PennMUSH,{@message u(canhear,lcon(%l))=%2,%!/FUN`MSGOOC,%#,##,%q<markup>,%q<players>},RhostMUSH,{@pemit/list u(canhear,lcon(%l))=udefault(FUN`MSGOOC,%2,%#,##,%q<markup>,%q<players>)}
+&CMD`+OOC [u(cobj,player_globals)]=$^(?s)(\+ooc|osay|\+osay|ooc)(?\: +(.*))$:@check elock(%l/speech,%#)=@attach %!/INC`MSG=ERROR: Permission denied by local speech lock.;@check strlen(%2)=@attach %!/INC`MSG=What will you say?;@stop strmatch(left(%2,1),|)=@attach %!/INC`MSG=Emit feature is disabled.;th u(setq`%va,players,u(lplayers`%va,%l));th u(setq`%va,markup,u(markup,%2,%q<players>));@select/inline %va=PennMUSH,{@message u(canhear,lcon(%l))=%2,%!/FUN`MSGOOC,%#,##,%q<markup>,%q<players>},RhostMUSH,{@pemit/list u(canhear,lcon(%l))=udefault(FUN`MSGOOC,%2,%#,##,%q<markup>,%q<players>)}
 @set [u(cobj,player_globals)]/CMD`+OOC=regexp
 
 &CMD`+OOC-ALT [u(cobj,player_globals)]=$'*:@attach %!/CMD`+OOC=,,%0
 
-&CMD`QUIT [u(cobj,player_globals)]=$^(quit|logoff|logout)$:@select/inline v(game)=PennMUSH,{@boot/silent %#},RhostMUSH,{@boot/quiet %#}
+&CMD`QUIT [u(cobj,player_globals)]=$^(quit|logoff|logout)$:@select/inline %va=PennMUSH,{@boot/silent %#},RhostMUSH,{@boot/quiet %#}
 @set [u(cobj,player_globals)]/CMD`QUIT=regexp
 
 &FUN`MSGOOC [u(cobj,player_globals)]=localize(ansi(u(setr`%va,borcol,u(color`%va,%1,OOC,OOCEDGE)),-<)[ansi(u(color`%va,%1,OOC,OOC),OOC)][ansi(%q<borcol>,>-)]%B[if(u(isadmin`%va,%0),ansi(h,lit([Staff])%B))][u(speech`%va,%0,u(colormarkup,%0,%2,%1),%1,,OOC,%3)])

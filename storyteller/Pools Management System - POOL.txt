@@ -20,7 +20,7 @@ th u(newconf,CONFIG,STORYTELLER,PLAYER_GAIN,1,Players can refill pools?,BOOL)
 
 &FIL`HASPOOL [u(cobj,pool)]=cand(strmatch(v(POOL`%0),%3),cor(match(%4,%0),u(POOL`%0`HAVE,%1),u(getstat,%0,D`HASPOOL,%0)))
 
-&SORTPOOLS [u(cobj,pool)]=u(SORTPOOLS`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTPOOLS [u(cobj,pool)]=u(SORTPOOLS`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTPOOLS`PENNMUSH [u(cobj,pool)]=sortkey(#lambda/default(%!/POOL`\%0`ORDER,99),%0,n,%1,%2)
 &SORTPOOLS`RHOSTMUSH [u(cobj,pool)]=sortby(#lambda/[lit([ncomp(default(%!/POOL`%0`ORDER,99),default(%!/POOL`%1`ORDER,99))])],%0,%1,%2)
 

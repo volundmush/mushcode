@@ -7,7 +7,7 @@ th u(NEWCOBJ,Info Management System <IMS>,ims,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 &CMD`+INFO`RHOSTMUSH [u(cobj,ims)]=$^(?s)(?\:\+)?(info|pinfo)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
 @set [u(cobj,ims)]/CMD`+INFO`RHOSTMUSH=regexp
 &CMD`+INFO`MAIN [u(cobj,ims)]=@attach %!/INIT`%1;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=trim(%3),trim(%4),%5
-@set [u(cobj,ims)]/CMD`+INFO`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,ims)]/CMD`+INFO`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,ims)]=GET|RENAME|DELETE
 &SWITCHES`ADMIN [u(cobj,ims)]=LOCK|UNLOCK|LSET
@@ -22,7 +22,7 @@ th u(NEWCOBJ,Info Management System <IMS>,ims,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 
 &FUN`LIST [u(cobj,ims)]=localize(u(sortinfo,u(sortattr`%va,u(lattr`%va,u(setr`%va,target,%0)/%1`*))))
 
-&SORTINFO [u(cobj,ims)]=u(SORTINFO`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTINFO [u(cobj,ims)]=u(SORTINFO`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTINFO`PENNMUSH [u(cobj,ims)]=sortkey(#lambda/get(%q<target>/\%0),%0,i,%1,%2)
 &SORTINFO`RHOSTMUSH [u(cobj,ims)]=sortby(#lambda/[lit([comp(lcstr(get(%q<target>/%0)),lcstr(get(%q<target>/%1)))])],%0,%1,%2)
 

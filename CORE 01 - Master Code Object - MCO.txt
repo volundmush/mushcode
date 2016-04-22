@@ -296,7 +296,7 @@ th set(parent(%#),VA:[first(version())])
 
 &LWHOID [u(cobj,mco)]=u(LWHOID`%va,%0)
 &LWHOID`PENNMUSH [u(cobj,mco)]=lwhoid(%0)
-&LWHOID`RHOSTMUSH [u(cobj,mco)]=iter(lwho(0,%0),objid(%i0))
+&LWHOID`RHOSTMUSH [u(cobj,mco)]=lwho(0,%0,1)
 
 &LWHO [u(cobj,mco)]=u(LWHO`%va,%0)
 &LWHO`PENNMUSH [u(cobj,mco)]=lwho(%0)
@@ -387,7 +387,8 @@ th set(parent(%#),VA:[first(version())])
 &GETPROPERTY`THEME [u(cobj,mco)]=if(u(setr`%va,theme,first(get(%0/D`THEME))),u(pueblize,u(setr`%va,mon,u(moniker`%va,%q<theme>)),+fclist %q<mon>))
 &GETPROPERTY`TYPE [u(cobj,mco)]=default(%0/D`FINGER`TYPE,??)
 &GETPROPERTY`EMAILSET [u(cobj,mco)]=if(not(u(setr,acc,u(accid,%0,1))),pemit(%0,You do not have an Account!)0,if(not(get(%q<acc>/EMAIL)),pemit(%0,You have no account email set! Use +account/email <email> to correct this.)0,1))
-
+&GETPROPERTY`OBSERVER [u(cobj,mco)]=default(%0/D`OBSERVER,0)
+&GETPROPERTY`CURSCENE [u(cobj,mco)]=if(u(getproperty`observer,%0),ansi(hw,OBS),default(%0/D`SCENE`ACTIVE,???))
 
 
 &GETPROPERTY`GROUPS [u(cobj,mco)]=localize(default(%0/D`CACHE`GROUPS,u(setr`%va,cache,u(sortgroups`%va,u(sortname`%va,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)))))[u(attrib_set`%va,%0,D`CACHE`GROUPS,%q<cache>)]))

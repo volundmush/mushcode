@@ -8,7 +8,7 @@ th u(NEWCOBJ,Poll Database <POLLDB>,polldb,u(cobj,poll),,1,WIZARD SAFE,INHERIT S
 &CMD`+POLL`RHOSTMUSH [u(cobj,poll)]=$^(?s)(?\:\+)?(poll)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+POLL`MAIN
 @set [u(cobj,poll)]/CMD`+POLL`RHOSTMUSH=regexp
 &CMD`+POLL`MAIN [u(cobj,poll)]=th u(setq`%va,com,lcstr(+%1));@attach %!/INC`GETSWITCH=%2;@include %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%3,%4
-@set [u(cobj,poll)]/CMD`+POLL`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,poll)]/CMD`+POLL`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,poll)]=
 &SWITCHES`ADMIN [u(cobj,poll)]=CREATE|RENAME|DELETE|OPEN|CLOSE|OPTION|DESCRIBE
@@ -46,7 +46,7 @@ th u(NEWCOBJ,Poll Database <POLLDB>,polldb,u(cobj,poll),,1,WIZARD SAFE,INHERIT S
 &OBJECT`DESTROY [u(cobj,poll)]=@dolist/inline u(lattr`%va,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 &OBJECT`DESTROY`PURGEPOLL [u(cobj,poll)]=@select/inline %2=PLAYER,{@dolist/inline children(u(cobj,polldb))={@attach %!/WIPE=##,VOTER`[before(%0,:)]}}
 
-&SORTCREATED [u(cobj,poll)]=u(SORTCREATED`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTCREATED [u(cobj,poll)]=u(SORTCREATED`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTCREATED`PENNMUSH [u(cobj,poll)]=sortkey(#lambda/csecs(\%0),%0,n,%1,%2)
 &SORTCREATED`RHOSTMUSH [u(cobj,poll)]=sortby(#lambda/[lit([ncomp(convtime(createtime(%0),convtime(createtime(%1))])],%0,%1,%2)
 

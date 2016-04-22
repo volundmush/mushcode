@@ -5,12 +5,12 @@
 
 th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&CMD`+SCENE`PENNMUSH [u(cobj,scene)]=$^(?s)(?\:\+)?(scene|scenes|events|plot|schedule|pot|summary)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+SCENE`MAIN
+&CMD`+SCENE`PENNMUSH [u(cobj,scene)]=$^(?s)(?\:\+)?(scene|scenes|events|event|plot|schedule|pot|sched|summary|observer|partners)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+SCENE`MAIN
 @set [u(cobj,scene)]/CMD`+SCENE`PENNMUSH=regexp
-&CMD`+SCENE`RHOSTMUSH [u(cobj,scene)]=$^(?s)(?\:\+)?(scene|scenes|events|plot|schedule|pot|summary)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+SCENE`MAIN
+&CMD`+SCENE`RHOSTMUSH [u(cobj,scene)]=$^(?s)(?\:\+)?(scene|scenes|events|event|plot|schedule|sched|pot|summary|observer|partners)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+SCENE`MAIN
 @set [u(cobj,scene)]/CMD`+SCENE`RHOSTMUSH=regexp
-&CMD`+SCENE`MAIN [u(cobj,scene)]=th u(setq,mode,switch(%1,scene,scene,scenes,scenes,schedule,scenes,events,scenes,plot,plot,pot,pot,summary,summary));@select/inline t(match(scene scenes plot,%q<mode>))=1,{@check not(strmatch(sql(SELECT DATABASE()),#-*))=@attach %!/INC`MSG=ERROR: SQL is not ready.};@attach %!/INC`GETSWITCH=%2;@include %!/INC`%q<mode>`[u(strfirstof,%q<switch>,MAIN)]=trim(%3),trim(%4),%3[if(strlen(%4),=%4)]
-@set [u(cobj,scene)]/CMD`+SCENE`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+&CMD`+SCENE`MAIN [u(cobj,scene)]=th u(setq,mode,switch(%1,scene,scene,scenes,scenes,schedule,scenes,events,scenes,event,scenes,sched,scenes,plot,plot,pot,pot,summary,summary,observer,observer,partners,partners));@select/inline t(match(scene scenes plot,%q<mode>))=1,{@check not(strmatch(sql(SELECT DATABASE()),#-*))=@attach %!/INC`MSG=ERROR: SQL is not ready.};@attach %!/INC`GETSWITCH=%2;@include %!/INC`%q<mode>`[u(strfirstof,%q<switch>,MAIN)]=trim(%3),trim(%4),%3[if(strlen(%4),=%4)]
+@set [u(cobj,scene)]/CMD`+SCENE`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &CMD`CHARID [u(cobj,scene)]=$^\+charid(?\: +(.*))?$:@force %#=+scene/charid %1
 @set [u(cobj,scene)]/CMD`CHARID=regexp
@@ -28,6 +28,9 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &SWITCHES`POT`PLAYER [u(cobj,scene)]=LAST|MAX|LIST|BRIEF|MODE|SUMMARY|TOGGLE
 &SWITCHES`SUMMARY`PLAYER [u(cobj,scene)]=SILENT
+
+&SWITCHES`OBSERVER`PLAYER [u(cobj,scene)]=
+&SWITCHES`PARTNERS`PLAYER [u(cobj,scene)]=JOIN|LEAVE
 
 th u(NEWCONF,config,SCENESYS,URL,example.org,Path to website.,WORD)
 th u(NEWCONF,config,SCENESYS,PATH,/scene/view.php?id=,/scene/view.php?id=,WORD)
@@ -56,9 +59,9 @@ th u(NEWCONF,pconf,ALERTS,SCENES,1,Show upcoming scenes on logon?,BOOL)
 
 &STARTUP [u(cobj,scene)]=@attach/nobreak %!/STARTUP`OVERRIDE;@trigger %!/LOOP`IDLECHECK;@trigger %!/LOOP`CLEANPOT
 
-&STARTUP`OVERRIDE [u(cobj,scene)]=@select/inline v(game)=PennMUSH,{@dolist/inline @emit pose say semipose=@hook/override/inline %i0=%!,override`ic},RhostMUSH,{@dolist/inline @emit pose say semipose P S=@hook/ignore %d0}
+&STARTUP`OVERRIDE [u(cobj,scene)]=@select/inline %va=PennMUSH,{@dolist/inline @emit pose say semipose=@hook/override/inline %i0=%!,override`ic},RhostMUSH,{@dolist/inline @emit pose say semipose P S=@hook/ignore %d0}
 
-&LOOP`IDLECHECK [u(cobj,scene)]=@dolist u(MYSQL,SCENE`GETACTIVE)={@wait #@={@check u(mysql,scene`hasposes,##);@check lte(u(mysql,get`idlecheck,##),sub(secs(),mul(60,60,3)));@attach %!/INC`MSGSCENE=##,{Scene ## - '[u(mysql,get`scenetitle,##)]' has been automatically marked Unfinished for idleness. Use [u(pueblize,+scene/continue ##)] to resume it.};@attach %!/INC`DOSQL=SET`SCENESTATE,2,##}};@wait u(game_config,scenesys,idle)=@trigger %!/LOOP`IDLECHECK
+&LOOP`IDLECHECK [u(cobj,scene)]=@dolist u(MYSQL,SCENE`GETACTIVE)={@wait #@={@check u(mysql,scene`hasposes,##);@check lte(u(mysql,get`idlecheck,##),sub(secs(),mul(60,60,3)));@attach %!/INC`MSGSCENE=##,{Scene ## - '[u(mysql,get`scenetitle,##)]' has been automatically marked Unfinished for idleness. Use [u(pueblize,+scene/continue ##)] to resume it.;@attach %!/INC`CLEANUPSCENE=##};@attach %!/INC`DOSQL=SET`SCENESTATE,2,##}};@wait u(game_config,scenesys,idle)=@trigger %!/LOOP`IDLECHECK
 
 &LOOP`CLEANPOT [u(cobj,scene)]=@dolist u(choosegame,lsearch(all,eval,\[nattr(##/D`POSES`*)\]),search(EVAL=\[u(nattr,##/D`POSES`*)\]))={@wait #@=@trigger %!/LOOP`CLEANPOT`DOCLEAN=##};@wait u(game_config,pot,interval)=@trigger %!/LOOP`CLEANPOT
 
@@ -71,21 +74,21 @@ th u(NEWCONF,pconf,ALERTS,SCENES,1,Show upcoming scenes on logon?,BOOL)
 
 &Q`GET`IDLECHECK [u(cobj,scene)]=SELECT max(pose_time) from $POSES$ WHERE scene_id=? AND pose_ignore=0
 
-&OVERRIDE`IC [u(cobj,scene)]=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@check strlen(%2)=@pemit %#=Huh? (Type "help" for help.);th u(setq,cansql,not(strmatch(sql(SELECT DATABASE()),#-*)));@select/inline %q<cansql>=1,{@attach %!/INC`USERCHECK=objid(owner(%#))};th u(setq,locid,objid(%l));th u(setq,custloc,uldefault(%l/D`CUSTLOC,%l,%#));@select/inline %q<cansql>=1,{th u(setq,sceneactive,u(mysql,get`activehere,%q<locid>,%q<custloc>))};th u(setq,custrecp,u(canhear,uldefault(%l/D`CUSTRECP,lcon(%l),%#)));@select/inline %q<cansql>=1,{th u(setq,logged,u(FUN`ISLOGGED,objid(owner(%#)),%q<pid>,%2,get(%#/D`SCENE`ACTIVE),%q<sceneactive>))},0,{th u(setq,logged,0)};th u(setq,basic,u(basicspeak`%va,if(%q<logged>,u(firstof,get(%#/D`SCENE`SPOOF),owner(%#)),%#),switch(%1,pose,:,semipose,;,say,",@emit,|)%2));th u(setq,markup,u(markup,%2,%q<custrecp>));@attach/nobreak %!/INC`HEADER=%q<logged>,%q<sceneactive>;@attach/nobreak %!/INC`POTRECORD=%1,%q<markup>;@select/inline v(game)=PennMUSH,{@message %q<custrecp>=%q<basic>,%!/FUN`FORMATPOSE,##,if(%q<logged>,u(firstof,get(%#/D`SCENE`SPOOF),owner(%#)),%#),switch(%1,pose,:,semipose,;,say,",@emit,|),%q<markup>,%q<custrecp>},RhostMUSH,{@pemit/list %q<custrecp>=udefault(%!/FUN`FORMATPOSE,%q<basic>,##,if(%q<logged>,u(firstof,get(%#/D`SCENE`SPOOF),owner(%#)),%#),switch(%1,pose,:,semipose,;,say,",@emit,|),%q<markup>,%q<custrecp>)};@attach %!/INC`FOOTER=%q<logged>,%q<sceneactive>;@select/inline %q<cansql>=1,{@attach/nobreak %!/INC`POSEERROR=%q<logged>;@attach/nobreak %!/INC`RECPOSE=objid(owner(%#)),%q<logged>,u(trimlines,u(trimtabs,%q<basic>))};@dolist/inline/nobreak u(lattr,%!/OVERRIDE`EXTRA`*)={@attach %!/%i0}
+&OVERRIDE`IC [u(cobj,scene)]=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@check strlen(%2)=@pemit %#=Huh? (Type "help" for help.);th u(setq,cansql,not(strmatch(sql(SELECT DATABASE()),#-*)));@select/inline %q<cansql>=1,{@attach %!/INC`USERCHECK=objid(owner(%#))};th u(setq,locid,objid(%l));th u(setq,custloc,uldefault(%l/D`CUSTLOC,%l,%#));@select/inline %q<cansql>=1,{th u(setq,sceneactive,u(mysql,get`activehere,%q<locid>,%q<custloc>))};th u(setq,custrecp,u(canhear,uldefault(%l/D`CUSTRECP,lcon(%l),%#)));@select/inline %q<cansql>=1,{th u(setq,logged,u(FUN`ISLOGGED,objid(owner(%#)),%q<pid>,%2,get(%#/D`SCENE`ACTIVE),%q<sceneactive>))},0,{th u(setq,logged,0)};th u(setq,basic,u(basicspeak`%va,if(%q<logged>,u(firstof,get(%#/D`SCENE`SPOOF),owner(%#)),%#),switch(%1,pose,:,semipose,;,say,",@emit,|)%2));th u(setq,markup,u(markup,%2,%q<custrecp>));@attach/nobreak %!/INC`HEADER=%q<logged>,%q<sceneactive>;@attach/nobreak %!/INC`POTRECORD=%1,%q<markup>;@select/inline %va=PennMUSH,{@message %q<custrecp>=%q<basic>,%!/FUN`FORMATPOSE,##,if(%q<logged>,u(firstof,get(%#/D`SCENE`SPOOF),owner(%#)),%#),switch(%1,pose,:,semipose,;,say,",@emit,|),%q<markup>,%q<custrecp>},RhostMUSH,{@pemit/list %q<custrecp>=udefault(%!/FUN`FORMATPOSE,%q<basic>,##,if(%q<logged>,u(firstof,get(%#/D`SCENE`SPOOF),owner(%#)),%#),switch(%1,pose,:,semipose,;,say,",@emit,|),%q<markup>,%q<custrecp>)};@attach %!/INC`FOOTER=%q<logged>,%q<sceneactive>;@select/inline %q<cansql>=1,{@attach/nobreak %!/INC`POSEERROR=%q<logged>;@attach/nobreak %!/INC`RECPOSE=objid(owner(%#)),%q<logged>,u(trimlines,u(trimtabs,%q<basic>))};@dolist/inline/nobreak u(lattr,%!/OVERRIDE`EXTRA`*)={@attach %!/%i0}
 @set u(cobj,scene)/OVERRIDE`IC=regexp
 
 &OVERRIDE`IC2 [u(cobj,scene)]=$"*:@attach/command %!/OVERRIDE`IC=,say,%0
 &OVERRIDE`IC3 [u(cobj,scene)]=$\:*:@attach/command %!/OVERRIDE`IC=,pose,%0
 &OVERRIDE`IC4 [u(cobj,scene)]=$\;*:@attach/command %!/OVERRIDE`IC=,semipose,%0
-@select/inline v(game)=PennMUSH,{@dolist/inline IC2 IC3 IC4=@set u(cobj,scene)/OVERRIDE`%i0=no_command}
+@select/inline %va=PennMUSH,{@dolist/inline IC2 IC3 IC4=@set u(cobj,scene)/OVERRIDE`%i0=no_command}
 
-&BASICSPEAK [u(cobj,scene)]=u(BASICSPEAK`[v(game)],%0,%1)
+&BASICSPEAK [u(cobj,scene)]=u(BASICSPEAK`%va,%0,%1)
 &BASICSPEAK`PENNMUSH [u(cobj,scene)]=speak(%0,%1)
 &BASICSPEAK`RHOSTMUSH [u(cobj,scene)]=parsestr(%1,%0,",",,owner(%#))
 
 &FUN`FORMATPOSE [u(cobj,scene)]=u(speech`%va,%1,u(colormarkup,%0,%2%3,%1),%0,,IC,%4)
 
-&INC`RECPOSE [u(cobj,scene)]=@select/inline isint(%1)=1,{@check u(setr,pid,u(mysql,get`playerid,objid(u(firstof,get(%0/D`SCENE`SPOOF),%0))));@attach %!/INC`DOSQL=SET`NEWPOSE,%q<pid>,%1,switch(v(game),PennMUSH,%2,RhostMUSH,stripansi(%2))}
+&INC`RECPOSE [u(cobj,scene)]=@select/inline isint(%1)=1,{@check u(setr,pid,u(mysql,get`playerid,objid(u(firstof,get(%0/D`SCENE`SPOOF),%0))));@attach %!/INC`DOSQL=SET`NEWPOSE,%q<pid>,%1,switch(%va,PennMUSH,%2,RhostMUSH,stripansi(%2))}
 &Q`SET`NEWPOSE [u(cobj,scene)]=INSERT INTO $POSES$ (player_id,scene_id,pose,pose_time) VALUES (?,?,?,UTC_TIMESTAMP())
 
 &INC`POSEERROR [u(cobj,scene)]=@check words(%q<sceneactive>);@select/inline strmatch(%0,#-*)=1,{@attach %!/INC`MSG=ERROR: [rest(%0)]}
@@ -105,7 +108,7 @@ th u(NEWCONF,pconf,ALERTS,SCENES,1,Show upcoming scenes on logon?,BOOL)
 
 &FUN`POT`POSES [u(cobj,scene)]=u(filter,POSELOC,u(sortpot,u(lattr,%0/D`POSES`*)),%b,%b,%0,%2)
 
-&SORTPOT [u(cobj,scene)]=u(SORTPOT`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTPOT [u(cobj,scene)]=u(SORTPOT`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTPOT`PENNMUSH [u(cobj,scene)]=sortkey(#lambda/get(%l/\%0`WHEN),%0,n,%1,%2)
 &SORTPOT`RHOSTMUSH [u(cobj,scene)]=sortby(#lambda/[lit([ncomp(get(%l/%0`WHEN),get(%l/%1`WHEN))])],%0,%1,%2)
 
@@ -174,7 +177,7 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 
 &INC`MSGSCENE [u(cobj,scene)]=@attach %!/INC`MSG`ROOM=%1,setunion(setunion(lockfilter(D`SCENE`ACTIVE:%0,setunion(%:,u(mysql,get`objidsinscene,%0))),%:),iter(uldefault(%l/D`CUSTRECP,lcon(%l),%#),objid(%i0)))
 
-&INC`SCENE`JOIN [u(cobj,scene)]=@check approved(%#)=@attach %!/INC`MSG=You are not approved!;@attach %!/INC`USERCHECK=%:;@select/inline gt(strlen(u(setr,scene,%0)),0)=1,{@select/inline u(valnum,%q<scene>)=0,{@attach %!/INC`CHECKPC=%q<scene>,2;@check u(valnum,u(setr,scene,get(%q<t2>/D`SCENE`ACTIVE)))=@attach %!/INC`MSG=%q<t2name> is not joined to a scene.},1,{@check u(setr,scene,u(mysql,get`scenewhereidandstate,%q<scene>,0))=@attach %!/INC`MSG=Scene '%0' does not exist or is not Active.}},0,{@check gt(u(setr,scene,u(mysql,GET`SCENEHERE,objid(%l),uldefault(%l/D`CUSTLOC,%l,%#))),0)=@attach %!/INC`MSG=There are no recent scenes here to join!};&D`SCENE`ACTIVE %#=%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,u(moniker,%#) joined Scene %q<scene>!;@select/inline t(get(%#/D`SCENE`SPOOF))=1,{@attach %!/INC`MSG=ALERT: You are currently set to Spoof as: [u(moniker,get(%#/D`SCENE`SPOOF))].}
+&INC`SCENE`JOIN [u(cobj,scene)]=@check approved(%#)=@attach %!/INC`MSG=You are not approved!;@attach %!/INC`USERCHECK=%:;@select/inline gt(strlen(u(setr,scene,%0)),0)=1,{@select/inline u(valnum,%q<scene>)=0,{@attach %!/INC`CHECKPC=%q<scene>,2;@check u(valnum,u(setr,scene,get(%q<t2>/D`SCENE`ACTIVE)))=@attach %!/INC`MSG=%q<t2name> is not joined to a scene.},1,{@check u(setr,scene,u(mysql,get`scenewhereidandstate,%q<scene>,0))=@attach %!/INC`MSG=Scene '%0' does not exist or is not Active.}},0,{@check gt(u(setr,scene,u(mysql,GET`SCENEHERE,objid(%l),uldefault(%l/D`CUSTLOC,%l,%#))),0)=@attach %!/INC`MSG=There are no recent scenes here to join!};&D`SCENE`ACTIVE %#=%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,u(moniker,%#) joined Scene %q<scene>!;@select/inline t(get(%#/D`SCENE`SPOOF))=1,{@attach %!/INC`MSG=ALERT: You are currently set to Spoof as: [u(moniker,get(%#/D`SCENE`SPOOF))].};@wipe %#/D`OBSERVER
 
 &Q`GET`SCENEHERE [u(cobj,scene)]=SELECT max(scene_id) from $SCENES$ WHERE room_objid=? AND room_custloc=? AND scene_state='0' AND creation_date >= date_sub(UTC_TIMESTAMP(),INTERVAL 1 HOUR)
 &Q`GET`SCENEWHEREIDANDSTATE [u(cobj,scene)]=SELECT scene_id from $SCENES$ WHERE scene_id=? AND scene_state='?'
@@ -201,12 +204,14 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 &Q`SET`SCENEDESC [u(cobj,scene)]=UPDATE $SCENES$ SET scene_desc=? WHERE scene_id=?
 &Q`SET`SCENEPLOT [u(cobj,scene)]=UPDATE $SCENES$ SET plot_id=? WHERE scene_id=?
 
-&INC`SCENE`FINISH [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=u(strfirstof,%0,get(%#/D`SCENE`ACTIVE));@attach %!/INC`OWNCHECK=%q<scene>,%q<pid>;@attach %!/INC`DOSQL=SET`SCENESTATE,3,%q<scene>;@attach %!/INC`DOSQL=SET`SCENEFINISH,%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,[u(moniker,%#)] has marked Scene %q<scene> Finished!;@attach %!/INC`MSG=Your scene is available at: [u(weblink,http://[u(game_config,SCENESYS,URL)][u(game_config,SCENESYS,PATH)]%q<scene>)]
-&INC`SCENE`PAUSE [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=u(strfirstof,%0,get(%#/D`SCENE`ACTIVE));@attach %!/INC`OWNCHECK=%q<scene>,%q<pid>;@attach %!/INC`DOSQL=SET`SCENESTATE,1,%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,[u(moniker,%#)] has marked Scene %q<scene> Paused!
+&INC`SCENE`FINISH [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=u(strfirstof,%0,get(%#/D`SCENE`ACTIVE));@attach %!/INC`OWNCHECK=%q<scene>,%q<pid>;@attach %!/INC`DOSQL=SET`SCENESTATE,3,%q<scene>;@attach %!/INC`DOSQL=SET`SCENEFINISH,%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,[u(moniker,%#)] has marked Scene %q<scene> Finished!;@attach %!/INC`MSG=Your scene is available at: [u(weblink,http://[u(game_config,SCENESYS,URL)][u(game_config,SCENESYS,PATH)]%q<scene>)];@attach %!/INC`CLEANUPSCENE=%q<scene>
+&INC`SCENE`PAUSE [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=u(strfirstof,%0,get(%#/D`SCENE`ACTIVE));@attach %!/INC`OWNCHECK=%q<scene>,%q<pid>;@attach %!/INC`DOSQL=SET`SCENESTATE,1,%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,[u(moniker,%#)] has marked Scene %q<scene> Paused!;@attach %!/INC`CLEANUPSCENE=%q<scene>
 &INC`SCENE`CONTINUE [u(cobj,scene)]=@attach %!/INC`SCENE`MOVE;@attach %!/INC`DOSQL=SET`SCENESTATE,0,%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,[u(moniker,%#)] has continued Scene %q<scene>! It will now record new poses.;@attach %!/INC`SCENE`JOIN=%q<scene>
 
 &Q`SET`SCENESTATE [u(cobj,scene)]=UPDATE $SCENES$ SET scene_state='?' WHERE scene_id=?
 &Q`SET`SCENEFINISH [u(cobj,scene)]=UPDATE $SCENES$ set finish_date=NOW() WHERE scene_id=?
+
+&INC`CLEANUPSCENE [u(cobj,scene)]=@dolist/inline u(choosegame,lsearch(all,type,player,elock,D`SCENE`ACTIVE:%0),search(TYPE=PLAYERS,EVAL=\[eq(get(##/D`SCENE`ACTIVE),%0)\]))=@attach %!/WIPE=##,D`SCENE`ACTIVE
 
 &INC`SCENE`UNDO [u(cobj,scene)]=@attach %!/INC`USERCHECK=u(firstof,get(%#/D`SCENE`SPOOF),%:);@attach %!/INC`VALSCENE=get(%#/D`SCENE`ACTIVE);@check eq(u(mysql,get`scenestate,%q<scene>),0)=@attach %!/INC`MSG=That scene is not Active!;@check gt(u(setr,undo,u(mysql,get`lastpose,%q<scene>,%q<pid>,0)),0)=@attach %!/INC`MSG=You have no recent poses that can be undone.;@attach %!/INC`DOSQL=SET`IGNORE,1,%q<undo>;@attach %!/INC`MSGSCENE=%q<scene>,[u(moniker,%#)] undid %p last pose: %q<undo>
 
@@ -215,9 +220,9 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 &Q`GET`LASTPOSE [u(cobj,scene)]=SELECT max(pose_id) FROM $POSES$ WHERE scene_id=? and player_id=? AND pose_ignore=? AND pose_time >= date_sub(UTC_TIMESTAMP(),INTERVAL 1 HOUR)
 &Q`SET`IGNORE [u(cobj,scene)]=UPDATE $POSES$ SET pose_ignore=? WHERE pose_id=?
 
-&INC`SCENE`RECALL [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=u(strfirstof,%0,get(%#/D`SCENE`ACTIVE));@select/inline gt(strlen(%1),0)=1,{@check u(valnum,%1)=@attach %!/INC`MSG=The number of poses must be a whole, positive number.;th u(setq,poses,%1)},0,{th u(setq,poses,15)};@pemit %#=u(HEADER,Scene %q<scene>[if(strlen(u(setr,title,u(mysql,get`scenetitle,%q<scene>))),:%B%q<title>)]);th u(setq,target,%#);@select/inline v(game)=PennMUSH,{th mapsql(FUN`RECALL,u(SQL`FORMAT,GET`SCENERECALL,%q<scene>,%q<poses>));@pemit %#=u(SUBHEADER)},RhostMUSH,{@dolist/inline u(mysql,GET`RECALLIDS,%q<scene>,%q<poses>)={th u(setq,det,u(mysql2,GET`RECALLDET,%d0));th u(FUN`RECALL,,elements(%q<det>,1,^),,u(mysql,GET`RECALLPOSE,%d0),elements(%q<det>,2,^))};@pemit %#=u(SUBHEADER)}
+&INC`SCENE`RECALL [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=u(strfirstof,%0,get(%#/D`SCENE`ACTIVE));@select/inline gt(strlen(%1),0)=1,{@check u(valnum,%1)=@attach %!/INC`MSG=The number of poses must be a whole, positive number.;th u(setq,poses,%1)},0,{th u(setq,poses,15)};th u(setq,dbs,u(lwhoid));th [u(setq`%va,quote,ansi(u(player_config`%va,%#,IC,QUOTES),"))][u(setq`%va,speechcol,u(player_config`%va,%#,IC,SPEECH))];@pemit %#=u(HEADER,Scene %q<scene>[if(strlen(u(setr,title,u(mysql,get`scenetitle,%q<scene>))),:%B%q<title>)]);th u(setq,target,%#);@select/inline %va=PennMUSH,{th mapsql(FUN`RECALL,u(SQL`FORMAT,GET`SCENERECALL,%q<scene>,%q<poses>));@pemit %#=u(SUBHEADER)},RhostMUSH,{@dolist/inline u(mysql,GET`RECALLIDS,%q<scene>,%q<poses>)={th u(setq,det,u(mysql2,GET`RECALLDET,%d0));th u(FUN`RECALL,,elements(%q<det>,1,^),,u(mysql,GET`RECALLPOSE,%d0),elements(%q<det>,2,^))};@pemit %#=u(SUBHEADER)}
 
-&FUN`RECALL [u(cobj,scene)]=pemit(%q<target>,u(SEPARATOR,u(moniker,%1) Posed on [u(fancytime,%4,%q<target>)])%R%3)
+&FUN`RECALL [u(cobj,scene)]=pemit(%q<target>,u(SEPARATOR,u(moniker,%1) Posed on [u(fancytime,%4,%q<target>)])%R[u(colormarkup,%#,u(markup,regeditalli(%3,v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>),%q<dbs>),%1)])
 
 &Q`GET`SCENETITLE [u(cobj,scene)]=SELECT scene_title FROM $SCENES$ WHERE scene_id=?
 &Q`GET`SCENERECALL [u(cobj,scene)]=SELECT * FROM (SELECT objid,pose_id,pose,UNIX_TIMESTAMP(pose_time) from $POSES$ NATURAL LEFT JOIN $PLAYERS$ WHERE $POSES$.scene_id=? AND $POSES$.pose_ignore=0 ORDER BY $POSES$.pose_id desc limit ?) sub ORDER BY pose_id ASC
@@ -231,7 +236,7 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 
 &INC`SCENE`OLD [u(cobj,scene)]=@attach %!/INC`SCENE`MAIN=%0,%1,%2,4
 
-&INC`SCENE`PLAYERLIST [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@attach %!/INC`USERCHECK=%q<t1objid>;@pemit %#=u(HEADER,if(strmatch(%q<t1objid>,%:),Your,%q<t1name>'s) [if(%3,Finished,Incomplete)] Scenes);th u(setq,target,%#);@pemit %#=ansi(u(color,%#,SCENESYS,COLUMN_NAMES),align(4 41 20 10,ID,Title,Owner,if(%3,Date,Status)));@select/inline v(game)=PennMUSH,{@dolist/inline u(mysql,GET`SCENEMINE%3,%q<pid>,%q<pid>)={th mapsql(FUN`SCENEMINE%3,u(SQL`FORMAT,GET`SCENEMINE3%3,##))};@pemit %#=u(SUBHEADER)},RhostMUSH,{@dolist/inline u(mysql,GET`SCENEMINE%3,%q<pid>,%q<pid>)={th u(setq,det,u(mysql2,GET`SCENEMINE3%3,##));@pemit %#=u(FUN`SCENEMINE%3,,elements(%q<det>,1,^),elements(%q<det>,2,^),elements(%q<det>,3,^),elements(%q<det>,4,^))}};@pemit %#=u(SUBHEADER)
+&INC`SCENE`PLAYERLIST [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@attach %!/INC`USERCHECK=%q<t1objid>;@pemit %#=u(HEADER,if(strmatch(%q<t1objid>,%:),Your,%q<t1name>'s) [if(%3,Finished,Incomplete)] Scenes);th u(setq,target,%#);@pemit %#=ansi(u(color,%#,SCENESYS,COLUMN_NAMES),align(4 41 20 10,ID,Title,Owner,if(%3,Date,Status)));@select/inline %va=PennMUSH,{@dolist/inline u(mysql,GET`SCENEMINE%3,%q<pid>,%q<pid>)={th mapsql(FUN`SCENEMINE%3,u(SQL`FORMAT,GET`SCENEMINE3%3,##))};@pemit %#=u(SUBHEADER)},RhostMUSH,{@dolist/inline u(mysql,GET`SCENEMINE%3,%q<pid>,%q<pid>)={th u(setq,det,u(mysql2,GET`SCENEMINE3%3,##));@pemit %#=u(FUN`SCENEMINE%3,,elements(%q<det>,1,^),elements(%q<det>,2,^),elements(%q<det>,3,^),elements(%q<det>,4,^))}};@pemit %#=u(SUBHEADER)
 
 &FUN`SCENEMINE [u(cobj,scene)]=pemit(%#,align(4 41 20 10,u(pueblize,%1,+scene %1),%2,%3,switch(%4,0,Active,1,Paused,2,Unfinished,3,Finished,???)))
 
@@ -244,7 +249,7 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 
 &Q`GET`SCENEMINE34 [u(cobj,scene)]=SELECT scene_id,scene_title,player_name,UNIX_TIMESTAMP(creation_date) FROM $SCENES$ NATURAL LEFT JOIN $PLAYERS$ WHERE scene_id=?
 
-&INC`SCENE`DETAILS [u(cobj,scene)]=@attach %!/INC`VALSCENE=%0;th u(setq,ownerid,u(mysql,get`ownerid,%q<scene>));@pemit %#=u(HEADER,Scene %q<scene>[if(strlen(u(setr,title,u(mysql,get`scenetitle,%q<scene>))),:%B%q<title>)]);@pemit %#=ansi(h,Started:) [u(fancytime,u(mysql,get`scenedate,%q<scene>),%#)]%R[ansi(h,Description:)] [u(mysql,get`scenedesc,%q<scene>)]%R[ansi(h,Owner:)]%B[u(mysql,get`playername,%q<ownerid>)]%R[if(strlen(u(setr,tp,u(mysql,get`tinyplot,%q<scene>))),ansi(h,Tinyplot:) %q<tp>%R)][ansi(h,Status:)] [switch(u(mysql,get`scenestate,%q<scene>),0,Active,1,Paused,2,Unfinished,3,Finished)];@pemit %#=u(SEPARATOR,Players);@pemit %#=ansi(u(color,%#,SCENE,COLUMN_NAMES),align(30 30 15,ansi(h,Name),ansi(h,Status),ansi(h,Poses)));@pemit %#=u(SEPARATOR);@dolist/inline/delimit | [u(mysql2,GET`PLAYERCOUNT,%q<scene>)]={@pemit %#=align(30 30 15,elements(##,2,^),if(eq(%q<scene>,get(elements(##,1,^)/D`SCENE`ACTIVE)),Active,Inactive),u(mysql,get`playerposecount,%q<scene>,elements(##,3,^)))};@select/inline gt(u(setr,total,u(mysql,get`sceneposecount,%q<scene>)),0)=1,{@pemit %#=align(30 >30 15,,Total:,%q<total>)};@pemit %#=u(SEPARATOR);@pemit %#=ansi(h,URL:) [u(weblink,http://[u(game_config,SCENESYS,URL)][u(game_config,SCENESYS,PATH)]%q<scene>)];@pemit %#=u(SUBHEADER)
+&INC`SCENE`DETAILS [u(cobj,scene)]=@attach %!/INC`VALSCENE=%0;th u(setq,ownerid,u(mysql,get`ownerid,%q<scene>));@pemit %#=u(HEADER,Scene %q<scene>[if(strlen(u(setr,title,u(mysql,get`scenetitle,%q<scene>))),:%B%q<title>)]);@pemit %#=ansi(h,Started:) [u(fancytime,u(mysql,get`scenedate,%q<scene>),%#)]%R[ansi(h,Description:)] [u(mysql,get`scenedesc,%q<scene>)]%R[ansi(h,Owner:)]%B[u(mysql,get`playername,%q<ownerid>)]%R[if(strlen(u(setr,tp,u(mysql,get`tinyplot,%q<scene>))),ansi(h,Tinyplot:) %q<tp>%R)][ansi(h,Status:)] [switch(u(mysql,get`scenestate,%q<scene>),0,Active,1,Paused,2,Unfinished,3,Finished)];@select/inline isobjid(u(setr,loc,u(mysql,get`location,%q<scene>)))=1,{@pemit %#=[ansi(h,Location:)]%B[num(%q<loc>)] - [u(moniker,%q<loc>)]};@pemit %#=u(SEPARATOR,Players);@pemit %#=ansi(u(color,%#,SCENE,COLUMN_NAMES),align(30 30 15,ansi(h,Name),ansi(h,Status),ansi(h,Poses)));@pemit %#=u(SEPARATOR);@dolist/inline/delimit | [u(mysql2,GET`PLAYERCOUNT,%q<scene>)]={@pemit %#=align(30 30 15,elements(##,2,^),if(eq(%q<scene>,get(elements(##,1,^)/D`SCENE`ACTIVE)),Active,Inactive),u(mysql,get`playerposecount,%q<scene>,elements(##,3,^)))};@select/inline gt(u(setr,total,u(mysql,get`sceneposecount,%q<scene>)),0)=1,{@pemit %#=align(30 >30 15,,Total:,%q<total>)};@pemit %#=u(SEPARATOR);@pemit %#=ansi(h,URL:) [u(weblink,http://[u(game_config,SCENESYS,URL)][u(game_config,SCENESYS,PATH)]%q<scene>)];@pemit %#=u(SUBHEADER)
 
 &Q`GET`SCENEDESC [u(cobj,scene)]=SELECT scene_desc FROM $SCENES$ WHERE scene_id=?
 &Q`GET`SCENEDATE [u(cobj,scene)]=SELECT UNIX_TIMESTAMP(creation_date) FROM $SCENES$ WHERE scene_id=?
@@ -252,6 +257,7 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 &Q`GET`PLAYERPOSECOUNT [u(cobj,scene)]=SELECT count(pose_id) FROM $POSES$ WHERE scene_id=? and player_id=?
 &Q`GET`SCENEPOSECOUNT [u(cobj,scene)]=SELECT count(pose_id) FROM $POSES$ WHERE scene_id=?
 &Q`GET`TINYPLOT [u(cobj,scene)]=SELECT plot_title FROM $SCENES$ NATURAL LEFT JOIN $PLOTS$ WHERE scene_id=?
+&Q`GET`LOCATION [u(cobj,scene)]=SELECT room_objid FROM $SCENES$ WHERE scene_id=?
 
 &Q`GET`PLAYERCOUNT [u(cobj,scene)]=SELECT DISTINCT Objid,player_name,$PLAYERS$.player_id FROM $PLAYERS$ NATURAL LEFT JOIN $POSES$ WHERE scene_id=? ORDER BY player_name
 
@@ -355,7 +361,7 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 
 &INC`PLOT`ALL [u(cobj,scene)]=@attach %!/INC`PLOT`LIST=%0,1
 
-&INC`PLOT`LIST [u(cobj,scene)]=@pemit %#=u(HEADER,if(%1,All,Current) Plots);@pemit %#=align(4 25 20 20 6,ID,Title,Runner,Schedule,Type);th u(setq,target,%#);@select/inline v(game)=PennMUSH,{th mapsql(FUN`FORMATPLOT,u(SQL`FORMAT,if(%1,get`allplots,get`runningplots)))},RhostMUSH,{@dolist/inline/delimit | [u(mysql2,if(%1,get`allplots,get`runningplots))]={th u(FUN`FORMATPLOT,,elements(%d0,1,^),elements(%d0,2,^),elements(%d0,3,^),elements(%d0,4,^),elements(%d0,5,^),elements(%d0,6,^))}};@pemit %#=u(SUBHEADER)
+&INC`PLOT`LIST [u(cobj,scene)]=@pemit %#=u(HEADER,if(%1,All,Current) Plots);@pemit %#=align(4 25 20 20 6,ID,Title,Runner,Schedule,Type);th u(setq,target,%#);@select/inline %va=PennMUSH,{th mapsql(FUN`FORMATPLOT,u(SQL`FORMAT,if(%1,get`allplots,get`runningplots)))},RhostMUSH,{@dolist/inline/delimit | [u(mysql2,if(%1,get`allplots,get`runningplots))]={th u(FUN`FORMATPLOT,,elements(%d0,1,^),elements(%d0,2,^),elements(%d0,3,^),elements(%d0,4,^),elements(%d0,5,^),elements(%d0,6,^))}};@pemit %#=u(SUBHEADER)
 
 &Q`GET`ALLPLOTS [u(cobj,scene)]=SELECT plot_id,plot_title,player_name,UNIX_TIMESTAMP(start_date),UNIX_TIMESTAMP(end_date),plot_type FROM $PLOTS$ NATURAL LEFT JOIN $PLAYERS$
 
@@ -403,6 +409,26 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 &INC`PLOT`DELETE [u(cobj,scene)]=@attach %!/INC`VALPLOT=%0;@attach %!/INC`VERIFY={ansi(hr,WARNING:) This will DELETE Plot %q<plot>. Are you SURE? enter the same command again within ten seconds to verify!},DELETE PLOT %q<plot>;@attach %!/INC`DOSQL=DELETE`PLOT,%q<plot>;@attach %!/INC`MSG=Plot deleted!
 &Q`DELETE`PLOT [u(cobj,scene)]=DELETE FROM $PLOTS$ WHERE plot_id=?
 
+&INC`OBSERVER`MAIN [u(cobj,scene)]=th u(setq,new,not(get(%#/D`OBSERVER)));@attach %!/INC`MSG`ROOM=%n is [if(%q<new>,now,no longer)] an observer to the event.;&D`OBSERVER %#=%q<new>
+
+&INC`PARTNERS`MAIN [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=get(%#/D`SCENE`ACTIVE);@pemit %#=u(header,Matchups for Scene: %q<scene>);@pemit %#=ansi(u(color,%#,SCENE,COLUMN_NAMES),align(4 [sub(u(width,%#),6)],Pair,Participants));@pemit %#=u(separator);@dolist/inline/nobreak/delimit | [u(mysql2,GET`PAIRINGS,%q<scene>)]={@check words(u(setr,partic,u(mysql,GET`PARTICIPANTS,elements(##,1,^))));@pemit %#=align(4 [sub(u(width,%#),6)],elements(##,2,^),u(itemize,iter(u(sortname,%q<partic>),u(moniker,%i0),%b,|),|,and,\,))};@pemit %#=u(subheader)
+
+&Q`GET`PAIRINGS [u(cobj,scene)]=SELECT pair_id,pair_num FROM $PAIRS$ WHERE scene_id=? ORDER BY pair_num
+&Q`GET`PARTICIPANTS [u(cobj,scene)]=SELECT DISTINCT players.objid FROM $MATCH$ AS pairs LEFT JOIN $PLAYERS$ AS players ON players.player_id=pairs.player_id WHERE pairs.pair_id=?
+
+&INC`PARTNERS`JOIN [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=get(%#/D`SCENE`ACTIVE);@check eq(u(mysql,get`scenestate,%q<scene>),0)=@attach %!/INC`MSG=That scene is not Active!;@attach %!/INC`PARTNERS`GETSLOT=%0;@stop u(mysql,CHECK`PAIRING,%q<pair_id>,%q<pid>)=@attach %!/INC`MSG=[ansi(hr,ERROR:)] You are already joined to that pairing!;@attach %!/INC`DOSQL=ADD`PAIRING,%q<pair_id>,%q<pid>;@attach %!/INC`MSGSCENE=%q<scene>,{%n has joined Scene %q<scene>'s [u(numth,%q<value>)] pairing.}
+
+&INC`PARTNERS`LEAVE [u(cobj,scene)]=@attach %!/INC`USERCHECK=%:;@attach %!/INC`VALSCENE=get(%#/D`SCENE`ACTIVE);@check eq(u(mysql,get`scenestate,%q<scene>),0)=@attach %!/INC`MSG=That scene is not Active!;@attach %!/INC`PARTNERS`GETSLOT=%0;@check u(setr,partner_id,u(mysql,CHECK`PAIRING,%q<pair_id>,%q<pid>))=@attach %!/INC`MSG=[ansi(hr,ERROR:)] You are not joined to that pairing!;@attach %!/INC`DOSQL=DEL`PAIRING,%q<partner_id>;@attach %!/INC`MSGSCENE=%q<scene>,{%n has left Scene %q<scene>'s [u(numth,%q<value>)] pairing.}
+
+&INC`PARTNERS`GETSLOT [u(cobj,scene)]=@attach %!/INC`VALID`POSINT=%0,Slot ID;@stop gt(%q<value>,15)=@attach %!/INC`MSG=ERROR: Nothing greater than 15 please.;@select/inline u(setr,pair_id,u(mysql,GET`PAIRID,%q<scene>,%q<value>))=>0,{@@ Woo! We're good.},{@attach %!/INC`DOSQL=INSERT`PAIRID,%q<scene>,%q<value>;th u(setq,pair_id,u(mysql,GET`PAIRID,%q<scene>,%q<value>))}
+
+&Q`GET`PAIRID [u(cobj,scene)]=SELECT pair_id FROM $PAIRS$ WHERE scene_id=? AND pair_num=?
+&Q`INSERT`PAIRID [u(cobj,scene)]= INSERT INTO $PAIRS$ (scene_id,pair_num) VALUES (?,?) 
+
+&Q`CHECK`PAIRING [u(cobj,scene)]=SELECT match_id FROM $MATCH$ WHERE pair_id=? AND player_id=? LIMIT 1
+&Q`ADD`PAIRING [u(cobj,scene)]=INSERT INTO $MATCH$ (pair_id, player_id) VALUES (?,?)
+&Q`DEL`PAIRING [u(cobj,scene)]=DELETE FROM $MATCH$ WHERE match_id=?
+
 &Q`INSTALL`PLAYERS [u(cobj,scene)]=CREATE TABLE IF NOT EXISTS $PLAYERS$ (player_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,objid VARCHAR(30) NOT NULL,player_name VARCHAR(60) NOT NULL DEFAULT 'Unset',PRIMARY KEY(player_id),UNIQUE KEY player_objid (objid)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
 
 &Q`INSTALL`PLOTS [u(cobj,scene)]=CREATE TABLE IF NOT EXISTS $PLOTS$ (plot_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,player_id BIGINT(31) UNSIGNED NOT NULL,plot_title VARCHAR(40),plot_desc text,start_date DATETIME,end_date DATETIME,plot_type VARCHAR(20),plot_status VARCHAR(20),PRIMARY KEY(plot_id),FOREIGN KEY(player_id) REFERENCES $PLAYERS$(player_id) ON UPDATE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
@@ -415,24 +441,34 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 
 &Q`INSTALL`TAGS [u(cobj,scene)]=CREATE TABLE IF NOT EXISTS $TAGS$ (tag_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,schedule_id BIGINT(31) UNSIGNED NOT NULL,player_id BIGINT(31) UNSIGNED NOT NULL,PRIMARY KEY(tag_id),FOREIGN KEY(player_id) REFERENCES $PLAYERS$(player_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(schedule_id) REFERENCES $SCHEDULE$(schedule_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
 
-&SQL`TABLES [u(cobj,scene)]=PLAYERS|PLOTS|SCENES|POSES|SCHEDULE|TAGS
+&Q`INSTALL`PAIRS [u(cobj,scene)]=CREATE TABLE IF NOT EXISTS $PAIRS$ (pair_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,scene_id BIGINT(31) UNSIGNED NOT NULL,pair_num BIGINT(31) UNSIGNED NOT NULL,PRIMARY KEY(pair_id),FOREIGN KEY(scene_id) REFERENCES $SCENES$(scene_id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE KEY scene_pair (scene_id, pair_num)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
+&Q`INSTALL`MATCH [u(cobj,scene)]=CREATE TABLE IF NOT EXISTS $MATCH$ (match_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,player_id BIGINT(31) UNSIGNED NOT NULL,pair_id BIGINT(31) UNSIGNED NOT NULL,PRIMARY KEY(match_id),FOREIGN KEY(player_id) REFERENCES $PLAYERS$(player_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(pair_id) REFERENCES $PAIRS$(pair_id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE KEY pairing (pair_id, player_id)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+
+&SQL`TABLES [u(cobj,scene)]=PLAYERS|PLOTS|SCENES|POSES|SCHEDULE|TAGS|PAIRS|MATCH
 &SQL`TABLE`SCENES [u(cobj,scene)]=scene_scenes
 &SQL`TABLE`PLAYERS [u(cobj,scene)]=scene_players
 &SQL`TABLE`POSES [u(cobj,scene)]=scene_poses
 &SQL`TABLE`SCHEDULE [u(cobj,scene)]=scene_schedule
 &SQL`TABLE`PLOTS [u(cobj,scene)]=scene_plots
 &SQL`TABLE`TAGS [u(cobj,scene)]=scene_tags
+&SQL`TABLE`PAIRS [u(cobj,scene)]=scene_pairs
+&SQL`TABLE`MATCH [u(cobj,scene)]=scene_match
 
 @trigger [u(cobj,scene)]/TRG`INSTALL
 
 +help/add +scene=[u(cobj,scene)]/HLP`+SCENE
 +help/category +scene=Roleplaying
 +help/metatags +scene=logging scenesys
-&HLP`+SCENE [u(cobj,scene)]=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H and some of his code remains - credits are due.%R%R[ansi(hc,Setting up)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/setup)] - Get your own unique Char_id.%R[ansi(h,+scene/charid)] - Show your own unique Char_id.%RChar_id is used by the wiki log viewer and must be on your character's wiki page.)]%R%R[ansi(hc,Running/Logging Commands)]%RThese commands are for anyone who wants to start and manage a scene.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/create <title text>)] - Begins a new scene.%R[ansi(h,+scene/loudcreate <title text>)] - Like /create but announces it on the RP channel.%R[ansi(h,+scene/title <id>=<text>)] - Changes a scene's title.%R[ansi(h,+scene/desc <id>=<text>)] - Gives a scene a description/short summary.%R[ansi(h,+scene/plot <id>=<plot id>)] - Links a scene to a plot\, if you own the scene or run the plot. Set plot to 0 to remove it from any plots.%R[ansi(h,+scene/finish \[<id>\])] - Finishes a scene. ID will be current scene if not specified.%R[ansi(h,+scene/pause \[<id>\])] - Pauses a scene. ID will be current scene if not specified.%R[ansi(h,+scene/continue \[<id>\])] - Resumes a scene that was paused or finished. ID will be current scene if not specified.%R[ansi(h,+scene/move <id>)] - Relocate a scene to your current location\, including virtual room locations.)]%R%R[ansi(hc,Participant Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/join \[<id>\])] - Joins a scene. Your poses will then be recorded. ID is unneeded if the scene just began in your current location.%R[ansi(h,+scene/leave)] - Stops your poses from being logged.%R[ansi(h,+scene/undo)] - Marks your last post to be ignored by the logger so it won't make it to the wiki. Used to fix poses made in error\, typos\, etc.%R[ansi(h,+scene/recall <id>=<# of lines>)] - Displays previous recorded poses from a scene.%R[ansi(h,+scene/spoof <altname>)] - Record poses as one of your alts. The character must be on your same account and must be setup for scenesys. This will NOT respect hidden alts settings and will NOT be mirrored properly in +pot which will still see you as you. All recorded poses will be as the given alt. use this command with no arguments to clear spoof settings.%RTo be recorded\, you must be joined to a scene and A\) Your pose must be in the location the scene is set to\, B\) Your pose must be at least ten words long. C\) The scene must be not be paused or finished.)]%R%R[ansi(hc,Listing Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene)] - Displays all scenes you are currently participating in or running that aren't finished.%R[ansi(h,+scene/old)] - Show all of the finished scenes you've been in or run.%R[ansi(h,+scene <id>)] - Show details of a particular scene.%R[ansi(h,+scene/who \[<id>\])] - Quick listing of who has this scene as their active scene.)]
+&HLP`+SCENE [u(cobj,scene)]=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H and some of his code remains - credits are due.%R%R[ansi(hc,Setting up)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/setup)] - Get your own unique Char_id.%R[ansi(h,+scene/charid)] - Show your own unique Char_id.%RChar_id is used by the wiki log viewer and must be on your character's wiki page.)]%R%R[ansi(hc,Running/Logging Commands)]%RThese commands are for anyone who wants to start and manage a scene.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/create <title text>)] - Begins a new scene.%R[ansi(h,+scene/loudcreate <title text>)] - Like /create but announces it on the RP channel.%R[ansi(h,+scene/title <id>=<text>)] - Changes a scene's title.%R[ansi(h,+scene/desc <id>=<text>)] - Gives a scene a description/short summary.%R[ansi(h,+scene/plot <id>=<plot id>)] - Links a scene to a plot\, if you own the scene or run the plot. Set plot to 0 to remove it from any plots.%R[ansi(h,+scene/finish \[<id>\])] - Finishes a scene. ID will be current scene if not specified.%R[ansi(h,+scene/pause \[<id>\])] - Pauses a scene. ID will be current scene if not specified.%R[ansi(h,+scene/continue \[<id>\])] - Resumes a scene that was paused or finished. ID will be current scene if not specified.%R[ansi(h,+scene/move <id>)] - Relocate a scene to your current location\, including virtual room locations.)]%R%R[ansi(hc,Participant Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/join \[<id>\])] - Joins a scene. Your poses will then be recorded. ID is unneeded if the scene just began in your current location.%R[ansi(h,+scene/leave)] - Stops your poses from being logged.%R[ansi(h,+scene/undo)] - Marks your last post to be ignored by the logger so it won't make it to the wiki. Used to fix poses made in error\, typos\, etc.%R[ansi(h,+scene/recall <id>=<# of lines>)] - Displays previous recorded poses from a scene.%R[ansi(h,+scene/spoof <altname>)] - Record poses as one of your alts. The character must be on your same account and must be setup for scenesys. This will NOT respect hidden alts settings and will NOT be mirrored properly in +pot which will still see you as you. All recorded poses will be as the given alt. use this command with no arguments to clear spoof settings.%R[ansi(h,+observer)] - Marks you as 'just watching' whatever scene's in the room to avoid confusion. Use it again to toggle off. It also clears when you +scene/join.%R%RTo be recorded\, you must be joined to a scene and A\) Your pose must be in the location the scene is set to\, B\) Your pose must be at least ten words long. C\) The scene must be not be paused or finished.)]%R%R[ansi(hc,Listing Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene)] - Displays all scenes you are currently participating in or running that aren't finished.%R[ansi(h,+scene/old)] - Show all of the finished scenes you've been in or run.%R[ansi(h,+scene <id>)] - Show details of a particular scene.%R[ansi(h,+scene/who \[<id>\])] - Quick listing of who has this scene as their active scene.)]
 
 +shelp/add +scene=[u(cobj,scene)]/SHLP`+SCENE
 +shelp/category +Scene=Roleplaying
 &SHLP`+SCENE [u(cobj,scene)]=[ansi(hc,Wizard Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/delete <id>)] - Deletes a scene and all recorded poses.%R[ansi(h,+scene/merge <player>=<char id>)] - This command exists for when a character is deleted and a new one is created and the new character needs to 'take the place' of the old one. This will re-assign the given <char id> to player and change any of the player's existing scenesys information to use that ID.)]
+
++help/add +partners=[u(cobj,scene)]/HLP`+PARTNERS
++help/category +partners=Roleplaying
+&HLP`+PARTNERS [u(cobj,scene)]=The Partners system helps keep track of matchups within scenes. Examples include a task force, a dogfight, a duel. The idea is that this will help participants of large scenes and scenerunners easily keep track of who is grouped together, who is fighting who, etc.%R%R[ansi(hc,Commands)]%RThese commands use the currently joined scene contextually. In other words, each list of matchups is unique-per-+scene.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+partners)] - List all matchups in the scene.%R[ansi(h,+partners/join <slot>)] - Join a particular matchup. <slot> must be a number 1-15.%R[ansi(h,+partners/leave <slot>)] - Same as /join except leaves a matchup.)]
 
 +help/add +schedule=[u(cobj,scene)]/HLP`+SCHEDULE
 +help/category +schedule=Roleplaying
@@ -459,5 +495,7 @@ th u(NEWCONF,config,CHANNELS,ROLEPLAY,,Channel to announce scenes on?,LIST)
 +help/add +done=[u(cobj,scene)]/HLP`+DONE
 +Help/category +done=Roleplaying
 &HLP`+DONE [u(cobj,scene)]=Usage: +done%R%RDisplays a highlighted message that you are 'done'. This is usually used to keep track of who's posed in large scenes, for the convenience of the game master (if applicable) as well as other players. This is especially useful when pose rounds are being used.
+
+
 
 &CONFLICT`SCENESYS [u(cobj,migrate)]=@dolist/inline [u(coi,scene)] [u(coi,pot)]={@halt %i0;@set %i0=NO_COMMAND;@tel %i0=u(cobj,oldbox)}

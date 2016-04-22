@@ -6,7 +6,7 @@ th u(NEWCOBJ,Phone Message System <PHONE>,phone,,,,WIZARD SAFE !NO_COMMAND,INHER
 &CMD`+PHONE`RHOSTMUSH [u(cobj,phone)]=$^(?\:\+)?(?\:phone|call)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+PHONE`MAIN
 @set [u(cobj,phone)]/CMD`+PHONE`RHOSTMUSH=regexp
 &CMD`+PHONE`MAIN [u(cobj,phone)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,phone)]/CMD`+PHONE`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,phone)]/CMD`+PHONE`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,phone)]=ON|OFF
 &SYSTEm`NAME [u(cobj,phone)]=PHONE

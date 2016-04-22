@@ -8,7 +8,7 @@ th u(NEWCOBJ,Watch System <WATCH>,watch,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &CMD`+WATCH`RHOSTMUSH [u(cobj,watch)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+WATCH`MAIN
 @set [u(cobj,watch)]/CMD`+WATCH`RHOSTMUSH=regexp
 &CMD`+WATCH`MAIN [u(cobj,watch)]=@attach %!/INC`GETSWITCH=%1;th u(setq`%va,accid,u(strfirstof`%va,u(accid,%#),%#));@include %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,watch)]/CMD`+WATCH`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,watch)]/CMD`+WATCH`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,watch)]=WATCH
 &SWITCHES`PLAYER [u(cobj,watch)]=ADD|LIST|DELETE|HIDE|MUTE

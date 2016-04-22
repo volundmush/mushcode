@@ -7,7 +7,7 @@ th u(NEWCOBJ,Desc Management System <DMS>,dms,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 &CMD`+DESC`RHOSTMUSH [u(cobj,dms)]=$^(?s)(?\:\+)?desc(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+DESC`MAIN
 @set [u(cobj,dms)]/CMD`+DESC`RHOSTMUSH=regexp
 &CMD`+DESC`MAIN [u(cobj,dms)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,dms)]/CMD`+DESC`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,dms)]/CMD`+DESC`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,dms)]=SAVE|DELETE|NOISY|VIEW|RENAME
 
