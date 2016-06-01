@@ -126,7 +126,7 @@ th u(NEWCONF,config,CHANNELS,DEFAULT_PRIVS,PQ,Default priveleges for new channel
 &STARTUP [u(cobj,channel)]=@hook/ignore @channel=%!,HOOK`IGNORECHECK;@trigger %!/LOOP`CLEANMUZZLE;@trigger %!/LOOP`CLEANHASH;@hook/override/inline HUH_COMMAND=%!,CMD`COM
 &HOOK`IGNORECHECK [u(cobj,channel)]=if(cand(cor(strmatch(first(after(%u,/)),a*),strmatch(first(after(%u,/)),ren*)),hastype(%#,PLAYER)),0[nspemit(%#,u(MSGHEAD,u(SYSTEm`NAME)) ERROR: Please use +channel for this purpose!)],1)
 
-&LOOP`CLEANMUZZLE [u(cobj,channel)]=@dolist/inline setunion(lattr(u(cobj,muzzle)/ALL`*),setunion(lattr(u(cobj,muzzle)/CHAR`*`*),setunion(lattr(u(cobj,muzzle)/ACCALL`*),lattr(u(cobj,muzzle)/ACC`*`*))))={@select/inline gt(get(u(cobj,muzzle)/%i0),secs())=1,{@attach %!/WIPE=u(cobj,muzzle),%i0}};@wait u(game_config,channels,interval)=@trigger %!/LOOP`CLEANMUZZLE
+&LOOP`CLEANMUZZLE [u(cobj,channel)]=@dolist/inline setunion(lattr(u(cobj,muzzle)/ALL`*),setunion(lattr(u(cobj,muzzle)/CHAR`*`*),setunion(lattr(u(cobj,muzzle)/ACCALL`*),lattr(u(cobj,muzzle)/ACC`*`*))))={@select/inline gt(get(u(cobj,muzzle)/%i0),secs())=0,{@attach %!/WIPE=u(cobj,muzzle),%i0}};@wait u(game_config,channels,interval)=@trigger %!/LOOP`CLEANMUZZLE
 
 th u(NEWCONF,config,CHANNELS,INTERVAL,3600,Interval between Muzzle cleaning?,DURATION)
 th u(NEWCONF,config,CHANNELS,STAFFTAG,hR,Color of Staff tag?,COLOR)

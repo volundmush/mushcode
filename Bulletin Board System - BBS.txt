@@ -41,7 +41,7 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 &FIL`NOTOMIT [u(cobj,bbs)]=eq(default(%1/D`BB`%0`OMIT,0),0)
 
 &FIL`CANREAD`GB [u(cobj,bbs)]=cor(not(u(FUN`READLOCK`GB,%0)),lte(u(u(cobj,gms)/FUN`GETRANK,%2,objid(%0)),default(%0/CANREAD,100000)),u(FIL`CANADMIN`GB,%0,%1,%2))
-&FIL`CANWRITE`GB [u(cobj,bbs)]=cor(lte(u(u(cobj,gms)/FUN`GETRANK,%2,objid(%0)),default(%0/CANWRITE,100000)),u(FIL`CANADMIN`GB,%0,%1,%2))
+&FIL`CANWRITE`GB [u(cobj,bbs)]=cor(lte(u(u(cobj,gms)/FUN`GETRANK,%2,objid(%1)),default(%0/CANWRITE,100000)),u(FIL`CANADMIN`GB,%0,%1,%2))
 &FIL`CANADMIN`GB [u(cobj,bbs)]=u(u(cobj,gms)/FUN`GRPPERM,objid(%1),%2,MODERATE,GROUP)
 
 &FUN`READLOCK`GB [u(cobj,bbs)]=t(get(%0/CANREAD))
@@ -65,7 +65,7 @@ th u(NEWCONF,pconf,ALERTS,BBS_BRIEF,0,Show +bbbrief instead of +bscan?,BOOL)
 &SORTBOARDS`PENNMUSH [u(cobj,bbs)]=sortkey(#lambda/get(\%0/ORDER),%0,n,%1,%2)
 &SORTBOARDS`RHOSTMUSH [u(cobj,bbs)]=sortby(#lambda/[lit([ncomp(default(%0/ORDER,99),default(%1/ORDER,99))])],%0,%1,%2)
 
-&INC`CHECK`FINDBB [u(cobj,bbs)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: You must enter a board to use!;@select/inline isdbref(%8)=1,{@attach %!/INC`INIT`BB;th u(setq`%va,bbnum,get(u(setr`%va,bb,u(namegrab`%va,%q<allboards>,%1))/ORDER))},{@select/inline u(valnum,%1)=1,{th u(setq`%va,bbnum,get(u(setr`%va,bb,u(filter,BBNUM,if(%3,%q<visigroups>,%q<readgroups>),%b,%b,%1))/ORDER))},0,{th u(setq`%va,bbnum,get(u(setr`%va,bb,u(namegrab`%va,if(%3,%q<visigroups>,%q<readgroups>),%1))/ORDER))}};@check isdbref(%q<bb>)=@attach %!/INC`MSG=ERROR: You are not a [ucstr(%2)] member of that board.,u(strfirstof`%va,%8,%#);th u(setq`%va,listposts,u(FUN`LISTPOSTS,%q<bb>));th u(setq`%va,readposts,u(FUN`GETREAD,u(strfirstof`%va,%8,%#),%q<bb>))
+&INC`CHECK`FINDBB [u(cobj,bbs)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: You must enter a board to use!;@select/inline isdbref(%8)=1,{@attach %!/INC`INIT`BB;th u(setq`%va,bbnum,get(u(setr`%va,bb,u(namegrab`%va,%q<allboards>,%1))/ORDER))},{@select/inline u(valnum,%1)=1,{th u(setq`%va,bbnum,get(u(setr`%va,bb,u(filter,BBNUM,if(%3,%q<visigroups>,%q<readgroups>),%b,%b,%1))/ORDER))},0,{th u(setq`%va,bbnum,get(u(setr`%va,bb,u(namegrab`%va,if(%3,%q<visigroups>,%q<readgroups>),%1))/ORDER))}};@check isdbref(%q<bb>)=@attach %!/INC`MSG=ERROR: You are not a [ucstr(%2)] member of that board.,u(strfirstof`%va,%8,%#);@select/inline match(WRITE|ADMIN,%2,|)=>0,{@check u(FIL`CAN%2`%0,%q<bb>,u(strfirstof`%va,%8,%#),%q<gid1>)}=@attach %!/INC`MSG=ERROR: You are not a [ucstr(%2)] member of that board.;th u(setq`%va,listposts,u(FUN`LISTPOSTS,%q<bb>));th u(setq`%va,readposts,u(FUN`GETREAD,u(strfirstof`%va,%8,%#),%q<bb>))
 @@ %0 - Style, %1 - Board Name/Num. %2 - Type (READ|WRITE|ADMIN). %3 - Omit Override, %4 - Group DBREF?, %8 - SceneSys mode. Alternate enactor dbref!
 
 &FIL`BBNUM [u(cobj,bbs)]=eq(get(%0/ORDER),%1)

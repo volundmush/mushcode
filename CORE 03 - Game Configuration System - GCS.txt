@@ -44,9 +44,12 @@ th u(NEWCONF,config,SYSTEM,ANONYMOUS_NOTICES,0,Hide admin names in sys-messages?
 th u(NEWCONF,config,SYSTEM,HEADER_FILL,=,Border characters.,WORD)
 th u(NEWCONF,config,SYSTEM,SUBHEADER_FILL,=,Border characters.,WORD)
 th u(NEWCONF,config,SYSTEM,SEPARATOR_FILL,-,Border characters.,WORD)
+th u(NEWCONF,config,SYSTEM,FOOTER_FILL,=,Border characters.,WORD)
 th u(NEWCONF,config,SYSTEM,REQUIRE_APPROVAL,0,Game requires chargen approval?,BOOL)
 th u(NEWCONF,config,SYSTEM,TIMEZONE,UTC,Default Timezone?,TZ)
 th u(NEWCONF,config,SYSTEM,NAMELINK,+finger,|-delimited Commands for names?,LIST)
+th u(NEWCONF,config,SYSTEM,BORDER_MODE,0,0 = No edges. 1 = + edges. 2 = slash-edges,WORD)
+
 th u(NEWCONF,config,CHANNELS,JOIN_PLAYERS,,Default Channels for Players.,LIST)
 th u(NEWCONF,config,CHANNELS,JOIN_ADMIN,,Default Channels for new Admin.,LIST)
 th u(NEWCONF,config,CHANNELS,STAFF_ALERTS,,Default Channels for Staff Alerts.,LIST)

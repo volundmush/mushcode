@@ -2,9 +2,9 @@
 
 th u(NEWCOBJ,Desc Management System <DMS>,dms,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&CMD`+DESC`PENNMUSH [u(cobj,dms)]=$^(?s)(?\:\+)?desc(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+DESC`MAIN
+&CMD`+DESC`PENNMUSH [u(cobj,dms)]=$^(?s)\+desc(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+DESC`MAIN
 @set [u(cobj,dms)]/CMD`+DESC`PENNMUSH=regexp
-&CMD`+DESC`RHOSTMUSH [u(cobj,dms)]=$^(?s)(?\:\+)?desc(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+DESC`MAIN
+&CMD`+DESC`RHOSTMUSH [u(cobj,dms)]=$^(?s)\+desc(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+DESC`MAIN
 @set [u(cobj,dms)]/CMD`+DESC`RHOSTMUSH=regexp
 &CMD`+DESC`MAIN [u(cobj,dms)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
 @set [u(cobj,dms)]/CMD`+DESC`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command

@@ -43,8 +43,8 @@ th set(parent(%#),VA:[first(version())])
 &STARTUP [u(cobj,mco)]=@dolist/inline u(lattr`%va,%!/STARTUP`*)={@include/nobreak %!/##}
 
 &STARTUP`FUNCTIONS [u(cobj,mco)]=@include %!/STARTUP`FUNCTIONS`%va
-&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,mco),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
-&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle,v(FUNCTIONLIST`EXTRA))={@function/privileged vol_%d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=vol_%d0 wizard};@dolist/inline moniker lvplayers lvthings lvexits objid align lalign sortkey strfirstof table width=@function/privileged %d0=%!/%d0
+&STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,mco),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle,v(FUNCTIONLIST`EXTRA))={@function/privileged vol_%d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=vol_%d0 wizard};@dolist/inline moniker lvplayers lvthings lvexits objid align lalign sortkey strfirstof table width=@function/privileged %d0=%!/%d0
 
 &FUNCTIONLIST`EXTRA [u(cobj,mco)]=
 &FUNCTIONLIST`ADMIN [u(cobj,mco)]=
@@ -206,7 +206,9 @@ th set(parent(%#),VA:[first(version())])
 &MONIKER`PENNMUSH [u(cobj,mco)]=localize(if(%1,if(setr(col,strfirstof(u(color`Pennmush,%1,NAMES,%0,,1),switch(1,strmatch(num(%0),num(%1)),u(color`Pennmush,%1,NAMES,MINE,,1),strmatch(num(%0),%#),u(color`Pennmush,%1,NAMES,SPEAKER,,1),u(color`Pennmush,%1,NAMES,OTHER,,1)))),ansi(%q<col>,name(%0)),moniker(%0)),moniker(%0)))
 &MONIKER`RHOSTMUSH [u(cobj,mco)]=cname(%0)
 
-&NAMELINK [u(cobj,mco)]=localize(u(mxpmenu`%va,u(moniker`%va,%0,%1),iter(u(setr`%va,com,u(game_config,SYSTEM,NAMELINK)),%i0 [name(%0)],|,|),%q<com>))
+&NAMELINK [u(cobj,mco)]=u(NAMELINK`%va,%0,%1)
+&NAMELINK`PENNMUSH [u(cobj,mco)]=localize(u(mxpmenu`%va,u(moniker`%va,%0,%1),iter(u(setr`%va,com,u(game_config,SYSTEM,NAMELINK)),%i0 [name(%0)],|,|),%q<com>))
+&NAMELINK`RHOSTMUST [u(cobj,mco)]=name(%0)
 
 &NAMEGRAB [u(cobj,mco)]=u(NAMEGRAB`%va,%0,%1)
 &NAMEGRAB`PENNMUSH [u(cobj,mco)]=namegrab(%0,%1)
@@ -452,12 +454,19 @@ th set(parent(%#),VA:[first(version())])
 &GETPROPERTY`ALLRANKLIST [u(cobj,mco)]=localize(if(words(u(setr`%va,facs,u(GETPROPERTY`GROUPS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`RANK,%0,%i0),%b,beep()),beep(),if(%1,%R,\,%b))))
 &GETPROPERTY`ALLRANKLISTLINE [u(cobj,mco)]=u(GETPROPERTY`ALLRANKLIST,%0,1)
 
+&GETPROPERTY`MAJORDIV [u(cobj,mco)]=if(isdbref(u(setr,mdb,u(GETPROPERTY`MAJORDB,%0))),if(u(nattr,%0/D`GROUP`%q<mdb>`DIVISION`*`RANK),if(u(setr,div,localize([u(setq,gid1,%q<mdb>)][last(first(u(filter,INDIV,u(u(cobj,gms)/SORTDIV,u(lattr,%q<mdb>/DIVISION`*)),%b,%b,%q<gid1>,objid(%0))),`)])),%q<div>)))
+&GETPROPERTY`MAJORDIVNAME [u(cobj,mco)]=if(u(getproperty`majordiv,%0),get(%q<mdb>/DIVISION`%q<div>))
+&GETPROPERTY`MAJORDIVRANK [u(cobj,mco)]=if(u(getproperty`majordiv,%0),get(%q<mdb>/DIVISION`%q<div>`RANK`[get(%0/D`GROUP`%q<mdb>`DIVISION`%q<div>`RANK)]))
+&GETPROPERTY`MAJORDIVRANKNUM [u(cobj,mco)]=if(u(getproperty`majordiv,%0),get(%0/D`GROUP`%q<mdb>`DIVISION`%q<div>`RANK))
+
 &SORTGROUPS [u(cobj,mco)]=localize(u(SORTGROUPS`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B)))
 &SORTGROUPS`PENNMUSH [u(cobj,mco)]=u(setq`%va,min,u(filter,MINOR,%0))[u(setq`%va,maj,u(filter,MAJOR,%0))][squish(sortkey(#lambda/default(\%0/SET`SORT,99),%q<maj>,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))%b[sortkey(#lambda/default(\%0/SET`SORT,99),%q<min>,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))])]
 &SORTGROUPS`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(default(%0/SET`SORT,99),default(%1/SET`SORT,99))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 
 &FIL`MAJOR [u(cobj,mco)]=t(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR))
 &FIL`MINOR [u(cobj,mco)]=not(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR))
+
+&FIL`INDIV [u(cobj,mco)]=hasattr(%2/D`GROUP`%1`%0`RANK)
 
 @@ cand(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR),strmatch(FACTION,u(u(cobj,gms)/FUN`GETSET,%0,TYPE)))
 &FIL`MAJORGROUPS [u(cobj,mco)]=u(u(cobj,gms)/FUN`GETSET,%0,MAJOR)
@@ -597,15 +606,17 @@ th set(parent(%#),VA:[first(version())])
 &COLOR`PENNMUSH [u(cobj,mco)]=localize(strfirstof(u(player_config`pennmush,%0,%1,%2),u(player_config`pennmush,%0,COLOR,%2),if(%4,,strfirstof(u(game_config,COLOR,%2),n))))
 &COLOR`RHOSTMUSH [u(cobj,mco)]=localize(u(strfirstof`%va,u(player_config`%va,%0,%1,%2),u(player_config`%va,%0,COLOR,%2),if(%4,,u(strfirstof`%va,u(game_config,COLOR,%2),n))))
 
-&HEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,HEADER,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))][u(setr`%va,borderstar,ansi(u(color`%va,%q<target>,COLOR,HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color`%va,%q<target>,COLOR,HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&HEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,u(strfirstof,%3,u(game_config,SYSTEM,BORDER_MODE)),HEADER,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))][u(setr`%va,borderstar,ansi(u(color`%va,%q<target>,COLOR,HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color`%va,%q<target>,COLOR,HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
 &SUBHEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color`%va,%q<target>,COLOR,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
 &SEPARATOR [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color`%va,%q<target>,COLOR,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&HEADER`PREP [u(cobj,mco)]=u(setq`%va,target,u(firstof`%va,owner(u(firstof`%va,%0,%#))))[u(setq`%va,bordercolor,u(color`%va,%q<target>,COLOR,BORDER))][u(setq`%va,bordermode,%1)][u(setq`%va,width,sub(u(strfirstof`%va,%3,u(width`%va,%q<target>)),if(%q<bordermode>,2,0)))][u(setq`%va,fill,u(game_config,SYSTEM,%2_FILL))]
+&FOOTER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,u(strfirstof,%3,u(game_config,SYSTEM,BORDER_MODE)),FOOTER,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color`%va,%q<target>,COLOR,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&HEADER`RENDER [u(cobj,mco)]=u(setr`%va,end,if(%q<bordermode>,ansi(%q<bordercolor>,+)))[u(center`%va,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>
+&HEADER`PREP [u(cobj,mco)]=u(setq`%va,target,u(firstof`%va,owner(u(firstof`%va,%0,%#))))[u(setq`%va,bordercolor,u(color`%va,%q<target>,COLOR,BORDER))][u(setq`%va,bordermode,%1)][u(setq`%va,width,sub(u(strfirstof`%va,%3,u(width`%va,%q<target>)),2))][u(setq`%va,fill,u(game_config,SYSTEM,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,u(setq`%va,start,ansi(%q<bordercolor>,/))[u(setq`%va,end,ansi(%q<bordercolor>,chr(92)))],FOOTER,u(setq`%va,start,ansi(%q<bordercolor>,chr(92)))[u(setq`%va,end,ansi(%q<bordercolor>,/))]),1,u(setq`%va,start,u(setr`%va,end,ansi(%q<bordercolor>,+))),u(setq`%va,start,u(setr`%va,end,ansi(%q<bordercolor>,%q<fill>))))]
+
+&HEADER`RENDER [u(cobj,mco)]=%q<start>[u(center`%va,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>
 
 @@ HEADER family args: %0 - Title. %1 - Viewer dbref. %2 - True: Do not color title. %3 - Border mode bool. %4 - Width.
 

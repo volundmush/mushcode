@@ -43,7 +43,7 @@ th u(NEWCOBJ,Radio Management System <RADIO>,radio,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`CODENAME [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@select/inline strlen(%1)=0,{@attach %!/INC`MSG=Radio Slot %q<slotname>'s Codename has been Cleared!;&%q<slot>`CODENAME %#},{th u(setq`%va,codename,trim(%1));@stop u(charsearch,%q<codename>,%r %t)=@attach %!/INC`MSG=ERROR: Codenames may not contain linebreaks or tabs.;@stop gt(strlen(%q<codename>),u(PLAYER_NAME_LEN))=@attach %!/INC`MSG=ERROR: Codename is beyond the allowed [u(PLAYER_NAME_LEN)] characters.;@stop words(setdiff(switch(%va,PennMUSH,lsearch(all,eplayer,\[strlen(wildgrepi(##,D`RADIO`*`CODENAME,%q<codename>))\]),RhostMUSH,EPLAYER=\[strlen(u(wildgrepi`%va,##,D`RADIO`*`CODENAME,%q<codename>))\]),%#))=@attach %!/INC`MSG=ERROR: Another player is already using that Codename.;@stop pmatch(%q<codename>)=@attach %!/INC`MSG=ERROR: Codenames may not match any player's name or alias.;@attach %!/INC`MSG=Your Codename on Radio Slot %q<slotname> is now: %q<codename>;&%q<slot>`CODENAME %#=%q<codename>}
 
-&INC`TITLE [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@select/inline strlen(%1)=0,{@attach %!/INC`MSG=Radio Slot %q<slotname>'s Title has been Cleared!;&@attach %!/WIPE=%#,%q<slot>`TITLE},{@stop u(charsearch,%1,%r %t)=@attach %!/INC`MSG=ERROR: Titles may not contain linebreaks or tabs.;@stop gt(strlen(%1),u(PLAYER_NAME_LEN))=@attach %!/INC`MSG=That radio title is too long!;@attach %!/INC`MSG=Your Title on Radio Slot %q<slotname> is now: %1;&%q<slot>`TITLE %#=%1}
+&INC`TITLE [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@select/inline strlen(%1)=0,{@attach %!/INC`MSG=Radio Slot %q<slotname>'s Title has been Cleared!;@attach %!/WIPE=%#,%q<slot>`TITLE},{@stop u(charsearch,%1,%r %t)=@attach %!/INC`MSG=ERROR: Titles may not contain linebreaks or tabs.;@stop gt(strlen(%1),u(PLAYER_NAME_LEN))=@attach %!/INC`MSG=That radio title is too long!;@attach %!/INC`MSG=Your Title on Radio Slot %q<slotname> is now: %1;&%q<slot>`TITLE %#=%1}
 
 &INC`KEY [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@select/inline strlen(%1)=0,{@attach %!/INC`MSG=Radio Slot %q<slotname>'s Encryption Key has been Cleared!;&%q<slot>`KEY %#},{@attach %!/INC`MSG=Radio Slot %q<slotname>'s Encryption Key is now: %1;&%q<slot>`KEY %#=%1}
 
@@ -61,8 +61,8 @@ th u(NEWCOBJ,Radio Management System <RADIO>,radio,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`EMIT [u(cobj,radio)]=@select/inline regmatchi(%0,^\\d+\.\\d+$)=0,{@attach %!/INC`CHECKSLOT},1,{th u(setq`%va,freq,%0)};@attach %!/INC`BROADCAST=%0,%1,1
 
-&INC`ENABLE [u(cobj,radio)]=@select/inline isdbref(u(setr`%va,log,u(FUN`FINDFREQ,%1)))=0,{@tel [u(setr`%va,log,create(FREQ: %1))]=[u(cobj,radio)]};&MEMBERS %q<log>=setunion(get(%q<log>/MEMBERS),%0)
-&INC`DISABLE [u(cobj,radio)]=@select/inline isdbref(u(setr`%va,log,u(FUN`FINDFREQ,%1)))=0,{@tel [u(setr`%va,log,create(FREQ: %1))]=[u(cobj,radio)]};&MEMBERS %q<log>=setdiff(get(%q<log>/MEMBERS),%0)
+&INC`ENABLE [u(cobj,radio)]=@select/inline isdbref(u(setr`%va,log,u(FUN`FINDFREQ,%1)))=0,{@tel [u(setr`%va,log,create(FREQ: %1))]=[u(cobj,radio)]};&MEMBERS %q<log>=setunion(get(%q<log>/MEMBERS),%0);&GAGGED %q<log>=setdiff(get(%q<log>/GAGGED),%0)
+&INC`DISABLE [u(cobj,radio)]=@select/inline isdbref(u(setr`%va,log,u(FUN`FINDFREQ,%1)))=0,{@tel [u(setr`%va,log,create(FREQ: %1))]=[u(cobj,radio)]};&MEMBERS %q<log>=setdiff(get(%q<log>/MEMBERS),%0);&GAGGED %q<log>=setdiff(get(%q<log>/GAGGED),%0)
 
 &INC`ENABLE`GAG [u(cobj,radio)]=@select/inline isdbref(u(setr`%va,log,u(FUN`FINDFREQ,%1)))=0,{@tel [u(setr`%va,log,create(FREQ: %1))]=[u(cobj,radio)]};&GAGGED %q<log>=setdiff(get(%q<log>/GAGGED),%0);th u(setstat,%0,D`RADIO,GAG,setdiff(u(getstat,%0,D`RADIO,Gag),%q<log>))
 
