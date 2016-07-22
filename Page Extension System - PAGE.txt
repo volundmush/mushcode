@@ -13,14 +13,14 @@ th u(NEWCOBJ,Page Extension System,page,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &STARTUP [u(cobj,page)]=@check strmatch(%va,PennMUSH);@command/add reply;@command/alias reply=r;@hook/override/inline reply=%!,CMD`REPLY;@command/add repage;@hook/override/inline repage=%!,CMD`RETELL;@hook/after page=%!,FUN`LASTPAGEDBY
 
-&CMD`+IGNORE [u(cobj,page)]=$^(?s)(?\:\+)?ignore(?\:/(\S+)?)?(?\: +(.*))?$:@include u(ccs)/INC`GETSWITCH=%1;@include %!/INC`[strfirstof(%1,MAIN)]=%2
+&CMD`+IGNORE [u(cobj,page)]=$^(?s)(?\:\+)?ignore(?\:/(\S+)?)?(?\: +(.*))?$:@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[strfirstof(%1,MAIN)]=%2
 @set u(cobj,page)/CMD`+IGNORE=regexp
 
 &SYSTEM`NAME [u(cobj,page)]=PAGE
 
-&INC`MAIN [u(cobj,page)]=@select/inline strmatch(setr(old,lock(%#/PAGE)),*!DBREFLIST^IGNORELIST*)=0,{@lock/page %#=!DBREFLIST^IGNORELIST;@include u(ccs)/INC`MSG=PAGE,%#,{Your @lock/page was replaced for +ignore to work. It was: %q<old>}};@select/inline strlen(%0)=0,{@include u(page)/INC`LIST},{@include u(ccs)/INC`CHECKPC=%0,1,PAGE;@select/inline t(match(get(%#/IGNORELIST),%q<t1objid>))=1,{&IGNORELIST %#=filterbool(#lambda/isobjid(\%0),setdiff(get(%#/IGNORELIST),%q<t1objid>));@include u(ccs)/INC`MSG=PAGE,%#,{%q<t1name> is no longer page-ignored.}},0,{&IGNORELIST %#=filterbool(#lambda/isobjid(\%0),setunion(get(%#/IGNORELIST),%q<t1objid>));@include u(ccs)/INC`MSG=PAGE,%#,{%q<t1name> is now page-ignored.}}}
+&INC`MAIN [u(cobj,page)]=@select/inline strmatch(setr(old,lock(%#/PAGE)),*!DBREFLIST^IGNORELIST*)=0,{@lock/page %#=!DBREFLIST^IGNORELIST;@attach %!/INC`MSG=Your @lock/page was replaced for +ignore to work. It was: %q<old>};@select/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`CHECKPC=%0,1;@select/inline t(match(get(%#/IGNORELIST),%q<t1objid>))=1,{&IGNORELIST %#=u(filter,ISOBJID,setdiff(get(%#/IGNORELIST),%q<t1objid>));@include %!/INC`MSG=%q<t1name> is no longer page-ignored.},0,{&IGNORELIST %#=u(filter,ISOBJID,setunion(get(%#/IGNORELIST),%q<t1objid>));@attach %!/INC`MSG=%q<t1name> is now page-ignored.}}
 
-&INC`LIST [u(cobj,page)]=@include %!/INC`MSG={You are Ignoring: [strfirstof(itemize(iter(filterbool(#lambda/isobjid(\%0),get(%#/IGNORELIST)),name(%i0),%b,|),|,and,\,),Nobody!)]}
+&INC`LIST [u(cobj,page)]=@attach %!/INC`MSG={You are Ignoring: [strfirstof(itemize(iter(u(filter,ISOBJID,get(%#/IGNORELIST)),name(%i0),%b,|),|,and,\,),Nobody!)]}
 
 @@ COMMUNICATIONS - PAGE
 +help/add Page=[u(cobj,page)]/HLP`PAGE

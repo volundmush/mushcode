@@ -9,7 +9,7 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,ams),,1,WIZARD SAFE,SID
 th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 @power u(cobj,bandb)=many_attribs
 
-&SYSTEM`SWITCHES [u(cobj,ams)]=setunion(setunion(v(SWITCHES`%q<sysname>`PLAYER),if(u(isadmin`%va,%#),v(SWITCHES`%q<sysname>`ADMIN)),|,|),if(u(OPEN_CREATION),v(SWITCHES`%q<sysname>`OPEN_CREATION)),|,|)
+&SYSTEM`SWITCHES [u(cobj,ams)]=setunion(setunion(u(SWITCHES`%q<sysname>`PLAYER),if(u(isadmin`%va,%#),u(SWITCHES`%q<sysname>`ADMIN)),|,|),if(u(OPEN_CREATION),v(SWITCHES`%q<sysname>`OPEN_CREATION)),|,|)
 &SYSTEM`NAME [u(cobj,ams)]=u(strfirstof`%va,%q<sysname>,ACCOUNT)
 
 @@ ****** ACCOUNT SECTION *******
@@ -246,13 +246,19 @@ th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WOR
 &PLAYER`CONNECT`STAFFDUTY [u(cobj,ams)]=@check cand(get(%0/D`STAFF),u(player_config`%va,%0,LOGIN,STATUS));@wait 3={@attach %!/INC`MSG=You are [if(hasflag(%0,DARK),DARK,not Dark)], [if(hidden(%0),Hidden,not Hidden)] and [if(get(%0/D`STAFF`VACATION),on Vacation,if(default(%0/D`STAFF`DUTY,0),On Duty,Off Duty))].}
 
 @@ ******** IDLERS SECTION ******
-&CMD`+IDLERS [u(cobj,ams)]=$^(?\:\+)?(idlers)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/INC`GETSWITCH=%2;@attach %!/INC`%1`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
-@set [u(cobj,ams)]/CMD`+IDLERS=regexp
+&CMD`+IDLERS`PENNMUSH [u(cobj,ams)]=$^(?\:\+)?idlers(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IDLERS`MAIN
+@set [u(cobj,ams)]/CMD`+IDLERS`PENNMUSH=regexp
+&CMD`+IDLERS`RHOSTMUSH [u(cobj,ams)]=$^(?\:\+)?idlers(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IDLERS`MAIN
+@set [u(cobj,ams)]/CMD`+IDLERS`RHOSTMUSH=regexp
+&CMD`+IDLERS`MAIN [u(cobj,ams)]=th u(setq`%va,sysname,IDLERS);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`IDLERS`MAIN=%2,%3,%q<switch>
+@set [u(cobj,ams)]/CMD`+IDLERS`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&INC`IDLERS`MAIN [u(cobj,ams)]=@select/inline gt(strlen(%0),0)=1,{@attach %!/INC`VALID`POSINT=%0,Days},{th u(setq`%va,value,30)};@check words(u(setr`%va,idlers,sortkey(#lambda/convtime(get(\%0/LASTLOGOUT)),setdiff(lsearch(all,eplayer,\[cand(gt(sub(secs(),convtime(get(##/LASTLOGOUT))),mul(86400,%q<value>)),not(u(isguest`%va,##)),not(u(isadmin`%va,##)),not(gte(conn(##),0)))\]),num(u(cobj,ancestor_player))),n)))=@attach %!/INC`MSG=Nobody's been offline longer than %q<value>.;@pemit %#=u(header,Players over %q<value> Days Idle)%R[ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(-6 3 2 3 4 21 4 21 6,Dbref,Sta,Al,Fac,Type,Name,Mail,IP,LastOn))]%R[u(separator)];@dolist/inline %q<idlers>=@pemit %#=u(FUN`ACCOUNT`CHARLINE,%i0);@pemit %#=u(subheader)
+&INC`IDLERS`MAIN [u(cobj,ams)]=@select/inline gt(strlen(%0),0)=1,{@attach %!/INC`VALID`POSINT=%0,Days},{th u(setq`%va,value,30)};@check words(u(setr`%va,idlers,sortkey(#lambda/convtime(get(\%0/LASTLOGOUT)),setdiff(lsearch(all,eplayer,\[cand(gt(sub(secs(),convtime(get(##/LASTLOGOUT))),mul(86400,%q<value>)),not(u(isguest`%va,##)),not(u(isadmin`%va,##)),not(gte(conn(##),0)))\]),num(u(cobj,ancestor_player))),n)))=@attach %!/INC`MSG=Nobody's been offline longer than %q<value>.;@select/inline strlen(%2)=>0,{@check words(u(setr`%va,idlers,u(filter,CHARTYPE,%q<idlers>,%b,%b,%2)))=@attach %!/INC`MSG=No idling characters are type %2.};@pemit %#=u(header,if(strlen(%2),%2%B)Players over %q<value> Days Idle)%R[ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(-6 3 2 3 4 21 4 21 6,Dbref,Sta,Al,Fac,Type,Name,Mail,IP,LastOn))]%R[u(separator)];@dolist/inline %q<idlers>=@pemit %#=u(FUN`ACCOUNT`CHARLINE,%i0);@pemit %#=u(footer)
 
 &SWITCHES`IDLERS`ADMIN [u(cobj,ams)]=
-&SWITCHES`IDLERS`PLAYER [u(cobj,ams)]=
+&SWITCHES`IDLERS`PLAYER [u(cobj,ams)]=u(game_config,FCLIST,TYPES)
+
+&FIL`CHARTYPE [u(cobj,ams)]=strmatch(default(%0/D`FINGER`TYPE,OC),%1)
 
 @@ SQL SECTION
 

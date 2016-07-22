@@ -12,9 +12,9 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 @select/inline isdbref(u(setr`%va,builder,pmatch(Buildstaff)))=1,{&COBJ`BUILDSTAFF [u(cobj,mco)]=objid(%q<builder>)},0,{@pcreate Buildstaff=[digest(md5,secs())];&COBJ`BUILDSTAFF [u(cobj,mco)]=objid(pmatch(Builderstaff))}
 @select/inline %va=PennMUSH,{@lock/zone u(cobj,buildstaff)=POWER^BUILDER;@set u(cobj,buildstaff)=!UNREGISTERED SHARED;@power u(cobj,buildstaff)=no_pay no_quota;@lset u(cobj,buildstaff)/zone=visual},RhostMUSH,{}
 
-&CMD`+GRID`PENNMUSH [u(cobj,grid)]=$^(?s)(?\:\+)?(district|dig|open|convert|builder)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
+&CMD`+GRID`PENNMUSH [u(cobj,grid)]=$^(?s)\+(district|dig|open|convert|builder)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
 @set [u(cobj,grid)]/CMD`+GRID`PENNMUSH=regexp
-&CMD`+GRID`RHOSTMUSH [u(cobj,grid)]=$^(?s)(?\:\+)?(district|dig|open|convert|builder)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
+&CMD`+GRID`RHOSTMUSH [u(cobj,grid)]=$^(?s)\+(district|dig|open|convert|builder)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
 @set [u(cobj,grid)]/CMD`+GRID`RHOSTMUSH=regexp
 &CMD`+GRID`MAIN [u(cobj,grid)]=th u(setq`%va,systype,%1);@attach %!/INC`GETSWITCH=%2;@attach %!/INC`%q<systype>`[u(strfirstof`%va,%q<switch>,MAIN)]=%3,%4
 @set [u(cobj,grid)]/CMD`+GRID`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
@@ -68,6 +68,7 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 th u(NEWCONF,config,NAVIGATION,IC_NEXUS,#-1,Room +nexus leads to or default +ic,DBREF)
 th u(NEWCONF,config,NAVIGATION,OOC_NEXUS,#-1,Room +ooc leads to.,DBREF)
 
+
 &CMD`+IC [u(cobj,grid)]=$ic:@stop u(isic,%#)=@attach %!/INC`MSG=You're already IC.;@check u(approved,%#)=@attach %!/INC`MSG=You are not approved!;@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@select/inline cand(isobjid(u(setr`%va,dest,get(%#/D`ICLOC))),u(isic,%q<dest>))=0,{@attach %!/INC`MSG=Your last IC location is no longer valid. Choose a new one from the exits in the starting nexus.;@check isdbref(u(setr`%va,dest,u(game_config,NAVIGATION,IC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an IC Nexus set.};@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
 
 &CMD`+OOC [u(cobj,grid)]=$ooc:@check isdbref(u(setr`%va,dest,u(game_config,NAVIGATION,OOC_NEXUS)))=@attach %!/INC`MSG=ERROR: This game does not have an OOC Nexus set.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@select/inline u(isic,%#)=0,{@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already in the OOC Nexus.;@attach %!/INC`MSG=You are already OOC. Returning you to the OOC Nexus.};@select/inline u(isic,%#)=1,{&D`ICLOC %#=objid(%l)};@attach %!/INC`RELOCATE=%#,%q<dest>
@@ -116,6 +117,18 @@ th u(NEWCONF,config,NAVIGATION,OOC_NEXUS,#-1,Room +ooc leads to.,DBREF)
 &CMD`+RETURN [u(cobj,grid)]=$+return:@check isdbref(u(setr`%va,dest,get(%#/D`RETURNTO)))=@attach %!/INC`MSG=ERROR: You have nowhere to return to.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>;@attach %!/INC`MSG=You return to your previous location.;@wipe %q<t1>/D`RETURNTO
 
 &CMD`+RETURN`OTHER [u(cobj,grid)]=$+return *:@stop cor(u(isguest,%#),not(u(isadmin`%va,%#)))=@pemit %#=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=%0,1;@check isdbref(u(setr`%va,dest,get(%q<t1>/D`RETURNTO)))=@attach %!/INC`MSG=ERROR: %q<t1name> has nowhere to return to.;@attach %!/INC`RELOCATE=%q<t1>,%q<dest>;@attach %!/INC`MSG=You have been returned to your previous location by admin.,%q<t1>;@wipe %q<t1>/D`RETURNTO
+
+th u(NEWCONF,config,IDLESWEEP,DESTINATION,#-1,Room idlers go to.,DBREF)
+th u(NEWCONF,config,IDLESWEEP,INTERVAL,3600,Time between sweeps.,DURATION)
+th u(NEWCONF,config,IDLESWEEP,ENABLE,0,Use idle sweep system?,BOOL)
+th u(NEWCONF,config,IDLESWEEP,CHECK_TIME,28800,Idle time required to be swept up.,DURATION)
+
+&STARTUP [u(cobj,grid)]=@trigger %!/LOOP`IDLESWEEP
+&LOOP`IDLESWEEP [u(cobj,grid)]=@select/inline u(game_config,IDLESWEEP,ENABLE)=>0,{@select/inline isdbref(u(setr`%va,dest,u(game_config,IDLESWEEP,DESTINATION)))=1,{@select/inline words(u(setr`%va,idlers,u(filter,NOTADMIN,u(filter,LOCCHECK,u(filter,OVERIDLE,u(lwhoid),%b,%b,u(game_config,IDLESWEEP,CHECK_TIME)),%b,%b,num(%q<dest>)))))=>0,{@attach %!/INC`MSG`NOTICE=You are being moved to the idle room due to inactivity.,%q<idlers>;@tel/list %q<idlers>=%q<dest>}}};@wait u(game_config,IDLESWEEP,INTERVAL)=@trigger %!/LOOP`IDLESWEEP
+
+&FIL`NOTADMIN [u(cobj,grid)]=not(u(isadmin,%0))
+&FIL`OVERIDLE [u(cobj,grid)]=gte(idle(%0),%1)
+&FIL`LOCCHECK [u(cobj,grid)]=not(strmatch(loc(%0),%1))
 
 @@ NAVIGATION - INVITE
 +help/add +invite=[u(cobj,grid)]/HLP`INVITE

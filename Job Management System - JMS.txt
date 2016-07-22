@@ -19,7 +19,7 @@ th u(newconf,PCONF,JOBS,BRIEF_SCAN,0,ADMIN: +job/brief instead of +job/pending o
 @set [u(cobj,jms)]/CMD`+JOB`PENNMUSH=regexp
 &CMD`+JOB`RHOSTMUSH [u(cobj,jms)]=$^(?s)(?\:\+)?(job|jobs|myjobs|myjob)(?\:/(\\S+)?)?(?\: +(.*?))?(?\:=(.*))?$:@attach %!/CMD`+JOB`MAIN
 @set [u(cobj,jms)]/CMD`+JOB`RHOSTMUSH=regexp
-&CMD`+JOB`MAIN [u(cobj,jms)]=@attach %!/INC`GETSWITCH=%2;th u(setq`%va,mode,switch(%1,myjob*,MYJOBS,job*,JOBS));@attach %!/INC`PLAYERID=%:;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=trim(%3),trim(%4)
+&CMD`+JOB`MAIN [u(cobj,jms)]=@stop u(isguest`%va,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`GETSWITCH=%2;th u(setq`%va,mode,switch(%1,myjob*,MYJOBS,job*,JOBS));@attach %!/INC`PLAYERID=%:;@attach %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=trim(%3),trim(%4)
 @set [u(cobj,jms)]/CMD`+JOB`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,jms)]=JOBS
@@ -30,7 +30,7 @@ th u(newconf,PCONF,JOBS,BRIEF_SCAN,0,ADMIN: +job/brief instead of +job/pending o
 @set [u(cobj,jms)]/CMD`+REQUEST`PENNMUSH=regexp
 &CMD`+REQUEST`RHOSTMUSH [u(cobj,jms)]=$^(?s)\+request(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REQUEST`MAIN
 @set [u(cobj,jms)]/CMD`+REQUEST`RHOSTMUSH=regexp
-&CMD`+REQUEST`MAIN [u(cobj,jms)]=@attach %!/INC`PARTIAL=u(strfirstof`%va,%1,u(game_Config,JOBS,DEFAULT_CATEGORY)),u(setr`%va,valcats,iter(u(FUN`VALIDCATS,%#,POST),name(%i0),%b,|)),|,Category,Category;@attach %!/INC`REQUEST=trim(%2),trim(%3),%q<category>,%:
+&CMD`+REQUEST`MAIN [u(cobj,jms)]=@stop u(isguest`%va,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`PARTIAL=u(strfirstof`%va,%1,u(game_Config,JOBS,DEFAULT_CATEGORY)),u(setr`%va,valcats,iter(u(FUN`VALIDCATS,%#,POST),name(%i0),%b,|)),|,Category,Category;@attach %!/INC`REQUEST=trim(%2),trim(%3),%q<category>,%:
 @set [u(cobj,jms)]/CMD`+REQUEST`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &INC`REQUEST [u(cobj,jms)]=th u(setq`%va,subm,u(strfirstof`%va,objid(%3),%:));@check strlen(%0)=@attach %!/INC`MSG=Available Job categories: [u(itemize`%va,%q<valcats>,|,and,\,)],%q<subm>;@check strlen(%1)=@attach %!/INC`MSG=The Request text field is empty! What are you asking staff?,%q<subm>;@attach %!/INC`PLAYERID=%q<subm>;@select/inline t(%2)=1,{@attach %!/INC`FINDCAT=%2};@attach %!/INC`DOSQL=NEW`REQUEST,%q<pid>,%q<cat>,%0,%1,add(secs(),u(FUN`CONF,%q<cat>,DUE));th u(setr`%va,jid,u(mysql,get`newjob,%q<pid>));@attach %!/INC`AMSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] has been created[if(%q<cat>,%bunder '%q<catname>')] by [u(FUN`MASKNAME,%q<cat>)].};@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
@@ -312,7 +312,7 @@ th u(newconf,pconf,JOBS,MAIL,1,Receive mail from JobSys?,BOOL)
 @trigger [u(cobj,jms)]/TRG`INSTALL
 
 &PLAYER`CONNECT [u(cobj,jms)]=@dolist/inline u(lattr`%va,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&PLAYER`CONNECT`MYJOBS [u(cobj,jms)]=@stop u(isguest,%0);@wait 2=@select/inline u(isadmin`%va,%0)=1,{@select/inline u(player_config`%va,%0,JOBS,BRIEF_SCAN)=1,{@force %0=+job/brief},{@force %0=+job/scan}},0,{@force %0=+myjobs}
+&PLAYER`CONNECT`MYJOBS [u(cobj,jms)]=@stop u(isguest`%va,%0);@wait 2=@select/inline u(isadmin`%va,%0)=1,{@select/inline u(player_config`%va,%0,JOBS,BRIEF_SCAN)=1,{@force %0=+job/brief},{@force %0=+job/scan}},0,{@force %0=+myjobs}
 
 
 

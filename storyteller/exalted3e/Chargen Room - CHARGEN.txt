@@ -17,7 +17,7 @@
 &FUN`STATS [u(cobj,chargen)]=[u(SEPARATOR,Progress)]%R[ansi(h,ATTRIBUTES:)] [rjust(u(FUN`COUNT,%0,ATTRIBUTES),2,0)]. Physical/Social/Mental: [rjust(add(u(getstat,%0,D`ATTRIBUTES,Strength),u(getstat,%0,D`ATTRIBUTES,Dexterity),u(getstat,%0,D`ATTRIBUTES,Stamina)),2,0)]/[rjust(add(u(getstat,%0,D`ATTRIBUTES,Charisma),u(getstat,%0,D`ATTRIBUTES,Manipulation),u(getstat,%0,D`ATTRIBUTES,Appearance)),2,0)]/[rjust(add(u(getstat,%0,D`ATTRIBUTES,Perception),u(getstat,%0,D`ATTRIBUTES,Intelligence),u(getstat,%0,D`ATTRIBUTES,Wits)),2,0)]%R[ansi(h,ABILITIES:)] [rjust(add(u(FUN`COUNT,%0,ABILITIES),u(FUN`COUNT,%0,STYLES),u(FUN`COUNT,%0,CRAFTS)),2,0)]/[rjust(u(strfirstof`%va,v(MAX`ABILITIES`[u(setr`%va,class,getclass(%0))]),??),2,0)]%R[ansi(h,MERITS:)] [rjust(u(FUN`COUNT`MERITS,%0),2,0)]/[rjust(u(strfirstof`%va,v(MAX`MERITS`%1),??),2,0)]%R[ansi(h,CHARMS:)] [rjust(add(u(FUN`COUNT`CHARMS,%0),u(FUN`COUNT`SPELLS,%0)),2,0)]/[rjust(u(strfirstof`%va,v(MAX`CHARMS`%1),??),2,0)]
 
 &FUN`COUNT [u(cobj,chargen)]=u(ladd`%va,iter(get(%0/D`%1),last(%i0,~),|,%b))
-&FUN`COUNT`MERITS [u(cobj,chargen)]=u(ladd`%va,iter(u(lattr`%va,%0/D`MERITS`*`RANK),get(%0/%i0)))
+&FUN`COUNT`MERITS [u(cobj,chargen)]=add(u(ladd`%va,iter(u(lattr`%va,%0/D`MERITS`*`RANK),get(%0/%i0))),u(ladd`%va,iter(u(lattr`%va,%0/D`RITUALS`*`RANK),get(%0/%i0))))
 &FUN`COUNT`CHARMS [u(cobj,chargen)]=u(ladd`%va,iter(u(lattr`%va,%0/D`CHARMS`*`*),u(ladd`%va,iter(get(%0/%i0),u(strfirstof`%va,last(%i0,~),1),|,%b))))
 &FUN`COUNT`SPELLS [u(cobj,chargen)]=u(ladd`%va,iter(u(lattr`%va,%0/D`SPELLS`*),u(ladd`%va,iter(get(%0/%i0),u(strfirstof`%va,last(%i0,~),1),|,%b))))
 
@@ -194,7 +194,7 @@
 &MAX`CHARMS`MORTAL [u(cobj,chargen)]=0
 &MAX`CHARMS`SOLAR [u(cobj,chargen)]=15
 
-&CG`5`MORTAL [u(cobj,chargen)]=Mortals cannot learn Charms\, but may learn Sorcery up to the Terrestrial Circle.[if(cor(words(u(wildgrepi`%va,%#,D`MERITS`*,TERRESTIAL CIRCLE SORCERY)),u(wildgrepi`%va,%#,D`MERITS`*,SHAPING RITUAL)),%R%R[u(CG`5`SORCERY)])]
+&CG`5`MORTAL [u(cobj,chargen)]=Mortals cannot learn Charms\, but may learn Sorcery up to the Terrestrial Circle.[if(cor(words(u(wildgrepi`%va,%#,D`MERITS`*,TERRESTIAL CIRCLE SORCERY)),u(nattr`%va,%#,D`RITUAL`*)),%R%R[u(CG`5`SORCERY)])]
 &CG`5`SOLAR [u(cobj,chargen)]=Solars begin play with 15 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(strmatch(Eclipse,u(getstat,%#,D`INFO,Caste)),%R%R[u(CG`5`OTHERCHARMS)])][if(strlen(get(%#/D`STYLES)),%R%R[u(CG`5`MACHARMS)])][if(words(u(wildgrepi`%va,%#,D`MERITS`*,ARTIFACT)),%R%R[u(CG`5`EVOCATIONS)])][if(words(graball(get(%#/D`CHARMS`SOLAR`OCCULT),* CIRCLE SORCERY*,|,|),|),%R%R[u(CG`5`SORCERY)])]
 
 &CG`5`NATIVECHARMS [u(cobj,chargen)]=[ansi(h,+addcharm <category>=<charm1|charm2|charm3|etc>) to add native Charms.]%R[ansi(h,+delcharm <category>=<charm1|charm2|charm3|etc>)] to delete native Charms.%RCategories for your character type's Native Charms: [u(itemize`%va,u(u(cobj,data)/FUN`GET`CHARMTYPES`[u(u(cobj,data)/charmtype,%#)]),|,and,\,)]

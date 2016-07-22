@@ -4,8 +4,8 @@ th u(NEWCOBJ,Places Management System <PLACES>,places,,,,WIZARD SAFE !NO_COMMAND
 @set [u(cobj,places)]/CMD`+PLACES`PENNMUSH=regexp
 &CMD`+PLACES`RHOSTMUSH [u(cobj,places)]=$^(?s)(?\:\+)?places(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+PLACES`MAIN
 @set [u(cobj,places)]/CMD`+PLACES`RHOSTMUSH=regexp
-&CMD`+PLACES`MAIN [u(cobj,places)]=th u(setq,sysname,%1);@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,%4,%2[if(strlen(%3),/%3)]
-@set [u(cobj,places)]/CMD`+PLACES`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+&CMD`+PLACES`MAIN [u(cobj,places)]=th u(setq,sysname,%1);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,%4,%2[if(strlen(%3),/%3)]
+@set [u(cobj,places)]/CMD`+PLACES`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,places)]=
 &SWITCHES`ADMIN [u(cobj,places)]=CREATE|DELETE|CONFIG|RENAME|DESC|SLOT
@@ -21,7 +21,7 @@ th u(NEWCOBJ,Places Management System <PLACES>,places,,,,WIZARD SAFE !NO_COMMAND
 
 &INC`DESC [u(cobj,places)]=@attach %!/INC`FIND;@check strlen(%2)=@attach %!/INC`MSG=ERROR: New desc is empty!;&%q<attr>`DESC %l=%2;@attach %!/INC`MSG=Desc set for '%q<id>: %q<pname>'
 
-&INC`DELETE [u(cobj,places)]=@attach %!/INC`FIND;@attach %!/INC`VERIFY={ansi(hr,WARNING:) This will Delete Place '%q<id>: %q<pname>'. Are you sure? Enter the same command again to verify.},%l/%q<attr>;@trigger u(cobj,places)/TRG`DELETE=%#,%l,%q<attr>;@attach %!/INC`MSG=Place '%q<id>: %q<pname>' deleted!;@wipe %l/%q<attr>
+&INC`DELETE [u(cobj,places)]=@attach %!/INC`FIND;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will Delete Place '%q<id>: %q<pname>'. Are you sure? Enter the same command again to verify.},%l/%q<attr>;@trigger u(cobj,places)/TRG`DELETE=%#,%l,%q<attr>;@attach %!/INC`MSG=Place '%q<id>: %q<pname>' deleted!;@wipe %l/%q<attr>
 
 &INC`CONFIG [u(cobj,places)]=@attach %!/INC`FIND;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Config option empty!;@attach %!/INC`PARTIAL=%1,v(VAR`CONFIG),|,PLACES,choice,choice;@select/inline t(strlen(%2))=1,{@attach u(cobj,places)/VALID`%q<choice>=%2;&%q<attr>`CONFIG`%q<choice> %l=%q<entry>;@attach %!/INC`MSG=Place '%q<id>: %q<pname>' %q<choice> configured to: %q<entry>},0,{&%q<attr>`CONFIG`%q<choice> %l;@attach %!/INC`MSG=Place '%q<id>: %q<pname>' %q<choice> cleared. Set to defaults.}
 
@@ -40,11 +40,11 @@ th u(NEWCOBJ,Places Management System <PLACES>,places,,,,WIZARD SAFE !NO_COMMAND
 
 &INC`SLOT [u(cobj,places)]=@attach %!/INC`FIND;@check strlen(%2)=@attach %!/INC`MSG=ERROR: New slot number empty.;@check u(valnum,%2)=@attach %!/INC`MSG=ERROR: New slot must be a whole, positive number.;@stop hasattr(%l/PLACE`%2)=@attach %!/INC`MSG=ERROR: Slot is already occupied.;@attach %!/INC`MVTREE=%l,%q<attr>,%l,PLACE`%2;@attach %!/INC`MSG=Place '%q<id>: %q<pname>' Relocated to slot %2.
 
-&INC`MAIN [u(cobj,places)]=@check words(u(setr,list,u(sortattr,u(lattr,%l/PLACE`*))))=@attach %!/INC`MSG=There are no Places here!;@pemit %#=u(HEADER,Places at [u(moniker,%l)]);@pemit %#=align(5 25 10 34,ID,Name,Capacity,Occupants);@pemit %#=u(SEPARATOR);@dolist/inline %q<list>={@pemit %#=align(5 25 10 34,last(%i0,`),get(%l/%i0),words(u(setr,occup,u(filter,ISOBJID,get(%l/%i0`OCCUPANTS))))/[u(FUN`CONF,%l,last(%i0,`),MAX)],u(itemize,iter(%q<occup>,name(%i0),%b,|),|,and,\,))};@pemit %#=u(SUBHEADER)
+&INC`MAIN [u(cobj,places)]=@check words(u(setr,list,u(sortattr,u(lattr,%l/PLACE`*))))=@attach %!/INC`MSG=There are no Places here!;@pemit %#=u(HEADER,Places at [u(moniker,%l)]);@pemit %#=align(5 25 10 34,ID,Name,Capacity,Occupants);@pemit %#=u(SEPARATOR);@dolist/inline %q<list>={@pemit %#=align(5 25 10 34,last(##,`),get(%l/##),words(u(setr,occup,u(filter,ISOBJID,get(%l/##`OCCUPANTS))))/[u(FUN`CONF,%l,last(##,`),MAX)],u(itemize,iter(%q<occup>,name(%i0),%b,|),|,and,\,))};@pemit %#=u(SUBHEADER)
 
 @ALEAVE [u(cobj,ancestor_room)]=@trigger me/CLEAN_PLACES=u(objid,%#)
 
-&CLEAN_PLACES [u(cobj,places)]=@dolist/inline u(lattr,%0/PLACE`*`OCCUPANTS)={&%i0 me=u(sortname,setdiff(u(filter,ISOBJID,v(%i0)),%1));@wipe me/PLACE_[num(%1)]};@dolist/inline u(lattr,%1/PLACE_*)={@select/inline isdbref(after(%i0,_))=0,{@wipe %1/%i0}}
+&CLEAN_PLACES [u(cobj,places)]=@dolist/inline u(lattr,%0/PLACE`*`OCCUPANTS)={&## me=u(sortname,setdiff(u(filter,ISOBJID,v(##)),%1));@wipe me/PLACE_[num(%1)]};@dolist/inline u(lattr,%1/PLACE_*)={@select/inline isdbref(after(##,_))=0,{@wipe %1/##}}
 
 &PLAYER`DISCONNECT [u(cobj,places)]=@dolist/inline u(lattr,%!/PLAYER`DISCONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 &PLAYER`DISCONNECT`PLACES [u(cobj,places)]=@stop %1;@trigger %!/CLEAN_PLACES=loc(%0),u(objid,%0)

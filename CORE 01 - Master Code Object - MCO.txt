@@ -9,6 +9,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &COBJ [parent(%#)]=v(COBJ`%0)
 
 th set(parent(%#),VA:[first(version())])
+th set(u(cobj,mco),GAME:[first(version())])
 
 &COI [u(cobj,mco)]=localize(if(isdbref(u(setr`%va,db,u(find_in`%va,u(master_room),Code Object Index <COI>))),u(%q<db>/%0)))
 
@@ -61,6 +62,7 @@ th set(parent(%#),VA:[first(version())])
 
 &FIL`ISDBREF [u(cobj,mco)]=isdbref(%0)
 &FIL`ISOBJID [u(cobj,mco)]=isobjid(%0)
+&FIL`ISADMIN [u(cobj,mco)]=u(isadmin`%va,%0)
 &FIL`OLDOBJID [u(cobj,mco)]=not(isobjid(before(%0,~)))
 &FIL`ISSLOT [u(cobj,mco)]=isint(last(%0,`))
 &FIL`ALIASMATCH [u(cobj,mco)]=strmatch(alias(%0),%1*)
@@ -87,7 +89,7 @@ th set(parent(%#),VA:[first(version())])
 
 &ACCID [u(cobj,mco)]=default(%0/D`ACCOUNT,if(%1,,%0))
 
-&ALTS [u(cobj,mco)]=u(filter,ISOBJID,get(u(accid,%0)/CHARACTERS))
+&ALTS [u(cobj,mco)]=u(filter,ISOBJID,u(strfirstof`%va,get(u(accid,%0)/CHARACTERS),u(objid,%0)))
 &PALTS [u(cobj,mco)]=alts(%@)
 
 &ISGUEST [u(cobj,mco)]=u(ISGUEST`%va,%0)
