@@ -33,7 +33,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &SWITCHES`PARTNERS`PLAYER [u(cobj,scene)]=JOIN|LEAVE
 
 th u(NEWCONF,config,SCENESYS,URL,example.org,Path to website.,WORD)
-th u(NEWCONF,config,SCENESYS,PATH,/scene/view.php?id=,/scene/view.php?id=,WORD)
+th u(NEWCONF,config,SCENESYS,PATH,/scene/scene.php?id=,/scene/scene.php?id=,WORD)
 th u(NEWCONF,config,SCENESYS,IDLE,1800,Duration between idle checks?,DURATION)
 th u(NEWCONF,config,SCENESYS,BOARD,,Board for scene announcements?,DBREF)
 

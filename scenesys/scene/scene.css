@@ -1,6 +1,22 @@
 @charset "utf-8";
 /* CSS Document */
 
+th.scene_id_row {
+	width:80px;
+}
+
+th.scene_state_row {
+	width:80px;
+}
+
+th.scene_owner_row {
+	width:140px;
+}
+
+th.scene_title_row {
+	width:240px;
+}
+
 td.pose_time {
 	min-width:80px;
 	text-align:left;
@@ -9,8 +25,7 @@ td.pose_time {
 td.pose {	
 }
 
-td.order_id {
-}
+
 
 td.player_name {
 	color:#FFF;
@@ -108,11 +123,6 @@ tr.tDnD_whileDrag td{
 	color:#dddddd;
 	width:100%;
 	table-layout:fixed;
-}
-
-#scenetable tr:nth-child(1) {
-	color:white;
-	font-weight:bold;
 }
 
 #scenetable tr:nth-child(even) {

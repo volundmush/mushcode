@@ -26,8 +26,8 @@ th u(newcobj,STORYTELLER: Experience Management System <XP>,xp,,,,WIZARD SAFE !N
 &DO`ANNOUNCE [u(cobj,xp)]=@attach %!/INC`MSG`CHAN=%1;@select/inline strmatch(%0,%#)=0,{@attach %!/INC`MSG`NOTICE=%2,%0;@attach %!/INC`MSG=%3},1,{@attach %!/INC`MSG`NOTICE=%2,%0}
 @@ %0 = list of players to message. %1 = message to admin. %2 = message to players. %3 = message to enactor.
 
-&INC`EARN [u(cobj,xp)]=@attach %!/INC`SELF=%#,%0,%1,AWARD,1
-&INC`USE [u(cobj,xp)]=@attach %!/INC`SELF=%#,%0,%1,SPEND,1
+&INC`EARN [u(cobj,xp)]=@attach %!/INC`CRAFT=%#,%0,%1,AWARD,1
+&INC`USE [u(cobj,xp)]=@attach %!/INC`CRAFT=%#,%0,%1,SPEND,1
 &INC`CRAFT [u(cobj,xp)]=@check cor(switch(%3,AWARD,%q<earn>,SPEND,%q<use>),u(isadmin`%va,%#))=@attach %!/INC`MSG=Permission denied.;@check strlen(%2)=@attach %!/INC`MSG=Need to specify a reason!;@attach %!/INC`MARKXP
 
 &INC`AWARD [u(cobj,xp)]=@attach %!/INC`MARKXP=%0,%1,%2,AWARD

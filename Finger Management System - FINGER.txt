@@ -25,7 +25,7 @@ th u(NEWCONF,pconf,ALERTS,AFINGER,0,Alert when +finger'd?,BOOL)
 
 &INC`FINGER`SET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin`%va,%#),strmatch(%0,*/*)),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(cand(u(isadmin`%va,%#),strmatch(%0,*/*)),after(%0,/),%0),setunion(u(game_config,FINGER,PLAYERSET),if(u(isadmin`%va,%#),u(game_config,FINGER,ADMINSET)),|,|),|,field,field;@select/inline strlen(%1)=0,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR FINGER %q<field>},>0,{@attach %!/INC`CHECK`%q<field>=%1};&D`FINGER`%q<field> %q<t1>=%1;@attach %!/INC`MSG=You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [u(capnames,%q<field>)] Finger Field to: %1;@select/inline strmatch(%#,%q<t1>)=0,{@attach %!/INC`MSG`NOTICE=Your [u(capnames,%q<field>)] Finger Field is now: %1,%q<t1>}
 
-&INC`FINGER`GET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(strmatch(%0,*/*),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(strmatch(%0,*/*),after(%0,/),%0),setunion(u(game_config,FINGER,PLAYERSET),u(game_config,FINGER,ADMINSET),|,|),|,field,field;@pemit %#=u(getproperty,%q<T1>,%q<field>)
+&INC`FINGER`GET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(strmatch(%0,*/*),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(strmatch(%0,*/*),after(%0,/),%0),setunion(u(game_config,FINGER,PLAYERSET),u(game_config,FINGER,ADMINSET),|,|),|,field,field;@pemit %#=u(strfirstof`%va,u(getproperty,%q<T1>,%q<field>),get(%q<t1>/D`FINGER`%q<field>))
 
 th u(NEWCONF,config,FINGER,HEADER,ALIASMONIKER,Header text,WORD)
 th u(NEWCONF,config,FINGER,SUBHEADER,,SubHeader text,WORD)

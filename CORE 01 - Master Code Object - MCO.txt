@@ -89,7 +89,7 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &ACCID [u(cobj,mco)]=default(%0/D`ACCOUNT,if(%1,,%0))
 
-&ALTS [u(cobj,mco)]=u(filter,ISOBJID,u(strfirstof`%va,get(u(accid,%0)/CHARACTERS),u(objid,%0)))
+&ALTS [u(cobj,mco)]=u(filter,ISOBJID,u(strfirstof`%va,get(u(accid,%0)/CHARACTERS),objid(%0)))
 &PALTS [u(cobj,mco)]=alts(%@)
 
 &ISGUEST [u(cobj,mco)]=u(ISGUEST`%va,%0)
