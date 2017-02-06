@@ -22,14 +22,12 @@
 
 	  $running_day = date('w',mktime(0,0,0,$month,1,$year));
 	  $days_in_month = date('t',mktime(0,0,0,$month,1,$year));
-	  $days_in_this_week = 1;
 	  $day_counter = 1;
-	  $dates_array = array();
 	  $calendar = array();
 
 	  
 	  for ($x = 1; $x < 36; $x++):
-		if($x < $running_day+1 || $x > $days_in_month)
+		if($x < $running_day+1 || $day_counter > $days_in_month)
 		{
 			$calendar[$x] = ['num'=>False, 'scenes'=>False];
 		}
@@ -54,7 +52,7 @@
 	$cal1 = draw_calendar(date('m'),date('Y'));
 	$cal2 = draw_calendar(date('m')+1,date('Y'));
 		
-	$header = ['1'=>date('F, Y',mktime(0, 0, 0, date("m")+1, date("d"),   date("Y"))), '2'=>date('F, Y',mktime(0, 0, 0, date("m")+1, date("d"),   date("Y")))];
+	$header = ['1'=>date('F, Y',mktime(0, 0, 0, date("m"), date("d"),   date("Y"))), '2'=>date('F, Y',mktime(0, 0, 0, date("m")+1, date("d"),   date("Y")))];
 	
 	$smarty->assign('header',$header);
 	$smarty->assign('cal1', $cal1);
