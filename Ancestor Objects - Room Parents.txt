@@ -54,8 +54,8 @@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
 @select/inline isdbref(u(setr`%va,ap,u(coi,ap)))=1,{th u(attrib_set`%va,u(cobj,mco),COBJ`ANCESTOR_PLAYER,%q<ap>)},0,{@select/inline isdbref(u(cobj,ancestor_player))=0,{th u(attrib_set`%va,u(cobj,mco),COBJ`ANCESTOR_PLAYER,pcreate(Ancestor Player,digest(md5,secs())))}}
 @tel [u(cobj,ancestor_player)]=[u(cobj,ancestor_room)]
 
-@pageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,COLOR,PAGE),vol_colornames(%!,%4,PAGES,lwho(%!),%#))
-@outpageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,COLOR,OUTPAGE),vol_colornames(%!,%4,PAGES,lwho(%!),%#))
+@pageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,COLOR,PAGE),vol_colormarkup(%!,vol_markup(%4,lwho(%!)),%#))
+@outpageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,COLOR,OUTPAGE),vol_colormarkup(%!,vol_markup(%4,lwho(%!)),%#))
 @adescribe [u(cobj,ancestor_player)]=@check [vol_my_config(ALERTS,ADESC)];think GAME> %n just looked at you.
 @idle [u(cobj,ancestor_player)]=if(gte(idle(%!),vol_my_config(ALERTS,IDLE)),Currently idle\, please try again later!)
 

@@ -6,6 +6,7 @@ th u(NEWCOBJ,Jobs Database <JOBDB>,jobdb,u(cobj,jms),,,WIZARD SAFE,INHERIT SIDEF
 
 th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request category?,WORD)
 th u(newconf,PCONF,JOBS,BRIEF_SCAN,0,ADMIN: +job/brief instead of +job/pending on login?,BOOL)
+th u(newconf,PCONF,JOBS,MYJOBS,1,Show +myjobs display at login?,BOOL)
 
 @unlock/basic [u(cobj,jobdb)]
 @lset [u(cobj,jobdb)]/basic=visual
@@ -23,7 +24,7 @@ th u(newconf,PCONF,JOBS,BRIEF_SCAN,0,ADMIN: +job/brief instead of +job/pending o
 @set [u(cobj,jms)]/CMD`+JOB`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,jms)]=JOBS
-&SWITCHES`PLAYER [u(cobj,jms)]=REPLY|OLD|APPROVE|DENY|CANCEL|REVIVE|COMMENT|DUE|CLAIM|UNCLAIM|ATTN|SCAN|NEXT|PENDING|ADDPLAYER|REMPLAYER|BRIEF[if(isdbref(u(cobj,roll)),|ROLL)]
+&SWITCHES`PLAYER [u(cobj,jms)]=REPLY|OLD|APPROVE|DENY|CANCEL|REVIVE|COMMENT|DUE|CLAIM|UNCLAIM|ATTN|SCAN|NEXT|PENDING|ADDPLAYER|REMPLAYER|BRIEF|SEARCH[if(isdbref(u(cobj,roll)),|ROLL)]
 &SWITCHES`ADMIN [u(cobj,jms)]=NEWCATEGORY|DELCATEGORY|RENCATEGORY|LOCKCATEGORY|UNLOCKCATEGORY|CATEGORY|CONFIG|DESC
 
 &CMD`+REQUEST`PENNMUSH [u(cobj,jms)]=$^(?s)\+request(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REQUEST`MAIN
@@ -127,7 +128,18 @@ th u(newconf,pconf,JOBS,MAIL,1,Receive mail from JobSys?,BOOL)
 
 @@ 
 
-&INC`PENDING [u(cobj,jms)]=@check u(setr`%va,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)))=@attach %!/INC`MSG=Permission denied.;@dolist/inline u(setr`%va,maincount,u(filter,PENDINGCOUNT,%q<cats>))={th u(setq`%va,had,1);@pemit %#=u(HEADER,mudname() - New [name(switch(%va,PennMUSH,%i0,RhostMUSH,%d0))] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,GET`PENJOBSCAT,switch(%va,PennMUSH,%i0,RhostMUSH,%d0),%q<pid>)={@pemit %#=u(FUN`LISTJOBSTAFF,switch(%va,PennMUSH,%i0,RhostMUSH,%d0))};@select/inline #@=words(%q<maincount>),{@pemit %#=u(SUBHEADER,Showing 20 Per Category)}};@select/inline not(%q<had>)=1,{@attach %!/INC`MSG=There are no new jobs in the system!}
+&FIL`NOTANON [u(cobj,jms)]=not(u(FUN`CONF,%0,ANONYMOUS))
+
+&INC`SEARCH [u(cobj,jms)]=@check u(setr`%va,cats,u(filter,NOTANON,trim(u(FUN`VALIDCATS,%#,ADMIN))),%b,%b)=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`PARTIAL=%0,TEXT|PLAYER,|,choice;@select/inline %q<choice>=PLAYER,{@attach %!/INC`CHECKPC=%1,1},{@check strlen(%1)=@attach %!/INC`MSG=ERROR: No text entered to search for!};th u(setq`%va,first,0);@pemit %#=u(header,Job Search Results for %q<choice>: [switch(%q<choice>,PLAYER,%q<t1name>,TEXT,left(%1,10))]);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@dolist %q<cats>={@select/inline %q<choice>=PLAYER,{th u(setq`%va,ids,setunion(u(mysql,SEARCH`PLAYER`1,%q<t1objid>,%i0),u(mysql,SEARCH`PLAYER`2,%q<t1objid>,%i0)))},TEXT,{th u(setq`%va,ids,setunion(u(mysql,SEARCH`TEXT`1,sqlescape(%1),sqlescape(%1),%i0),u(mysql,SEARCH`TEXT`2,sqlescape(%1),%i0)))};@select/inline words(%q<ids>)=>0,{@pemit %#=u(separator,u(moniker`%va,%i0));@dolist/inline %q<ids>={@pemit %#=u(FUN`LISTJOBSTAFF,%i0)}};@select/inline eq(inum(0),words(%q<cats>))=1,{@pemit %#=u(FOOTER)}};
+
+&Q`SEARCH`PLAYER`1 [u(cobj,jms)]=SELECT DISTINCT j.job_id from $JOBS$ as j LEFT JOIN $PLAYERS$ as p ON j.player_id=p.player_id WHERE p.objid=? AND j.job_objid=?
+&Q`SEARCH`PLAYER`2 [u(cobj,jms)]=SELECT DISTINCT c.job_id FROM $COMMENTS$ as c LEFT JOIN $JOBS$ as j ON c.job_id=j.job_id LEFT JOIN $PLAYERS$ as p ON c.player_id=p.player_id WHERE p.objid=? AND j.job_objid=?
+
+&Q`SEARCH`TEXT`1 [u(cobj,jms)]=SELECT DISTINCT job_id from $JOBS$ where (job_text LIKE '%!%' OR job_title LIKE '%!%') AND job_objid=?
+&Q`SEARCH`TEXT`2 [u(cobj,jms)]=SELECT DISTINCT c.job_id FROM $COMMENTS$ as c LEFT JOIN $JOBS$ as j ON c.job_id=j.job_id WHERE c.comment_text LIKE '%!%' AND j.job_objid=?
+
+&INC`PENDING [u(cobj,jms)]=@check u(setr`%va,cats,trim(u(FUN`VALIDCATS,%#,ADMIN)))=@attach %!/INC`MSG=Permission denied.;@select/inline strlen(%0)=>0,{@check isobjid(u(setr`%va,cats,objid(namegrab(%q<cats>,%0))))}=@attach %!/INC`MSG=ERROR: No Category named '%0'.;@dolist/inline u(setr`%va,maincount,u(filter,PENDINGCOUNT,%q<cats>))={th u(setq`%va,had,1);@pemit %#=u(HEADER,mudname() - New [name(switch(%va,PennMUSH,%i0,RhostMUSH,%d0))] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,GET`PENJOBSCAT,switch(%va,PennMUSH,%i0,RhostMUSH,%d0),%q<pid>)={@pemit %#=u(FUN`LISTJOBSTAFF,switch(%va,PennMUSH,%i0,RhostMUSH,%d0))};@select/inline #@=words(%q<maincount>),{@pemit %#=u(SUBHEADER,Showing 20 Per Category)}};@select/inline not(%q<had>)=1,{@attach %!/INC`MSG=There are no new jobs in the system!}
+
 
 &FIL`PENDINGCOUNT [u(cobj,jms)]=t(u(mysql,GET`PENJOBSCATCOUNT,%0))
 
@@ -242,9 +254,9 @@ th u(newconf,pconf,JOBS,MAIL,1,Receive mail from JobSys?,BOOL)
 &INC`CATEGORY [u(cobj,jms)]=@attach %!/INC`JOBCHECK;@check u(isadmin`%va,%#)=@attach %!/INC`MSG=Permission denied.;th u(setq`%va,oldcat,u(mysql,GET`JOBCAT,%q<jid>));@stop u(FUN`CONF,%q<oldcat>,ANONYMOUS)=@attach %!/INC`MSG=ERROR: Anonymous Jobs cannot be relocated.;@attach %!/INC`FINDCAT=%1;@attach %!/INC`PERMCHECKCAT=%#,ADMIN,%q<cat>;@attach %!/INC`AMSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<oldcat>)]'s Category was changed to [u(strfirstof`%va,%q<catname>,Uncategorized)], by [u(FUN`MASKNAME,%q<cat>)]},%q<cat>;@attach %!/INC`DOSQL=SET`JOBCAT,%q<cat>,%q<jid>
 &Q`SET`JOBCAT [u(cobj,jms)]=UPDATE $JOBS$ SET job_objid=? WHERE job_id=?
 
-&INC`REPLY [u(cobj,jms)]=@check u(setr`%va,jid,u(mysql,GET`JOBID,%0))=@attach %!/INC`MSG=ERROR: Job %0 not found.;@check or(strmatch(u(mysql,GET`OWNEROBJID,%q<jid>),%:),match(u(mysql,GET`ANYOBJIDS,%q<jid>),%:),match(u(mysql,GET`CLAIMOBJIDS,%q<jid>),%:),u(FUN`PERMCHECK,u(setr`%va,cat,u(mysql,GET`JOBCAT,%q<jid>)),ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission Denied.;@check eq(u(mysql,GET`JOBSTATUS,%q<jid>),0)=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you say?;@attach %!/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,%1;@attach %!/INC`MSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a reply in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].};@attach %!/INC`MAILJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a reply in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].%R%RMessage:%R%1};@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`DOSQL=SET`JOBATTN,not(strmatch(u(mysql,GET`OWNEROBJID,%q<jid>),%:)),%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+&INC`REPLY [u(cobj,jms)]=@check u(setr`%va,jid,u(mysql,GET`JOBID,%0))=@attach %!/INC`MSG=ERROR: Job %0 not found.;@check or(strmatch(u(mysql,GET`OWNEROBJID,%q<jid>),%:),match(u(mysql,GET`ANYOBJIDS,%q<jid>),%:),match(u(mysql,GET`CLAIMOBJIDS,%q<jid>),%:),u(FUN`PERMCHECK,u(setr`%va,cat,u(mysql,GET`JOBCAT,%q<jid>)),ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission Denied.;@check eq(u(mysql,GET`JOBSTATUS,%q<jid>),0)=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you say?;@attach %!/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,%1;@attach %!/INC`MSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a reply in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].},%q<cat>;@attach %!/INC`MAILJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] sent a reply in for [u(FUN`JOBNAME,%q<jid>,%q<cat>)].%R%RMessage:%R%1},%q<cat>;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`DOSQL=SET`JOBATTN,not(strmatch(u(mysql,GET`OWNEROBJID,%q<jid>),%:)),%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
 
-&INC`COMMENT [u(cobj,jms)]=@attach %!/INC`JOBCHECK=%0;@attach %!/INC`PERMCHECKCAT=%#,ADMIN,u(setr`%va,cat,u(mysql,GET`JOBCAT,%q<jid>));@check eq(u(mysql,GET`JOBSTATUS,%q<jid>),0)=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you say?;@attach %!/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,1,%1;@attach %!/INC`AMSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] added a STAFF COMMENT to [u(FUN`JOBNAME,%q<jid>,%q<cat>)].};@attach %!/INC`UPDJOB=1,%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+&INC`COMMENT [u(cobj,jms)]=@attach %!/INC`JOBCHECK=%0;@attach %!/INC`PERMCHECKCAT=%#,ADMIN,u(setr`%va,cat,u(mysql,GET`JOBCAT,%q<jid>));@check eq(u(mysql,GET`JOBSTATUS,%q<jid>),0)=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you say?;@attach %!/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,1,%1;@attach %!/INC`AMSGJOB=%q<jid>,{[u(FUN`MASKNAME,%q<cat>)] added a STAFF COMMENT to [u(FUN`JOBNAME,%q<jid>,%q<cat>)].},%q<cat>;@attach %!/INC`UPDJOB=1,%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
 
 &INC`ATTN [u(cobj,jms)]=@attach %!/INC`JOBCHECK=%0;@attach %!/INC`PERMCHECKCAT=%#,ADMIN,u(setr`%va,cat,u(mysql,GET`JOBCAT,%q<jid>));@check eq(u(mysql,GET`JOBSTATUS,%q<jid>),0)=@attach %!/INC`MSG=The job is already finished.;@attach %!/INC`DOSQL=SET`JOBATTN,u(setr`%va,attn,not(u(mysql,GET`JOBATTN,%q<jid>))),%q<jid>;@attach %!/INC`AMSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] was switched to ATTN: [if(%q<attn>,Player,Staff)], by [u(FUN`MASKNAME,%q<cat>)]};@attach %!/INC`UPDJOB=1,%q<jid>
 
@@ -263,7 +275,7 @@ th u(newconf,pconf,JOBS,MAIL,1,Receive mail from JobSys?,BOOL)
 
 &INC`FINISH [u(cobj,jms)]=@check u(setr`%va,jid,u(mysql,GET`JOBID,%0))=@attach %!/INC`MSG=ERROR: Job %0 not found.;@check or(match(u(mysql,GET`CLAIMOBJIDS,%q<jid>),%:),u(FUN`PERMCHECK,u(setr`%va,cat,u(mysql,GET`JOBCAT,%q<jid>)),ADMIN,%#),if(eq(%3,3),strmatch(%:,u(mysql,GET`OWNEROBJID,%q<jid>))))=@attach %!/INC`MSG=ERROR: Permission Denied.;@check cor(eq(u(mysql,GET`JOBSTATUS,%q<jid>),0),%2)=@attach %!/INC`MSG=That job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you say?
 
-&INC`DOFINISH [u(cobj,jms)]=@attach %!/INC`DOSQL=SET`JOBSTATUS,%3,%q<jid>;@attach %!/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,{The Job was %2.%R%R%1};@attach %!/INC`MSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] was %2 by [u(FUN`MASKNAME,%q<cat>)]!};@attach %!/INC`MAILJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] was %2 by [u(FUN`MASKNAME,%q<cat>)]!%R%RMessage:%R%1};@attach %!/INC`DOSQL=SET`JOBATTN,1,%q<jid>;@trigger/spoof %q<cat>/%2=%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
+&INC`DOFINISH [u(cobj,jms)]=@attach %!/INC`DOSQL=SET`JOBSTATUS,%3,%q<jid>;@attach %!/INC`DOSQL=ADD`COMMENT,%q<jid>,%q<pid>,0,{The Job was %2.%R%R%1};@attach %!/INC`MSGJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] was %2 by [u(FUN`MASKNAME,%q<cat>)]!},%q<cat>;@attach %!/INC`MAILJOB=%q<jid>,{[u(FUN`JOBNAME,%q<jid>,%q<cat>)] was %2 by [u(FUN`MASKNAME,%q<cat>)]!%R%RMessage:%R%1},%q<cat>;@attach %!/INC`DOSQL=SET`JOBATTN,1,%q<jid>;@trigger/spoof %q<cat>/%2=%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>
 
 &Q`SET`JOBATTN [u(cobj,jms)]=UPDATE $JOBS$ SET job_attn=? WHERE job_id=?
 
@@ -312,7 +324,7 @@ th u(newconf,pconf,JOBS,MAIL,1,Receive mail from JobSys?,BOOL)
 @trigger [u(cobj,jms)]/TRG`INSTALL
 
 &PLAYER`CONNECT [u(cobj,jms)]=@dolist/inline u(lattr`%va,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&PLAYER`CONNECT`MYJOBS [u(cobj,jms)]=@stop u(isguest`%va,%0);@wait 2=@select/inline u(isadmin`%va,%0)=1,{@select/inline u(player_config`%va,%0,JOBS,BRIEF_SCAN)=1,{@force %0=+job/brief},{@force %0=+job/scan}},0,{@force %0=+myjobs}
+&PLAYER`CONNECT`MYJOBS [u(cobj,jms)]=@stop u(isguest`%va,%0);@wait 2=@select/inline u(isadmin`%va,%0)=1,{@select/inline u(player_config`%va,%0,JOBS,BRIEF_SCAN)=1,{@force %0=+job/brief},{@force %0=+job/scan}},0,{@check u(player_config`%va,%0,JOBS,MYJOBS);@force %0=+myjobs}
 
 
 

@@ -7,14 +7,16 @@ th u(NEWCOBJ,Watch System <WATCH>,watch,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 @set [u(cobj,watch)]/CMD`+WATCH`PENNMUSH=regexp
 &CMD`+WATCH`RHOSTMUSH [u(cobj,watch)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+WATCH`MAIN
 @set [u(cobj,watch)]/CMD`+WATCH`RHOSTMUSH=regexp
-&CMD`+WATCH`MAIN [u(cobj,watch)]=@attach %!/INC`GETSWITCH=%1;th u(setq`%va,accid,u(strfirstof`%va,u(accid,%#),%#));@include %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
+&CMD`+WATCH`MAIN [u(cobj,watch)]=@stop u(isguest`%va,%#)=@attach %!/INC`MSG=ERROR: Guests may not use +watch.;@attach %!/INC`GETSWITCH=%1;th u(setq`%va,accid,u(strfirstof`%va,u(accid,%#),%#));@include %!/INC`[u(strfirstof`%va,%q<switch>,MAIN)]=%2,%3
 @set [u(cobj,watch)]/CMD`+WATCH`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,watch)]=WATCH
 &SWITCHES`PLAYER [u(cobj,watch)]=ADD|LIST|DELETE|HIDE|MUTE
 
-&INC`MAIN [u(cobj,watch)]=@check words(u(setr`%va,list,u(filter,ISOBJID,get(%q<accid>/D`WATCH))))=@attach %!/INC`MSG=ERROR: You have no friends on watch!;@select/inline t(%2)=0,{@check words(u(setr`%va,list,revwords(u(sortidle`%va,setinter(u(lwhoid`%va,%#),get(%q<accid>/D`WATCH))))))=@attach %!/INC`MSG=No friends are online.};@pemit %#=u(HEADER,if(%2,All Friends,Online Friends));@pemit %#=ansi(u(color`%va,%#,WATCH,COLUMN_NAMES),align(20 11 3 4 4 1 29,Name,Alias,Fac,Idle,Conn,G,Location));@pemit %#=u(separator);@dolist/inline %q<list>={@pemit %#=u(u(cobj,who)/FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(SUBHEADER)
+&INC`MAIN [u(cobj,watch)]=@check words(u(setr`%va,list,u(filter,ISOBJID,get(%q<accid>/D`WATCH))))=@attach %!/INC`MSG=ERROR: You have no friends on watch!;@select/inline t(%2)=0,{@check words(u(setr`%va,list,revwords(u(sortidle`%va,setinter(u(lwhoid`%va,%#),get(%q<accid>/D`WATCH))))))=@attach %!/INC`MSG=No friends are online.};@pemit %#=u(HEADER,if(%2,All Friends,Online Friends));@select/inline t(u(player_config,%#,watch,brief))=0,{@pemit %#=ansi(u(color`%va,%#,WATCH,COLUMN_NAMES),align(20 11 3 4 4 1 29,Name,Alias,Fac,Idle,Conn,G,Location));@pemit %#=u(separator);@dolist/inline %q<list>={@pemit %#=u(u(cobj,who)/FUN`WHO`PLAYERLINE`MAIN,##)}},1,{@pemit %#=table(iter(%q<list>,u(moniker`%va,##)%b\([u(getproperty,##,HIDEIDLE)]\),%b,|),36,u(width`%va,%#),|)};@pemit %#=u(SUBHEADER)
 &INC`LIST [u(cobj,watch)]=@attach %!/INC`MAIN=%0,%1,1
+
+th u(NEWCONF,pconf,WATCH,BRIEF,0,Display +watch as compressed namelist?,BOOL)
 
 &INC`ADD [u(cobj,watch)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to add.;@include %!/INC`CHECKPC=%0,1;@stop match(get(%q<accid>/D`WATCH),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are already a friend.;&D`WATCH %q<accid>=u(sortname,u(filter,ISOBJID,setunion(get(%q<accid>/D`WATCH),%q<t1objid>)));@attach %!/INC`MSG=%q<t1name> added to your Friends list!
 

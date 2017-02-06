@@ -157,6 +157,8 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &NEWCONF [u(cobj,mco)]=[u(attrib_set`%va,u(cobj,%0),CATEGORIES,setunion(get(u(cobj,%0)/CATEGORIES),%1,|,|))][u(attrib_set`%va,u(cobj,%0),CATEGORIES`%1,setunion(get(u(cobj,%0)/CATEGORIES`%1),%2,|,|))][u(attrib_set`%va,u(cobj,%0),DEFAULT`%1`%2,%3)][u(attrib_set`%va,u(cobj,%0),DESC`%1`%2,%4)][u(attrib_set`%va,u(cobj,%0),TYPE`%1`%2,%5)]
 
+&REMCONF [u(cobj,mco)]=@attach %!/WIPE=u(cobj,%0),*`%1`%2;&CATEGORIES`%1 [u(cobj,%0)]=setdiff(get(u(cobj,%0)/CATEGORIES`%1),%2,|,|);@select/inline words(get(u(cobj,%0)/CATEGORIES`%1),|)=0,{&CATEGORIES [u(cobj,%0)]=setdiff(get(u(cobj,%0)/CATEGORIES),%1,|,|)}
+
 &LMAX [u(cobj,mco)]=u(LMAX`%va,%0,%1)
 &LMAX`PENNMUSH [u(cobj,mco)]=lmath(max,%0,%1)
 &LMAX`RHOSTMUSH [u(cobj,mco)]=lmax(%0,%1)
@@ -378,6 +380,7 @@ th set(u(cobj,mco),GAME:[first(version())])
 &GETPROPERTY`HIDECONN [u(cobj,mco)]=u(hideconn,%0)
 &GETPROPERTY`SEXLETTER [u(cobj,mco)]=left(get(%0/SEX),1)
 &GETPROPERTY`LOCATION [u(cobj,mco)]=if(findable(%#,%0),u(moniker`%va,loc(%0)),*UNFINDABLE*)
+&GETPROPERTY`JOINLOCATION [u(cobj,mco)]=if(findable(%#,%0),if(elock(loc(%0)/Teleport,%#),u(pueblize,u(moniker`%va,loc(%0)),+port [loc(%0)]),u(moniker`%va,loc(%0))),*UNFINDABLE*)
 
 &GETPROPERTY`WIKI [u(cobj,mco)]=u(weblink`%va,get(%0/D`FINGER`WIKI))
 &GETPROPERTY`GROUPNAMES2 [u(cobj,mco)]=u(getproperty`groupnames,%0,1)
@@ -394,6 +397,7 @@ th set(u(cobj,mco),GAME:[first(version())])
 &GETPROPERTY`OBSERVER [u(cobj,mco)]=default(%0/D`OBSERVER,0)
 &GETPROPERTY`CURSCENE [u(cobj,mco)]=if(u(getproperty`observer,%0),ansi(hw,OBS),default(%0/D`SCENE`ACTIVE,???))
 
+&GETPROPERTY`BANNER [u(cobj,mco)]=localize(if(cand(isdbref(u(setr`%va,maj,u(getproperty`majordb,%0))),strlen(u(setr`%va,col,u(getproperty`groupcolor,%q<maj>)))),ansi(%q<col>,name(%0)),u(moniker`%va,%0)))
 
 &GETPROPERTY`GROUPS [u(cobj,mco)]=localize(default(%0/D`CACHE`GROUPS,u(setr`%va,cache,u(sortgroups`%va,u(sortname`%va,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)))))[u(attrib_set`%va,%0,D`CACHE`GROUPS,%q<cache>)]))
 
@@ -531,7 +535,8 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &SQL`TABLENAME [u(cobj,mco)]=u(SQL`TABLE`[u(trimcash`%va,%0)])
 
-&INC`DOSQL [u(cobj,mco)]=@stop strmatch(u(setr`%va,errcheck,u(mysql,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)=@attach %!/INC`MSG=SQL ERROR: %q<errcheck>
+&INC`DOSQL [u(cobj,mco)]=@stop strmatch(u(setr`%va,errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq`%va,after(%0,/),sql(SELECT last_insert_id\(\))))]=@attach %!/INC`MSG=SQL ERROR: %q<errcheck>
+
 
 &TRG`INSTALL [u(cobj,mco)]=@dolist/inline/delimit | [v(SQL`TABLES)]={@attach %!/INC`DOSQL=INSTALL`##}
 
@@ -718,8 +723,9 @@ th set(u(cobj,mco),GAME:[first(version())])
 &SQL`CONNECT [u(cobj,mco)]=@sql SET time_zone = '+00:00';@nscemit/noisy u(cmo`staffrep)=SQL server connect: %0
 &SQL`CONNECTFAIL [u(cobj,mco)]=@attach %!/INC`MSG`SYSCHAN={SQL server connect fail: %0}
 &SQL`DISCONNECT [u(cobj,mco)]=@attach %!/INC`MSG`SYSCHAN={SQL server disconnect: %0}
-&STARTUP`SQL [u(cobj,mco)]=@check sql(SELECT DATABASE());@trigger %!/LOOP`SQL
+&STARTUP`SQL [u(cobj,mco)]=@check sql(SELECT DATABASE());@trigger %!/LOOP`SQL;@trigger %!/LOOP`REINDEX
 &LOOP`SQL [u(cobj,mco)]=@sql SELECT DATABASE();@wait 60=@trigger %!/LOOP`SQL
+&LOOP`REINDEX [u(cobj,mco)]=@dolist sql(SHOW TABLES)=@sql ANALYZE TABLE %i0;@wait mul(60,60,24)=@trigger %!/LOOP`REINDEX
 
 @@ EVENT HANDLING - RHOST
 
