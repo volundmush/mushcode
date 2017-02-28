@@ -47,8 +47,8 @@ th set(u(cobj,mco),GAME:[first(version())])
 &STARTUP`FUNCTIONS`PENNMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,mco),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
 &STARTUP`FUNCTIONS`RHOSTMUSH [u(cobj,mco)]=@dolist/inline setunion(game_config header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink getproperty hideidle lastidle,v(FUNCTIONLIST`EXTRA))={@function/privileged vol_%d0=%!/%d0};@dolist/inline v(FUNCTIONLIST`ADMIN)={@admin function_access=vol_%d0 wizard};@dolist/inline moniker lvplayers lvthings lvexits objid align lalign sortkey strfirstof table width=@function/privileged %d0=%!/%d0
 
-&FUNCTIONLIST`EXTRA [u(cobj,mco)]=
-&FUNCTIONLIST`ADMIN [u(cobj,mco)]=
+@@ &FUNCTIONLIST`EXTRA [u(cobj,mco)]=
+@@ &FUNCTIONLIST`ADMIN [u(cobj,mco)]=
 @@ These are meant to be added to by game packages.
 
 &STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`[%va];@include/nobreak %!/STARTUP`MAIN`EXTRA
@@ -381,7 +381,9 @@ th set(u(cobj,mco),GAME:[first(version())])
 &GETPROPERTY`SEXLETTER [u(cobj,mco)]=left(get(%0/SEX),1)
 &GETPROPERTY`LOCATION [u(cobj,mco)]=if(findable(%#,%0),u(moniker`%va,loc(%0)),*UNFINDABLE*)
 &GETPROPERTY`JOINLOCATION [u(cobj,mco)]=if(findable(%#,%0),if(elock(loc(%0)/Teleport,%#),u(pueblize,u(moniker`%va,loc(%0)),+port [loc(%0)]),u(moniker`%va,loc(%0))),*UNFINDABLE*)
+&GETPROPERTY`TIMEZONE [u(cobj,mco)]=u(gettz,%0)
 
+&GETPROPERTY`PICTURE [u(cobj,mco)]=u(weblink`%va,get(%0/D`FINGER`PICTURE))
 &GETPROPERTY`WIKI [u(cobj,mco)]=u(weblink`%va,get(%0/D`FINGER`WIKI))
 &GETPROPERTY`GROUPNAMES2 [u(cobj,mco)]=u(getproperty`groupnames,%0,1)
 &GETPROPERTY`FACTION2 [u(cobj,mco)]=u(getproperty`faction,%0,1)
@@ -399,7 +401,9 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &GETPROPERTY`BANNER [u(cobj,mco)]=localize(if(cand(isdbref(u(setr`%va,maj,u(getproperty`majordb,%0))),strlen(u(setr`%va,col,u(getproperty`groupcolor,%q<maj>)))),ansi(%q<col>,name(%0)),u(moniker`%va,%0)))
 
-&GETPROPERTY`GROUPS [u(cobj,mco)]=localize(default(%0/D`CACHE`GROUPS,u(setr`%va,cache,u(sortgroups`%va,u(sortname`%va,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)))))[u(attrib_set`%va,%0,D`CACHE`GROUPS,%q<cache>)]))
+&GETPROPERTY`GROUPS [u(cobj,mco)]=localize(default(%0/D`CACHE`GROUPS,u(setr`%va,cache,u(sortgroups`%va,u(sortname`%va,u(filter,NOTLURK,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)),%b,%b,%0))))[u(attrib_set`%va,%0,D`CACHE`GROUPS,%q<cache>)]))
+
+&FIL`NOTLURK [u(cobj,mco)]=not(strmatch(get(%1/D`GROUP`%0`RANK),LURK))
 
 &GETPROPERTY`MAJORDBS [u(cobj,mco)]=localize(default(%0/D`CACHE`MAJORDBS,u(setr`%va,cache,u(sortgroups`%va,u(sortname`%va,u(filter,MAJOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set`%va,%0,D`CACHE`MAJORDBS,%q<cache>)]))
 &GETPROPERTY`MAJORDB [u(cobj,mco)]=first(u(GETPROPERTY`MAJORDBS,%0))
@@ -528,6 +532,8 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &MYSQL2 [u(cobj,mco)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),|,^),#-1 SQL QUERY DATA NOT FOUND)
 
+&MYSQL3 [u(cobj,mco)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),chr(176),chr(177)),#-1 SQL QUERY DATA NOT FOUND)
+
 &SQL`IN`NUMBER [u(cobj,mco)]=iter(%0,%i0,%1,\,%b)
 &SQL`IN`STRING [u(cobj,mco)]=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
 
@@ -535,10 +541,10 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &SQL`TABLENAME [u(cobj,mco)]=u(SQL`TABLE`[u(trimcash`%va,%0)])
 
-&INC`DOSQL [u(cobj,mco)]=@stop strmatch(u(setr`%va,errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq`%va,after(%0,/),sql(SELECT last_insert_id\(\))))]=@attach %!/INC`MSG=SQL ERROR: %q<errcheck>
+&INC`DOSQL [u(cobj,mco)]=@stop strmatch(u(setr`%va,errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq`%va,after(%0,/),sql(SELECT last_insert_id\(\))))]=@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>
 
 
-&TRG`INSTALL [u(cobj,mco)]=@dolist/inline/delimit | [v(SQL`TABLES)]={@attach %!/INC`DOSQL=INSTALL`##}
+&TRG`INSTALL [u(cobj,mco)]=@dolist/inline/delimit | [v(SQL`TABLES)]={@attach %!/INC`DOSQL=INSTALL`##};@dolist/inline/delimit | [v(SQL`VIEWS)]={@attach %!/INC`DOSQL=VIEW`##}
 
 @@ COMMON CODE SNIPPETS
 
@@ -628,7 +634,7 @@ th set(u(cobj,mco),GAME:[first(version())])
 @@ HEADER family args: %0 - Title. %1 - Viewer dbref. %2 - True: Do not color title. %3 - Border mode bool. %4 - Width.
 
 &MARKUP [u(cobj,mco)]=localize(u(MARKUP`%va,%0,%1,%2,%3,%4,%5))
-&MARKUP`PENNMUSH [u(cobj,mco)]=regeditalli(%0,\\b\([edit(edit(iter(%1,name(%i0),%b,|),-,\\-),.,\\.)]\)\\b,if(neq(ord(left(setr(found,$0),1)),ord(lcstr(left($0,1)))),^^^[pmatch(%q<found>)]:%q<found>^^^,%q<found>))
+&MARKUP`PENNMUSH [u(cobj,mco)]=regeditalli(%0,\([edit(edit(iter(%1,name(%i0),%b,|),-,\\-),.,\\.)]\),if(neq(ord(left(setr(found,$0),1)),ord(lcstr(left($0,1)))),^^^[pmatch(%q<found>)]:%q<found>^^^,%q<found>))
 &MARKUP`RHOSTMUSH [u(cobj,mco)]=regeditalli(%0,\\b\([iter(%1,name(%i0),%b,|)]\)\\b,if(neq(ord(left(setr(found,$0),1)),ord(lcstr(left($0,1)))),^^^[pmatch(%q<found>)]:%q<found>^^^,%q<found>))
 @@ %0 - Text to search. %1 - Dbrefs to check.
 
@@ -644,9 +650,12 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 
 &SPEECH [u(cobj,mco)]=localize(u(SPEECH`%va,%0,%1,%2,%3,%4,%5))
-&SPEECH`PENNMUSH [u(cobj,mco)]=[setq(quote,ansi(u(player_config`%va,%2,%4,QUOTES),"))][setq(speechcol,u(player_config`%va,%2,%4,SPEECH))][regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker`pennmush,%0,%2))],%1),v(REG`URL),u(weblink`pennmush,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)]
+&SPEECH`PENNMUSH [u(cobj,mco)]=[setq(quote,ansi(u(player_config`%va,%2,%4,QUOTES),"))][setq(speechcol,u(player_config`%va,%2,%4,SPEECH))][regeditalli(speakpenn(&[if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),u(moniker`pennmush,%0,%2)))],%1),v(REG`URL),u(weblink`pennmush,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)]
 &SPEECH`RHOSTMUSH [u(cobj,mco)]=regeditalli(parsestr(u(colornames`%va,%2,escape(%1),%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(moniker`%va,%0))]),v(REG`SPEECH),u(setr`%va,quote,ansi(u(player_config`%va,%2,%4,QUOTES),"))[ansi(u(player_config`%va,%2,%4,SPEECH),$1)]%q<quote>)
-@@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup.
+@@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup. %6 - Banner override bool.
+
+
+
 
 &REG`SPEECH [u(cobj,mco)]=(?s)"([^ "][^"]*[^ "])"
 &REG`URL [u(cobj,mco)]=\w+\://\S+[^"]
