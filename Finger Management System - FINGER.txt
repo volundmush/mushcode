@@ -24,7 +24,7 @@ th u(NEWCOBJ,Finger Management System <FINGER>,finger,,,,WIZARD SAFE !NO_COMMAND
 @@ th u(NEWCONF,pconf,ALERTS,AFINGER,0,Alert when +finger'd?,BOOL)
 @@ @trigger %!/REMCONF=pconf,ALERTS,AFINGER
 
-&INC`FINGER`SET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin`%va,%#),strmatch(%0,*/*)),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(cand(u(isadmin`%va,%#),strmatch(%0,*/*)),after(%0,/),%0),setunion(u(game_config,FINGER,PLAYERSET),if(u(isadmin`%va,%#),u(game_config,FINGER,ADMINSET)),|,|),|,field,field;@select/inline strlen(%1)=0,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR FINGER %q<field>},>0,{@attach %!/INC`CHECK`%q<field>=%1};&D`FINGER`%q<field> %q<t1>=%1;@attach %!/INC`MSG=You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [u(capnames,%q<field>)] Finger Field to: %1;@select/inline strmatch(%#,%q<t1>)=0,{@attach %!/INC`MSG`NOTICE=Your [u(capnames,%q<field>)] Finger Field is now: %1,%q<t1>}
+&INC`FINGER`SET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin`%va,%#),strmatch(%0,*/*)),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(cand(u(isadmin`%va,%#),strmatch(%0,*/*)),after(%0,/),%0),setunion(setunion(u(game_config,FINGER,PLAYERSET),if(u(isadmin`%va,%#),u(game_config,FINGER,ADMINSET)),|,|),if(u(approved,%#),,u(game_config,FINGER,CHARGENSET)),|,|),|,field,field;@select/inline strlen(%1)=0,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR FINGER %q<field>},>0,{@attach %!/INC`CHECK`%q<field>=%1};&D`FINGER`%q<field> %q<t1>=%1;@attach %!/INC`MSG=You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [u(capnames,%q<field>)] Finger Field to: %1;@select/inline strmatch(%#,%q<t1>)=0,{@attach %!/INC`MSG`NOTICE=Your [u(capnames,%q<field>)] Finger Field is now: %1,%q<t1>}
 
 &INC`FINGER`GET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(strmatch(%0,*/*),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(strmatch(%0,*/*),after(%0,/),%0),setunion(u(game_config,FINGER,PLAYERSET),u(game_config,FINGER,ADMINSET),|,|),|,field,field;@pemit %#=u(strfirstof`%va,u(getproperty,%q<T1>,%q<field>),get(%q<t1>/D`FINGER`%q<field>))
 
@@ -35,6 +35,7 @@ th u(NEWCONF,config,FINGER,COLUMN2,JOB~Job,Right +finger header column,LIST)
 th u(NEWCONF,config,FINGER,EXTRA,GROUPNAMES2~Groups|QUOTE~Quote|PROFILE~Profile|SKILLS~Skills|WIKI~Wiki,Lower section of +finger,LIST)
 th u(NEWCONF,config,FINGER,PLAYERSET,JOB|SPECIES|QUOTE|PROFILE|SKILLS,fields settable by players,LIST)
 th u(NEWCONF,config,FINGER,ADMINSET,,fields settable by admin,LIST)
+th u(NEWCONF,config,FINGER,CHARGENSET,,fields settable in chargen?,LIST)
 
 th u(newconf,CONFIG,FINGER,FIELDCOLOR,hw,Color for field names.,COLOR)
 

@@ -1,0 +1,376 @@
+-- Disabling Foreign Keys. Things will get crazy from here on out.
+--SET FOREIGN_KEY_CHECKS=0;
+
+-- Creating replacement tables.
+CREATE TABLE IF NOT EXISTS mush_thing (
+	thing_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	display_num MEDIUMINT UNSIGNED NULL,
+	objid VARCHAR(30) NOT NULL,
+	object_name VARCHAR(60) NOT NULL,
+	is_guest BOOL NOT NULL DEFAULT FALSE,
+	parent_id MEDIUMINT UNSIGNED NULL,
+	is_deleted BOOL NOT NULL DEFAULT FALSE,
+	thing_type TINYINT UNSIGNED DEFAULT 0,
+	PRIMARY KEY(thing_id),
+	UNIQUE(objid),
+	INDEX(object_name,thing_type,display_num),
+	UNIQUE(display_num,thing_type),
+	FOREIGN KEY(parent_id) REFERENCES mush_thing(thing_id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_login (
+	login_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	player_id MEDIUMINT UNSIGNED NOT NULL,
+	date_login DATETIME NOT NULL,
+	is_success BOOL NOT NULL DEFAULT TRUE,
+	ip_address VARBINARY(16) NOT NULL,
+	INDEX(ip_address, is_success),
+	PRIMARY KEY(login_id),
+	FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_job (
+	job_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	title VARCHAR(255) NOT NULL,
+	thing_id MEDIUMINT UNSIGNED NOT NULL,
+	date_created DATETIME NOT NULL,
+	date_due DATETIME,
+	date_closed DATETIME,
+	date_player_activity DATETIME NOT NULL,
+	date_admin_activity DATETIME NOT NULL,
+	is_deleted BOOL NOT NULL DEFAULT FALSE,
+	job_status TINYINT UNSIGNED DEFAULT 0,
+	is_anonymous BOOL NOT NULL DEFAULT FALSE,
+	INDEX(job_status, date_closed),
+	PRIMARY KEY(job_id),
+	FOREIGN KEY(thing_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_job_link (
+	link_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	job_id MEDIUMINT UNSIGNED NOT NULL,
+	player_id MEDIUMINT UNSIGNED NOT NULL,
+	link_type TINYINT UNSIGNED DEFAULT 0,
+	date_check DATETIME,
+	PRIMARY KEY(link_id),
+	UNIQUE(job_id,player_id),
+	INDEX(link_type,job_id),
+	FOREIGN KEY(job_id) REFERENCES mush_job(job_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_job_comment (
+	comment_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	link_id MEDIUMINT UNSIGNED NOT NULL,
+	date_created DATETIME NOT NULL,
+	comment_text TEXT NOT NULL,
+	comment_type TINYINT UNSIGNED DEFAULT 0,
+	is_visible BOOL NOT NULL DEFAULT TRUE,
+	is_deleted TINYINT UNSIGNED DEFAULT 0,
+	PRIMARY KEY(comment_id),
+	INDEX(is_visible,is_deleted),
+	FOREIGN KEY(link_id) REFERENCES mush_job_link(link_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_plot (
+	plot_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	title VARCHAR(255) UNIQUE,
+	pitch TEXT,
+	outcome TEXT,
+	date_start DATETIME,
+	date_end DATETIME,
+	plot_type TINYINT UNSIGNED DEFAULT 0,
+	plot_status TINYINT UNSIGNED DEFAULT 0,
+	INDEX(date_start, date_end, plot_status),
+	PRIMARY KEY(plot_id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_runner (
+	runner_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	player_id MEDIUMINT UNSIGNED NOT NULL,
+	plot_id MEDIUMINT UNSIGNED NOT NULL,
+	runner_type TINYINT UNSIGNED DEFAULT 0,
+	PRIMARY KEY(runner_id),
+	UNIQUE(player_id,plot_id),
+	FOREIGN KEY(plot_id) REFERENCES mush_plot(plot_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_scene (
+	scene_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	title VARCHAR(255),
+	pitch TEXT,
+	outcome TEXT,
+	post_id VARCHAR(10),
+	date_created DATETIME,
+	date_scheduled DATETIME,
+	date_started DATETIME,
+	date_finished DATETIME,
+	scene_status TINYINT DEFAULT 0,
+	log_ooc BOOL NOT NULL DEFAULT FALSE,
+	PRIMARY KEY(scene_id),
+	INDEX(scene_id,title,scene_status)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_actor (
+	actor_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	scene_id MEDIUMINT UNSIGNED NOT NULL,
+	player_id MEDIUMINT UNSIGNED NOT NULL,
+	actor_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	actor_status TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	actor_exclude BOOL NOT NULL DEFAULT TRUE,
+	PRIMARY KEY(actor_id),
+	UNIQUE(scene_id,player_id),
+	INDEX(scene_id,player_id,actor_type),
+	FOREIGN KEY(scene_id) REFERENCES mush_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_action_source (
+	source_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	scene_id MEDIUMINT UNSIGNED NOT NULL,
+	source_objid VARCHAR(30) NOT NULL,
+	source_name VARCHAR(60) NOT NULL,
+	source_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	PRIMARY KEY(source_id),
+	FOREIGN KEY(scene_id) REFERENCES mush_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(scene_id, source_objid)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_action (
+	action_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	actor_id MEDIUMINT UNSIGNED NOT NULL,
+	source_id INT UNSIGNED NOT NULL,
+	is_deleted BOOL NOT NULL DEFAULT FALSE,
+	action_type TINYINT UNSIGNED DEFAULT 0,
+	date_created DATETIME NOT NULL,
+	action_text TEXT NOT NULL,
+	PRIMARY KEY(action_id),
+	INDEX(actor_id, is_deleted),
+	FOREIGN KEY(actor_id) REFERENCES mush_actor(actor_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(source_id) REFERENCES mush_action_source(source_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_pair (
+	pair_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	display_num MEDIUMINT UNSIGNED NOT NULL,
+	scene_id MEDIUMINT UNSIGNED NOT NULL,
+	PRIMARY KEY(pair_id),
+	UNIQUE(scene_id,display_num),
+	FOREIGN KEY(scene_id) REFERENCES mush_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_participant (
+	participant_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	player_id MEDIUMINT UNSIGNED NOT NULL,
+	pair_id MEDIUMINT UNSIGNED NOT NULL,
+	PRIMARY KEY(participant_id),
+	UNIQUE(player_id,pair_id),
+	FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(pair_id) REFERENCES mush_pair(pair_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_report (
+	report_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	display_num MEDIUMINT UNSIGNED NOT NULL,
+	title VARCHAR(255) NOT NULL,
+	thing_id MEDIUMINT UNSIGNED NOT NULL,
+	report_status TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	report_text TEXT,
+	date_created DATETIME NOT NULL,
+	date_modified DATETIME NOT NULL,
+	is_deleted BOOL NOT NULL DEFAULT FALSE,
+	report_type TINYINT UNSIGNED DEFAULT 0,
+	PRIMARY KEY(report_id),
+	FOREIGN KEY(thing_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(thing_id, title, report_type, display_num)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_report_link (
+	link_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	report_id MEDIUMINT UNSIGNED NOT NULL,
+	player_id MEDIUMINT UNSIGNED NOT NULL,
+	link_type TINYINT UNSIGNED DEFAULT 0,
+	date_check DATETIME,
+	PRIMARY KEY(link_id),
+	UNIQUE(report_id,player_id),
+	FOREIGN KEY(report_id) REFERENCES mush_report(report_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_report_scene (
+	rs_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	report_id MEDIUMINT UNSIGNED NOT NULL,
+	scene_id MEDIUMINT UNSIGNED NOT NULL,
+	PRIMARY KEY(rs_id),
+	UNIQUE(report_id,scene_id),
+	FOREIGN KEY(report_id) REFERENCES mush_report(report_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(scene_id) REFERENCES mush_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_report_comment (
+	comment_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	display_id MEDIUMINT UNSIGNED NOT NULL,
+	link_id MEDIUMINT UNSIGNED NOT NULL,
+	date_created DATETIME NOT NULL,
+	comment_text TEXT NOT NULL,
+	comment_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	is_deleted BOOL NOT NULL DEFAULT FALSE,
+	PRIMARY KEY(comment_id),
+	INDEX(is_deleted,display_id),
+	FOREIGN KEY(link_id) REFERENCES mush_report_link(link_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS mush_report_case (
+	rc_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	case_file MEDIUMINT UNSIGNED NOT NULL,
+	report_id MEDIUMINT UNSIGNED NOT NULL,
+	PRIMARY KEY(rc_id),
+	UNIQUE(case_file, report_id),
+	FOREIGN KEY(report_id) REFERENCES mush_report(report_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(case_file) REFERENCES mush_report(report_id) ON UPDATE CASCADE ON DELETE CASCADE
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1;
+
+/*
+Some notes here...
+
+mush_thing thing_type:
+0 - Player
+1 - Account
+2 - Job Category
+3 - Group / Report Category
+
+
+*/
+
+BEGIN TRANSACTION;
+-- First, convert all of the objid-like tables into just one table.
+-- We don't want duplicates.
+INSERT INTO mush_thing (thing_id,objid,object_name) SELECT player_id,objid,player_name FROM scene_players;
+INSERT IGNORE INTO mush_thing (objid,object_name) SELECT objid,player_name FROM mushcode_players;
+INSERT IGNORE INTO mush_thing (objid,object_name) SELECT objid,player_name FROM jobsys_players;
+INSERT IGNORE INTO mush_thing (display_num,objid,object_name,thing_type) SELECT id,objid,name,2 FROM jobsys_category;
+INSERT IGNORE INTO mush_thing (display_num,objid,name,object_name,thing_type) SELECT id,objid,name,3 FROM reports_category;
+
+-- Now we'll convert Login data...
+INSERT INTO mush_login (login_id,player_id,date_login,is_success,ip_address)
+	SELECT l.login_id,t.thing_id,l.login_date,l.login_result,INET6_ATON(IF(IS_IPV4(l.login_address),CONCAT('::ffff:',l.login_address),l.login_address))
+	FROM mushcode_logins as l 
+	LEFT JOIN mushcode_players as p on p.player_id=l.player_id 
+	LEFT JOIN mush_thing as t ON t.objid=p.objid;
+
+-- Next up is SceneSys data...
+INSERT INTO mush_plot (plot_id,title,pitch,date_start,date_end,plot_type) 
+	SELECT pl.plot_id,pl.plot_title,pl.plot_desc,pl.start_date,pl.end_date,pl.plot_type 
+	FROM scene_plots as pl 
+	LEFT JOIN mushcode_players as p on p.player_id=pl.player_id 
+	LEFT JOIN mush_thing as t ON t.objid=p.objid;
+	
+INSERT INTO mush_runner (plot_id,player_id,runner_type) 
+	SELECT pl.plot_id,t.thing_id,2 
+	FROM scene_plots as pl 
+	LEFT JOIN mushcode_players as p on p.player_id=pl.player_id 
+	LEFT JOIN mush_thing as t ON t.objid=p.objid;
+
+INSERT INTO mush_scene(scene_id,title,outcome,date_created,date_finished,scene_status) 
+	SELECT s.scene_id,s.scene_title,s.scene_desc,s.creation_date,s.finish_date,s.scene_state 
+	FROM scene_scenes as s 
+	LEFT JOIN mushcode_players as p on p.player_id=s.player_id 
+	LEFT JOIN mush_thing as t ON t.objid=p.objid;
+
+INSERT INTO mush_actor(scene_id,player_id,actor_type) 
+	SELECT s.scene_id,t.thing_id,2 
+	FROM scene_scenes AS s 
+	LEFT JOIN scene_players AS p on p.player_id=s.player_id 
+	LEFT JOIN mush_thing as t ON t.objid=p.objid;
+
+INSERT IGNORE INTO mush_actor(scene_id,player_id)
+	SELECT DISTINCT s.scene_id,t.thing_id 
+	FROM scene_poses;
+
+INSERT INTO mush_action_source(scene_id,source_objid,source_name,source_type) 
+	SELECT scene_id,room_objid,room_name,0 
+	FROM scene_scenes;
+
+INSERT INTO mush_action(action_id,actor_id,date_created,action_text,is_deleted,source_id,action_type) 
+	SELECT s.pose_id,act.actor_id,s.pose_time,s.pose,s.pose_ignore,src.source_id,0 
+	FROM scene_poses AS s 
+	LEFT JOIN mush_actor AS act ON s.scene_id=act.scene_id AND s.player_id=act.player_id
+	LEFT JOIN mush_action_source as src ON s.scene_id=src.scene_id;
+
+INSERT INTO mush_scene(title,pitch,date_created,date_scheduled,post_id) 
+	SELECT schedule_title,schedule_desc,schedule_date,schedule_date,post_id 
+	FROM scene_schedule WHERE schedule_date>NOW();
+
+INSERT INTO mush_actor(scene_id,player_id,actor_type) 
+	SELECT sc.scene_id,s.player_id,2 
+	FROM scene_schedule as s 
+	LEFT JOIN mush_scene as sc ON s.schedule_title=sc.title AND s.schedule_date=sc.date_scheduled 
+	WHERE sc.date_scheduled>NOW();
+
+INSERT IGNORE INTO mush_actor(scene_id,player_id,actor_status) 
+	SELECT sc.scene_id,tags.player_id,1 
+	FROM scene_tags AS tags 
+	LEFT JOIN scene_schedule as s ON tags.schedule_id=s.schedule_id 
+	LEFT JOIN mush_scene as sc ON s.schedule_title=sc.title AND s.schedule_date=sc.date_scheduled;
+
+-- Next, the job system!
+INSERT INTO mush_job(job_id,title,thing_id,date_created,date_due,date_closed,job_status) 
+	SELECT j.job_id,j.job_title,t.thing_id,j.submit_date,j.due_date,j.close_date,j.job_status 
+	FROM jobsys_jobs as j 
+	LEFT JOIN mush_thing as t ON t.objid=j.job_objid 
+	WHERE t.thing_id IS NOT NULL;
+
+INSERT INTO mush_job_link(job_id,player_id,link_type) 
+	SELECT j.job_id,t.thing_id,3 FROM 
+	jobsys_jobs as j 
+	LEFT JOIN mush_thing as t2 ON t2.objid=j.job_objid 
+	LEFT JOIN jobsys_players as p on p.player_id=j.player_id 
+	LEFT JOIN mush_thing as t ON t.objid=p.objid 
+	WHERE t2.thing_id IS NOT NULL;
+
+INSERT INTO mush_job_comment(link_id,date_created,comment_text,comment_type) 
+	SELECT j2.link_id,j.submit_date,j.job_text,0 
+	FROM jobsys_jobs AS j 
+	LEFT JOIN mush_thing as t2 ON t2.objid=j.job_objid 
+	LEFT JOIN mush_job_link AS j2 ON j.job_id=j2.job_id 
+	WHERE t2.thing_id IS NOT NULL;
+
+INSERT INTO mush_job_link(job_id,player_id,date_check) 
+	SELECT j.job_id,t.thing_id,j.check_date 
+	FROM jobsys_check as j 
+	LEFT JOIN mush_job as j2 on j.job_id=j2.job_id 
+	LEFT JOIN jobsys_players as p on p.player_id=j.player_id 
+	LEFT JOIN mush_thing as t on t.objid=p.objid 
+	WHERE j2.thing_id IS NOT NULL ON DUPLICATE KEY UPDATE date_check=VALUES(date_check);
+
+INSERT INTO mush_job_link(job_id,player_id,link_type) 
+	SELECT j.job_id,t.thing_id,IF(j.claim_mode=0,2,1) 
+	FROM jobsys_claim as j 
+	LEFT JOIN mush_job as j2 on j.job_id=j2.job_id 
+	LEFT JOIN jobsys_players as p on p.player_id=j.player_id 
+	LEFT JOIN mush_thing as t on t.objid=p.objid 
+	WHERE j2.job_id IS NOT NULL ON DUPLICATE KEY UPDATE link_type=VALUES(link_type);
+
+INSERT IGNORE INTO mush_job_link(job_id,player_id) 
+	SELECT j.job_id,t.thing_id 
+	FROM jobsys_comments as j 
+	LEFT JOIN mush_job as j2 on j.job_id=j2.job_id 
+	LEFT JOIN jobsys_players as p on p.player_id=j.player_id 
+	LEFT JOIN mush_thing as t on t.objid=p.objid 
+	WHERE j2.job_id IS NOT NULL;
+
+INSERT INTO mush_job_comment(link_id,date_created,comment_text,comment_type,is_visible) 
+	SELECT j3.link_id,j.comment_date,j.comment_text,IF(j.comment_type,2,1),IF(j.comment_type=2,0,1)  
+	FROM jobsys_comments as j 
+	LEFT JOIN mush_job as j2 on j.job_id=j2.job_id 
+	LEFT JOIN jobsys_players as p on p.player_id=j.player_id 
+	LEFT JOIN mush_thing as t on p.objid=t.objid 
+	LEFT JOIN mush_job_link as j3 ON j.job_id=j3.job_id AND j3.player_id=t.thing_id 
+	WHERE j2.job_id IS NOT NULL;
+
+
+-- Finish!
+COMMIT;
+-- Sticking this down here so I don't forget it.
+--SET FOREIGN_KEY_CHECKS=1;

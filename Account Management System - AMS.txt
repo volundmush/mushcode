@@ -93,6 +93,10 @@ th u(NEWCONF,pconf,SYSTEM,OLD_ALTS,1,+account details include old alts?,BOOL)
 
 &OBJECT`RENAME`FIXACCOUNT [u(cobj,ams)]=@select/inline %2=PLAYER,{@check isdbref(u(setr`%va,accid,u(accid,%0)));th u(setstat,%q<accid>,OLD,%0,%1)}
 
+&OBJECT`RENAME`THING [u(cobj,ams)]=@check switch(type(%0),PLAYER,1,match(u(cobj,gop) [u(cobj,jobdb)] [u(cobj,accounts)],objid(parent(%0))));@attach %!/INC`DOSQL=RENAME`THING,%1,%0;
+
+&Q`RENAME`THING [u(cobj,ams)]=UPDATE mush_thing SET object_name=? WHERE objid=?
+
 &OBJECT`DESTROY`CLEANACCOUNTS [u(cobj,ams)]=@select/inline %2=PLAYER,{@check isdbref(u(setr`%va,accid,u(accid,%0,1)));@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<accid>,%0}
 
 @@ ****** ALTS SECTION *******
@@ -219,7 +223,7 @@ th u(NEWCONF,pconf,SYSTEM,OLD_ALTS,1,+account details include old alts?,BOOL)
 
 th u(NEWCONF,config,CHANNELS,APPROVAL,,Channel to announce Approvals on.,LIST)
 
-&INC`APPROVE`DOAPPROVE [u(cobj,ams)]=@set %0=D`APPROVED:1;@attach %!/INC`MSG`CHAN=[ansi(h,u(moniker`%va,%0))] is now approved for play!,u(game_config,CHANNELS,APPROVAL),,1,,1;@trigger u(cobj,mco)/PLAYER`APPROVE=%0,%:
+&INC`APPROVE`DOAPPROVE [u(cobj,ams)]=@set %0=D`APPROVED:[secs()];@attach %!/INC`MSG`CHAN=[ansi(h,u(moniker`%va,%0))] is now approved for play!,u(game_config,CHANNELS,APPROVAL),,1,,1;@trigger u(cobj,mco)/PLAYER`APPROVE=%0,%:
 &INC`APPROVE`DOUNAPPROVE [u(cobj,ams)]=@set %0=D`APPROVED:0
 
 
@@ -280,16 +284,13 @@ th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WOR
 
 @@ SQL SECTION
 
-&SQL`INSTALL [u(cobj,ams)]=PLAYERS|LOGINS
-&SQL`TABLE`LOGINS [u(cobj,ams)]=mushcode_logins
-&SQL`TABLE`PLAYERS [u(cobj,ams)]=mushcode_players
+&SQL`INSTALL [u(cobj,ams)]=THING|LOGIN
 
-&Q`INSTALL`PLAYERS [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS $PLAYERS$ (player_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT,objid VARCHAR(30) NOT NULL,player_name VARCHAR(60) NOT NULL DEFAULT 'Unset',PRIMARY KEY(player_id),UNIQUE KEY player_objid (objid)) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+&Q`INSTALL`THING [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS mush_thing (thing_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,display_num MEDIUMINT UNSIGNED NULL,objid VARCHAR(30) NOT NULL,object_name VARCHAR(60) NOT NULL,is_guest BOOL NOT NULL DEFAULT FALSE,parent_id MEDIUMINT UNSIGNED NULL,is_deleted BOOL NOT NULL DEFAULT FALSE,thing_type TINYINT UNSIGNED DEFAULT 0,PRIMARY KEY(thing_id),UNIQUE(objid),INDEX(object_name,thing_type,display_num),UNIQUE(display_num,thing_type),FOREIGN KEY(parent_id) REFERENCES mush_thing(thing_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1
 
-&Q`INSTALL`LOGINS [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS $LOGINS$ (login_id BIGINT(31) UNSIGNED NOT NULL AUTO_INCREMENT, player_id BIGINT(31) UNSIGNED NOT NULL,login_date DATETIME,login_result BOOL NOT NULL DEFAULT TRUE,login_reason VARCHAR(80),login_address VARCHAR(39) NOT NULL,login_site varchar(100),login_guest BOOL NOT NULL DEFAULT FALSE,PRIMARY KEY(login_id),FOREIGN KEY(player_id) REFERENCES $PLAYERS$(player_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1
+&Q`INSTALL`LOGIN [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS mush_login (login_id INT UNSIGNED NOT NULL AUTO_INCREMENT,player_id MEDIUMINT UNSIGNED NOT NULL,date_login DATETIME NOT NULL,is_success BOOL NOT NULL DEFAULT TRUE,ip_address VARBINARY(16) NOT NULL,INDEX(ip_address, is_success),PRIMARY KEY(login_id),FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1
 
-&TRG`INSTALL [u(cobj,ams)]=@dolist/inline/delimit | [v(SQL`INSTALL)]={@attach %!/INC`DOSQL=INSTALL`##}
-@trigger u(cobj,ams)/TRG`INSTALL
+@trigger [u(cobj,ams)]/TRG`INSTALL
 
 @@ CHARACTER - +ACCOUNT
 +help/add +account=[u(cobj,ams)]/HLP`+ACCOUNT
@@ -337,14 +338,3 @@ th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WOR
 +help/category +staff=Community
 +help/metatags +staff=imms wizlist admin
 &HLP`+STAFF [u(cobj,ams)]=+staff lists the game's administrators and their current status.%R[ansi(hc,See Also:)] [u(pueblize,help JUDGE)], [u(pueblize,help ROYALTY)], [u(pueblize,help WIZARD)]%R%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+staff)] - Show game's staff members.)]
-
-@@ MIGRATION TOOL
-&MIGRATE`ACCOUNTS [u(cobj,migrate)]=@check isdbref(u(cobj,accounts))=@attach %!/INC`MSG=ERROR: Cannot locate 2.0 Account Database. Cannot continue.;@check isdbref(u(setr`%va,adb,u(%q<index>/adb)))=@attach %!/INC`MSG=ERROR: Cannot locate 1.0 Account Database <ADB>. Cannot continue.;@check words(u(setr`%va,oldids,sort(u(lattr`%va,%q<adb>/*))))=@attach %!/INC`MSG=ERROR: No accounts to import.;@dolist %q<oldids>={@attach [u(cobj,ams)]/INC`ACCOUNT`MAKENUM=##;th u(attrib_set`%va,%q<accid>,CHARACTERS,u(setr`%va,chars,get(%q<adb>/##)));@attach %!/INC`CPTREE=%q<adb>,##`BB,%q<accid>,D`BB;@attach %!/INC`CPTREE=%q<adb>,##`COLOR,%q<accid>,D`COLOR;@cpattr %q<adb>/##`OLD=%q<accid>/OLD;@cpattr %q<adb>/##`EMAIL=%q<accid>/EMAIL;@cpattr %q<adb>/##`TZ=%q<accid>/D`CONFIG`SYSTEM`TIMEZONE;th iter(%q<chars>,u(attrib_set`%va,%i0,D`ACCOUNT,%q<accid>))}
-
-&MIGRATE`STAFF [u(cobj,migrate)]=@check isdbref(u(setr`%va,pco,u(%q<index>/pco)))=@attach %!/INC`MSG=ERROR: Cannot locate 1.0 PennMUSH Configuration Object. Cannot continue.;@dolist/inline/delimit | [get(%q<pco>/WIZLIST)]={&D`STAFF [before(##,~)]=1;&D`STAFF`ORDER [before(##,~)]=after(##,~);&D`STAFF`POSITION [before(##,~)]=u(strfirstof`%va,get(before(##,~)/POSITION),get(before(##,~)/JOB))};&CONFIG`STAFF`WIZLIST_FOOTER [u(cobj,config)]=u(%q<pco>/WIZLIST`MSG)
-
-&MIGRATE`APPROVAL [u(cobj,migrate)]=@dolist/inline u(setr`%va,unapproved,lsearch(all,type,player,elock,!POWER^GUEST&!FLAG^WIZARD^&!FLAG^ROYALTY&FLAG^UNREGISTERED))={&D`APPROVED %i0=0};@dolist/inline u(setr`%va,approved,lsearch(all,type,player,elock,!POWER^GUEST&!FLAG^WIZARD&!FLAG^ROYALTY&!FLAG^UNREGISTERED))={&D`APPROVED %i0=1};@dolist/inline %q<unapproved>={@set %i0=!UNREGISTERED}
-
-&MIGRATE`BANS [u(cobj,migrate)]=@check isdbref(u(setr`%va,bandb,u(cobj,bandb))=@attach %!/INC`MSG=ERROR: Cannot locate 2.0 Ban Database. Cannot continue.;@check isdbref(u(setr`%va,olddb,u(%q<index>/bandb)))=@attach %!/INC`MSG=ERROR: Cannot locate 1.0 Ban Database <BANDB>. Cannot continue.;@check words(u(setr`%va,oldids,sort(u(lattr`%va,%q<adb>/*)))=@attach %!/INC`MSG=ERROR: No bans to import.;@dolist/inline %q<oldids>={@attach %!/INC`CPTREE=%q<olddb>,##,%q<bandb>,BAN};@attach %!/INC`MSG=Successfully converted [words(%q<oldids>)] bans!
-
-&CONFLICT`ACCOUNTS [u(cobj,migrate)]=@check isdbref(u(setr`%va,cao,u(%q<index>/cao)))=@attach %!/INC`MSG=ERROR: Cannot locate 1.0 Character Accounts Object <CAO>. Cannot continue.;@halt %q<cao>;@set %q<cao>=NO_COMMAND;@tel %q<cao>=[u(cobj,oldbox)];@attach %!/INC`MSG=Successfully disabled old Account System.

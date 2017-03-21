@@ -5,10 +5,10 @@
 
 &FUN`CLASSINFO`MORTAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|SEX~Sex,POWER~Essence~1)
 &FUN`CLASSINFO`SOLAR [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|SEX~Sex,POWER~Essence~1|CASTE~Caste~N/A)
-
+&FUN`CLASSINFO`LUNAR [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|SEX~Sex|TOTEM ANIMAL~Totem Animal~None,POWER~Essence~1|CASTE~Caste~N/A)
 
 &FUN`CLASSINFO`ABYSSAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|[if(u(game_config,STORYTELLER,RESONANCE),FLAWED VIRTUE~Flawed Virtue~None,DOOM~Doom~None)],POWER~Essence~1|LIEGE~Liege~None)
-&FUN`CLASSINFO`LUNAR [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|VIRTUE FLAW~Virtue Flaw~None,POWER~Essence~1|TOTEM ANIMAL~Totem Animal~None)
+
 &FUN`CLASSINFO`SIDEREAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|VIRTUE FLAW~Virtue Flaw~None,POWER~Essence~1|FACTION~Faction~None)
 &FUN`CLASSINFO`TERRESTRIAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Aspect~N/A|VIRTUE FLAW~Virtue Flaw~None,POWER~Essence~1|NATION~Nation~Outcaste|HOUSE~House~None)
 &FUN`CLASSINFO`INFERNAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|URGE~Urge~None,POWER~Essence~1|FAVORED YOZI~Favored Yozi~None)
@@ -79,7 +79,7 @@
 
 &FUN`FOOTER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,|----------------------------------------------------------------------------|)%R%B[u(FUN`COLOR,%1,BORDER,\\)]%B[center(u(FUN`GETSERIES,%1),72)]%B[u(FUN`COLOR,%1,BORDER,/)]%R%B%B[u(FUN`COLOR,%1,BORDER,'------------------------------------------------------------------------')]
 
-&FUN`GETSERIES [u(cobj,sheet)]=switch(%0,SOLAR,ansi(hy,Solars):%B[ansi(hy,The Lawgivers)],ABYSSAL,ansi(hx,Abyssals):%B[ansi(hx,The Deathknights)],INFERNAL,ansi(hg,Infernals):%B[ansi(hg,The Green Sun Princes)],LUNAR,ansi(hc,Lunars):%B[ansi(hc,The Stewards)],SIDEREAL,ansi(hm,Sidereals):%B[ansi(hm,The Viziers)],TERRESTRIAL,ansi(hr,Terrestrials):%B[ansi(hr,The TERRESTRIAL)],ALCHEMICAL,ansi(c,Alchemicals):%B[ansi(c,The Champions)],JADEBORN,ansi(y,Jadeborn),RAKSHA,ansi(m,Raksha):%B[ansi(m,The Fair Folk)],MORTAL,Mortals:%BThe Heroes,GHOST,Ghosts,DRAGON-KING,Dragon-Kings,GOD-BLOODED,ansi(h,GOD-BLOODED):%B[ansi(h,The Children of the Mighty)],Exalted 2.5e)
+&FUN`GETSERIES [u(cobj,sheet)]=switch(%0,SOLAR,ansi(hy,Solars):%B[ansi(hy,The Lawgivers)],ABYSSAL,ansi(hx,Abyssals):%B[ansi(hx,The Deathknights)],INFERNAL,ansi(hg,Infernals):%B[ansi(hg,The Green Sun Princes)],LUNAR,ansi(hc,Lunars):%B[ansi(hc,The Stewards)],SIDEREAL,ansi(hm,Sidereals):%B[ansi(hm,The Viziers)],TERRESTRIAL,ansi(hr,Terrestrials):%B[ansi(hr,The Dragon-Blooded)],ALCHEMICAL,ansi(c,Alchemicals):%B[ansi(c,The Champions)],JADEBORN,ansi(y,Jadeborn),RAKSHA,ansi(m,Raksha):%B[ansi(m,The Fair Folk)],MORTAL,Mortals:%BThe Heroes,GHOST,Ghosts,DRAGON-KING,Dragon-Kings,GOD-BLOODED,ansi(h,GOD-BLOODED):%B[ansi(h,The Children of the Mighty)],Exalted 3e)
 
 &DEFAULT`STATNAME [u(cobj,sheet)]=
 &DEFAULT`FAVMARK [u(cobj,sheet)]=c
@@ -114,7 +114,7 @@
 &TERRESTRIAL`BORDER [u(cobj,sheet)]=hr
 &TERRESTRIAL`SLASH [u(cobj,sheet)]=c
 &TERRESTRIAL`HEADER [u(cobj,sheet)]=hc
-&TERRESTRIAL`CHARMHEADER [u(cobj,sheet)]=c
+&TERRESTRIAL`CHARMHEADER [u(cobj,sheet)]=hc
 
 &RAKSHA`BORDER [u(cobj,sheet)]=+springgreen3
 &RAKSHA`SLASH [u(cobj,sheet)]=+powderblue

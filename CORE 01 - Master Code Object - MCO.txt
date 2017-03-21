@@ -523,40 +523,35 @@ th set(u(cobj,mco),GAME:[first(version())])
 &REG`CAPNAMES2 [u(cobj,mco)]=(^|(?<=[(]))(of|the|a|and)
 &REG`CAPNAMES3 [u(cobj,mco)]=\b(of|the|a|and)\b
 
-&REG`SQL`TABLES [u(cobj,mco)]=\$\w+\$
 &REG`SQL`ENTRY [u(cobj,mco)]=\?|\!
 
 @@ SQL WRAPPER
 
 &MYSQL [u(cobj,mco)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-1 SQL QUERY DATA NOT FOUND)
-
 &MYSQL2 [u(cobj,mco)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),|,^),#-1 SQL QUERY DATA NOT FOUND)
-
 &MYSQL3 [u(cobj,mco)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),chr(176),chr(177)),#-1 SQL QUERY DATA NOT FOUND)
 
 &SQL`IN`NUMBER [u(cobj,mco)]=iter(%0,%i0,%1,\,%b)
 &SQL`IN`STRING [u(cobj,mco)]=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
 
-&SQL`FORMAT [u(cobj,mco)]=localize(regeditalli(v(Q`%0),v(REG`SQL`TABLES),u(SQL`TABLENAME,$0),v(REG`SQL`ENTRY),if(isint(u(setr`%va,set,v(u(setr`%va,num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,'[sqlescape(%q<set>)]'))))
-
-&SQL`TABLENAME [u(cobj,mco)]=u(SQL`TABLE`[u(trimcash`%va,%0)])
+&SQL`FORMAT [u(cobj,mco)]=localize(regeditalli(v(REG`SQL`ENTRY),if(isint(u(setr`%va,set,v(u(setr`%va,num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,'[sqlescape(%q<set>)]'))))
 
 &INC`DOSQL [u(cobj,mco)]=@stop strmatch(u(setr`%va,errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq`%va,after(%0,/),sql(SELECT last_insert_id\(\))))]=@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>
 
-
-&TRG`INSTALL [u(cobj,mco)]=@dolist/inline/delimit | [v(SQL`TABLES)]={@attach %!/INC`DOSQL=INSTALL`##};@dolist/inline/delimit | [v(SQL`VIEWS)]={@attach %!/INC`DOSQL=VIEW`##}
+&TRG`INSTALL [u(cobj,mco)]=@dolist/inline/delimit | [v(SQL`TABLES)]={@attach %!/INC`DOSQL=INSTALL`##};
 
 @@ COMMON CODE SNIPPETS
 
 &SYSTEM`NAME [u(cobj,mco)]=SYSTEM
 
-&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr`%va,t%1,if(%3,u(firstof`%va,u(u(cobj,cover)/FUN`FINDCOVER,%0),pmatch(%0)),pmatch(%0))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq`%va,t%1objid,objid(r(t%1)));th u(setq`%va,t%1name,name(r(t%1)));th u(setq`%va,t%1acc,u(accid,r(t%1),1));@select/inline t(%2)=1,{th u(setq`%va,t%1id,u(mysql,GET`ID_FROM_OBJID,objid(r(t%1))))}
+&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr`%va,t%1,if(%3,u(firstof`%va,u(u(cobj,cover)/FUN`FINDCOVER,%0),pmatch(%0)),pmatch(%0))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq`%va,t%1objid,objid(r(t%1)));th u(setq`%va,t%1name,name(r(t%1)));th u(setq`%va,t%1acc,u(accid,r(t%1),1));@select/inline t(%2)=1,{@select/inline t(u(setr`%va,t%1id,u(mysql,SELECT`PLAYER,r(t%1objid))))=0,{@attach %!/INC`DOSQL=INSERT`PLAYER/t%1id,r(t%1objid),r(t%1name)};@select/inline isobjid(r(t%1acc))=1,{@select/inline t(u(setr`%va,t%1aid,u(mysql,SELECT`ACCOUNT,r(t%1acc))))=0,{@attach %!/INC`DOSQL=INSERT`ACCOUNT/t%1aid,r(t%1acc),name(r(t%1acc))};@attach %!/INC`DOSQL=SET`ACCOUNT,r(t%1aid),r(t%1objid)}}
 @@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into. %2 - Boolean for also looking up a SQL id. %3 - Use Cover System.
 
-&INC`IDCHECK [u(cobj,mco)]=@select/inline t(u(setr`%va,id,u(mysql,GET`ID_FROM_OBJID,objid(%0))))=0,{@attach %!/INC`DOSQL=INSERT`PLAYER,objid(%0),name(%0);@attach %!/INC`IDCHECK}
-
-&Q`GET`ID_FROM_OBJID [u(cobj,mco)]=SELECT DISTINCT player_id from $PLAYERS$ WHERE objid=?
-&Q`INSERT`PLAYER [u(cobj,mco)]=INSERT INTO $PLAYERS$ (objid,player_name) VALUES (?,?)
+&Q`SELECT`PLAYER [u(cobj,mco)]=SELECT thing_id from mush_thing WHERE objid=? LIMIT 1
+&Q`INSERT`PLAYER [u(cobj,mco)]=INSERT INTO mush_thing (objid,object_name) VALUES (?,?)
+&Q`SELECT`ACCOUNT [u(cobj,mco)]=SELECT thing_id FROM mush_thing WHERE objid=? AND object_type=1 LIMIT 1
+&Q`INSERT`ACCOUNT [u(cobj,mco)]=INSERT INTO mush_thing (objid,object_name,object_type) VALUES (?,?,1)
+&Q`SET`ACCOUNT [u(cobj,mco)]=UPDATE mush_thing SET parent_thing=? WHERE objid=? AND thing_type=0 LIMIT 1
 
 &INC`JAILCHECK [u(cobj,mco)]=@stop u(jailcheck,%#)=@attach %!/INC`MSG=You have been jailed and cannot use this command.
 
