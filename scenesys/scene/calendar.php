@@ -8,10 +8,10 @@
 		foreach ($today as $scene)
 		
 				{
-					$timesplit = explode(" ",$scene['schedule_date']);
+					$timesplit = explode(" ",$scene['date_scheduled']);
 					$timesplit = explode(":",$timesplit[1]);
 					$starting_time = $timesplit[0].":".$timesplit[1];
-					$format_scenes[] = ['id'=>$scene['schedule_id'],'date'=>$starting_time,'owner'=>$scene['player_name'],'title'=>$scene['schedule_title']];
+					$format_scenes[] = ['id'=>$scene['scene_id'],'date'=>$starting_time,'owner'=>$scene['object_name'],'title'=>$scene['title']];
 				}
 		return $format_scenes;
 	}
@@ -33,7 +33,9 @@
 		}
 		else
 		{
-			$today = $scenedb->select('schedule', ["[>]players" => "player_id"], ['player_name', 'schedule_date', 'schedule_title', 'schedule_id'], ['schedule_date[<>]'=>[date("Y-m-d",mktime(0,0,0,$month,$day_counter,$year)),date("Y-m-d",mktime(0,0,0,$month,$day_counter+1,$year))], 'ORDER'=>['schedule_date']]);
+			$curday = sprintf('%s-%s-%s',$year,$month,$day_counter);
+			$today = $scenedb->query(sprintf("SELECT t.object_name,s.date_scheduled,s.title,s.scene_id FROM mush_scene AS s LEFT JOIN mush_actor AS act ON act.scene_id=s.scene_id AND act.actor_type=2 LEFT JOIN mush_thing AS t ON t.thing_id=act.player_id WHERE DATE(s.date_scheduled)='%s'",$curday))->fetchAll();
+
 			if($today)
 			{
 				$format_scenes = convert_scenes($today);

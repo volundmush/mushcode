@@ -1,22 +1,21 @@
 <?php
 	require 'base.php';
 	$smarty = new Smarty;
-	$num = ($_REQUEST['id']  ? $_REQUEST['id'] : $num );
-
-	if (!$scenedb->count('scenes', ['player_id'=>$num]))
+	$scene_list = $scenedb->query(sprintf("SELECT s.scene_id,t.object_name,t.thing_id,s.title,s.outcome,s.scene_status FROM mush_scene AS s LEFT JOIN mush_actor AS a ON s.scene_id=a.scene_id AND a.actor_type=2 LEFT JOIN mush_thing AS t ON t.thing_id=a.player_id WHERE t.thing_id=%s ORDER BY s.scene_id DESC",$num))->fetchAll();
+	
+	if (!$scene_list)
 	{
 		$smarty->assign('message', "The entered ID was not found.");
 		$smarty->display('error.tpl');
 	}
 	else
 	{
-	$scene_list = $scenedb->select('scenes', ["[>]players" => "player_id"], ["scene_id", "player_id", "player_name", "scene_title", "scene_desc", "scene_state"], ['player_id'=>$num, "ORDER"=>"scene_id DESC"]);
 	
 	$state_array = ["0"=>"Active", "1"=>"Paused", "2"=>"Unfinished", "3"=>"Finished"];
 	$scene_data = array();
 	foreach ($scene_list as $indiv)
 	{
-		$indiv_data = ["id"=>$indiv['scene_id'], "owner_name"=>$indiv['player_name'], "owner"=>$indiv['player_id'], 'title'=>$indiv['scene_title'], "description"=>$indiv['scene_desc'], "state"=>$state_array[$indiv['scene_state']]];
+		$indiv_data = ["id"=>$indiv['scene_id'], "owner_name"=>$indiv['object_name'], "owner"=>$indiv['thing_id'], 'title'=>$indiv['title'], "description"=>$indiv['outcome'], "state"=>$state_array[$indiv['scene_status']]];
 		$scene_data[] = $indiv_data;
 	}
 

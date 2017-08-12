@@ -46,7 +46,7 @@ th u(newconf,CONFIG,FINGER,FIELDCOLOR,hw,Color for field names.,COLOR)
 
 &INC`OOCFINGER`SET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin`%va,%#),strmatch(%0,*/*)),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(cand(u(isadmin`%va,%#),strmatch(%0,*/*)),after(%0,/),%0),setunion(u(game_config,OOCFINGER,PLAYERSET),if(u(isadmin`%va,%#),u(game_config,OOCFINGER,ADMINSET)),|,|),|,field,field;@select/inline strlen(%1)=0,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR OOCFINGER %q<field>};&D`OOCFINGER`%q<field> %q<t1>=%1;@attach %!/INC`MSG=You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [u(capnames,%q<field>)] OOCFinger Field to: %1;@select/inline strmatch(%#,%q<t1>)=0,{@attach %!/INC`MSG={Your [u(capnames,%q<field>)] OOCFinger Field is now: %1},%q<t1>}
 
-th u(newconf,config,OOCFINGER,COLUMN,ALIAS~Alias|MAIL~Mush Mail|LAST~Last On|EMAIL~Email|CONTACT~Contact|HOMEPAGE~Homepage|THEMESONG~Theme Song|ALTS~Alts|OTHER~Other|ACTOR~Actor|VOICEACTOR~Voice Actor,List to display.,LIST)
+th u(newconf,config,OOCFINGER,COLUMN,ALIAS~Alias|MAIL~Mush Mail|LAST~Last On|EMAIL~Email|CONTACT~Contact|HOMEPAGE~Homepage|THEMESONG~Theme Song|ACCALTS~Alts|OTHER~Other|ACTOR~Actor|VOICEACTOR~Voice Actor,List to display.,LIST)
 th u(newconf,config,OOCFINGER,WIDTH,11,Width of main column.,POSINT)
 th u(newconf,config,OOCFINGER,EXTRA,NOTES,Extra sections to display.,LIST)
 th u(newconf,config,OOCFINGER,PLAYERSET,EMAIL|CONTACT|HOMEPAGE|THEMESONG|OTHER|VOICEACTOR|ACTOR|NOTES|ALTS,Sections Players can edit.,LIST)

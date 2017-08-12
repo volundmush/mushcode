@@ -285,8 +285,10 @@ INSERT INTO mush_actor(scene_id,player_id,actor_type)
 	LEFT JOIN mush_thing as t ON t.objid=p.objid;
 
 INSERT IGNORE INTO mush_actor(scene_id,player_id)
-	SELECT DISTINCT s.scene_id,t.thing_id 
-	FROM scene_poses;
+	SELECT DISTINCT po.scene_id,t.thing_id 
+	FROM scene_poses as po
+    LEFT JOIN scene_players as p on po.player_id=p.player_id
+    LEFT JOIN mush_thing as t on t.objid=p.objid;
 
 INSERT INTO mush_action_source(scene_id,source_objid,source_name,source_type) 
 	SELECT scene_id,room_objid,room_name,0 
@@ -315,8 +317,8 @@ INSERT IGNORE INTO mush_actor(scene_id,player_id,actor_status)
 	LEFT JOIN mush_scene as sc ON s.schedule_title=sc.title AND s.schedule_date=sc.date_scheduled;
 
 -- Next, the job system!
-INSERT INTO mush_job(job_id,title,thing_id,date_created,date_due,date_closed,job_status) 
-	SELECT j.job_id,j.job_title,t.thing_id,j.submit_date,j.due_date,j.close_date,j.job_status 
+INSERT INTO mush_job(job_id,title,thing_id,date_created,date_due,date_closed,job_status,date_player_activity,date_admin_activity) 
+	SELECT j.job_id,j.job_title,t.thing_id,j.submit_date,j.due_date,j.close_date,j.job_status,j.job_pactivity,j.job_activity  
 	FROM jobsys_jobs as j 
 	LEFT JOIN mush_thing as t ON t.objid=j.job_objid 
 	WHERE t.thing_id IS NOT NULL;

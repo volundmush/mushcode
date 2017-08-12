@@ -47,9 +47,9 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 &INC`ACCOUNT`MAINLIST [u(cobj,ams)]=@pemit %#=u(header,mudname() %0);@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(30 6 42,Name,Last,Characters));@pemit %#=u(separator);@dolist/inline %q<accounts>={@pemit %#=align(30 6 42,u(pueblize,name(##),+account #[name(##)]),if(get(##/LAST),elements(u(fancytime`%va,get(##/LAST),%#), 1 2),ansi(hx,N/A)),u(strfirstof`%va,iter(sortkey(#lambda/convtime(get(\%0/LAST)),u(filter,ISOBJID,get(##/CHARACTERS)),-n),u(pueblize,u(moniker`%va,%i0),+finger [name(%i0)]),%b,\,%b),OLD: [iter(get(##/OLD),ansi(c,after(%i0,~)),|,\,%b)]))};@pemit %#=u(footer,+account <id or player> for details)
 
-&FUN`ACCOUNT`CHARLINE [u(cobj,ams)]=align(-6 3 -2 -3 -4 21 -4 21 6,num(%0),switch(1,u(iswizard`%va,%0),ansi(u(game_config,SYSTEM,WIZTAG),WIZ),hasflag(%0,ROYALTY),ansi(u(game_config,SYSTEM,ROYTAG),ROY),u(isadmin`%va,%0),ansi(hy,ADM),haspower(%0,BUILDER),ansi(hm,BUI),u(isapproved,%0),ansi(hg,APP),ansi(hr,---)),default(%0/D`ALTS,0),u(getproperty,%0,MAJORABBR),default(%0/D`FINGER`TYPE,??),u(pueblize,u(moniker`%va,%0),+finger [name(%0)]),elements(maildstats(%0),5),u(pueblize,get(%0/LASTIP),+ip [name(%0)]),u(lastidle,%0))
+&FUN`ACCOUNT`CHARLINE [u(cobj,ams)]=align(-6 3 -2 -3 -4 21 -4 21 6,num(%0),switch(1,u(iswizard`%va,%0),ansi(u(game_config,SYSTEM,WIZTAG),WIZ),hasflag(%0,ROYALTY),ansi(u(game_config,SYSTEM,ROYTAG),ROY),u(isadmin`%va,%0),ansi(hy,ADM),haspower(%0,BUILDER),ansi(hm,BUI),u(isapproved,%0),ansi(hg,APP),ansi(hr,---)),default(%0/D`ALTS,0),u(getproperty,%0,MAJORABBR),default(%0/D`FINGER`TYPE,??),u(pueblize,u(moniker`%va,%0),+finger [name(%0)]),elements(maildstats(%0),5),if(get(%0/D`APPROVED),u(fancytime`%va,get(%0/D`APPROVED),%#),N/A),u(lastidle,%0))
 
-&INC`ACCOUNT`SHOW [u(cobj,ams)]=th u(setq`%va,pcs,u(filter,ISOBJID,get(%q<accid>/CHARACTERS)));@pemit %#=u(HEADER,ACCOUNT: [name(%q<accid>)]);@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(-6 3 2 3 4 21 4 21 6,Dbref,Sta,Al,Fac,Type,Name,Mail,IP,LastOn));@pemit %#=u(SEPARATOR);@dolist/inline %q<pcs>={@pemit %#=u(FUN`ACCOUNT`CHARLINE,##)};@select/inline cand(u(player_config`%va,%#,SYSTEM,OLD_ALTS),gt(words(u(setr`%va,old,u(filter,OLDOBJID,get(%q<accid>/OLD),|,|)),|),0))=1,{@pemit %#=u(SEPARATOR,Old Characters);@pemit %#=align(-6 3 3 21 8 21,Dbref,,,Name,,Objid);@dolist/inline/delimit | [u(sortoldid`%va,%q<old>,|,|)]={@pemit %#=align(-6 3 -3 21 8 21,before(##,:),,,after(##,~),,before(##,~))}};@pemit %#=u(footer)
+&INC`ACCOUNT`SHOW [u(cobj,ams)]=th u(setq`%va,pcs,u(filter,ISOBJID,get(%q<accid>/CHARACTERS)));@pemit %#=u(HEADER,ACCOUNT: [name(%q<accid>)]);@pemit %#=ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(-6 3 2 3 4 21 4 21 6,Dbref,Sta,Al,Fac,Type,Name,Mail,Date Approved,LastOn));@pemit %#=u(SEPARATOR);@dolist/inline %q<pcs>={@pemit %#=u(FUN`ACCOUNT`CHARLINE,##)};@select/inline cand(u(player_config`%va,%#,SYSTEM,OLD_ALTS),gt(words(u(setr`%va,old,u(filter,OLDOBJID,get(%q<accid>/OLD),|,|)),|),0))=1,{@pemit %#=u(SEPARATOR,Old Characters);@pemit %#=align(-6 3 3 21 8 21,Dbref,,,Name,,Objid);@dolist/inline/delimit | [u(sortoldid`%va,%q<old>,|,|)]={@pemit %#=align(-6 3 -3 21 8 21,before(##,:),,,after(##,~),,before(##,~))}};@pemit %#=u(footer)
 
 &INC`ACCOUNT`REQUEST [u(cobj,ams)]=@stop isdbref(u(setr`%va,accid,u(accid,%#,1)))=@attach %!/INC`MSG=ERROR: You already belong to [name(%q<accid>)]!;@attach %!/INC`CHECKPC=%0,1;@check u(setr`%va,reqacc,u(accid,%q<t1>,1))=@attach %!/INC`MSG=ERROR: %q<t1name> does not have an account!;@attach %!/INC`MSG=Request sent! Please use +request/accept %n on any character for that account to confirm.;th u(attrib_set`%va,%q<reqacc>,REQUESTS,setunion(get(%q<reqacc>/REQUESTS),%:));@attach %!/INC`MSG=%n has requested to join this account. Use [u(pueblize,+account/accept %n)] to confirm.,u(alts,%q<t1>);@attach %!/INC`MSG`CHAN=Sent add request to [name(%q<reqacc>)].
 
@@ -57,8 +57,8 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 
 &INC`ACCOUNT`BIND [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,2;@stop strmatch(%q<t2>,#1)=@attach %!/INC`MSG=ERROR: #1 cannot be bound to an Account.;@select/inline %1=NEW,{@attach %!/INC`ACCOUNT`CREATE=%q<t2name>},{@attach %!/INC`ACCOUNT`TARGET=%1};@select/inline isdbref(%q<t2acc>)=1,{@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<t2acc>,%q<t2objid>};@attach %!/INC`ACCOUNT`ADDTOACCOUNT=%q<accid>,%q<t2objid>;@attach %!/INC`MSG`NOTICE=You have been Account-Bound to [u(pueblize,%q<accname>,+account)].,%q<t2>;@attach %!/INC`MSG=You have Bound %q<t1name> to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])];@attach %!/INC`MSG`CHAN=Account-Bound %q<t2name> to [u(pueblize,%q<accname>,+account #%q<accname>)]
 
-&INC`ACCOUNT`ADDTOACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setunion(get(%0/CHARACTERS),objid(%1)));th u(attrib_set`%va,%1,D`ACCOUNT,%0);th u(setstat,%0,OLD,objid(%1),name(%1))
-&INC`ACCOUNT`REMFROMACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setdiff(get(%0/CHARACTERS),objid(%1)));@wipe %1/D`ACCOUNT;@select/inline t(%1)=1,{th u(delstat,%0,OLD,objid(%1))}
+&INC`ACCOUNT`ADDTOACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setunion(get(%0/CHARACTERS),objid(%1)));th u(attrib_set`%va,%1,D`ACCOUNT,%0);th u(setstat,%0,OLD,objid(%1),name(%1));th u(attrib_set`%va,%1,D`ACCOUNT`TIMESTAMP,secs())
+&INC`ACCOUNT`REMFROMACCOUNT [u(cobj,ams)]=th u(attrib_set`%va,%0,CHARACTERS,setdiff(get(%0/CHARACTERS),objid(%1)));@wipe %1/D`ACCOUNT;@select/inline t(%1)=1,{th u(delstat,%0,OLD,objid(%1))};@select/inline words(sql(SHOW TABLES,|),|)=>0,{@attach %!/INC`DOSQL=DELETE`ALL_LOGS,objid(%1)};@attach %!/INC`ACCOUNT`REMFROMACCOUNT`EXTRA
 
 &INC`ACCOUNT`UNBIND [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1;@check u(setr`%va,accid,%q<t1acc>)=@attach %!/INC`MSG={ERROR: %q<t1name> is not a member of any accounts.};@attach %!/INC`ACCOUNT`REMFROMACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG={You have removed %q<t1name> from Account [name(%q<accid>)]};@attach %!/INC`MSG`NOTICE={You were removed you from [name(%q<accid>)]},%q<t1>;@attach %!/INC`MSG`CHAN={Removed %q<t1name> from [name(%q<accid>)]}
 
@@ -79,7 +79,9 @@ th u(NEWCOBJ,Ban Database <BANDB>,bandb,u(cobj,ams),,1,WIZARD SAFE,SIDEFX SAFE)
 &OBJECT`CREATE [u(cobj,ams)]=@dolist/inline u(lattr`%va,%!/OBJECT`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 &OBJECT`MOVE [u(cobj,ams)]=@dolist/inline u(lattr`%va,%!/OBJECT`MOVE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 
-&PLAYER`CONNECT`ACCOUNT [u(cobj,ams)]=@stop u(isguest,%0);@stop isdbref(u(setr`%va,acc,u(accid,%0,1)))=&LAST %q<acc>=secs();@stop strmatch(num(%0),#1);@select/inline u(game_config,SYSTEM,AUTO_ACCOUNT)=1,{@select/inline words(u(setr`%va,accid,u(filter,isdbref,setunion(iter(u(filter,NOTGUEST,u(mysql,GET`OBJIDS_FROM_IPS,u(sql`in`string,get(%0/LASTIP)))),u(accid,%i0,1)),))))=>1,{@attach %!/INC`MSG=Welcome to [mudname()]! Login records show multiple accounts for this site. Auto-Matching cannot continue. [if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0},1,{@attach %!/INC`MSG=Welcome to [mudname()]! We found one account matching your login records. You have been auto-bound to [name(%q<accid>)]! Please contact staff if this is in error.,%0;@attach %!/INC`ACCOUNT`ADDTOACCOUNT=%q<accid>,%0},0,{@attach %!/INC`MSG=Welcome to [mudname()]! No account was found for this character.[if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0}},0,{@attach %!/INC`MSG=Welcome to [mudname())]! No account was found for this character.[if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0}
+&PLAYER`CONNECT`ACCOUNT [u(cobj,ams)]=@stop cor(u(isguest,%0),strmatch(num(%0),#1));@attach %!/INC`CHECKPC=%0,1,1;@stop isdbref(%q<t1acc>)=&LAST %q<t1acc>=secs();@select/inline u(game_config,SYSTEM,AUTO_ACCOUNT)=1,{@select/inline words(u(setr`%va,accid,trim(u(mysql,GET`ACCOUNTS,get(%0/LASTIP)))))=>1,{@attach %!/INC`MSG=Welcome to [mudname()]! Login records show multiple accounts for this site. Auto-Matching cannot continue. [if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0},1,{@attach %!/INC`MSG=Welcome to [mudname()]! We found one account matching your login records. You have been auto-bound to [name(%q<accid>)]! Please contact staff if this is in error.,%0;@attach %!/INC`ACCOUNT`ADDTOACCOUNT=%q<accid>,%0},0,{@attach %!/INC`MSG=Welcome to [mudname()]! No account was found for this character.[if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0}},0,{@attach %!/INC`MSG=Welcome to [mudname())]! No account was found for this character.[if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0}
+
+&Q`GET`ACCOUNTS [u(cobj,ams)]=SELECT DISTINCT p.objid FROM mush_login AS l LEFT JOIN mush_ip AS i ON i.ip_id=l.ip_id LEFT JOIN mush_thing AS t ON l.player_id=t.thing_id LEFT JOIN mush_thing AS p ON t.parent_id=.p.thing_id WHERE t.is_guest=0 and t.is_deleted=0 AND i.ip_address=?
 
 th u(NEWCONF,config,SYSTEM,AUTO_ACCOUNT,1,Auto-Bind accounts based on IP?,BOOL)
 th u(NEWCONF,config,SYSTEM,OPEN_ACCOUNT,0,Players can +account /new and /rename?,BOOL)
@@ -131,37 +133,42 @@ th u(NEWCONF,pconf,SYSTEM,OLD_ALTS,1,+account details include old alts?,BOOL)
 @set [u(cobj,ams)]/CMD`+IP`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`IP`PLAYER [u(cobj,ams)]=
-&SWITCHES`IP`ADMIN [u(cobj,ams)]=IP|GUESTS
+&SWITCHES`IP`ADMIN [u(cobj,ams)]=IP|GUESTS|CLEAR
 
 &INC`IP`MAIN [u(cobj,ams)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Guests cannot use +ip.;@select/inline u(isadmin`%va,%#)=0,{@attach %!/INC`CHECKPC=%#,1,1;@attach %!/INC`IP`IPSHOW=%q<t1>,0},{@attach %!/INC`CHECKPC=u(strfirstof`%va,%0,%#),1,1;@@ @stop u(isguest,%q<t1>)=@attach %!/INC`MSG=ERROR: To match Guests\, please use +ip/guests;@attach %!/INC`IP`IPSHOW=%q<t1>}
 
 &INC`IP`IP [u(cobj,ams)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: An IP address is required.;@attach %!/INC`IP`IPSHOW=%0,1,1
 
+&INC`IP`CLEAR [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`DOSQL=DELETE`ALL_LOGS,%q<t1objid>;@attach %!/INC`MSG=Cleared all login records for %q<t1name>!;@attach %!/INC`MSG`CHAN=Cleared all login records for %q<t1name>!
+
 &INC`IP`IPSHOW [u(cobj,ams)]=@check gt(words(u(setr`%va,ips,if(%2,%0,u(mysql,GET`LOGIN,%q<t1id>)))),0)=@attach %!/INC`MSG=ERROR: No IP logs found to match against.;th u(setq`%va,pcs,u(sortname,u(filter,if(u(isadmin`%va,%#),ISOBJID,OBJNOTGUEST),u(mysql,GET`OBJIDS_FROM_IPS,u(SQL`IN`STRING,%q<ips>)))));@check words(%q<pcs>)=@attach %!/INC`MSG=ERROR: No Matching Logs found.;@pemit %#=u(header,Site matches for [if(%2,%0,name(%0))]);@dolist/inline %q<pcs>={@pemit %#=u(separator,ansi(h,u(pueblize,u(moniker`%va,##),+finger [name(##)]))[ansi(h,\(##\))] - [u(lastidle,##)]);@pemit %#=ansi(u(color`%va,%#,%q<sysname>,COLUMN_NAMES),align(20 22 25,Date,Address,Result));@pemit %#=iter(revwords(iter(u(mysql2,get`logins,objid(##)),align(20 22 25,u(fancytime`%va,elements(%i0,3,^),%#),elements(%i0,2,^),if(elements(%i0,1,^),Success,elements(%i0,4,^))),|,beep()),beep()),%i0,beep(),%R)};@pemit %#=u(subheader)
 
-&Q`GET`LOGIN [u(cobj,ams)]=SELECT DISTINCT login_address FROM $LOGINS$ WHERE player_id=? AND login_result=1
+&Q`GET`LOGIN [u(cobj,ams)]=SELECT DISTINCT i.ip_address FROM mush_login AS l LEFT JOIN mush_thing AS t ON t.thing_id=l.player_id LEFT JOIN mush_ip AS i ON i.ip_id=l.ip_id WHERE t.thing_id=? AND l.is_success=1
 
 &FIL`OBJNOTGUEST [u(cobj,ams)]=cand(isobjid(%0),not(u(isguest`%va,%0)))
 
-&Q`GET`OBJIDS_FROM_IPS [u(cobj,ams)]=SELECT DISTINCT objid from $LOGINS$ as logins LEFT JOIN $PLAYERS$ as players ON players.player_id=logins.player_id WHERE logins.login_address IN (!)
+&Q`GET`OBJIDS_FROM_IPS [u(cobj,ams)]=SELECT DISTINCT t.objid from mush_login AS l LEFT JOIN mush_thing AS t ON l.player_id=t.thing_id LEFT JOIN mush_ip AS i ON l.ip_id=i.ip_id WHERE i.ip_address IN (!)
 
-&Q`GET`LOGINS [u(cobj,ams)]=SELECT login_result,login_address,UNIX_TIMESTAMP(login_date),login_reason from $LOGINS$ as logins LEFT JOIN $PLAYERS$ as players ON players.player_id=logins.player_id WHERE players.objid=? ORDER BY login_date DESC LIMIT 10
+&Q`GET`LOGINS [u(cobj,ams)]=SELECT l.is_success,i.ip_address,UNIX_TIMESTAMP(l.date_login) from mush_login AS l LEFT JOIN mush_thing AS t ON l.player_id=t.thing_id LEFT JOIN mush_ip AS i ON i.ip_id=l.ip_id WHERE t.objid=? ORDER BY l.date_login DESC LIMIT 10
 
-&TRG`IP`CLEANCONNLOGS [u(cobj,ams)]=@attach %!/INC`IDCHECK=%0;@check %q<id>;th u(setq`%va,keepids,u(mysql,GET`GOOD_LOGINS,%q<id>));@attach %!/INC`DOSQL=DELETE`OLD_LOGINS,%q<id>,u(SQL`IN`NUMBER,%q<keepids>)
+&TRG`IP`CLEANCONNLOGS [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1,1;@check %q<t1id>;th u(setq`%va,keepids,u(mysql,GET`GOOD_LOGINS,%q<t1id>));@attach %!/INC`DOSQL=DELETE`OLD_LOGINS,%q<t1id>,u(SQL`IN`NUMBER,%q<keepids>)
 
-&Q`GET`GOOD_LOGINS [u(cobj,ams)]=SELECT login_id FROM $LOGINS$ WHERE player_id=? ORDER BY login_date DESC LIMIT 20
-&Q`DELETE`OLD_LOGINS [u(cobj,ams)]=DELETE FROM $LOGINS$ WHERE player_id=? AND login_id NOT IN (!)
+&Q`GET`GOOD_LOGINS [u(cobj,ams)]=SELECT login_id FROM mush_login WHERE player_id=? ORDER BY date_login DESC LIMIT 20
+&Q`DELETE`OLD_LOGINS [u(cobj,ams)]=DELETE FROM mush_login WHERE player_id=? AND login_id NOT IN (!)
 
-&PLAYER`CONNECT`IPLOG [u(cobj,ams)]=@attach %!/INC`IDCHECK=%0;@check %q<id>;@attach %!/INC`DOSQL=INSERT`LOGIN,%q<id>,secs(),1,success,get(%0/LASTIP),get(%0/LASTSITE),u(isguest,%0);@trigger %!/TRG`IP`CLEANCONNLOGS=%0
+&PLAYER`CONNECT`IPLOG [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1,1;@check %q<t1id>;@select/inline t(u(setr`%va,ipid,u(mysql,GET`IP_ID,u(setr`%va,ip,get(%0/LASTIP)))))=0,{@attach %!/INC`DOSQL=INSERT`IP/ipid,%q<ip>};@attach %!/INC`DOSQL=INSERT`LOGIN,%q<t1id>,secs(),1,%q<ipid>;@trigger %!/TRG`IP`CLEANCONNLOGS=%0
 
-&Q`INSERT`LOGIN [u(cobj,ams)]=INSERT INTO $LOGINS$ (player_id,login_date,login_result,login_reason,login_address,login_site,login_guest) VALUES (?,FROM_UNIXTIME('?'),?,?,?,?,?)
+&Q`GET`IP_ID [u(cobj,ams)]=SELECT ip_id FROM mush_ip WHERE ip_address=? LIMIT 1
+&Q`INSERT`IP [u(cobj,ams)]=INSERT INTO mush_ip (ip_address) VALUES (?)
 
-&PLAYER`CONNECTFAIL`IPLOG [u(cobj,ams)]=@attach %!/INC`IDCHECK=%0;@check %q<id>;@attach %!/INC`DOSQL=INSERT`LOGIN,%q<id>,secs(),0,failure: %1,get(%0/LASTIP),get(%0/LASTSITE);@@ @trigger %!/TRG`IP`CLEANCONNLOGS=%0
+&Q`INSERT`LOGIN [u(cobj,ams)]=INSERT INTO mush_login (player_id,date_login,is_success,ip_id) VALUES (?,FROM_UNIXTIME(?),?,?)
+
+&PLAYER`CONNECTFAIL`IPLOG [u(cobj,ams)]=@attach %!/INC`CHECKPC=%0,1,1;@check %q<t1id>;@select/inline t(u(setr`%va,ipid,u(mysql,GET`IP_ID,u(setr`%va,ip,get(%0/LASTIP)))))=0,{@attach %!/INC`DOSQL=INSERT`IP/ipid,%q<ip>};@attach %!/INC`DOSQL=INSERT`LOGIN,%q<t1id>,secs(),0,%q<ipid>;@@ @trigger %!/TRG`IP`CLEANCONNLOGS=%0
 
 &SOCKET`LOGINFAIL`IPLOG [u(cobj,ams)]=@select/inline isdbref(%4)=1,{@trigger %!/PLAYER`CONNECTFAIL`IPLOG=%4,%3;th u(setq`%va,isgod,strmatch(#1,%4))[u(setq`%va,admin,u(isadmin`%va,%4))];@attach %!/INC`MSG`SYSCHAN={[if(cor(%q<isgod>,%q<admin>),ansi(hr,WARNING:),ansi(hy,ALERT:))]%BFailed [switch(1,%q<isgod>,ansi(hr,GOD),%q<admin>,ansi(hr,ADMIN),Player)] ([name(%4)]) login attempt from IP '%1' HOST '[host(%0)]' PORT '%0'. Consecutive Failure %2: %3. [if(strmatch(get(%4/LASTSITE),host(%0)),,ansi(hr,ALERT:)%BAttempt not from previous LASTSITE!)]};@select/inline cor(%q<isgod>,%q<admin>)=1,{@pemit/port %0=[ansi(hrf,WARNING:)]%BAdmin login failures are logged.};@select/inline %2=>1,{@pemit/port %0=If you have forgotten your password, ask an admin for a reset. Too many login attempts will cause a temporary lockout.}}
 
 &OBJECT`DESTROY`IPLOGS [u(cobj,ams)]=@select/inline %2=PLAYER,{@attach %!/INC`DOSQL=DELETE`ALL_LOGS,%0}
-&Q`DELETE`ALL_LOGS [u(cobj,ams)]=DELETE logins FROM $LOGINS$ INNER JOIN $PLAYERS$ ON logins.player_id=players.player_id WHERE players.objid=?
+&Q`DELETE`ALL_LOGS [u(cobj,ams)]=DELETE l FROM mush_login as l LEFT JOIN mush_thing as t ON l.player_id=t.thing_id WHERE t.objid=?
 
 @@ ***** BANLIST SECTION *******
 &CMD`+BANLIST`PENNMUSH [u(cobj,ams)]=$^(?\:\+)?banlist(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+BANLIST`MAIN
@@ -275,7 +282,7 @@ th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WOR
 &CMD`+IDLERS`MAIN [u(cobj,ams)]=th u(setq`%va,sysname,IDLERS);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`IDLERS`MAIN=%2,%3,%q<switch>
 @set [u(cobj,ams)]/CMD`+IDLERS`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&INC`IDLERS`MAIN [u(cobj,ams)]=@select/inline gt(strlen(%0),0)=1,{@attach %!/INC`VALID`POSINT=%0,Days},{th u(setq`%va,value,30)};@check words(u(setr`%va,idlers,sortkey(#lambda/convtime(get(\%0/LASTLOGOUT)),setdiff(lsearch(all,eplayer,\[cand(gt(sub(secs(),convtime(get(##/LASTLOGOUT))),mul(86400,%q<value>)),not(u(isguest`%va,##)),not(u(isadmin`%va,##)),not(gte(conn(##),0)))\]),num(u(cobj,ancestor_player))),n)))=@attach %!/INC`MSG=Nobody's been offline longer than %q<value>.;@select/inline strlen(%2)=>0,{@check words(u(setr`%va,idlers,u(filter,CHARTYPE,%q<idlers>,%b,%b,%2)))=@attach %!/INC`MSG=No idling characters are type %2.};@pemit %#=u(header,if(strlen(%2),%2%B)Players over %q<value> Days Idle)%R[ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(-6 3 2 3 4 21 4 21 6,Dbref,Sta,Al,Fac,Type,Name,Mail,IP,LastOn))]%R[u(separator)];@dolist/inline %q<idlers>=@pemit %#=u(FUN`ACCOUNT`CHARLINE,%i0);@pemit %#=u(footer)
+&INC`IDLERS`MAIN [u(cobj,ams)]=@select/inline gt(strlen(%0),0)=1,{@attach %!/INC`VALID`POSINT=%0,Days},{th u(setq`%va,value,30)};@check words(u(setr`%va,idlers,sortkey(#lambda/convtime(get(\%0/LASTLOGOUT)),setdiff(lsearch(all,eplayer,\[cand(gt(sub(secs(),convtime(get(##/LASTLOGOUT))),mul(86400,%q<value>)),not(u(isguest`%va,##)),not(u(isadmin`%va,##)),not(gte(conn(##),0)))\]),num(u(cobj,ancestor_player))),n)))=@attach %!/INC`MSG=Nobody's been offline longer than %q<value>.;@select/inline strlen(%2)=>0,{@check words(u(setr`%va,idlers,u(filter,CHARTYPE,%q<idlers>,%b,%b,%2)))=@attach %!/INC`MSG=No idling characters are type %2.};@pemit %#=u(header,if(strlen(%2),%2%B)Players over %q<value> Days Idle)%R[ansi(u(color`%va,%#,COLOR,COLUMN_NAMES),align(-6 3 2 3 4 21 4 21 6,Dbref,Sta,Al,Fac,Type,Name,Mail,IP,LastOn))]%R[u(separator)];@dolist/inline %q<idlers>=@pemit %#=u(FUN`ACCOUNT`CHARLINE,%i0);@pemit %#=u(footer,words(%q<idlers>) Characters Idle)
 
 &SWITCHES`IDLERS`ADMIN [u(cobj,ams)]=
 &SWITCHES`IDLERS`PLAYER [u(cobj,ams)]=u(game_config,FCLIST,TYPES)
@@ -284,11 +291,13 @@ th u(newconf,config,STAFF,WIZLIST_FOOTER,,Displayed at the bottom of +admin.,WOR
 
 @@ SQL SECTION
 
-&SQL`INSTALL [u(cobj,ams)]=THING|LOGIN
+&SQL`INSTALL [u(cobj,ams)]=THING|IP|LOGIN
 
 &Q`INSTALL`THING [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS mush_thing (thing_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,display_num MEDIUMINT UNSIGNED NULL,objid VARCHAR(30) NOT NULL,object_name VARCHAR(60) NOT NULL,is_guest BOOL NOT NULL DEFAULT FALSE,parent_id MEDIUMINT UNSIGNED NULL,is_deleted BOOL NOT NULL DEFAULT FALSE,thing_type TINYINT UNSIGNED DEFAULT 0,PRIMARY KEY(thing_id),UNIQUE(objid),INDEX(object_name,thing_type,display_num),UNIQUE(display_num,thing_type),FOREIGN KEY(parent_id) REFERENCES mush_thing(thing_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1
 
-&Q`INSTALL`LOGIN [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS mush_login (login_id INT UNSIGNED NOT NULL AUTO_INCREMENT,player_id MEDIUMINT UNSIGNED NOT NULL,date_login DATETIME NOT NULL,is_success BOOL NOT NULL DEFAULT TRUE,ip_address VARBINARY(16) NOT NULL,INDEX(ip_address, is_success),PRIMARY KEY(login_id),FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1
+&Q`INSTALL`IP [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS mush_ip (ip_id INT UNSIGNED NOT NULL AUTO_INCREMENT,ip_address VARCHAR(39) UNIQUE NOT NULL,INDEX(ip_address),PRIMARY KEY(ip_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`LOGIN [u(cobj,ams)]=CREATE TABLE IF NOT EXISTS mush_login (login_id INT UNSIGNED NOT NULL AUTO_INCREMENT,player_id MEDIUMINT UNSIGNED NOT NULL,date_login DATETIME NOT NULL,is_success BOOL NOT NULL DEFAULT TRUE,ip_id INT UNSIGNED NOT NULL,INDEX(ip_id, is_success),PRIMARY KEY(login_id),FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(ip_id) REFERENCES mush_ip(ip_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci AUTO_INCREMENT=1
 
 @trigger [u(cobj,ams)]/TRG`INSTALL
 

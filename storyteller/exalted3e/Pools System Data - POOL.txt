@@ -45,7 +45,7 @@
 &POOL`PERIPHERAL`MAX`LUNAR [u(cobj,pool)]=add(mul(4,getpower(%0)),34)
 
 @@ TERRESTIAL
-&CLASS`TERRESTIAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
+&CLASS`TERRESTRIAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
 &POOL`PERSONAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(mul(1,getpower(%0)),11)
 &POOL`PERIPHERAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(mul(4,getpower(%0)),23)
 

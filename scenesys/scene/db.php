@@ -6,11 +6,10 @@
 	$db_password="password"; // This way, there is no security risk. SceneSys doesn't require more at this moment.
 	$db_database="database";
 	$db_site="localhost";
-	$db_prefix="scene_";
 	$posecount = 0;
 	
 	$url = "../index.php/Special:FormEdit/Roleplaying Log/";
 	
-	$scenedb = new medoo(['database_type'=>$db_type, 'database_name'=>$db_database, 'server'=>$db_site, 'username'=>$db_username, 'password'=>$db_password, 'charset'=>'utf8', 'prefix'=>$db_prefix]);
+	$scenedb = new medoo(['database_type'=>$db_type, 'database_name'=>$db_database, 'server'=>$db_site, 'username'=>$db_username, 'password'=>$db_password, 'charset'=>'utf8']);
 	
 ?>

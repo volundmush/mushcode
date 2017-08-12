@@ -59,7 +59,7 @@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
 @adescribe [u(cobj,ancestor_player)]=@check [vol_my_config(ALERTS,ADESC)];think GAME> %n just looked at you.
 @idle [u(cobj,ancestor_player)]=if(gte(idle(%!),vol_my_config(ALERTS,IDLE)),Currently idle\, please try again later!)
 
-@chatformat [u(cobj,ancestor_player)]=if(cor(vol_chanpriority(%1),strmatch(%#,%!)),if(strlen(setr(color,vol_chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))],<%1>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)[vol_colormarkup(%!,vol_chanhash(%1,%2),%#)],%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#,%!)),CHANNELS)]))
+@CHATFORMAT [u(cobj,ancestor_player)]=if(cor(vol_chanpriority(%1),strmatch(%#,%!)),if(strlen(setr(color,vol_chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))],<%1>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)[vol_colormarkup(%!,vol_chanhash(%1,%2),%#)],%!,strfirstof(vol_codename(cmogrifier(%1)),if(vol_my_config(CHANNELS,NAMELINK),vol_namelink(%#,%!))),CHANNELS)]))
 
 th u(NEWCONF,pconf,ALERTS,ADESC,0,Signal when looked at.,BOOL)
 th u(NEWCONF,pconf,ALERTS,IDLE,1800,Minutes until pagers receive idle message.,DURATION)

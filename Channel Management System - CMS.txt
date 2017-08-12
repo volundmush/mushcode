@@ -69,6 +69,8 @@ th u(NEWCONF,config,CHANNELS,DEFAULT_PRIVS,PQ,Default priveleges for new channel
 
 &INC`CHANNEL`STAFFTAG [u(cobj,channel)]=@attach %!/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,channel,channel;@stop not(strmatch(parent(u(setr`%va,mog,cmogrifier(%q<channel>))),num(u(cobj,mop))))=@attach %!/INC`MSG=ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@select/inline t(match(get(%q<mog>/VAR`STAFFTAG),%:))=1,{&VAR`STAFFTAG %q<mog>=setdiff(get(%q<mog>/VAR`STAFFTAG),%:);@attach %!/INC`MSG=You will no longer have a Staff tag on %q<channel>},0,{&VAR`STAFFTAG %q<mog>=setunion(get(%q<mog>/VAR`STAFFTAG),%:);@attach %!/INC`MSG=You will now have a Staff tag on %q<channel>}
 
+&INC`CHANNEL`CODENAME [u(cobj,channel)]=@attach %!/INC`PARTIAL=%0,stripansi(objeval(%#,channels(|))),|,channel,channel;@stop not(strmatch(parent(u(setr`%va,mog,cmogrifier(%q<channel>))),num(u(cobj,mop))))=@attach %!/INC`MSG=ERROR: Channel is not initialized. Staff must use +channel/init %q<channel>;@check match(get(%q<mog>/MOGUSE`PLAYERNAME),codename)=@attach %!/INC`MSG=ERROR: This channel does not use codenames.;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No codename entered!;@stop gt(strlen(%2),26)=@attach %!/INC`MSG=ERROR: Codenames must be 26 characters or less.;@stop u(charsearch,%R %T,%2)=@attach %!/INC`MSG=ERROR: No newlines or tabs please!;&CODENAME`%# %q<mog>=%2;@attach %!/INC`MSG=Codename set to %2!
+
 @@ MUZZLE SECTION
 &CMD`+MUZZLE [u(cobj,channel)]=$^(?s)(?\:\+)?(muzzle|unmuzzle)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:th u(setq`%va,sysname,MUZZLE);@attach %!/INC`GETSWITCH=%2;@attach %!/INC`%1`[strfirstof(%q<switch>,MAIN)]=%3,%4,%5
 @set [u(cobj,channel)]/CMD`+MUZZLE=regexp
@@ -105,19 +107,6 @@ th u(NEWCONF,config,CHANNELS,DEFAULT_PRIVS,PQ,Default priveleges for new channel
 
 &INC`UNMUZZLE`ACCALL [u(cobj,channel)]=@attach %!/INC`CHECKPC=%0,1;@check isdbref(u(setr`%va,accid,%q<t1acc>))=@attach %!/INC`MSG=ERROR: %q<t1name> is not bound to an account.;@check u(setr`%va,until,get(u(cobj,muzzle)/ACCALL`%q<accid>))=@attach %!/INC`MSG=ERROR: %q<t1name> is not Account Muzzled on %q<channel>.;@attach %!/WIPE=u(cobj,muzzle),ACCALL`%q<accid>;@attach %!/INC`MSG=Global Unmuzzled [u(setr`%va,target,[name(%q<accid>)] \([u(itemize`%va,iter(u(filter,ISOBJID,get(%q<accid>/CHARACTERS)),name(%i0),%b,|),|,and,\,)]\))] from [ansi(hr,ALL CHANNELS)].;@attach %!/INC`MSG`NOTICE=Your Account Muzzled from [ansi(hr,ALL CHANNELS)] was released.,u(alts,%q<t1>);@attach %!/INC`MSG`CHAN=Unmuzzled %q<target> from [ansi(hr,ALL CHANNELS)].
 
-@@ Addcom Section
-
-&CMD`ADDCOM [u(cobj,channel)]=$^(addcom|delcom)(?\: +(.+?))?(?\:=(.*))?$:@attach %!/INC`%1=%2,%3
-@set [u(cobj,channel)]/CMD`ADDCOM=regexp
-@select/inline %va=RhostMUSH,{@set [u(cobj,channel)]/CMD`ADDCOM=no_command}
-
-&INC`ADDCOM [u(cobj,channel)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No alias entered.;@check eq(words(%0),1)=@attach %!/INC`MSG=ERROR: Aliases must be single words.;@check valid(name,D`COM`%0)=@attach %!/INC`MSG=ERROR: Aliases cannot include some of those characters.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No channel entered.;@attach %!/INC`PARTIAL=%1,objeval(%#,channels(|)),|,channel,channel;&D`COM`%0 %#=%1;@attach %!/INC`MSG=You can now speak on '%1' using '%0 <message>'.
-
-&INC`DELCOM [u(cobj,channel)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No alias entered.;@check hasattr(%#/D`COM`%0)=@attach %!/INC`MSG=ERROR: You do not have alias '%0'.;@wipe %#/D`COM`%0;@attach %!/INC`MSG=Alias '%0' removed.
-
-&CMD`COM [u(cobj,channel)]=$huh_command *:@check cand(hasattr(%#/D`COM`[setr(alias,first(%0))]),strlen(setr(message,trim(rest(%0)))))=@pemit %#=Huh?  \(Type "help" for help.\);@check strmatch(cstatus(setr(channel,get(%#/D`COM`%q<alias>)),%#),On)=@attach %!/INC`MSG=ERROR: You are not listening to channel '%q<channel>'. Turn it on or ungag it first.;@force/inline/noeval %#={@chat %q<channel>=%q<message>}
-
-@@ @cemit/spoof %q<channel>=if(strlen(setr(title,ctitle(%q<channel>,%#))),%q<title>%b,)[speak(%#,%q<message>)]
 
 @@ +clock section
 &CMD`+CLOCK [u(cobj,channel)]=$^(?\:\+)?(?\:chanlock|clock)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:th u(setq`%va,sysname,CLOCK);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`CLOCK=%2,%3
@@ -161,6 +150,11 @@ th u(NEWCONF,config,CHANNELS,STAFFTAG,hR,Color of Staff tag?,COLOR)
 
 &FUN`MESSAGE`MARKUP [u(cobj,mop)]=%0[null(attrib_set(%!/[setr(attr,HASH`[digest(md5,%0)])],u(markup`%va,%0,u(lwhoid)))[attrib_set(%!/%q<attr>`TIMESTAMP,secs())])]
 
+&FUN`BLOCK`CODENAME [u(cobj,mop)]=if(cand(match(v(MOGUSE`PLAYERNAME),codename),not(strlen(v(CODENAME`%#)))),ansi(hr,ERROR:) This channel requires a codename. You can set one with [ansi(hw,+channel/codename %1=<codename>)])
+&FUN`PLAYERNAME`CODENAME [u(cobj,mop)]=v(CODENAME`%#)
+&FUN`TITLE`CODENAME [u(cobj,mop)]=(%5)[if(strlen(%0),%b%0)]
+&MOGCONF`TITLE`CODENAME [u(cobj,mop)]=0
+
 &FUN`TITLE`STAFFTAG [u(cobj,mop)]=if(cand(v(MOGCONF`TITLE`STAFFTAG),match(v(VAR`STAFFTAG),%:),u(isadmin`%va,%#)),\[[ansi(u(game_config,CHANNELS,STAFFTAG),Staff)]\][if(strlen(%0),%B%0)],%0)
 &MOGCONF`TITLE`STAFFTAG [u(cobj,mop)]=1
 &FUN`TITLE`NOANSI [u(cobj,mop)]=stripansi(%0)
@@ -177,8 +171,8 @@ th u(NEWCONF,config,CHANNELS,STAFFTAG,hR,Color of Staff tag?,COLOR)
 &MOGCONF`TITLE`FACHEAD [u(cobj,mop)]=1
 
 &MOGRIFY`BLOCK [u(cobj,mop)]=localize(null(iter(v(MOGUSE`BLOCK),if(strlen(u(setr`%va,block,u(FUN`BLOCK`%i0,,%1,%2,%3,%4,%5))),ibreak())))%q<block>)
-&MOGORDER`BLOCK [u(cobj,mop)]=allmuzzle allaccmuzzle muzzle accmuzzle nostaffspoof badwords
-&MOGUSE`BLOCK [u(cobj,mop)]=allmuzzle allaccmuzzle muzzle accmuzzle nostaffspoof badwords
+&MOGORDER`BLOCK [u(cobj,mop)]=allmuzzle allaccmuzzle muzzle accmuzzle nostaffspoof badwords codename
+&MOGUSE`BLOCK [u(cobj,mop)]=allmuzzle allaccmuzzle muzzle accmuzzle nostaffspoof badwords codename
 
 &FUN`BLOCK`ALLMUZZLE [u(cobj,mop)]=if(cand(u(setr`%va,until,get(u(cobj,muzzle)/ALL`%#)),gt(%q<until>,secs())),u(msghead,u(SYSTEM`NAME)) You are Global Muzzled until [u(fancytime`%va,%q<until>,%#)])
 
