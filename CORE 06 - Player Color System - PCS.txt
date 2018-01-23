@@ -1,0 +1,64 @@
+@@ DEPENDENCIES - CORE
+th u(NEWCOBJ,Player Color SYSTEM <PCS>,pcs,,,,!NO_COMMAND WIZARD SAFE,INHERIT SIDEFX SAFE)
+
+&CMD`+CONFIG`PENNMUSH [u(cobj,pcs)]=$^(?\:\+)?color(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+CONFIG`MAIN
+@set [u(cobj,pcs)]/CMD`+CONFIG`PENNMUSH=regexp
+&CMD`+CONFIG`RHOSTMUSH [u(cobj,pcs)]=$^(?\:\+)?color(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+CONFIG`MAIN
+@set [u(cobj,pcs)]/CMD`+CONFIG`RHOSTMUSH=regexp
+&CMD`+CONFIG`MAIN [u(cobj,pcs)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,pcs)]/CMD`+CONFIG`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SWITCHES`PLAYER [u(cobj,pcs)]=CHANNEL|GROUP|NAME
+&SWITCHES`ADMIN [u(cobj,pcs)]=
+&SYSTEM`NAME [u(cobj,pcs)]=COLOR
+
+&INC`MAIN [u(cobj,pcs)]=@switch/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`SET}
+
+&CMD`COLORDEMO [u(cobj,pcs)]=$^(?s)(?\:\+)?color(?\:s|demo)(?\:/(\S+)?)?$:@attach %!/INC`PARTIAL=%1,LONG,|,switch;@select/inline %q<switch>=LONG,{@dolist/inline lnum(97,122)=@pemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,%i0))],%b,%r)))},{@pemit %#=iter(lnum(0,255),ansi(+xterm%i0,xterm%i0))}
+@set [u(cobj,pcs)]/CMD`COLORDEMO=regexp
+
+&COLOROPTIONS [u(cobj,pcs)]=BORDER|COLUMN_NAMES|HEADER_STAR|HEADER_TEXT|MSG|MSGTEXT|OOC|OOCEDGE|PAGE|OUTPAGE|QUOTES|SPEECH|ROW_A|ROW_B
+
+&COLOROPTIONS`BORDER [u(cobj,pcs)]=Color of borders shown in all command systems.
+&COLOROPTIONS`COLUMN_NAMES [u(cobj,pcs)]=Color for column names in tables. Like this one.
+&COLOROPTIONS`HEADER_STAR [u(cobj,pcs)]=Used for the * in Headers of most system.
+&COLOROPTIONS`HEADER_TEXT [u(cobj,pcs)]=Used for the text that shows in headers.
+&COLOROPTIONS`MSG [u(cobj,pcs)]=Used for the -=<>=- message component of system messages.
+&COLOROPTIONS`MSGTEXT [u(cobj,pcs)]=Used for the system name shown between -=<>=- in system messages.
+&COLOROPTIONS`OOC [u(cobj,pcs)]=Used for the OOC tag prefixing +ooc messages.
+&COLOROPTIONS`OOCEDGE [u(cobj,pcs)]=Used for the symbols of the +ooc message prefix.
+&COLOROPTIONS`PAGE [u(cobj,pcs)]=Color applied to all incoming pages.
+&COLOROPTIONS`OUTPAGE [u(cobj,pcs)]=Color applied to all outgoing pages. This only applies to how they look to you.
+&COLOROPTIONS`QUOTES [u(cobj,pcs)]=Color applied to the " " marks when they enclose text, in the context of player speech.
+&COLOROPTIONS`SPEECH [u(cobj,pcs)]=Color applied to dialogue enclosed in " " when spoken by another player.
+&COLOROPTIONS`ROW_A [u(cobj,pcs)]=For table displays, first color for alternating colored rows.
+&COLOROPTIONS`ROW_B [u(cobj,pcs)]=For table displays, second color for alternating colored rows.
+
+&INC`LIST [u(cobj,pcs)]=@pemit %#=u(header,Player Configuration);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(18 15 43,Setting,Value,Type and Description));@pemit %#=u(separator);@dolist/inline/delimit | [u(COLOROPTIONS)]={@pemit %#=align(18 15 43,%i0,ansi(u(color,%#,%i0),u(color,%#,%i0)),v(COLOROPTIONS`%i0))};@pemit %#=u(footer)
+
+&INC`SET [u(cobj,pcs)]=@attach %!/INC`PARTIAL=%0,u(COLOROPTIONS),|,option,option;@switch/inline strlen(%1)=0,{@attach %!/INC`MSG=%q<category> %q<option> restored to default.;@attach %!/WIPE=u(accid,%#),CUSTCOLOR`%q<option>},{@attach %!/INC`VALID`COLOR=%1;th u(attrib_set,u(accid,%#),CUSTCOLOR`%q<option>,%q<value>);@attach %!/INC`MSG=u(setr,msg,%q<option> Set to: %q<value>)}
+
+&INC`GROUP [u(cobj,pcs)]=th u(setq,groups,u(u(cobj,gms)/FUN`LISTGROUPS,%:));@switch/inline strlen(%0)=0,{@attach %!/INC`GROUP`LIST},{@attach %!/INC`GROUP`SET}
+
+&INC`GROUP`LIST [u(cobj,pcs)]=@pemit %#=u(header,Group Color);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(34 10,Group,Color));@pemit %#=u(separator);@dolist/inline %q<groups>={@pemit %#=align(34 10,u(moniker,##),u(groupcolor,%#,##))};@pemit %#=u(footer)
+
+&FIL`ISMEMBER [u(cobj,pcs)]=elock(%0,%1)
+
+&INC`GROUP`SET [u(cobj,pcs)]=@attach %!/INC`VALID`GROUP=%0;th u(setq,g1,%num(%q<value>));@switch/inline strlen(%2)=0,{@attach %!/INC`MSG=GROUP [name(%q<g1>)] restored to default.;@attach %!/WIPE=u(strfirstof,u(accid,%#),%#),CUSTCOLOR`GROUP`%q<g1>},{@attach %!/INC`VALID`COLOR=%2;th u(attrib_set,u(strfirstof,u(accid,%#),%#),CUSTCOLOR`GROUP`%q<g1>,%q<value>);@attach %!/INC`MSG=u(setr,msg,GROUP [name(%q<g1>)] Set to: %q<value>)}
+
+&INC`CHANNEL [u(cobj,pcs)]=th u(setq,channels,u(filter,RIGHTMOG,objeval(%#,channels(|)),|,|,num(u(cobj,mop))));@switch/inline strlen(%0)=0,{@attach %!/INC`CHANNEL`LIST},{@attach %!/INC`CHANNEL`SET}
+
+&FIL`RIGHTMOG [u(cobj,pcs)]=strmatch(parent(cmogrifier(%0)),%1)
+
+&INC`CHANNEL`LIST [u(cobj,pcs)]=@pemit %#=u(header,Channel Color);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(34 10,Channel,Color));@pemit %#=u(separator);@dolist/inline/delimit | %q<channels>={@pemit %#=align(34 10,%i0,u(colorchannel,%#,cmogrifier(%i0),,1))};@pemit %#=u(footer)
+
+&INC`CHANNEL`SET [u(cobj,pcs)]=@attach %!/INC`PARTIAL=%0,stripansi(%q<channels>),|,channel,channel;@switch/inline strlen(%2)=0,{@attach %!/INC`MSG=CHANNEL %q<channel> restored to default.;@attach %!/WIPE=u(strfirstof,u(accid,%#),%#),CUSTCOLOR`CHANNEL`[cmogrifier(%q<channel>)]},{@attach %!/INC`VALID`COLOR=%1;th u(attrib_set,u(strfirstof,u(accid,%#),%#),CUSTCOLOR`CHANNEL`[cmogrifier(%q<channel>)],%q<value>);@attach %!/INC`MSG=u(setr,msg,CHANNEL %q<channel> Set to: %q<value>)}
+
+&INC`NAME [u(cobj,pcs)]=@switch/inline strlen(%0)=0,{@attach %!/INC`NAME`LIST},{@attach %!/INC`NAME`SET}
+
+&INC`NAME`LIST [u(cobj,pcs)]=@pemit %#=u(header,Name Color);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(34 10,Name,Color));@pemit %#=u(separator);@dolist/inline u(filter,ISDBREF,edit(u(lattr,u(strfirstof,u(accid,%#),%#)/CUSTCOLOR`CHARACTER`#*),CUSTCOLOR`CHARACTER`,))={@pemit %#=align(34 10,u(moniker,##),u(color,%#,NAMES,##,,1))};@pemit %#=u(footer)
+
+&INC`NAME`SET [u(cobj,pcs)]=@attach %!/INC`CHECKPC=%0,1;@switch/inline strlen(%1)=0,{@attach %!/INC`MSG=NAMES %q<t1name> restored to default.;@attach %!/WIPE=u(accid,%#),CUSTCOLOR`CHARACTER`%q<t1>},{@attach %!/INC`VALID`COLOR=%1;th u(attrib_set,u(accid,%#),CUSTCOLOR`CHARACTER`%q<t1>,%q<value>);@attach %!/INC`MSG=u(setr,msg,NAMES %q<t1name> Set to: %q<value>)}
+
+&HLP`COLOR [u(cobj,pcs)]=The Color system allows players to customize how they see the game. This is linked to one's account, so you need to only set the color on one. This game expects clients with XTERM256 color support so please check help XTERM256 for more information on that.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+colors)] - Will display a helpful color palette table for referencing. [ansi(h,+colors/long)] for even more detail.%R[ansi(h,+color)] - Display all +color options for main game settings.%R[ansi(h,+color <option>=<colorcode>)] - Set a color option. Colorcode must be accepted by the ansi\(\) function. [u(pueblize,help ansi\(\))]%R[ansi(h,+color/channel)] - List custom colors for specific channels. These only work if you have not muddled with your @chatformat!%R[ansi(h,+color/channel <channel>=<colorcode>)] - Set a color for a channel.%R[ansi(h,+color/group)] - List your group-specific color settings.%R[ansi(h,+color/group <group>=<colorcode>)] - Change how you see a Group's color.%R[ansi(h,+color/name)] - View color settings for specific characters.%R[ansi(h,+color/name <name>=<colorcode>)] - See a character's name in a different color.%R%RFor all categories\, leaving the colorcode empty will clear/restore to default.)]%R%RADVANCED USERS: So you want to override your account settings per-character? Okay, but this is a little tricky and unsupported. Color settings are stored on attributes. The format is:%R[ansi(h,&CUSTCOLOR`<option> me=<colorcode>)] - for example, &CUSTCOLOR`COLUMN_NAMES me=hr%RFor CHARACTER settings, you must use this format: &CUSTCOLOR`CHARACTER`<DBREF> me=<colorcode>.%RChannel and Group color settings cannot be modified this way. Sorry.
++help/add Character/+color=[u(cobj,pcs)]/HLP`COLOR

@@ -1,4 +1,0 @@
-
-&VAR`MODE u(ar)=EXALTED
-
-&FUN`CONFORMAT`PLAYERS`EXALTED u(ar)=u(RFN`SEPARATOR,Players)%R[align(19 [sub(width(%#),20)],Name,Description)]%R[trim(iter(sort(lvplayers(me),namei),align(19 [sub(width(%#),20)],pueblize(ansi(custcolor(%#,ROOM`PLAYERNAME),name(%i0)),look [name(%i0)]),get(%i0/short-desc)),%b,%R),%r)]

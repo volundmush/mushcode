@@ -1,0 +1,95 @@
+@@ DEPENDENCIES - CORE
+
+th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+HELP`PENNMUSH [u(cobj,help)]=$^(?s)(?\:\+)?(help|shelp|news)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:/(.+?))?(?\:=(.+?))?$:@attach %!/CMD`+HELP`MAIN
+@set [u(cobj,help)]/CMD`+HELP`PENNMUSH=regexp
+&CMD`+HELP`RHOSTMUSH [u(cobj,help)]=$^(?s)(?\:\+)?(help|shelp|news)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:/(.+?))?(?\:=(.+?))?$:@attach %!/CMD`+HELP`MAIN
+@set [u(cobj,help)]/CMD`+HELP`RHOSTMUSH=regexp
+&CMD`+HELP`MAIN [u(cobj,help)]=@attach %!/INC`GETSWITCH=%2;@attach %!/INC`INIT`%1;th u(setq,accid,u(strfirstof,u(accid,%#),%#));@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%3),trim(%4),trim(%5),trim(%6),%1
+@set [u(cobj,help)]/CMD`+HELP`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&INC`INIT`HELP [u(cobj,help)]=th [u(setq,disp,mudname() Help Files)][u(setq,comm,+help)][u(setq,db,0)][u(setq,sysname,HELP)]
+&INC`INIT`SHELP [u(cobj,help)]=th [u(setq,disp,mudname() Staff Help Files)][u(setq,comm,+shelp)][u(setq,db,1)][u(setq,sysname,SHELP)];@check u(isadmin,%#)=@attach %!/INC`MSG=Permission Denied.
+&INC`INIT`NEWS [u(cobj,help)]=th [u(setq,disp,mudname() News Files)][u(setq,comm,+news)][u(setq,db,2)][u(setq,sysname,NEWS)]
+
+&SYSTEM`NAME [u(cobj,help)]=u(strfirstof,%q<sysname>,HELP)
+&SWITCHES`PLAYER [u(cobj,help)]=
+&SWITCHES`ADMIN [u(cobj,help)]=HELP|NEWCATEGORY|DELETECATEGORY|RENAMECATEGORY|CATEGORY|ADD|RENAME|DELETE|GET|ADDSUB|RENAMESUB|DELETESUB
+
+&INC`NEWCATEGORY [u(cobj,help)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Must enter a Category name.;@check u(setr,cat_id,u(call`2,volp_help_category,0,%q<db>,'[sqlescape(%0)]'))=@attach %!/INC`MSG=ERROR: %q<cat_id>;@attach %!/INC`MSG`CHAN=New Category: %0
+
+&INC`FINDCATEGORY [u(cobj,help)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Must enter a category name!;@check u(setr,u(strfirstof,%5,cat_id),u(mysql,FIND`CATEGORY_EXACT,%q<db>,%0))=@attach %!/INC`MSG=ERROR: Category '%0' not found.;th u(setq,catname,u(mysql,SELECT`CATEGORY_NAME,%q<cat_id>))
+
+&INC`RENAMECATEGORY [u(cobj,help)]=@attach %!/INC`FINDCATEGORY=%0;@check strlen(%3)=@attach %!/INC`MSG=ERROR: Must enter a replacement Category name!;@select/inline t(u(setr,exist_id,u(mysql,FIND`CATEGORY_EXACT,%q<db>,%3)))=1,{@attach %!/INC`DOSQL=REASSIGN`FILES,%q<exist_id>,%q<cat_id>;@attach %!/INC`DOSQL=DELETE`CATEGORY,%q<cat_id>},0,{@attach %!/INC`DOSQL=RENAME`CATEGORY,%3,%q<cat_id>};@attach %!/INC`MSG=Renamed Category '%q<catname>' to: %3;@attach %!/INC`MSG`CHAN=Renamed Category '%q<catname>' to: %3
+
+&Q`FIND`CATEGORY_EXACT [u(cobj,help)]=SELECT help_category_id FROM vol_help_category WHERE help_category_type=? AND help_category_name=?
+
+&Q`SELECT`CATEGORY_NAME [u(cobj,help)]=SELECT help_category_name FROM vol_help_category WHERE help_category_id=?
+&Q`RENAME`CATEGORY [u(cobj,help)]=UPDATE vol_help_category SET help_category_name=? WHERE help_category_id=?
+&Q`REASSIGN`FILES [u(cobj,help)]=UPDATE vol_help_file SET help_category_id=? WHERE help_category_id=?
+&Q`DELETE`CATEGORY [u(cobj,help)]=DELETE FROM vol_help_category WHERE help_category_id=?
+
+&INC`DELETECATEGORY [u(cobj,help)]=@attach %!/INC`FINDCATEGORY=%0;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will Delete Category '%q<catname>' and ALL ASSOCIATED FILES/SUBFILES. Are you SURE? Enter the same command again to verify!},DELETE HELPCAT %q<db> %q<cat_id>;@attach %!/INC`DOSQL=DELETE`CATEGORY,%q<cat_id>;@attach %!/INC`MSG=Deleted Category '%q<catname>'!;@attach %!/INC`MSG`CHAN=Deleted Category '%q<catname>'!
+
+&INC`ADD [u(cobj,help)]=@attach %!/INC`NEWCATEGORY=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: What's the file name?;@check strlen(%3)=@attach %!/INC`MSG=ERROR: File needs contents darnit!;@check u(setr,file_id,u(call`2,volp_help_file,0,%q<cat_id>,'[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: %q<file_id>;@attach %!/INC`FILLFILE=%3,%q<file_id>;@attach %!/INC`MSG=Help File '%1' Created/Updated!;@attach %!/INC`MSG`CHAN=Added/Replaced File: %1
+
+&INC`ADDSUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;th u(setr,load,u(mysql3,LOAD`FILE,%q<file_id>));@check strlen(%1)=@attach %!/INC`MSG=ERROR: What's the sub-filename?;@check strlen(%3)=@attach %!/INC`MSG=ERROR: A helpfile must have contents!;@check u(setr,sub_id,u(call`2,volp_help_sub,0,%q<cat_id>,%q<file_id>,'[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: %q<sub_id>;@attach %!/INC`FILLFILE=%3,%q<sub_id>;@attach %!/INC`MSG=Sub-Help File '[elements(%q<load>,3,chr(177))]/%1' Created/Updated!;@attach %!/INC`MSG`CHAN=Added/Replaced Sub-File: [elements(%q<load>,3,chr(177))]/%1
+
+&INC`FILLFILE [u(cobj,help)]=th u(setq,fulltext,%0);@select/inline isdbref(before(%q<fulltext>,/))=1,{@check cand(strlen(u(setr,rendertext,u(%q<fulltext>,1))),not(strmatch(%q<rendertext>,#-*)))=@attach %!/INC`MSG=ERROR: Cannot convert this DBREF/ATTRIBUTE.;th u(setq,isdbref,1)},0,{th u(setq,isdbref,0);th u(setq,rendertext,%q<fulltext>)};th u(setq,plaintext,stripansi(%q<rendertext>));th u(setq,squishtext,squish(squish(%q<plaintext>,%R)));@dolist/inline/delimit | help_file_dbattr~isdbref|help_file_text~fulltext|help_file_plaintext~plaintext|help_file_squished~squishtext={@attach %!/INC`DOSQL=UPDATE`FILE,before(##,~),r(after(##,~)),%1};
+
+&Q`UPDATE`FILE [u(cobj,help)]=UPDATE vol_help_file SET !=? WHERE help_file_id=?
+
+
+&INC`MAIN [u(cobj,help)]=@select/inline t(strlen(%0))[t(strlen(%1))]=00,{@attach %!/INC`SHOW`ALL},10,{@attach %!/INC`SHOW`TOPIC},11,{@attach %!/INC`SHOW`SUB}
+
+&FUN`CATEGORIES [u(cobj,help)]=u(mysql3,SELECT`CATEGORIES,%0)
+&Q`SELECT`CATEGORIES [u(cobj,help)]=SELECT help_category_id,help_category_name FROM volv_help_category WHERE help_count>0 AND help_category_type=? ORDER BY help_category_name
+
+&FUN`FILES [u(cobj,help)]=u(mysql3,SELECT`FILES,get(%1/D`ID),get(%1/D`ID),%0)
+&Q`SELECT`FILES [u(cobj,help)]=SELECT h.help_file_id,h.help_file_name,IF(r.help_read_date_checked>h.help_file_date_modified,0,1),UNIX_TIMESTAMP(h.help_file_date_modified),(SELECT IF(MAX(h2.help_file_date_modified)>MAX(r2.help_read_date_checked),0,1) FROM vol_help_file AS h2 LEFT JOIN vol_help_read AS r2 ON h2.help_file_id=r2.help_file_id AND r2.character_id=? WHERE h2.help_file_parent_id=h.help_file_id GROUP BY h2.help_file_id) FROM volv_help_file AS h LEFT JOIN vol_help_read AS r ON r.help_file_id=h.help_file_id AND r.character_id=? WHERE h.help_category_id=? AND h.help_file_parent_id IS NULL ORDER BY h.help_file_name ASC
+
+&FUN`SUBFILES [u(cobj,help)]=u(mysql3,SELECT`SUBFILES,get(%1/D`ID),%0)
+&Q`SELECT`SUBFILES [u(cobj,help)]=SELECT h.help_file_id,h.help_file_name,IF(r.help_read_date_checked>h.help_file_date_modified,0,1),UNIX_TIMESTAMP(h.help_file_date_modified) FROM volv_help_file AS h LEFT JOIN vol_help_read AS r ON r.help_file_id=h.help_file_id AND r.character_id=? WHERE h.help_file_parent_id=? ORDER BY h.help_file_name
+
+&INC`SHOW`ALL [u(cobj,help)]=@pemit %#=u(header,%q<disp>);@dolist/inline/delimit [chr(176)] [u(FUN`CATEGORIES,%q<db>)]={th u(setq,hdat,u(choosegame,%i0,%d0));@pemit %#=u(separator,u(capnames,elements(%q<hdat>,2,chr(177))));@pemit %#=u(table,iter(u(FUN`FILES,elements(%q<hdat>,1,chr(177)),%#),ljust(u(pueblize,ansi(h,u(setr,name,elements(%i0,2,chr(177)))),[lcstr(%q<comm>)] %q<name>)%B,25)[rjust(u(FUN`HAVEREAD,elements(%i0,3,chr(177)),elements(%i0,5,chr(177))),1)][u(date,elements(%i0,4,chr(177)),%#)],chr(176),|),37,u(width,%#),|)};@pemit %#=u(separator)%R%TFor more information on the listed topics, please use '[ansi(h,lcstr(%q<comm>) <topic>)]'[if(u(isadmin,%#),%R%TAdmin\, please see [u(pueblize,ansi(h,lcstr(%q<comm>)/help),lcstr(%q<comm>)/help)] for config information.)];@pemit %#=u(footer)
+
+&FUN`HAVEREAD [u(cobj,help)]=if(%0,ansi(hr,*),if(%1,ansi(y,&),%b)
+
+&INC`FINDMAIN [u(cobj,help)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: File name segment empty.;@select/inline t(%1)=0,{@check cor(u(setr,exact,u(mysql3,FIND`EXACT_FILE,%q<db>,%0)),if(gte(strlen(%0),4),u(setr,likename,u(mysql3,FIND`LIKE_FILE,%q<db>,sqlescape(%0)))))=@attach %!/INC`MSG=ERROR: NO file named '%0'.;th u(setq,file_id,elements(u(strfirstof,%q<exact>,%q<likename>),1,chr(177)))},1,{@check cor(u(setr,exact,u(mysql3,FIND`EXACT_FILE,%q<db>,%0)),if(gte(strlen(%0),4),u(setr,likename,u(mysql3,FIND`LIKE_FILE,%q<db>,sqlescape(%0)))))=@attach %!/INC`MSG=ERROR: No file named '%0'. Suggestions from Contents Search: [u(strfirstof,iter(u(mysql3,FIND`FILE_CONTAINS,%q<db>,sqlescape(%0)),u(pueblize,ansi(h,u(setr,name,elements(%i0,2,chr(177)))),[lcstr(%q<comm>)] %q<name>),chr(176),\,%b),None)];th u(setq,file_id,elements(u(strfirstof,%q<exact>,%q<likename>),1,chr(177)))};th u(setr,file_load,u(mysql3,LOAD`FILE,%q<file_id>));
+
+&Q`FIND`EXACT_FILE [u(cobj,help)]=SELECT help_file_id,help_file_name FROM volv_help_file WHERE help_category_type=? AND help_file_name=? AND help_file_parent_id IS NULL
+&Q`FIND`LIKE_FILE [u(cobj,help)]=SELECT help_file_id,help_file_name FROM volv_help_file WHERE help_category_type=? AND help_file_parent_id IS NULL AND help_file_name LIKE '!%' ORDER BY help_file_name ASC,CHAR_LENGTH(help_file_name) ASC LIMIT 1
+&Q`FIND`FILE_CONTAINS [u(cobj,help)]=SELECT h.help_file_id,h.help_file_name,s.help_file_name AS parent_file_name FROM volv_help_file AS h LEFT JOIN volv_help_file AS s ON h.help_file_parent_id=s.help_file_id WHERE h.help_category_type=? AND help_file_squished LIKE '%!%' ORDER BY help_file_name
+
+&INC`FINDSUB [u(cobj,help)]=@check cor(u(setr,exact,u(mysql3,FIND`EXACT_SUB,%q<file_id>,%0)),if(gte(strlen(%0),4),u(setr,likename,u(mysql3,FIND`LIKE_SUB,%q<file_id>,sqlescape(%0)))))=@attach %!/INC`MSG=ERROR: NO file named '%0'.;th u(setq,sub_id,elements(u(strfirstof,%q<exact>,%q<likename>),1,chr(177)));th u(setr,load_sub,u(mysql3,LOAD`FILE,%q<sub_id>));
+
+&Q`FIND`EXACT_SUB [u(cobj,help)]=SELECT help_file_id,help_file_name FROM volv_help_file WHERE help_file_parent_id=? AND help_file_name=?
+&Q`FIND`LIKE_SUB [u(cobj,help)]=SELECT help_file_id,help_file_name FROM volv_help_file WHERE help_file_parent_id=? AND help_file_name LIKE '!%' ORDER BY help_file_name ASC,CHAR_LENGTH(help_file_name) ASC LIMIT 1
+
+&INC`SHOW`TOPIC [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0,1;@pemit %#=u(header,%q<comm>: [u(setr,name,elements(%q<file_load>,3,chr(177)))]);@select/inline t(elements(%q<file_load>,4,chr(177)))=1,{@pemit %#=u(elements(%q<file_load>,5,chr(177)))},0,{@pemit %#=elements(%q<file_load>,5,chr(177))};@select/inline words(u(setr,subs,u(FUN`SUBFILES,%q<file_id>,%#)),chr(176))=>0,{@pemit %#=u(subheader,Subfiles)%R%TTo read subfiles, use '[ansi(h,%q<comm> %q<name>/<file>)]';@pemit %#=u(table,iter(%q<subs>,ljust(u(pueblize,ansi(h,u(setr,subname,elements(%i0,2,chr(177)))),lcstr(%q<comm>) %q<name>/%q<subname>)%B,24)[rjust(u(FUN`HAVEREAD,elements(%i0,3,chr(177))),1)][u(date,elements(%i0,4,chr(177)),%#)],chr(176),|),37,u(width,%#),|)};@pemit %#=u(footer);@attach %!/INC`DOSQL=UPDATE`READ,get(%#/D`ID),%q<file_id>
+
+&Q`LOAD`FILE [u(cobj,help)]=SELECT help_file_id,help_category_name,help_file_name,help_file_dbattr,help_file_text,sub_file_count FROM volv_help_file_load WHERE help_file_id=?
+
+&Q`UPDATE`READ [u(cobj,help)]=INSERT INTO vol_help_read(character_id,help_file_id,help_read_date_checked) VALUES (?,?,UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE help_read_date_checked=UTC_TIMESTAMP()
+
+&INC`SHOW`SUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@attach %!/INC`FINDSUB=%1;@pemit %#=u(header,%q<disp>: [elements(%q<file_load>,3,chr(177))]/[elements(%q<load_sub>,3,chr(177))]);@select/inline t(elements(%q<load_sub>,4,chr(177)))=1,{@pemit %#=u(elements(%q<load_sub>,5,chr(177)))},{@pemit %#=elements(%q<load_sub>,5,chr(177))};@pemit %#=u(footer);@attach %!/INC`DOSQL=UPDATE`READ,get(%#/D`ID),%q<sub_id>
+
+&INC`RENAME [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@check strmatch(%3,*/*)=@attach %!/INC`MSG=ERROR: Helpfile names cannot contain a /.;@check u(setr,exist_id,u(mysql,FIND`EXACT_FILE,%q<db>,%3))=@attach %!/INC`MSG=ERROR: Helpfile of that name already exists.;@attach %!/INC`DOSQL=RENAME`FILE,%3,%q<file_id>;@attach %!/INC`MSG=File Renamed to '%3'!;@attach %!/INC`MSG`CHAN=Renamed File '[elements(%q<file_load>,3,chr(177))]' to: %3
+
+&Q`RENAME`FILE [u(cobj,help)]=UPDATE vol_help_file SET help_file_name=?,help_file_date_modified=UTC_TIMESTAMP() WHERE help_file_id=?
+&Q`DELETE`FILE [u(cobj,help)]=DELETE FROM vol_help_file WHERE help_file_id=?
+
+&INC`RENAMESUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@attach %!/INC`FINDSUB=%1;@check strmatch(%3,*/*)=@attach %!/INC`MSG=ERROR: Helpfile names cannot contain a /.;@check u(setr,exist_id,u(mysql,FIND`EXACT_SUB,%q<file_id>,%3))=@attach %!/INC`MSG=ERROR: Helpfile of that name already exists.;@attach %!/INC`DOSQL=RENAME`FILE,%3,%q<sub_id>;@attach %!/INC`MSG=Sub-File Renamed to '%3'!;@attach %!/INC`MSG`CHAN=Renamed File '[elements(%q<file_load>,3,chr(177))]/[elements(%q<load_sub>,3,chr(177))]' to: %3
+
+&INC`DELETE [u(Cobj,help)]=@attach %!/INC`FINDMAIN=%0;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Helpfile and all subfiles will be deleted. Are you sure? Enter the same command again to verify.},DELETE HELP %q<db> %q<file_id>;@attach %!/INC`DOSQL=DELETE`FILE,%q<file_id>;@attach %!/INC`MSG=File deleted!;@attach %!/INC`MSG`CHAN=Deleted File '[elements(%q<file_load>,3,chr(177))]'
+
+&INC`DELETESUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@attach %!/INC`FINDSUB=%1;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Helpfile and all subfiles will be deleted. Are you sure? Enter the same command again to verify.},DELETE HELPSUB %q<sub_id>;@attach %!/INC`DOSQL=DELETE`FILE,%q<sub_id>;@attach %!/INC`MSG=Sub-File Renamed to '%3'!;@attach %!/INC`MSG`CHAN=Renamed File '[elements(%q<file_load>,3,chr(177))]/[elements(%q<load_sub>,3,chr(177))]' to: %3
+
+&INC`VIEWCODE [u(cobj,help)]=@select/inline t(strlen(%0))[t(strlen(%1))]=10,{@attach %!/INC`GET`FILE},11,{@attach %!/INC`GET`SUB},{@attach %!/INC`MSG=ERROR: What are you retrieving?}
+
+&INC`GET`FILE [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@pemit %#=if(elements(%q<file_load>,4,chr(177)),elements(%q<file_load>,5,chr(177)),decompose(elements(%q<file_load>,5,chr(177))))
+
+&INC`GET`SUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@attach %!/INC`FINDSUB=%1;@pemit %#=if(elements(%q<load_sub>,4,chr(177)),elements(%q<load_sub>,5,chr(177)),decompose(elements(%q<load_sub>,5,chr(177))))
+
+&INC`HELP [u(cobj,help)]=@pemit %#=u(header,Staff %q<comm> Commands);@pemit %#=[ansi(hc,Administrator Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,%q<comm>/addcategory <category>)] - Creates a new category.%R[ansi(h,%q<comm>/add <category>/<filename>=<text>)] - Creates or update a helpfile AND the respective category if it does not exist. If <text> is #DBREF/ATTRIBUTE format\, the given attribute will be u()'d for retrieval.%R[ansi(h,%q<comm>/addsub <filename>/<subfilename>=<text>)] - Create or update a sub-helpfile. Works like /add.%R[ansi(h,%q<comm>/category <filename>=<category>)] - Re-Assign a helpfile to a different category.%R[ansi(h,%q<comm>/renamecategory <category>=<new name>)] - Re-assign all helpfiles of a given category to a new or existing one.%R[ansi(h,%q<comm>/rename <filename>)]=<newname> - Rename a file.%R[ansi(h,%q<comm>/renamesub <filename>/<subfilename>)]=<newname> - Rename a subfile.%R[ansi(h,%q<comm>/deletecategory <category>)] - Delete a category and all associated files.%R[ansi(h,%q<comm>/delete <filename>)] - Delete a helpfile and all subfiles.%R[ansi(h,%q<comm>/deletesub <filename>/<subfilename>)] - Delete a sub-helpfile.)];@pemit %#=u(footer)

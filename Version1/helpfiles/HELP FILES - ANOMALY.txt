@@ -1,8 +1,0 @@
-@@ COMMUNICATIONS - +request
-+help/addmain Communications/+request=+request is used to create Anomaly Job 'trouble tickets,' requests to the Storytellers.%R[ansi(hc,See Also:)] [pueblize(+jhelp myjobs,+jhelp myjobs)]%R[ansi(hc,Aliases:)] request%R%R[ansi(hc,Basic Commands)]%R[align(5 72,,{[ansi(h,+request)] - Show all Job categories.%R[ansi(h,+request/add <category>/<title>=<text>)] - creates a new job.%R[ansi(h,+request <#>)] - identical to +myjob <#>})]%R%RBe sure to check +jhelp myjobs for how to check and manage your submitted Jobs!
-
-+shelp/addmain Communications/+job=[mudname()] uses Anomaly Jobs. The following is a brief overview of how to use it from the staff angle.%R[ansi(hc,See also:)] [pueblize(+jhelp,+jhelp)] (especially +jhelp commands)%R%R[ansi(hc,Viewing Jobs)]%R[align(5 72,,{[ansi(h,+jobs)] - Lists all jobs in the system.%R[ansi(h,+job <#>)] - View a particular job.})]%R%R[ansi(hc,Communications)]%R[align(5 72,,{[ansi(h,+job/add <#>=<text>)] - Adds a comment to a job. This won't be visible to players by default and is best for staff debate/notes. Use...%R[ansi(h,+job/publish <#>=<comment #>)] - To make a comment readable to players. This is largely unnecessary because you can instead...%R[ansi(h,+job/mail <#>=<text>)] - @Mail a player a message regarding their job, while also marking is a published comment.})]%R%R[ansi(hc,Finishing Jobs)]%RWhen these commands are used, they will post to the BBS. Once finished, it will take about a minute before the job is actually deleted.%R[align(5 72,,{[ansi(h,+job/approve <#>=<text>)] - Approve a job, sending a short message to be logged and seen by a player.%R[ansi(h,+job/deny <#>=<text>)] - Like above but for denials.%R[ansi(h,+job/delete <#>)] - Delete a job from the system.})]
-
-
-
-

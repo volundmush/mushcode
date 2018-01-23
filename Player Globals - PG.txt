@@ -2,23 +2,23 @@
 
 th u(NEWCOBJ,Player Globals <PG>,player_globals,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&SYSTEM`NAME [u(cobj,player_globals)]=u(strfirstof`%va,%q<sysname>,SYSTEM)
+&SYSTEM`NAME [u(cobj,player_globals)]=u(strfirstof,%q<sysname>,SYSTEM)
 
 &CMD`CHARSET [u(cobj,player_globals)]=$+charset:@pemit %#=wrap(iter(lnum(32,256),if(comp(first(chr(%i0)),#-1),ljust([ljust(%i0:,4)] [ansi(hy,chr(%i0))],7)),%B,),78)
 
-&CMD`+BEEP [u(cobj,player_globals)]=$^(?\:\+)beep(?\: +(.*))?$:th u(setq`%va,sysname,beep);@attach %!/INC`JAILCHECK;@attach %!/INC`CHECKPC=%1,1;@attach hasflag(%q<t1>,CONNECTED)=@attach %!/INC`MSG=ERROR: %q<t1name> is offline.;@attach %!/INC`MSG=[beep()][ansi(hr,%n wishes for your attention! BEEP!)],%q<t1>;@attach %!/INC`MSG=You have sent %q<t1name> a beep!
+&CMD`+BEEP [u(cobj,player_globals)]=$^(?\:\+)beep(?\: +(.*))?$:th u(setq,sysname,beep);@attach %!/INC`JAILCHECK;@attach %!/INC`CHECKPC=%1,1;@attach hasflag(%q<t1>,CONNECTED)=@attach %!/INC`MSG=ERROR: %q<t1name> is offline.;@attach %!/INC`MSG=[beep()][ansi(hr,%n wishes for your attention! BEEP!)],%q<t1>;@attach %!/INC`MSG=You have sent %q<t1name> a beep!
 @set [u(cobj,player_globals)]/CMD`+BEEP=regexp
 
-&CMD`+FLIP [u(cobj,player_globals)]=$+flip:th u(setq`%va,sysname,FLIP);th u(setq`%va,roll,rand(0,100));@switch/first/inline %q<roll>=50,{@attach %!/INC`MSG`ROOM={[ansi(h,%n)] flipped a coin: [switch(rand(1,6),1,it landed on its side!,2,a Demon grabbed it!,3,it never comes back down...,4,when it lands\, both sides are blank.,5,Reality Error 404: Coin not found!,6,it's drawn into a parallel universe!)]}},>50,{@attach %!/INC`MSG`ROOM={[ansi(h,%n)] flipped a coin: Heads!}},{@attach %!/INC`MSG`ROOM={[ansi(h,%n)] flipped a coin: Tails!}}
+&CMD`+FLIP [u(cobj,player_globals)]=$+flip:th u(setq,sysname,FLIP);th u(setq,roll,rand(0,100));@switch/first/inline %q<roll>=50,{@attach %!/INC`MSG`ROOM={[ansi(h,%n)] flipped a coin: [switch(rand(1,6),1,it landed on its side!,2,a Demon grabbed it!,3,it never comes back down...,4,when it lands\, both sides are blank.,5,Reality Error 404: Coin not found!,6,it's drawn into a parallel universe!)]}},>50,{@attach %!/INC`MSG`ROOM={[ansi(h,%n)] flipped a coin: Heads!}},{@attach %!/INC`MSG`ROOM={[ansi(h,%n)] flipped a coin: Tails!}}
 
-&CMD`DICE [u(cobj,player_globals)]=$+dice *d*:think [u(setq`%va,0,0)][if(strmatch(%1,*+*),[u(setq`%va,a,[before(%1,+)])][u(setq`%va,b,[after(%1,+)])],[u(setq`%va,a,%1)][u(setq`%va,b,0)])] [switch([and([gt(%0,0)],[lt(%0,50)],[gt(%qa,0)],[lt(%qa,250)],[gte(%qb,-10)],[lt(%0,250)],[isint(%0)],[isint(%qa)],[isint(%qb)])],0,[pemit(%#,I'm sorry but you can only have positive integers when you roll dice. The addition at the end must be between -10 and 250.)],[remit([loc(%#)],<[ansi(xterm130,DICE ROLLER)]> %N rolled %0d%qa [map(me/full_die,[lnum(%0)], ,[space(1)])] + %qb = [if(%qb,[u(setq`%va,0,[add(%q0,%qb)])])]%q0)])]
-&FULL_DIE [u(cobj,player_globals)]=[u(setq`%va,1,add(rand(%qa),1))][u(setq`%va,0,add(%q0,%q1))]<%q1>
+&CMD`DICE [u(cobj,player_globals)]=$+dice *d*:think [u(setq,0,0)][if(strmatch(%1,*+*),[u(setq,a,[before(%1,+)])][u(setq,b,[after(%1,+)])],[u(setq,a,%1)][u(setq,b,0)])] [switch([and([gt(%0,0)],[lt(%0,50)],[gt(%qa,0)],[lt(%qa,250)],[gte(%qb,-10)],[lt(%0,250)],[isint(%0)],[isint(%qa)],[isint(%qb)])],0,[pemit(%#,I'm sorry but you can only have positive integers when you roll dice. The addition at the end must be between -10 and 250.)],[remit([loc(%#)],<[ansi(xterm130,DICE ROLLER)]> %N rolled %0d%qa [map(me/full_die,[lnum(%0)], ,[space(1)])] + %qb = [if(%qb,[u(setq,0,[add(%q0,%qb)])])]%q0)])]
+&FULL_DIE [u(cobj,player_globals)]=[u(setq,1,add(rand(%qa),1))][u(setq,0,add(%q0,%q1))]<%q1>
 
-&CMD`UNAFF [u(cobj,player_globals)]=$+unaff:@check words(u(setr`%va,unaff,u(sortname,u(filter,UNAFF,lsearch(all,type,player)))))=@attach %!/INC`MSG=ERROR: No unaffiliated players to display. Oops!;@pemit %#=u(header,Unaffiliated Characters);@pemit %#=u(table`%va,iter(%q<unaff>,u(moniker`%va,%i0),%b,|),36,u(width`%va,%#),|);@pemit %#=u(footer)
+&CMD`UNAFF [u(cobj,player_globals)]=$+unaff:@check words(u(setr,unaff,u(sortname,u(filter,UNAFF,lsearch(all,type,player)))))=@attach %!/INC`MSG=ERROR: No unaffiliated players to display. Oops!;@pemit %#=u(header,Unaffiliated Characters);@pemit %#=u(table,iter(%q<unaff>,u(moniker,%i0),%b,|),36,u(width,%#),|);@pemit %#=u(footer)
 
-&FIL`UNAFF [u(cobj,player_globals)]=cand(nor(u(ISGUEST`%va,%0),u(isadmin`%va,%0),strmatch(name(%0),Guest *)),not(isdbref(u(getproperty,%0,majordb))),hasattrval(%0/D`FINGER`PROFILE),hasattrval(%0/D`FINGER`FUNCTION))
+&FIL`UNAFF [u(cobj,player_globals)]=cand(nor(u(ISGUEST,%0),u(isadmin,%0),strmatch(name(%0),Guest *)),not(isdbref(u(getproperty,%0,majordb))),hasattrval(%0/D`FINGER`PROFILE),hasattrval(%0/D`FINGER`FUNCTION))
 
-&CMD`+OOC [u(cobj,player_globals)]=$^(?s)(\+ooc|osay|\+osay|ooc)(?\: +(.*))$:@check elock(%l/speech,%#)=@attach %!/INC`MSG=ERROR: Permission denied by local speech lock.;@check strlen(%2)=@attach %!/INC`MSG=What will you say?;@stop strmatch(left(%2,1),|)=@attach %!/INC`MSG=Emit feature is disabled.;th u(setq`%va,players,u(lplayers`%va,%l));th u(setq`%va,markup,u(markup,%2,%q<players>));@select/inline %va=PennMUSH,{@message u(canhear,lcon(%l))=%2,%!/FUN`MSGOOC,%#,##,%q<markup>,%q<players>},RhostMUSH,{@pemit/list u(canhear,lcon(%l))=udefault(FUN`MSGOOC,%2,%#,##,%q<markup>,%q<players>)}
+&CMD`+OOC [u(cobj,player_globals)]=$^(?s)(\+ooc|osay|\+osay|ooc)(?\: +(.*))$:@check elock(%l/speech,%#)=@attach %!/INC`MSG=ERROR: Permission denied by local speech lock.;@check strlen(%2)=@attach %!/INC`MSG=What will you say?;@stop strmatch(left(%2,1),|)=@attach %!/INC`MSG=Emit feature is disabled.;th u(setq,players,u(lplayers,%l));th u(setq,markup,u(markup,%2,%q<players>));@select/inline %va=PennMUSH,{@message u(canhear,lcon(%l))=%2,%!/FUN`MSGOOC,%#,##,%q<markup>,%q<players>},RhostMUSH,{@pemit/list u(canhear,lcon(%l))=udefault(FUN`MSGOOC,%2,%#,##,%q<markup>,%q<players>)}
 @set [u(cobj,player_globals)]/CMD`+OOC=regexp
 
 &CMD`+OOC-ALT [u(cobj,player_globals)]=$'*:@attach %!/CMD`+OOC=,,%0
@@ -26,7 +26,7 @@ th u(NEWCOBJ,Player Globals <PG>,player_globals,,,,WIZARD SAFE !NO_COMMAND,INHER
 &CMD`QUIT [u(cobj,player_globals)]=$^(quit|logoff|logout)$:@select/inline %va=PennMUSH,{@boot/silent %#},RhostMUSH,{@boot/quiet %#}
 @set [u(cobj,player_globals)]/CMD`QUIT=regexp
 
-&FUN`MSGOOC [u(cobj,player_globals)]=localize(ansi(u(setr`%va,borcol,u(color`%va,%1,OOC,OOCEDGE)),-<)[ansi(u(color`%va,%1,OOC,OOC),OOC)][ansi(%q<borcol>,>-)]%B[if(u(isadmin`%va,%0),ansi(h,lit([Staff])%B))][u(speech`%va,%0,u(colormarkup,%0,%2,%1),%1,,OOC,%3)])
+&FUN`MSGOOC [u(cobj,player_globals)]=localize(ansi(u(setr,borcol,u(color,%1,OOC,OOCEDGE)),-<)[ansi(u(color,%1,OOC,OOC),OOC)][ansi(%q<borcol>,>-)]%B[if(u(isadmin,%0),ansi(h,lit([Staff])%B))][u(speech,%0,u(colormarkup,%0,%2,%1),%1,,OOC,%3)])
 
 th u(NEWCONF,config,COLOR,OOC,hr,For +ooc tag.,COLOR)
 th u(NEWCONF,config,COLOR,OOCEDGE,hx,For +ooc edge.,COLOR)
@@ -42,24 +42,24 @@ th u(NEWCONF,pconf,OOC,SPEECH,,For +ooc dialogue.,COLOR)
 @@ COMMUNICATIONS - +ooc
 +help/add +ooc=[u(cobj,player_globals)]/HLP`+OOC
 +help/category +ooc=Communications
-&HLP`+OOC [u(cobj,player_globals)]=[ansi(hc,OOC Commands)]%RThese are ALWAYS considered Out-of-character communications.%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,osay <speech>)] - Equivalent to say.%R[ansi(h,+ooc <speech>)] - alias of osay%R[ansi(h,+ooc <speech>)] - Alias of Osay.)]
+&HLP`+OOC [u(cobj,player_globals)]=[ansi(hc,OOC Commands)]%RThese are ALWAYS considered Out-of-character communications.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,osay <speech>)] - Equivalent to say.%R[ansi(h,+ooc <speech>)] - alias of osay%R[ansi(h,+ooc <speech>)] - Alias of Osay.)]
 
 @@ ROLEPLAYING - +flip
 +help/add +flip=[u(cobj,player_globals)]/HLP`+FLIP
 +help/category +flip=Roleplaying
-&HLP`+FLIP [u(cobj,player_globals)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+flip)] - Flip a coin!)]
+&HLP`+FLIP [u(cobj,player_globals)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+flip)] - Flip a coin!)]
 
 @@ Technical - QUIT
 +help/add QUIT=[u(cobj,player_globals)]/HLP`QUIT
 +help/category QUIT=Technical
-&HLP`QUIT [u(cobj,player_globals)]=[ansi(hc,Aliases:)] logoff, logout%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,QUIT)] - Disconnect safely from the game.)]%R%RDon't worry, PennMUSH saves are independent of safe logoffs. This just doesn't leave a ghost connection hanging.
+&HLP`QUIT [u(cobj,player_globals)]=[ansi(hc,Aliases:)] logoff, logout%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,QUIT)] - Disconnect safely from the game.)]%R%RDon't worry, PennMUSH saves are independent of safe logoffs. This just doesn't leave a ghost connection hanging.
 
 @@ COMMUNICATIONS - +beep
 +help/add +beep=[u(cobj,player_globals)]/HLP`+BEEP
 +help/category +beep=Communications
-&HLP`+BEEP [u(cobj,player_globals)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+beep <player>)] - \(Hopefully\) makes a noise the other player can hear to try and get their attention. Using this excessively could be considered harassment so be polite. You have been warned!%R%RNot every client will make the noise and it is often disabled.)]
+&HLP`+BEEP [u(cobj,player_globals)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+beep <player>)] - \(Hopefully\) makes a noise the other player can hear to try and get their attention. Using this excessively could be considered harassment so be polite. You have been warned!%R%RNot every client will make the noise and it is often disabled.)]
 
 @@ TECHNICAL - +Charset
 +help/add +charset=[u(cobj,player_globals)]/HLP`+CHARSET
 +Help/category +charset=Technical
-&HLP`+CHARSET [u(cobj,player_globals)]=[ansi(hc,See Also:)] [u(pueblize,help chr\(\))]%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width`%va,%#),6)],,[ansi(h,+charset)] - Display most special characters the game supports.)]
+&HLP`+CHARSET [u(cobj,player_globals)]=[ansi(hc,See Also:)] [u(pueblize,help chr\(\))]%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+charset)] - Display most special characters the game supports.)]

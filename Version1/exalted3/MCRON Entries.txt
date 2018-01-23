@@ -1,4 +1,0 @@
-@@ DEPENDENCIES - CORE, MCRON
-
-&CRON_JOB_AUTOXP u(mcron)=@trigger u(wxc)/TRG`WEEKLY;@trigger u(wvc)/TRG`WEEKLY
-&CRON_TIME_AUTOXP u(mcron)=||Sat|12|00

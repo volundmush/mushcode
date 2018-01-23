@@ -13,9 +13,11 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &COI [u(cobj,mco)]=localize(if(isdbref(u(setr`%va,db,u(find_in`%va,u(master_room),Code Object Index <COI>))),u(%q<db>/%0)))
 
-&ATTRIB_SET [u(cobj,mco)]=if(cand(hasattr(u(cobj,mco),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player)))),,u(ATTRIB_SET`%va,%0,%1,%2))
-&ATTRIB_SET`PENNMUSH [u(cobj,mco)]=if(cand(hasattr(u(cobj,mco),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player)))),,attrib_set(%0/%1,%2))
-&ATTRIB_SET`RHOSTMUSH [u(cobj,mco)]=if(cand(hasattr(u(cobj,mco),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player)))),,set(%0,%1:%2,strmatch(%1,*`*)))
+&IS_ANCESTOR [u(cobj,mco)]=cand(hasattr(u(cobj,mco),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player))))
+
+&ATTRIB_SET [u(cobj,mco)]=if(u(IS_ANCESTOR,%0),,u(ATTRIB_SET`%va,%0,%1,%2))
+&ATTRIB_SET`PENNMUSH [u(cobj,mco)]=if(u(IS_ANCESTOR,%0),,attrib_set(%0/%1,%2))
+&ATTRIB_SET`RHOSTMUSH [u(cobj,mco)]=if(u(IS_ANCESTOR,%0),,set(%0,%1:%2,strmatch(%1,*`*)))
 
 &LATTR [u(cobj,mco)]=u(LATTR`%va,%0,%1)
 &LATTR`PENNMUSH [u(cobj,mco)]=lattr(%0,%1)
@@ -53,7 +55,7 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &STARTUP`MAIN [u(cobj,mco)]=@include/nobreak %!/STARTUP`MAIN`[%va];@include/nobreak %!/STARTUP`MAIN`EXTRA
 
-&STARTUP`MAIN`PENNMUSH [u(cobj,mco)]=@command/disable kill;@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc playstatus={@attribute/access/retroactive %i0=visual};@dolist/inline D={@attribute/access/retroactive %i0=mortal_dark WIZARD}
+&STARTUP`MAIN`PENNMUSH [u(cobj,mco)]=@command/disable kill;@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc playstatus={@attribute/access/retroactive %i0=visual};@dolist/inline D={@attribute/access/retroactive %i0=mortal_dark WIZARD};@dolist/inline V={@attribute/access/retroactive %i0=WIZARD visual}
 &STARTUP`MAIN`RHOSTMUSH [u(cobj,mco)]=@dolist/inline @name @nuke @toad @turtle={@hook/before %d0;@hook/after %d0}
 
 @DESCRIBE [u(cobj,mco)]=This is Code Wizard territory. No touching!
@@ -73,7 +75,16 @@ th set(u(cobj,mco),GAME:[first(version())])
 &FIL`LISTENRHOST [u(cobj,mco)]=orflags(%0,pc)
 &FIL`HASATTR [u(Cobj,mco)]=hasattr(%0/%1)
 
+@@ LOCK MANAGER
+&INC`SETLOCK [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No lock entered!;@check u(lmin`%va,iter(%0,cand(isdbref(u(FUN`FINDGROUP,before(%i0,/),%#)),cor(not(strlen(after(%i0,/))),cand(isint(%i0,/),gte(after(%i0,/),0)))),|,%B))=@attach %!/INC`MSG=ERROR: One or more group entries did not validate. Group names must be typed correctly and the /rank must be an integer.;th u(setq`%va,lockstr,u(GROUP_LOCK,%0));@select/inline %1=1,{@lock/%3 %2=%q<lockstr>},2,{th u(attrib_set`%va,%2,%3,%q<lockstr>)},0,{};
+
+@@ %0 - Entered string. %1 - True for @lock mode. False for Attribute mode. %2 - Object to set the lock on. %3 - Attribute or lock to set the lock on.
+
+&GROUP_LOCK [u(cobj,mco)]=localize(iter(%0,V`GROUP`[get(u(u(cobj,gms)/FUN`FINDGROUP,before(%i0,/),%1)/D`ID)]:<=[u(strfirstof`%va,after(%i0,/),9001)],|,|))
+
 @@ U-FUNCTION SECTION
+
+
 
 &NEWCOBJ [u(cobj,mco)]=localize(if(not(isobjid(u(cobj,%1))),u(setr`%va,newobj,objid(create(%0)))[if(not(%4),parent(%q<newobj>,u(firstof`%va,%3,u(cobj,mco))))][tel(%q<newobj>,u(firstof`%va,%2,u(MASTER_ROOM)))][u(attrib_set`%va,u(cobj,mco),COBJ`%1,%q<newobj>)][set(%q<newobj>,u(choosegame,%5,%6))]))
 @@ %0 - @name. %1 - alias. %2 - location to store. %3 - parent, defaults to MCO. %4 - No parent. %5 - PennMUSH flags. %6 - RhostMUSH flags.
@@ -533,6 +544,24 @@ th set(u(cobj,mco),GAME:[first(version())])
 &MYSQL2 [u(cobj,mco)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),|,^),#-1 SQL QUERY DATA NOT FOUND)
 &MYSQL3 [u(cobj,mco)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),chr(176),chr(177)),#-1 SQL QUERY DATA NOT FOUND)
 
+&CALL`0 [u(cobj,mco)]=sql(CALL %0(),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`1 [u(cobj,mco)]=sql(CALL %0(%2),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`2 [u(cobj,mco)]=sql(CALL %0(%2,%3),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`3 [u(cobj,mco)]=sql(CALL %0(%2,%3,%4),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`4 [u(cobj,mco)]=sql(CALL %0(%2,%3,%4,%5),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`5 [u(cobj,mco)]=sql(CALL %0(%2,%3,%4,%5,%6),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`6 [u(cobj,mco)]=sql(CALL %0(%2,%3,%4,%5,%6,%7),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`7 [u(cobj,mco)]=sql(CALL %0(%2,%3,%4,%5,%6,%7,%8),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`8 [u(cobj,mco)]=sql(CALL %0(%2,%3,%4,%5,%6,%7,%8,%9),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
 &SQL`IN`NUMBER [u(cobj,mco)]=iter(%0,%i0,%1,\,%b)
 &SQL`IN`STRING [u(cobj,mco)]=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
 
@@ -540,23 +569,117 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &INC`DOSQL [u(cobj,mco)]=@stop strmatch(u(setr`%va,errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq`%va,after(%0,/),sql(SELECT last_insert_id\(\))))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
 
-&TRG`INSTALL [u(cobj,mco)]=@dolist/inline/delimit | [v(SQL`INSTALL)]={@attach %!/INC`DOSQL=INSTALL`##};
+&INC`DOCALL`0 [u(cobj,mco)]=@stop strmatch(u(setr`%va,errcheck,u(call`0,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq`%va,after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+
+&INC`DOCALL`1 [u(cobj,mco)]=@stop strmatch(u(setr`%va,errcheck,u(call`1,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq`%va,after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+
+&INC`DOCALL`2 [u(cobj,mco)]=@stop strmatch(u(setr`%va,errcheck,u(call`2,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq`%va,after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+
+@@ The CONFIG Subsystem.
+&CMD`+GAMECONFIG`PENNMUSH [u(cobj,mco)]=$^\+gameconfig(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GAMECONFIG`MAIN
+@set [u(cobj,mco)]/CMD`+GAMECONFIG`PENNMUSH=regexp no_inherit
+&CMD`+GAMECONFIG`RHOSTMUSH [u(cobj,mco)]=$^\+gameconfig(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GAMECONFIG`MAIN
+@set [u(cobj,mco)]/CMD`+GAMECONFIG`RHOSTMUSH=regexp no_inherit
+&CMD`+GAMECONFIG`MAIN [u(cobj,mco)]=@attach %!/INC`CONFIG=%2,%3
+@set [u(cobj,mco)]/CMD`+GAMECONFIG`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&INC`CONFIG [u(cobj,mco)]=@select/inline strlen(%0)=0,{@attach %!/INC`CONFIG`DISPLAY},{@check u(iswizard`%va,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Changing Config requires Wizard permissions.;@attach %!/INC`CONFIG`CHANGE}
+&INC`CONFIG`DISPLAY [u(cobj,mco)]=@pemit %#=u(header,u(SYSTEM`NAME) Configuration);@dolist/inline/delimit | [v(CONFIG`OPTIONS)]={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10)%R[rjust(ansi(hw,DEFAULT:),10)],v(CONFIG`##`VALID)%R[v(CONFIG`##`DEFAULT)],ansi(hw,DESCRIPTION:),v(CONFIG`##));@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[u(conf,##)]};@pemit %#=u(footer)
+&INC`CONFIG`CHANGE [u(cobj,mco)]=@attach %!/INC`PARTIAL=%0,v(CONFIG`OPTIONS),|,op,Option;@select/inline strlen(%1)=>0,{@attach %!/INC`CONFIG`SET},{@attach %!/INC`CONFIG`CLEAR}
+&INC`CONFIG`SET [u(cobj,mco)]=@attach %!/INC`VALID`[v(CONFIG`%q<op>`VALID)]=%1;th u(attrib_set`%va,%!,CONFIG`%q<op>`CUSTOM,%q<value>);@attach %!/INC`MSG=You set Config Option '%q<op>' to: %q<value>;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' set to: %q<value>;@attach %!/CONFIG`%q<op>`FINISH
+&INC`CONFIG`CLEAR [u(cobj,mco)]=@attach %!/WIPE=%!,CONFIG`%q<op>`CUSTOM;@attach %!/INC`MSG=You set Config Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' reset to Default.;@attach %!/CONFIG`%q<op>`FINISH
+
+&CONFIG`OPTIONS [u(cobj,mco)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT
+@set [u(cobj,mco)]/CONFIG`OPTIONS=no_inherit
+
+&CONFIG`WIZTAG [u(cobj,mco)]=Color of WIZ tag in systems.
+&CONFIG`WIZTAG`DEFAULT [u(cobj,mco)]=hr
+&CONFIG`WIZTAG`VALID [u(cobj,mco)]=COLOR
+
+&CONFIG`ROYTAG [u(cobj,mco)]=Color of ROY tag in systems.
+&CONFIG`ROYTAG`DEFAULT [u(cobj,mco)]=hr
+&CONFIG`ROYTAG`VALID [u(cobj,mco)]=COLOR
+
+&CONFIG`ANONYMOUS_NOTICES [u(cobj,mco)]=Anonymize administrative actions in messages to players?
+&CONFIG`ANONYMOUS_NOTICES`DEFAULT [u(cobj,mco)]=0
+&CONFIG`ANONYMOUS_NOTICES`VALID [u(cobj,mco)]=BOOL
+
+&CONFIG`PUBLIC_EMAIL [u(cobj,mco)]=Game's public email for purpose of various messages.
+&CONFIG`PUBLIC_EMAIL`DEFAULT [u(cobj,mco)]=
+&CONFIG`PUBLIC_EMAIL`VALID [u(cobj,mco)]=WORD
+
+&CONFIG`STAFF_ALERTS [u(cobj,mco)]=Channel(s) to send important staff-only reports to.
+&CONFIG`STAFF_ALERTS`DEFAULT [u(cobj,mco)]=
+&CONFIG`STAFF_ALERTS`VALID [u(cobj,mco)]=LIST
+
+&CONFIG`HEADER_FILL [u(cobj,mco)]=Symbol to use for Header lines.
+&CONFIG`HEADER_FILL`DEFAULT [u(cobj,mco)]==
+&CONFIG`HEADER_FILL`VALID [u(cobj,mco)]=WORD
+
+&CONFIG`SUBHEADER_FILL [u(cobj,mco)]=Symbol to use for Sub-Header lines.
+&CONFIG`SUBHEADER_FILL`DEFAULT [u(cobj,mco)]==
+&CONFIG`SUBHEADER_FILL`VALID [u(cobj,mco)]=WORD
+
+&CONFIG`SEPARATOR_FILL [u(cobj,mco)]=Symbol to use for Separator lines.
+&CONFIG`SEPARATOR_FILL`DEFAULT [u(cobj,mco)]==
+&CONFIG`SEPARATOR_FILL`VALID [u(cobj,mco)]=WORD
+
+&CONFIG`FOOTER_FILL [u(cobj,mco)]=Symbol to use for Footer lines.
+&CONFIG`FOOTER_FILL`DEFAULT [u(cobj,mco)]=-
+&CONFIG`FOOTER_FILL`VALID [u(cobj,mco)]=WORD
+
+&CONFIG`BORDER_MODE [u(cobj,mco)]=Alters style of headers/footers. 0 = No edges. 1 = + edges. 2 = slash-edges
+&CONFIG`BORDER_MODE`DEFAULT [u(cobj,mco)]=0
+&CONFIG`BORDER_MODE`VALID [u(cobj,mco)]=WORD
+
+&CONFIG`COLUMN_NAMES [u(cobj,mco)]=Color for table column names.
+&CONFIG`COLUMN_NAMES`DEFAULT [u(cobj,mco)]=g
+&CONFIG`COLUMN_NAMES`VALID [u(cobj,mco)]=COLOR
+
+&CONFIG`HEADER_TEXT [u(cobj,mco)]=Color for text in System Header/Subheaders.
+&CONFIG`HEADER_TEXT`DEFAULT [u(cobj,mco)]=hw
+&CONFIG`HEADER_TEXT`VALID [u(cobj,mco)]=COLOR
+
+&CONFIG`HEADER_STAR [u(cobj,mco)]=Color for * in System Headers.
+&CONFIG`HEADER_STAR`DEFAULT [u(cobj,mco)]=hm
+&CONFIG`HEADER_STAR`VALID [u(cobj,mco)]=COLOR
+
+&CONFIG`BORDER [u(cobj,mco)]=Color for borders in enclosed tables.
+&CONFIG`BORDER`DEFAULT [u(cobj,mco)]=m
+&CONFIG`BORDER`VALID [u(cobj,mco)]=COLOR
+
+&CONFIG`MSG [u(cobj,mco)]=Color for the -=<>=- part of System Messages.
+&CONFIG`MSG`DEFAULT [u(cobj,mco)]=hm
+&CONFIG`MSG`VALID [u(cobj,mco)]=COLOR
+
+&CONFIG`MSGTEXT [u(cobj,mco)]=Color for the System Name in System Messages.
+&CONFIG`MSGTEXT`DEFAULT [u(cobj,mco)]=hw
+&CONFIG`MSGTEXT`VALID [u(cobj,mco)]=COLOR
+
+@@ th u(NEWCONF,config,ROOM,PLAYERS_MODE,DEFAULT,Changes room format for PLAYERS.,WORD)
+@@ th u(NEWCONF,config,ROOM,THINGS_MODE,DEFAULT,Changes room format for THINGS.,WORD)
+@@ th u(NEWCONF,config,ROOM,EXITS_MODE,DEFAULT,Changes room format for EXITS.,WORD)
+
+@@ th u(NEWCONF,config,COLOR,ROOM_COLUMNS,,For column names in room formats,COLOR)
+@@ th u(NEWCONF,config,COLOR,EXITNAME,,Color of exit names.,COLOR)
+@@ th u(NEWCONF,config,COLOR,EXITALIAS,,Color of exit names.,COLOR)
+
+@@ th u(NEWCONF,pconf,ROOM,ROOM_COLUMNS,,For column names in room formats,COLOR)
+@@ th u(NEWCONF,pconf,ROOM,EXITNAME,,Color of exit names.,COLOR)
+@@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
+
+
+&CONF [u(cobj,mco)]=u(strfirstof`%va,get(%!/CONFIG`%0`CUSTOM),get(%!/CONFIG`%0`DEFAULT))
+&PCONF [u(cobj,mco)]=u(color,%@,%1)
+
+&COLOR [u(cobj,mco)]=u(firstof`%va,get(%0/V`CONFIG`%1),u(conf,%1))
 
 @@ COMMON CODE SNIPPETS
 
 &SYSTEM`NAME [u(cobj,mco)]=SYSTEM
 
-&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr`%va,t%1,if(%3,u(firstof`%va,u(u(cobj,cover)/FUN`FINDCOVER,%0),pmatch(%0)),pmatch(%0))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq`%va,t%1objid,objid(r(t%1)));th u(setq`%va,t%1name,name(r(t%1)));th u(setq`%va,t%1acc,u(accid,r(t%1),1));@select/inline t(%2)=1,{@select/inline t(u(setr`%va,t%1id,u(mysql,SELECT`PLAYER,r(t%1objid))))=0,{@attach %!/INC`DOSQL=INSERT`PLAYER/t%1id,r(t%1objid),r(t%1name)};@select/inline isobjid(u(setr`%va,t%1accobj,objid(r(t%1acc))))=1,{@select/inline t(u(setr`%va,t%1aid,u(mysql,SELECT`ACCOUNT,r(t%1accobj))))=0,{@attach %!/INC`DOSQL=INSERT`ACCOUNT/t%1aid,r(t%1accobj),name(r(t%1accobj))};@attach %!/INC`DOSQL=SET`ACCOUNT,r(t%1aid),r(t%1objid)}}
-@@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into. %2 - Boolean for also looking up a SQL id. %3 - Use Cover System.
-
-&Q`SELECT`PLAYER [u(cobj,mco)]=SELECT thing_id from mush_thing WHERE objid=? LIMIT 1
-&Q`SELECT`PLAYER_OBJID [u(cobj,mco)]=SELECT objid FROM mush_thing WHERE thing_id=? LIMIT 1
-&Q`INSERT`PLAYER [u(cobj,mco)]=INSERT INTO mush_thing (objid,object_name) VALUES (?,?)
-&Q`SELECT`ACCOUNT [u(cobj,mco)]=SELECT thing_id FROM mush_thing WHERE objid=? AND thing_type=1 LIMIT 1
-&Q`INSERT`ACCOUNT [u(cobj,mco)]=INSERT INTO mush_thing (objid,object_name,thing_type) VALUES (?,?,1)
-&Q`SET`ACCOUNT [u(cobj,mco)]=UPDATE mush_thing SET parent_id=? WHERE objid=? AND thing_type=0 LIMIT 1
-
-&INC`JAILCHECK [u(cobj,mco)]=@stop u(jailcheck,%#)=@attach %!/INC`MSG=You have been jailed and cannot use this command.
+&INC`CHECKPC [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr`%va,t%1,pmatch(%0)))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq`%va,t%1objid,objid(r(t%1)));th u(setq`%va,t%1name,name(r(t%1)));th u(setq`%va,t%1acc,u(accid,r(t%1),1));th u(setq`%va,t%1id,get(r(t%1)/D`ID));th u(setq`%va,t1accid,get(r(t%1acc)/D`ID));
+@@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into.
 
 &INC`VERIFY [u(cobj,mco)]=@select/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th u(attrib_set`%va,%#,VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@stop 1={@attach %!/INC`MSG=%0,,,%2}},1,{@wipe %#/VERIFY_OK}
 @@ VERIFY Arguments: %0 = message to display, %1 = code to set for verification.
@@ -581,6 +704,7 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &DELETE [u(cobj,mco)]=@select/inline %va=PennMUSH,{@set %0=!SAFE;@nuke %0;@nuke %0},RhostMUSH,{@destroy/override %0}
 
+&INC`VALID`EMAIL [u(cobj,mco)]=th u(setq`%va,value,trim(%0));@check strlen(%q<value>)=@attach %!/INC`MSG=ERROR: Nothing entered!;@check lte(strlen(%q<value>),255)=@attach %!/INC`MSG=ERROR: Emails must be 255 characters or less.;@stop strmatch(%q<value>,* *)=@attach %!/INC`MSG=ERROR: Email addresses may not contain spaces.;@check strmatch(%q<value>,*@*.*)=@attach %!/INC`MSG=ERROR: An Email must be in the format: *@*.* (example@game.com).
 &INC`VALID`COLOR [u(cobj,mco)]=@stop strmatch(ansi(u(setr`%va,value,%0),Test),#-*)=@attach %!/INC`MSG=ERROR: '%0' is not a valid color.
 &INC`VALID`WORD [u(cobj,mco)]=th u(setq`%va,value,trim(%0))
 &INC`VALID`LIST [u(cobj,mco)]=th u(setq`%va,value,trim(%0))
@@ -592,7 +716,7 @@ th set(u(cobj,mco),GAME:[first(version())])
 &INC`VALID`INT [u(cobj,mco)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th u(setq`%va,value,%0)
 &INC`VALID`LOCK [u(cobj,mco)]=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th u(setq`%va,value,%0)
 &INC`VALID`TIME [u(cobj,mco)]=@check strlen(%0)=@attach %!/INC`MSG=You didn't enter a date!;@check gt(u(setr`%va,time,convtime(%0,u(gettz,%#))),0)=@attach %!/INC`MSG=The entered date was not recognized. Did you typo? Dates should be in abbreviated 24-hour <month> <day> <hour>:<minute> format using YOUR timezone\, such as Jun 26 7:00 or Oct 31 13:00.;
-&INC`VALID`FUTURE [u(cobj,mco)]=@attach %!/INC`VALID`TIME;@check gt(%q<time>,%q<secs())=@attach %!/INC`MSG=That would be in the past!
+&INC`VALID`FUTURE [u(cobj,mco)]=@attach %!/INC`VALID`TIME;@check gt(%q<time>,secs())=@attach %!/INC`MSG=That would be in the past!
 
 @@ MESSAGING SECTION
 &INC`MSG [u(cobj,mco)]=@select/inline %va=PennMUSH,{@message u(strfirstof`%va,%1,%#)=%0,%!/MSG,##,%0,%1,u(SYSTEM`NAME)},RhostMUSH,{@pemit/list u(strfirstof`%va,%1,%#)=udefault(%!/MSG,%0,##,%0,%1,u(SYSTEM`NAME))}
@@ -602,32 +726,26 @@ th set(u(cobj,mco),GAME:[first(version())])
 
 &INC`MSG`NOTICE [u(cobj,mco)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin`%va,%#),cor(u(ishidden`%va,%#),u(game_config,SYSTEM,ANONYMOUS_NOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
-&INC`MSG`CHAN [u(cobj,mco)]=th u(setq`%va,chanmsg,if(not(%5),ansi(h,\[[u(moniker`%va,u(firstof`%va,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof`%va,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof`%va,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline %va=PennMUSH,{@dolist/inline/delimit | [u(strfirstof`%va,%1,u(CHANNEL`ALERT))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(strfirstof`%va,%1,u(CHANNEL`ALERT))]={@cemit %d0=%q<chanmsg>}}
+&INC`MSG`CHAN [u(cobj,mco)]=th u(setq`%va,chanmsg,if(not(%5),ansi(h,\[[u(moniker`%va,u(firstof`%va,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof`%va,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof`%va,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline %va=PennMUSH,{@dolist/inline/delimit | [u(strfirstof`%va,%1,u(conf,STAFF_ALERTS))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(strfirstof`%va,%1,u(conf,STAFF_ALERTS))]={@cemit %d0=%q<chanmsg>}}
 @@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
 
-&INC`MSG`SYSCHAN [u(cobj,mco)]=th u(setq`%va,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof`%va,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof`%va,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof`%va,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline %va=PennMUSH,{@dolist/inline/delimit | [u(strfirstof(%1,u(CHANNEL`ALERT)))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(strfirstof(%1,u(CHANNEL`ALERT)))]={@cemit %d0=%q<chanmsg>}}
-
-&CHANNEL`ALERT [u(cobj,mco)]=u(game_config,CHANNELS,STAFF_ALERTS)
+&INC`MSG`SYSCHAN [u(cobj,mco)]=th u(setq`%va,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof`%va,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof`%va,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof`%va,%2,u(SYSTEM`NAME)):%b)]%0);@select/inline %va=PennMUSH,{@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit/noisy %i0=%q<chanmsg>}},RhostMUSH,{@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit %d0=%q<chanmsg>}}
 
 &MSG [u(cobj,mco)]=u(msghead,%3,%0) %1
 &RMSG [u(cobj,mco)]=u(msgroom,%3,%0) \[[ansi(h,u(moniker`%va,%4))]\] %1
 
-&MSGHEAD [u(cobj,mco)]=localize(ansi(u(setr`%va,msgcolor,u(color`%va,u(firstof`%va,%1,%#),SYSTEM,MSG)),-=<)[ansi(u(color`%va,u(firstof`%va,%1,%#),SYSTEM,MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
-&MSGROOM [u(cobj,mco)]=localize(ansi(u(setr`%va,msgcolor,u(color`%va,u(firstof`%va,%1,%#),SYSTEM,MSG)),-=<*)[ansi(u(color`%va,u(firstof`%va,%1,%#),SYSTEM,MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
+&MSGHEAD [u(cobj,mco)]=localize(ansi(u(setr`%va,msgcolor,u(color,u(firstof`%va,%1,%#),MSG)),-=<)[ansi(u(color,u(firstof`%va,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
+&MSGROOM [u(cobj,mco)]=localize(ansi(u(setr`%va,msgcolor,u(color,u(firstof`%va,%1,%#),MSG)),-=<*)[ansi(u(color,u(firstof`%va,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
 
-&COLOR [u(cobj,mco)]=localize(u(COLOR`%va,%0,%1,%2,%3,%4))
-&COLOR`PENNMUSH [u(cobj,mco)]=localize(strfirstof(u(player_config`pennmush,%0,%1,%2),u(player_config`pennmush,%0,COLOR,%2),if(%4,,strfirstof(u(game_config,COLOR,%2),n))))
-&COLOR`RHOSTMUSH [u(cobj,mco)]=localize(u(strfirstof`%va,u(player_config`%va,%0,%1,%2),u(player_config`%va,%0,COLOR,%2),if(%4,,u(strfirstof`%va,u(game_config,COLOR,%2),n))))
+&HEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,u(strfirstof,%3,u(conf,BORDER_MODE)),HEADER,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))][u(setr`%va,borderstar,ansi(u(color,%q<target>,HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&HEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,u(strfirstof,%3,u(game_config,SYSTEM,BORDER_MODE)),HEADER,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))][u(setr`%va,borderstar,ansi(u(color`%va,%q<target>,COLOR,HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color`%va,%q<target>,COLOR,HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&SUBHEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&SUBHEADER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color`%va,%q<target>,COLOR,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&SEPARATOR [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&SEPARATOR [u(cobj,mco)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color`%va,%q<target>,COLOR,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&FOOTER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,u(strfirstof,%3,u(conf,BORDER_MODE)),FOOTER,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&FOOTER [u(cobj,mco)]=localize(u(HEADER`PREP,%1,u(strfirstof,%3,u(game_config,SYSTEM,BORDER_MODE)),FOOTER,%4)[u(setq`%va,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo`%va,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color`%va,%q<target>,COLOR,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
-
-&HEADER`PREP [u(cobj,mco)]=u(setq`%va,target,u(firstof`%va,owner(u(firstof`%va,%0,%#))))[u(setq`%va,bordercolor,u(color`%va,%q<target>,COLOR,BORDER))][u(setq`%va,bordermode,%1)][u(setq`%va,width,sub(u(strfirstof`%va,%3,u(width`%va,%q<target>)),2))][u(setq`%va,fill,u(game_config,SYSTEM,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,u(setq`%va,start,ansi(%q<bordercolor>,/))[u(setq`%va,end,ansi(%q<bordercolor>,chr(92)))],FOOTER,u(setq`%va,start,ansi(%q<bordercolor>,chr(92)))[u(setq`%va,end,ansi(%q<bordercolor>,/))]),1,u(setq`%va,start,u(setr`%va,end,ansi(%q<bordercolor>,+))),u(setq`%va,start,u(setr`%va,end,ansi(%q<bordercolor>,%q<fill>))))]
+&HEADER`PREP [u(cobj,mco)]=u(setq`%va,target,owner(u(firstof`%va,%0,%#)))[u(setq`%va,bordercolor,u(color,%q<target>,BORDER))][u(setq`%va,bordermode,%1)][u(setq`%va,width,sub(u(strfirstof`%va,%3,u(width`%va,%q<target>)),2))][u(setq`%va,fill,u(conf,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,u(setq`%va,start,ansi(%q<bordercolor>,/))[u(setq`%va,end,ansi(%q<bordercolor>,chr(92)))],FOOTER,u(setq`%va,start,ansi(%q<bordercolor>,chr(92)))[u(setq`%va,end,ansi(%q<bordercolor>,/))]),1,u(setq`%va,start,u(setr`%va,end,ansi(%q<bordercolor>,+))),u(setq`%va,start,u(setr`%va,end,ansi(%q<bordercolor>,%q<fill>))))]
 
 &HEADER`RENDER [u(cobj,mco)]=%q<start>[u(center`%va,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>
 
