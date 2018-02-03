@@ -7,7 +7,7 @@ th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHER
 &CMD`+HELP`RHOSTMUSH [u(cobj,help)]=$^(?s)(?\:\+)?(help|shelp|news)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:/(.+?))?(?\:=(.+?))?$:@attach %!/CMD`+HELP`MAIN
 @set [u(cobj,help)]/CMD`+HELP`RHOSTMUSH=regexp
 &CMD`+HELP`MAIN [u(cobj,help)]=@attach %!/INC`GETSWITCH=%2;@attach %!/INC`INIT`%1;th u(setq,accid,u(strfirstof,u(accid,%#),%#));@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%3),trim(%4),trim(%5),trim(%6),%1
-@set [u(cobj,help)]/CMD`+HELP`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,help)]/CMD`+HELP`[u(choosegame(RHOSTMUSH,PENNMUSH)]=no_command
 
 &INC`INIT`HELP [u(cobj,help)]=th [u(setq,disp,mudname() Help Files)][u(setq,comm,+help)][u(setq,db,0)][u(setq,sysname,HELP)]
 &INC`INIT`SHELP [u(cobj,help)]=th [u(setq,disp,mudname() Staff Help Files)][u(setq,comm,+shelp)][u(setq,db,1)][u(setq,sysname,SHELP)];@check u(isadmin,%#)=@attach %!/INC`MSG=Permission Denied.
@@ -34,7 +34,7 @@ th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &INC`ADD [u(cobj,help)]=@attach %!/INC`NEWCATEGORY=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: What's the file name?;@check strlen(%3)=@attach %!/INC`MSG=ERROR: File needs contents darnit!;@check u(setr,file_id,u(call`2,volp_help_file,0,%q<cat_id>,'[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: %q<file_id>;@attach %!/INC`FILLFILE=%3,%q<file_id>;@attach %!/INC`MSG=Help File '%1' Created/Updated!;@attach %!/INC`MSG`CHAN=Added/Replaced File: %1
 
-&INC`ADDSUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;th u(setr,load,u(mysql3,LOAD`FILE,%q<file_id>));@check strlen(%1)=@attach %!/INC`MSG=ERROR: What's the sub-filename?;@check strlen(%3)=@attach %!/INC`MSG=ERROR: A helpfile must have contents!;@check u(setr,sub_id,u(call`2,volp_help_sub,0,%q<cat_id>,%q<file_id>,'[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: %q<sub_id>;@attach %!/INC`FILLFILE=%3,%q<sub_id>;@attach %!/INC`MSG=Sub-Help File '[elements(%q<load>,3,chr(177))]/%1' Created/Updated!;@attach %!/INC`MSG`CHAN=Added/Replaced Sub-File: [elements(%q<load>,3,chr(177))]/%1
+&INC`ADDSUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;th u(setr,load,u(mysql3,LOAD`FILE,%q<file_id>));@check strlen(%1)=@attach %!/INC`MSG=ERROR: What's the sub-filename?;@check strlen(%3)=@attach %!/INC`MSG=ERROR: A helpfile must have contents!;@check u(setr,sub_id,u(call`2,volp_help_sub,0,%q<file_id>,'[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: %q<sub_id>;@attach %!/INC`FILLFILE=%3,%q<sub_id>;@attach %!/INC`MSG=Sub-Help File '[elements(%q<load>,3,chr(177))]/%1' Created/Updated!;@attach %!/INC`MSG`CHAN=Added/Replaced Sub-File: [elements(%q<load>,3,chr(177))]/%1
 
 &INC`FILLFILE [u(cobj,help)]=th u(setq,fulltext,%0);@select/inline isdbref(before(%q<fulltext>,/))=1,{@check cand(strlen(u(setr,rendertext,u(%q<fulltext>,1))),not(strmatch(%q<rendertext>,#-*)))=@attach %!/INC`MSG=ERROR: Cannot convert this DBREF/ATTRIBUTE.;th u(setq,isdbref,1)},0,{th u(setq,isdbref,0);th u(setq,rendertext,%q<fulltext>)};th u(setq,plaintext,stripansi(%q<rendertext>));th u(setq,squishtext,squish(squish(%q<plaintext>,%R)));@dolist/inline/delimit | help_file_dbattr~isdbref|help_file_text~fulltext|help_file_plaintext~plaintext|help_file_squished~squishtext={@attach %!/INC`DOSQL=UPDATE`FILE,before(##,~),r(after(##,~)),%1};
 

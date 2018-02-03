@@ -637,7 +637,7 @@ CREATE PROCEDURE volp_group(IN in_group_objid VARCHAR(30),IN in_group_name VARCH
 		IF found_group_id IS NULL THEN
 			INSERT INTO vol_entity(entity_objid,entity_name,entity_type) VALUES (in_group_objid,in_group_name,5);
 			SET found_group_id=LAST_INSERT_ID();
-			INSERT INTO vol_group (group_id, group_tier) VALUES (found_group_id,in_group_tier);
+			INSERT INTO vol_group (group_id,group_tier,group_is_private) VALUES (found_group_id,in_group_tier,in_group_private);
 		ELSE
 			UPDATE vol_entity SET entity_name=in_group_name WHERE entity_id=found_group_id;
 		END IF;
@@ -785,12 +785,11 @@ CREATE PROCEDURE volp_bbpost(IN in_author_id INT UNSIGNED,IN in_board_id INT UNS
 	BEGIN
 		DECLARE new_post_timestamp DATETIME DEFAULT UTC_TIMESTAMP();
 		DECLARE new_post_id,new_post_number INT UNSIGNED;
-		IF in_post_parent IS NULL THEN
-			SELECT next_post_number INTO new_post_number FROM volv_bb_stats WHERE board_id=in_board_id;
-		ELSE
-			SELECT MAX(post_display_num)+1 INTO new_post_number FROM vol_bbpost WHERE board_id=in_board_id AND post_parent_id=in_post_parent;
+		SELECT next_post_number INTO new_post_number FROM volv_bb_stats WHERE board_id=in_board_id;
+		IF new_post_number IS NULL THEN
+				SET new_post_number=1;
 		END IF;
-		INSERT INTO vol_bbpost (board_id,post_parent_id,post_display_num,entity_id,post_date_created,post_date_modified,post_date_commented,post_title,post_text,post_anonymous) VALUES (in_board_id,NULL,new_post_number,in_author_id,new_post_timestamp,new_post_timestamp,new_post_timestamp,in_post_title,in_post_text,in_post_anonymous);
+		INSERT INTO vol_bbpost (board_id,post_display_num,entity_id,post_date_created,post_date_modified,post_date_commented,post_title,post_text,post_anonymous) VALUES (in_board_id,new_post_number,in_author_id,new_post_timestamp,new_post_timestamp,new_post_timestamp,in_post_title,in_post_text,in_post_anonymous);
 		SET new_post_id=LAST_INSERT_ID();
 		INSERT INTO vol_bbread (post_id,entity_id,bbread_date_checked) VALUES (new_post_id,in_account_id,new_post_timestamp);
 		SELECT new_post_id,new_post_number;
@@ -917,12 +916,14 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS volp_help_sub;
 DELIMITER $$
-CREATE PROCEDURE volp_help_sub(IN in_category_id MEDIUMINT UNSIGNED,IN in_parent_id MEDIUMINT UNSIGNED,IN in_help_file_name VARCHAR(255))
+CREATE PROCEDURE volp_help_sub(IN in_parent_id MEDIUMINT UNSIGNED,IN in_help_file_name VARCHAR(255))
 	BEGIN
 	DECLARE found_file_id MEDIUMINT UNSIGNED;
+	DECLARE found_category_id MEDIUMINT UNSIGNED;
 	SELECT help_file_id INTO found_file_id FROM volv_help_file WHERE help_file_parent_id=in_parent_id AND help_file_name=in_help_file_name;
+		SELECT help_category_id INTO found_category_id FROM volv_help_file WHERE help_file_id=in_parent_id;
 	IF found_file_id IS NULL THEN
-		INSERT INTO vol_help_file(help_category_id,help_file_name,help_file_date_created,help_file_date_modified,help_file_parent_id) VALUES (in_help_category_id,in_help_file_name,UTC_TIMESTAMP(),UTC_TIMESTAMP(),in_parent_id);
+		INSERT INTO vol_help_file(help_category_id,help_file_name,help_file_date_created,help_file_date_modified,help_file_parent_id) VALUES (found_category_id,in_help_file_name,UTC_TIMESTAMP(),UTC_TIMESTAMP(),in_parent_id);
 		SET found_file_id=LAST_INSERT_ID();
 	ELSE
 		UPDATE vol_help_file SET help_file_name=in_help_file_name,help_file_date_modified=UTC_TIMESTAMP() WHERE help_file_id=found_file_id;

@@ -95,11 +95,11 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,con
 
 &CTIME [u(cobj,mco)]=ctime(%0)
 
-&FANCYTIME [u(cobj,mco)]=timefmt($b $d $I:$M$p $Z,%0,strfirstof(%2,u(gettz,%1),u(gettz,%#)))
+&FANCYTIME [u(cobj,mco)]=timefmt($b $d $I:$M$p $Z,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
 
-&FANCYDAY [u(cobj,mco)]=timefmt($b $d $Y,%0,strfirstof(u(gettz,%1),u(gettz,%#)))
+&FANCYDAY [u(cobj,mco)]=timefmt($b $d $Y,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
 
-&FANCYDATE [u(cobj,mco)]=timefmt($m/$d/$Y,%0,strfirstof(u(gettz,%1),u(gettz,%#)))
+&FANCYDATE [u(cobj,mco)]=timefmt($m/$d/$Y,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
 
 &PLAYER_NAME_LEN [u(cobj,mco)]=config(player_name_len)
 
@@ -260,7 +260,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,con
 &GETPROPERTY`OBSERVER [u(cobj,mco)]=default(%0/D`OBSERVER,0)
 &GETPROPERTY`CURSCENE [u(cobj,mco)]=if(u(getproperty`observer,%0),ansi(hw,OBS),default(%0/D`SCENE,???))
 
-&GETPROPERTY`GROUPCOLORIZE [u(cobj,mco)]=localize(u(getproperty`groupcolor,%1),%0)
+&GETPROPERTY`GROUPCOLORIZE [u(cobj,mco)]=localize(ansi(u(getproperty`groupcolor,%1),%0))
 &GETPROPERTY`GROUPNAME [u(cobj,mco)]=localize(setq(gname,u(getproperty`groupcolorize,name(%0),%0))[if(%1,u(pueblize,%q<gname>,+group [name(%0)]),%q<gname>)])
 &GETPROPERTY`GROUPCOLOR [u(cobj,mco)]=strfirstof(u(color,%#,GROUP,%0,,1),get(%0/SET`COLOR),n)
 &GETPROPERTY`GROUPABBR [u(cobj,mco)]=u(getproperty`groupcolorize,default(%0/SET`ABBREVIATION,left(name(%0),3)),%0)

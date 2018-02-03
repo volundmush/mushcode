@@ -4,9 +4,9 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &SYSTEM`NAME [u(cobj,bbs)]=BBS
 
-&CMD`BB`PENNMUSH [u(cobj,bbs)]=$^(?s)\+bb(\S+)(?\:/(\w+)?)?(?\:/(\d+)?)?(?\: +(.+?))?(?\:/(.+?)?)?(?\:=(.*))?$:@attach %!/CMD`BB`MAIN
+&CMD`BB`PENNMUSH [u(cobj,bbs)]=$^(?s)\+bb(\w+)(?\:/(\w+)?)?(?\:/(\d+)?)?(?\: +(.+?))?(?\:/(.+?)?)?(?\:=(.*))?$:@attach %!/CMD`BB`MAIN
 @set [u(cobj,bbs)]/CMD`BB`PENNMUSH=regexp
-&CMD`BB`RHOSTMUSH [u(cobj,bbs)]=$^(?s)\+bb(\\S+)(?\:/(\\w+)?)?(?\:/(\\d+)?)?(?\: +(.+?))?(?\:/(.+?)?)?(?\:=(.*))?$:@attach %!/CMD`BB`MAIN
+&CMD`BB`RHOSTMUSH [u(cobj,bbs)]=$^(?s)\+bb(\\w+)(?\:/(\\w+)?)?(?\:/(\\d+)?)?(?\: +(.+?))?(?\:/(.+?)?)?(?\:=(.*))?$:@attach %!/CMD`BB`MAIN
 @set [u(cobj,bbs)]/CMD`BB`RHOSTMUSH=regexp
 &CMD`BB`MAIN [u(cobj,bbs)]=@attach %!/INIT;@attach %!/INC`CHECKPC=%#,1;@attach %!/INC`PARTIAL=%1,setunion(setunion(v(COMMANDS`PLAYER),v(COMMANDS`ADMIN),|,|),if(u(iswizard,%#),v(COMMANDS`WIZARD)),|,|),|,command;@attach %!/INC`PARTIAL=%2,v(SWITCHES`%q<command>),|,switch;th u(setq,page,u(strfirstof,%3,1));@attach %!/%q<command>`[u(strfirstof,%q<switch>,MAIN)]=trim(%4),trim(%5),%6
 @set [u(cobj,bbs)]/CMD`BB`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
@@ -18,12 +18,22 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 &COMMANDS`ADMIN [u(cobj,bbs)]=
 &COMMANDS`WIZARD [u(cobj,bbs)]=IMPORT
 
-&SWITCHES`INFO [u(cobj,bbs)]=LOCKS|DATABASE
-&SWITCHES`ADMIN [u(cobj,bbs)]=ADDBOARD|DELETEBOARD|RENAMEBOARD|ORDER|LOCK|UNLOCK|RAWLOCK|ANONYMOUS|MOVE
+&SWITCHES`INFO [u(cobj,bbs)]=
+&SWITCHES`ADMIN [u(cobj,bbs)]=CREATE|DELETE|RENAME|ORDER|LOCK|UNLOCK|RAWLOCK|ANONYMOUS
 &SWITCHES`IMPORT [u(cobj,bbs)]=CONVERT|TRANSFER
 
-&SWITCHES`POST [u(cobj,bbs)]=EDIT|MOVE|REPLACE
-&SWITCHES`READ [u(cobj,bbs)]=REVEAL
+&SWITCHES`POST [u(cobj,bbs)]=EDIT|MOVE|REPLACE|REMOVE
+&SWITCHES`READ [u(cobj,bbs)]=
+
+@@ HELP
+
+&HLP`BBS [u(cobj,bbs)]=The Volund BBS is a global communications system that closely mimics the classical Myrddin's BBS in appearance, features, and command syntax.%R%R[ansi(hc,Reading Posts)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bbread)] - Show all message boards.%R[ansi(h,+bbread <board>)] - Shows a board's messages. <board> can be its name \(supports partial matches\) or Alias.%R[ansi(h,+bbread <board>/<list>)] - Read a message. <list> is comma-seperated. Entries can be single numbers\, number ranges \(ie. 1-6\)\, and u \(for 'all unread'\)\, in any combination or order - duplicates will not be shown.%R[ansi(h,+bbnext)] - shows first available unread message.%R[ansi(h,+bbnew)] - Same as +bbnext.%R[ansi(h,+bbcatchup <board>)] - Mark all messages on a board read. +bbcatchup ALL sets ALL boards 'read.'%R[ansi(h,+bbscan)] - Lists unread messages.)]%R%R[ansi(hc,Writing Posts)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bbpost <board>/<title>)] - Begins writing a post.%R[ansi(h,+bbwrite <text>)] - Writes to post in progress. [ansi(h,+bb <text>)] also works.%R[ansi(h,+bbproof)] - Show post in progress.%R[ansi(h,+bbedit <type>=<search>/<replace>)] - Edits post in progress. <type> must be TEXT or TITLE. Any text matching <search> will be replaced with <replace>.%R[ansi(h,+bbtoss)] - Erases a post in progress.%R[ansi(h,+bbpost)] - Submits finalized post.%R[ansi(h,+bbpost <board>/<title>=<text>)] - Quick posts to a board.%R[ansi(h,+bbedit <board>/<#>=<search>/<replace>)] - Edits a post on the board. Must be original poster or staff.%R[ansi(h,+bbmove <board>/<#>=<board>)] - Relocates a post. Must be original poster or staff.%R[ansi(h,+bbremove <board>/<list>)] - Removes a list of posts. <list> works like with +bbread. Must be original poster or staff.)]%R%R[ansi(hc,Board Membership)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bblist)] - Shows all visible boards.%R[ansi(h,+bbleave <board>)] - Leave a board. You won't hear notices from it.%R[ansi(h,+bbjoin <board>)] - Re-join a board you've left.)]
++help/add Communications/BBS=[u(cobj,bbs)]/HLP`BBS
+
+@@ ADMIN Section
+
+&HLP`ADMIN [u(cobj,bbs)]=[ansi(hc,Board Administration)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bbadmin/create \[<group>/\]<boardname>=<order>)] - Creates a board\, if you have the necessary permissions.%R[ansi(h,+bbadmin/delete <board>)] - Deletes a board and all posts.%R[ansi(h,+bbadmin/rename <board>=<new name>)] - Renames a Board.%R[ansi(h,+bbadmin/order <board>=<new order>)] - Changes a board's display order.%R[ansi(h,+bbadmin/lock <board>/<locktype>=<lockstring>)] - Applies lock settings to the board. Locktype can be READ\, POST\, and ADMIN. See +help Locks for more information.%R[ansi(h,+bbadmin/rawlock <board>/<locktype>=<lockstring>)] - As above\, but using the MUSH's hardcoded lock system. see help @lock for more information.%R[ansi(h,+bbadmin/unlock <board>/<locktype>)] - Restores a lock to its default. DO NOT UNLOCK ADMIN.%R[ansi(h,+bbadmin/anonymous <board>=<anonymous name>)] - Set this name to make the board Anonymous. All posts appear to be from the given name. Only Admin can see otherwise. Useful for Rumors boards and the like.%R[ansi(h,+bbinfo)] - List locks and board ID for boards you can see.)]
++help/addsub BBS/Admin=[u(cobj,bbs)]/HLP`ADMIN
 
 &Q`SELECT`START_BOARDS [u(cobj,bbs)]=SELECT board_id,board_read_lock,board_admin_lock FROM volv_board
 &Q`SELECT`BOARDS_IDS [u(cobj,bbs)]=SELECT * from volv_board WHERE board_id IN (!)
@@ -39,7 +49,7 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &INC`LOADBB [u(cobj,bbs)]=th u(setq,bbdat,u(mysql3,LOAD`BOARD,%0));th iter(bbid bbnum bbanon gid gobjid gname bbalias bbname bbread bbpost bbadmin bbmandatory,u(setq,%i0%1,elements(%q<bbdat>,inum(0),chr(177))));
 
-&Q`LOAD`BOARD [u(cobj,bbs)]=SELECT board_id,board_number,board_anonymous,group_id,group_objid,group_name,board_alias,board_read_lock,board_post_lock,board_admin_lock,board_mandatory FROM volv_board WHERE board_id=?
+&Q`LOAD`BOARD [u(cobj,bbs)]=SELECT board_id,board_number,board_anonymous,group_id,group_objid,group_name,board_alias,board_name,board_read_lock,board_post_lock,board_admin_lock,board_mandatory FROM volv_board WHERE board_id=?
 
 &INIT [u(cobj,bbs)]=th u(setr,isadmin,u(isadmin,%#));th u(setq,visiboardids,iter(if(%q<isadmin>,u(mysql3,SELECT`START_BOARDS),u(filter,TESTLOCK,u(mysql3,SELECT`START_BOARDS),chr(176),chr(176),%:,2 3)),first(%i0,chr(177)),chr(176),%b));th u(setq,readboardids,u(filter,NOTOMIT,%q<visiboardids>,%b,%b,%#));
 
@@ -65,14 +75,14 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &FUN`NEXTORDER [u(cobj,bbs)]=add(1,u(lmax,u(mysql,SELECT`EXIST_ORDERS[if(%0,`GROUP)],%0)))
 
-&ADMIN`ADDBOARD [u(cobj,bbs)]=@select/inline [t(%0)]=1,{@check isdbref(u(setr,gobjid,objid(u(u(cobj,gms)/FUN`FINDGROUP,%0,%:))))=@attach %!/INC`MSG=ERROR: Group '%0' not found.;th u(setq,gid,get(%q<gid1>/D`ID));@check cor(u(isadmin,%#),u(u(cobj,gms)/FUN`GRPPERM,%:,%q<gobjid>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`BOARD=%1,%q<gid>},0,{@attach %!/INC`VALID`BOARD=%0};@select/inline strlen(%2)=>0,{@attach %!/INC`VALID`ORDER=%2},{th (setq,order,u(FUN`NEXTORDER,%q<gid>))};@check  u(setr,bbmake,u(call`3,volp_board,0,'[sqlescape(%q<value>)]',%q<order>,'[u(strfirstof,%q<gobjid>,0)]'))=@attach %!/INC`MSG=ERROR: Board could not be created. REASON: %q<bbmake>;@attach %!/INC`MSG=Board Created!
+&ADMIN`CREATE [u(cobj,bbs)]=@select/inline [t(strlen(%0))][t(strlen(%1))]=11,{@check isdbref(u(setr,gobjid,objid(u(u(cobj,gms)/FUN`FINDGROUP,%0,%:))))=@attach %!/INC`MSG=ERROR: Group '%0' not found.;th u(setq,gid,get(%q<gid1>/D`ID));@check cor(u(isadmin,%#),u(u(cobj,gms)/FUN`GRPPERM,%:,%q<gobjid>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`BOARD=%1,%q<gid>},10,{@attach %!/INC`VALID`BOARD=%0};@select/inline strlen(%2)=>0,{@attach %!/INC`VALID`ORDER=%2},{th u(setq,order,u(FUN`NEXTORDER,%q<gobjid>))};@check  u(setr,bbmake,u(call`3,volp_board,0,'[sqlescape(%q<value>)]',%q<order>,'[u(strfirstof,%q<gobjid>,0)]'))=@attach %!/INC`MSG=ERROR: Board could not be created. REASON: %q<bbmake>;@attach %!/INC`MSG=Board Created!
 
 &Q`SELECT`EXIST_ORDERS [u(cobj,bbs)]=SELECT board_number FROM volv_board WHERE group_id IS NULL
 &Q`SELECT`EXIST_ORDERS`GROUP [u(cobj,bbs)]=SELECT board_number FROM volv_board WHERE group_id=?
 
-&ADMIN`DELETEBOARD [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,ADMIN;@check strmatch(%2,%q<bbname>)=@attach %!/INC`MSG=ERROR: Must enter command as +bbadmin/deleteboard <board>=<board's full name> to confirm. This board is called: %q<bbname>;@@ INsert some code here to handle Reports and SceneSys stuff;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will delete all posts for %q<bbname>. Are you ABSOLUTELY sure? Enter the command again quickly to verify.},DELETE BB %q<bbid>
+&ADMIN`DELETE [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,ADMIN;@check strmatch(%2,%q<bbname>)=@attach %!/INC`MSG=ERROR: Must enter command as +bbadmin/deleteboard <board>=<board's full name> to confirm. This board is called: %q<bbname>;@@ INsert some code here to handle Reports and SceneSys stuff;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will delete all posts for %q<bbname>. Are you ABSOLUTELY sure? Enter the command again quickly to verify.},DELETE BB %q<bbid>
 
-&ADMIN`RENAMEBOARD [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,ADMIN;@attach %!/INC`VALID`BOARD=%1,%q<gid>,%q<bbid>;@attach %!/INC`DOSQL=RENAME`BOARD,%q<value>,%q<bbid>;@attach %!/INC`MSG=Board renamed!;@attach %!/INC`MSG`CHAN=Renamed Board '%q<bbalias>: %q<bbname>' to: %q<value>
+&ADMIN`RENAME [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,ADMIN;@attach %!/INC`VALID`BOARD=%1,%q<gid>,%q<bbid>;@attach %!/INC`DOSQL=RENAME`BOARD,%q<value>,%q<bbid>;@attach %!/INC`MSG=Board renamed!;@attach %!/INC`MSG`CHAN=Renamed Board '%q<bbalias>: %q<bbname>' to: %q<value>
 
 &Q`RENAME`BOARD [u(cobj,bbs)]=UPDATE vol_entity SET entity_name=? WHERE entity_id=?
 
@@ -122,7 +132,7 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &POST`FINISH [u(cobj,bbs)]=@check hasattr(%#/D`BB`NEW`BBID)=@attach %!/INC`MSG=ERROR: You don't have a post in progress.;@attach %!/INC`LOADBB=get(%#/D`BB`NEW`BBID);@check u(FIL`CANPOST,%q<bbdat>,%#)=@attach %!/INC`MSG=ERROR: Permission denied. You do not pass the POST LOCK.;@attach %!/POST`CREATE=get(%#/D`BB`NEW`TITLE),get(%#/D`BB`NEW`TEXT);@attach %!/WIPE=%#,D`BB`NEW
 
-&POST`QUICK [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,%1,WRITE;@attach %!/INC`VALID`TITLE=%1;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No post contents entered!;@attach %!/POST`CREATE=%q<value>,%1
+&POST`QUICK [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,POST;@attach %!/INC`VALID`TITLE=%1;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No post contents entered!;@attach %!/POST`CREATE=%q<value>,%2
 
 &INC`FINDPOST [u(cobj,bbs)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No post entered!;@check u(valnum,%0)=@attach %!/INC`MSG=ERROR: Posts must be addressed by their post #s!;@attach %!/INC`LOADPOST=%0,%2;@select/inline %1=EDIT,{@check cor(u(FIL`CANADMIN,%q<bbdat>,%#),eq(get(%#/D`ID),%q<pauthorid>))=@attach %!/INC`MSG=ERROR: Permission denied. You cannot modify this post.}
 
@@ -136,20 +146,27 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &EDIT`MAIN [u(cobj,bbs)]=@attach %!/POST`EDIT
 
-&POST`EDIT [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0;@attach %!/INC`FINDPOST=%1,EDIT;@check strlen(u(setr,before,before(%2,^^^)))=@attach %!/INC`MSG=ERROR: Nothing entered in 'before' field!;th u(setq,after,after(%2,^^^));@stop comp(u(setr,rep,edit(%q<ptext>,%q<before>,%q<after>)),%q<ptext>)=@attach %!/INC`MSG=ERROR: Nothing changes!;@attach %!/INC`DOSQL=REPLACE`POST,%q<rep>,%q<pid>;@attach %!/INC`MSG=Post modified.
+&POST`EDIT [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,POST;@attach %!/INC`FINDPOST=%1,EDIT;@check strlen(u(setr,before,before(%2,^^^)))=@attach %!/INC`MSG=ERROR: Nothing entered in 'before' field!;th u(setq,after,after(%2,^^^));@check comp(u(setr,rep,edit(%q<ptext>,%q<before>,%q<after>)),%q<ptext>)=@attach %!/INC`MSG=ERROR: Nothing changes!;@attach %!/INC`DOSQL=REPLACE`POST,%q<rep>,%q<pid>;@attach %!/INC`MSG=Post modified.
 
 &REPLACE`MAIN [u(cobj,bbs)]=@attach %!/POST`REPLACE
 
 &POST`REPLACE [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0;@attach %!/INC`FINDPOST=%1,EDIT;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Nothing entered to replace with! Posts cannot be empty. Use [ansi(h,+bbremove %q<bbid>/%q<pnum>)] to delete instead.;@attach %!/INC`DOSQL=REPLACE`POST,%2,%q<pid>;@attach %!/INC`MSg=Post modified.
 
-&Q`REPLACE`POST [u(cobj,bbs)]=UPDATE vol_bbpost SET post_text=? WHERE post_id=?,post_date_modified=UTC_TIMESTAMP()
+&Q`REPLACE`POST [u(cobj,bbs)]=UPDATE vol_bbpost SET post_text=?,post_date_modified=UTC_TIMESTAMP() WHERE post_id=?
 
 &WRITE`MAIN [u(cobj,bbs)]=@check hasattr(%#/D`BB`NEW`BBID)=@attach %!/INC`MSG=ERROR: You don't have a post in progress.;@stop eq(strlen(get(%#/D`BB`NEW`TEXT)),u(setr,max,strlen(lnum(1,9999))))=@attach %!/INC`MSG=ERROR: Your post has already reached %q<max> characters - all that will fit. You may not add more text.;@check strlen(u(setr,entry,%0[if(strlen(%1),/%1)][if(strlen(%2),=%2)]))=@attach %!/INC`MSG=ERROR: Nothing entered to write. Use +bbproof to see what you've written!;&D`BB`NEW`TEXT %#=trim(cat(trim(get(%#/D`BB`NEW`TEXT)),trim(%q<entry>)));@attach %!/INC`MSG=Text added to bbpost. Your post has reached [strlen(get(%#/D`BB`NEW`TEXT))]/[strlen(lnum(1,9999))] max characters!
 
-&POST`CREATE [u(cobj,bbs)]=@check u(setr,makepost,u(call`7,volp_bbpost,0,%q<t1id>,%q<bbid>,'[sqlescape(%q<%0>)]','[sqlescape(%1)]',NULL,if(strlen(%q<bbanon>),1,0),%q<t1accid>))=@attach %!/INC`MSG=ERROR: Could not create post. Reason: %q<makepost>;th iter(pid pnum,u(setq,%i0,elements(%q<makepost>,inum(0))));@attach %!/INC`MSG=\(New BB Message \([u(pueblize,%q<bbalias>/%q<pnum>,+bbread %q<bbalias>/%q<pnum>)]\) posted to '%q<bbname>' by [if(%q<bbanon>,%q<bbanon>,u(moniker,%#))]: [u(pueblize,%0,+bbread %q<bbalias>/%q<pnum>)]\),u(setr,alert,u(filter,BOARDLOCK,u(lwhoid),%b,%b,%q<bbread>,%q<bbid>));
+&POST`CREATE [u(cobj,bbs)]=@check u(setr,makepost,u(call`6,volp_bbpost,0,%q<t1id>,%q<bbid>,'[sqlescape(%0)]','[sqlescape(%1)]',if(strlen(%q<bbanon>),1,0),%q<t1accid>))=@attach %!/INC`MSG=ERROR: Could not create post. Reason: %q<makepost>;th iter(pid pnum,u(setq,%i0,elements(%q<makepost>,inum(0))));@attach %!/INC`MSG=\(New BB Message \([u(pueblize,%q<bbalias>/%q<pnum>,+bbread %q<bbalias>/%q<pnum>)]\) posted to '%q<bbname>' by [if(%q<bbanon>,%q<bbanon>,u(moniker,%#))]: [u(pueblize,%0,+bbread %q<bbalias>/%q<pnum>)]\),u(setr,alert,u(filter,BOARDLOCK,u(lwhoid),%b,%b,%q<bbread>,%q<bbid>));
 
 &FIL`CANHEAR [u(cobj,bbs)]=cand(not(default(%0/D`BB`%2`OMIT,0)),cor(u(isadmin,%0),testlock(%1,%0)))
 
+&REMOVE`MAIN [u(cobj,bbs)]=@attach %!/POST`REMOVE
+
+&POST`REMOVE [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,POST;@check words(u(setr,mes,u(mysql,POSTS`EXISTS,u(sql`in`number,u(FUN`MESSLIST,%q<t1id>,%q<bbid>,%1)),%q<bbid>)))=@attach %!/INC`MSG=ERROR: Posts not found.;@stop gt(u(setr,tot,words(%q<mes>)),100)=@attach %!/INC`MSG=ERROR: Cannot delete over 100 posts at once.;@dolist/inline %q<mes>={@attach/localize %!/POST`REMOVE`DO=##}
+
+&POST`REMOVE`DO [u(cobj,bbs)]=@attach %!/INC`FINDPOST=%0,EDIT;@attach %!/INC`DOSQL=DELETE`POST,%q<pid>;@attach %!/INC`MSG=Deleted Post %q<pnum>: %q<ptitle>
+
+&Q`DELETE`POST [u(cobj,bbs)]=DELETE FROM vol_bbpost WHERE post_id=?
 
 @@ READ Section
 
@@ -159,7 +176,7 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &READ`LISTBOARDS [u(cobj,bbs)]=@pemit %#=u(header,u(fun`name));th u(setq,pages,add(div(words(%q<readboardids>),50),1));th u(setq,innum,u(SQL`IN`NUMBER,%q<readboardids>));@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(5 30 12 5 5 5,Alias,Name,Last Post,#Mess,#Unrd,Perm));th u(setq,section,START);@dolist/inline lnum(1,%q<pages>)={th u(setq,bdata,u(mysql3,LOAD_BOARD_LIST,%q<t1accid>,%q<innum>,mul(50,sub(##,1))));@dolist/inline/delimit [chr(176)] %q<bdata>={th u(setq,data,u(choosegame,%i0,%d0));@select/inline strmatch(%q<section>,u(setr,section,elements(%q<data>,3,chr(177))))=0,{@select/inline strlen(%q<section>)=0,{@pemit %#=u(separator,Main Boards)},{@pemit %#=u(separator,u(getproperty,elements(%q<data>,3,chr(177)),GROUPNAME) Boards)}};@pemit %#=align(5 30 12 5 5 5,rjust(u(pueblize,u(setr,bbnum,elements(%q<data>,1,chr(177))),+bbread %q<bbnum>),2),u(pueblize,elements(%q<data>,2,chr(177)),+bbread %q<bbnum>),if(u(setr,time,elements(%q<data>,7,chr(177))),u(fancyday,%q<time>,%#),None),rjust(elements(%q<data>,8,chr(177)),3),rjust(add(0,elements(%q<data>,9,chr(177))),2),u(FUN`SHOWLOCK,elements(%q<data>,4,chr(177)),elements(%q<data>,5,chr(177)),elements(%q<data>,6,chr(177)),%#))}};@pemit %#=u(SEPARATOR)%R'rpa' = 'read, post, admin', underline means this privilege is not public%r[u(FOOTER)]
 
-&Q`LOAD_BOARD_LIST [u(cobj,bbs)]=SELECT b.board_alias,b.board_name,b.group_objid,b.board_read_lock,b.board_post_lock,b.board_admin_lock,b.latest_post_date_secs,b.post_count,bre.unread_count FROM volv_bb_list AS b LEFT JOIN (SELECT p1.board_id as board_id,SUM(IF(br.bbread_date_checked<p1.post_unread_check OR br.bbread_date_checked IS NULL,1,0)) AS unread_count FROM volv_bbpost AS p1 LEFT JOIN vol_bbread AS br ON br.post_id=p1.post_id AND br.entity_id=? GROUP BY p1.board_id) AS bre ON bre.board_id=b.board_id WHERE b.board_id IN (!) ORDER BY b.group_name,b.board_number LIMIT 50 OFFSET ?
+&Q`LOAD_BOARD_LIST [u(cobj,bbs)]=SELECT b.board_alias,b.board_name,b.group_objid,b.board_read_lock,b.board_post_lock,b.board_admin_lock,b.latest_post_date_secs,b.post_count,bre.unread_count,b.board_id FROM volv_bb_list AS b LEFT JOIN (SELECT p1.board_id as board_id,SUM(IF(br.bbread_date_checked<p1.post_unread_check OR br.bbread_date_checked IS NULL,1,0)) AS unread_count FROM volv_bbpost AS p1 LEFT JOIN vol_bbread AS br ON br.post_id=p1.post_id AND br.entity_id=? GROUP BY p1.board_id) AS bre ON bre.board_id=b.board_id WHERE b.board_id IN (!) ORDER BY b.group_name,b.board_number LIMIT 50 OFFSET ?
 
 &Q`SELECT`LIST_BOARDS [u(cobj,bbs)]=SELECT bbl.*,r.unread_count FROM volv_bb_list AS bbl LEFT JOIN (SELECT bbp.board_id,SUM(IF(bbr.bbread_date_checked IS NULL,1,bbr.bbread_date_checked<bbp.post_date_created OR bbr.bbread_date_checked<bbp.post_date_modified OR bbr.bbread_date_checked<bbp.comment_date_modified)) AS unread_count FROM volv_bbpost AS bbp LEFT JOIN vol_bbread AS bbr ON bbp.post_id=bbr.post_id AND bbr.player_id=? GROUP BY bbp.board_id) AS r ON r.board_id=bbl.board_id WHERE bbl.board_id IN (!)
  
@@ -232,21 +249,7 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &FIL`MANDATORY [u(cobj,bbs)]=t(get(%0/MANDATORY))
 
+@@
+&INFO`MAIN [u(cobj,bbs)]=@pemit %#=u(header,u(fun`name));th u(setq,pages,add(div(words(%q<readboardids>),50),1));th u(setq,innum,u(SQL`IN`NUMBER,%q<readboardids>));@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(5 4 12 18 18 18,Alias,ID,Name,RdLck,PstLck,AdmLck));th u(setq,section,START);@dolist/inline lnum(1,%q<pages>)={th u(setq,bdata,u(mysql3,LOAD_BOARD_LIST,%q<t1accid>,%q<innum>,mul(50,sub(##,1))));@dolist/inline/delimit [chr(176)] %q<bdata>={th u(setq,data,u(choosegame,%i0,%d0));@select/inline strmatch(%q<section>,u(setr,section,elements(%q<data>,3,chr(177))))=0,{@select/inline strlen(%q<section>)=0,{@pemit %#=u(separator,Main Boards)},{@pemit %#=u(separator,u(getproperty,elements(%q<data>,3,chr(177)),GROUPNAME) Boards)}};@pemit %#=align(5 4 12 18 18 18,rjust(u(pueblize,u(setr,bbnum,elements(%q<data>,1,chr(177))),+bbread %q<bbnum>),2),elements(%q<data>,10,chr(177)),u(pueblize,elements(%q<data>,2,chr(177)),+bbread %q<bbnum>),elements(%q<data>,4,chr(177)),elements(%q<data>,5,chr(177)),elements(%q<data>,6,chr(177)))}};@pemit %#=u(FOOTER)
 
 @@ &INC`SEARCH [u(cobj,bbs)]=@attach %!/INC`CHECK`FINDBB=%0,%1,WRITE;@attach %!/INC`CHECKPC=%3,1,%q<sysname>;@check words(u(setr,posts,iter(grepi(%q<bb>,*`BYDB,%q<t1objid>),first(%i0,`))))=@attach %!/INC`MSG=No posts by %q<t1name> on [name(%q<bb>)].;@pemit %#=u(HEADER,BBS - [name(%q<bb>)])%r[space(8)]Message[space(28)]Posted[space(8)]By;@dolist/inline %q<posts>={@pemit %#=ljust(u(pueblize,%q<bbnum>/[match(u(FUN`LISTPOSTS,%q<bb>),%i0)],+[lcstr(%0)]read %q<bbnum>/[match(u(FUN`LISTPOSTS,%q<bb>),%i0)]),6)[ljust(u(u(bbs)/FUN`MSGFLAG,%#,%q<bb>,%i0),2)][ljust(get(%q<bb>/%i0`HDR),35)][ljust(timefmt($b $d $Y,lmath(max,firstof(get(%q<bb>/%i0`EDITED),get(%q<bb>/%i0`ON)))),14)][left(if(get(u(bbs-db)/BB`%q<bb>`ANONYMOUS),if(%q<isadmin>,([ansi(hx,get(%q<bb>/%i0`BY))]),default(u(bbs-db)/BB`%q<bb>`ANONYMOUS,Anonymous)),get(%q<bb>/%i0`BY)),21)]};@pemit %#=u(HEADER)
-
-@@ COMMUNICATIONS - BBS
-+help/add BBS=[u(cobj,bbs)]/HLP`BBS
-+help/category BBS=Communications
-+help/metatags BBS=Myrddin boards messages posts
-&HLP`BBS [u(cobj,bbs)]=The BBS is a global, multi-threaded board with a rich set of features that grew from a rewrite of Myrddin's classical BBS. It shares almost identical command syntax and appearance.%R%R[ansi(hc,Reading Posts)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bbread)] - Show all message boards.%R[ansi(h,+bbread <board>)] - Shows a board's messages. <board> can be its name \(supports partial matches\) or number.%R[ansi(h,+bbread <board>/<list>)] - Read a message. <list> is comma-seperated. Entries can be single numbers\, number ranges \(ie. 1-6\)\, and u \(for 'all unread'\)\, in any combination or order - duplicates will not be shown.%R[ansi(h,+bbnext)] - shows first available unread message.%R[ansi(h,+bbnew)] - Same as +bbnext.%R[ansi(h,+bbcatchup <board>)] - Mark all messages on a board read. +bbcatchup ALL sets ALL boards 'read.'%R[ansi(h,+bbscan)] - Lists unread messages.)]%R%R[ansi(hc,Writing Posts)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bbpost <board>/<title>)] - Begins writing a post.%R[ansi(h,+bbwrite <text>)] - Writes to post in progress. [ansi(h,+bb <text>)] also works.%R[ansi(h,+bbproof)] - Show post in progress.%R[ansi(h,+bbedit <type>=<search>/<replace>)] - Edits post in progress. <type> must be TEXT or TITLE. Any text matching <search> will be replaced with <replace>.%R[ansi(h,+bbtoss)] - Erases a post in progress.%R[ansi(h,+bbpost)] - Submits finalized post.%R[ansi(h,+bbpost <board>/<title>=<text>)] - Quick posts to a board.%R[ansi(h,+bbedit <board>/<#>=<search>/<replace>)] - Edits a post on the board. Must be original poster or staff.%R[ansi(h,+bbmove <board>/<#>=<board>)] - Relocates a post. Must be original poster or staff.%R[ansi(h,+bbremove <board>/<list>)] - Removes a list of posts. <list> works like with +bbread. Must be original poster or staff.)]%R%R[ansi(hc,Board Membership)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bblist)] - Shows all visible boards.%R[ansi(h,+bbleave <board>)] - Leave a board. You won't hear notices from it.%R[ansi(h,+bbjoin <board>)] - Re-join a board you've left.)]
-
-+help/add BBS/Timeouts=[u(cobj,bbs)]/HLP`BBS`TIMEOUTS
-&HLP`BBS`TIMEOUTS [u(cobj,bbs)]=The BBS supports timeouts by global scale, board scale, and individual post scale.%R%R[ansi(hc,Duration Entries)]%R[align(5 [sub(u(width,%#),6)],,Anything that requires a <duration> lets you use a stringsecs compatible \([u(pueblize,help stringsecs)]\) entry. Example: 7w 5m \(for 7 weeks\, 5 minutes\) or 30d \(30 days\).)]%R%R[ansi(hc,Global Timeouts)]%R[align(5 [sub(u(width,%#),6)],,The Global timeouts are configured by staff in +gameconfig.)]%R%R[ansi(hc,Board Timeouts)]%RThese commands are staff only.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bbconfig <board>/timeout=<duration>)] - Default timeout for posts on <board>. Set 0 for no timeout. Set null to use global default.)]%R%R[ansi(hc,Post Timeouts)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bbtimeout <board>/<list>=<duration>)] - Change timeout for a list of posts. Players can only change for their own posts\, and only less than board's timeout. Admin may change any post's timeout\, and set a post static by setting it to 0.)]
-
-+shelp/add BBS=[u(cobj,bbs)]/SHLP`BBS
-+shelp/category BBS=Communications
-&SHLP`BBS [u(cobj,bbs)]=These commands are staff only.%R%R[ansi(hc,Managing Boards)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bbnewgroup <name>)] - Creates a new board.%R[ansi(h,+bbcleargroup <board>)] - Deletes a board and all posts.%R[ansi(h,+bborder <board>=<#>)] - All boards have an ORDER # that's used to sort them. This is not the same as the number displayed in +bbread but can be used to change them.%R[ansi(h,+bbconfig <board>/<parameter>=<value>)] - Sets a board's <option> to <value>. Entering no <value> clears the option. Available Options:)]%R[align(10 67,,[ansi(h,anonymous)] - Set to <name> makes all posts appear to be from <name> as long as it's set. Admin still see real poster.%R[ansi(h,timeout)] - See [u(pueblize,+help BBS/Timeouts)]%R[ansi(h,mandatory)] - Set to 1 or 0. Boards set mandatory cannot be targeted with bbcatchup and will periodically alert people of unread messages. Configure the alert interval in +gameconfig.)]%R%R[ansi(hc,Importing from Myrddin)]%RWIZARD ONLY! These commands could seriously damage the boards if misused or problems occur. It's recommended you make a backup of the game before using these! These commands were designed and tested solely for Myrddin's BBS version 4.0.6 with the yearly patch from MUSHcode.com. Any mods to how posts are STORED \(but not displayed\) could cause this to fail. You're on your own with these commands.%R%RThese commands will attempt to locate a bbpocket. If a game has multiple bbpockets\, set a BBPOCKET attribute on yourself containing its dbref via &BBPOCKET me=<dbref>.%R%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bbimport <oldboard#>)] - Converts a single old Board object's messages and reposts them in order on a new board.%R[ansi(h,+bbtransfer <oldboard#>=<board>)] - Copy messages from an old board to a specific board in order of posting.%R[ansi(h,+bbconvert)] - Converts an entire Myrddin's BBS. Boards are created in order and added to existing list\, all posts converted. Note that board locks and settings are NOT converted in the process\, and you might end up with boards of the same name when it's done depending on how you started.)]
-
-+shelp/add BBS/Locks=[u(cobj,bbs)]/SHLP`BBS`LOCKS
-&SHLP`BBS`LOCKS [u(cobj,bbs)]=BBS boards can be locked so that only certain people may see or post to them. A board set for only ADMIN to write but anyone may read could serve as public announcements. A board set to only one group able to WRITE and READ is a private board. The BBS locks rely on the Key Types made with +key! Only Admin may use these commands!%R[ansi(hc,See Also:)] [u(pueblize,+help +key)]%R%R[ansi(hc,Locktypes)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,write)] - Controls who may post to a board.%R[ansi(h,read)] - Controls who can see a board and read its posts. Boards you cannot see will not be displayed on +bbread!)]%R%R[ansi(hc,Managing BBLocks)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+bblock <board>/<locktype>=<Key Types>)] - Locks Board. <lock> can be READ or WRITE. Examples: +bblock 4/WRITE=ADMIN%R[ansi(h,+bbunlock <board>/<locktype>)] - Unlocks a board.%R%RIf the Lock Manager System is NOT installed\, you can still use these commands: they will set locks using the game's built-in @lock logic.%R%RNOTE: Read and Write are abstractions. The actual locks are the Basic @lock and @lock/enter\, respectively. For Group boards the rank number is stored on the CANREAD and CANWRITE attributes.)]
