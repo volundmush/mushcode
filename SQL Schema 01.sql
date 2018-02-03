@@ -62,6 +62,7 @@ DELIMITER ;
 	
 CREATE TABLE IF NOT EXISTS vol_account (
 	account_id INT UNSIGNED NOT NULL,
+	account_email VARCHAR(400) NULL DEFAULT NULL,
 	account_date_created DATETIME NULL,
 	account_disabled BOOLEAN NOT NULL DEFAULT 0,
 	account_date_activity DATETIME NULL,
@@ -71,7 +72,7 @@ CREATE TABLE IF NOT EXISTS vol_account (
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 	
 CREATE OR REPLACE VIEW volv_account AS
-	SELECT a.account_id,e.entity_name AS account_name,e.entity_objid AS account_objid,a.account_disabled,UNIX_TIMESTAMP(a.account_date_created) AS account_date_created,UNIX_TIMESTAMP(a.account_date_activity) AS account_date_activity
+	SELECT a.account_id,e.entity_name AS account_name,e.entity_objid AS account_objid,a.account_email,a.account_disabled,UNIX_TIMESTAMP(a.account_date_created) AS account_date_created,UNIX_TIMESTAMP(a.account_date_activity) AS account_date_activity
 	FROM vol_account AS a LEFT JOIN vol_entity AS e ON a.account_id=e.entity_id
 	ORDER BY account_date_created;
 	

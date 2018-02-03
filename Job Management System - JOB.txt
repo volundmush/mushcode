@@ -1,0 +1,231 @@
+@@ DEPENDENCIES: Core
+
+th u(NEWCOBJ,Job System,job,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request category?,WORD)
+th u(newconf,PCONF,JOBS,BRIEF_SCAN,0,ADMIN: +job/brief instead of +job/pending on login?,BOOL)
+th u(newconf,PCONF,JOBS,MYJOBS,1,Show +myjobs display at login?,BOOL)
+
+&CMD`+JOB`PENNMUSH [u(cobj,job)]=$^(?s)(?\:\+)?(job|jobs|myjobs|myjob)(?\:/(\w+)?)?(?\:/(\d+)?)?(?\: +(.*?))?(?\:=(.*))?$:@attach %!/CMD`+JOB`MAIN
+@set [u(cobj,job)]/CMD`+JOB`PENNMUSH=regexp
+&CMD`+JOB`RHOSTMUSH [u(cobj,job)]=$^(?s)(?\:\+)?(job|jobs|myjobs|myjob)(?\:/(\\w+)?)?(?\:/(\\d+)?)?(?\: +(.*?))?(?\:=(.*))?$:@attach %!/CMD`+JOB`MAIN
+@set [u(cobj,job)]/CMD`+JOB`RHOSTMUSH=regexp
+&CMD`+JOB`MAIN [u(cobj,job)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=%#,1;@attach %!/INIT;@select/inline u(valnum,%2)=1,{th u(setq,page,%2)},0,{@attach %!/INC`GETSWITCH=%2;th u(setq,page,u(strfirstof,%3,1))};th u(setq,mode,switch(%1,myjob*,MYJOBS,job*,JOBS));@attach %!/INC`CHECKPC=%:,1,1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%4),trim(%5)
+@set [u(cobj,job)]/CMD`+JOB`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,job)]=JOBS
+&SWITCHES`PLAYER [u(cobj,job)]=REPLY|OLD|APPROVE|DENY|CANCEL|REVIVE|COMMENT|DUE|CLAIM|UNCLAIM|SCAN|NEXT|PENDING|ADDHELPER|REMHELPER|BRIEF|SEARCH[if(isdbref(u(cobj,roll)),|ROLL)]
+&SWITCHES`ADMIN [u(cobj,job)]=NEWBUCKET|DELBUCKET|RENBUCKET|LOCK|UNLOCK|RAWLOCK|BUCKET|CONFIG|DESC|SET
+
+&Q`SELECT`START_JOBS [u(cobj,job)]=SELECT bucket_id,bucket_name,bucket_post_lock,bucket_admin_lock FROM volv_bucket
+
+&INIT [u(cobj,job)]=th u(setr,isadmin,u(isadmin,%#));th u(setq,admbids,iter(if(%q<isadmin>,u(setr,start,u(mysql3,SELECT`START_JOBS)),u(filter,TESTLOCK,u(setr,start,u(mysql3,SELECT`START_JOBS)),chr(176),chr(176),%:,4)),first(%i0,chr(177)),chr(176),%b))
+
+&FIL`TESTLOCK [u(cobj,job)]=cor(u(isadmin,%1),u(lmax,iter(%2,testlock(elements(%0,%i0,chr(177)),%1))))
+
+&CMD`+REQUEST`PENNMUSH [u(cobj,job)]=$^(?s)\+request(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REQUEST`MAIN
+@set [u(cobj,job)]/CMD`+REQUEST`PENNMUSH=regexp
+&CMD`+REQUEST`RHOSTMUSH [u(cobj,job)]=$^(?s)\+request(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REQUEST`MAIN
+@set [u(cobj,job)]/CMD`+REQUEST`RHOSTMUSH=regexp
+&CMD`+REQUEST`MAIN [u(cobj,job)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INIT;@attach %!/INC`PARTIAL=u(strfirstof,%1,u(game_Config,JOBS,DEFAULT_CATEGORY)),u(setr,valcats,iter(u(FUN`VALIDCATS,%#,POST),name(%i0),%b,|)),|,Category,Category;@attach %!/INC`REQUEST=trim(%2),trim(%3),%q<category>,%:
+@set [u(cobj,job)]/CMD`+REQUEST`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&INC`VALID`REQUEST [u(cobj,job)]=@check strlen(u(setr,value,stripansi(trim(%0))))=@attach %!/INC`MSG=ERROR: Request subject empty!;@stop u(charsearch,%q<value>,u(badchars))=@attach %!/INC`MSG=ERROR: Title cannot include: [v(badchars)];
+
+&INC`REQUEST [u(cobj,job)]=th u(setq,subm,u(strfirstof,objid(%3),%:));@attach %!/INC`FINDBUCKET=%0;@check cor(%q<isadmin>,testlock(%q<bpostlock>,%#))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%1)=@attach %!/INC`MSG=Initial message empty! What are you asking staff for?;@check u(setr,job_id,u(call`5,%q<t1id>,%q<bid>,%q<banonymous>,'[sqlescape(%q<value>)]','[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: Job could not be created. reason: %q<job_id>;@attach %!/INC`AMSGJOB=%q<job_id>,u(pueblize,%q<bname> Job %q<job_id>: '%q<value>',+job %q<job_id>) submitted by [if(%q<banonymous>,Anonymous,%q<t1name>)].
+
+&INC`LOCKSTART [u(cobj,job)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission Denied. This command is Wizard-only.;@attach %!/INC`FINDBUCKET=before(%0,/);@attach %!/INC`PARTIAL=after(%0,/),POST|ADMIN,|,lock;
+
+&INC`RAWLOCK [u(cobj,job)]=@attach %!/INC`LOCK=%0,%1,1;
+&INC`LOCK [u(cobj,job)]=@attach %!/INC`LOCKSTART;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No lock string entered. See [u(pueblize,help @lock)] and [u(pueblize,+help Groups/Locks)] for more information.;@select/inline t(%2)=0,{@attach %!/INC`GROUPLOCK=%1,0,%q<b1id>},1,{@attach %!/INC`VALID`LOCK=%1;th u(setq,lockstr,%q<value>)};@check u(setr,lockres,u(call`3,volp_lock,0,%q<b1id>,'%q<lock>','[sqlescape(%q<lockstr>)]'))=@attach %!/INC`MSG=ERROR: Could not set Lock. REASON: %q<lockres>;@attach %!/INC`MSG=Locked the Bucket to %q<lockstr>!;@attach %!/INC`MSG`CHAN=%q<lock> Locked Bucket %q<bname> to: %q<lockstr>
+
+&INC`UNLOCK [u(cobj,job)]=@attach %!/INC`LOCK=%0,#TRUE,1
+
+&INC`DESC [u(cobj,job)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission Denied. This command is Wizard-only.;@attach %!/INC`FINDBUCKET=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Description field empty.;@attach %!/INC`DOSQL=SET`DESCRIPTION,%1,%q<b1id>;@attach %!/INC`DOSQL=SET`DESCRIPTION_RENDER,u(render,%1),%q<b1id>;@attach %!/INC`MSG=Description for %q<bname> set!
+
+&Q`SET`DESCRIPTION [u(cobj,job)]=UPDATE vol_bucket SET bucket_description=? WHERE bucket_id=?
+&Q`SET`DESCRIPTION_RENDER [u(cobj,job)]=UPDATE vol_bucket SET bucket_description_render=? WHERE bucket_id=?
+
+@triger %!/WIPE=u(cobj,job),INC`CONFIG
+&INC`SET [u(cobj,job)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission Denied. This command is Wizard-only.;@attach %!/INC`FINDBUCKET=before(%0,/);@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Set Type field empty.;@attach %!/INC`PARTIAL=after(%0,/),DUE|ANONYMOUS|NOSTATS,|,type,type;@attach %!/INC`SET`CHECK`%q<type>;@attach %!/INC`SET`SET`%q<type>;@attach %!/INC`MSG=You change Bucket %q<bname>'s %q<type> setting to: [u(strfirstof,%q<display>,%1)];@attach %!/INC`MSG`CHAN=Changed Bucket %q<bname>'s %q<type> setting to: [u(strfirstof,%q<display>,%1)]
+
+&INC`SET`CHECK`DUE [u(cobj,job)]=@check gt(u(setr,entry,stringsecs(%1)),0)=@attach %!/INC`MSG=ERROR: '%1' was not accepted by stringsecs().;th u(setq,display,u(etime,%q<entry>))
+&INC`SET`CHECK`ANONYMOUS [u(cobj,job)]=@check match(0 1 2 3,%1)=@attach %!/INC`MSG=ERROR: The Anonymous setting must be 0, 1, 2 or 3.;th u(setq,entry,%1)
+&INC`SET`CHECK`NOSTATS [u(cobj,job)]=@attach %!/INC`VALID`BOOL=%1;th u(setq,entry,%q<value>)
+
+&INC`MSGJOB [u(cobj,job)]=@attach %!/INC`MSG=%1,u(FUN`MSGLIST,%0,%2)
+&INC`AMSGJOB [u(cobj,job)]=@attach %!/INC`MSG=%1,u(FUN`AMSGLIST,%0,%2)
+
+&FUN`MSGLIST [u(cobj,job)]=setunion(setunion(%:,u(mySQL,get`MAILNORMAL,%0)),u(FUN`AMSGLIST,%0,%1))
+&FUN`AMSGLIST [u(cobj,job)]=setunion(setunion(%:,u(mysql,GET`MAILADMIN,%0)),u(filter,AMSGLIST,lwhoid(),%b,%b,%1))
+&FUN`MAILLIST [u(cobj,job)]=u(filter,JOBMAIL,setunion(%:,u(mysql,get`MAILNORMAL,%0)))
+
+&FIL`AMSGLIST [u(cobj,job)]=u(FUN`PERMCHECK,%1,ADMIN,%0)
+
+@@ %0 - category being checked. %1 - mode. %2 - checker.
+&Q`GET`ANYOBJIDS [u(cobj,job)]=SELECT character_objid FROM volv_jlink WHERE job_id=?
+&Q`GET`MAILNORMAL [u(cobj,job)]=SELECT character_objid FROM volv_jlink WHERE job_id=? AND jlink_type>0
+&Q`GET`MAILADMIN [u(cobj,job)]=SELECT character_objid FROM volv_jlink WHERE job_id=? AND jlink_type=2
+&Q`GET`LINKCLAIMOBJIDS [u(cobj,job)]=SELECT character_objid FROM volv_jlink WHERE job_id=? AND jlink_type>0
+
+&INC`VALID`BUCKETNAME [u(cobj,job)]=@check strlen(u(setr,value,ucstr(trim(stripansi(%0)))))=@attach %!/INC`MSG=You must enter the new category name!;@stop cor(u(charsearch,%q<value>,u(badchars) /),gte(strlen(%q<value>),8),gte(words(%q<value>),2))=@attach %!/INC`MSG=ERROR: Bucket names must be 8 or fewer characters. They cannot contain: [v(badchars)] / or spaces.;@stop cand(u(mysql,FIND`EXACTBUCKET,%q<value>),not(eq(%q<found_id>,%1)))=@attach %!/INC`MSG=ERROR: Bucket name is already in use!
+
+&INC`NEWBUCKET [u(cobj,job)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`VALID`BUCKETNAME=%0;@check u(setr,bucket_id,u(call`1,volp_job_bucket,0,'[sqlescape(%q<value>)]'))=@attach %!/INC`MSG=ERROR: Bucket '%0' could not be created. Reason: %q<bucket_id>;@attach %!/INC`MSG=Bucket '%q<value>' created!;@attach %!/INC`MSG`CHAN={Bucket Created: %q<value>}
+
+&INC`FINDBUCKET [u(cobj,job)]=@check strlen(%0)=@attach %!/INC`MSG=No Bucket Name entered!;@check cor(u(setr,bucket_id,u(mysql,FIND`EXACTBUCKET,%0)),u(setr,bucket_id,u(mysql,FIND`WILDBUCKET,%0)))=@attach %!/INC`MSG=ERROR: Bucket '%0' not found!;@attach %!/INC`LOADBUCKET=%q<bucket_id>,1;
+
+&INC`LOADBUCKET [u(cobj,job)]=th u(setq,bdata,u(mysql3,LOAD`BUCKET,%0));th iter(id name postlock adminlock due anonymous,u(setq,b%1%i0,elements(%q<bdata>,inum(0),chr(177))));
+
+&Q`FIND`EXACTBUCKET [u(cobj,job)]=SELECT bucket_id FROM volv_bucket WHERE bucket_name=? LIMIT 1
+&Q`FIND`WILDBUCKET [u(cobj,job)]=SELECT bucket_id FROM volv_bucket WHERE bucket_name LIKE '!%' ORDER BY bucket_name LIMIT 1
+
+&Q`LOAD`BUCKET [u(cobj,job)]=SELECT bucket_id,bucket_name,bucket_post_lock,bucket_admin_lock,bucket_is_anonymous,bucket_due FROM volv_bucket WHERE bucket_id=?
+
+&INC`RENBUCKET [u(cobj,job)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`FINDBUCKET=%0;@attach %!/INC`VALID`BUCKETNAME=%1,%q<bid>;@attach %!/INC`DOSQL=RENAME`BUCKET,%q<value>,%q<bid>;@attach %!/INC`REPORT={[ansi(h,%n)] renamed Bucket '%q<bname>' to '%q<value>'!};
+
+&Q`RENAME`BUCKET [u(cobj,job)]=UPDATE vol_entity SET entity_name=? WHERE entity_id=?
+
+&INC`DELBUCKET [u(cobj,job)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`FINDBUCKET=%0;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will delete Job Category '%q<catname>'. All child jobs will be gone forever. Are you sure you want to do this? Enter the same command again within ten seconds to verify!},DELETE %q<bid>;@attach %!/INC`MSG=Bucket '%0' Deleted!;@attach %!/INC`REPORT={[ansi(h,%n)] just deleted Bucket '%q<bname>'!};@attach %!/INC`DOSQL=DELETE`BUCKET,%q<bid>
+
+&Q`DELETE`BUCKET [u(cobj,job)]=DELETE FROM vol_entity WHERE entity_id=?
+
+&INC`MAIN [u(cobj,job)]=@select/inline 1=isint(%0),{@attach %!/INC`DISPLAYJOB=%0},t(strlen(%0)),{@attach %!/INC`DISPLAYBUCKET=%0,%1},{@select/inline %q<mode>=MYJOBS,{@attach %!/INC`MYJOBS`LIST},{@attach %!/INC`BUCKETS}}
+
+&INC`BUCKETS [u(cobj,job)]=@pemit %#=u(HEADER,mudname() Jobs);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(8 34 4 4 4 4 4 4 4,Name,Description,Pen,App,Dny,Cnc,Over,Due,Anon));@pemit %#=u(separator);@dolist/inline/delimit [chr(176)] [u(mysql3,LIST`BUCKETS)]={@pemit %#=ansi(if(mod(inum(0),2),u(color,%#,ROW_A),u(color,%#,ROW_B)),u(FUN`BUCKETLINE,u(choosegame,%i0,%d0)));@pemit %#=};@pemit %#=u(FOOTER)
+
+&FUN`BUCKETLINE [u(cobj,job)]=localize(align(8 34 4 4 4 4 4 4 4,u(pueblize,elements(%0,2,chr(177)),+[lcstr(%q<mode>)] [elements(%0,2,chr(177))]),elements(%0,3,chr(177)),elements(u(setr,data,if(not(elements(%0,6,chr(177))),iter(lnum(1,10),?,%b,chr(177)),elements(%0,7 8 9 10 11,chr(177),chr(177)))),1,chr(177)),elements(%q<data>,2,chr(177)),elements(%q<data>,3,chr(177)),elements(%q<data>,4,chr(177)),elements(%q<data>,5,chr(177)),u(strfirstof,u(etime,elements(%0,4,chr(177))),0),elements(%0,5,chr(177))))
+
+&Q`LIST`BUCKETS [u(cobj,job)]=SELECT bucket_id,bucket_name,bucket_description,bucket_due,bucket_is_anonymous,bucket_stats,pending_count,approved_count,deny_count,cancel_count,overdue_count from volv_bucket_list
+
+&INC`OLD [u(cobj,job)]=th u(setq,old,OLD);@attach %!/INC`MAIN
+
+&INC`DISPLAYBUCKET [u(cobj,job)]=@attach %!/INC`FINDBUCKET=%0;@check match(%q<admbids>,%q<b1id>)=@attach %!/INC`MSG=ERROR: Permission denied.;th u(setq,total,u(mysql,GET`JOBLISTCATCOUNT%q<old>,%q<b1id>));th u(setq,page,bound(%q<page>,1,u(setr,max,ceil(fdiv(%q<total>,30)))));@pemit %#=u(HEADER,mudname() - %q<b1name> Jobs);@pemit %#=align(2 >4 15 15 16 11 10,*,ID,Submitter,Title,Claimed,Due,Last);@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] [revwords(u(mysql3,GET`JOBLISTBUCKET%q<old>,%q<t1id>,%q<b1id>,mul(30,sub(%q<page>,1))),chr(176))]={@pemit %#=ansi(if(mod(inum(0),2),u(color,%#,ROW_A),u(color,%#,ROW_B)),u(FUN`LISTJOBSTAFF,u(choosegame,%i0,%d0)))};@pemit %#=u(FOOTER,if(gt(%q<page>,1),ansi(hg,u(pueblize,<,+job[if(strlen(%q<old>),/old)]/[sub(%q<page>,1)] %q<b1name>)),ansi(hx,<))%BPage %q<page> of [bound(%q<max>,1)]%B[if(lt(%q<page>,%q<max>),ansi(hg,u(pueblize,>,+job[if(strlen(%q<old>),/old)]/[add(%q<page>,1)] %q<b1name>)),ansi(hx,>))])
+
+&Q`GET`JOBLISTBUCKET [u(cobj,job)]=SELECT j.job_status,j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL AS job_is_unread,j.job_id,j.job_is_anonymous,j.owner_objid,j.owner_name,j.job_title,j.handler_objids,j.job_date_due_secs,j.job_is_overdue,j.job_date_latest_activity_secs FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON jl.job_id=j.job_id AND jl.character_id=? WHERE j.bucket_id=? AND (j.job_status=0 OR j.job_is_recent) ORDER BY j.job_id DESC LIMIT 30 OFFSET ?
+
+&Q`GET`JOBLISTBUCKETCOUNT [u(cobj,job)]=SELECT count(job_id) from volv_job WHERE bucket_id=? AND (job_status=0 OR job_is_recent)
+
+&Q`GET`JOBLISTBUCKETOLD [u(cobj,job)]=SELECT j.job_status,j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL AS job_is_unread,j.job_id,j.job_is_anonymous,j.owner_objid,j.owner_name,j.job_title,j.handler_objids,j.job_date_due_secs,j.job_is_overdue,j.job_date_latest_activity_secs FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON jl.job_id=j.job_id AND jl.character_id=? WHERE j.bucket_id=? AND j.job_status>0 ORDER BY j.job_id DESC LIMIT 30 OFFSET ?
+&Q`GET`JOBLISTBUCKETCOUNTOLD [u(cobj,job)]=SELECT count(job_id) from volv_job WHERE bucket_id=? AND job_status>0
+
+&FUN`LISTJOBSTAFF [u(cobj,job)]=localize(align(2 >4 15 15 16 11 10,if(elements(%0,2,chr(177)),ansi(hr,*),%b)[switch(elements(%0,1,chr(177)),0,P,1,A,2,D,3,C,?)],u(pueblize,elements(%0,3,chr(177)),+job [elements(%0,3,chr(177))]),ansi(if(isobjid(u(setr,ownobj,elements(%0,5,chr(177)))),,hx),if(elements(%0,4,chr(177)),Anonymous,if(isobjid(%q<ownobj>),u(moniker,%q<ownobj>),elements(%0,6,chr(177))))),elements(%0,7,chr(177)),u(strfirstof,iter(elements(%0,8,chr(177)),u(moniker,%i0),%b,\,%b),---),ansi(if(elements(%0,10,chr(177)),hr,),u(fancydate,elements(%0,9,chr(177)))),u(fancydate,elements(%0,11,chr(177)))))
+
+&FUN`LIST`CLAIMERS [u(cobj,job)]=iter(u(mysql,GET`CLAIM,%0,2),u(moniker,%i0),%b,\,)
+
+&Q`GET`CLAIM [u(cobj,job)]=SELECT character_objid FROM volv_jlink WHERE job_id=? AND jlink_type=? ORDER BY character_name DESC
+
+&INC`SCAN [u(cobj,job)]=@check words(%q<admbids>)=@attach %!/INC`MSG=Permission denied.;@dolist/inline/delimit [chr(176)] [u(setr,maincount,u(mysql3,UNREAD`BUCKET_AGG,%q<t1id>,u(SQL`IN`NUMBER,%q<admbids>)))]={th u(setq,had,1);@pemit %#=u(HEADER,mudname() - New [elements(u(setr,bd,u(choosegame,%i0,%d0)),2,chr(177))] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] [u(mysql3,JOBS`FROMIDS,%q<t1id>,u(SQL`IN`NUMBER,elements(%q<bd>,3,chr(177))))]={@pemit %#=ansi(if(mod(inum(0),2),u(color,%#,ROW_A),u(color,%#,ROW_B)),u(FUN`LISTJOBSTAFF,u(choosegame,%i0,%d0)))};@select/inline #@=words(%q<maincount>,chr(176)),{@pemit %#=u(FOOTER)}};@select/inline not(%q<had>)=1,{@attach %!/INC`MSG=There are no new jobs in the system!}
+
+&Q`UNREAD`BUCKET_AGG [u(cobj,job)]=SELECT j.bucket_id,j.bucket_name,GROUP_CONCAT(j.job_id ORDER BY j.job_id SEPARATOR ' ') AS unread_jobs FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON j.job_id=jl.job_id AND jl.character_id=? WHERE (jl.jlink_date_check IS NULL OR jl.jlink_date_check<j.job_date_latest_activity) AND NOT (j.job_status>0 AND j.job_date_closed <= UTC_TIMESTAMP() - INTERVAL 14 DAY) GROUP BY j.bucket_id ORDER by j.bucket_name
+
+&Q`JOBS`FROMIDS [u(cobj,job)]=SELECT j.job_status,j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL AS job_is_unread,j.job_id,j.job_is_anonymous,j.owner_objid,j.owner_name,j.job_title,j.handler_objids,j.job_date_due_secs,j.job_is_overdue,j.job_date_latest_activity_secs FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON jl.job_id=j.job_id AND jl.character_id=? WHERE j.job_id IN (!) ORDER BY j.job_id
+
+&INC`NEXT [u(cobj,job)]=@check words(%q<admbids>)=@attach %!/INC`MSG=Permission denied.;@check u(setr,next,u(mysql,UNREAD`JOB,%q<t1id>,u(SQL`IN`NUMBER,%q<admbids>)))=@attach %!/INC`MSG=There are no unread jobs to see!;@attach %!/INC`DISPLAYJOB=%q<next>
+
+&Q`UNREAD`JOB [u(cobj,job)]=SELECT j.job_id from volv_job as j LEFT JOIN vol_jlink AS jl ON j.job_id=jl.job_id AND jl.character_id=? WHERE j.bucket_id IN (!) AND (j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL) ORDER BY j.bucket_name ASC,j.job_id ASC limit 1
+
+&INC`SEARCH [u(cobj,job)]=@check words(%q<admbids>)=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`PARTIAL=%0,TEXT|PLAYER,|,choice;@select/inline %q<choice>=PLAYER,{@attach %!/INC`CHECKPC=%1,2},{@check strlen(%1)=@attach %!/INC`MSG=ERROR: No text entered to search for!};th u(setq,first,0);@pemit %#=u(header,Job Search Results for %q<choice>: [switch(%q<choice>,PLAYER,%q<t2name>,TEXT,left(%1,10))]);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);th u(setq,res,switch(%q<choice>,PLAYER,u(mysql3,SEARCH`PLAYER,%q<t2id>,u(SQL`IN`NUMBER,%q<admbids>)),TEXT,u(mysql3,SEARCH`TEXT,sqlescape(%1),sqlescape(%1),u(SQL`IN`NUMBER,%q<admbids>))));@dolist/inline/delimit [chr(176)] %q<res>={@select/inline strmatch(%q<last>,u(setr,last,elements(%q<data>,12,chr(177))))=0,{@pemit %#=u(separator,%q<last>)};@pemit %#=ansi(if(mod(inum(0),2),u(color,%#,ROW_A),u(color,%#,ROW_B)),u(FUN`LISTJOBSTAFF,%q<data>))};@pemit %#=u(FOOTER)
+
+&Q`SEARCH`PLAYER [u(cobj,job)]=SELECT j.job_status,j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL AS job_is_unread,j.job_id,j.job_is_anonymous,j.owner_objid,j.owner_name,j.job_title,j.handler_objids,j.job_date_due_secs,j.job_is_overdue,j.job_date_latest_activity_secs FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON jl.job_id AND jl.character_id=? WHERE j.bucket_id IN (!) ORDER BY j.bucket_name,j.job_id
+
+&Q`SEARCH`TEXT [u(cobj,job)]=SELECT j.job_status,j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL AS job_is_unread,j.job_id,j.job_is_anonymous,j.owner_objid,j.owner_name,j.job_title,j.handler_objids,j.job_date_due_secs,j.job_is_overdue,j.job_date_latest_activity_secs FROM volv_job AS j WHERE j.job_id IN (SELECT job_id FROM volv_job_comment WHERE jcomment_text LIKE '%!%') OR j.job_title LIKE '%!' AND bucket_id IN (!) ORDER BY j.bucket_name,j.job_id
+
+&INC`PENDING [u(cobj,job)]=@check words(%q<admbids>)=@attach %!/INC`MSG=Permission denied.;@select/inline strlen(%0)=>0,{@check isobjid(u(setr,cats,objid(namegrab(%q<cats>,%0))))}=@attach %!/INC`MSG=ERROR: No Category named '%0'.;@check words(u(setr,pen,u(mysql3,PENDING`JOBS,u(SQL`IN`NUMBER,%q<admbids>))))=@attach %!/INC`MSG=There are no pending jobs.;@dolist/inline/delimit [chr(176)] %q<pen>={th u(setq,had,1);@pemit %#=u(HEADER,mudname() - New [elements(u(choosegame,%i0,%d0),3,chr(177))] Jobs);@pemit %#=align(2 >4 15 15 5 16 5 6,*,ID,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] [u(mysql3,PENDING`JOBSBUCKET,%q<t1id>,u(choosegame,%i0,%d0))]={@pemit %#=ansi(if(mod(inum(0),2),u(color,%#,ROW_A),u(color,%#,ROW_B)),u(FUN`LISTJOBSTAFF,u(choosegame,%i0,%d0)))}};@pemit %#=u(FOOTER)
+
+&INC`BRIEF [u(cobj,job)]=@check words(%q<admbids>)=@attach %!/INC`MSG=Permission denied.;@check words(u(setr,pen,u(mysql3,PENDING`JOBS,u(SQL`IN`NUMBER,%q<admbids>))))=@attach %!/INC`MSG=There are no pending jobs.;@attach %!/INC`MSG=Pending Jobs by Category: [iter(%q<pen>,u(pueblize,name(elements(%i0,2,chr(177))),+job [name(elements(%i0,2,chr(177)))])%B\([elements(%i0,4,chr(177))]\),chr(176),\,%b)]
+
+&Q`PENDING`JOBS [u(cobj,job)]=SELECT bucket_id,bucket_name,COUNT(job_id) FROM volv_job WHERE bucket_id IN (!) AND job_status=0 GROUP BY bucket_id ORDER BY bucket_name asc
+
+&Q`PENDING`JOBSBUCKET [u(cobj,job)]=SELECT j.job_id,j.job_status,t.objid,t.object_name,j.title,UNIX_TIMESTAMP(j.date_admin_activity),j.date_due<NOW() AND j.job_status=0,j.date_admin_activity<l2.date_check,j.is_anonymous from mush_job as j LEFT JOIN mush_job_link as l2 ON j.job_id=l2.job_id AND l2.player_id=? LEFT JOIN mush_job_link as l ON j.job_id=l.job_id AND l.link_type=3 LEFT JOIN mush_thing as t ON l.player_id=t.thing_id WHERE j.thing_id=? AND j.job_status=0 ORDER BY j.job_id ASC LIMIT 20
+
+&INC`MYJOBS`LIST [u(cobj,job)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;th u(setq,total,u(mysql,COUNT`MYJOBS%q<old>,%q<t1id>));th u(setq,page,bound(%q<page>,1,u(setr,max,firstof(ceil(fdiv(%q<total>,30)),1))));@pemit %#=u(HEADER,mudname() - Your Jobs);@pemit %#=align(2 >4 8 15 15 5 9 5 6,*,ID,Category,Submitter,Title,Due,Claimed,Upd,Attn);@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] [revwords(u(mysql3,LIST`MYJOBS%q<old>,%q<t1id>,mul(30,sub(%q<page>,1))),chr(176))]={@pemit %#=u(FUN`MYLIST,##)};@pemit %#=u(SUBHEADER,if(gt(%q<page>,1),ansi(hg,u(pueblize,<,+myjob[if(strlen(%q<old>),/old)]/[sub(%q<page>,1)])),ansi(hx,<))%BPage %q<page> of [bound(%q<max>,1)]%B[if(lt(%q<page>,%q<max>),ansi(hg,u(pueblize,>,+myjob[if(strlen(%q<old>),/old)]/[add(%q<page>,1)])),ansi(hx,>))])
+
+&Q`COUNT`MYJOBS [u(cobj,job)]=SELECT count(j.job_id) FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON jl.job_id AND jl.character_id=? WHERE (jl.jlink_type>0 AND j.job_is_recent) ORDER BY j.job_id DESC LIMIT 30 OFFSET ?
+&Q`COUNT`MYJOBSOLD [u(cobj,job)]=SELECT count(j.job_id) FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON jl.job_id AND jl.character_id=? WHERE (jl.jlink_type>0 AND NOT j.job_is_recent) ORDER BY j.job_id DESC LIMIT 30 OFFSET ?
+
+&Q`LIST`MYJOBS [u(cobj,job)]=SELECT j.job_status,j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL AS job_is_unread,j.bucket_name,j.job_id,j.job_is_anonymous,j.owner_objid,j.owner_name,j.job_title,j.handler_objids,j.job_date_due_secs,j.job_is_overdue,j.job_date_player_activity_secs,j.job_date_latest_activity_secs FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON jl.job_id AND jl.character_id=? WHERE (jl.jlink_type>0 AND j.job_is_recent) ORDER BY j.job_id DESC LIMIT 30 OFFSET ?
+
+&Q`LIST`MYJOBSOLD [u(cobj,job)]=SELECT j.job_status,j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL AS job_is_unread,j.bucket_name,j.job_id,j.job_is_anonymous,j.owner_objid,j.owner_name,j.job_title,j.handler_objids,j.job_date_due_secs,j.job_is_overdue,j.job_date_player_activity_secs,j.job_date_latest_activity_secs FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON jl.job_id AND jl.character_id=? WHERE (jl.jlink_type>0 AND NOT j.job_is_recent) ORDER BY j.job_id DESC LIMIT 30 OFFSET ?
+
+&FUN`MYLIST [u(cobj,job)]=align(2 >4 8 15 15 16 5 6,if(elements(%0,8,chr(177)),%b,ansi(hr,*))[if(elements(%0,7,chr(177)),ansi(hr,O),switch(elements(%0,2,chr(177)),0,P,1,A,2,D,3,C,?))],u(pueblize,elements(%0,1,chr(177)),+job [elements(%0,1,chr(177))]),u(moniker,elements(%0,10,chr(177))),switch(elements(%0,9,chr(177))[isobjid(elements(%0,3,chr(177)))],10,ansi(hx,Anonymous),11,Anonymous,00,ansi(hx,elements(%0,4,chr(177))),u(moniker,elements(%0,3,chr(177)))),elements(%0,5,chr(177)),u(strfirstof,u(FUN`LIST`CLAIMERS,elements(%0,1,chr(177))),---),u(jobdate,elements(%0,6,chr(177))),u(FUN`LIST`LASTPOST,elements(%0,1,chr(177))))
+
+&FUN`LIST`STATUS [u(cobj,job)]=switch(u(mysql,GET`JOBSTATUS,%0),0,P,1,A,2,D,3,C)
+&FUN`LIST`STATUS2 [u(cobj,job)]=switch(u(mysql,GET`JOBSTATUS,%0),0,Pending,1,Approved,2,Denied,3,Canceled)
+
+&JOBDATE [u(cobj,job)]=switch(%va,PennMUSH,timefmt($m/$d,%0,u(gettz,%#)),timefmt($M/$D,%0,u(gettz,%#)))
+&JOBDATE2 [u(cobj,job)]=switch(%va,PennMUSH,timefmt($x,%0,u(gettz,%#)),timefmt($M/$D/$Y,%0,u(gettz,%#)))
+
+&FUN`MASKNAME [u(cobj,job)]=switch(u(FUN`CONF,%0,ANONYMOUS),0,%n,1,if(strmatch(%:,u(mysql,GET`OWNEROBJID,%q<jid>)),Anonymous,%n),2,if(u(isadmin,%#),Anonymous,%n),3,Anonymous)
+
+&INC`LOADJOB [u(cobj,job)]=@check strlen(u(setr,data,u(mysql3,LOAD`JOB,%q<t1id>,%0)))=@attach %!/INC`MSG=ERROR: Job %0 not found.;th null(iter(jid jstat catobj catname jtitle admcheck jover jadmlatest janon sid sobjid sname slink playcheck playdate due jlink,u(setq,%i0,elements(%q<data>,inum(0),chr(177)))));
+
+&Q`LOAD`JOB [u(cobj,job)]=SELECT j.job_id,j.job_status,t.objid,t.object_name,j.title,UNIX_TIMESTAMP(j.date_admin_activity),j.date_due<NOW() AND j.job_status=0,j.date_admin_activity<l2.date_check,j.is_anonymous,t2.thing_id,t2.objid,t2.object_name,l2.link_type,j.date_player_activity<l2.date_check,UNIX_TIMESTAMP(j.date_player_activity),UNIX_TIMESTAMP(j.date_due),l2.link_id from mush_job as j LEFT JOIN mush_job_link as l2 ON j.job_id=l2.job_id AND l2.player_id=? LEFT JOIN mush_job_link as l ON j.job_id=l.job_id AND l.link_type=3 LEFT JOIN mush_thing as t ON j.thing_id=t.thing_id LEFT JOIN mush_thing as t2 ON t2.thing_id=l.player_id WHERE j.job_id=?
+
+&INC`DISPLAYJOB [u(cobj,job)]=@attach %!/INC`LOADJOB;@check or(%q<slink>,u(setr,catadmin,u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#)))=@attach %!/INC`MSG=ERROR: Permission Denied.;@pemit %#=u(HEADER,mudname() Jobs - Job %q<jid>);@pemit %#=align(36 36,ljust(rjust(ansi(h,Category:),10),10) %q<catname>,ljust(rjust(ansi(h,Due:),10),10) [u(strfirstof,u(JOBDATE2,%q<due>),---)]);@pemit %#=align(36 36,ljust(rjust(ansi(h,Title:),10),10) %q<jtitle>,ljust(rjust(ansi(h,Status:),10),10) [switch(%q<jstat>,0,Pending,1,Approved,2,Denied,3,Canceled)]);@pemit %#=align(36 36,ljust(rjust(ansi(h,Handlers:),10),10) [u(FUN`LIST`HANDLERS,%q<jid>)],ljust(rjust(ansi(h,Helpers:),10),10) [u(FUN`LIST`HELPERS,%q<jid>)]);@dolist/inline u(mysql,GET`COMMENT_IDS_%q<catadmin>,%q<jid>)={th u(setq,commdata,u(mysql3,LOAD`COMMENT,##));th null(iter(comid cdate ctext ctype cthing cobjid cname,u(setq,%i0,elements(%q<commdata>,inum(0),chr(177)))));@pemit %#=u(separator);@pemit %#=[ansi(h,if(isobjid(%q<cobjid>),u(moniker,%q<cobjid>),ansi(hx,%q<cname>)) [switch(%q<ctype>,0,Opened,1,Replied,2,ansi(hr,STAFF COMMENTED),3,Moved,4,Approved,5,Denied,6,Canceled,7,Revived,8,Appointed Handler,9,Appointed Helper,10,Removed Handler,11,Removed Helper,12,Due Date Changed,???)] on [u(fancytime,%q<cdate>,%#)]:)][if(match(3 8 9 10 11 12,%q<ctype>),%b%q<ctext>,%R%q<ctext>)]};@pemit %#=u(FOOTER);@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>
+
+&FUN`LIST`HELPERS [u(cobj,job)]=iter(u(mysql,LIST`HELPERS,1,%0),u(moniker,%i0),%b,\,%b)
+&FUN`LIST`HANDLERS [u(cobj,job)]=iter(u(mysql,LIST`HELPERS,2,%0),u(moniker,%i0),%b,\,%b)
+
+&Q`LIST`HELPERS [u(cobj,job)]=SELECT character_objid FROM volv_jlink WHERE jlink_type=? AND job_id=? ORDER BY character_name desc
+
+&Q`SET`CHECKDATE [u(cobj,job)]=INSERT INTO volv_jlink (job_id,character_id,jlink_date_check) VALUES (?,?,UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE date_check=VALUES(jlink_date_check)
+
+&Q`GET`COMMENT_IDS_0 [u(cobj,job)]=SELECT jcomment_id FROM volv_job_comment WHERE job_id=? and jcomment_is_visible=1
+
+&Q`GET`COMMENT_IDS_1 [u(cobj,job)]=SELECT jcomment_id FROM volv_job_comment WHERE job_id=?
+
+&Q`LOAD`COMMENT [u(cobj,job)]=SELECT jcomment_id,jcomment_date_created_secs,jcomment_text,jcomment_type,commenter_id,commenter_objid,commenter_nameFROM volv_job_comment WHERE jcomment_id=?
+
+&Q`GET`LINKPRIV [u(cobj,job)]=SELECT jlink_type FROM volv_jlink WHERE job_id=? and character_id=? LIMIT 1
+
+&Q`GET`LINK_ID [u(cobj,job)]=SELECT jlink_id FROM volv_jlink WHERE job_id=? AND character_id=? LIMIT 1
+
+&INC`CLAIM [u(cobj,job)]=@attach %!/INC`LOADJOB=%0;@check u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@stop neq(%q<jstat>,0)=@attach %!/INC`MSG=The job is already finished.;@attach %!/INC`CHECKPC=u(strfirstof,%1,%#),2,1;@stop gt(u(setr,priv,u(mysql3,GET`LINKPRIV,%q<jid>,%q<t2id>)),1)=@attach %!/INC`MSG=ERROR: %q<t2name> is already [switch(%q<priv>,2,a Handler,3,the Owner)] for this Job.;@attach %!/INC`DOSQL=SET`CLAIM,%q<jid>,%q<t2id>,2;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%q<t2name>,8,1;@attach %!/INC`AMSGJOB=%q<jid>,u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>) has a new Handler: %q<t2name>.
+
+&INC`UNCLAIM [u(cobj,job)]=@attach %!/INC`LOADJOB=%0;@check u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@stop neq(%q<jstat>,0)=@attach %!/INC`MSG=The job is already finished.;@attach %!/INC`CHECKPC=u(strfirstof,%1,%#),2,1;@stop neq(u(setr,priv,u(mysql3,GET`LINKPRIV,%q<jid>,%q<t2id>)),2)=@attach %!/INC`MSG=ERROR: %q<t2name> is not a Handler for this Job.;@attach %!/INC`DOSQL=SET`CLAIM,%q<jid>,%q<t2id>,0;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%q<t2name>,10,1;@attach %!/INC`AMSGJOB=%q<jid>,u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>) is no longer Handled by: %q<t2name>.
+
+&INC`ADDHELPER [u(cobj,job)]=@attach %!/INC`LOADJOB=%0;@check or(eq(%q<slink>,3),u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission denied.;@stop neq(%q<jstat>,0)=@attach %!/INC`MSG=The job is already finished.;@attach %!/INC`CHECKPC=u(strfirstof,%1,%#),2,1;@stop gt(u(setr,priv,u(mysql3,GET`LINKPRIV,%q<jid>,%q<t2id>)),1)=@attach %!/INC`MSG=ERROR: %q<t2name> is already [switch(%q<priv>,2,a Handler,3,the Owner)] for this Job.;@attach %!/INC`DOSQL=SET`CLAIM,%q<jid>,%q<t2id>,1;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%q<t2name>,8,1;@attach %!/INC`AMSGJOB=%q<jid>,u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>) has a new Helper: %q<t2name>.,%q<catobj>
+
+&INC`REMHELPER [u(cobj,job)]=@attach %!/INC`LOADJOB=%0;@check or(eq(%q<slink>,3),u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission denied.;@stop neq(%q<jstat>,0)=@attach %!/INC`MSG=The job is already finished.;@attach %!/INC`CHECKPC=u(strfirstof,%1,%#),2,1;@stop neq(u(setr,priv,u(mysql3,GET`LINKPRIV,%q<jid>,%q<t2id>)),1)=@attach %!/INC`MSG=ERROR: %q<t2name> is not a Helper for this Job.;@attach %!/INC`DOSQL=SET`CLAIM,%q<jid>,%q<t2id>,0;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%q<t2name>,11,1;@attach %!/INC`AMSGJOB=%q<jid>,u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>) is no longer Helped by: %q<t2name>.,%q<catobj>
+
+&INC`CATEGORY [u(cobj,job)]=@attach %!/INC`LOADJOB;@check u(isadmin,%#)=@attach %!/INC`MSG=Permission denied.;th u(setq,oldcat,%q<catname>);@attach %!/INC`FINDCAT=%1;@attach %!/INC`PERMCHECKCAT=%#,ADMIN,%q<catobj>;@attach %!/INC`AMSGJOB=%q<jid>,u(pueblize,%q<oldcat> Job %q<jid>: '%q<jtitle>',+job %q<jid>) was re-Categorized by %q<t1name> to: %q<catname>,%q<catobj>;@attach %!/INC`DOSQL=SET`JOBCAT,%q<cat>,%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;@attach %!/INC`UPDJOB=0,%q<jid>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%q<oldcat> -> %q<catname>,3,1;
+&Q`SET`JOBCAT [u(cobj,job)]=UPDATE mush_job SET thing_id=? WHERE job_id=?
+
+&INC`REPLY [u(cobj,job)]=@attach %!/INC`LOADJOB;@check or(%q<slink>,u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission denied.;@stop %q<jstat>=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you say?;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%1,1,1;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`MSGJOB=%q<jid>,if(cand(eq(%q<t1id>,%q<sid>),%q<anon>),Anonymous,%q<t1name>) sent a reply in for [u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>)].,%q<catobj>;@attach %!/INC`MAILJOB=%q<jid>,{[if(cand(eq(%q<t1id>,%q<sid>),%q<anon>),Anonymous,%q<t1name>)] sent a reply in for [u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>)].%R%RMessage:%R%1},%q<catobj>;
+
+@@ - I HAVE COMPLETED DOWN TO HERE
+
+&INC`COMMENT [u(cobj,job)]=@attach %!/INC`LOADJOB;@attach %!/INC`PERMCHECKCAT=%#,ADMIN,%q<catobj>;@stop %q<jstat>=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you say?;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%1,2,0;@attach %!/INC`UPDJOB=1,%q<jid>;@attach %!/INC`AMSGJOB=%q<jid>,%q<t1name> added a STAFF COMMENT to [u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>)].,%q<catobj>
+
+&INC`UPDJOB [u(cobj,job)]=@attach %!/INC`DOSQL=SET`JOBACTIVITY%0,%q<jid>
+&Q`SET`JOBACTIVITY0 [u(cobj,job)]=UPDATE mush_job SET date_player_activity=UTC_TIMESTAMP(),date_admin_activity=UTC_TIMESTAMP() WHERE job_id=?
+&Q`SET`JOBACTIVITY1 [u(cobj,job)]=UPDATE mush_job SET date_admin_activity=UTC_TIMESTAMP() WHERE job_id=?
+
+&INC`APPROVE [u(cobj,job)]=@attach %!/INC`FINISH;@attach %!/INC`DOFINISH=%0,%1,Approved,1
+&INC`DENY [u(cobj,job)]=@attach %!/INC`FINISH;@attach %!/INC`DOFINISH=%0,%1,Denied,2
+&INC`CANCEL [u(cobj,job)]=@attach %!/INC`FINISH;@attach %!/INC`DOFINISH=%0,%1,Canceled,3
+&INC`REVIVE [u(cobj,job)]=@attach %!/INC`FINISH;@attach %!/INC`DOFINISH=%0,%1,Revived,0
+
+&INC`FINISH [u(cobj,job)]=@attach %!/INC`LOADJOB;@check cor(eq(%q<jstat>,2),u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%1)=@attach %!/INC`MSG=What will you say?
+
+&INC`DOFINISH [u(cobj,job)]=@stop cand(%q<jstat>,%3)=@attach %!/INC`MSG=That job is already finished.;@select/inline %3=0,{@attach %!/INC`DOSQL=SET`REVIVED,add(secs(),u(FUN`CONF,%q<catobj>,DUE)),%q<jid>},{@attach %!/INC`DOSQL=SET`FINISHED,%3,%q<jid>};@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%1,switch(%3,1,4,2,5,3,6,0,7),1;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`MSGJOB=%q<jid>,u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>) was %2 by %q<t1name>!,%q<catobj>;@attach %!/INC`MAILJOB=%q<jid>,u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>) was %2 by %q<t1name>!%R%RMessage:%R%1,%q<catobj>
+
+&Q`SET`FINISHED [u(cobj,job)]=UPDATE vol_job SET job_status=?,job_date_closed=UTC_TIMESTAMP(),job_date_player_activity=UTC_TIMESTAMP(),job_date_admin_activity=UTC_TIMESTAMP() WHERE job_id=?
+&Q`SET`REVIVED [u(cobj,job)]=UPDATE vol_job SET job_status=0,job_date_closed=NULL,job_date_player_activity=UTC_TIMESTAMP(),job_date_admin_activity=UTC_TIMESTAMP() WHERE job_id=?
+
+&INC`DUE [u(cobj,job)]=@attach %!/INC`LOADJOB;@check u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#)=@attach %!/INC`MSG=ERROR: Permission Denied.;@attach %!/INC`VALID`FUTURE=%1;@attach %!/INC`DOSQL=SET`JOBDUE,%q<time>,%q<jid>;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,convsecs(%q<time>),12,1;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`MSGJOB=%q<jid>,u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>) was rescheduled for [convsecs(%q<time>)] by %q<t1name>!,%q<catobj>;
+
+&Q`SET`JOBDUE [u(cobj,job)]=UPDATE mush_job SET date_due=FROM_UNIXTIME(?) WHERE job_id=?
+
+&INC`ROLL [u(cobj,job)]=@attach %!/INC`LOADJOB;@check cor(gte(%q<slink>,1),u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission Denied.;@stop %q<jstat>=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you roll?;@switch/inline t(strlen(after(%1,|)))=1,{@check u(u(cobj,roll)/FUN`FLAGCHECK,after(%1,|))=@attach %!/INC`MSG=ERROR: [u(itemize,iter(%q<errcheck>,ansi(h,%i0),|,|),|,and,\,)]};@include u(cobj,roll)/INC`INIT=,;@check strlen(setr(inflate,u(u(cobj,roll)/FUN`NORMALIZE,setr(string,before(%1,|)))))=@attach %!/INC`MSG=ERROR: Could not format roll formula. Please contact a coder.;@check strlen(setr(findnames,u(u(cobj,roll)/FUN`FINDNAMES,%q<inflate>,%#)))=@attach %!/INC`MSG=ERROR: Could not perform name finding. Please contact a coder.;@check gt(setr(totaldice,ulocal(u(cobj,roll)/FUN`CALC,setr(calcdice,u(u(cobj,roll)/FUN`CALCDICE,%q<findnames>,%#)))),0)=@attach %!/INC`MSG=ERROR: You have no dice to roll! Check your spelling and ensure that penalties aren't reducing your roll to nothing.;th setq(resformat,u(u(cobj,roll)/FUN`RESFORMAT));@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%q<resformat>,13,1;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`MSGJOB=%q<jid>,%q<t1name> sent a Roll in for [u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>)].,%q<catobj>;@attach %!/INC`MAILJOB=%q<jid>,%q<t1name> sent a Roll in for [u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>)].%R%RRoll:%R%q<resformat>,%q<catobj>;
+
+
+
++help/add +job=[u(cobj,job)]/HLP`+JOB
++help/category +job=Communications
++help/metatags +job=+request request jobs anomaly myjobs +myjobs
+&HLP`+JOB [u(cobj,job)]=+job is used to create 'trouble tickets,' requests to the Admin.%R[ansi(hc,Aliases:)] request%R%R[ansi(hc,Creating Jobs)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+request)] - Show all Job categories.%R[ansi(h,+request <title>=<text>)] - creates a new UNCATEGORIZED job.%R[ansi(h,+request/<category> <title>=<text>)] - Creates a new job in a specific category)]%R%R[ansi(hc,Tracking Jobs)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+myjobs)] - Display all pending jobs you've submitted or have been appointed to handle.%R[ansi(h,+myjobs/old)] - As above\, but shows only jobs that are finished.%R[ansi(h,+myjob <id>)] - Shows details about a job.%R[ansi(h,+myjob/reply <id>=<text>)] - Add a new message to your job.%R%RFor all listings\, use an extra switch /<page> to show pages. For instance\, +myjobs/old/4 to show page 4. +myjobs/4 also works.)]%R%R[ansi(hc,Handling Jobs)]%RThe following commands are for staff and priveleged players.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+jobs)] - List all job categories and stats related to them.%R[ansi(h,+jobs <category>)] - List all pending jobs in a category. Use /<page> to show pages\, like +jobs/2 <category> for the second page.%R[ansi(h,+jobs/old <category>)] - Show all finished jobs in a category.%R\(use an extra switch /<page> to show different pages\, such as +jobs/old/3 xp to view the third page.\)%R[ansi(h,+job <id>)] - Display a job's details.%R[ansi(h,+job/reply <id>=<text>)] - Reply to a job.%R[ansi(h,+job/comment <id>=<text>)] - Add notes to a job that only category handlers and staff can see.%R[ansi(h,+job/attn <id>)] - Change whether a job is marked as waiting for staff or the player.%R[ansi(h,+job/claim <id>)] - Claim a job. Many can claim the same job. Use [ansi(h,+job/claim <id>=<target>)] to add someone else.%R[ansi(h,+job/unclaim <id>)] - As /claim. Removes a handler.%R[ansi(h,+job/addhelper <id>=<player>)] - Designate player as Helper. They can view and /reply to jobs.%R[ansi(h,+job/remhelper <id>=<player>)] - Remove 'Helper' player.%R[ansi(h,+job/approve <id>=<text>)] - Closes a job and sends an approval message.%R[ansi(h,+job/deny <id>=<text>)] - As /approve.%R[ansi(h,+job/cancel <id>=<text>)] - As /approve.%R[ansi(h,+job/revive <id>=<text>)] - Restores a closed job to pending status.%R[ansi(h,+job/due <id>=<newdate>)] - Sets a new due date for a job. Can be a +1d or similar \(adds to current due date using value from a [ansi(h,stringsecs\(\))] function - check the helpfile for stringsecs\) or a specific date using [ansi(h,convtime\(\))]. As an example: +job/due x=+5d or +job/due x=[u(fancytime,secs(),%#)]%R[ansi(h,+job/scan)] - List all unread/changed or pending jobs.%R[ansi(h,+job/next)] - Like +bbnext\, read the next unread job you can see.%R[ansi(h,+job/pending)] - List all pending jobs in categories you manage.)]
+
++shelp/add +job=[u(cobj,job)]/SHLP`+JOB
++shelp/category +job=Communications
+&SHLP`+JOB [u(cobj,job)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+job/category <id>=<category>)] - Moves a job to a new category.)]%R%R[ansi(hc,Wizard Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+job/newcategory <name>)] - Creates a new category.%R[ansi(h,+job/delcategory <name>)] - Deletes a category.%R[ansi(h,+job/rencategory <name>=<newname>)] - Renames a category.%R[ansi(h,+job/desc <name>=<description>)] - Set a category's description in +job%R[ansi(h,+job/lockcategory <name>/<lock>=<lockstring>)] - Lock a category. <lock> can be ADMIN or POST for who can administrate a category and who can +request to it. See +help +key for more information on <lockstrings>.%R[ansi(h,+job/unlockcategory <category>/<lock>)] - As above. Unlocks.%R[ansi(h,+job/config <category>/<option>=<value>)] - Sets a category's config. <option> can be Anon or Due.%R[ansi(h,DUE)] - Set to a value acceptable by stringsecs such as 5d or 50m. This is added to submit date to create the due date.%R[ansi(h,ANON)] - Modes 0-3. Mode 0 is fully transparent. Mode 1 hides submitter from staff. Mode 2 hides staff from submitter. Mode 3 is 1+2 combined.)]

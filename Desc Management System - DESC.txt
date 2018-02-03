@@ -1,0 +1,47 @@
+@@ DEPENDENCIES: Core
+
+th u(NEWCOBJ,Desc Management System <DESC>,desc,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+DESC`PENNMUSH [u(cobj,desc)]=$^(?s)\+desc(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+DESC`MAIN
+@set [u(cobj,desc)]/CMD`+DESC`PENNMUSH=regexp
+&CMD`+DESC`RHOSTMUSH [u(cobj,desc)]=$^(?s)\+desc(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+DESC`MAIN
+@set [u(cobj,desc)]/CMD`+DESC`RHOSTMUSH=regexp
+&CMD`+DESC`MAIN [u(cobj,desc)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`CHECKPC=%#,1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%2),%3
+@set [u(cobj,desc)]/CMD`+DESC`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+
+&SWITCHES`PLAYER [u(cobj,desc)]=SAVE|DELETE|NOISY|VIEW|RENAME
+
+&INC`FIND [u(cobj,desc)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Desc name field empty!;@check strlen(u(setr,desc,u(mysql3,LOAD`DESC[if(%4,`EXACT)],%q<t1id>,[sqlescape(%0)])))=@attach %!/INC`MSG=ERROR: Desc '%0' not found.[if(%4,%bThis mode uses exact-match.)];th u(setq,descname,elements(%q<desc>,2,chr(177)));th u(setq,descid,elements(%q<desc>,1,chr(177)));th u(setq,desctext,elements(%q<desc>,3,chr(177)));
+
+&Q`LOAD`DESC [u(cobj,desc)]=SELECT field_id,field_name,field_text FROM vol_field WHERE entity_id=? AND field_type=0 AND field_name LIKE '%%!' ORDER BY field_name LIMIT 1
+&Q`LOAD`DESC`EXACT [u(cobj,desc)]=SELECT field_id,field_name,field_text FROM vol_field WHERE entity_id=? AND field_type=0 AND field_name=!
+
+&INC`NOISY [u(cobj,desc)]=@attach %!/INC`MAIN=%0,%1,1
+&INC`MAIN [u(cobj,desc)]=@select/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`CHANGE}
+
+&INC`CHANGE [u(cobj,desc)]=@attach %!/INC`FIND=%0;@select/inline %2=1,{@attach %!/INC`MSG`ROOM=[ansi(h,%n)] changed to %p '%q<descname>' Description!},{@attach %!/INC`MSG=You change to your '%q<descname>' Description!};@describe %#=%q<desctext>;&V`DESCRIBE %#=%q<descname>
+
+&Q`DESC`LIST [u(cobj,desc)]=SELECT field_name FROM vol_field WHERE entity_id=? AND field_type=0 ORDER BY field_name
+
+&INC`LIST [u(cobj,desc)]=@pemit %#=u(header,Saved Descriptions);@pemit %#=u(table,iter(u(mysql3,DESC`LIST,%q<t1id>),u(mxpmenu,%i0,+desc %i0|+desc/noisy %i0|+desc/view %i0,Change|NoisyChange|View),chr(176),chr(176)),26,78,chr(176));@pemit %#=u(footer)
+
+&Q`DESC`EXISTS [u(cobj,desc)]=SELECT field_id FROM vol_field WHERE entity_id=? AND field_type=0 AND field_name=? LIMIT 1
+
+&INC`SAVE [u(cobj,desc)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Desc name field empty!;@select/inline t(u(mysql,DESC`EXISTS,%q<t1id>,%0))=1,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will overwrite the existing Description file. Enter the same command within ten seconds to verify.},DESC %0};th u(setq,newdesc,u(strfirstof,%1,get(%#/DESCRIBE)));@check u(setr,results,u(call`5,volp_field,0,%q<t1id>,0,'[sqlescape(%0)]','[sqlescape(%q<newdesc>)]',%q<t1id>))=@attach %!/INC`MSG=ERROR: Could not save desc. Reason: %q<results>;@attach %!/INC`DOSQl=RENDER`DESC,u(RENDER,%q<newdesc>),%q<results>;@attach %!/INC`MSG=Description saved as '%0'!
+
+&Q`RENDER`DESC [u(cobj,desc)]=UPDATE vol_field SET field_text_render=? WHERE field_id=?
+
+&INC`DELETE [u(cobj,desc)]=@attach %!/INC`FIND=%0,,,,1;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Deleting Desc '%q<descname>'. This cannot be undone. Are you sure you want to do this? Enter the same command again within ten seconds to verify.},DESC DELETE %q<descid>;@attach %!/INC`DOSQl=DELETE`DESC,%q<descid>;@attach %!/INC`MSG=Desc '%0' DELETED.
+
+&Q`DELETE`DESC [u(cobj,desc)]=DELETE FROM vol_field WHERE field_id=?
+
+&INC`VIEW [u(cobj,desc)]=@attach %!/INC`FIND;@pemit %#=u(header,Viewing Description: '%q<descname>');@pemit %#=%q<desctext>;@pemit %#=u(footer)
+
+&INC`RENAME [u(cobj,desc)]=@attach %!/INC`FIND;@check strlen(%1)=@attach %!/INC`MSG=ERROR: NO new name entered!;@stop cand(u(setr,exist,u(mysql,DESC`EXISTS,%q<t1id>,trim(%1)),neq(%q<exist>,%q<descid>))=@attach %!/INC`MSG=ERROR: Another desc already uses this name.;@attach %!/INC`DOSQL=RENAME`DESC,%q<descid>,%1;@attach %!/INC`MSG=Desc '%q<descname>' renamed to '%1'!
+
+&Q`RENAME`DESC [u(cobj,desc)]=UPDATE vol_field SET field_name=? WHERE field_id=?
+
+@@ CHARACTER - DESC
+
+&HLP`@DESC [u(cobj,desc)]=Your character's DESCRIPTION (or @desc) is what others will see when they [ansi(h,look)] at you. These commands are used to manage your DESCRIPTION.%R%R[ansi(hc,See Also:)] [u(pueblize,help @desc)], [u(pueblize,help look)]%R%R[ansi(hc,Basic Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,@desc me=<text>)] - Sets your current description. Use \%R for linebreaks and \%T for indents.%R[ansi(h,&short-desc me=<text>)] - Sets your short-desc shown in the room display.)]%R%R[ansi(hc,Multidescer Commands)]%RThe Multidescer stores your Descriptions for later retrieval. Handy for maintaining a versatile 'wardrobe' of appearances!%R[ansi(hc,Aliases:)] desc%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+desc)] - Shows all your saved descriptions.%R[ansi(h,+desc <name>)] - Sets your desc to a stored one.%R[ansi(h,+desc/noisy <name>)] - Like above but emits to the room. Useful for dramatics!%R[ansi(h,+desc/save <name>)] - Saves your currently worn description to a <name>.%R[ansi(h,+desc/save <name>=<text>)] - Creates a new saved desc with specified text.%R[ansi(h,+desc/rename <name>=<newname>)] - Renames a saved desc.%R[ansi(h,+desc/view <name>)] - Shows you a saved desc.)]
++help/add Character/+desc=[u(cobj,desc)]/HLP`@DESC
