@@ -293,7 +293,7 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 &Q`SEARCH`CHARACTERS_NEW [u(cobj,account)]=SELECT character_id,character_objid,character_name FROM volv_character WHERE character_name LIKE '%!%' AND character_is_deleted=1
 
 
-@@ ********* STAFF SECTION ********
+@@ ********* STAFF SECTION *******
 &CMD`+STAFF`PENNMUSH [u(cobj,account)]=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+STAFF`MAIN
 @set [u(cobj,account)]/CMD`+STAFF`PENNMUSH=regexp
 &CMD`+STAFF`RHOSTMUSH [u(cobj,account)]=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+STAFF`MAIN
