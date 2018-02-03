@@ -1,8 +1,0 @@
-@@ PENNMUSH: RUN THIS ON #1!
-
-@force me=@parent %#=[locate(config(master_room),Master Code Object <MCO>,TXxi)]
-
-&STARTUP %#=@assert/inline strmatch(%va,PennMUSH);@command/restrict @command=#TRUE;@command/alias @include=@attach;@command/alias @break=@stop;@command/alias @assert=@check;@config/save event_handler=u(cobj,mco);@dolist/inline/nobreak room exit thing player={@config/save ancestor_%i0=u(cobj,ancestor_%i0)};@include %!/STARTUP`EXTRA
-
-@trigger %#/STARTUP
-@trigger [u(cobj,mco)]/STARTUP

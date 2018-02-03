@@ -1,0 +1,666 @@
+@@ COMMENTS WILL GO HERE
+
+@@ RUN THIS ON CODE WIZARD OBJECT!
+@switch/first/inline hasflag(%#,UNREGISTERED)=1,{@set me=!UNREGISTERED};@power me=no_pay
+
+th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,config(master_room))][parent(%#,%q0)][set(%q0,VA:[first(version())])][set(%q0,COBJ`CCP:[objid(%q0)])][set(%q0,WIZARD SAFE !NO_COMMAND)])
+@@ Yeah, it's an awful hodgepodge of side effect functions. For a good cause.
+
+&COBJ [parent(%#)]=v(COBJ`%0)
+&VA [parent(%#)]=PennMUSH
+&GAME [parent(%#)]=PennMUSH
+
+&COI [u(cobj,ccp)]=localize(if(isdbref(setr(db,u(find_in,u(master_room),Code Object Index <COI>))),u(%q<db>/%0)))
+
+&IS_ANCESTOR [u(cobj,ccp)]=cand(hasattr(u(cobj,ccp),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player))))
+
+&ATTRIB_SET [u(cobj,ccp)]=if(u(IS_ANCESTOR,%0),,attrib_set(%0/%1,%2))
+&LATTR [u(cobj,ccp)]=lattr(%0,%1)
+&LATTRP [u(cobj,ccp)]=lattrp(%0,%1)
+&REGLATTR [u(cobj,ccp)]=reglattr(%0,%1)
+&STRINGSECS [u(cobj,ccp)]=stringsecs(%0)
+&SETQ [u(cobj,ccp)]=setq(%0,%1)
+&SETR [u(cobj,ccp)]=setr(%0,%1)
+
+&STARTUP [u(cobj,ccp)]=@dolist/inline lattr(%!/START`*)={@attach/nobreak %!/##}
+
+&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(game_config header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink codename getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+
+@@ &FUNCTIONLIST`EXTRA [u(cobj,ccp)]=
+@@ &FUNCTIONLIST`ADMIN [u(cobj,ccp)]=
+@@ These are meant to be added to by game packages.
+
+&STARTUP`MAIN [u(cobj,ccp)]=@command/disable kill;@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc playstatus={@attribute/access/retroactive %i0=visual};@dolist/inline D={@attribute/access/retroactive %i0=mortal_dark WIZARD};@dolist/inline V={@attribute/access/retroactive %i0=WIZARD visual}
+
+@DESCRIBE [u(cobj,ccp)]=This needs a desc!
+
+@@ FILTER SECTION
+
+&FIL`ISDBREF [u(cobj,ccp)]=isdbref(%0)
+&FIL`ISOBJID [u(cobj,ccp)]=isobjid(%0)
+&FIL`ISADMIN [u(cobj,ccp)]=u(isadmin,%0)
+&FIL`OLDOBJID [u(cobj,ccp)]=not(isobjid(before(%0,~)))
+&FIL`ISSLOT [u(cobj,ccp)]=isint(last(%0,`))
+&FIL`ALIASMATCH [u(cobj,ccp)]=strmatch(alias(%0),%1*)
+&FIL`NOTGUEST [u(cobj,ccp)]=not(u(isguest,%0))
+&FIL`FINDACCOUNT [u(cobj,ccp)]=match(get(%0/CHARACTERS),%q<finddb>)
+&FIL`STRLEN [u(cobj,ccp)]=t(strlen(%0))
+&FIL`ISINT [u(cobj,ccp)]=isint(%0)
+&FIL`LISTENRHOST [u(cobj,ccp)]=orflags(%0,pc)
+&FIL`HASATTR [u(cobj,ccp)]=hasattr(%0/%1)
+
+@@ LOCK MANAGER
+&INC`GROUPLOCK [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No lock entered!;@check u(lmin,iter(%0,cand(isdbref(u(u(cobj,gms)/FUN`FINDGROUP,before(%i0,/),%#)),cor(not(strlen(after(%i0,/))),cand(isint(%i0,/),gte(after(%i0,/),0)))),|,%B))=@attach %!/INC`MSG=ERROR: One or more group entries did not validate. Group names must be typed correctly and the /rank must be an integer.;th setq(lockstr,u(GROUP_LOCK,%0)|V`ADMIN:>0|FLAG^ROYALTY|FLAG^WIZARD);
+
+&GROUP_LOCK [u(cobj,ccp)]=localize(iter(%0,V`GROUP`[get(u(u(cobj,gms)/FUN`FINDGROUP,before(%i0,/),%1)/D`ID)]:<=[strfirstof(after(%i0,/),9001)],|,|))
+
+@@ U-FUNCTION SECTION
+
+&NEWCOBJ [u(cobj,ccp)]=localize(if(not(isobjid(u(cobj,%1))),setr(newobj,objid(create(%0)))[if(not(%4),parent(%q<newobj>,u(firstof,%3,u(cobj,ccp))))][tel(%q<newobj>,u(firstof,%2,u(MASTER_ROOM)))][u(attrib_set,u(cobj,ccp),COBJ`%1,%q<newobj>)][set(%q<newobj>,%5)]))
+@@ %0 - @name. %1 - alias. %2 - location to store. %3 - parent, defaults to MCO. %4 - No parent. %5 - PennMUSH flags. %6 - RhostMUSH flags.
+
+&CANHEAR [u(cobj,ccp)]=lockfilter(FLAG^CONNECTED|FLAG^PUPPET,%0)
+
+&FIND_IN [u(cobj,ccp)]=locate(%0,%1,TXxi)
+
+&ACCID [u(cobj,ccp)]=default(%0/D`ACCOUNT,if(%1,,%0))
+
+&ALTS [u(cobj,ccp)]=u(filter,ISOBJID,strfirstof(get(u(accid,%0)/CHARACTERS),objid(%0)))
+&PALTS [u(cobj,ccp)]=alts(%@)
+
+&ISGUEST [u(cobj,ccp)]=haspower(%0,GUEST)
+
+&ISADMIN [u(cobj,ccp)]=cor(orflags(%0,Wr),match(get(u(conf,STAFF_GROUP)/MEMBERS),objid(%0)))
+
+&ISADMIN2 [u(cobj,ccp)]=u(isadmin,%#)
+
+&ISWIZARD2 [u(cobj,ccp)]=u(iswizard,%#)
+
+&ISWIZARD [u(cobj,ccp)]=hasflag(%0,WIZARD)
+
+&ISHIDDEN [u(cobj,ccp)]=hidden(%0)
+
+&ISIC [u(cobj,ccp)]=default(room(%0)/D`IC,0)
+
+&MASTER_ROOM [u(cobj,ccp)]=config(master_room)
+&OPEN_CREATION [u(cobj,ccp)]=strmatch(config(player_creation),yes)
+
+&NATTR [u(cobj,ccp)]=nattr(%0)
+
+&NCHILDREN [u(cobj,ccp)]=nchildren(%0)
+
+&FILTER [u(cobj,ccp)]=filter(FIL`%0,%1,if(not(strlen(%2)),%b,%2),if(not(strlen(%3)),%b,%3),%4,%5,%6,%7,%8,%9)
+
+&CSECS [u(cobj,ccp)]=csecs(%0)
+
+&CTIME [u(cobj,ccp)]=ctime(%0)
+
+&FANCYTIME [u(cobj,ccp)]=timefmt($b $d $I:$M$p $Z,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
+
+&FANCYDAY [u(cobj,ccp)]=timefmt($b $d $Y,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
+
+&FANCYDATE [u(cobj,ccp)]=timefmt($m/$d/$Y,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
+
+&PLAYER_NAME_LEN [u(cobj,ccp)]=config(player_name_len)
+
+&DATE [u(cobj,ccp)]=timefmt($x,%0,strfirstof(u(gettz,%1),u(gettz,%#)))
+
+&CHANCOLOR [u(cobj,ccp)]=localize(if(isdbref(setr(mog,cmogrifier(stripansi(%0)))),u(color,%@,CHANNEL,%q<mog>,,1)))
+
+&GETTZ [u(cobj,ccp)]=strfirstof(get(%0/TIMEZONE),UTC)
+
+&CHARSEARCH [u(cobj,ccp)]=lmath(max,iter(%1,strmatch(%0,*%i0*)))
+
+&BADCHARS [u(cobj,ccp)]=%r %t | ~ [chr(176)] [chr(177)] ^
+
+&NEWCONF [u(cobj,ccp)]=[u(attrib_set,u(cobj,%0),CATEGORIES,setunion(get(u(cobj,%0)/CATEGORIES),%1,|,|))][u(attrib_set,u(cobj,%0),CATEGORIES`%1,setunion(get(u(cobj,%0)/CATEGORIES`%1),%2,|,|))][u(attrib_set,u(cobj,%0),DEFAULT`%1`%2,%3)][u(attrib_set,u(cobj,%0),DESC`%1`%2,%4)][u(attrib_set,u(cobj,%0),TYPE`%1`%2,%5)]
+
+&REMCONF [u(cobj,ccp)]=@attach %!/WIPE=u(cobj,%0),*`%1`%2;&CATEGORIES`%1 [u(cobj,%0)]=setdiff(get(u(cobj,%0)/CATEGORIES`%1),%2,|,|);@select/inline words(get(u(cobj,%0)/CATEGORIES`%1),|)=0,{&CATEGORIES [u(cobj,%0)]=setdiff(get(u(cobj,%0)/CATEGORIES),%1,|,|)}
+
+&LMAX [u(cobj,ccp)]=lmath(max,%0,%1)
+&LMIN [u(cobj,ccp)]=lmath(min,%0,%1)
+&LADD [u(cobj,ccp)]=lmath(add,%0,%1)
+&AGO [u(cobj,ccp)]=switch(1,lt(%0,60),%0s,lt(%0,3600),div(%0,60)m,lt(%0,86400),div(%0,3600)h,div(%0,86400)d)
+&SMALLTIME [u(cobj,ccp)]=etime(%0,3)
+&ETIME [u(cobj,ccp)]=etime(%0)
+
+&CAPNAMES [u(cobj,ccp)]=regeditalli(lcstr(%0),v(REG`CAPNAMES),capstr($1),v(REG`CAPNAMES3),lcstr($0),v(REG`CAPNAMES2),$1[capstr($2)])
+
+&REG`CAPNAMES [u(cobj,ccp)]=(?:^|(?<=[_\/\-\|\s()\+]))([a-z]+)
+&REG`CAPNAMES2 [u(cobj,ccp)]=(^|(?<=[(\|\/]))(of|the|a|and|in)
+&REG`CAPNAMES3 [u(cobj,ccp)]=\b(of|the|a|and|in)\b
+
+&COMMAFY [u(cobj,ccp)]=squish(flip(foreach(#lambda/if(mod(\%1,3),\%0,\\,\%0),flip(%0))),\,)
+
+@@ Maybe universal?
+@@ [switch(flip(foreach(#lambda/[lit([if(mod(%1,3),%0,%,%0)])],flip(%0))),%,)]
+
+&SETSTAT [u(cobj,ccp)]=localize(u(delstat,%0,%1,%2)[u(attrib_set,%0,%1,setunion(get(%0/%1),%2~%3,|))])
+&DELSTAT [u(cobj,ccp)]=u(attrib_set,%0,%1,setdiff(get(%0/%1),grab(get(%0/%1),%2~*,|),|))
+&GETSTAT [u(cobj,ccp)]=if(strlen(%3),add(rest(grab(get(%0/%1),%2~*,|),~),rest(grab(get(%0/D`%3),%2~*,|),~)),rest(grab(get(%0/%1),%2~*,|),~))
+&GRABSTAT [u(cobj,ccp)]=rest(grab(get(%0/%1),%2~*,|),~)
+
+&LISTMAX [u(cobj,ccp)]=lmath(max,iter(%0,strlen(%i0),|,|),|)
+
+&NEXTSLOT [u(cobj,ccp)]=add(1,lmath(max,iter(u(filter,ISSLOT,lattr(%0/[if(strlen(%1),%1`*,*)])),last(%i0,`))))
+
+&MONIKER [u(cobj,ccp)]=localize(if(%1,if(setr(col,strfirstof(u(color,%1,NAMES,%0,,1),switch(1,strmatch(num(%0),num(%1)),u(color,%1,NAMES,MINE,,1),strmatch(num(%0),%#),u(color,%1,NAMES,SPEAKER,,1),u(color,%1,NAMES,OTHER,,1)))),ansi(%q<col>,name(%0)),moniker(%0)),moniker(%0)))
+
+&NAMELINK [u(cobj,ccp)]=localize(u(mxpmenu,u(moniker,%0,%1),iter(setr(com,u(game_config,SYSTEM,NAMELINK)),%i0 [name(%0)],|,|),%q<com>))
+
+&NAMEGRAB [u(cobj,ccp)]=namegrab(%0,%1)
+
+&NAMEGRABALL [u(cobj,ccp)]=namegraball(%0,%1)
+
+&NUMTH [u(cobj,ccp)]=%0[switch(%0,11,th,12,th,13,th,switch(right(%0,1),1,st,2,nd,3,rd,th))]
+
+&PUEBLIZE [u(cobj,ccp)]=u(MXPMENU,%0,%1,%2,%3)
+
+&MXPMENU [u(cobj,ccp)]=localize(if(u(CAN_MXP,strfirstof(%3,%#)),tagwrap(send,"[render(strfirstof(%1,%0),html)]" hint="[render(switch(words(setr(hint,strfirstof(%2,%1,%0)),|),>1,Right Click for Menu \(Default: [first(%q<hint>,|)]\)|[rest(%q<hint>,|)],%q<hint>),html)]",%0),if(u(CAN_PUEBLO,strfirstof(%3,%#)),tagwrap(a,XCH_CMD="[render(strfirstof(first(%1,|),first(%1,|)),html)]",%0))))
+
+&CAN_MXP [u(cobj,ccp)]=1
+&CAN_PUEBLO [u(cobj,ccp)]=1
+
+&TIMESTAMP [u(cobj,ccp)]=timefmt($Y-$m-$d $H:$M:$S,u(firstof,%0,secs()))
+
+&UNPRIV [u(cobj,ccp)]=localize(setq(unprivtext,%0)[objeval(u(cobj,ap),s(%q<unprivtext>))])
+
+&VALNUM [u(cobj,ccp)]=cand(isint(%0),gt(%0,0))
+
+&WEBLINK [u(cobj,ccp)]=localize(if(strlen(%0),tagwrap(a,href="[render(setr(webfix,if(not(strmatch(%0,*://*)),http://%0,%0)),html)]",strfirstof(%1,%q<webfix>))))
+
+&RYG [u(cobj,ccp)]=<[if(gt(%0,50),255,round(mul(255,fdiv(mul(%0,2),100)),0))] [if(gte(%0,50),sub(mul(255,2),round(mul(255,fdiv(mul(%0,2),100)),0)),255)] 0>
+
+&ALIASGRAB [u(cobj,ccp)]=if(match(%0,%1),%1,first(filter(#lambda/strmatch(alias(\%0),%1*),u(sortalias,%0))))
+
+&ALIASGRABALL [u(cobj,ccp)]=if(match(%0,%1),%1,filter(#lambda/strmatch(alias(\%0),%1*),sortkey(#lambda/alias(\%0),%0,i)))
+
+&RANDWORD [u(cobj,ccp)]=randword(%0,%1)
+
+&STRFIRSTOF [u(cobj,ccp)]=strfirstof(%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
+
+&FIRSTOF [u(cobj,ccp)]=firstof(%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
+
+&ITEMIZE [u(cobj,ccp)]=itemize(%0,%1,%2,%3)
+
+&TABLE [u(cobj,ccp)]=table(%0,%1,%2,%3,%4)
+
+&BASECONV [u(cobj,ccp)]=baseconv(%0,%1,%2)
+
+&WIDTH [u(cobj,ccp)]=width(%0)
+
+&CENTER [u(cobj,ccp)]=center(%0,%1,%2)
+
+&HASATTRVAL [u(cobj,ccp)]=hasattrval(%0)
+
+&NAMELIST [u(cobj,ccp)]=namelist(%0,%1)
+
+&LWHOID [u(cobj,ccp)]=lwhoid(%0)
+
+&LWHO [u(cobj,ccp)]=lwho(%0)
+
+&GETALIAS [u(cobj,ccp)]=alias(%0)
+
+&PUEBLO [u(cobj,ccp)]=pueblo(%0)
+
+&DECOMPOSE [u(cobj,ccp)]=decompose(%0)
+
+&LVPLAYERS [u(cobj,ccp)]=lvplayers(%0)
+
+&LPLAYERS [u(cobj,ccp)]=lplayers(%0)
+
+&LTHINGS [u(cobj,ccp)]=lthings(%0)
+
+&LVTHINGS [u(cobj,ccp)]=lvthings(%0)
+
+&LVEXITS [u(cobj,ccp)]=lvexits(%0)
+
+&TRIMLINES [u(cobj,ccp)]=trimpenn(%0,%R)
+
+&TRIMTABS [u(cobj,ccp)]=trimpenn(%0,%T)
+
+&TRIMCASH [u(cobj,ccp)]=trimpenn(%0,$)
+
+&WILDGREPI [u(cobj,ccp)]=wildgrepi(%0,%1,%2)
+
+&UMAIL [u(cobj,ccp)]=elements(mail(%0),2)
+
+&FULLALIAS [u(cobj,ccp)]=fullalias(%0)
+
+@@ PROPERTY SECTION
+&GETPROPERTY [u(cobj,ccp)]=localize(if(isdbref(%0),u(GETPROPERTY`%1,%0,%2,%3,%4)))
+
+&GETPROPERTY`SEX [u(cobj,ccp)]=get(%0/SEX)
+&GETPROPERTY`NAME [u(cobj,ccp)]=name(%0)
+&GETPROPERTY`FULLALIAS [u(cobj,ccp)]=u(fullalias,%0)
+&GETPROPERTY`MONIKER [u(cobj,ccp)]=u(moniker,%0)
+&GETPROPERTY`ALIASNAME [u(cobj,ccp)]=name(%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`ALIASMONIKER [u(cobj,ccp)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`ALIASMONIKERAPPROVED [u(cobj,ccp)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))][if(not(u(approved,%0)),%b- [ansi(hr,UNAPPROVED)])]
+&GETPROPERTY`NAMELINK [u(cobj,ccp)]=u(namelink,%0)
+&GETPROPERTY`HIDEIDLE [u(cobj,ccp)]=u(hideidle,%0)
+&GETPROPERTY`HIDECONN [u(cobj,ccp)]=u(hideconn,%0)
+&GETPROPERTY`SEXLETTER [u(cobj,ccp)]=left(get(%0/SEX),1)
+&GETPROPERTY`LOCATION [u(cobj,ccp)]=if(findable(%#,%0),u(moniker,loc(%0)),*UNFINDABLE*)
+&GETPROPERTY`JOINLOCATION [u(cobj,ccp)]=if(findable(%#,%0),if(elock(loc(%0)/Teleport,%#),u(pueblize,u(moniker,loc(%0)),+port [loc(%0)]),u(moniker,loc(%0))),*UNFINDABLE*)
+&GETPROPERTY`TIMEZONE [u(cobj,ccp)]=u(gettz,%0)
+
+&GETPROPERTY`PICTURE [u(cobj,ccp)]=u(weblink,get(%0/D`FINGER`PICTURE))
+&GETPROPERTY`WIKI [u(cobj,ccp)]=u(weblink,get(%0/D`FINGER`WIKI))
+&GETPROPERTY`GROUPNAMES2 [u(cobj,ccp)]=u(getproperty`groupnames,%0,1)
+&GETPROPERTY`FACTION2 [u(cobj,ccp)]=u(getproperty`faction,%0,1)
+&GETPROPERTY`MAIL [u(cobj,ccp)]=u(umail,%0) Unread Messages
+&GETPROPERTY`ALIAS [u(cobj,ccp)]=u(getalias,%0)
+&GETPROPERTY`LAST [u(cobj,ccp)]=u(lastidle,%0)
+&GETPROPERTY`EMAIL [u(cobj,ccp)]=if(strmatch(setr(email,get(%0/D`OOCFINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
+&GETPROPERTY`ACCEMAIL [u(cobj,ccp)]=if(isdbref(get(%0/D`ACCOUNT)),name(get(%0/D`ACCOUNT)))
+&GETPROPERTY`ACCALTS [u(cobj,ccp)]=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0))
+&GETPROPERTY`THEME [u(cobj,ccp)]=localize(u(pueblize,setr(theme,first(elements(get(%0/V`THEMES),2,chr(177)),chr(176))),+fclist %q<theme>))
+&GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEMES),1,chr(177)),chr(176))
+&GETPROPERTY`OBSERVER [u(cobj,ccp)]=default(%0/D`OBSERVER,0)
+&GETPROPERTY`CURSCENE [u(cobj,ccp)]=if(u(getproperty`observer,%0),ansi(hw,OBS),default(%0/D`SCENE,???))
+
+&GETPROPERTY`GROUPCOLORIZE [u(cobj,ccp)]=localize(ansi(u(getproperty`groupcolor,%1),%0))
+&GETPROPERTY`GROUPNAME [u(cobj,ccp)]=localize(setq(gname,u(getproperty`groupcolorize,name(%0),%0))[if(%1,u(pueblize,%q<gname>,+group [name(%0)]),%q<gname>)])
+&GETPROPERTY`GROUPCOLOR [u(cobj,ccp)]=strfirstof(u(color,%#,GROUP,%0,,1),get(%0/SET`COLOR),n)
+&GETPROPERTY`GROUPABBR [u(cobj,ccp)]=u(getproperty`groupcolorize,default(%0/SET`ABBREVIATION,left(name(%0),3)),%0)
+&GETPROPERTY`GROUPLETTER [u(cobj,ccp)]=u(getproperty`groupcolorize,default(%0/SET`LETTER,strfirstof(left(get(%0/SET`ABBREVIATION),1),left(name(%0),1))),%0)
+
+&GETPROPERTY`FIRSTDB [u(cobj,ccp)]=first(get(%0/V`TIERS))
+&GETPROPERTY`FIRSTDBS [u(cobj,ccp)]=localize(if(setr(first,first(revwords(sort(edit(lattr(%0/V`TIERS`*),V`TIERS`,))))),get(%0/V`TIERS`%q<first>)))
+&GETPROPERTY`GROUPS [u(cobj,ccp)]=get(%0/V`TIERS)
+&GETPROPERTY`BANNER [u(cobj,ccp)]=localize(if(isdbref(setr(maj,u(getproperty`FIRSTDB,%0))),u(getproperty`groupcolorize,name(%0),%q<maj>),u(moniker,%0)))
+&GETPROPERTY`GROUPNAMES [u(cobj,ccp)]=iter(u(getproperty`groups,%0),u(getproperty,%i0,GROUPNAME,1),%b,if(%1,\,%B,|))
+&GETPROPERTY`RANK [u(cobj,ccp)]=localize(setr(rank,get(%0/D`GROUP`%1`RANK))-[strfirstof(get(%0/D`GROUP`%1`TITLE),get(%1/RANK`%q<rank>`NAME))])
+
+&GETPROPERTY`FIRSTNAME [u(cobj,ccp)]=localize(if(isdbref(setr(fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`GROUPNAME,%q<fac>,%1)))
+&GETPROPERTY`FIRSTNAMECLICK [u(cobj,ccp)]=u(GETPROPERTY`FIRSTNAME,%0,1)
+&GETPROPERTY`FIRSTABBR [u(cobj,ccp)]=localize(switch(1,u(iswizard,%0),ansi(u(conf,WIZTAG),WIZ),u(isadmin,%0),ansi(u(conf,ROYTAG),ROY),if(isdbref(setr(fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`GROUPABBR,%q<fac>))))
+&GETPROPERTY`FIRSTLETTER [u(cobj,ccp)]=localize(switch(1,u(iswizard,%0),ansi(u(conf,WIZTAG),W),u(isadmin,%0),ansi(u(conf,ROYTAG),R),if(isdbref(setr(fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`GROUPLETTER,%q<fac>))))
+&GETPROPERTY`FIRSTRANK [u(cobj,ccp)]=localize(if(isdbref(setr(fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`RANK,%0,%q<fac>)))
+&GETPROPERTY`FIRSTNAMELIST [u(cobj,ccp)]=localize(if(words(setr(facs,u(GETPROPERTY`FIRSTDBS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`GROUPNAME,%i0,%1),%b,chr(176)),chr(176),if(%2,%R,\,%b))))
+&GETPROPERTY`FIRSTNAMELISTLINE [u(cobj,ccp)]=u(GETPROPERTY`FIRSTNAMELIST,%0,0,1)
+&GETPROPERTY`FIRSTNAMELISTCLICK [u(cobj,ccp)]=u(GETPROPERTY`FIRSTNAMELIST,%0,1,0)
+&GETPROPERTY`FIRSTNAMELISTLINECLICK [u(cobj,ccp)]=u(GETPROPERTY`FIRSTNAMELIST,%0,1,1)
+&GETPROPERTY`FIRSTRANKLIST [u(cobj,ccp)]=localize(if(words(setr(facs,u(GETPROPERTY`FIRSTDBS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`RANK,%0,%i0),%b,chr(176)),chr(176),if(%1,%R,\,%b))))
+&GETPROPERTY`FIRSTRANKLISTLINE [u(cobj,ccp)]=u(GETPROPERTY`FIRSTRANKLIST,%0,1)
+
+&GETPROPERTY`ALLNAMELIST [u(cobj,ccp)]=localize(if(words(setr(facs,u(GETPROPERTY`GROUPS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`GROUPNAME,%i0,%1),%b,chr(176)),chr(176),if(%2,%R,\,%b))))
+&GETPROPERTY`ALLNAMELISTLINE [u(cobj,ccp)]=u(GETPROPERTY`ALLNAMELIST,%0,0,1)
+&GETPROPERTY`ALLNAMELISTCLICK [u(cobj,ccp)]=u(GETPROPERTY`ALLNAMELIST,%0,1,0)
+&GETPROPERTY`ALLNAMELISTLINECLICK [u(cobj,ccp)]=u(GETPROPERTY`ALLNAMELIST,%0,1,1)
+&GETPROPERTY`ALLRANKLIST [u(cobj,ccp)]=localize(if(words(setr(facs,u(GETPROPERTY`GROUPS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`RANK,%0,%i0),%b,chr(176)),chr(176),if(%1,%R,\,%b))))
+&GETPROPERTY`ALLRANKLISTLINE [u(cobj,ccp)]=u(GETPROPERTY`ALLRANKLIST,%0,1)
+
+&GETPROPERTY`FIRSTDIV [u(cobj,ccp)]=if(isdbref(setr(mdb,u(GETPROPERTY`MAJORDB,%0))),if(u(nattr,%0/D`GROUP`%q<mdb>`DIVISION`*`RANK),if(setr(div,localize([setq(gid1,%q<mdb>)][last(first(u(filter,INDIV,u(u(cobj,gms)/SORTDIV,lattr(%q<mdb>/DIVISION`*)),%b,%b,%q<gid1>,objid(%0))),`)])),%q<div>)))
+&GETPROPERTY`FIRSTDIVNAME [u(cobj,ccp)]=if(u(getproperty`majordiv,%0),get(%q<mdb>/DIVISION`%q<div>))
+&GETPROPERTY`FIRSTDIVRANK [u(cobj,ccp)]=if(u(getproperty`majordiv,%0),get(%q<mdb>/DIVISION`%q<div>`RANK`[get(%0/D`GROUP`%q<mdb>`DIVISION`%q<div>`RANK)]))
+&GETPROPERTY`FIRSTDIVRANKNUM [u(cobj,ccp)]=if(u(getproperty`majordiv,%0),get(%0/D`GROUP`%q<mdb>`DIVISION`%q<div>`RANK))
+
+&FIL`INDIV [u(cobj,ccp)]=hasattr(%2/D`GROUP`%1`%0`RANK)
+
+&chan_title_len [u(cobj,ccp)]=config(chan_title_len)
+
+&CODENAME [u(cobj,ccp)]=if(match(get(%0/MOGUSE`PLAYERNAME),codename),get(%0/CODENAME`%#))
+
+@@ Sort section.
+
+&SORTATTR [u(cobj,ccp)]=sortkey(#lambda/last(\%0,`),%0,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTIDLE [u(cobj,ccp)]=sort(%0,idle,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTNAME [u(cobj,ccp)]=sort(%0,namei,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTALIAS [u(cobj,ccp)]=sortkey(#lambda/lcstr(alias(\%0)),%0,i,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTOLDID [u(cobj,ccp)]=sortkey(#lambda/after(\%0,~),%0,i,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTPRIORITY [u(cobj,ccp)]=sortkey(#lambda/default(\%0/D`ALTS`PRIORITY,0),%0,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTORDER [u(cobj,ccp)]=sortkey(#lambda/default(\%0/ORDER,99),%0,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+
+&CHOOSEGAME [u(cobj,ccp)]=%0
+
+@@ REGEX STORAGE
+&REG`CAPNAMES [u(cobj,ccp)]=(?:^|(?<=[_\/\-\|\s()\+]))([a-z]+)
+&REG`CAPNAMES2 [u(cobj,ccp)]=(^|(?<=[(]))(of|the|a|and)
+&REG`CAPNAMES3 [u(cobj,ccp)]=\b(of|the|a|and)\b
+
+&REG`SQL`ENTRY [u(cobj,ccp)]=\?|\!
+
+@@ SQL WRAPPER
+
+&RENDER [u(cobj,ccp)]=render(%0,ansi html)
+
+&MYSQL [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-1 SQL QUERY DATA NOT FOUND)
+&MYSQL2 [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),|,^),#-1 SQL QUERY DATA NOT FOUND)
+&MYSQL3 [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),chr(176),chr(177)),#-1 SQL QUERY DATA NOT FOUND)
+
+&CALL`0 [u(cobj,ccp)]=sql(CALL %0(),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`1 [u(cobj,ccp)]=sql(CALL %0(%2),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`2 [u(cobj,ccp)]=sql(CALL %0(%2,%3),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`3 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`4 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`5 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`6 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6,%7),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`7 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6,%7,%8),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`8 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6,%7,%8,%9),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&SQL`IN`NUMBER [u(cobj,ccp)]=iter(%0,%i0,%1,\,%b)
+&SQL`IN`STRING [u(cobj,ccp)]=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
+
+&SQL`FORMAT [u(cobj,ccp)]=localize(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,'[sqlescape(%q<set>)]'))))
+
+&INC`DOSQL [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),sql(SELECT last_insert_id\(\))))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+
+&INC`DOCALL`0 [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(call`0,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+
+&INC`DOCALL`1 [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(call`1,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+
+&INC`DOCALL`2 [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(call`2,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+
+@@ The CONFIG Subsystem.
+&CMD`+GAMECONFIG`PENNMUSH [u(cobj,ccp)]=$^\+gameconfig(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GAMECONFIG`MAIN
+@set [u(cobj,ccp)]/CMD`+GAMECONFIG`PENNMUSH=regexp no_inherit
+&CMD`+GAMECONFIG`MAIN [u(cobj,ccp)]=@attach %!/INC`CONFIG=%2,%3
+
+&INC`CONFIG [u(cobj,ccp)]=@select/inline strlen(%0)=0,{@attach %!/INC`CONFIG`DISPLAY},{@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Changing Config requires Wizard permissions.;@attach %!/INC`CONFIG`CHANGE}
+&INC`CONFIG`DISPLAY [u(cobj,ccp)]=@pemit %#=u(header,u(SYSTEM`NAME) Configuration);@dolist/inline/delimit | [v(CONFIG`OPTIONS)]={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10),v(CONFIG`##`VALID),ansi(hw,DESCRIPTION:),v(CONFIG`##));@pemit %#=[rjust(ansi(hw,DEFAULT:),10)]%b[v(CONFIG`##`DEFAULT)];@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[u(conf,##)]};@pemit %#=u(footer)
+&INC`CONFIG`CHANGE [u(cobj,ccp)]=@attach %!/INC`PARTIAL=%0,v(CONFIG`OPTIONS),|,op,Option;@select/inline strlen(%1)=>0,{@attach %!/INC`CONFIG`SET},{@attach %!/INC`CONFIG`CLEAR}
+&INC`CONFIG`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(CONFIG`%q<op>`VALID)]=%1;th u(attrib_set,%!,CONFIG`%q<op>`CUSTOM,%q<value>);@attach %!/INC`MSG=You set Config Option '%q<op>' to: %q<value>;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' set to: %q<value>;@attach %!/CONFIG`%q<op>`FINISH
+&INC`CONFIG`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=%!,CONFIG`%q<op>`CUSTOM;@attach %!/INC`MSG=You set Config Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' reset to Default.;@attach %!/CONFIG`%q<op>`FINISH
+
+&CONFIG`OPTIONS [u(cobj,ccp)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|REQUIRE_APPROVAL|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|STAFF_GROUP
+@set [u(cobj,ccp)]/CONFIG`OPTIONS=no_inherit
+
+&CONFIG`WIZTAG [u(cobj,ccp)]=Color of WIZ tag in systems.
+&CONFIG`WIZTAG`DEFAULT [u(cobj,ccp)]=hr
+&CONFIG`WIZTAG`VALID [u(cobj,ccp)]=COLOR
+
+&CONFIG`ROYTAG [u(cobj,ccp)]=Color of ROY tag in systems.
+&CONFIG`ROYTAG`DEFAULT [u(cobj,ccp)]=hr
+&CONFIG`ROYTAG`VALID [u(cobj,ccp)]=COLOR
+
+&CONFIG`STAFF_GROUP [u(cobj,ccp)]=Staff Group for use with wizlist, +admin, etc. Recommend usage of a Private Group called _Admin
+&CONFIG`STAFF_GROUP`DEFAULT [u(cobj,ccp)]=
+&CONFIG`STAFF_GROUP`VALID [u(cobj,ccp)]=GROUP
+
+&CONFIG`ANONYMOUS_NOTICES [u(cobj,ccp)]=Anonymize administrative actions in messages to players?
+&CONFIG`ANONYMOUS_NOTICES`DEFAULT [u(cobj,ccp)]=0
+&CONFIG`ANONYMOUS_NOTICES`VALID [u(cobj,ccp)]=BOOL
+
+&CONFIG`PUBLIC_EMAIL [u(cobj,ccp)]=Game's public email for purpose of various messages.
+&CONFIG`PUBLIC_EMAIL`DEFAULT [u(cobj,ccp)]=
+&CONFIG`PUBLIC_EMAIL`VALID [u(cobj,ccp)]=WORD
+
+&CONFIG`STAFF_ALERTS [u(cobj,ccp)]=Channel(s) to send important staff-only reports to.
+&CONFIG`STAFF_ALERTS`DEFAULT [u(cobj,ccp)]=
+&CONFIG`STAFF_ALERTS`VALID [u(cobj,ccp)]=LIST
+
+&CONFIG`REQUIRE_APPROVAL [u(cobj,ccp)]=Game requires use of the +approval system? Used for application-based games.
+&CONFIG`REQUIRE_APPROVAL`DEFAULT [u(cobj,ccp)]=1
+&CONFIG`REQUIRE_APPROVAL`VALID [u(cobj,ccp)]=BOOL
+
+&CONFIG`HEADER_FILL [u(cobj,ccp)]=Symbol to use for Header lines.
+&CONFIG`HEADER_FILL`DEFAULT [u(cobj,ccp)]==
+&CONFIG`HEADER_FILL`VALID [u(cobj,ccp)]=WORD
+
+&CONFIG`SUBHEADER_FILL [u(cobj,ccp)]=Symbol to use for Sub-Header lines.
+&CONFIG`SUBHEADER_FILL`DEFAULT [u(cobj,ccp)]==
+&CONFIG`SUBHEADER_FILL`VALID [u(cobj,ccp)]=WORD
+
+&CONFIG`SEPARATOR_FILL [u(cobj,ccp)]=Symbol to use for Separator lines.
+&CONFIG`SEPARATOR_FILL`DEFAULT [u(cobj,ccp)]==
+&CONFIG`SEPARATOR_FILL`VALID [u(cobj,ccp)]=WORD
+
+&CONFIG`FOOTER_FILL [u(cobj,ccp)]=Symbol to use for Footer lines.
+&CONFIG`FOOTER_FILL`DEFAULT [u(cobj,ccp)]=-
+&CONFIG`FOOTER_FILL`VALID [u(cobj,ccp)]=WORD
+
+&CONFIG`BORDER_MODE [u(cobj,ccp)]=Alters style of headers/footers. 0 = No edges. 1 = + edges. 2 = slash-edges
+&CONFIG`BORDER_MODE`DEFAULT [u(cobj,ccp)]=0
+&CONFIG`BORDER_MODE`VALID [u(cobj,ccp)]=WORD
+
+&CONFIG`COLUMN_NAMES [u(cobj,ccp)]=Color for table column names.
+&CONFIG`COLUMN_NAMES`DEFAULT [u(cobj,ccp)]=g
+&CONFIG`COLUMN_NAMES`VALID [u(cobj,ccp)]=COLOR
+
+&CONFIG`HEADER_TEXT [u(cobj,ccp)]=Color for text in System Header/Subheaders.
+&CONFIG`HEADER_TEXT`DEFAULT [u(cobj,ccp)]=hw
+&CONFIG`HEADER_TEXT`VALID [u(cobj,ccp)]=COLOR
+
+&CONFIG`HEADER_STAR [u(cobj,ccp)]=Color for * in System Headers.
+&CONFIG`HEADER_STAR`DEFAULT [u(cobj,ccp)]=hm
+&CONFIG`HEADER_STAR`VALID [u(cobj,ccp)]=COLOR
+
+&CONFIG`BORDER [u(cobj,ccp)]=Color for borders in enclosed tables.
+&CONFIG`BORDER`DEFAULT [u(cobj,ccp)]=m
+&CONFIG`BORDER`VALID [u(cobj,ccp)]=COLOR
+
+&CONFIG`MSG [u(cobj,ccp)]=Color for the -=<>=- part of System Messages.
+&CONFIG`MSG`DEFAULT [u(cobj,ccp)]=hm
+&CONFIG`MSG`VALID [u(cobj,ccp)]=COLOR
+
+&CONFIG`MSGTEXT [u(cobj,ccp)]=Color for the System Name in System Messages.
+&CONFIG`MSGTEXT`DEFAULT [u(cobj,ccp)]=hw
+&CONFIG`MSGTEXT`VALID [u(cobj,ccp)]=COLOR
+
+@@ th u(NEWCONF,config,ROOM,PLAYERS_MODE,DEFAULT,Changes room format for PLAYERS.,WORD)
+@@ th u(NEWCONF,config,ROOM,THINGS_MODE,DEFAULT,Changes room format for THINGS.,WORD)
+@@ th u(NEWCONF,config,ROOM,EXITS_MODE,DEFAULT,Changes room format for EXITS.,WORD)
+
+@@ th u(NEWCONF,config,COLOR,ROOM_COLUMNS,,For column names in room formats,COLOR)
+@@ th u(NEWCONF,config,COLOR,EXITNAME,,Color of exit names.,COLOR)
+@@ th u(NEWCONF,config,COLOR,EXITALIAS,,Color of exit names.,COLOR)
+
+@@ th u(NEWCONF,pconf,ROOM,ROOM_COLUMNS,,For column names in room formats,COLOR)
+@@ th u(NEWCONF,pconf,ROOM,EXITNAME,,Color of exit names.,COLOR)
+@@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
+
+
+&CONF [u(cobj,ccp)]=strfirstof(get(%!/CONFIG`%0`CUSTOM),get(%!/CONFIG`%0`DEFAULT))
+&PCONF [u(cobj,ccp)]=u(color,%@,%1)
+
+&COLOR [u(cobj,ccp)]=u(strfirstof,get(%0/CUSTCOLOR`%1),u(conf,%1))
+&GROUPCOLOR [u(cobj,ccp)]=get(%0/CUSTCOLOR`GROUP`%1)
+&NAMECOLOR [u(cobj,ccp)]=get(%0/CUSTCOLOR`CHARACTER`%1)
+&CHANNELCOLOR [u(cobj,ccp)]=get(%0/CUSTCOLOR`CHANNEL`%1)
+
+@@ Options System!
+&CMD`+OPTIONS`PENNMUSH [u(cobj,ccp)]=$^\+options(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+OPTIONS`MAIN
+@set [u(cobj,ccp)]/CMD`+OPTIONS`PENNMUSH=regexp no_inherit
+&CMD`+OPTIONS`MAIN [u(cobj,ccp)]=@attach %!/INC`OPTION=%2,%3
+
+&INC`OPTION [u(cobj,ccp)]=@select/inline strlen(%0)=0,{@attach %!/INC`OPTION`DISPLAY},{@attach %!/INC`OPTION`CHANGE}
+&INC`OPTION`DISPLAY [u(cobj,ccp)]=@pemit %#=u(header,u(SYSTEM`NAME) Options);@dolist/inline/delimit | [v(OPTION`OPTIONS)]={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10)%R[rjust(ansi(hw,DEFAULT:),10)],v(OPTION`##`VALID)%R[v(OPTION`##`DEFAULT)],ansi(hw,DESCRIPTION:),v(OPTION`##));@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[u(op,##)]};@pemit %#=u(footer)
+&INC`OPTION`CHANGE [u(cobj,ccp)]=@attach %!/INC`PARTIAL=%0,v(OPTION`OPTIONS),|,op,Option;@select/inline strlen(%1)=>0,{@attach %!/INC`OPTION`SET},{@attach %!/INC`OPTION`CLEAR}
+&INC`OPTION`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(OPTION`%q<op>`VALID)]=%1;th u(attrib_set,u(accid,%#),OPTION`%q<op>`CUSTOM,%q<value>);@attach %!/INC`MSG=You set OPTION Option '%q<op>' to: %q<value>;@attach %!/INC`MSG`CHAN=OPTION Option '%q<op>' set to: %q<value>;@attach %!/OPTION`%q<op>`FINISH
+&INC`OPTION`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=u(accid,%#),OPTION`%q<op>`CUSTOM;@attach %!/INC`MSG=You set OPTION Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=OPTION Option '%q<op>' reset to Default.;@attach %!/OPTION`%q<op>`FINISH
+
+&OP [u(cobj,ccp)]=strfirstof(get(%#/OPTION`%0`CUSTOM),v(OPTION`%0`DEFAULT))
+&OPOTHER [u(cobj,ccp)]=strfirstof(get(u(accid,%0)/OPTION`%1`CUSTOM),v(OPTION`%1`DEFAULT))
+
+&OPTION`OPTIONS [u(cobj,ccp)]=TIMEZONE|IDLE|MAIL
+@set [u(cobj,ccp)]/OPTION`OPTIONS=no_inherit
+
+&OPTION`TIMEZONE [u(cobj,ccp)]=Timezone used for all displays. See help timezones2 for a list. Is case-sensitive.
+&OPTION`TIMEZONE`DEFAULT [u(cobj,ccp)]=UTC
+&OPTION`TIMEZONE`VALID [u(cobj,ccp)]=TIMEZONE
+&OPTION`TIMEZONE`FINISH [u(cobj,ccp)]=&TIMEZONE [u(accid,%#)]=%q<value>
+
+&OPTION`IDLE [u(cobj,ccp)]=Seconds until pagers receive idle message. Only works if you haven't set an @idle. You must use @idle if you want a custom message.
+&OPTION`IDLE`DEFAULT [u(cobj,ccp)]=1800
+&OPTION`IDLE`VALID [u(cobj,ccp)]=DURATION
+&OPTION`IDLE`FINISH [u(cobj,ccp)]=&IDLE_SECS [u(accid,%#)]=%q<value>
+
+&OPTION`MAIL [u(cobj,ccp)]=Show unread mail breakdown on login?
+&OPTION`MAIL`DEFAULT [u(cobj,ccp)]=1
+&OPTION`MAIL`VALID [u(cobj,ccp)]=BOOL
+
+@@ COMMON CODE SNIPPETS
+
+&SYSTEM`NAME [u(cobj,ccp)]=SYSTEM
+
+&INC`CHECKPC [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(setr(t%1objid,objid(setr(t%1,pmatch(%0)))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th setq(t%1name,name(r(t%1)));th setq(t%1id,get(r(t%1)/D`ID));th setq(t%1acc,get(r(t%1)/D`ACCOUNT));th setq(t%1accid,get(r(t%1)/D`ACCOUNT`ID));th setq(t%1tz,get(r(t%1)/TIMEZONE))
+@@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into.
+
+&INC`VERIFY [u(cobj,ccp)]=@select/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th u(attrib_set,%#,VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@stop 1={@attach %!/INC`MSG=%0,,,%2}},1,{@wipe %#/VERIFY_OK}
+@@ VERIFY Arguments: %0 = message to display, %1 = code to set for verification.
+
+&INC`CPTREE [u(cobj,ccp)]=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/##=%2/%3`[elements(##,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)]}
+
+&AGFN`CPTREE [u(cobj,ccp)]=null(attrib_set(%2/%3,get(%0/%1))[iter(lattr(%0/%1`**),attrib_set(%2/%3`[elements(%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)],get(%0/%i0)))])
+
+@@ CPTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
+
+&INC`MVTREE [u(cobj,ccp)]=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/##=%2/%3`[elements(##,lnum(add(1,words(%1,`)),add(words(%1,`),11)),`,`)]};@attach %!/WIPE=%0,%1
+@@ MVTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
+
+&INC`GETSWITCH [u(cobj,ccp)]=@attach %!/INC`PARTIAL=%0,u(SYSTEM`SWITCHES),|,switch,switch
+
+&SYSTEM`SWITCHES [u(cobj,ccp)]=setunion(setunion(setunion(u(SWITCHES`PLAYER),u(SWITCHES`PLAYER`EXTRA),|,|),if(u(isadmin,%#),setunion(u(SWITCHES`ADMIN),u(SWITCHES`ADMIN`EXTRA),|,|)),|,|),if(u(iswizard,%#),setunion(v(SWITCHES`WIZARD),v(SWITCHES`WIZARD`EXTRA),|,|)),|,|)
+
+&INC`PARTIAL [u(cobj,ccp)]=@select/inline or(not(strlen(%0)),setr(matched,match(%1,setr(strfirstof(%3,choice),%0),strfirstof(%2,%b))))=0,{@check words(setr(strfirstof(%3,choice),graball(%1,%0*,strfirstof(%2,%b),strfirstof(%2,%b))))=@attach %!/INC`MSG={ERROR: Invalid %4! Valid choices are: [u(itemize,%1,strfirstof(%2,%b),and,\,)]};@stop gt(words(r(strfirstof(%3,choice)),strfirstof(%2,%b)),1)=@attach %!/INC`MSG={ERROR: %0 matched [u(itemize,r(strfirstof(%3,choice)),strfirstof(%2,%b),and,\,)]. Please be more specific.}},1,{@select/inline cand(t(strlen(%0)),t(%q<matched>))=1,{th setq(strfirstof(%3,choice),elements(%1,%q<matched>,strfirstof(%2,%b)))}}
+@@ PARTIAL %0 = entry, %1 = choices, %2 = delimiter, %3 = register name, %4 = topic name
+
+&WIPE [u(cobj,ccp)]=@select/inline hasflag(%0,SAFE)=1,{@set %0=!SAFE;@wipe %0/%1;@set %0=SAFE},0,{@wipe %0/%1}
+
+&DELETE [u(cobj,ccp)]=@set %0=!SAFE;@nuke %0;@nuke %0
+
+&INC`VALID`EMAIL [u(cobj,ccp)]=th setq(value,trim(%0));@check strlen(%q<value>)=@attach %!/INC`MSG=ERROR: Nothing entered!;@check lte(strlen(%q<value>),255)=@attach %!/INC`MSG=ERROR: Emails must be 255 characters or less.;@stop strmatch(%q<value>,* *)=@attach %!/INC`MSG=ERROR: Email addresses may not contain spaces.;@check strmatch(%q<value>,*@*.*)=@attach %!/INC`MSG=ERROR: An Email must be in the format: *@*.* (example@game.com).
+&INC`VALID`COLOR [u(cobj,ccp)]=@stop strmatch(ansi(setr(value,%0),Test),#-*)=@attach %!/INC`MSG=ERROR: '%0' is not a valid color.
+&INC`VALID`WORD [u(cobj,ccp)]=th setq(value,trim(%0))
+&INC`VALID`LIST [u(cobj,ccp)]=th setq(value,trim(%0))
+&INC`VALID`BOOL [u(cobj,ccp)]=@check match(0 1,setr(value,%0))=@attach %!/INC`MSG={ERROR: BOOL options can only be 0 (false) or 1 (true).}
+&INC`VALID`DBREF [u(cobj,ccp)]=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th setq(value,objid(%0))
+&INC`VALID`TZ [u(cobj,ccp)]=@check valid(timezone,setr(value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone}
+&INC`VALID`DURATION [u(cobj,ccp)]=@check setr(value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()}
+&INC`VALID`POSINT [u(cobj,ccp)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[strfirstof(%1,%0)]' must be a whole number 1 or greater.};th setq(value,%0)
+&INC`VALID`INT [u(cobj,ccp)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th setq(value,%0)
+&INC`VALID`LOCK [u(cobj,ccp)]=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th setq(value,%0)
+&INC`VALID`TIME [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=You didn't enter a date!;@check gt(setr(time,convtime(%0,u(gettz,%#))),0)=@attach %!/INC`MSG=The entered date was not recognized. Did you typo? Dates should be in abbreviated 24-hour <month> <day> <hour>:<minute> format using YOUR timezone\, such as Jun 26 7:00 or Oct 31 13:00.;
+&INC`VALID`FUTURE [u(cobj,ccp)]=@attach %!/INC`VALID`TIME;@check gt(%q<value>,secs())=@attach %!/INC`MSG=That would be in the past!
+&INC`VALID`GROUP [u(cobj,ccp)]=@check isdbref(u(setr,value,objid(u(u(cobj,gms)/FUN`FINDGROUP,%0,%:))))=@attach %!/INC`MSG=ERROR: Group '%0' not found.
+
+@@ MESSAGING SECTION
+&INC`MSG [u(cobj,ccp)]=@message strfirstof(%1,%#)=%0,%!/MSG,##,%0,%1,strfirstof(%2,u(SYSTEM`NAME))
+@@ %0 - Message. %1 - Recipients. %2 - System name override.
+
+&INC`MSG`ROOM [u(cobj,ccp)]=@message strfirstof(%1,lcon(%l))=%0,%!/RMSG,##,%0,%1,u(SYSTEM`NAME),strfirstof(%4,%#)
+
+&INC`MSG`NOTICE [u(cobj,ccp)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(conf,ANONYMOUS_NOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
+
+&INC`MSG`CHAN [u(cobj,ccp)]=th setq(chanmsg,if(not(%5),ansi(h,\[[u(moniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(strfirstof(%2,u(SYSTEM`NAME))),not(%3)),strfirstof(%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [strfirstof(%1,u(conf,STAFF_ALERTS))]={@cemit/noisy %i0=%q<chanmsg>}
+@@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
+
+&INC`MSG`SYSCHAN [u(cobj,ccp)]=th setq(chanmsg,[if(not(%5),ansi(h,\[[strfirstof(%4,SYSTEM)]\]%B))][if(cand(strlen(strfirstof(%2,u(SYSTEM`NAME))),not(%3)),strfirstof(%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit/noisy %i0=%q<chanmsg>}
+
+&MSG [u(cobj,ccp)]=u(msghead,%3,%0) %1
+&RMSG [u(cobj,ccp)]=u(msgroom,%3,%0) \[[ansi(h,u(moniker,%4))]\] %1
+
+&MSGHEAD [u(cobj,ccp)]=localize(ansi(setr(msgcolor,u(color,u(firstof,%1,%#),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
+&MSGROOM [u(cobj,ccp)]=localize(ansi(setr(msgcolor,u(color,u(firstof,%1,%#),MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
+
+&HEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),HEADER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][setr(borderstar,ansi(u(color,%q<target>,HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+
+&SUBHEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+
+&SEPARATOR [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+
+&FOOTER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),FOOTER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+
+&HEADER`PREP [u(cobj,ccp)]=setq(target,owner(u(firstof,%0,%#)))[setq(bordercolor,u(color,%q<target>,BORDER))][setq(bordermode,%1)][setq(width,sub(strfirstof(%3,u(width,%q<target>)),2))][setq(fill,u(conf,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,setq(start,ansi(%q<bordercolor>,/))[setq(end,ansi(%q<bordercolor>,chr(92)))],FOOTER,setq(start,ansi(%q<bordercolor>,chr(92)))[setq(end,ansi(%q<bordercolor>,/))]),1,setq(start,setr(end,ansi(%q<bordercolor>,+))),setq(start,setr(end,ansi(%q<bordercolor>,%q<fill>))))]
+
+&HEADER`RENDER [u(cobj,ccp)]=%q<start>[u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>
+
+@@ HEADER family args: %0 - Title. %1 - Viewer dbref. %2 - True: Do not color title. %3 - Border mode bool. %4 - Width.
+
+&MARKUP [u(cobj,ccp)]=regeditalli(%0,\([edit(edit(iter(%1,name(%i0),%b,|),-,\\-),.,\\.)]\),if(neq(ord(left(setr(found,$0),1)),ord(lcstr(left($0,1)))),^^^[pmatch(%q<found>)]:%q<found>^^^,%q<found>))
+@@ %0 - Text to search. %1 - Dbrefs to check.
+
+&COLORMARKUP [u(cobj,ccp)]=localize(if(%3,regeditalli(%1,v(REG`MARKUP),$2),regeditalli(%1,v(REG`MARKUP),if(strlen(setr(a,if(strlen(setr(b,u(color,%0,NAMES,$1,,1))),%qb,if(strlen(setr(c,switch($1,%0,u(color,%0,NAMES,MINE,,1),%2,u(color,%0,NAMES,SPEAKER,,1),u(color,%0,NAMES,OTHER,,1)))),%qc,)))),ansi(%qa,$2),$2))))
+
+&CHANHASH [u(cobj,ccp)]=default(cmogrifier(%0)/HASH`[digest(md5,%1)],%1)
+
+@@ %0 - Viewer. %1 - Text to search. %2 - Speaker. %3 - Bool for 'just demarkup'
+
+&REG`MARKUP [u(cobj,ccp)]=\^\^\^(#\d+)\:([^^]+)\^\^\^
+
+@@ &SPEECH`PENNMUSH [u(cobj,ccp)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),setr(quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>)
+
+
+&SPEECH [u(cobj,ccp)]=[setq(quote,ansi(u(player_config,%2,%4,QUOTES),"))][setq(speechcol,u(player_config,%2,%4,SPEECH))][regeditalli(speakpenn(&[if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),u(moniker,%0,%2)))],%1),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)]
+@@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup. %6 - Banner override bool.
+
+
+
+
+&REG`SPEECH [u(cobj,ccp)]=(?s)"([^ "][^"]*[^ "])"
+&REG`URL [u(cobj,ccp)]=\w+\://\S+[^"]
+
+&COLORNAMES [u(cobj,ccp)]=localize(setq(names,sortkey(#lambda/strlen(\%0),iter(setr(dbs,setunion(%3,u(get_names,%0))),localize(setr(norname,name(%i0))[if(not(strmatch(%q<norname>,setr(accname,accname(%i0)))),|%q<accname>)]),%b,|),-n,|,|))[regeditalli(%1,\\b\(%q<names>\)\\b,if(match(name(%0)|[accname(%0)],setr(fname,$0),|),if(strlen(setr(fcolor,strfirstof(u(color,%0,NAMES,%0,,1),u(color,%0,NAMES,MINE,,1)))),ansi(%q<fcolor>,accname(%0)),u(moniker,%0)),if(isdbref(setr(fdb,namegrab(%q<dbs>,stripaccents(%q<fname>)))),if(strlen(setr(fcolor,strfirstof(u(color,%0,NAMES,%q<fdb>,,1),u(color,%0,NAMES,switch(%q<fdb>,%4,SPEAKER,OTHER),,1)))),ansi(%q<fcolor>,accname(%q<fdb>)),u(moniker,%q<fdb>)),%q<fname>)))])
+@@ Old one, in case I need it again
+@@ &COLORNAMES`PENNMUSH [u(cobj,ccp)]=setq(colstring,iter(%3,\\b[name(%i0)]\\b^[switch(%i0,%0,if(strlen(setr(colfound,strfirstof(u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(setr(colfound,strfirstof(u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(setr(colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[setq(final,fold(COLORNAME`PENN,%q<colstring>,%1,beep()))]%q<final>
+
+&COLORNAME`PENN [u(cobj,ccp)]=regeditalli(%0,before(%1,^),after(%1,^))
+@@ %0 - Viewer. %1 - Text to search. %2 - Display mode. %3 - Dbrefs to check. %4 - Speaker.
+
+@@ Visibility and Connections
+&LASTIDLE [u(cobj,ccp)]=switch(objeval(%#,conn(%0)),-1,ansi(hx,elements(get(%0/last),2 3)),u(hideidle,%0))
+
+&HIDECONN [u(cobj,ccp)]=switch(objeval(%#,conn(%0)),-1,ansi(hx,Off),ansi(if(u(ishidden,%0),hx,hg),u(smalltime,conn(%0),3)))
+
+&HIDEIDLE [u(cobj,ccp)]=switch(objeval(%#,idle(%0)),-1,ansi(hx,Off),ansi(if(u(ishidden,%0),hx,u(ryg,round(mul(fdiv(bound(idle(%0),0,3600),3600),100),0))),u(smalltime,idle(%0),3)))
+
+&LASTCONN [u(cobj,ccp)]=switch(objeval(%#,conn(%0)),-1,ansi(hx,elements(get(%0/last),2 3)),u(hideconn,%0))
+
+@@ Color and Configuration
+
+&MY_NAMES [u(cobj,ccp)]=u(get_names,%@)
+&GET_NAMES [u(cobj,ccp)]=localize(u(filter,ISDBREF,edit(lattr(setr(accid,u(firstof,u(accid,%0),%0))/D`CONFIG`NAMES`#*),D`CONFIG`NAMES`,)))
+
+&APPROVED [u(cobj,ccp)]=u(isapproved,%0)
+&APPROVED2 [u(cobj,ccp)]=u(isapproved,%#)
+
+&ISAPPROVED [u(cobj,ccp)]=cor(u(isadmin,%0),if(u(conf,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1))
+
+@@ EVENT HANDLING - PENN
+&PLAYER`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,ccp)]/PLAYER`CONNECT=no_inherit
+
+@@ Player-Approve is a pseudo-event triggered by the Account Management System.
+&PLAYER`APPROVE [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`APPROVE)={@trigger ##/PLAYER`APPROVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,ccp)]/PLAYER`APPROVE=no_inherit
+
+&PLAYER`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CREATE)={@trigger ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,ccp)]/PLAYER`CREATE=no_inherit
+
+&PLAYER`DISCONNECT [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`DISCONNECT)={@trigger ##/PLAYER`DISCONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,ccp)]/PLAYER`DISCONNECT=no_inherit
+
+&SOCKET`LOGINFAIL [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`LOGINFAIL)={@trigger ##/SOCKET`LOGINFAIL=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,ccp)]/SOCKET`LOGINFAIL=no_inherit
+
+&SOCKET`CONNECT [u(cobj,ccp)]=@check setr(banid,first(u(u(cao)/FUN`CHECKLOGINS,%1)));@select/inline gt(secs(),get(u(bandb)/%q<banid>`UNTIL))=1,{@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) EXPIRED Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) has connected.}},0,{@pemit/port %0=setr(message,strfirstof(get(u(bandb)/%q<banid>`MESSAGE),u(u(cao)/VAR`BANLIST`MESSAGE)));@boot/port %0;@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) attempted to connect. Message sent to them: '%q<message>'}}
+@set [u(cobj,ccp)]/SOCKET`CONNECT=no_inherit
+
+&OBJECT`RENAME [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`RENAME)={@trigger ##/OBJECT`RENAME=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,ccp)]/OBJECT`RENAME=no_inherit
+
+&OBJECT`DESTROY [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`DESTROY)={@trigger ##/OBJECT`DESTROY=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,ccp)]/OBJECT`DESTROY=no_inherit
+
+&OBJECT`CREATE [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`CREATE)={@trigger ##/OBJECT`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,ccp)]/OBJECT`CREATE=no_inherit
+
+&OBJECT`MOVE [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`MOVE)={@trigger ##/OBJECT`MOVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,ccp)]/OBJECT`MOVE=no_inherit
+
+&SQL`CONNECT [u(cobj,ccp)]=@sql SET time_zone = '+00:00';@nscemit/noisy u(cmo`staffrep)=SQL server connect: %0
+&SQL`CONNECTFAIL [u(cobj,ccp)]=@attach %!/INC`MSG`SYSCHAN={SQL server connect fail: %0}
+&SQL`DISCONNECT [u(cobj,ccp)]=@attach %!/INC`MSG`SYSCHAN={SQL server disconnect: %0}
+&STARTUP`SQL [u(cobj,ccp)]=@check sql(SELECT DATABASE());@trigger %!/LOOP`SQL;@trigger %!/LOOP`REINDEX
+&LOOP`SQL [u(cobj,ccp)]=@sql SELECT DATABASE();@wait 60=@trigger %!/LOOP`SQL
+&LOOP`REINDEX [u(cobj,ccp)]=@dolist sql(SHOW TABLES)=@sql ANALYZE TABLE %i0;@wait mul(60,60,24)=@trigger %!/LOOP`REINDEX
