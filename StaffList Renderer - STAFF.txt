@@ -1,0 +1,30 @@
+th u(NEWCOBJ,StaffList Renderer <STAFF>,staff,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+STAFF`PENNMUSH [u(cobj,staff)]=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+STAFF`MAIN
+@set [u(cobj,staff)]/CMD`+STAFF`PENNMUSH=regexp
+&CMD`+STAFF`RHOSTMUSH [u(cobj,staff)]=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+STAFF`MAIN
+@set [u(cobj,staff)]/CMD`+STAFF`RHOSTMUSH=regexp
+&CMD`+STAFF`MAIN [u(cobj,staff)]=@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,staff)]/CMD`+STAFF`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,staff)]=STAFF
+&SWITCHES`ADMIN [u(cobj,staff)]=DUTY
+
+&INC`MAIN [u(cobj,staff)]=@check isdbref(u(setr,staff,u(conf,STAFF_GROUP)))=@attach %!/INC`MSG=ERROR: Staff Group not found! Tell a Wizard to +gameconfig one up!;@pemit %#=u(header,mudname() Staff);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(3 20 3 40 8,Idl,Name,Bit,Position,Duty));@pemit %#=u(separator);@dolist/inline u(filter,ISOBJID,get(%q<staff>/COMMAND))=@pemit %#=u(FUN`WIZLIST,##,%#,num(%q<staff>));@select/inline t(strlen(u(setr,smsg,u(conf,WIZLIST_FOOTER))))=1,{@pemit %#=u(separator);@pemit %#=%q<smsg>};@pemit %#=u(footer)
+
+&FUN`WIZLIST [u(cobj,staff)]=localize(align(3 20 3 40 8,u(hideidle,%0),u(moniker,%0),u(choosegame,switch(1,u(iswizard,%0),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hc,ROY),ansi(hx,N/A)),bittype(%0)),default(%0/D`GROUP`%2`TITLE,???),u(setq,adm,u(isadmin,%#))[u(setq,hid,u(ishidden,%0))][u(setq,conn,objeval(%#,gt(conn(%0),0)))][u(setq,vac,t(get(%0/D`STAFF`VACATION)))][u(setq,admsee,cand(%q<conn>,%q<hid>,%q<adm>))][u(setq,dut,t(get(%0/D`STAFF`DUTY)))][if(%q<vac>,ansi(if(%q<conn>,hg,hx),Vac),if(%q<dut>,if(%q<conn>,if(%q<admsee>,ansi(hx,On),ansi(hg,On)),ansi(hx,Off)),ansi(hx,Off)))]))
+
+&INC`DUTY [u(cobj,staff)]=@select/inline u(setr`%va,duty,not(default(%#/D`STAFF`DUTY,0)))=1,{@attach %!/INC`MSG=You are now On duty!},0,{@attach %!/INC`MSG=You are now Off Duty!};&D`STAFF`DUTY %#=%q<duty>
+
+&HLP`+STAFF [u(cobj,staff)]=+staff lists the game's administrators and their current status.%R[ansi(hc,See Also:)] [u(pueblize,help JUDGE)], [u(pueblize,help ROYALTY)], [u(pueblize,help WIZARD)]%R%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+staff)] - Show game's staff members.)]
++help/add Community/+staff=[u(cobj,staff)]/HLP`+STAFF
+
+&SHLP`+STAFF [u(cobj,staff)]=Keep in mind that anyone on this list is able to use all softcoded admin commands!%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+staff)] - Lists staff. Identical to wizlist.%R%RHow do you add Staff?%RThe Staff List is pulled from the Group System. See [u(pueblize,+shelp +gameconfig)])]%R%R[ansi(hc,Staff List Display)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+staff/duty)] - Toggle duty status on or off.%R[ansi(h,+staff/vacation)] - Go 'on vacation' or toggle it off.)]
++shelp/add Administration/+staff=[u(cobj,staff)]/SHLP`+STAFF
+
+&SHLP`PENNMUSH [u(cobj,staff)]=[ansi(hc,See Also:)] [u(pueblize,help CONTROL)], [u(pueblize,help WIZARD)], [u(pueblize,help ROYALTY)], [u(pueblize,help @set)], [u(pueblize,help @power)]%R%RStaff are characters able to use Admin commands. For this package anyone who is either WIZARD\, ROYALTY\, or on the +staff list is able to use admin commands\, but Penn's built-in commands use other standards.%R%RPennMUSH has 3 Staff tiers.%R%R1. The [ansi(hr,GOD)] (#1) is a special WIZARD capable of granting or removing the WIZARD flag to other characters. It can use @config/save and several other dangerous commands. Only login as #1 when truly necessary. Since even WIZARDS cannot control() it\, code objects cannot set attributes on #1 and it cannot use many softcoded systems properly.%R%R2. [ansi(hy,WIZARD)] flagged characters have command of everything in the game including dangerous commands such as @force (on players)\, @shutdown\, @hook\, and @config/set. It should be reserved for staff who absolutely need these privileges\, typically the coder(s) and owner. Some potentially dangerous softcoded commands are restricted to Wizard.%R%R3. [ansi(hc,ROYALTY)] have 'see but not touch' compared to WIZARDS - they have several implicit @powers like being able to @tel anywhere but can't change the game's code. This is a good flag for general staff.
+&SHLP`RHOSTMUSH [u(cobj,staff)]=
++shelp/add Administration/Permissions=[u(cobj,staff)]/SHLP`%va
+
+&SHLP`PMANAGE [u(cobj,staff)]=WIZARDS have a great deal of hardcoded control over players for security and management. Most of these commands can only be used by them.%R%R[align(5 [sub(width(%#),6)],,[ansi(h,@pcreate <name>=<password>)] - Creates a player.%R%R[ansi(h,@newpass *<name>=<newpassword>)] - Changes a password. the * is necessary for hardcoded command lookups.%R%R[ansi(h,@sitelock/ban/player <name>)] - Bans a player. Be very careful with this! Check [u(pueblize,ansi(h,help @sitelock),help @sitelock)] for more info.%R%R[ansi(h,@nuke *<name>)] - Deletes a character AND EVERYTHING THEY OWN\, which by default includes EVERYTHING THEY MADE. use [ansi(h,@search *<name>)] to see what that would be before you @nuke! use [ansi(h,@chown <dbref>=me)] to save objects.)]
++shelp/add Administration/Player Management=[u(cobj,staff)]/SHLP`PMANAGE

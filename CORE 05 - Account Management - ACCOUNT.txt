@@ -1,18 +1,16 @@
 @@ DEPENDENCIES - Core
 
-th u(NEWCOBJ,Account Management System <ACCOUNT>,account,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Account System <ACCOUNT>,account,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 @power [u(cobj,account)]=no_pay debit queue
 th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,SIDEFX SAFE)
 
 &IDLE_SECS [u(cobj,accounts)]=1800
 &TIMEZONE [u(cobj,accounts)]=UTC
 
-@attach %!/WIPE=u(cobj,account),STARTUP
-
 &ACONNECT`SUITE`MAIL [u(cobj,ancestor_player)]=@stop u(isguest,%@);@check u(op,MAIL);+mailcheck
 
 &CMD`MAILCHECK [u(cobj,account)]=$+mailcheck:@attach %!/INC`CHECKPC=%#,1;@select/inline t(words(u(setr,ualts,u(FILTER,UMAIL,u(alts,%q<t1>)))))=1,{@pemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(u(sortname,%q<ualts>),ansi(h,name(%i0)) ([u(umail,%i0)]),%b,\,%b)]},0,{@pemit %0=ansi(hy,You have no unread mail.)}
-&FIL`UMAIL [u(cobj,pcs)]=t(u(umail,%0))
+&FIL`UMAIL [u(cobj,ccp)]=t(u(umail,%0))
 
 &SYSTEM`SWITCHES [u(cobj,account)]=setunion(setunion(setunion(u(SWITCHES`%q<sysname>`PLAYER),if(u(isadmin,%#),u(SWITCHES`%q<sysname>`ADMIN)),|,|),if(cor(u(OPEN_CREATION),u(conf,OPEN_ACCOUNT)),v(SWITCHES`%q<sysname>`OPEN_CREATION)),|,|),if(u(iswizard,%#),u(SWITCHES`%q<sysname>`WIZARD)),|,|)
 &SYSTEM`NAME [u(cobj,account)]=u(strfirstof,%q<sysname>,ACCOUNT)
@@ -185,45 +183,6 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 &HLP`+ALTS [u(cobj,account)]=The Alts system allows you to specify what characters of yours other players can associate with you. It also allows you to configure which alts take precedent (if any) for receiving messages from channels and BBS notifications.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+alts <target>)] - Check someone's alts. Alts are any characters with the same ALT ID. Without a target it will use yourself\, showing you what others would see.%R[ansi(h,+alts/list <#>)] or [ansi(h,+alts/list <alt>=<#>)] - Set your current character or an alt of yours to use a specific ALT ID. Characters with the same ALT ID are linked on +alts displays. Alt IDs are numbers.%R%RAll Alts begin with Alt ID 0\, which is special. Characters with Alt ID 0 have no alts period.%R%R[ansi(h,+alts/priority <#>)] or [ansi(h,+alts/priority <alt>=<#>)] - Set your Alt PRIORITY.%R[ansi(h,+alts/priority)] - Show the priority settings of all your alts.%R%RThe PRIORITY affects channel reception. In both cases\, the HIGHEST PRIORITY ALT who is eligible to receive the message \(has the channel turned on and not gagged\) will receive it. Where multiple alts have the same priority\, all with that priority will receive it.%R%RFor example\, if Alts A and B are set to Priority 1 and have the Public channel on\, and Alt C also has it on but is priority 0\, only A and B will see messages from the Public channel. If A and B gag or turn it off\, C will once again receive Public messages.)]
 +help/add Character/+alts=[u(cobj,account)]/HLP`+ALTS
 
-@@ ******* IP SECTION *********
-
-&CMD`+IP`PENNMUSH [u(cobj,account)]=$^(?\:\+)?(?\:ip|sitematch|matchsite|site)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IP`MAIN
-@set [u(cobj,account)]/CMD`+IP`PENNMUSH=regexp
-&CMD`+IP`RHOSTMUSH [u(cobj,account)]=$^(?\:\+)?(?\:ip|sitematch|matchsite|site)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IP`MAIN
-@set [u(cobj,account)]/CMD`+IP`RHOSTMUSH=regexp
-&CMD`+IP`MAIN [u(cobj,account)]=th u(setq,sysname,IP);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`IP`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,account)]/CMD`+IP`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
-
-&SWITCHES`IP`PLAYER [u(cobj,account)]=
-&SWITCHES`IP`ADMIN [u(cobj,account)]=IP|GUESTS|CLEAR
-
-&INC`IP`MAIN [u(cobj,account)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Guests cannot use +ip.;@select/inline u(isadmin,%#)=0,{@attach %!/INC`CHECKPC=%#,1,1;@attach %!/INC`IP`IPSHOW=%q<t1>,0},{@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1,1;@@ @stop u(isguest,%q<t1>)=@attach %!/INC`MSG=ERROR: To match Guests\, please use +ip/guests;@attach %!/INC`IP`IPSHOW=%q<t1>}
-
-&INC`IP`IP [u(cobj,account)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: An IP address is required.;@attach %!/INC`IP`IPSHOW=%0,1,1
-
-&INC`IP`CLEAR [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`DOSQL=DELETE`ALL_LOGS,%q<t1objid>;@attach %!/INC`MSG=Cleared all login records for %q<t1name>!;@attach %!/INC`MSG`CHAN=Cleared all login records for %q<t1name>!
-
-&INC`IP`IPSHOW [u(cobj,account)]=@check gt(words(u(setr,ips,if(%2,%0,u(mysql,GET`LOGIN_IPS,%q<t1id>)))),0)=@attach %!/INC`MSG=ERROR: No IP logs found to match against.;th u(setq,pcs,u(filter,if(u(isadmin,%#),ISOBJID,OBJNOTGUEST),u(mysql,GET`OBJIDS_FROM_IPS,u(SQL`IN`STRING,%q<ips>))));@check words(%q<pcs>)=@attach %!/INC`MSG=ERROR: No Matching Logs found.;@pemit %#=u(header,Site matches for [if(%2,%0,name(%0))]);@dolist/inline %q<pcs>={@pemit %#=u(separator,ansi(h,u(pueblize,u(moniker,##),+finger [name(##)]))[ansi(h,\(##\))] - [u(lastidle,##)]);@pemit %#=ansi(u(color,%#,%q<sysname>,COLUMN_NAMES),align(20 22 25,Date,Address,Result));@pemit %#=iter(u(mysql2,GET`LOGINS,objid(##)),align(20 22 25,u(fancytime,elements(%i0,3,^),%#),elements(%i0,2,^),if(elements(%i0,1,^),Success,elements(%i0,4,^))),|,%R)};@pemit %#=u(footer)
-
-&Q`GET`LOGIN_IPS [u(cobj,account)]=SELECT DISTINCT ip_address FROM volv_login WHERE character_id=? AND login_is_success=1
-
-&FIL`OBJNOTGUEST [u(cobj,account)]=cand(isobjid(%0),not(u(isguest,%0)))
-
-&Q`GET`OBJIDS_FROM_IPS [u(cobj,account)]=SELECT DISTINCT character_objid from volv_login WHERE ip_address IN (!) ORDER BY player_name DESC
-
-&Q`GET`LOGINS [u(cobj,account)]=SELECT login_is_success,ip_address,login_date FROM volv_login WHERE character_objid=? LIMIT 10
-
-&PLAYER`CONNECT`IPLOG [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,1;th u(call`3,volp_login_record,0,%q<t1id>,1,'[sqlescape(get(%0/LASTIP))]')
-
-&PLAYER`CONNECTFAIL`IPLOG [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,1;th u(call`3,volp_login_record,0,%q<t1id>,0,'[sqlescape(get(%0/LASTIP))]')
-
-&SOCKET`LOGINFAIL`IPLOG [u(cobj,account)]=@select/inline isdbref(%4)=1,{@trigger %!/PLAYER`CONNECTFAIL`IPLOG=%4,%3;th u(setq,isgod,strmatch(#1,%4))[u(setq,admin,u(isadmin,%4))];@attach %!/INC`MSG`SYSCHAN={[if(cor(%q<isgod>,%q<admin>),ansi(hr,WARNING:),ansi(hy,ALERT:))]%BFailed [switch(1,%q<isgod>,ansi(hr,GOD),%q<admin>,ansi(hr,ADMIN),Player)] ([name(%4)]) login attempt from IP '%1' HOST '[host(%0)]' PORT '%0'. Consecutive Failure %2: %3. [if(strmatch(get(%4/LASTSITE),host(%0)),,ansi(hr,ALERT:)%BAttempt not from previous LASTSITE!)]};@select/inline cor(%q<isgod>,%q<admin>)=1,{@pemit/port %0=[ansi(hrf,WARNING:)]%BAdmin login failures are logged.};@select/inline %2=>1,{@pemit/port %0=If you have forgotten your password\, ask an admin for a reset. Too many login attempts will cause a temporary lockout.}}
-
-&HLP`IP [u(cobj,account)]=[ansi(h,+ip)] - Shows your recent logins. Please report any suspicious login attempts to staff!
-+help/add Character/+ip=[u(cobj,account)]/HLP`IP
-
-&SHLP`IP [u(cobj,account)]=[ansi(h,+ip <player>)] - Checks a player's logins and anyone with matching IPs.%R[ansi(h,+ip/guests <player>)] - Includes Guests in the IP lookup.%R[ansi(h,+ip/ip <ip>)] - Checks an IP for any matching players. Note that ::ffff: must be prepended to any IPv4 addresses if they're showing up in normal uses of +ip!
-+shelp/add Character/+ip=[u(cobj,account)]/SHLP`IP
 
 @@ ****** APPROVAL SECTION *********
 &CMD`+APPROVE`PENNMUSH [u(cobj,account)]=$^(?\:\+)?(approve|unapprove)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+APPROVE`MAIN
@@ -292,188 +251,3 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 
 &Q`SEARCH`CHARACTERS_NEW [u(cobj,account)]=SELECT character_id,character_objid,character_name FROM volv_character WHERE character_name LIKE '%!%' AND character_is_deleted=1
 
-
-@@ ********* STAFF SECTION *******
-&CMD`+STAFF`PENNMUSH [u(cobj,account)]=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+STAFF`MAIN
-@set [u(cobj,account)]/CMD`+STAFF`PENNMUSH=regexp
-&CMD`+STAFF`RHOSTMUSH [u(cobj,account)]=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+STAFF`MAIN
-@set [u(cobj,account)]/CMD`+STAFF`RHOSTMUSH=regexp
-&CMD`+STAFF`MAIN [u(cobj,account)]=th u(setq,sysname,STAFF);@attach %!/INC`GETSWITCH=%2;@attach %!/INC`STAFF`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
-@set [u(cobj,account)]/CMD`+STAFF`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
-
-&SWITCHES`STAFF`ADMIN [u(cobj,account)]=DUTY
-
-&INC`STAFF`MAIN [u(cobj,account)]=@check isdbref(u(setr,staff,u(conf,STAFF_GROUP)))=@attach %!/INC`MSG=ERROR: Staff Group not found! Tell a Wizard to +gameconfig one up!;@pemit %#=u(header,mudname() Staff);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(3 20 3 40 8,Idl,Name,Bit,Position,Duty));@pemit %#=u(separator);@dolist/inline u(filter,ISOBJID,get(%q<staff>/COMMAND))=@pemit %#=u(FUN`WIZLIST,##,%#,num(%q<staff>));@select/inline t(strlen(u(setr,smsg,u(conf,WIZLIST_FOOTER))))=1,{@pemit %#=u(separator);@pemit %#=%q<smsg>};@pemit %#=u(footer)
-
-&FUN`WIZLIST [u(cobj,account)]=localize(align(3 20 3 40 8,u(hideidle,%0),u(moniker,%0),u(choosegame,switch(1,u(iswizard,%0),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hc,ROY),ansi(hx,N/A)),bittype(%0)),default(%0/D`GROUP`%2`TITLE,???),u(setq,adm,u(isadmin,%#))[u(setq,hid,u(ishidden,%0))][u(setq,conn,objeval(%#,gt(conn(%0),0)))][u(setq,vac,t(get(%0/D`STAFF`VACATION)))][u(setq,admsee,cand(%q<conn>,%q<hid>,%q<adm>))][u(setq,dut,t(get(%0/D`STAFF`DUTY)))][if(%q<vac>,ansi(if(%q<conn>,hg,hx),Vac),if(%q<dut>,if(%q<conn>,if(%q<admsee>,ansi(hx,On),ansi(hg,On)),ansi(hx,Off)),ansi(hx,Off)))]))
-
-&INC`STAFF`DUTY [u(cobj,account)]=@select/inline u(setr`%va,duty,not(default(%#/D`STAFF`DUTY,0)))=1,{@attach %!/INC`MSG=You are now On duty!},0,{@attach %!/INC`MSG=You are now Off Duty!};&D`STAFF`DUTY %#=%q<duty>
-
-&HLP`+STAFF [u(cobj,account)]=+staff lists the game's administrators and their current status.%R[ansi(hc,See Also:)] [u(pueblize,help JUDGE)], [u(pueblize,help ROYALTY)], [u(pueblize,help WIZARD)]%R%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+staff)] - Show game's staff members.)]
-+help/add Community/+staff=[u(cobj,account)]/HLP`+STAFF
-
-&SHLP`+STAFF [u(cobj,account)]=Keep in mind that anyone on this list is able to use all softcoded admin commands!%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+staff)] - Lists staff. Identical to wizlist.%R%RHow do you add Staff?%RThe Staff List is pulled from the Group System. See [u(pueblize,+shelp +gameconfig)])]%R%R[ansi(hc,Staff List Display)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+staff/duty)] - Toggle duty status on or off.%R[ansi(h,+staff/vacation)] - Go 'on vacation' or toggle it off.)]
-+shelp/add Administration/+staff=[u(cobj,account)]/SHLP`+STAFF
-
-@@ *********** WATCH SECTION *******
-&CMD`+WATCH`PENNMUSH [u(cobj,account)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+WATCH`MAIN
-@set [u(cobj,account)]/CMD`+WATCH`PENNMUSH=regexp
-&CMD`+WATCH`RHOSTMUSH [u(cobj,account)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+WATCH`MAIN
-@set [u(cobj,account)]/CMD`+WATCH`RHOSTMUSH=regexp
-&CMD`+WATCH`MAIN [u(cobj,account)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Guests may not use +watch.;th u(setq,sysname,WATCH);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`WATCH`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,account)]/CMD`+WATCH`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
-
-&SWITCHES`WATCH`PLAYER [u(cobj,account)]=ADD|LIST|DELETE|HIDE|MUTE|ACCADD|ACCDELETE
-
-&INC`WATCH`MAIN [u(cobj,account)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - Online);@attach %!/INC`WHO`HEADER`MAIN;@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(footer)
-
-&INC`WATCH`LIST [u(cobj,account)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - All);@attach %!/INC`WHO`HEADER`MAIN;@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)))={@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ID)))={@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(footer)
-
-&INC`WATCH`ADD [u(cobj,account)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to add.;@attach %!/INC`CHECKPC=%0,1;@stop match(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are already a friend.;@attach %!/INC`DOSQL=INSERT`WATCH,get(%#/D`ID),%q<t1id>;@attach %!/INC`MSG=%q<t1name> added to your Friends list!
-
-&Q`INSERT`WATCH [u(cobj,account)]=INSERT IGNORE INTO vol_watch (entity_id,character_id) VALUES (?,?)
-
-&Q`SELECT`WATCH [u(cobj,account)]=SELECT character_objid FROM volv_watch WHERE watcher_id=? ORDER BY character_name
-
-&INC`WATCH`DELETE [u(cobj,account)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to remove.;@attach %!/INC`CHECKPC=%0,1;@check match(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are not a friend.;@attach %!/INC`DOSQL=DELETE`WATCH,get(%#/D`ID),%q<t1id>;@attach %!/INC`MSG=%q<t1name> removed from your Friends list!
-
-&Q`DELETE`WATCH [u(cobj,account)]=DELETE FROM vol_watch WHERE entity_id=? AND character_id=?
-
-&INC`WATCH`ACCADD [u(cobj,account)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to add.;@attach %!/INC`CHECKPC=%0,1;@stop match(u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are already an Account Friend.;@attach %!/INC`DOSQL=INSERT`WATCH,get(%#/D`ACCOUNT`ID),%q<t1id>;@attach %!/INC`MSG=%q<t1name> added to your Account Friends list!
-
-&INC`WATCH`ACCDELETE [u(cobj,account)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to remove.;@attach %!/INC`CHECKPC=%0,1;@check match(u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are not an Account friend.;@attach %!/INC`DOSQL=DELETE`WATCH,get(%#/D`ACCOUNT`ID),%q<t1id>;@attach %!/INC`MSG=%q<t1name> removed from your Account Friends list!
-
-&INC`WATCH`HIDE [u(cobj,account)]=th setq(choose,if(t(get(%#/D`WATCH`HIDE)),0,1));@attach %!/INC`MSG=Your connects and disconnects will [if(%q<choose>,now,no longer)] alert anyone who has you on their friends list.;&D`WATCH`HIDE %#=%q<choose>
-
-&INC`WATCH`MUTE [u(cobj,account)]=th setq(choose,if(t(get(%#/D`WATCH`MUTE)),1,0));@attach %!/INC`MSG=You will [if(%q<choose>,now,no longer)] be alerted when your friends connect or disconnect.;&D`WATCH`MUTE %#=%q<choose>
-
-&PLAYER`CONNECT`WATCH [u(cobj,account)]=@stop cor(u(ishidden,%0),get(%0/D`WATCH`HIDE),gt(%1,1));th u(setq,lwhoid,u(lwhoid));@check words(u(setr,watchers,u(mysql,SELECT`WATCHERS,get(%0/D`ID))));@check words(u(setr,final,u(filter,NOTMUTE,setinter(iter(%q<watchers>,switch(type(%i0),PLAYER,%i0,THING,get(%i0/MEMBERS))),%q<lwhoid>))));@attach %!/INC`MSG=[u(moniker,%0)] has connected.,%q<final>,WATCH
-
-&Q`SELECT`WATCHERS [u(cobj,account)]=SELECT watcher_objid FROM volv_watch WHERE character_id=?
-
-&PLAYER`DISCONNECT`WATCH [u(cobj,account)]=@select/inline %1=0,{&IDLERS [u(cobj,account)]=setdiff(v(IDLERS),%0)};@stop cor(u(ishidden,%0),get(%0/D`WATCH`HIDE),gt(%1,1));th u(setq,lwhoid,u(lwhoid));@check words(u(setr,watchers,u(mysql,SELECT`WATCHERS,get(%0/D`ID))));@check words(u(setr,final,u(filter,NOTMUTE,setinter(iter(%q<watchers>,switch(type(%i0),PLAYER,%i0,THING,get(%i0/MEMBERS))),%q<lwhoid>))));@attach %!/INC`MSG=[u(moniker,%0)] has disconnected.,%q<final>,WATCH
-
-&FIL`NOTMUTE [u(cobj,account)]=not(get(%0/D`WATCH`MUTE))
-
-&STARTUP`WATCH [u(cobj,account)]=@trigger %!/TRG`INDEXIDLE
-
-&TRG`INDEXIDLE [u(cobj,account)]=th setq(idlers,u(filter,IDLING,u(setr,who,setunion(u(lwhoid),))));@dolist setdiff(v(IDLERS),%q<idlers>)={@check words(u(setr,adwatch,u(filter,ISADMIN,u(filter,NOTMUTE,u(filter,MATCHWATCH,%q<who>,%b,%b,##)))));@attach %!/INC`MSG=[name(%i0)] is no longer idle.,%q<adwatch>;@switch/inline cand(gt(u(getstat,%!/IDLERS`TIMES,##),u(stringsecs,config(idle_timeout))),u(ishidden,##))=1,{@switch/inline hasflag(%i0,DARK)=1,{@attach %!/INC`MSG=You are both Hidden and Dark.,##},0,{@attach %!/INC`MSG=Coming out of @hide from unidling.,##;@hide/off ##}}};&IDLERS [u(cobj,account)]=%q<idlers>;&IDLERS`TIMES [u(cobj,account)]=iter(%q<idlers>,%i0~[idle(%i0)],%b,|);@wait 60=@trigger %!/TRG`INDEXIDLE
-
-&FIL`IDLING [u(cobj,account)]=gt(idle(%0),mul(60,60))
-
-@@ COMMUNITY - WATCH
-&HLP`+WATCH [u(cobj,account)]=The Watch system alerts you as friends connect and disconnect.[if(isdbref(u(cobj,accounts)),%BThe List is shared across all alts.)]%R[ansi(hc,Aliases:)] +friend, friend, watch, wf, +wf%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+watch)] - Will display online friends on your list and their status.%R[ansi(h,+watch/list)] - Will display your entire list\, even offline friends.%R[ansi(h,+watch/add <name>)] - Adds a player to your watch list.%R[ansi(h,+watch/del <name>)] - Removes a player from your watch list.%R[ansi(h,+watch/hide)] - Toggle whether your disconnects and connects will show to anyone who added you to their friends list.%R[ansi(h,+watch/mute)] - Toggle whether you will hear when friends connect or disconnect.[if(isdbref(u(cobj,accounts)),%BThis only affects the character it is used on.)])]
-+help/add Community/+watch=[u(cobj,account)]/HLP`+WATCH
-
-@@ ************** WHO SECTION **************
-&CMD`+WHO`PENNMUSH [u(cobj,account)]=$^(?s)(?\:\+)?who(?\:/(\S+))?(?\: +(.+?))?$:@attach %!/CMD`+WHO`MAIN
-@set [u(cobj,account)]/CMD`+WHO`PENNMUSH=regexp
-&CMD`+WHO`RHOSTMUSH [u(cobj,account)]=$^(?s)(?\:\+)?who(?\:/(\\S+))?(?\: +(.+?))?$:@attach %!/CMD`+WHO`MAIN
-@set [u(cobj,account)]/CMD`+WHO`RHOSTMUSH=regexp
-&CMD`+WHO`MAIN [u(cobj,account)]=th u(setq,sysname,WHO);@attach %!/INC`GETSWITCH=%1;th u(setq,portable,u(u(cobj,grid)/FUN`LISTROOMS));@attach %!/INC`WHO`[u(strfirstof,%q<switch>,MAIN)]=%2
-@set [u(cobj,account)]/CMD`+WHO`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
-
-&SWITCHES`WHO`PLAYER [u(cobj,account)]=IDLE
-
-&INC`WHO`MAIN [u(cobj,account)]=@attach %!/INC`WHO`SORT`MAIN;@select/inline gt(strlen(%0),0)=1,{@attach %!/INC`WHO`SEARCH=%0};@attach %!/INC`WHO`LIST=,%0
-
-&FUN`WHO`MAIN [u(cobj,account)]=u(sortname,setunion(u(lwhoid,%#),))
-
-&INC`WHO`SORT`MAIN [u(cobj,account)]=@check words(u(setr,who,u(FUN`WHO`MAIN)))=@attach %!/INC`MSG=No players to show!
-
-&INC`WHO`SEARCH [u(cobj,account)]=@check words(u(setr,who,namegraball(%q<who>,%0)))=@attach %!/INC`MSG=Search for '%0' turned up with nothing.
-
-&INC`WHO`IDLE [u(cobj,account)]=@attach %!/INC`WHO`SORT`IDLE;@select/inline gt(strlen(%1),0)=1,{@attach %!/INC`WHO`SEARCH=%1};@attach %!/INC`WHO`LIST=Idle,%1
-&INC`WHO`SORT`IDLE [u(cobj,account)]=@check words(u(setr,who,revwords(u(sortidle,u(FUN`WHO`MAIN)))))=@attach %!/INC`MSG=No players to show!
-
-&INC`WHO`LIST [u(cobj,account)]=@pemit %#=u(HEADER,Who[if(strlen(%0),%b-%b%0)]);@attach %!/INC`WHO`HEADER`[strfirstof(%0,MAIN)];@pemit %#=u(separator);@dolist %q<who>={@pemit %#=u(FUN`WHO`PLAYERLINE`[strfirstof(%0,MAIN)],##);@select/inline eq(#@,words(%q<who>))=1,{&MAXPLAYERS %!=u(setr,max,max(get(%!/MAXPLAYERS),words(%q<who>)));@pemit %#=u(SUBHEADER,words(%q<who>) Characters[if(u(game_config,WHO,SHOW_IPS),%Bfrom [words(setunion(iter(%q<who>,get(%i0/LASTSITE),,|),,|),|)] IPs)]%BConnected - Record is %q<max>)}}
-
-&CONFIG`WHO_HEADER [u(cobj,account)]=List of column names and widths in format of Text~Length. Like Name~20|Location~40. See +shelp +who.
-&CONFIG`WHO_HEADER`DEFAULT [u(cobj,account)]=Name~20|Alias~11|Fac~3|Idle~4|Conn~4|G~1|Location~29
-&CONFIG`WHO_HEADER`VALID [u(cobj,account)]=LIST
-
-&CONFIG`WHO_COLUMNS [u(cobj,account)]=List of Column GETPROPERTIES and widths in format of GET~Length. Check +shelp +who.
-&CONFIG`WHO_COLUMNS`DEFAULT [u(cobj,account)]=NAMELINK~20|ALIAS~11|MAJORABBR~3|HIDEIDLE~>4|HIDECONN~>4|SEXLETTER~1|LOCATION~29
-&CONFIG`WHO_COLUMNS`VALID [u(cobj,account)]=LIST
-
-&CONFIG`WHO_IPS [u(cobj,account)]=Display number of unique IPs connected to the game at the +who footer?
-&CONFIG`WHO_IPS`DEFAULT [u(cobj,account)]=1
-&CONFIG`WHO_IPS`VALID [u(cobj,account)]=BOOL
-
-&INC`WHO`HEADER`MAIN [u(cobj,account)]=@pemit %#=ansi(u(color,%#,COLUMN_NAMES),lalign(iter(u(setr,hdr,u(conf,WHO_HEADER)),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,chr(177)),chr(177)))
-&INC`WHO`HEADER`IDLE [u(cobj,account)]=@attach %!/INC`WHO`HEADER`MAIN
-
-&FUN`WHO`PLAYERLINE`MAIN [u(cobj,account)]=lalign(iter(u(setr,col,u(conf,WHO_COLUMNS)),after(%i0,~),|,%b),iter(%q<col>,u(strfirstof,u(getproperty,%0,before(%i0,~)),get(%0/D`FINGER`[before(%i0,~)])),|,chr(177)),chr(177))
-&FUN`WHO`PLAYERLINE`IDLE [u(cobj,account)]=u(FUN`WHO`PLAYERLINE`MAIN,%0)
-
-@@ &STARTUP [u(cobj,account)]=@hook/override WHO=%!,CMD`+WHO
-
-@@ COMMUNITY - WHO
-+help/add +who=[u(cobj,account)]/HLP`+WHO
-+help/category +who=Community
-+help/metatags +who=online players
-&HLP`+WHO [u(cobj,account)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+who)] - Show all visible\, connected players.%R[ansi(h,+who/idle)] - Like above\, but sorts by idle times.%R%R[ansi(h,+who <text>)] - Search for online players starting with <text>.)]
-
-
-@@ WHERE COMMAND
-
-&CMD`+WHERE`PENNMUSH [u(cobj,account)]=$^(?s)(?\:\+)?where(?\:/(\S+))?(?\: +(.+?))?$:@attach %!/CMD`+WHERE`MAIN
-@set [u(cobj,account)]/CMD`+WHERE`PENNMUSH=regexp
-&CMD`+WHERE`RHOSTMUSH [u(cobj,account)]=$^(?s)(?\:\+)?where(?\:/(\\S+))?(?\: +(.+?))?$:@attach %!/CMD`+WHERE`MAIN
-@set [u(cobj,account)]/CMD`+WHERE`RHOSTMUSH=regexp
-&CMD`+WHERE`MAIN [u(cobj,account)]=@attach %!/INC`GETSWITCH=%1;th u(setq,portable,u(u(cobj,grid)/FUN`LISTROOMS));@attach %!/INC`WHERE`[u(strfirstof,%q<switch>,MAIN)]=%2
-@set [u(cobj,account)]/CMD`+WHERE`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
-
-&INC`WHERE`ROOMS [u(cobj,account)]=@attach %!/INC`WHERE`MAIN=%0,1
-
-&INC`WHERE`MAIN [u(cobj,account)]=th u(setq,portable,u(u(cobj,grid)/FUN`LISTROOMS));@select/inline strlen(%0)=0,{@attach %!/INC`WHERE`ALL},{@attach %!/INC`WHERE`PLAYER}
-
-&INC`WHERE`ALL [u(cobj,account)]=@pemit %#=u(HEADER,Where);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(25 1 [sub(u(width,%#),33)],Location,,Players));th u(setq,showic,0);th u(setq,showooc,0);th u(setq,ooc,u(filter,NOTIC,u(setr,where,u(sortname,setunion(iter(u(filter,FINDABLE,u(lwho,%#),%b,%b,%#),loc(%i0)),)))));th u(setq,ic,u(filter,IC,%q<where>));th u(setq,firstic,first(%q<ic>));th u(setq,firstooc,first(%q<ooc>));@dolist cat(%q<ooc>,%q<ic>)={@select/inline %i0=%q<firstic>,{@pemit %#=u(separator,IC)},%q<firstooc>,{@pemit %#=u(separator,OOC)};@select/inline gt(words(u(setr,show,u(filter,FINDABLE,u(lvplayers,##),%B,%B,%#))),0)=1,{@pemit %#=u(FUN`WHERELINE%1,##,%q<show>)};@select/inline eq(#@,words(%q<where>))=1,{@pemit %#=u(FOOTER)}}
-
-&INC`WHERE`PLAYER [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,1;@check cand(conn(%q<t1>),not(u(ishidden,%q<t1>)))=@attach %!/INC`MSG=%q<t1name> is not online!;@check findable(%#,%q<t1>)=@attach %!/INC`MSG=%q<t1name> or their location is set UNFINDABLE.;@pemit %#=u(HEADER,%q<t1name> - Location: [if(match(%q<portable>,loc(%q<t1>)),u(pueblize,left(name(loc(%q<t1>)),sub(u(width,%#),49)),+port [loc(%q<t1>)]),left(name(loc(%q<t1>)),sub(u(width,%#),49)))]);@attach %!/INC`WHERE`HEADER`MAIN;@pemit %#=u(separator);@dolist/inline u(filter,FINDABLE,u(sortname,setinter(u(lwho,%#),lcon(loc(%q<t1>)))),%B,%B,%#)={@pemit %#=u(FUN`WHERELINE`PLAYER,##)};@pemit %#=u(subheader,if(not(strmatch(loc(%q<t1>),room(%q<t1>))),Room: [if(match(%q<portable>,room(%q<t1>)),u(pueblize,u(moniker,room(%q<t1>)),+port [room(%q<t1>)]),u(moniker,room(%q<t1>)))]))
-
-&FIL`FINDABLE [u(cobj,account)]=cor(findable(%1,%0),u(isadmin,%1))
-&FIL`IC [u(cobj,account)]=t(get(%0/D`IC))
-&FIL`NOTIC [u(cobj,account)]=not(get(%0/D`IC))
-
-&FUN`WHERELINE [u(cobj,account)]=align(25 1 [sub(u(width,%#),38)],if(match(%q<portable>,%0),u(pueblize,u(moniker,%0),+port %0),u(moniker,%0)),-,u(itemize,iter(u(sortname,u(filter,FINDABLE,u(lvplayers,%0),%b,%b,%#)),u(pueblize,u(moniker,%i0),+finger [name(%i0)])[if(hasflag(%i0,UNFINDABLE),\(Unfindable\))],,|),|,and,\,))
-
-&INC`WHERE`HEADER`MAIN [u(cobj,account)]=@pemit %#=ansi(u(color,%#,COLUMN_NAMES),lalign(iter(u(setr,hdr,u(game_config,WHERE,HEADER)),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,chr(177)),chr(177)))
-
-&FUN`WHERELINE`PLAYER [u(cobj,account)]=lalign(iter(u(setr,col,u(game_config,WHERE,COLUMNS)),after(%i0,~),|,%b),iter(%q<col>,u(strfirstof,u(getproperty,%0,before(%i0,~)),get(%0/D`FINGER`[before(%i0,~)])),|,chr(177)),chr(177))
-
-th u(newconf,CONFIG,WHERE,HEADER,Name~20|Alias~11|Fac~3|Idle~4|Conn~4|G~1|Location~29,check +shelp +who,LIST)
-th u(newconf,CONFIG,WHERE,COLUMNS,NAMELINK~20|ALIAS~11|MAJORABBR~3|HIDEIDLE~>4|HIDECONN~>4|SEXLETTER~1|LOCATION~29,Check +shelp +who,LIST)
-
-&FUN`WHERELINE1 [u(cobj,account)]=align(30 1 [sub(u(width,%#),33)],if(match(%q<portable>,%0),pueblize(name(%0),+port %0),name(%0))[if(not(strmatch(%0,room(%0))),%R(IN [if(match(%q<portable>,room(%0)),u(pueblize,name(room(%0)),+port [room(%0)]),name(room(%0)))]))],ansi(u(color,%#,BORDER),-),u(itemize,iter(u(sortname,u(filter,FINDABLE,u(lvplayers,%0))),u(pueblize,u(moniker,%i0),+finger [name(%i0)])[if(hasflag(%i0,UNFINDABLE),\(Unfindable\))],,|),|,and,\,))
-
-+help/add +where=[u(cobj,account)]/HLP`+WHERE
-+help/category +where=Community
-+help/metatags +where=online players
-&HLP`+WHERE [u(cobj,account)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+where)] - Show all visible\, connected players by location.%R[ansi(h,+where <player>)] - See details about a specific player's location.)]
-
-@@ ******* GUEST SECTION *******
-
-&PLAYER`DISCONNECT`FIXNAME [u(cobj,guest)]=@stop %1;@check u(isguest,%0);@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))] disconnected.,u(game_config,CHANNELS,JOIN_GUESTS),,1,,1;@select/inline hasattr(%0/D`OLDNAME)=1,{@name %0=[get(%0/D`OLDNAME)];@attach %!/WIPE=%0,D`OLDNAME}
-
-&PLAYER`DISCONNECT`TELGUEST [u(cobj,guest)]=@stop %1;@select/inline u(isguest,%0)=1,{@select/inline %va=PennMUSH,{@tel/silent %0=u(game_config,NAVIGATION,GUEST_START,#0)},RhostMUSH,{@tel/quiet %0=u(game_config,NAVIGATION,GUEST_START,#0)}}
-
-&PLAYER`CONNECT`GUEST [u(cobj,guest)]=@check u(isguest,%0);th u(setq,chan,first(u(setr,chans,u(game_config,CHANNELS,JOIN_GUESTS)),|));@wait 4=@attach %!/INC`MSG=Welcome to [mudname()]\, [name(%0)]! You can speak on the %q<chan> channel with [ansi(h,+[left(%q<chan>,1)] <text here>)]. You can give yourself a custom Guest name by typing [ansi(h,+myname <word>)] \(Guest will be appended after <word>\). You can find our website at [u(weblink,mudurl())],%0;@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))] connected to [mudname()]!,%q<chans>,,1,,1
-
-&CMD`+MYNAME [u(cobj,guest)]=$+myname *:@check u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Guest only!;@check valid(playername,%0 Guest)=@attach %!/INC`MSG=Sorry\, you may not rename yourself to that. Try something simpler.;@select/inline hasattr(%#/D`OLDNAME)=0,{&D`OLDNAME %#=[name(%#)]};@attach %!/INC`MSG`CHAN=[ansi(h,%n)] renamed to %0 Guest,u(game_config,CHANNELS,JOIN_GUESTS),,1,,1;@name %#=%0 Guest;@attach %!/INC`MSG=You are now known as '%0 Guest'.
-
-&CMD`+MAKEGUEST [u(cobj,guest)]=$+makeguest *:@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@check valid(playername,%0)=@attach %!/INC`MSG=ERROR: That is not a valid character name.;@pcreate %0=guest;@attach %!/INC`CHECKPC=%0,1;@describe %q<t1>=This is a Guest! Be kind to them!;@dolist/inline/delimit | [u(game_config,channels,join_guests)]={@chan/on %i0=%q<t1>};@tel %q<t1>=[u(game_config,navigation,guest_start)];@select/inline %va=PennMUSH,{@set %q<t1>=!UNREGISTERED;@power %q<t1>=GUEST},RhostMUSH,{@set %q<t1>=GUEST;th u(setq,guests,search(EPLAYER=\[hasflag(##,GUEST)\]));@admin guest_namelist=!ALL %q<guests>};@attach %!/INC`MSG=Guest '%0' created!;@attach %!/INC`MSG`CHAN=Guest '%0' created!
-
-&CMD`+LISTGUESTS [u(cobj,guest)]=$+listguests:@check words(u(setr,guests,u(choosegame,lsearch(all,type,player,elock,POWER^GUEST),search(FLAGS=!))))=@attach %!/INC`MSG=ERROR: No Guests in the system.;@pemit %#=u(header,mudname() Guests);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(7 18 26 24,DBREF,Name,Current Name,Alias));@pemit %#=u(separator);@dolist/inline %q<guests>={@pemit %#=align(7 18 26 24,##,default(##/D`OLDNAME,name(##)),name(##),u(fullalias,##))};@pemit %#=u(subheader)
-
-@select/inline %va=RhostMUSH,{th u(setq,guests,search(EPLAYER=\[hasflag(##,GUEST)\]));@admin guest_namelist=!ALL %q<guests>}
-
-&SHLP`GUESTS [u(cobj,guest)]=Guests are special characters that exist solely to allow new players to logon without creating a character. They're traditionally restricted to a single channel (typically a Guest channel, sometimes the public channel) and have no privileges to modify themselves or anything else.%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+makeguest <name>)] - Creates a new guest. The NAVIGATION/GUEST_START and CHANNELS/JOIN_GUESTS +gameconfig options will be used and it will be given a basic @desc.%R[ansi(h,+listguests)] - Used to display existing guests and relevant info.)]
-+shelp/add Administration/Guests=[u(cobj,guest)]/SHLP`GUESTS
-
-&SHLP`PENNMUSH [u(cobj,account)]=[ansi(hc,See Also:)] [u(pueblize,help CONTROL)], [u(pueblize,help WIZARD)], [u(pueblize,help ROYALTY)], [u(pueblize,help @set)], [u(pueblize,help @power)]%R%RStaff are characters able to use Admin commands. For this package anyone who is either WIZARD\, ROYALTY\, or on the +staff list is able to use admin commands\, but Penn's built-in commands use other standards.%R%RPennMUSH has 3 Staff tiers.%R%R1. The [ansi(hr,GOD)] (#1) is a special WIZARD capable of granting or removing the WIZARD flag to other characters. It can use @config/save and several other dangerous commands. Only login as #1 when truly necessary. Since even WIZARDS cannot control() it\, code objects cannot set attributes on #1 and it cannot use many softcoded systems properly.%R%R2. [ansi(hy,WIZARD)] flagged characters have command of everything in the game including dangerous commands such as @force (on players)\, @shutdown\, @hook\, and @config/set. It should be reserved for staff who absolutely need these privileges\, typically the coder(s) and owner. Some potentially dangerous softcoded commands are restricted to Wizard.%R%R3. [ansi(hc,ROYALTY)] have 'see but not touch' compared to WIZARDS - they have several implicit @powers like being able to @tel anywhere but can't change the game's code. This is a good flag for general staff.
-&SHLP`RHOSTMUSH [u(cobj,account)]=
-+shelp/add Administration/Permissions=[u(cobj,account)]/SHLP`%va
-
-&SHLP`PMANAGE [u(cobj,account)]=WIZARDS have a great deal of hardcoded control over players for security and management. Most of these commands can only be used by them.%R%R[align(5 [sub(width(%#),6)],,[ansi(h,@pcreate <name>=<password>)] - Creates a player.%R%R[ansi(h,@newpass *<name>=<newpassword>)] - Changes a password. the * is necessary for hardcoded command lookups.%R%R[ansi(h,@sitelock/ban/player <name>)] - Bans a player. Be very careful with this! Check [u(pueblize,ansi(h,help @sitelock),help @sitelock)] for more info.%R%R[ansi(h,@nuke *<name>)] - Deletes a character AND EVERYTHING THEY OWN\, which by default includes EVERYTHING THEY MADE. use [ansi(h,@search *<name>)] to see what that would be before you @nuke! use [ansi(h,@chown <dbref>=me)] to save objects.)]
-+shelp/add Administration/Player Management=[u(cobj,account)]/SHLP`PMANAGE

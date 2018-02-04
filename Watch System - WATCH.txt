@@ -1,0 +1,51 @@
+th u(NEWCOBJ,FriendList Tracker <FRIEND>,friend,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+FRIEND`PENNMUSH [u(cobj,friend)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+FRIEND`MAIN
+@set [u(cobj,friend)]/CMD`+FRIEND`PENNMUSH=regexp
+&CMD`+FRIEND`RHOSTMUSH [u(cobj,friend)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+FRIEND`MAIN
+@set [u(cobj,friend)]/CMD`+FRIEND`RHOSTMUSH=regexp
+&CMD`+FRIEND`MAIN [u(cobj,friend)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Guests may not use +watch.;@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,friend)]/CMD`+WATCH`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,friend)]=FRIEND
+&SWITCHES`PLAYER [u(cobj,friend)]=ADD|LIST|DELETE|HIDE|MUTE|ACCADD|ACCDELETE
+
+&INC`MAIN [u(cobj,friend)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - Online);@attach %!/INC`WHO`HEADER`MAIN;@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(footer)
+
+&INC`LIST [u(cobj,friend)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - All);@attach %!/INC`WHO`HEADER`MAIN;@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)))={@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ID)))={@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(footer)
+
+&INC`ADD [u(cobj,friend)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to add.;@attach %!/INC`CHECKPC=%0,1;@stop match(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are already a friend.;@attach %!/INC`DOSQL=INSERT`WATCH,get(%#/D`ID),%q<t1id>;@attach %!/INC`MSG=%q<t1name> added to your Friends list!
+
+&Q`INSERT`WATCH [u(cobj,friend)]=INSERT IGNORE INTO vol_watch (entity_id,character_id) VALUES (?,?)
+
+&Q`SELECT`WATCH [u(cobj,friend)]=SELECT character_objid FROM volv_watch WHERE watcher_id=? ORDER BY character_name
+
+&INC`DELETE [u(cobj,friend)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to remove.;@attach %!/INC`CHECKPC=%0,1;@check match(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are not a friend.;@attach %!/INC`DOSQL=DELETE`WATCH,get(%#/D`ID),%q<t1id>;@attach %!/INC`MSG=%q<t1name> removed from your Friends list!
+
+&Q`DELETE`WATCH [u(cobj,friend)]=DELETE FROM vol_watch WHERE entity_id=? AND character_id=?
+
+&INC`ACCADD [u(cobj,friend)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to add.;@attach %!/INC`CHECKPC=%0,1;@stop match(u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are already an Account Friend.;@attach %!/INC`DOSQL=INSERT`WATCH,get(%#/D`ACCOUNT`ID),%q<t1id>;@attach %!/INC`MSG=%q<t1name> added to your Account Friends list!
+
+&INC`ACCDELETE [u(cobj,friend)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to remove.;@attach %!/INC`CHECKPC=%0,1;@check match(u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are not an Account friend.;@attach %!/INC`DOSQL=DELETE`WATCH,get(%#/D`ACCOUNT`ID),%q<t1id>;@attach %!/INC`MSG=%q<t1name> removed from your Account Friends list!
+
+&INC`HIDE [u(cobj,friend)]=th setq(choose,if(t(get(%#/D`WATCH`HIDE)),0,1));@attach %!/INC`MSG=Your connects and disconnects will [if(%q<choose>,now,no longer)] alert anyone who has you on their friends list.;&D`WATCH`HIDE %#=%q<choose>
+
+&INC`MUTE [u(cobj,friend)]=th setq(choose,if(t(get(%#/D`WATCH`MUTE)),1,0));@attach %!/INC`MSG=You will [if(%q<choose>,now,no longer)] be alerted when your friends connect or disconnect.;&D`WATCH`MUTE %#=%q<choose>
+
+&PLAYER`CONNECT`WATCH [u(cobj,friend)]=@stop cor(u(ishidden,%0),get(%0/D`WATCH`HIDE),gt(%1,1));th u(setq,lwhoid,u(lwhoid));@check words(u(setr,watchers,u(mysql,SELECT`WATCHERS,get(%0/D`ID))));@check words(u(setr,final,u(filter,NOTMUTE,setinter(iter(%q<watchers>,switch(type(%i0),PLAYER,%i0,THING,get(%i0/MEMBERS))),%q<lwhoid>))));@attach %!/INC`MSG=[u(moniker,%0)] has connected.,%q<final>,WATCH
+
+&Q`SELECT`WATCHERS [u(cobj,friend)]=SELECT watcher_objid FROM volv_watch WHERE character_id=?
+
+&PLAYER`DISCONNECT`WATCH [u(cobj,friend)]=@select/inline %1=0,{&IDLERS [u(cobj,friend)]=setdiff(v(IDLERS),%0)};@stop cor(u(ishidden,%0),get(%0/D`WATCH`HIDE),gt(%1,1));th u(setq,lwhoid,u(lwhoid));@check words(u(setr,watchers,u(mysql,SELECT`WATCHERS,get(%0/D`ID))));@check words(u(setr,final,u(filter,NOTMUTE,setinter(iter(%q<watchers>,switch(type(%i0),PLAYER,%i0,THING,get(%i0/MEMBERS))),%q<lwhoid>))));@attach %!/INC`MSG=[u(moniker,%0)] has disconnected.,%q<final>,WATCH
+
+&FIL`NOTMUTE [u(cobj,friend)]=not(get(%0/D`WATCH`MUTE))
+
+&STARTUP`WATCH [u(cobj,friend)]=@trigger %!/TRG`INDEXIDLE
+
+&TRG`INDEXIDLE [u(cobj,friend)]=th setq(idlers,u(filter,IDLING,u(setr,who,setunion(u(lwhoid),))));@dolist setdiff(v(IDLERS),%q<idlers>)={@check words(u(setr,adwatch,u(filter,ISADMIN,u(filter,NOTMUTE,u(filter,MATCHWATCH,%q<who>,%b,%b,##)))));@attach %!/INC`MSG=[name(%i0)] is no longer idle.,%q<adwatch>;@switch/inline cand(gt(u(getstat,%!/IDLERS`TIMES,##),u(stringsecs,config(idle_timeout))),u(ishidden,##))=1,{@switch/inline hasflag(%i0,DARK)=1,{@attach %!/INC`MSG=You are both Hidden and Dark.,##},0,{@attach %!/INC`MSG=Coming out of @hide from unidling.,##;@hide/off ##}}};&IDLERS [u(cobj,friend)]=%q<idlers>;&IDLERS`TIMES [u(cobj,friend)]=iter(%q<idlers>,%i0~[idle(%i0)],%b,|);@wait 60=@trigger %!/TRG`INDEXIDLE
+
+&FIL`IDLING [u(cobj,friend)]=gt(idle(%0),mul(60,60))
+
+@@ COMMUNITY - WATCH
+&HLP`+WATCH [u(cobj,friend)]=The Watch system alerts you as friends connect and disconnect.[if(isdbref(u(cobj,accounts)),%BThe List is shared across all alts.)]%R[ansi(hc,Aliases:)] +friend, friend, watch, wf, +wf%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+watch)] - Will display online friends on your list and their status.%R[ansi(h,+watch/list)] - Will display your entire list\, even offline friends.%R[ansi(h,+watch/add <name>)] - Adds a player to your watch list.%R[ansi(h,+watch/del <name>)] - Removes a player from your watch list.%R[ansi(h,+watch/hide)] - Toggle whether your disconnects and connects will show to anyone who added you to their friends list.%R[ansi(h,+watch/mute)] - Toggle whether you will hear when friends connect or disconnect.[if(isdbref(u(cobj,accounts)),%BThis only affects the character it is used on.)])]
++help/add Community/+watch=[u(cobj,friend)]/HLP`+WATCH

@@ -1,16 +1,12 @@
 @@ DEPENDENCIES: Core
 
-th u(NEWCOBJ,Job System,job,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
-
-th u(newconf,CONFIG,JOBS,DEFAULT_CATEGORY,GENERAL,Name of default +request category?,WORD)
-th u(newconf,PCONF,JOBS,BRIEF_SCAN,0,ADMIN: +job/brief instead of +job/pending on login?,BOOL)
-th u(newconf,PCONF,JOBS,MYJOBS,1,Show +myjobs display at login?,BOOL)
+th u(NEWCOBJ,Job Tracker <JOB>,job,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
 &CMD`+JOB`PENNMUSH [u(cobj,job)]=$^(?s)(?\:\+)?(job|jobs|myjobs|myjob)(?\:/(\w+)?)?(?\:/(\d+)?)?(?\: +(.*?))?(?\:=(.*))?$:@attach %!/CMD`+JOB`MAIN
 @set [u(cobj,job)]/CMD`+JOB`PENNMUSH=regexp
 &CMD`+JOB`RHOSTMUSH [u(cobj,job)]=$^(?s)(?\:\+)?(job|jobs|myjobs|myjob)(?\:/(\\w+)?)?(?\:/(\\d+)?)?(?\: +(.*?))?(?\:=(.*))?$:@attach %!/CMD`+JOB`MAIN
 @set [u(cobj,job)]/CMD`+JOB`RHOSTMUSH=regexp
-&CMD`+JOB`MAIN [u(cobj,job)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=%#,1;@attach %!/INIT;@select/inline u(valnum,%2)=1,{th u(setq,page,%2)},0,{@attach %!/INC`GETSWITCH=%2;th u(setq,page,u(strfirstof,%3,1))};th u(setq,mode,switch(%1,myjob*,MYJOBS,job*,JOBS));@attach %!/INC`CHECKPC=%:,1,1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%4),trim(%5)
+&CMD`+JOB`MAIN [u(cobj,job)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=%#,1;@attach %!/INIT;@select/inline u(valnum,%2)=1,{th u(setq,page,%2)},0,{@attach %!/INC`GETSWITCH=%2;th u(setq,page,u(strfirstof,%3,1))};th u(setq,mode,switch(%1,myjob*,MYJOBS,job*,JOBS));@attach %!/INC`CHECKPC=%:,1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%4),trim(%5)
 @set [u(cobj,job)]/CMD`+JOB`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,job)]=JOBS
@@ -18,6 +14,12 @@ th u(newconf,PCONF,JOBS,MYJOBS,1,Show +myjobs display at login?,BOOL)
 &SWITCHES`ADMIN [u(cobj,job)]=NEWBUCKET|DELBUCKET|RENBUCKET|LOCK|UNLOCK|RAWLOCK|BUCKET|CONFIG|DESC|SET
 
 &Q`SELECT`START_JOBS [u(cobj,job)]=SELECT bucket_id,bucket_name,bucket_post_lock,bucket_admin_lock FROM volv_bucket
+
+&CONFIG`OPTIONS [u(cobj,job)]=DEFAULT_CATEGORY
+
+&CONFIG`DEFAULT_CATEGORY [u(cobj,job)]=What Category should be assumed for +request if none is specified?
+&CONFIG`DEFAULT_CATEGORY`DEFAULT [u(cobj,job)]=
+&CONFIG`DEFAULT_CATEGORY`VALID [u(cobj,job)]=WORD
 
 &INIT [u(cobj,job)]=th u(setr,isadmin,u(isadmin,%#));th u(setq,admbids,iter(if(%q<isadmin>,u(setr,start,u(mysql3,SELECT`START_JOBS)),u(filter,TESTLOCK,u(setr,start,u(mysql3,SELECT`START_JOBS)),chr(176),chr(176),%:,4)),first(%i0,chr(177)),chr(176),%b))
 
@@ -193,8 +195,6 @@ th u(newconf,PCONF,JOBS,MYJOBS,1,Show +myjobs display at login?,BOOL)
 
 &INC`REPLY [u(cobj,job)]=@attach %!/INC`LOADJOB;@check or(%q<slink>,u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission denied.;@stop %q<jstat>=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you say?;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%1,1,1;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`MSGJOB=%q<jid>,if(cand(eq(%q<t1id>,%q<sid>),%q<anon>),Anonymous,%q<t1name>) sent a reply in for [u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>)].,%q<catobj>;@attach %!/INC`MAILJOB=%q<jid>,{[if(cand(eq(%q<t1id>,%q<sid>),%q<anon>),Anonymous,%q<t1name>)] sent a reply in for [u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>)].%R%RMessage:%R%1},%q<catobj>;
 
-@@ - I HAVE COMPLETED DOWN TO HERE
-
 &INC`COMMENT [u(cobj,job)]=@attach %!/INC`LOADJOB;@attach %!/INC`PERMCHECKCAT=%#,ADMIN,%q<catobj>;@stop %q<jstat>=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you say?;@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<t1id>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%1,2,0;@attach %!/INC`UPDJOB=1,%q<jid>;@attach %!/INC`AMSGJOB=%q<jid>,%q<t1name> added a STAFF COMMENT to [u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>)].,%q<catobj>
 
 &INC`UPDJOB [u(cobj,job)]=@attach %!/INC`DOSQL=SET`JOBACTIVITY%0,%q<jid>
@@ -219,13 +219,8 @@ th u(newconf,PCONF,JOBS,MYJOBS,1,Show +myjobs display at login?,BOOL)
 
 &INC`ROLL [u(cobj,job)]=@attach %!/INC`LOADJOB;@check cor(gte(%q<slink>,1),u(FUN`PERMCHECK,%q<catobj>,ADMIN,%#))=@attach %!/INC`MSG=ERROR: Permission Denied.;@stop %q<jstat>=@attach %!/INC`MSG=The job is already finished.;@check strlen(%1)=@attach %!/INC`MSG=What will you roll?;@switch/inline t(strlen(after(%1,|)))=1,{@check u(u(cobj,roll)/FUN`FLAGCHECK,after(%1,|))=@attach %!/INC`MSG=ERROR: [u(itemize,iter(%q<errcheck>,ansi(h,%i0),|,|),|,and,\,)]};@include u(cobj,roll)/INC`INIT=,;@check strlen(setr(inflate,u(u(cobj,roll)/FUN`NORMALIZE,setr(string,before(%1,|)))))=@attach %!/INC`MSG=ERROR: Could not format roll formula. Please contact a coder.;@check strlen(setr(findnames,u(u(cobj,roll)/FUN`FINDNAMES,%q<inflate>,%#)))=@attach %!/INC`MSG=ERROR: Could not perform name finding. Please contact a coder.;@check gt(setr(totaldice,ulocal(u(cobj,roll)/FUN`CALC,setr(calcdice,u(u(cobj,roll)/FUN`CALCDICE,%q<findnames>,%#)))),0)=@attach %!/INC`MSG=ERROR: You have no dice to roll! Check your spelling and ensure that penalties aren't reducing your roll to nothing.;th setq(resformat,u(u(cobj,roll)/FUN`RESFORMAT));@attach %!/INC`DOSQL=SET`CHECKDATE,%q<jid>,%q<pid>;th u(setq,link,u(mysql3,GET`LINK_ID,%q<jid>,%q<t1id>));@attach %!/INC`DOSQL=NEW`COMMENT,%q<link>,%q<resformat>,13,1;@attach %!/INC`UPDJOB=0,%q<jid>;@attach %!/INC`MSGJOB=%q<jid>,%q<t1name> sent a Roll in for [u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>)].,%q<catobj>;@attach %!/INC`MAILJOB=%q<jid>,%q<t1name> sent a Roll in for [u(pueblize,%q<catname> Job %q<jid>: '%q<jtitle>',+job %q<jid>)].%R%RRoll:%R%q<resformat>,%q<catobj>;
 
-
-
-+help/add +job=[u(cobj,job)]/HLP`+JOB
-+help/category +job=Communications
-+help/metatags +job=+request request jobs anomaly myjobs +myjobs
 &HLP`+JOB [u(cobj,job)]=+job is used to create 'trouble tickets,' requests to the Admin.%R[ansi(hc,Aliases:)] request%R%R[ansi(hc,Creating Jobs)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+request)] - Show all Job categories.%R[ansi(h,+request <title>=<text>)] - creates a new UNCATEGORIZED job.%R[ansi(h,+request/<category> <title>=<text>)] - Creates a new job in a specific category)]%R%R[ansi(hc,Tracking Jobs)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+myjobs)] - Display all pending jobs you've submitted or have been appointed to handle.%R[ansi(h,+myjobs/old)] - As above\, but shows only jobs that are finished.%R[ansi(h,+myjob <id>)] - Shows details about a job.%R[ansi(h,+myjob/reply <id>=<text>)] - Add a new message to your job.%R%RFor all listings\, use an extra switch /<page> to show pages. For instance\, +myjobs/old/4 to show page 4. +myjobs/4 also works.)]%R%R[ansi(hc,Handling Jobs)]%RThe following commands are for staff and priveleged players.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+jobs)] - List all job categories and stats related to them.%R[ansi(h,+jobs <category>)] - List all pending jobs in a category. Use /<page> to show pages\, like +jobs/2 <category> for the second page.%R[ansi(h,+jobs/old <category>)] - Show all finished jobs in a category.%R\(use an extra switch /<page> to show different pages\, such as +jobs/old/3 xp to view the third page.\)%R[ansi(h,+job <id>)] - Display a job's details.%R[ansi(h,+job/reply <id>=<text>)] - Reply to a job.%R[ansi(h,+job/comment <id>=<text>)] - Add notes to a job that only category handlers and staff can see.%R[ansi(h,+job/attn <id>)] - Change whether a job is marked as waiting for staff or the player.%R[ansi(h,+job/claim <id>)] - Claim a job. Many can claim the same job. Use [ansi(h,+job/claim <id>=<target>)] to add someone else.%R[ansi(h,+job/unclaim <id>)] - As /claim. Removes a handler.%R[ansi(h,+job/addhelper <id>=<player>)] - Designate player as Helper. They can view and /reply to jobs.%R[ansi(h,+job/remhelper <id>=<player>)] - Remove 'Helper' player.%R[ansi(h,+job/approve <id>=<text>)] - Closes a job and sends an approval message.%R[ansi(h,+job/deny <id>=<text>)] - As /approve.%R[ansi(h,+job/cancel <id>=<text>)] - As /approve.%R[ansi(h,+job/revive <id>=<text>)] - Restores a closed job to pending status.%R[ansi(h,+job/due <id>=<newdate>)] - Sets a new due date for a job. Can be a +1d or similar \(adds to current due date using value from a [ansi(h,stringsecs\(\))] function - check the helpfile for stringsecs\) or a specific date using [ansi(h,convtime\(\))]. As an example: +job/due x=+5d or +job/due x=[u(fancytime,secs(),%#)]%R[ansi(h,+job/scan)] - List all unread/changed or pending jobs.%R[ansi(h,+job/next)] - Like +bbnext\, read the next unread job you can see.%R[ansi(h,+job/pending)] - List all pending jobs in categories you manage.)]
++help/add Communications/+job=[u(cobj,job)]/HLP`+JOB
 
-+shelp/add +job=[u(cobj,job)]/SHLP`+JOB
-+shelp/category +job=Communications
-&SHLP`+JOB [u(cobj,job)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+job/category <id>=<category>)] - Moves a job to a new category.)]%R%R[ansi(hc,Wizard Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+job/newcategory <name>)] - Creates a new category.%R[ansi(h,+job/delcategory <name>)] - Deletes a category.%R[ansi(h,+job/rencategory <name>=<newname>)] - Renames a category.%R[ansi(h,+job/desc <name>=<description>)] - Set a category's description in +job%R[ansi(h,+job/lockcategory <name>/<lock>=<lockstring>)] - Lock a category. <lock> can be ADMIN or POST for who can administrate a category and who can +request to it. See +help +key for more information on <lockstrings>.%R[ansi(h,+job/unlockcategory <category>/<lock>)] - As above. Unlocks.%R[ansi(h,+job/config <category>/<option>=<value>)] - Sets a category's config. <option> can be Anon or Due.%R[ansi(h,DUE)] - Set to a value acceptable by stringsecs such as 5d or 50m. This is added to submit date to create the due date.%R[ansi(h,ANON)] - Modes 0-3. Mode 0 is fully transparent. Mode 1 hides submitter from staff. Mode 2 hides staff from submitter. Mode 3 is 1+2 combined.)]
+&SHLP`+JOB [u(cobj,job)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+job/bucket <id>=<category>)] - Moves a job to a new Bucket.)]%R%R[ansi(hc,Wizard Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+job/newbucket <name>)] - Creates a new category.%R[ansi(h,+job/delbucket <name>)] - Deletes a Job Bucket.%R[ansi(h,+job/renbucket <name>=<newname>)] - Renames a category.%R[ansi(h,+job/desc <name>=<description>)] - Set a category's description in +job%R[ansi(h,+job/lock <name>/<lock>=<lockstring>)] - Lock a category. <lock> can be ADMIN or POST for who can administrate a category and who can +request to it.%R[ansi(h,+job/rawlock <name>/<lock>=<lockstring>)] - Use hardcoded @lock system format locks.%R[ansi(h,+job/unlock <category>/<lock>)] - As above. Unlocks.%R[ansi(h,+job/config <category>/<option>=<value>)] - Sets a category's config. <option> can be Anon or Due.%R[ansi(h,DUE)] - Set to a value acceptable by stringsecs such as 5d or 50m. This is added to submit date to create the due date.%R[ansi(h,ANON)] - Modes 0-3. Mode 0 is fully transparent. Mode 1 hides submitter from staff. Mode 2 hides staff from submitter. Mode 3 is 1+2 combined.)]
++shelp/add Communications/+job=[u(cobj,job)]/SHLP`+JOB

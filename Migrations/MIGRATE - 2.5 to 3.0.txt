@@ -1,6 +1,13 @@
 @@ MIGRATE from 2.5 to 3.x!
 th u(NEWCOBJ,Migrate System - 2.5 to 3.0 <MIG25-3>,mig25-3,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 @lock/use [u(cobj,mig25-3)]=ISWIZARD2/1
+
+&FIL`ISOLDCODE [u(cobj,ccp)]=cand(hastype(%0,THING),strmatch(num(parent(%0)),num(%1)))
+
+@select/inline isdbref(u(setr,mco,u(find_in,u(master_room),Master Code Object <MCO>)))=1,{th u(attrib_set,u(cobj,ccp),COBJ`MCO,objid(%q<mco>));@dolist/inline u(filter,ISOLDCODE,lcon(u(master_room)),%B,%B,%q<mco>)={@set ##=HALT;@tel ##=u(cobj,old23)};@tel %q<mco>=u(cobj,old23)}
+
+&OLDCOBJ [u(cobj,ccp)]=u(u(cobj,mco)/cobj,%0)
 
 &CMD`MIGRATE [u(cobj,mig25-3)]=$+mig253 *:@attach %!/INC`PARTIAL=%0,v(SYSTEM`SWITCHES`ADMIN),|,choice;@attach %!/%q<choice>
 

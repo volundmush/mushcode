@@ -50,9 +50,9 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &FIL`HASATTR [u(cobj,ccp)]=hasattr(%0/%1)
 
 @@ LOCK MANAGER
-&INC`GROUPLOCK [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No lock entered!;@check u(lmin,iter(%0,cand(isdbref(u(u(cobj,gms)/FUN`FINDGROUP,before(%i0,/),%#)),cor(not(strlen(after(%i0,/))),cand(isint(%i0,/),gte(after(%i0,/),0)))),|,%B))=@attach %!/INC`MSG=ERROR: One or more group entries did not validate. Group names must be typed correctly and the /rank must be an integer.;th setq(lockstr,u(GROUP_LOCK,%0)|V`ADMIN:>0|FLAG^ROYALTY|FLAG^WIZARD);
+&INC`GROUPLOCK [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No lock entered!;@check u(lmin,iter(%0,cand(isdbref(u(setr,fgrp,u(u(cobj,gms)/FUN`FINDGROUP,before(%i0,/),%#))),cor(not(strlen(after(%i0,/))),if(isint(after(%i0,/)),gte(after(%i0,/),0),hasattr(%q<fgrp>/PERM`[after(%i0,/)])))),|,%B))=@attach %!/INC`MSG=ERROR: One or more group entries did not validate. Group names must be typed correctly and the /rank must be an integer.;th setq(lockstr,u(GROUP_LOCK,%0)[if(%1,|V`ADMIN:>0|FLAG^ROYALTY|FLAG^WIZARD)]);
 
-&GROUP_LOCK [u(cobj,ccp)]=localize(iter(%0,V`GROUP`[get(u(u(cobj,gms)/FUN`FINDGROUP,before(%i0,/),%1)/D`ID)]:<=[strfirstof(after(%i0,/),9001)],|,|))
+&GROUP_LOCK [u(cobj,ccp)]=localize(iter(%0,[setq(fgrp,u(u(cobj,gms)/FUN`FINDGROUP,before(%i0,/),%1))][if(not(strlen(after(%i0,/))),setq(parm,9001),setq(parm,after(%i0,/)))][if(isint(%q<parm>),V`GROUP`[get(%q<fgrp>/D`ID)]:<=[strfirstof(after(%i0,/),9001)],V`GROUP`[get(%q<fgrp>/D`ID)]`PERMISSIONS`%q<parm>:>0,|,|)]))
 
 @@ U-FUNCTION SECTION
 
@@ -372,7 +372,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &INC`CONFIG`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(CONFIG`%q<op>`VALID)]=%1;th u(attrib_set,%!,CONFIG`%q<op>`CUSTOM,%q<value>);@attach %!/INC`MSG=You set Config Option '%q<op>' to: %q<value>;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' set to: %q<value>;@attach %!/CONFIG`%q<op>`FINISH
 &INC`CONFIG`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=%!,CONFIG`%q<op>`CUSTOM;@attach %!/INC`MSG=You set Config Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' reset to Default.;@attach %!/CONFIG`%q<op>`FINISH
 
-&CONFIG`OPTIONS [u(cobj,ccp)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|REQUIRE_APPROVAL|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|STAFF_GROUP
+&CONFIG`OPTIONS [u(cobj,ccp)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|REQUIRE_APPROVAL|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|STAFF_GROUP|ROOM_PLAYERS|ROOM_THINGS|ROOM_EXITS|EXIT_COLOR|EXIT_ALIAS
 @set [u(cobj,ccp)]/CONFIG`OPTIONS=no_inherit
 
 &CONFIG`WIZTAG [u(cobj,ccp)]=Color of WIZ tag in systems.
@@ -447,18 +447,30 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &CONFIG`MSGTEXT`DEFAULT [u(cobj,ccp)]=hw
 &CONFIG`MSGTEXT`VALID [u(cobj,ccp)]=COLOR
 
-@@ th u(NEWCONF,config,ROOM,PLAYERS_MODE,DEFAULT,Changes room format for PLAYERS.,WORD)
-@@ th u(NEWCONF,config,ROOM,THINGS_MODE,DEFAULT,Changes room format for THINGS.,WORD)
-@@ th u(NEWCONF,config,ROOM,EXITS_MODE,DEFAULT,Changes room format for EXITS.,WORD)
+&CONFIG`ROOM_PLAYERS [u(cobj,ccp)]=Rooms use attribute PLAYERS`<this> for displaying Players. Attributes go on the Ancestor Room.
+&CONFIG`ROOM_PLAYERS`DEFAULT [u(cobj,ccp)]=DEFAULT
+&CONFIG`ROOM_PLAYERS`VALID [u(cobj,ccp)]=WORD
+&CONFIG`ROOM_PLAYERS`FINISH [u(cobj,ccp)]=th u(attrib_set,u(cobj,ancestor_room),SETTINGS`ROOM_PLAYERS,%q<value>)
 
-@@ th u(NEWCONF,config,COLOR,ROOM_COLUMNS,,For column names in room formats,COLOR)
-@@ th u(NEWCONF,config,COLOR,EXITNAME,,Color of exit names.,COLOR)
-@@ th u(NEWCONF,config,COLOR,EXITALIAS,,Color of exit names.,COLOR)
+&CONFIG`ROOM_THINGS [u(cobj,ccp)]=Rooms use attribute THINGS`<this> for displaying Things. Attributes go on the Ancestor Room.
+&CONFIG`ROOM_THINGS`DEFAULT [u(cobj,ccp)]=DEFAULT
+&CONFIG`ROOM_THINGS`VALID [u(cobj,ccp)]=WORD
+&CONFIG`ROOM_THINGS`FINISH [u(cobj,ccp)]=th u(attrib_set,u(cobj,ancestor_room),SETTINGS`ROOM_THINGS,%q<value>)
 
-@@ th u(NEWCONF,pconf,ROOM,ROOM_COLUMNS,,For column names in room formats,COLOR)
-@@ th u(NEWCONF,pconf,ROOM,EXITNAME,,Color of exit names.,COLOR)
-@@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
+&CONFIG`ROOM_EXITS [u(cobj,ccp)]=Rooms use attribute EXITS`<this> for displaying Exits. Attributes go on the Ancestor Room.
+&CONFIG`ROOM_EXITS`DEFAULT [u(cobj,ccp)]=DEFAULT
+&CONFIG`ROOM_EXITS`VALID [u(cobj,ccp)]=WORD
+&CONFIG`ROOM_EXITS`FINISH [u(cobj,ccp)]=th u(attrib_set,u(cobj,ancestor_room),SETTINGS`ROOM_EXITS,%q<value>)
 
+&CONFIG`EXIT_COLOR [u(cobj,ccp)]=Color to display Exits in.
+&CONFIG`EXIT_COLOR`DEFAULT [u(cobj,ccp)]=n
+&CONFIG`EXIT_COLOR`VALID [u(cobj,ccp)]=COLOR
+&CONFIG`EXIT_COLOR`FINISH [u(cobj,ccp)]=th u(attrib_set,u(cobj,ancestor_room),SETTINGS`EXIT_COLOR,%q<value>)
+
+&CONFIG`EXIT_ALIAS [u(cobj,ccp)]=Color to display Exit Aliases in.
+&CONFIG`EXIT_ALIAS`DEFAULT [u(cobj,ccp)]=hw
+&CONFIG`EXIT_ALIAS`VALID [u(cobj,ccp)]=COLOR
+&CONFIG`EXIT_ALIAS`FINISH [u(cobj,ccp)]=th u(attrib_set,u(cobj,ancestor_room),SETTINGS`EXIT_ALIAS,%q<value>)
 
 &CONF [u(cobj,ccp)]=strfirstof(get(%!/CONFIG`%0`CUSTOM),get(%!/CONFIG`%0`DEFAULT))
 &PCONF [u(cobj,ccp)]=u(color,%@,%1)

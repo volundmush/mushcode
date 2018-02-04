@@ -1,4 +1,4 @@
--- 
+--
 CREATE TABLE IF NOT EXISTS vol_entity (
 	entity_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	entity_type TINYINT UNSIGNED NOT NULL,
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS vol_entity (
 	PRIMARY KEY(entity_id),
 	UNIQUE(entity_objid),
 	INDEX(entity_name, entity_type)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 /*
 entity_type enumeration:
@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS vol_lockname (
 	lock_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	lock_name VARCHAR(50) NOT NULL,
 	PRIMARY KEY(lock_id)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
-	
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+
 CREATE TABLE IF NOT EXISTS vol_lock (
 	entity_id INT UNSIGNED NOT NULL,
 	lock_id TINYINT UNSIGNED NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS vol_lock (
 	PRIMARY KEY(entity_id,lock_id),
 	FOREIGN KEY(entity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(lock_id) REFERENCES vol_lockname(lock_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE OR REPLACE VIEW volv_lock AS
 	SELECT l.entity_id,l.lock_id,ln.lock_name,l.lock_definition
@@ -47,19 +47,19 @@ CREATE OR REPLACE VIEW volv_lock AS
 DROP PROCEDURE IF EXISTS volp_lock;
 DELIMITER $$
 CREATE PROCEDURE volp_lock(IN in_entity_id INT UNSIGNED,IN in_lock_name VARCHAR(50),in_lock_definition VARCHAR(255))
-BEGIN
-	DECLARE found_lock_id TINYINT UNSIGNED;
-	SELECT lock_id INTO found_lock_id FROM vol_lockname WHERE lock_name=in_lock_name;
-	IF found_lock_id IS NULL THEN
-		INSERT INTO vol_lockname(lock_name) VALUES (in_lock_name);
-		SET found_lock_id=LAST_INSERT_ID();
-	ELSE
-		INSERT INTO vol_lock (entity_id,lock_id,lock_definition) VALUES (in_entity_id,found_lock_id,in_lock_definition) ON DUPLICATE KEY UPDATE lock_definition=VALUES(lock_definition);
-	END IF;
-	SELECT found_lock_id;
-END$$
+	BEGIN
+		DECLARE found_lock_id TINYINT UNSIGNED;
+		SELECT lock_id INTO found_lock_id FROM vol_lockname WHERE lock_name=in_lock_name;
+		IF found_lock_id IS NULL THEN
+			INSERT INTO vol_lockname(lock_name) VALUES (in_lock_name);
+			SET found_lock_id=LAST_INSERT_ID();
+		ELSE
+			INSERT INTO vol_lock (entity_id,lock_id,lock_definition) VALUES (in_entity_id,found_lock_id,in_lock_definition) ON DUPLICATE KEY UPDATE lock_definition=VALUES(lock_definition);
+		END IF;
+		SELECT found_lock_id;
+	END$$
 DELIMITER ;
-	
+
 CREATE TABLE IF NOT EXISTS vol_account (
 	account_id INT UNSIGNED NOT NULL,
 	account_email VARCHAR(400) NULL DEFAULT NULL,
@@ -69,20 +69,20 @@ CREATE TABLE IF NOT EXISTS vol_account (
 	PRIMARY KEY(account_id),
 	FOREIGN KEY(account_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	INDEX(account_date_activity)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-	
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE OR REPLACE VIEW volv_account AS
 	SELECT a.account_id,e.entity_name AS account_name,e.entity_objid AS account_objid,a.account_email,a.account_disabled,UNIX_TIMESTAMP(a.account_date_created) AS account_date_created,UNIX_TIMESTAMP(a.account_date_activity) AS account_date_activity
 	FROM vol_account AS a LEFT JOIN vol_entity AS e ON a.account_id=e.entity_id
 	ORDER BY account_date_created;
-	
+
 CREATE TABLE IF NOT EXISTS vol_theme (
 	theme_id INT UNSIGNED NOT NULL,
 	theme_description TEXT NULL,
 	theme_description_render TEXT NULL DEFAULT NULL,
 	PRIMARY KEY(theme_id),
 	FOREIGN KEY(theme_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_theme AS
 	SELECT t.theme_id,e.entity_name AS theme_name,t.theme_description
@@ -92,21 +92,21 @@ CREATE OR REPLACE VIEW volv_theme AS
 DROP PROCEDURE IF EXISTS volp_theme;
 DELIMITER $$
 CREATE PROCEDURE volp_theme(IN in_theme_name VARCHAR(60),IN in_theme_description TEXT)
-BEGIN
-	DECLARE found_theme_id INT UNSIGNED;
-	SELECT theme_id INTO found_theme_id FROM volv_theme WHERE theme_name=in_theme_name;
-	IF found_theme_id IS NULL THEN
-		INSERT INTO vol_entity(entity_type,entity_name) VALUES (2,in_theme_name);
-		SET found_theme_id=LAST_INSERT_ID();
-		INSERT INTO vol_theme(theme_id,theme_description) VALUES (found_theme_id,in_theme_description);
-	ELSE
-		UPDATE vol_theme SET theme_description=in_theme_description WHERE theme_id=found_theme_id;
-		UPDATE vol_entity SET entity_name=in_theme_name WHERE entity_id=found_theme_id;
-	END IF;
-	SELECT found_theme_id;
-END$$
+	BEGIN
+		DECLARE found_theme_id INT UNSIGNED;
+		SELECT theme_id INTO found_theme_id FROM volv_theme WHERE theme_name=in_theme_name;
+		IF found_theme_id IS NULL THEN
+			INSERT INTO vol_entity(entity_type,entity_name) VALUES (2,in_theme_name);
+			SET found_theme_id=LAST_INSERT_ID();
+			INSERT INTO vol_theme(theme_id,theme_description) VALUES (found_theme_id,in_theme_description);
+		ELSE
+			UPDATE vol_theme SET theme_description=in_theme_description WHERE theme_id=found_theme_id;
+			UPDATE vol_entity SET entity_name=in_theme_name WHERE entity_id=found_theme_id;
+		END IF;
+		SELECT found_theme_id;
+	END$$
 DELIMITER ;
-	
+
 CREATE TABLE IF NOT EXISTS vol_character (
 	character_id INT UNSIGNED NOT NULL,
 	character_is_deleted BOOLEAN NOT NULL DEFAULT 0,
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS vol_character (
 	FOREIGN KEY(account_id) REFERENCES vol_account(account_id) ON UPDATE CASCADE ON DELETE SET NULL,
 	INDEX(character_date_activity),
 	INDEX(account_id,character_alt)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_character AS
 	SELECT c.character_id,e.entity_name AS character_name,e.entity_objid AS character_objid,c.character_is_deleted,c.account_id,c.character_alt,c.character_date_created,UNIX_TIMESTAMP(c.character_date_created) AS character_date_created_secs,c.character_date_activity,UNIX_TIMESTAMP(c.character_date_activity) AS character_date_activity_secs,c.character_date_approved,UNIX_TIMESTAMP(c.character_date_approved) AS character_date_approved_secs,c.character_is_guest
@@ -134,7 +134,7 @@ CREATE OR REPLACE VIEW volv_account_characters AS
 	FROM volv_character AS c LEFT JOIN volv_account AS a ON c.account_id=a.account_id
 	GROUP BY a.account_id,c.character_is_deleted
 	ORDER BY a.account_date_activity;
-	
+
 CREATE TABLE IF NOT EXISTS vol_approve (
 	approve_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	character_id INT UNSIGNED NOT NULL,
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS vol_approve (
 	FOREIGN KEY(approver_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	INDEX(character_id,approve_action),
 	INDEX(approver_id,approve_action)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_approve AS
 	SELECT a.approve_id,c.*,a.approver_id,c1.character_objid AS approver_objid,c1.character_name AS approver_name,a.approve_action,a.approve_date,UNIX_TIMESTAMP(a.approve_date) AS approve_date_secs,a.approve_text
@@ -157,11 +157,11 @@ CREATE OR REPLACE VIEW volv_approve AS
 DROP PROCEDURE IF EXISTS volp_approve;
 DELIMITER $$
 CREATE PROCEDURE volp_approve(IN in_character_id INT UNSIGNED,IN in_approver_id INT UNSIGNED,IN in_approve_action BOOLEAN,IN in_approve_text TEXT)
-BEGIN
-	INSERT INTO vol_approve (character_id,approver_id,approve_action,approve_date,approve_text) VALUES (in_character_id,in_approver_id,in_approve_action,UTC_TIMESTAMP(),in_approve_text);
-	UPDATE vol_character SET character_is_approved=in_approve_action WHERE character_id=in_character_id;
-	SELECT LAST_INSERT_ID();
-END$$
+	BEGIN
+		INSERT INTO vol_approve (character_id,approver_id,approve_action,approve_date,approve_text) VALUES (in_character_id,in_approver_id,in_approve_action,UTC_TIMESTAMP(),in_approve_text);
+		UPDATE vol_character SET character_is_approved=in_approve_action WHERE character_id=in_character_id;
+		SELECT LAST_INSERT_ID();
+	END$$
 DELIMITER ;
 
 CREATE TABLE IF NOT EXISTS vol_field (
@@ -177,7 +177,7 @@ CREATE TABLE IF NOT EXISTS vol_field (
 	FOREIGN KEY(entity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(author_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(entity_id,field_type,field_name)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS vol_field_lock (
 	field_id MEDIUMINT UNSIGNED NOT NULL,
@@ -186,28 +186,28 @@ CREATE TABLE IF NOT EXISTS vol_field_lock (
 	PRIMARY KEY(field_id),
 	FOREIGN KEY(field_id) REFERENCES vol_field(field_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(locker_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 DROP PROCEDURE IF EXISTS volp_field;
 DELIMITER $$
 CREATE PROCEDURE volp_field(IN in_entity_id INT UNSIGNED,IN in_field_type TINYINT UNSIGNED,IN in_field_name VARCHAR(255),IN in_field_text TEXT,IN in_author_id INT UNSIGNED)
-BEGIN
-	DECLARE found_field_id MEDIUMINT UNSIGNED;
-	SELECT field_id INTO found_field_id FROM vol_field WHERE entity_id=in_entity_id AND field_type=in_field_type AND field_name=in_field_name;
-	IF found_field_id IS NULL THEN
-		INSERT INTO vol_field(entity_id,field_type,field_name,field_text,field_date_modified,author_id) VALUES (in_entity_id,in_field_type,in_field_name,in_field_text,UTC_TIMESTAMP(),in_author_id);
-		SET found_field_id=LAST_INSERT_ID();
-	ELSE
-		UPDATE vol_field SET field_text=in_field_text,field_name=in_field_name,field_date_modified=UTC_TIMESTAMP(),author_id=in_author_id WHERE field_id=found_field_id;
-	END IF;
-	SELECT found_field_id;
-END$$
+	BEGIN
+		DECLARE found_field_id MEDIUMINT UNSIGNED;
+		SELECT field_id INTO found_field_id FROM vol_field WHERE entity_id=in_entity_id AND field_type=in_field_type AND field_name=in_field_name;
+		IF found_field_id IS NULL THEN
+			INSERT INTO vol_field(entity_id,field_type,field_name,field_text,field_date_modified,author_id) VALUES (in_entity_id,in_field_type,in_field_name,in_field_text,UTC_TIMESTAMP(),in_author_id);
+			SET found_field_id=LAST_INSERT_ID();
+		ELSE
+			UPDATE vol_field SET field_text=in_field_text,field_name=in_field_name,field_date_modified=UTC_TIMESTAMP(),author_id=in_author_id WHERE field_id=found_field_id;
+		END IF;
+		SELECT found_field_id;
+	END$$
 DELIMITER ;
 
 CREATE OR REPLACE VIEW volv_infofile AS
 	SELECT i.field_id AS info_id,i.field_type AS info_type,i.field_name AS info_name,i.field_text AS info_text,i.field_date_modified AS info_date_modified,UNIX_TIMESTAMP(i.field_date_modified) AS info_date_modified_secs,e.entity_id AS owner_id,e.entity_name AS owner_name,e.entity_objid AS owner_objid,l.locker_id,e2.entity_name AS locker_name,e2.entity_objid AS locker_objid,l.locked_date,UNIX_TIMESTAMP(l.locked_date) AS locked_date_secs FROM vol_field AS i LEFT JOIN vol_entity AS e ON i.entity_id=e.entity_id LEFT JOIN vol_field_lock AS l ON i.field_id=l.field_id LEFT JOIN vol_entity AS e2 ON e2.entity_id=l.locker_id
 	ORDER BY i.entity_id,i.field_type,i.field_name;
-	
+
 
 /*
 field_type enumeration:
@@ -231,7 +231,7 @@ CREATE TABLE IF NOT EXISTS vol_tag (
 	tag_description TEXT,
 	PRIMARY KEY(tag_id),
 	UNIQUE(tag_type,tag_name)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 /*
 tag_type enumeration:
@@ -242,21 +242,21 @@ tag_type enumeration:
 4-99 - Reserved for Volund's usage.
 100-255 - Game-specific implementations.
 */
-	
+
 DROP PROCEDURE IF EXISTS volp_tag;
 DELIMITER $$
 CREATE PROCEDURE volp_tag(IN in_tag_type TINYINT UNSIGNED,IN in_tag_name VARCHAR(254),IN in_tag_description TEXT)
-BEGIN
-	DECLARE found_tag_id MEDIUMINT UNSIGNED;
-	SELECT tag_id INTO found_tag_id FROM vol_tag WHERE tag_type=in_tag_type AND tag_name=in_tag_name;
-	IF found_tag_id IS NULL THEN
-		INSERT INTO vol_tag(tag_type,tag_name,tag_description) VALUES (in_tag_type,in_tag_name,in_tag_description);
-		SET found_tag_id=LAST_INSERT_ID();
-	ELSE
-		UPDATE vol_tag SET tag_name=in_tag_name,tag_description=in_tag_description WHERE tag_id=found_tag_id;
-	END IF;
-	SELECT found_tag_id;
-END$$
+	BEGIN
+		DECLARE found_tag_id MEDIUMINT UNSIGNED;
+		SELECT tag_id INTO found_tag_id FROM vol_tag WHERE tag_type=in_tag_type AND tag_name=in_tag_name;
+		IF found_tag_id IS NULL THEN
+			INSERT INTO vol_tag(tag_type,tag_name,tag_description) VALUES (in_tag_type,in_tag_name,in_tag_description);
+			SET found_tag_id=LAST_INSERT_ID();
+		ELSE
+			UPDATE vol_tag SET tag_name=in_tag_name,tag_description=in_tag_description WHERE tag_id=found_tag_id;
+		END IF;
+		SELECT found_tag_id;
+	END$$
 DELIMITER ;
 
 CREATE TABLE IF NOT EXISTS vol_trait (
@@ -266,8 +266,8 @@ CREATE TABLE IF NOT EXISTS vol_trait (
 	PRIMARY KEY(entity_id,tag_id),
 	FOREIGN KEY(entity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(tag_id) REFERENCES vol_tag(tag_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-	
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS vol_tmember (
 	character_id INT UNSIGNED NOT NULL,
 	theme_id INT UNSIGNED NOT NULL,
@@ -276,7 +276,7 @@ CREATE TABLE IF NOT EXISTS vol_tmember (
 	INDEX(tmember_type),
 	FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(theme_id) REFERENCES vol_theme(theme_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE OR REPLACE VIEW volv_theme_member AS
 	SELECT t.theme_id,t.theme_name,tm.tmember_type,c.*
@@ -299,7 +299,7 @@ CREATE TABLE IF NOT EXISTS vol_watch (
 	PRIMARY KEY(entity_id,character_id),
 	FOREIGN KEY(entity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE OR REPLACE VIEW volv_watch AS
 	SELECT w.entity_id AS watcher_id,e.entity_objid AS watcher_objid,c.* FROM vol_watch AS w LEFT JOIN volv_character AS c ON c.character_id=w.character_id LEFT JOIN vol_entity AS e ON e.entity_id=w.entity_id AND e.entity_objid IS NOT NULL;
@@ -466,7 +466,7 @@ CREATE OR REPLACE VIEW volv_bucket_status AS
 	FROM volv_job as j GROUP BY j.bucket_id ORDER BY j.bucket_name;
 
 CREATE OR REPLACE VIEW volv_bucket_list AS
-	SELECT b.*,bs.pending_count,bs.approved_count,bs.deny_count,bs.cancel_count,bs.overdue_count FROM volv_bucket AS b LEFT JOiN volv_bucket_status AS bs ON b.bucket_id=bs.bucket_id ORDER by b.bucket_name;
+	SELECT b.*,bs.pending_count,bs.approved_count,bs.deny_count,bs.cancel_count,bs.overdue_count FROM volv_bucket AS b LEFT JOIN volv_bucket_status AS bs ON b.bucket_id=bs.bucket_id ORDER by b.bucket_name;
 	
 -- Stored Procedure to create and manage Jobs.
 DROP PROCEDURE IF EXISTS volp_job_bucket;
@@ -478,15 +478,15 @@ DELIMITER $$
 CREATE PROCEDURE volp_job_bucket(IN in_bucket_name VARCHAR(255))
 	BEGIN
 		DECLARE found_bucket_id INT UNSIGNED;
-		SELECT bucket_id INTO found_bucket_id FROM vol_bucket WHERE bucket_name=in_bucket_name;
+		SELECT bucket_id INTO found_bucket_id FROM volv_bucket WHERE bucket_name=in_bucket_name;
 		IF found_bucket_id IS NULL THEN
-			INSERT INTO vol_entity(entity_type) VALUES (3);
+			INSERT INTO vol_entity(entity_type,entity_name) VALUES (3,in_bucket_name);
 			SET found_bucket_id=LAST_INSERT_ID();
-			INSERT INTO vol_bucket(bucket_id,bucket_name) VALUES (found_bucket_id,in_bucket_name);
+			INSERT INTO vol_bucket(bucket_id) VALUES (found_bucket_id);
 			CALL volp_lock(found_bucket_id,'POST','#TRUE');
 			CALL volp_lock(found_bucket_id,'ADMIN','V`ADMIN:>0');
 		ELSE
-			UPDATE vol_bucket SET bucket_name=in_bucket_name WHERE bucket_id=found_bucket_id;
+			UPDATE vol_entity SET entity_name=in_bucket_name WHERE entity_id=found_bucket_id;
 		END IF;
 		SELECT found_bucket_id;
 	END $$

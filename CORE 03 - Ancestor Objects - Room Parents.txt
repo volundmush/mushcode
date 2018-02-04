@@ -1,7 +1,7 @@
 @@ DEPENDENCIES: CORE
 
 @@ ANCESTOR ROOM
-@select/inline isdbref(u(coi,ar))=1,{&COBJ`ANCESTOR_ROOM [u(cobj,mco)]=[u(coi,ar)]},0,{@select/inline isdbref(u(cobj,ancestor_room))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_ROOM,dig(Ancestor Room))}}
+@select/inline isdbref(u(oldcobj,ancestor_room))=1,{&COBJ`ANCESTOR_ROOM [u(cobj,ccp)]=[objid([u(oldcobj,ancestor_room)])]},0,{@select/inline isdbref(u(cobj,ancestor_room))=0,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_ROOM,objid(dig(Ancestor Room)))}}
 
 &HEADER [u(cobj,ancestor_room)]=vol_header(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
 &SEPARATOR [u(cobj,ancestor_room)]=vol_separator(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
@@ -9,7 +9,7 @@
 
 &NAMEFORMAT [u(cobj,ancestor_room)]=[vol_choosegame(endtag(a),)][u(HEADER,moniker(%!)[if(cor(controls(%#,%!),vol_isadmin(%#)),%(%!%))],1)]
 
-&CONFORMAT [u(cobj,ancestor_room)]=[u(CONFORMAT`EXTRA)][if(words(lvplayers(%!)),udefault(PLAYERS`[u(config,ROOM_PLAYERS)],u(PLAYERS`DEFAULT)))][if(words(lvthings(%!)),%R[udefault(THINGS`[switch(num(vol_masterroom()),num(%!),MASTER_ROOM,u(config,ROOM_THINGS))],u(THINGS`DEFAULT))])][switch(type(%!),THING,%R[u(SUBHEADER)])]
+&CONFORMAT [u(cobj,ancestor_room)]=[u(CONFORMAT`EXTRA)][if(words(lvplayers(%!)),udefault(PLAYERS`[u(SETTINGS`ROOM_PLAYERS)],u(PLAYERS`DEFAULT)))][if(words(lvthings(%!)),%R[udefault(THINGS`[switch(num(vol_masterroom()),num(%!),MASTER_ROOM,u(SETTINGS`ROOM_THINGS))],u(THINGS`DEFAULT))])][switch(type(%!),THING,%R[u(SUBHEADER)])]
 
 &PLAYERS`DEFAULT [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(vol_color(%#,COLUMN_NAMES),align(19,Name))]%R[iter(vol_sortname(lvplayers(%!)),align(19,vol_mxpmenu(moniker(%i0),look [name(%i0)])),%b,%R)]
 
@@ -22,28 +22,16 @@
 &FUN`EXTRA`MUSIC [u(cobj,ancestor_room)]=[ansi(hc,This room has a soundtrack! Type)] [vol_pueblize(ansi(h,soundtrack),soundtrack)] [ansi(hc,to list!)]
 &FUN`EXTRA`PLACE [u(cobj,ancestor_room)]=This room has places! Type [vol_pueblize(ansi(h,places),places)] to list!
 
-&EXITFORMAT [u(cobj,ancestor_room)]=[if(words(lvexits(%!)),udefault(EXITFORMAT`[u(config,ROOM_EXITS)],u(EXITFORMAT`DEFAULT)),u(SUBHEADER))]
+&EXITFORMAT [u(cobj,ancestor_room)]=[if(words(lvexits(%!)),udefault(EXITFORMAT`[u(SETTINGS`ROOM_EXITS)],u(EXITFORMAT`DEFAULT)),u(SUBHEADER))]
 
 &EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[table(iter(vol_sortorder(vol_sortname(lvexits(%!))),ljust(if(strlen(alias(%i0)),<[ansi(vol_color(%#,ROOM,EXITALIAS),vol_pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(vol_color(%#,ROOM,EXITNAME),vol_pueblize(moniker(%i0),name(%i0)))] to [ansi(vol_color(%#,ROOM,EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))],%b,|),37,width(%#),|)]%R[u(SUBHEADER)]
 
 &FIL`VISIBLE [u(cobj,ancestor_room)]=not(u(FIL`DARK,%0))
 &FIL`DARK [u(cobj,ancestor_room)]=hasflag(%0,DARK)
 
-@@ th u(NEWCONF,config,ROOM,PLAYERS_MODE,DEFAULT,Changes room format for PLAYERS.,WORD)
-@@ th u(NEWCONF,config,ROOM,THINGS_MODE,DEFAULT,Changes room format for THINGS.,WORD)
-@@ th u(NEWCONF,config,ROOM,EXITS_MODE,DEFAULT,Changes room format for EXITS.,WORD)
-
-@@ th u(NEWCONF,config,COLOR,ROOM_COLUMNS,,For column names in room formats,COLOR)
-@@ th u(NEWCONF,config,COLOR,EXITNAME,,Color of exit names.,COLOR)
-@@ th u(NEWCONF,config,COLOR,EXITALIAS,,Color of exit names.,COLOR)
-
-@@ th u(NEWCONF,pconf,ROOM,ROOM_COLUMNS,,For column names in room formats,COLOR)
-@@ th u(NEWCONF,pconf,ROOM,EXITNAME,,Color of exit names.,COLOR)
-@@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
-
 @@ ANCESTOR EXIT
 
-@select/inline isdbref(u(coi,ae))=1,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_EXIT,u(coi,ae))},0,{@select/inline isdbref(u(cobj,ancestor_exit))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_EXIT,open(Ancestor Exit,#0,u(cobj,ancestor_room)))}}
+@select/inline isdbref(u(oldcobj,ancestor_exit))=1,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_EXIT,objid(u(oldcobj,ancestor_exit)))},0,{@select/inline isdbref(u(cobj,ancestor_exit))=0,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_EXIT,objid(open(Ancestor Exit,#0,u(cobj,ancestor_room))))}}
 
 &ODROP [u(cobj,ancestor_exit)]=heads over from [fullname(home(me))]
 &OSUCCESS [u(cobj,ancestor_exit)]=heads over to [fullname(loc(me))]
@@ -51,7 +39,7 @@
 
 @@ ANCESTOR PLAYER
 
-@select/inline isdbref(u(setr,ap,u(coi,ap)))=1,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_PLAYER,%q<ap>)},0,{@select/inline isdbref(u(cobj,ancestor_player))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_PLAYER,pcreate(Ancestor Player,digest(md5,secs())))}}
+@select/inline isdbref(u(setr,ap,u(oldcobj,ancestor_player)))=1,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_PLAYER,objid(%q<ap>));@newpass %q<ar>=scramble(digest(md5,secs()))},0,{@select/inline isdbref(u(cobj,ancestor_player))=0,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_PLAYER,objid(pcreate(Ancestor Player,scramble(digest(md5,secs())))))}}
 @tel [u(cobj,ancestor_player)]=[u(cobj,ancestor_room)]
 
 @pageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,COLOR,PAGE),vol_colormarkup(%!,vol_markup(%4,lwho(%!)),%#))
@@ -63,14 +51,6 @@
 
 &ACONNECT`SUITE [u(cobj,ancestor_player)]=@dolist/inline/nobreak u(lattrp,%!/ACONNECT`SUITE`*)={@attach %!/##}
 
-@@ th u(NEWCONF,pconf,ALERTS,ADESC,0,Signal when looked at.,BOOL)
-@@ th u(NEWCONF,pconf,ALERTS,IDLE,1800,Minutes until pagers receive idle message.,DURATION)
-@@ th u(NEWCONF,pconf,CHANNELS,QUOTES,,quotes -> " ",COLOR)
-@@ th u(NEWCONF,pconf,CHANNELS,SPEECH,,Speech color.,COLOR)
-@@ th u(NEWCONF,pconf,CHANNELS,NAMELINK,1,Clickify speaker names?,BOOL)
-@@ th u(NEWCONF,pconf,COLOR,PAGE,,For incoming pages.,COLOR)
-@@ th u(NEWCONF,pconf,COLOR,OUTPAGE,,For outgoing pages.,COLOR)
-
 @@ ANCESTOR THING
-@select/inline isdbref(u(coi,at))=1,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_THING,u(coi,at))},0,{@select/inline isdbref(u(coi,ae))=0,{th u(attrib_set,u(cobj,mco),COBJ`ANCESTOR_THING,create(Ancestor Thing <AT>))}}
+@select/inline isdbref(u(oldcobj,ancestor_thing))=1,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_THING,objid(u(oldcobj,ancestor_thing)))},0,{@select/inline isdbref(u(cobj,ancestor_thing))=0,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_THING,objid(create(Ancestor Thing <AT>)))}}
 @tel [u(cobj,ancestor_thing)]=[u(cobj,ancestor_room)]
