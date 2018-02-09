@@ -1,0 +1,152 @@
+@@ DEPENDENCIES - Core
+@@ RECOMMENDED: Install the Login Tracker to enable automatic account binding features.
+
+th u(NEWCOBJ,Account System <ACCOUNT>,account,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+@power [u(cobj,account)]=no_pay debit queue
+th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,SIDEFX SAFE)
+
+&IDLE_SECS [u(cobj,accounts)]=1800
+&TIMEZONE [u(cobj,accounts)]=UTC
+
+&ACONNECT`SUITE`MAIL [u(cobj,ancestor_player)]=@stop u(isguest,%@);@check u(op,MAIL);+mailcheck
+
+&CMD`MAILCHECK [u(cobj,account)]=$+mailcheck:@attach %!/INC`CHECKPC=%#,1;@select/inline t(words(u(setr,ualts,u(FILTER,UMAIL,u(alts,%q<t1>)))))=1,{@pemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(u(sortname,%q<ualts>),ansi(h,name(%i0)) ([u(umail,%i0)]),%b,\,%b)]},0,{@pemit %0=ansi(hy,You have no unread mail.)}
+&FIL`UMAIL [u(cobj,ccp)]=t(u(umail,%0))
+
+&SYSTEM`SWITCHES [u(cobj,account)]=setunion(setunion(setunion(u(SWITCHES`PLAYER),if(u(isadmin,%#),u(SWITCHES`ADMIN)),|,|),if(cor(u(OPEN_CREATION),u(conf,OPEN_ACCOUNT)),v(SWITCHES`OPEN_CREATION)),|,|),if(u(iswizard,%#),u(SWITCHES`WIZARD)),|,|)
+&SYSTEM`NAME [u(cobj,account)]=ACCOUNT
+
+@@ CONFIG SECTION
+&CONFIG`OPTIONS [u(cobj,account)]=AUTO_ACCOUNT|RECORD_LOGINS|CHANNELS_PLAYERS|OPEN_ACCOUNT|ACCOUNT_RENAME|WIZLIST_FOOTER|APPROVE_CHANNELS|UNAPPROVE_CHANNELS|WHO_HEADER|WHO_COLUMNS|WHERE_HEADER|WHERE_COLUMNS|GUEST_HOME|CHANNELS_GUESTS
+
+&CONFIG`AUTO_ACCOUNT [u(cobj,account)]=Attempt to auto-bind accounts based on IP? Requires the Login Tracker.
+&CONFIG`AUTO_ACCOUNT`DEFAULT [u(cobj,account)]=1
+&CONFIG`AUTO_ACCOUNT`VALID [u(cobj,account)]=BOOL
+
+&CONFIG`RECORD_LOGINS [u(cobj,account)]=Enable the login tracker. Records login times and IP addresses for all connections.
+&CONFIG`RECORD_LOGINS`DEFAULT [u(cobj,account)]=1
+&CONFIG`RECORD_LOGINS`VALID [u(cobj,account)]=BOOL
+
+&CONFIG`CHANNELS_PLAYERS [u(cobj,account)]=Players will be added to these Channels on Create.
+&CONFIG`CHANNELS_PLAYERS`DEFAULT [u(cobj,account)]=
+&CONFIG`CHANNELS_PLAYERS`VALID [u(cobj,account)]=LIST
+
+&CONFIG`OPEN_ACCOUNT [u(cobj,account)]=Players can create and manage their own accounts?
+&CONFIG`OPEN_ACCOUNT`DEFAULT [u(cobj,account)]=1
+&CONFIG`OPEN_ACCOUNT`VALID [u(cobj,account)]=BOOL
+
+&CONFIG`ACCOUNT_RENAME [u(cobj,account)]=Players can rename their own accounts?
+&CONFIG`ACCOUNT_RENAME`DEFAULT [u(cobj,account)]=1
+&CONFIG`ACCOUNT_RENAME`VALID [u(cobj,account)]=BOOL
+
+&CONFIG`WIZLIST_FOOTER [u(cobj,account)]=This message is displayed at the bottom of the +admin aka wizlist command.
+&CONFIG`WIZLIST_FOOTER`DEFAULT [u(cobj,account)]=
+&CONFIG`WIZLIST_FOOTER`VALID [u(cobj,account)]=WORD
+
+&CONFIG`CHANNELS_GUESTS [u(cobj,account)]=Guests will be added to these Channels.
+&CONFIG`CHANNELS_GUESTS`DEFAULT [u(cobj,account)]=
+&CONFIG`CHANNELS_GUESTS`VALID [u(cobj,account)]=LIST
+
+@@ ****** ACCOUNT SECTION *******
+&CMD`+ACCOUNT`PENNMUSH [u(cobj,account)]=$^(?\:\+)?account(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ACCOUNT`MAIN
+@set [u(cobj,account)]/CMD`+ACCOUNT`PENNMUSH=regexp
+&CMD`+ACCOUNT`RHOSTMUSH [u(cobj,account)]=$^(?\:\+)?account(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ACCOUNT`MAIN
+@set [u(cobj,account)]/CMD`+ACCOUNT`RHOSTMUSH=regexp
+&CMD`+ACCOUNT`MAIN [u(cobj,account)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,account)]/CMD`+ACCOUNT`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SWITCHES`PLAYER [u(cobj,account)]=EMAIL
+&SWITCHES`ADMIN [u(cobj,account)]=BIND|UNBIND|UNBOUND|CREATE|LIST|RENAME|INACTIVE|CONFIG
+&SWITCHES`WIZARD [u(cobj,account)]=ENABLE|DISABLE
+&SWITCHES`OPEN_CREATION [u(cobj,account)]=REQUEST|ACCEPT|NEW|RENAME
+
+&INC`VALID`ACCOUNT [u(cobj,account)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter an Account name!;@check valid(name,u(setr,value,trim(stripansi(%0))))=@attach %!/INC`MSG=ERROR: Not a valid Account name! Try something simpler.;@stop cand(isdbref(u(setr,exist,u(find_in,u(cobj,accounts),%q<value>))),not(strmatch(num(%q<exist>),num(%1))))=@attach %!/INC`MSG=ERROR: Name is already in use.
+
+&INC`FIND [u(cobj,account)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Account Name field empty.;@check strlen(u(setr,accid,namegraball(children(u(cobj,accounts)),%0)))=@attach %!/INC`MSG=ERROR: Account '%0' not found.;@stop gt(words(%q<accid>),1)=@attach %!/INC`MSG=ERROR: '%0' matched multiple accounts. Please be more specific.;th u(setq,accname,name(%q<accid>))
+
+&INC`TARGET [u(cobj,account)]=@select/inline %0=#*,{@attach %!/INC`FIND=after(%0,#)},{@attach %!/INC`CHECKPC=%0,1;@check isdbref(%q<t1acc>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not bound to an account.;th u(setq,accid,%q<t1acc>);th u(setq,accname,name(%q<accid>))}
+
+&INC`MAIN [u(cobj,account)]=@select/inline cand(u(isadmin,%#),strlen(%0))=1,{@attach %!/INC`TARGET},0,{@check isdbref(u(setr,accid,get(%#/D`ACCOUNT)))=@attach %!/INC`MSG=ERROR: No account to display.;th u(setq,accname,name(%q<accid>))};@attach %!/INC`SHOW
+
+&INC`CREATE [u(cobj,account)]=@attach %!/INC`VALID`ACCOUNT=%0;@stop isdbref(u(find_in,u(cobj,accounts),%q<value>))=@attach %!/INC`MSG=ERROR: An account already exists with that name.;@check valid(name,%q<value>)=@attach %!/INC`MSG=ERROR: That name can't be used for an account.;@tel [u(setr,accid,objid(create(u(setr,accname,%q<value>))))]=u(cobj,accounts);@parent %q<accid>=u(cobj,accounts);th u(attrib_set,%q<accid>,D`ACCOUNT,%q<accid>);th u(attrib_set,%q<accid>,D`ACCOUNT`ID,u(call`2,volp_account,0,'[sqlescape(%q<accid>)]','[sqlescape(%q<accname>)]'));@attach %!/INC`MSG`CHAN={Created NEW ACCOUNT: %q<accname>}
+
+&INC`NEW [u(cobj,account)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@stop strmatch(%#,#1)=@attach %!/INC`MSG=ERROR: #1 cannot be bound to an Account.;@stop isdbref(u(setr,accid,u(accid,%#,1)))=@attach %!/INC`MSG=ERROR: You are already bound to [name(%q<accid>)]!;@attach %!/INC`CREATE;@attach %!/INC`ADDTOACCOUNT=%q<accid>,%:;@attach %!/INC`MSG={You are now bound to ACCOUNT: %q<accname>!};@attach %!/INC`MSG`CHAN={Bound to NEW ACCOUNT: %q<accname> via +account/new}
+
+&INC`LIST [u(cobj,account)]=@check t(u(setr,count,u(mysql,COUNT`ACTIVE_ACCOUNTS,0)))=@attach %!/INC`MSG=ERROR: There are no active accounts entered in the system.;@attach %!/INC`MAINLIST=Accounts,0
+
+&INC`EMAIL [u(cobj,account)]=@select/inline u(conf,OPEN_CREATION)=1,{@check isdbref(u(setr,accid,u(accid,%#,1)))=@pemit %#=ERROR: This character is not bound to an Account.;@attach %!/INC`VALID`EMAIL=%0;th u(attrib_set`%va,%q<accid>,EMAIL,%q<value>);@attach %!/INC`MSG={You have set your Account email to: %q<value>}},{@check u(isadmin,%#)=@attach %!/INC`MSG={Only Staff may set emails!};@attach %!/INC`CHECKPC=%0,1;@check u(setr,accid,%q<t1acc>)=@pemit %#=ERROR: %q<t1name> is not bound to an Account.;@attach %!/INC`VALID`EMAIL=%1;th u(attrib_set,%q<accid>,EMAIL,%q<value>);@attach %!/INC`MSG={%q<t1name>'s Email has been set to: %q<value>};@attach %!/INC`MSG`NOTICE={Your Email was set to: %1},get(%q<accid>/CHARACTERS)}
+
+&Q`COUNT`ACTIVE_ACCOUNTS [u(cobj,account)]=SELECT count(account_id) FROM volv_account_characters WHERE old_characters=? AND account_objid IS NOT NULL
+
+&INC`INACTIVE [u(cobj,account)]=@check t(u(setr,count,u(mysql,COUNT`ACTIVE_ACCOUNTS,1)))=@attach %!/INC`MSG=ERROR: There are no inactive accounts to list.;@attach %!/INC`MAINLIST=Inactive Accounts,1
+
+&INC`MAINLIST [u(cobj,account)]=@pemit %#=u(header,mudname() %0);@dolist lnum(1,u(setr,pages,add(div(%q<count>,30),1)))={th u(setq,accounts,u(mysql3,SELECT`ACCOUNTS,%1,mul(sub(u(setr,page,u(choosegame,%i0,%d0)),1),30)));@dolist/inline/delimit [chr(176)] %q<accounts>={th u(setq,data,u(choosegame,%i0,%d0));@pemit %#=u(subheader,name(u(setr,obj,elements(%q<data>,1,chr(177)))) - [get(%q<obj>/EMAIL)] - [if(u(setr,last,elements(%q<data>,6,chr(177))),elements(u(fancytime,%q<last>,%#),1 2),ansi(hx,N/A))][if(elements(%q<data>,4,chr(177)), - Disabled)]);@pemit %#=iter(elements(%q<data>,5,chr(177)),u(pueblize,u(moniker,%i0),+finger [name(%i0)]),%b,\,%b)};@select/inline %q<page>=%q<pages>,{@pemit %#=u(footer,+account <id or player> for details)}}
+
+&Q`SELECT`ACCOUNTS [u(cobj,account)]=SELECT account_objid,account_email,account_date_activity,account_disabled,character_objids FROM volv_account_characters WHERE old_characters=0 AND account_objid IS NOT NULL LIMIT 30 OFFSET ?
+
+&FUN`ACCOUNT`CHARLINE [u(cobj,account)]=align(-6 3 -2 -3 -4 21 21 6,num(%0),switch(1,u(iswizard,%0),ansi(u(conf,WIZTAG),WIZ),hasflag(%0,ROYALTY),ansi(u(conf,ROYTAG),ROY),u(isadmin,%0),ansi(hy,ADM),haspower(%0,BUILDER),ansi(hm,BUI),u(isapproved,%0),ansi(hg,APP),ansi(hr,---)),default(%0/D`ALTS,0),u(getproperty,%0,MAJORABBR),default(%0/D`FINGER`TYPE,??),u(pueblize,u(moniker,%0),+finger [name(%0)]),if(get(%0/D`APPROVED),u(fancytime,get(%0/D`APPROVED),%#),ansi(hx,N/A)),u(lastidle,%0))
+
+&INC`SHOW [u(cobj,account)]=th u(setq,pcs,u(sortname,children(%q<accid>)));@pemit %#=u(HEADER,ACCOUNT: [name(%q<accid>)]);@select/inline strlen(get(%q<accid>/EMAIL))=>0,{@pemit %#=u(separator,EMAIL: [get(%q<accid>/EMAIL)])};@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(-6 3 2 3 4 21 21 6,DBREF,Sta,Al,Fac,Type,Name,Date Approved,LastOn));@pemit %#=u(SEPARATOR);@dolist/inline %q<pcs>={@pemit %#=u(FUN`ACCOUNT`CHARLINE,##)};@select/inline cand(u(player_config,%#,SYSTEM,OLD_ALTS),gt(words(u(setr,old,u(filter,OLDOBJID,get(%q<accid>/OLD),|,|)),|),0))=1,{@pemit %#=u(SEPARATOR,Old Characters);@pemit %#=align(-6 3 3 21 8 21,Dbref,,,Name,,Objid);@dolist/inline/delimit | [u(sortoldid,%q<old>,|,|)]={@pemit %#=align(-6 3 -3 21 8 21,before(##,:),,,after(##,~),,before(##,~))}};@pemit %#=u(footer)
+
+&INC`REQUEST [u(cobj,account)]=@stop isdbref(u(setr,accid,u(accid,%#,1)))=@attach %!/INC`MSG=ERROR: You already belong to [name(%q<accid>)]!;@attach %!/INC`CHECKPC=%0,1;@check u(setr,reqacc,u(accid,%q<t1>,1))=@attach %!/INC`MSG=ERROR: %q<t1name> does not have an account!;@attach %!/INC`MSG=Request sent! Please use +request/accept %n on any character for that account to confirm.;th u(attrib_set,%q<reqacc>,REQUESTS,setunion(get(%q<reqacc>/REQUESTS),%:));@attach %!/INC`MSG=%n has requested to join this account. Use [u(pueblize,+account/accept %n)] to confirm.,u(alts,%q<t1>);@attach %!/INC`MSG`CHAN=Sent add request to [name(%q<reqacc>)].
+
+&INC`ACCEPT [u(cobj,account)]=@check isdbref(u(setr,accid,u(accid,%#,1)))=@attach %!/INC`MSG=ERROR: You do not have an account!;@attach %!/INC`CHECKPC=%0,1;@stop u(setr,reqacc,u(accid,%q<t1>,1))=@attach %!/INC`MSG=ERROR: %q<t1name> already has an account!;@check match(get(%q<accid>/REQUESTS),%q<t1objid>)=@attach %!/INC`MSG=ERROR: No request pending from %q<t1name>.;th u(attrib_set,%q<accid>,REQUESTS,setdiff(get(%q<accid>/REQUESTS),%q<t1objid>));@attach %!/INC`MSG=%q<t2name> has been added to [name(%q<accid>)],u(alts,%#);@attach %!/INC`MSG`CHAN=Account request for %q<t1name> to [name(%q<accid>)] confirmed.;@attach %!/INC`ADDTOACCOUNT=%q<accid>,%q<t1objid>
+
+&INC`BIND [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,2;@stop strmatch(%q<t2>,#1)=@attach %!/INC`MSG=ERROR: #1 cannot be bound to an Account.;@select/inline %1=NEW,{@attach %!/INC`CREATE=%q<t2name>},{@attach %!/INC`TARGET=%1};@select/inline isdbref(%q<t2acc>)=1,{@attach %!/INC`REMFROMACCOUNT=%q<t2acc>,%q<t2objid>};@attach %!/INC`ADDTOACCOUNT=%q<accid>,%q<t2objid>;@attach %!/INC`MSG`NOTICE=You have been Account-Bound to [u(pueblize,%q<accname>,+account)].,%q<t2>;@attach %!/INC`MSG=You have Bound %q<t2name> to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])];@attach %!/INC`MSG`CHAN=Account-Bound %q<t2name> to [u(pueblize,%q<accname>,+account #%q<accname>)]
+
+&INC`ADDTOACCOUNT [u(cobj,account)]=@parent %1=%0;@attach %!/INC`DOSQL=SET`ACCOUNT_ID,get(%1/D`ACCOUNT`ID),get(%1/D`ID);
+
+&Q`SET`ACCOUNT_ID [u(cobj,account)]=UPDATE vol_character SET account_id=? WHERE character_id=?
+
+&INC`REMFROMACCOUNT [u(cobj,account)]=@parent %1;@attach %!/INC`DOSQL=CLEAN`LOGIN_LOGS,get(%1/D`ID);@attach %!/INC`DOSQL=CLEAN`ACCOUNT_ID,get(%1/D`ID);@attach %!/INC`REMFROMACCOUNT`EXTRA
+
+&Q`CLEAN`LOGIN_LOGS [u(cobj,account)]=DELETE FROM vol_login WHERE character_id=?
+&Q`CLEAN`ACCOUNT_ID [u(cobj,account)]=UPDATE vol_character SET account_id=NULL WHERE character_id=?
+
+&INC`UNBIND [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,1;@check u(setr,accid,%q<t1acc>)=@attach %!/INC`MSG={ERROR: %q<t1name> is not a member of any accounts.};@attach %!/INC`REMFROMACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG={You have removed %q<t1name> from Account [name(%q<accid>)]};@attach %!/INC`MSG`NOTICE={You were removed from Account '[name(%q<accid>)]'},%q<t1>;@attach %!/INC`MSG`CHAN={Removed %q<t1name> from [name(%q<accid>)]}
+
+&INC`UNBOUND [u(cobj,account)]=@check words(u(setr,unbound,switch(%va,PennMUSH,lsearch(all,type,player,elock,!D`ACCOUNT:?*),search(eplayer=!hasattr(##,D`ACCOUNT)))))=@attach %!/INC`MSG={There are no accountless PCs in the Database. Hooray!};@pemit %#=u(HEADER,Unbound Characters);@pemit %#=align(-6 3 3 27 25 9,Dbref,Sta,Alt,Name,IP,Last On);@pemit %#=u(SEPARATOR);@dolist/inline %q<unbound>={@pemit %#=u(FUN`ACCOUNT`CHARLINE,##)};@pemit %#=u(FOOTER)
+
+&INC`RENAME [u(cobj,account)]=@select/inline cand(not(u(isadmin,%#)),cor(u(conf,OPEN_CREATION),u(conf,ACCOUNT_RENAME)))=1,{@check isdbref(u(setr,accid,u(accid,%#,1)))=@pemit %#=ERROR: This character is not bound to an Account.;@attach %!/INC`VALID`ACCOUNT=%0;@name %q<accid>=%q<value>;@attach %!/INC`MSG=Account name changed to: %q<value>.;@attach %!/INC`MSG`CHAN=Changed Account Name to: %q<value>},{@check u(isadmin,%#)=@attach %!/INC`MSG={Only Staff may rename accounts!};@attach %!/INC`TARGET=%0;@attach %!/INC`VALID`ACCOUNT=%1,%q<accid>;@name %q<accid>=%q<value>;@attach %!/INC`MSG=Account renamed to: %q<value>.;@attach %!/INC`MSG`CHAN=Renamed Account '%q<accname>' to: %q<value>}
+
+&INC`DISABLE [u(cobj,account)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Account ID empty.};@attach %!/INC`FIND=%0;@stop u(lmax,iter(u(setr,chars,get(%q<accid>/CHARACTERS)),u(isadmin,%i0)))=@attach %!/INC`MSG=ERROR: Cannot disable an account that contains an admin character. Demote them first.;@attach %!/INC`VERIFY={ansi(hr,WARNING:) This will disable Account %q<accname>. Bound characters will not be able to login. Are you sure? Enter the command again within ten seconds to continue.},ACCOUNT DISABLE %q<accid>;@attach %!/INC`MSG={[name(%q<accid>)] disabled!};@attach %!/INC`MSG`NOTICE={Your account was disabled.},u(setr,chars,get(%q<accid>/CHARACTERS));@attach %!/INC`MSG`CHAN={[name(%q<accid>)] disabled!};@attach %!/INC`DOSQL=ACCOUNT`TOGGLE,0,%q<accid>;th u(attrib_set,%q<accid>,D`DISABLED,1);@dolist/inline %q<chars>={@boot ##};
+
+&Q`ACCOUNT`TOGGLE [u(cobj,account)]=UPDATE vol_account SET account_disabled=? WHERE account_id=?
+
+&INC`ENABLE [u(cobj,account)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Account ID empty.};@attach %!/INC`FIND=%0;@attach %!/INC`MSG={[name(%q<accid>)] enabled!};@attach %!/INC`MSG`NOTICE={Your account was enabled.},u(setr,chars,get(%q<accid>/CHARACTERS));@attach %!/INC`MSG`CHAN={[name(%q<accid>)] enabled!};@attach %!/INC`DOSQL=ACCOUNT`TOGGLE,1,%q<accid>;@attach %!/WIPE=%q<accid>,D`DISABLED
+
+&PLAYER`CONNECT [u(cobj,account)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CREATE [u(cobj,account)]=@dolist/inline u(lattr,%!/PLAYER`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`DISCONNECT [u(cobj,account)]=@dolist/inline u(lattr,%!/PLAYER`DISCONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+
+&OBJECT`RENAME [u(cobj,account)]=@dolist/inline u(lattr,%!/OBJECT`RENAME`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`DESTROY [u(cobj,account)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`CREATE [u(cobj,account)]=@dolist/inline u(lattr,%!/OBJECT`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`MOVE [u(cobj,account)]=@dolist/inline u(lattr,%!/OBJECT`MOVE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+
+&OBJECT`RENAME`ENTITY_NAME [u(cobj,account)]=u(mysql,ENTITY`RENAME,%1,%0)
+&Q`ENTITY`RENAME [u(cobj,account)]=UPDATE vol_entity SET entity_name=? WHERE entity_objid=?
+
+&PLAYER`CONNECT`DISABLED [u(cobj,account)]=@select/inline cand(isobjid(u(setr,acc,u(accid,%0))),get(%q<acc>/D`DISABLED),not(u(isadmin,%0)))=1,{@attach %!/INC`MSG=Login denied! Your account is disabled.,%0;@boot %0}
+
+&PLAYER`CONNECT`ACCOUNT [u(cobj,account)]=@stop cor(u(isguest,%0),strmatch(num(%0),#1));@attach %!/INC`CHECKPC=%0,1;@stop isdbref(%q<t1acc>)=&LAST %q<t1acc>=secs();@select/inline cand(u(conf,AUTO_ACCOUNT),isdbref(u(cobj,login)))=1,{@select/inline words(u(setr,accid,trim(u(mysql,GET`ACCOUNTS,get(%0/LASTIP)))))=>1,{@attach %!/INC`MSG=Welcome to [mudname()]! Login records show multiple accounts for this site. Auto-Matching cannot continue. [if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0},1,{@attach %!/INC`MSG=Welcome to [mudname()]! We found one account matching your login records. You have been auto-bound to [name(%q<accid>)]! Please contact staff if this is in error.,%0;@attach %!/INC`ADDTOACCOUNT=%q<accid>,%0},0,{@attach %!/INC`MSG=Welcome to [mudname()]! No account was found for this character.[if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0}},0,{@attach %!/INC`MSG=Welcome to [mudname())]! No account was found for this character.[if(u(open_creation),%BPlease use +account/request on an existing alt if you have one. Else\, you may +account/new to generate a new account.,%BPlease request an account from staff.)],%0}
+
+&Q`GET`ACCOUNTS [u(cobj,account)]=SELECT DISTINCT account_objid FROM volv_login WHERE character_is_guest=0 AND character_is_guest=0 AND ip_address=?
+
+&PLAYER`DISCONNECT`ACCOUNT [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,1;&LAST %q<t1acc>=secs();@attach %!/INC`DOSQL=UPDATE`ACCOUNT_LAST,%q<t1accid>;@attach %!/INC`DOSQL=UPDATE`CHARACTER_LAST,%q<t1id>
+
+&Q`UPDATE`ACCOUNT_LAST [u(cobj,account)]=UPDATE vol_account SET account_date_activity=UTC_TIMESTAMP() WHERE account_id=?
+
+&Q`UPDATE`CHARACTER_LAST [u(cobj,account)]=UPDATE vol_character SET character_date_activity=UTC_TIMESTAMP() WHERE character_id=?
+
+&START`ACCOUNTCHECK [u(cobj,account)]=@trigger %!/LOOP`ACCOUNTCHECK
+
+&LOOP`ACCOUNTCHECK [u(cobj,account)]=@dolist/inline/nobreak u(lwhoid)={@select/inline [isdbref(get(##/D`ACCOUNT))][strmatch(get(get(##/D`ACCOUNT)/EMAIL),*@*.*)]=0*,{@select/inline t(u(conf,OPEN_ACCOUNT))=1,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] This Character has no Account! This is not supported. Please use [ansi(hw,+account/new <AccountName>)] to register an account. If you already have an account then use +account/request <alt> to begin the registration process.,##},0,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] This Character has no Account! This is not supported. Please contact staff with your email or existing alt/account name to be bound to an account.}},10,{@select/inline t(u(conf,ACCOUNT_RENAME))=1,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] Your Account does not follow the new email Guidelines. Please use [ansi(hw,+account/email <email>)] to fix this. Non-Email addresses may not be eligible for password resets or future database migration.},0,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] Your Account does not follow new Email Guidelines. Please ask staff to give your account an Email Address. Without one you may not be eligible for password resets or future database migration.}}};@wait 1200=@trigger %!/LOOP`ACCOUNTCHECK
+
+&PLAYER`CREATE`CHANNELS [u(cobj,account)]=@select/inline %va=PennMUSH,{@dolist/inline/delimit | [u(conf,CHANNELS_PLAYERS)]={@channel/on %i0=%0}},RhostMUSH,{}
+
+&HLP`+ACCOUNT [u(cobj,account)]=The account system tracks players (and their alts) and their current status in the game (unapproved, approved, builder, admin, etc.).%R%R[ansi(hc,Player Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+account)] - Shows your account if you have one.%R[ansi(h,+account/new <name>)] - For new players. Enter this to start a new account on our game. You should preferably use your email address!%R[if(u(conf,OPEN_CREATION),[ansi(h,+account/rename <newname>)] - Renames your account.%R)][ansi(h,@password <old>=<new>)] - Change your password. If you forget your password\, staff will send a new one to your <email> on request - or if your Guest IP matches your previous logins.)]
++help/add Character/+account=[u(cobj,account)]/HLP`+ACCOUNT
+
+&SHLP`+ACCOUNT [u(cobj,account)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+account/list)] - Shows all accounts in the system.%R[ansi(h,+account/inactive)] - List inactive accounts.%R[ansi(h,+account <account>)] - Shows a specific account. Target can be a player\, OR an account name preceded by # such as #MushDude.%R[ansi(h,+account/create <name>)] - Create a new account.%R[ansi(h,+account/rename <account>=<newname>)] - Target as with +account. Renames account to <newname>.%R[ansi(h,+account/bind <player>=<account>)] - Binds <player> to an account\, removing them from any other account they're in. <account> can be the name of an character \(if they have an account\)\, the word NEW \(makes a new account using the character's name\)\, or the name of an account preceded by # - such as #MushDude.%R[ansi(h,+account/unbind <player>)] - Removes a player from any account they're in.%R[ansi(h,+account/unbound)] - Displays all unbound characters. Some are best left that way.%R[ansi(h,@newpass *<name>=<newpassword>)] - Set a new password for <name>. Note the asterisk\, this is necessary! This command is WIZARD only.)]
++shelp/add Character/+account=[u(cobj,account)]/SHLP`+ACCOUNT

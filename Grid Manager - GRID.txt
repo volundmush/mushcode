@@ -1,0 +1,80 @@
+@@ DEPENDENCIES: Core, Ancestor Room
+@@ @lock/enter is not inherited in Rhost. You'll need to set your @locks more carefully in Rhost.
+
+th u(NEWCOBJ,Grid Manager <GRID>,grid,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_room),,WIZARD SAFE,INHERIT SIDEFX SAFE)
+
+@select/inline %va=PennMUSH,{@lock/enter [u(cobj,district)]=FUN`ENTER/1;@lset [u(cobj,district)]/enter=!no_inherit;@lock/teleport [u(cobj,district)]=FUN`TELEPORT/1;@lset [u(cobj,district)]/teleport=!no_inherit},RhostMUSH,{@lock/use [u(cobj,district)]=FUN`TELEPORT/1}
+&FUN`ENTER [u(cobj,district)]=vol_approved(%#)
+&FUN`TELEPORT [u(cobj,district)]=vol_approved(%#)
+
+@select/inline isdbref(u(setr,builder,pmatch(Buildstaff)))=1,{&COBJ`BUILDSTAFF [u(cobj,mco)]=objid(%q<builder>)},0,{@pcreate Buildstaff=[scramble(digest(md5,secs()))];&COBJ`BUILDSTAFF [u(cobj,mco)]=objid(pmatch(Builderstaff))}
+@select/inline %va=PennMUSH,{@lock/zone u(cobj,buildstaff)=POWER^BUILDER;@set u(cobj,buildstaff)=!UNREGISTERED SHARED;@power u(cobj,buildstaff)=no_pay no_quota;@lset u(cobj,buildstaff)/zone=visual},RhostMUSH,{}
+
+&CMD`+GRID`PENNMUSH [u(cobj,grid)]=$^(?s)\+(district|dig|open|convert|builder)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
+@set [u(cobj,grid)]/CMD`+GRID`PENNMUSH=regexp
+&CMD`+GRID`RHOSTMUSH [u(cobj,grid)]=$^(?s)\+(district|dig|open|convert|builder)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
+@set [u(cobj,grid)]/CMD`+GRID`RHOSTMUSH=regexp
+&CMD`+GRID`MAIN [u(cobj,grid)]=th u(setq,systype,%1);@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,grid)]/CMD`+GRID`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SWITCHES`PLAYER [u(cobj,grid)]=LOCK|UNLOCK|DESCRIBE|IC
+&SWITCHES`ADMIN [u(cobj,grid)]=CONFIG
+&SWITCHES`WIZARD [u(cobj,grid)]=CREATE|DESTROY|ASSIGN|SUBCREATE|RENAME|ORDER
+
+&SYSTEM`SWITCHES [u(cobj,grid)]=setunion(setunion(v(SWITCHES`PLAYER),if(u(isadmin,%#),v(SWITCHES`ADMIN)),|,|),if(u(iswizard,%#),v(SWITCHES`WIZARD)),|,|)
+
+&SYSTEM`NAME [u(cobj,grid)]=GRID
+
+&FUN`LISTDISTRICTS [u(cobj,grid)]=u(sortorder,u(sortname,u(filter,ISDIST,children(%0))))
+
+&FIL`ISDIST [u(cobj,grid)]=cand(hastype(%0,THING),get(%0/D`DISTRICT))
+&FIL`NOTDIST [u(cobj,grid)]=not(u(FIL`ISDIST,%0))
+
+&INC`MAIN [u(cobj,grid)]=@select/inline strlen(%0)=>0,{@attach %!/INC`DISTRICT`CHOOSE},{@attach %!/INC`DISTRICT`LIST}
+
+&INC`LIST [u(cobj,grid)]=@pemit %#=u(HEADER,mudname() District Parents);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(5 2 26 9 33,DBREF,IC,Name,Rooms,Description));@pemit %#=u(SEPARATOR);@dolist/inline u(FUN`LISTDISTRICTS,u(cobj,district))={@pemit %#=u(FUN`DISTRICTLINE,##,0)};@pemit %#=u(FOOTER)
+
+&FUN`DISTRICTLINE [u(cobj,grid)]=[u(setq,subs,u(FUN`LISTDISTRICTS,%0))][align(5 2 26 9 33,u(pueblize,ansi(if(controls(%#,%0),hg,hr),num(%0)),+district u(setr,distn,u(FUN`DISTNAME,%0))),default(%0/D`IC,0),[if(%1,space(mul(%1,2))-%B)][u(pueblize,name(%0),+district %q<distn>)],sub(u(nchildren,%0),words(%q<subs>)),default(%0/DESCRIBE,???))][if(words(%q<subs>),%R[iter(%q<subs>,u(FUN`DISTRICTLINE,%i0,add(1,%1),words(%q<subs>)),%B,%R)])]
+
+&FUN`DISTNAME [u(cobj,grid)]=iter(after(lparent(%0),num(u(cobj,district))),name(%i0),%b,/)
+
+&INC`CHOOSE [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`MSG=Now managing district %q<distname>.;&D`DISTRICT %#=%q<dist>
+
+&INC`CREATE [u(cobj,grid)]=@attach %!/INC`MAKEDISTRICT=%0,u(cobj,district);@attach %!/INC`MSG=District Created! You have been set to managing it.;&D`DISTRICT %#=%q<dist>;@attach %!/INC`MSG`CHAN={Created District %q<dist> '[name(%q<dist>)]'}
+
+&INC`SUBCREATE [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0,1;@attach %!/INC`MAKEDISTRICT=%1,%q<dist1>,1;@attach %!/INC`MSG=sub-District Created! You have been set to managing it.;&D`DISTRICT %#=%q<dist2>;@attach %!/INC`MSG`CHAN={Created sub-District %q<dist2> '[name(%q<dist2>)]' for %q<dist> '[name(%q<dist>)]'}
+
+&INC`VALID`DISTRICT [u(cobj,grid)]=@check strlen(u(setr,value,trim(%0)))=@attach %!/INC`MSG=ERROR: District name empty.;@check valid(name,%q<value>)=@attach %!/INC`MSG=ERROR: '%0' is not a valid object name.;@stop strmatch(%q<value>,root)=@attach %!/INC`MSG=ERROR: "root" is not an acceptable district name.;@stop strmatch(%q<value>,*/*)=@attach %!/INC`MSG=ERROR: "/" is not allowed in district names.;@stop cand(u(setr,found,u(find_in,%1,%q<value>)),not(strmatch(%q<found>,%2)))=@attach %!/INC`MSG=ERROR: A same-level District already uses that name.
+
+&INC`MAKEDISTRICT [u(cobj,grid)]=@attach %!/INC`VALID`DISTRICT=%0,%1;@check isdbref(u(setr,dist%2,create(%q<value>)))=@attach %!/INC`MSG=ERROR: Could not create district.;@tel r(dist%2)=%1;@parent r(dist%2)=%1;th u(attrib_set,r(dist%2),D`DISTRICT,1);@set r(dist%2)/D`DISTRICT=no_inherit
+
+&INC`ASSIGN [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0,1;@attach %!/INC`FINDDIST=%1,2;@attach %!/INC`VALID`DISTRICT=name(%q<dist1>),%q<dist2>;@parent %q<dist1>=%q<dist2>;@attach %!/INC`MSG=District %q<distname1> assigned to %q<distnames2>!;@attach %!/INC`MSG`CHAN=Assigned %q<distname1> to: %q<distnames2>
+
+&INC`RENAME [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@attach %!/INC`VALID`DISTRICT=%1,parent(%q<dist>);@attach %!/INC`MSG=District Renamed!;@attach %!/INC`MSG`CHAN={Renamed District %q<dist> '%q<distname>' to '%q<value>'};@name %q<dist>=%q<value>
+
+&INC`DESCRIBE [u(cobj,grid)]=@attach %!/INC`FINDDIST;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Nothing entered for the description!;@attach %!/INC`MSG=Description set.;@desc %q<dist>=%1;@attach %!/INC`MSG`CHAN={Changed Description for %q<dist> '%q<distname>'}
+
+&INC`IC [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`BOOL=%1;@attach %!/INC`MSG=IC value set.;&D`IC %q<dist>=%q<value>;@attach %!/INC`MSG`CHAN={Changed IC for %q<dist> to '%q<value>'}
+
+&INC`ORDER [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Order value empty.;@check valnum(%1)=@attach %!/INC`MSG=ERROR: Order values must be whole, positive numbers.;&ORDER %q<dist>=%1;@set %q<dist>/ORDER=no_inherit;@attach %!/INC`MSG=Order set.;@attach %!/INC`MSG`CHAN={Changed order for %q<dist> '%q<distname>'}
+
+&INC`FINDDIST [u(cobj,grid)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No District entered to check.;th u(setq,dist%1,u(cobj,district));@select/inline strlen(%0)=0,{@@ We're sticking with the root district!},{@dolist/inline/delimit / %0={th u(setq,dname,trim(u(choosegame,%i0,%d0)));@check words(u(setr,dist%1,namegraball(u(FUN`LISTDISTRICTS,r(dist%1)),%q<dname>)))=@attach %!/INC`MSG=ERROR: District '%q<dname>' not found.;@stop gt(words(r(dist%1)),1)=@attach %!/INC`MSG=ERROR: '%q<dname>' matched [u(itemize,iter(r(dist%1),u(pueblize,name(%i0),+district %i0),%b,|),|,and,\,)]. Please be more specific!;th u(setq,distname%1,name(r(dist%1)));th u(setq,alldists%1,cat(r(alldists%1),r(dist%1)))}};th u(setq,distnames%1,iter(r(alldists%1),u(moniker,%i0),%b,ansi(hy,/)));
+
+&INC`LOCK [u(cobj,grid)]=@check isdbref(u(cobj,lms))=@attach %!/INC`MSG=ERROR: Lock Management System <LMS> not installed. Use @lock instead.;@attach %!/INC`FINDDIST=before(%0,/);@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach u(cobj,lms)/INC`DOLOCK=%q<dist>,after(%0,/),%1,1
+&INC`UNLOCK [u(cobj,grid)]=@attach %!/INC`MSG=To Unlock, use the @unlock command directly.
+
+&INC`DISTCHECK [u(cobj,grid)]=@check strlen(u(setr,dist,get(%#/D`DISTRICT)))=@attach %!/INC`MSG=Please choose a District using +district <name>.;@check match(u(FUN`LISTDISTRICTS),%q<dist>)=@attach %!/INC`MSG=ERROR: District no longer valid. Please choose a District using +district <name>.;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;th u(setq,distname,name(%q<dist>))
+
+
+&CONFIG`OPTIONS [u(cobj,grid)]=IDLE_DESTINATION|IDLE_INTERVAL|IDLE_TIME|IC_NEXUS|OOC_NEXUS
+
+&FIL`NOTADMIN [u(cobj,grid)]=not(u(isadmin,%0))
+&FIL`OVERIDLE [u(cobj,grid)]=gte(idle(%0),%1)
+&FIL`LOCCHECK [u(cobj,grid)]=not(strmatch(loc(%0),%1))
+
+&HLP`GRID [u(cobj,grid)]=The Grid system is a series of commands that make it easy to navigate the IC rooms, or 'Grid.'%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,ooc)] - head to the OOC meeting grounds.%r[ansi(h,ic)] - Return to your last IC location\, or the IC nexus if that fails.%R[ansi(h,+nexus)] - Teleport to the IC Nexus.%R[ansi(h,+roomlist)] - List all IC rooms in the game that you can +port to.%R[ansi(h,+roomlist <search>)] - List all IC rooms partially matching the entered text.%R[ansi(h,+port <name or dbref>)] - Teleport to a room.%R[ansi(h,+sethome)] - Set the current location as your 'home.'%R[ansi(h,+gohome)] or [ansi(h,home)] - Teleport to your home.)]%R%RPlayers using THINGS as hangouts can make that object a valid +port destination by setting its PORT attribute to 1. use &PORT here=1 while within the object to set it.[u(choosegame,%RPENNMUSH: You must also set @lock/teleport here=#TRUE - Penn users can use @lock/teleport to restrict who can access the object with +port.)]
++help/add Navigation/Grid=[u(cobj,grid)]/HLP`GRID
+
+&SHLP`DISTRICT [u(cobj,grid)]=The +district system helps admin keep their Grid organized by breaking it up into any number of arbitrary 'districts' or 'regions'. Each 'District' is a THING that rooms can be @parent'd to. +district is the central management for +roomlist and +port, so set good locks![u(choosegame,,%RRHOSTMUSH: Please note that in Rhost the +roomlist and +port teleport checks key off of @lock/use as it is the only one that can be inherited by @parent. +district/lock is almost useless on RhostMUSH.)]%RThe DBREF of the District Parent is: [u(cobj,district)]%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+district)] - List all districts.%r[ansi(h,+district/create <name>)] - Create a new district.%R[ansi(h,+district/rename <district>=<newname>)] - Rename a district.%R[ansi(h,+district/order <name>=<#>)] - Change a +district's order on the list and +roomlist.%R[ansi(h,+district/lock <district>/<locktype>=<lockstring>)] - Set a lock on a +district. Enhanced by the LOCK MANAGER SYSTEM if available. Use @unlock to clear them.%R[ansi(h,+district/describe <name>=<text>)] - Set a +district's description.%R[ansi(h,+district/ic <name>=<#>)] - Decide whether a +District is an IC or OOC location. Set to 0 or 1!%R[ansi(h,+district/subcreate <district>=<new district name>)] - Creates a sub-district for a given District!%R[ansi(h,+district/assign <district>=<new district parent>)] - Assign existing District to a new parent. @parent them to [u(cobj,district)] to undo.%R[ansi(h,+district <name>)] - Choose to manage a certain district. This works for...%R[ansi(h,+dig)]\, [ansi(h,+open)] - Builder commands. Works like @dig and @open but auto-@parents the created objects.%R[ansi(h,+convert)] - Converts the room you're currently in to your managed +district. Basically just changes the @parent.%R%RA Note on Districts and Sub-Districts:%RTo target a Sub-district, you can nest them like you would folders. For example: +district/subcreate Admin/Electric=Boogaloo would create the sub-district 'Boogaloo' in Admin's Electric sub-district. Then you could +district/assign Admin/Electric/Boogaloo=<something else>. These are really just fancy @parent objects. Use the @parent command to assign to 'District Parent' [u(cobj,district)] if you need to reset a district to top-level.)]
++shelp/add Building/+district=[u(cobj,grid)]/SHLP`DISTRICT

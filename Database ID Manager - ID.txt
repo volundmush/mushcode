@@ -1,0 +1,36 @@
+@@ DEPENDENCIES: Core
+th u(NEWCOBJ,Database ID Manager <ID>,id,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+ID`PENNMUSH [u(cobj,id)]=$^(?\:\+)?(id)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ID`MAIN
+@set [u(cobj,id)]/CMD`+ID`PENNMUSH=regexp
+&CMD`+ID`RHOSTMUSH [u(cobj,id)]=$^(?\:\+)?(id)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ID`MAIN
+@set [u(cobj,id)]/CMD`+ID`RHOSTMUSH=regexp
+&CMD`+ID`MAIN [u(cobj,id)]=@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,id)]/CMD`+ID`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,id)]=ID
+&SWITCHES`ADMIN [u(cobj,id)]=SEARCH|MERGE
+
+&INC`MAIN [u(cobj,id)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@attach %!/INC`MSG=The Database ID for %q<t1name> is: %q<t1id>
+
+&INC`SEARCH [u(cobj,id)]=@pemit %#=u(header,Database IDs for Characters Like: %0);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(1 6 30 36,D,ID,OBJID,Name));@pemit %#=u(separator);@dolist/inline/delimit [chr(176)] [u(mysql3,SEARCH`CHARACTERS,sqlescape(%0))]={th u(setq,data,u(choosegame,%i0,%d0));@pemit %#=align(1 6 30 36,if(elements(%q<data>,1,chr(177)),ansi(hr,X),%b),elements(%q<data>,2,chr(177)),elements(%q<data>,3,chr(177)),elements(%q<data>,4,chr(177)))};@pemit %#=u(footer)
+
+&Q`SEARCH`CHARACTERS [u(cobj,id)]=SELECT character_is_deleted,character_id,character_objid,character_name FROM volv_character WHERE character_name LIKE '%!%' ORDER BY character_name
+
+&INC`MERGE [u(cobj,id)]=@attach %!/INC`CHECKPC=%0,1;@check u(setr,oldid,u(mysql,EXACT`CHARACTER_ID,%1))=@attach %!/INC`MSG=ERROR: Could not find ID '%1';@attach %!/INC`VERIFY=[ansi(hr,WARNING:)] This will merge %q<t1name> into the Old Character ID '%1'. All scenes\, jobs\, and board posts of Character ID %q<t1id> will be assigned to the old ID. Other data associated with ID %q<t1id> will be lost. Is this okay? Enter the same command again in ten seconds to continue.,MERGE %q<t1> %q<oldid>;@dolist/inline JLINK BB BB2 PLOT ACTOR={@attach %!/INC`DOSQL=MERGE`##,%q<oldid>,%q<t1id>};@attach %!/INC`DOSQL=MERGE`DELETE_OLD,%q<t1id>;@attach %!/INC`DOSQL=MERGE`RESURRECT,%q<oldid>;@attach %!/INC`DOSQL=MERGE`OBJID,%q<t1objid>,%q<oldid>;th u(attrib_set,%q<t1>,D`ID,%q<oldid>);@attach %!/INC`MSG`CHAN=Re-Assigned %q<t1name> to the Old ID: %q<oldid>;@attach %!/INC`MSG`NOTICE=You were re-assigned the old character id: %q<oldid>,%q<t1>;@attach %!/INC`MSG=Reassignment complete.
+
+&Q`EXACT`CHARACTER_ID [u(cobj,id)]=SELECT character_id FROM volv_character WHERE character_id=? LIMIT 1
+
+&Q`MERGE`DELETE_OLD [u(cobj,id)]=DELETE from vol_entity WHERE entity_id=?
+&Q`MERGE`OBJID [u(cobj,id)]=UPDATE vol_entity SET entity_objid=? WHERE entity_id=?
+&Q`MERGE`RESURRECT [u(cobj,id)]=UPDATE vol_character SET character_is_deleted=0 WHERe character_id=?
+
+&Q`MERGE`JLINK [u(cobj,id)]=UPDATE vol_jlink SET character_id=? WHERE character_id=?
+&Q`MERGE`BB [u(cobj,id)]=UPDATE vol_bbpost SET entity_id=? WHERE entity_id=?
+&Q`MERGE`BB2 [u(cobj,id)]=UPDATE vol_bbcomment SET entity_id=? WHERE entity_id=?
+&Q`MERGE`PLOT [u(cobj,id)]=UPDATE vol_runner SET character_id=? WHERE entity_id=?
+&Q`MERGE`ACTOR [u(cobj,id)]=UPDATE vol_actor SET character_id=? WHERE entity_id=?
+
+&PLAYER`CREATE`MATCH [u(cobj,id)]=@check words(u(setr,results,u(mysql3,SEARCH`CHARACTERS_NEW,sqlescape(%1))),chr(176))={@attach %!/INC`MSG`CHAN=[ansi(hr,ALERT:)] Character '%1' (%0) Created! If this is a re-created old character\, check +shelp +id about re-assigning their old ID.;@select/inline isdbref(%#)=1,{@attach %!/INC`MSG=[ansi(hr,ALERT:)] Character '%1' (%0) Created! If this is a re-created old character\, check +shelp +id about re-assigning their old ID.,%#}};@attach %!/INC`MSG`CHAN=[ansi(hr,ALERT:)] Character '%1' (%0) Created! Possible re-creation of: [iter(%q<results>,elements(%i0,3,chr(177)) - \([elements(%i0,1,chr(177))]\, [elements(%i0,2,chr(177))]\),chr(176),\,%b)]. Check +shelp +id for info about re-assigning old ids.;@select/inline isdbref(%#)=1,{@attach %!/INC`MSG=[ansi(hr,ALERT:)] Character '%1' (%0) Created! Possible re-creation of: [iter(%q<results>,elements(%i0,3,chr(177)) - \([elements(%i0,1,chr(177))]\, [elements(%i0,2,chr(177))]\),chr(176),\,%b)]. Check +shelp +id for info about re-assigning old ids.,%#}
+
+&Q`SEARCH`CHARACTERS_NEW [u(cobj,id)]=SELECT character_id,character_objid,character_name FROM volv_character WHERE character_name LIKE '%!%' AND character_is_deleted=1

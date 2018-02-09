@@ -1,0 +1,17 @@
+
+
+
+&SWITCHES`DIG`PLAYER [u(cobj,grid)]=TELEPORT
+&SWITCHES`BUILDER`ADMIN [u(cobj,grid)]=ADD|REMOVE
+
+
+&INC`DIG`TELEPORT [u(cobj,grid)]=@attach %!/INC`DIG`MAIN=%0,%1,1
+&INC`DIG`MAIN [u(cobj,grid)]=@attach %!/INC`DISTCHECK;@check hastype(%l,ROOM)=@attach %!/INC`MSG=ERROR: +dig can only be used from a proper room.;@check strlen(%0)=@attach %!/INC`MSG=ERROR: No room name entered.;@check valid(name,%0)=@attach %!/INC`MSG=ERROR: '%0' is not a good name for a Room.;@check u(setr,room,dig(%0))=@attach %!/INC`MSG=ERROR: Could not create room.;th u(setq,source,%l);@parent %q<room>=%q<dist>;@attach %!/INC`MSG=Room created successfully!;@select/inline strlen(u(setr,exname,before(%1,\,)))=>0,{@select/inline isdbref(u(setr,there,open(%q<exname>,%q<room>,%q<source>)))=1,{@attach %!/INC`MSG=Exit to new room created successfully!},0,{@attach %!/INC`MSG=ERROR: Exit to new room creation failed.}};@select/inline strlen(u(setr,exname,after(%1,\,)))=>0,{@select/inline isdbref(u(setr,back,open(%q<exname>,%q<source>,%q<room>)))=1,{@attach %!/INC`MSG=Exit from new room created successfully!},0,{@attach %!/INC`MSG=ERROR: Exit from new room creation failed.}};@select/inline %2=1,{@teleport %#=%q<room>};@attach %!/INC`MSG`CHAN={Room %q<room> '%0' created for %q<dist> '%q<distname>'}
+
+&INC`CONVERT`MAIN [u(cobj,grid)]=@attach %!/INC`DISTCHECK;@check hastype(%l,ROOM)=@attach %!/INC`MSG=ERROR: +convert can only be used from a proper room.;@parent %l=%q<dist>;@check controls(%#,%l)=@attach %!/INC`MSG=ERROR: Permission denied.;@parent %l=%q<dist>;@attach %!/INC`MSG=Room converted to %q<dist> '%q<distname>'.;@attach %!/INC`MSG`CHAN={Room %l '[name(%l)]' converted to %q<dist> '%q<distname>'}
+
+&INC`BUILDER`MAIN [u(cobj,grid)]=@select/inline u(isadmin,%#)=1,{@select/inline strlen(%0)=0,{@check words(u(setr,build,u(choosegame,lsearch(all,player,elock,POWER^BUILDER),))=@attach %!/INC`MSG=There are no Builder Characters.;@pemit %#=u(header,mudname() Builder Characters);@pemit %#=iter(%q<build>,ansi(h,%i0 - [name(%i0)]) - [powers(%i0)],%b,%R);@pemit %#=u(header)},{@attach %!/INC`CHECKPC=%0,1;@pemit %#=u(header,%q<t1name>'s Belongings);@dolist/inline THING ROOM EXIT=@select/inline gt(words(u(setr,search,lsearch(%q<t1>,type,##))),0)=1,{@pemit %#=u(subheader,Type: ##);@dolist/inline %q<search>={th u(setq,item,u(choosegame,%i0,%d0));@pemit %#=[rjust(u(pueblize,%q<item>,brief %q<item>),7)] - [name(%q<item>)]}};@pemit %#=u(subheader)}},0,{@attach %!/INC`MSG=You [if(haspower(%#,BUILDER),ansi(hg,are),ansi(hr,are not))] A Builder!}
+
+&INC`BUILDER`ADD [u(cobj,grid)]=@attach %!/INC`CHECKPC=%0,1;@stop haspower(%q<t1>,BUILDER)=@attach %!/INC`MSG=ERROR: They are already a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=builder;give %q<t1>=100000;@attach %!/INC`MSG=You have made %q<t1name> a Builder.;@pemit %q<t1>=msghead(BUILDER) %n has granted you Builder powers.;@select/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy u(VAR`BUILDER`ALERTSCHANNEL)=%n has made %q<t1name> a Builder.}
+
+&INC`BUILDER`REMOVE [u(cobj,grid)]=@attach %!/INC`CHECKPC=%0,1;@check haspower(%q<t1>,BUILDER)=@attach %!/INC`MSG=ERROR: They are not a Builder.;@set %q<t1>=!UNREGISTERED;@power %q<t1>=!builder;@select/inline lt(money(%q<t1>),100000)=1,{give %q<t1>=100000};give %q<t1>=-99000;@attach %!/INC`MSG=You have revoked %q<t1name>'s Builder powers.;@pemit %q<t1>=msghead(BUILDER) %n has revoked your Builder powers.;@select/inline gt(v(VAR`BUILDER`ALERTMODE),0)={@nscemit/noisy u(VAR`BUILDER`ALERTSCHANNEL)=%n

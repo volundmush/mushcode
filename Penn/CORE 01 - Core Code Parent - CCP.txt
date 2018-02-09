@@ -3,12 +3,11 @@
 @@ RUN THIS ON CODE WIZARD OBJECT!
 @switch/first/inline hasflag(%#,UNREGISTERED)=1,{@set me=!UNREGISTERED};@power me=no_pay
 
-th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,config(master_room))][parent(%#,%q0)][set(%q0,VA:[first(version())])][set(%q0,COBJ`CCP:[objid(%q0)])][set(%q0,WIZARD SAFE !NO_COMMAND)])
+th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,config(master_room))][parent(%#,%q0)][set(%q0,COBJ`CCP:[objid(%q0)])][set(%q0,WIZARD SAFE !NO_COMMAND)])
 @@ Yeah, it's an awful hodgepodge of side effect functions. For a good cause.
 
-&COBJ [parent(%#)]=v(COBJ`%0)
-&VA [parent(%#)]=PennMUSH
-&GAME [parent(%#)]=PennMUSH
+&VA [u(cobj,ccp)]=PennMUSH
+&GAME [u(cobj,ccp)]=PennMUSH
 
 &COI [u(cobj,ccp)]=localize(if(isdbref(setr(db,u(find_in,u(master_room),Code Object Index <COI>))),u(%q<db>/%0)))
 
@@ -515,7 +514,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &SYSTEM`NAME [u(cobj,ccp)]=SYSTEM
 
-&INC`CHECKPC [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(setr(t%1objid,objid(setr(t%1,pmatch(%0)))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th setq(t%1name,name(r(t%1)));th setq(t%1id,get(r(t%1)/D`ID));th setq(t%1acc,get(r(t%1)/D`ACCOUNT));th setq(t%1accid,get(r(t%1)/D`ACCOUNT`ID));th setq(t%1tz,get(r(t%1)/TIMEZONE))
+&INC`CHECKPC [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(setr(t%1objid,objid(setr(t%1,pmatch(%0)))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th setq(t%1name,name(r(t%1)));th setq(t%1id,get(r(t%1)/D`ID));@select/inline isdbref(u(cobj,account))=1,{th setq(t%1acc,get(r(t%1)/D`ACCOUNT));th setq(t%1accid,get(r(t%1)/D`ACCOUNT`ID));},0,{th setq(t%1acc,r(t%1objid));th setq(t%1accid,r(t%1id))};th setq(t%1tz,get(r(t%1)/TIMEZONE))
 @@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into.
 
 &INC`VERIFY [u(cobj,ccp)]=@select/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th u(attrib_set,%#,VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@stop 1={@attach %!/INC`MSG=%0,,,%2}},1,{@wipe %#/VERIFY_OK}
@@ -639,36 +638,41 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &ISAPPROVED [u(cobj,ccp)]=cor(u(isadmin,%0),if(u(conf,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1))
 
 @@ EVENT HANDLING - PENN
-&PLAYER`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`CONNECT=no_inherit
 
 @@ Player-Approve is a pseudo-event triggered by the Account Management System.
-&PLAYER`APPROVE [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`APPROVE)={@trigger ##/PLAYER`APPROVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`APPROVE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`APPROVE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`APPROVE)={@trigger ##/PLAYER`APPROVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`APPROVE=no_inherit
 
-&PLAYER`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CREATE)={@trigger ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CREATE)={@trigger ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`CREATE=no_inherit
 
-&PLAYER`DISCONNECT [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`DISCONNECT)={@trigger ##/PLAYER`DISCONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`DISCONNECT [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`DISCONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`DISCONNECT)={@trigger ##/PLAYER`DISCONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`DISCONNECT=no_inherit
 
-&SOCKET`LOGINFAIL [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`LOGINFAIL)={@trigger ##/SOCKET`LOGINFAIL=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&SOCKET`LOGINFAIL [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/SOCKET`LOGINFAIL`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`LOGINFAIL)={@trigger ##/SOCKET`LOGINFAIL=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/SOCKET`LOGINFAIL=no_inherit
 
-&SOCKET`CONNECT [u(cobj,ccp)]=@check setr(banid,first(u(u(cao)/FUN`CHECKLOGINS,%1)));@select/inline gt(secs(),get(u(bandb)/%q<banid>`UNTIL))=1,{@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) EXPIRED Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) has connected.}},0,{@pemit/port %0=setr(message,strfirstof(get(u(bandb)/%q<banid>`MESSAGE),u(u(cao)/VAR`BANLIST`MESSAGE)));@boot/port %0;@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) attempted to connect. Message sent to them: '%q<message>'}}
+&SOCKET`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/SOCKET`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`CONNECT)={@trigger ##/SOCKET`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/SOCKET`CONNECT=no_inherit
 
-&OBJECT`RENAME [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`RENAME)={@trigger ##/OBJECT`RENAME=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`RENAME [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`RENAME`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`RENAME)={@trigger ##/OBJECT`RENAME=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`RENAME=no_inherit
 
-&OBJECT`DESTROY [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`DESTROY)={@trigger ##/OBJECT`DESTROY=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`DESTROY [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`DESTROY)={@trigger ##/OBJECT`DESTROY=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`DESTROY=no_inherit
 
-&OBJECT`CREATE [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`CREATE)={@trigger ##/OBJECT`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`CREATE)={@trigger ##/OBJECT`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`CREATE=no_inherit
 
-&OBJECT`MOVE [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`MOVE)={@trigger ##/OBJECT`MOVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`MOVE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`MOVE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`MOVE)={@trigger ##/OBJECT`MOVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`MOVE=no_inherit
+
+&PLAYER`CREATE`ID [u(cobj,ccp)]=th u(attrib_set,%0,D`ID,u(call`4,volp_character,0,'%0','[sqlescape(%1)]',u(csecs,%0),u(isguest,%0)));
+@set [u(cobj,ccp)]/PLAYER`CREATE`ID=no_inherit
+&PLAYER`CONNECT`ID [u(cobj,ccp)]=th u(attrib_set,%0,D`ID,u(call`4,volp_character,0,'%0','[sqlescape(name(%0))]',u(csecs,%0),u(isguest,%0)));
+@set [u(cobj,ccp)]/PLAYER`CONNECT`ID=no_inherit
 
 &SQL`CONNECT [u(cobj,ccp)]=@sql SET time_zone = '+00:00';@nscemit/noisy u(cmo`staffrep)=SQL server connect: %0
 &SQL`CONNECTFAIL [u(cobj,ccp)]=@attach %!/INC`MSG`SYSCHAN={SQL server connect fail: %0}

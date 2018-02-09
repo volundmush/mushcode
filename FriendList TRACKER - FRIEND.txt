@@ -1,3 +1,6 @@
+@@ DEPENDENCIES: Core
+@@ RECOMMENDED: Alts Tracker
+
 th u(NEWCOBJ,FriendList Tracker <FRIEND>,friend,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
 &CMD`+FRIEND`PENNMUSH [u(cobj,friend)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+FRIEND`MAIN
@@ -5,7 +8,7 @@ th u(NEWCOBJ,FriendList Tracker <FRIEND>,friend,,,,WIZARD SAFE !NO_COMMAND,INHER
 &CMD`+FRIEND`RHOSTMUSH [u(cobj,friend)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+FRIEND`MAIN
 @set [u(cobj,friend)]/CMD`+FRIEND`RHOSTMUSH=regexp
 &CMD`+FRIEND`MAIN [u(cobj,friend)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Guests may not use +watch.;@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,friend)]/CMD`+WATCH`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+@set [u(cobj,friend)]/CMD`+FRIEND`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,friend)]=FRIEND
 &SWITCHES`PLAYER [u(cobj,friend)]=ADD|LIST|DELETE|HIDE|MUTE|ACCADD|ACCDELETE

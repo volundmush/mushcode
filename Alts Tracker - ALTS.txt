@@ -1,0 +1,29 @@
+@@ DEPENDENCIES: Core, Account System
+th u(NEWCOBJ,Alts Tracker <ALTS>,alts,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+ALTS`PENNMUSH [u(cobj,alts)]=$^(?\:\+)?alts(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ALTS`MAIN
+@set [u(cobj,alts)]/CMD`+ALTS`PENNMUSH=regexp
+&CMD`+ALTS`RHOSTMUSH [u(cobj,alts)]=$^(?\:\+)?alts(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ALTS`MAIN
+@set [u(cobj,alts)]/CMD`+ALTS`RHOSTMUSH=regexp
+&CMD`+ALTS`MAIN [u(cobj,alts)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,alts)]/CMD`+ALTS`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,alts)]=ALTS
+
+&SWITCHES`PLAYER [u(cobj,alts)]=LIST|PRIORITY
+&SWITCHES`ADMIN [u(cobj,alts)]=
+
+&INC`MAIN [u(cobj,alts)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@check get(%q<t1>/D`ALTS)=@attach %!/INC`MSG=[name(%q<t1>)] is not on any alts lists.;@attach %!/INC`MSG=Alts of [ansi(h,%q<t1name>)] ([u(hideidle,%q<t1>)]): [u(FUN`ALTS`LIST,%q<t1>)]
+
+&INC`LIST [u(cobj,alts)]=@check u(setr,accid,u(accid,%#,1))=@attach %!/INC`MSG=ERROR: This character is not bound to an account.;@check strlen(%0)=@attach %!/INC`MSG=ERROR: List or target field empty. Please enter a name or a number to list this alt under.;@select/inline cand(strlen(%0),strlen(%1))=1,{@attach %!/INC`CHECKPC=%0,1;@check strmatch(u(accid,%q<t1objid>),%q<accid>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not one of your registered characters.;@check cand(gte(u(setr,list,%1),0),isint(%1))=@attach %!/INC`MSG=ERROR: Alts list must be a whole number 0 or greater.},0,{@attach %!/INC`CHECKPC=%#,1;@check t(match(lnum(0,255),u(setr,list,%0)))=@attach %!/INC`MSG=ERROR: Alts list must be a whole number 0-255.};&D`ALTS %q<t1>=%q<list>;@attach %!/INC`DOSQL=SET`ALTS,%q<list>,%q<t1id>;@attach %!/INC`MSG=Okay! %q<t1name> will [if(%q<list>,now appear in Alts List #%q<list>.,not appear in any Alts lists.)]
+
+&FUN`ALTS`LIST [u(cobj,alts)]=if(get(%0/D`ALTS),u(strfirstof,u(itemize,iter(u(sortname,squish(iter(get(u(accid,%0)/CHARACTERS),if(eq(default(%0/D`ALTS,0),default(%i0/D`ALTS,0)),%i0)))),u(moniker,%i0)[if(not(%1),\([u(hideidle,%i0)]\))],%b,|),|,and,\,),None),None)
+
+&Q`SET`ALTS [u(cobj,alts)]=UPDATE vol_character SET character_alt=? WHERE character_id=?
+
+&INC`PRIORITY [u(cobj,alts)]=@check u(setr,accid,u(accid,%#,1))=@attach %!/INC`MSG=ERROR: This character is not bound to an account.;@select/inline t(strlen(%0))=1,{@select/inline cand(strlen(%0),strlen(%1))=1,{@attach %!/INC`CHECKPC=%0,1;@check strmatch(u(accid,%q<t1objid>),%q<accid>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not one of your registered characters.;@check cand(gte(u(setr,list,%1),0),isint(%1))=@attach %!/INC`MSG=ERROR: Alts priority must be a whole number 0 or greater.},0,{@attach %!/INC`CHECKPC=%#,1;@check cand(gte(u(setr,list,%0),0),isint(%0))=@attach %!/INC`MSG=ERROR: Alts priority must be a whole number 0 or greater.};&D`ALTS`PRIORITY %q<t1>=%q<list>;@attach %!/INC`MSG=Okay! %q<t1name>'s Priority is now: %q<list>},0,{@attach %!/INC`ALTS`PRIORITY`LIST}
+
+&INC`PRIORITY`LIST [u(cobj,alts)]=@attach %!/INC`MSG=Your Alts by Priority: [iter(revwords(u(sortpriority,u(alts,%#))),u(moniker,%i0) ([default(%i0/D`ALTS`PRIORITY,0)]),%b,\,%b)]
+
+&HLP`+ALTS [u(cobj,alts)]=The Alts system allows you to specify what characters of yours other players can associate with you. It also allows you to configure which alts take precedent (if any) for receiving messages from channels and BBS notifications.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+alts <target>)] - Check someone's alts. Alts are any characters with the same ALT ID. Without a target it will use yourself\, showing you what others would see.%R[ansi(h,+alts/list <#>)] or [ansi(h,+alts/list <alt>=<#>)] - Set your current character or an alt of yours to use a specific ALT ID. Characters with the same ALT ID are linked on +alts displays. Alt IDs are numbers.%R%RAll Alts begin with Alt ID 0\, which is special. Characters with Alt ID 0 have no alts period.%R%R[ansi(h,+alts/priority <#>)] or [ansi(h,+alts/priority <alt>=<#>)] - Set your Alt PRIORITY.%R[ansi(h,+alts/priority)] - Show the priority settings of all your alts.%R%RThe PRIORITY affects channel reception. In both cases\, the HIGHEST PRIORITY ALT who is eligible to receive the message \(has the channel turned on and not gagged\) will receive it. Where multiple alts have the same priority\, all with that priority will receive it.%R%RFor example\, if Alts A and B are set to Priority 1 and have the Public channel on\, and Alt C also has it on but is priority 0\, only A and B will see messages from the Public channel. If A and B gag or turn it off\, C will once again receive Public messages.)]
++help/add Character/+alts=[u(cobj,alts)]/HLP`+ALTS

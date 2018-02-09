@@ -1,0 +1,18 @@
+
+
+
+&CONFIG`IDLE_DESTINATION [u(cobj,grid)]=The ROOM or THING to place Idle players when the Idle check runs. If this is empty, no Idle check will be done.
+&CONFIG`IDLE_DESTINATION`DEFAULT [u(cobj,grid)]=
+&CONFIG`IDLE_DESTINATION`VALID [u(cobj,grid)]=DBREF
+
+&CONFIG`IDLE_INTERVAL [u(cobj,grid)]=Seconds between Idle Sweeps.
+&CONFIG`IDLE_INTERVAL`DEFAULT [u(cobj,grid)]=3600
+&CONFIG`IDLE_INTERVAL`VALID [u(cobj,grid)]=DURATION
+
+&CONFIG`IDLE_TIME [u(cobj,grid)]=Seconds you must be idle to be swept up when the idlesweep runs.
+&CONFIG`IDLE_TIME`DEFAULT [u(cobj,grid)]=28800
+&CONFIG`IDLE_TIME`VALID [u(cobj,grid)]=DURATION
+
+
+&STARTUP [u(cobj,grid)]=@trigger %!/LOOP`IDLESWEEP
+&LOOP`IDLESWEEP [u(cobj,grid)]=@select/inline isdbref(u(setr,dest,u(conf,IDLE_DESTINATION)))=>0,{@select/inline words(u(setr,idlers,u(filter,NOTADMIN,u(filter,LOCCHECK,u(filter,OVERIDLE,u(lwhoid),%b,%b,u(conf,IDLE_TIME)),%b,%b,num(%q<dest>)))))=>0,{@attach %!/INC`MSG`NOTICE=You are being moved to the idle room due to inactivity.,%q<idlers>;@tel/list %q<idlers>=%q<dest>}};@wait u(conf,IDLE_INTERVAL)=@trigger %!/LOOP`IDLESWEEP

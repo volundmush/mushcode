@@ -1,3 +1,5 @@
+@@ DEPENDENCIES: Core, Group System
+
 th u(NEWCOBJ,StaffList Renderer <STAFF>,staff,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
 &CMD`+STAFF`PENNMUSH [u(cobj,staff)]=$^(?\:\+)?(staff|admin|wizlist)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+STAFF`MAIN

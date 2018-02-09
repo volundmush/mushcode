@@ -1,0 +1,36 @@
+@@ DEPENDENCIES: Core
+
+th u(NEWCOBJ,Approval System <APPROVE>,approve,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+APPROVE`PENNMUSH [u(cobj,approve)]=$^(?\:\+)?(approve|unapprove)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+APPROVE`MAIN
+@set [u(cobj,approve)]/CMD`+APPROVE`PENNMUSH=regexp
+&CMD`+APPROVE`RHOSTMUSH [u(cobj,approve)]=$^(?\:\+)?(approve|unapprove)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+APPROVE`MAIN
+@set [u(cobj,approve)]/CMD`+APPROVE`RHOSTMUSH=regexp
+&CMD`+APPROVE`MAIN [u(cobj,approve)]=@attach %!/INC`GETSWITCH=%2;@attach %!/INC`%1`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,approve)]/CMD`+APPROVE`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,approve)]=APPROVE
+&SWITCHES`APPROVE`PLAYER [u(cobj,approve)]=LIST
+&SWITCHES`APPROVE`ADMIN [u(cobj,approve)]=
+
+&INC`APPROVE`MAIN [u(cobj,approve)]=@select/inline cand(u(isadmin,%#),strlen(%0))=1,{@attach %!/INC`CHECKPC=%0,1;@stop u(isapproved,%q<t1>)=@attach %!/INC`MSG=ERROR: They are already approved!;@attach %!/INC`APPROVE`DO=%q<t1>,%#,%1;@attach %!/INC`MSG=You have approved %q<t1name> for play!;@attach %!/INC`MSG`CHAN=%q<t1name> approved for play!},{@attach %!/INC`MSG=You [if(u(isapproved,%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
+
+&INC`APPROVE`DO [u(cobj,approve)]=@check u(setr,results,u(call`4,volp_approve,0,get(%0/D`ID),get(%1/D`ID),1,'[sqlescape(%2)]'))=@attach %!/INC`MSG=ERROR: Could not run approval. reason: %q<results>;th u(attrib_set,%0,D`APPROVED,secs());th u(attrib_set,%0,V`APPROVED,secs());@select/inline words(u(setr,channels,u(conf,APPROVE_CHANNELS)))=>0,{@attach %!/INC`MSG`CHAN=[ansi(h,u(moniker,%0))] is now approved for play![if(strlen(%2),%b%2)],u(conf,APPROVE_CHANNELS),,1,,1}
+
+&Q`SET`APPROVE [u(cobj,approve)]=UPDATE vol_character SET character_date_approved=UTC_TIMESTAMP(),character_is_approved=1
+&Q`SET`UNAPPROVE [u(cobj,approve)]=UPDATE vol_character SET character_date_approved=NULL,character_is_approved=0
+
+&INC`UNAPPROVE`DO [u(cobj,approve)]=@check u(setr,results,u(call`4,volp_approve,0,get(%0/D`ID),get(%1/D`ID),0,'[sqlescape(%2)]'))=@attach %!/INC`MSG=ERROR: Could not run un-approval. reason: %q<results>;th u(attrib_set,%0,D`APPROVED,0);th u(attrib_set,%0,V`APPROVED,0);@select/inline words(u(setr,channels,u(conf,UNAPPROVE_CHANNELS)),|)=>0,{@attach %!/INC`MSG`CHAN=[ansi(h,u(moniker,%0))] is no longer approved for play![if(strlen(%2),%b%2)],%q<channels>,,1,,1}
+
+&INC`UNAPPROVE`MAIN [u(cobj,approve)]=@select/inline u(isadmin,%#)=1,{@attach %!/INC`CHECKPC=%0,1;@check u(isapproved,%q<t1>)=@attach %!/INC`MSG=ERROR: They are not approved!;@attach %!/INC`UNAPPROVE`DO=%q<t1>,%#,%1;@attach %!/INC`MSG=You have unapproved %q<t1name> for play!;@attach %!/INC`MSG`CHAN=%q<t1name> unapproved for play.;@attach %!/INC`MSG`PUBCHAN=%q<t1name> unapproved for play.},{@attach %!/INC`MSG=You [if(u(isapproved,%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
+
+&CONFIG`APPROVE_CHANNELS [u(cobj,approve)]=Channels to announce Approvals (and optional blurb message) on.
+&CONFIG`APPROVE_CHANNELS`DEFAULT [u(cobj,approve)]=
+&CONFIG`APPROVE_CHANNELS`VALID [u(cobj,approve)]=LIST
+
+&CONFIG`UNAPPROVE_CHANNELS [u(cobj,approve)]=Channels to announce un-Approvals (and optional blurb message) on.
+&CONFIG`UNAPPROVE_CHANNELS`DEFAULT [u(cobj,approve)]=
+&CONFIG`UNAPPROVE_CHANNELS`VALID [u(cobj,approve)]=LIST
+
+&SHLP`+APPROVE [u(cobj,approve)]=[ansi(h,+approve <name>)]%RThis will approve <name>%R%R[ansi(h,+unapprove <name>)]%RThis will unapprove <name>%R%RStaff are always considered 'approved' but may need to have the UNREGISTERED flag removed with @set if they intend to use @powers.
++shelp/add Character/+approve=[u(cobj,approve)]/SHLP`+APPROVE
