@@ -1,18 +1,47 @@
+@@ DEPENDENCIES: Core
+th u(NEWCOBJ,IdleSweeper <SWEEP>,sweep,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
+&CMD`+SWEEP`PENNMUSH [u(cobj,sweep)]=$^(?\:\+)?(sweep)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+SWEEP`MAIN
+@set [u(cobj,sweep)]/CMD`+SWEEP`PENNMUSH=regexp
+&CMD`+SWEEP`RHOSTMUSH [u(cobj,sweep)]=$^(?\:\+)?(sweep)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+SWEEP`MAIN
+@set [u(cobj,sweep)]/CMD`+SWEEP`RHOSTMUSH=regexp
+&CMD`+SWEEP`MAIN [u(cobj,sweep)]=@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,sweep)]/CMD`+SWEEP`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
+&SYSTEM`NAME [u(cobj,sweep)]=SWEEP
+&SWITCHES`ADMIN [u(cobj,sweep)]=CONFIG|NOW
 
-&CONFIG`IDLE_DESTINATION [u(cobj,grid)]=The ROOM or THING to place Idle players when the Idle check runs. If this is empty, no Idle check will be done.
-&CONFIG`IDLE_DESTINATION`DEFAULT [u(cobj,grid)]=
-&CONFIG`IDLE_DESTINATION`VALID [u(cobj,grid)]=DBREF
+&INC`MAIN [u(cobj,sweep)]=@attach %!/INC`MSG=To trigger an Idlesweep use +sweep/now
 
-&CONFIG`IDLE_INTERVAL [u(cobj,grid)]=Seconds between Idle Sweeps.
-&CONFIG`IDLE_INTERVAL`DEFAULT [u(cobj,grid)]=3600
-&CONFIG`IDLE_INTERVAL`VALID [u(cobj,grid)]=DURATION
+&INC`NOW [u(cobj,sweep)]=@attach %!/INC`MSG=Triggering manual idlesweep!;@attach %!/INC`MSG`CHAN=Manual Idlesweep triggered.;@trigger %!/DO_SWEEP
 
-&CONFIG`IDLE_TIME [u(cobj,grid)]=Seconds you must be idle to be swept up when the idlesweep runs.
-&CONFIG`IDLE_TIME`DEFAULT [u(cobj,grid)]=28800
-&CONFIG`IDLE_TIME`VALID [u(cobj,grid)]=DURATION
+&CONFIG`OPTIONS [u(cobj,sweep)]=ENABLED|DESTINATION|INTERVAL|IDLE_TIME
 
+&CONFIG`DESTINATION [u(cobj,sweep)]=The ROOM or THING to place Idle players when the Idle check runs. If this is empty, no Idle check will be done.
+&CONFIG`DESTINATION`DEFAULT [u(cobj,sweep)]=
+&CONFIG`DESTINATION`VALID [u(cobj,sweep)]=DBREF
 
-&STARTUP [u(cobj,grid)]=@trigger %!/LOOP`IDLESWEEP
-&LOOP`IDLESWEEP [u(cobj,grid)]=@select/inline isdbref(u(setr,dest,u(conf,IDLE_DESTINATION)))=>0,{@select/inline words(u(setr,idlers,u(filter,NOTADMIN,u(filter,LOCCHECK,u(filter,OVERIDLE,u(lwhoid),%b,%b,u(conf,IDLE_TIME)),%b,%b,num(%q<dest>)))))=>0,{@attach %!/INC`MSG`NOTICE=You are being moved to the idle room due to inactivity.,%q<idlers>;@tel/list %q<idlers>=%q<dest>}};@wait u(conf,IDLE_INTERVAL)=@trigger %!/LOOP`IDLESWEEP
+&CONFIG`INTERVAL [u(cobj,sweep)]=Seconds between Idle Sweeps.
+&CONFIG`INTERVAL`DEFAULT [u(cobj,sweep)]=3600
+&CONFIG`INTERVAL`VALID [u(cobj,sweep)]=DURATION
+
+&CONFIG`IDLE_TIME [u(cobj,sweep)]=Seconds you must be idle to be swept up when the idlesweep runs.
+&CONFIG`IDLE_TIME`DEFAULT [u(cobj,sweep)]=28800
+&CONFIG`IDLE_TIME`VALID [u(cobj,sweep)]=DURATION
+
+&CONFIG`ENABLED [u(cobj,sweep)]=Should Idle sweeps be performed?
+&CONFIG`ENABLED`DEFAULT [u(cobj,sweep)]=1
+&CONFIG`ENABLED`VALID [u(cobj,sweep)]=BOOL
+&CONFIG`ENABLED`FINISH [u(cobj,sweep)]=@restart %!
+
+&FIL`OVERIDLE [u(cobj,sweep)]=gte(idle(%0),%1)
+&FIL`NOTADMIN [u(cobj,sweep)]=not(u(isadmin,%0))
+&FIL`LOCCHECK [u(cobj,sweep)]=not(strmatch(loc(%0),%1))
+
+&DO_SWEEP [u(cobj,sweep)]=@select/inline isdbref(u(setr,dest,u(conf,IDLE_DESTINATION)))=>0,{@select/inline words(u(setr,idlers,u(filter,NOTADMIN,u(filter,LOCCHECK,u(filter,OVERIDLE,u(lwhoid),%b,%b,u(conf,IDLE_TIME)),%b,%b,num(%q<dest>)))))=>0,{@attach %!/INC`MSG`NOTICE=You are being moved to the idle room due to inactivity.,%q<idlers>;@tel/list %q<idlers>=%q<dest>}},{@attach %!/INC`MSG`CHAN=[ansi(hr,ERROR:)] IdleSweep destination invalid. Fix in +sweep/config}
+
+&STARTUP [u(cobj,sweep)]=@trigger %!/LOOP`IDLESWEEP
+&LOOP`IDLESWEEP [u(cobj,sweep)]=@trigger %!/DO_SWEEP;@select/inline u(conf,ENABLED)=1,{@wait u(conf,IDLE_INTERVAL)=@trigger %!/LOOP`IDLESWEEP}
+
+&SHLP`SWEEP [u(cobj,sweep)]=The IdleSweeper transfers players somewhere out of the way if they're found idling inside a room.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+sweep/now)] - Triggers an idlesweep right now.%R[ansi(h,+sweep/config)] - Configure the IdleSweeper.)]
++shelp/add Administration/+sweep=[u(cobj,sweep)]/SHLP`SWEEP

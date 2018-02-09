@@ -16,7 +16,7 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &CMD`+MIGRATE`MAIN [u(cobj,mig)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Wizard only!;@attach %!/INC`GETSWITCH=%1;@attach %!/SWITCH`%q<switch>;@attach %!/INC`PARTIAL=%2,v(MIGRATION`CHOICES),|,choice;@attach %!/CHECK;@attach %!/%q<choice>=%2,%3
 @set [u(cobj,mig)]/CMD`+MIGRATE`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&MIGRATION`CHOICES [u(cobj,mig)]=ACCOUNT|CHARACTER|LOGIN|WATCH|GRID|THEME|INFO|MULTIDESC|THEME|GROUPS|SCENE|JOBS|BBS
+&MIGRATION`CHOICES [u(cobj,mig)]=ACCOUNT|CHARACTER|LOGIN|WATCH|GRID|THEME|INFO|MULTIDESC|THEME|GROUPS|SCENE|JOBS|BBS|GBS
 
 &SWITCHES`ADMIN [u(cobj,mig)]=FORCE
 &SYSTEM`NAME [u(cobj,mig)]=MIGRATE2.5->3
@@ -48,9 +48,7 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &Q`WATCH`INSERT [u(cobj,mig)]=INSERT IGNORE INTO vol_watch (entity_id,character_id) VALUES (?,?)
 
-&GRID [u(cobj,mig)]=@check isdbref(u(cobj,district))=@attach %!/INC`MSG=ERROR: The new Grid Manager is not installed.;@check isdbref(u(oldcobj,district))=@attach %!/INC`MSG=ERROR: Could not locate the old District system.;
-
-@attach %!/INC`MSG`CHAN=Beginning GRID Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GRID.;&GRID`STATUS %!=1};@dolist/notify children(u(cobj,district))={th u(attrib_set,##,D`DISTRICT,u(call`3,volp_district,0,'[sqlescape(name(##))]','[objid(##)]','0'))}
+&GRID [u(cobj,mig)]=@check isdbref(u(cobj,district))=@attach %!/INC`MSG=ERROR: The new Grid Manager is not installed.;@check isdbref(u(oldcobj,district))=@attach %!/INC`MSG=ERROR: Could not locate the old District system.;@attach %!/INC`MSG`CHAN=Beginning GRID Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GRID.;&GRID`STATUS %!=1};@dolist/notify children(u(oldcobj,district))={@parent ##=[u(cobj,district)];&D`DISTRICT ##=1;@tel ##=u(cobj,district)}
 
 &INFO [u(cobj,mig)]=@attach %!/INC`MSG`CHAN=Beginning INFO Conversion.;th u(setq,roots,1~D`INFOFILE|2~D`PINFOFILE);@dolist/inline setdiff(u(lattr,u(cobj,ims)/INIT`*),INIT`INFO INIT`PINFO)={@attach [u(cobj,ims)]/##;th u(setq,roots,setunion(%q<roots>,add(100,inum(0))~%q<root>,|,|))};@wait me={@attach %!/INC`MSG`CHAN=Finished migrating INFO. ROOTS DATA: %q<roots>};@dolist/notify lsearch(all,type,player)={@attach %!/INFO`CHARACTER=##,%q<roots>}
 
@@ -67,7 +65,9 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &Q`DESC`INSERT [u(cobj,mig)]=INSERT INTO vol_field (entity_id,field_type,field_name,field_text,field_date_modified,author_id) VALUES (?,0,?,?,UTC_TIMESTAMP(),?) ON DUPLICATE KEY UPDATE field_name=VALUES(field_name),field_text=VALUES(field_text),field_date_modified=VALUES(field_date_modified)
 
-&BBS [u(cobj,mig)]=@dolist u(filter,ISBOARD,lthings(u(cobj,bbs)))={@check get(##/ORDER);@trigger %!/BBS`BOARD=objid(##),0};@dolist/inline/nobreak children(u(cobj,gop))={@attach %!/BBS`GROUPS=##}
+&BBS [u(cobj,mig)]=@check isdbref(u(cobj,bbs))=@attach %!/INC`MSG=ERROR: The new BBS is not installed!;@check isdbref(u(oldcobj,bbs))=@attach %!/INC`MSG=ERROR: COuld not find the old BBS!;@attach %!/INC`MSG`CHAN=Beginning BBS Conversion...;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating BBS.;&BBS`STATUS %!=1}@dolist/notify u(filter,ISBOARD,lthings(u(oldcobj,bbs)))={@check get(##/ORDER);@trigger %!/BBS`BOARD=objid(##),0}
+
+&GBS [u(cobj,mig)]=@check isdbref(u(cobj,bbs))=@attach %!/INC`MSG=ERROR: The new BBS is not installed!;@check isdbref(u(oldcobj,bbs))=@attach %!/INC`MSG=ERROR: COuld not find the old BBS!;@check isdbref(u(cobj,group))=@attach %!/INC`MSG=ERROR: The New Group system is not installed!;@check isdbref(u(oldcobj,gms))=@attach %!/INC`MSG=ERROR: The Old group system could not be found!;@attach %!/INC`MSG`CHAN=Beginning GBS Conversion...;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GBS. DON'T FORGET TO SET ABBREVIATIONS!;&GBS`STATUS %!=1};@dolist/notify children(u(cobj,gop))={@attach %!/BBS`GROUPS=##}
 
 &BBS`GROUPS [u(cobj,mig)]=@dolist/inline/nobreak u(filter,ISBOARD,lthings(%0))={@trigger %!/BBS`BOARD=##,objid(%0)}
 
@@ -87,11 +87,11 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &Q`BBS`OLD_COMMENT [u(cobj,mig)]=INSERT INTO vol_bbcomment (post_id,comment_display_num,entity_id,comment_date_created,comment_date_modified,comment_text,comment_anonymous) VALUES (?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?)
 
-&GROUPS [u(cobj,mig)]=@attach %!/INC`MSG`CHAN=Beginning GROUPS Conversion.;@wait me={@attach %!/GROUPS`CACHE;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GROUPS.}};@dolist/notify children(u(cobj,gop))={th u(attrib_set,##,D`ID,u(setr,groupid,u(call`3,volp_group,0,'[sqlescape(objid(##))]','[sqlescape(name(##))]',default(##/SET`MAJOR,0))));@attach %!/INC`DOSQL=GROUPS`ABBR,default(##/SET`ABBREVIATION,left(name(##),3)),%q<groupid>;@dolist/inline setdiff(u(lattrp,##/RANK`*),RANK`ALL RANK`LURK)={@attach %!/GROUPS`RANK=u(choosegame,%i1,%d1),u(choosegame,%i0,%d0)};@attach %!/GROUPS`MEMBERS=##;@attach %!/GROUPS`DIVISIONS=##};
+&GROUPS [u(cobj,mig)]=@check isdbref(u(cobj,group))=@attach %!/INC`MSG=ERROR: The New Group system is not installed!;@check isdbref(u(oldcobj,gms))=@attach %!/INC`MSG=ERROR: The Old group system could not be found!;@attach %!/INC`MSG`CHAN=Beginning GROUPS Conversion.;@wait me={@attach %!/GROUPS`CACHE;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GROUPS.;&GROUPS`STATUS %!=1}};@dolist/notify children(u(oldcobj,gop))={@parent ##=u(cobj,gop);@tel ##=u(cobj,gop);th u(attrib_set,##,D`ID,u(setr,groupid,u(call`4,volp_group,0,'[sqlescape(objid(##))]','[sqlescape(name(##))]',0,u(u(cobj,group)/conf,CREATE_PRIVATE))));@attach %!/INC`DOSQL=GROUPS`ABBR,default(##/SET`ABBREVIATION,left(name(##),3)),%q<groupid>;@dolist/inline setdiff(u(lattrp,##/RANK`*),RANK`ALL RANK`LURK)={@attach %!/GROUPS`RANK=u(choosegame,%i1,%d1),u(choosegame,%i0,%d0)};@attach %!/GROUPS`MEMBERS=##;@attach %!/GROUPS`DIVISIONS=##};
 
 &Q`GROUPS`ABBR [u(cobj,mig)]=UPDATE vol_group SET group_abbr=?,group_is_private=0 WHERE group_id=?
 
-&GROUPS`CACHE [u(cobj,mig)]=@dolist/inline/notify setunion(children(u(cobj,gop)),children(u(cobj,dop)))={@trigger [u(cobj,gms)]/GRP`CACHE`MEMBERS=##};@dolist/notify lsearch(all,type,player)={@trigger [u(cobj,gms)]/GRP`CACHE`TIERS=##;@trigger [u(cobj,gms)]/GRP`CACHE`CHARACTER=##}
+&GROUPS`CACHE [u(cobj,mig)]=@dolist/inline/notify setunion(children(u(cobj,gop)),children(u(cobj,dop)))={@trigger [u(cobj,group)]/GRP`CACHE`MEMBERS=##};@dolist/notify lsearch(all,type,player)={@trigger [u(cobj,group)]/GRP`CACHE`TIERS=##;@trigger [u(cobj,group)]/GRP`CACHE`CHARACTER=##}
 
 &GROUPS`RANK [u(cobj,mig)]=@select/inline isint(u(setr,rnkval,last(%1,`)))=1,{th u(attrib_set,%0,%1,u(setr,rank_id,u(call`3,volp_group_rank,0,get(%0/D`ID),%q<rnkval>,'[sqlescape(get(%0/%1`NAME))]')))}
 
@@ -109,7 +109,7 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &Q`GROUPS`PARENT [u(cobj,mig)]=UPDATE vol_group SET group_parent=? WHERE group_id=?
 
-&JOBS [u(cobj,mig)]=@attach %!/INC`MSG`CHAN=Beginning JOBS Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating JOBS.};@dolist/inline BUCKETS BUCKETS2 JOBS LINKS COMMENTS={@attach %!/INC`DOSQL=JOBS`##};@attach %!/JOBS`FINISH
+&JOBS [u(cobj,mig)]=@attach %!/INC`MSG`CHAN=Beginning JOBS Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating JOBS.;&JOBS`STATUS %!=1};@dolist/inline BUCKETS BUCKETS2 JOBS LINKS COMMENTS={@attach %!/INC`DOSQL=JOBS`##};@attach %!/JOBS`FINISH
 
 &Q`JOBS`BUCKETS [u(cobj,mig)]=INSERT INTO vol_entity (entity_id,entity_type,entity_name) SELECT thing_id,3,object_name FROM mush_thing WHERE thing_type=2
 &Q`JOBS`BUCKETS2 [u(cobj,mig)]=INSERT INTO vol_bucket (bucket_id) SELECT thing_id FROM mush_thing WHERE thing_type=2

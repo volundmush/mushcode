@@ -37,3 +37,7 @@
 &CMD`+ROOMLIST`ARG [u(cobj,grid)]=$+roomlist *:think u(setq,l,u(FUN`FINDROOM)); @check strlen(u(setr,m,strfirstof(grab(%ql,%0),u(namegraball,%ql,%0))))=@pemit %#=Nothing matches '%0'.;@pemit %#=u(header,'%0');th step(FUN`ROOMLIST,%qm,10);@pemit %#=u(subheader)
 
 &FUN`ROOMLIST [u(cobj,grid)]=pemit(%#,u(table,iter(lnum(0,sub(%+,1)),ljust(ansi(c,u(pueblize,v(%i0),+port [v(%i0)])),6) [ansi(hx,u(pueblize,name(v(%i0)),+port [v(%i0)]))],%b,|),38,u(width,%#),|))
+
+
+&HLP`GRID [u(cobj,grid)]=The Grid system is a series of commands that make it easy to navigate the IC rooms, or 'Grid.'%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,ooc)] - head to the OOC meeting grounds.%r[ansi(h,ic)] - Return to your last IC location\, or the IC nexus if that fails.%R[ansi(h,+nexus)] - Teleport to the IC Nexus.%R[ansi(h,+roomlist)] - List all IC rooms in the game that you can +port to.%R[ansi(h,+roomlist <search>)] - List all IC rooms partially matching the entered text.%R[ansi(h,+port <name or dbref>)] - Teleport to a room.%R[ansi(h,+sethome)] - Set the current location as your 'home.'%R[ansi(h,+gohome)] or [ansi(h,home)] - Teleport to your home.)]%R%RPlayers using THINGS as hangouts can make that object a valid +port destination by setting its PORT attribute to 1. use &PORT here=1 while within the object to set it.[u(choosegame,%RPENNMUSH: You must also set @lock/teleport here=#TRUE - Penn users can use @lock/teleport to restrict who can access the object with +port.)]
++help/add Navigation/Grid=[u(cobj,grid)]/HLP`GRID

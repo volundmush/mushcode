@@ -1,4 +1,7 @@
+@@ TOTALLY not ready stuff!
 
+@select/inline isdbref(u(setr,builder,pmatch(Buildstaff)))=1,{&COBJ`BUILDSTAFF [u(cobj,mco)]=objid(%q<builder>)},0,{@pcreate Buildstaff=[scramble(digest(md5,secs()))];&COBJ`BUILDSTAFF [u(cobj,mco)]=objid(pmatch(Builderstaff))}
+@select/inline %va=PennMUSH,{@lock/zone u(cobj,buildstaff)=POWER^BUILDER;@set u(cobj,buildstaff)=!UNREGISTERED SHARED;@power u(cobj,buildstaff)=no_pay no_quota;@lset u(cobj,buildstaff)/zone=visual},RhostMUSH,{}
 
 
 &SWITCHES`DIG`PLAYER [u(cobj,grid)]=TELEPORT

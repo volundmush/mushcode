@@ -361,7 +361,9 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,1,WIZARD SAFE,INHER
 
 @@ CACHE SECTION
 
-&GRP`CACHE`MEMBERS [u(cobj,group)]=@attach %!/WIPE=%0,MEMBERS`*;@dolist/inline/delimit | [u(mysql2,CACHE`MEMBERS,get(%0/D`ID))]={th u(attrib_set,%0,MEMBERS`[elements(##,1,^)],elements(##,2,^))};th u(attrib_set,%0,COMMAND,u(mysql,CACHE`COMMAND,get(%0/D`ID),default(%0/SET`COMMAND,2)))
+&GRP`CACHE`MEMBERS [u(cobj,group)]=th u(attrib_set,%0,MEMBERS,u(mysql,CACHE`MEMBER,get(%0/D`ID)));@attach %!/WIPE=%0,MEMBERS`*;@dolist/inline/delimit | [u(mysql2,CACHE`MEMBERS,get(%0/D`ID))]={th u(attrib_set,%0,MEMBERS`[elements(##,1,^)],elements(##,2,^))};th u(attrib_set,%0,COMMAND,u(mysql,CACHE`COMMAND,get(%0/D`ID),default(%0/SET`COMMAND,2)))
+
+&Q`CACHE`MEMBER [u(cobj,group)]=SELECT character_objid FROM volv_group_member WHERE group_id=? AND group_rank_number IS NOT NULL ORDER BY group_rank_number ASC,character_name ASC
 
 &Q`CACHE`MEMBERS [u(cobj,group)]=SELECT group_rank_number,character_objids FROM volv_group_rankgroups WHERE group_id=? AND group_rank_number IS NOT NULL AND character_objids IS NOT NULL
 
@@ -384,13 +386,13 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,1,WIZARD SAFE,INHER
 &SORTRANK`PENNMUSH [u(cobj,group)]=sortkey(#lambda/u(FUN`GETRANK,%q<gsort>,\%0,1),%0,n,%1,%2)
 &SORTRANK`RHOSTMUSH [u(cobj,group)]=sortby(#lambda/[lit([ncomp(u(FUN`GETRANK,%q<gsort>,%0,1),u(FUN`GETRANK,%q<gsort>,%1,1))])],%0,%1,%2)
 
-&GRP`GMEMBER`ADD`DO [u(cobj,group)]=@check u(setr,member_id,u(call`2,volp_group_member,0,get(%0/D`ID),get(%1/D`ID)))=@attach %!/INC`MSG=ERROR: Could not add to group. Reason: %q<member_id>;th u(attrib_set,%1,D`GROUP`[num(%0)],%q<member_id>);@attach %!/GRP`GMEMBER`RANK`DO=%0,%1,u(strfirstof,%2,get(%0/SET`STARTRANK));&MEMBERS u(setr,gsort,%0)=u(sortrank,u(sortname,u(filter,ISOBJID,setunion(get(%0/MEMBERS),objid(%1)))));&INVITES %0=u(filter,ISOBJID,setdiff(get(%0/INVITES),objid(%1)));@attach %!/INC`MSG`NOTICE=%3,%1;@attach %!/GRP`CACHE`MEMBERS=%0;@attach %!/GRP`CACHE`TIERS=%1;@attach %!/GRP`CACHE`CHARACTER`GROUP=%1,%0;@dolist/inline/nobreak if(%4,,IC OOC)={@check match(get(%1/V`GROUP`[get(%0/D`ID)]`PERMISSIONS),##);@attach %!/GRP`GCHANNEL`JOIN`DO=%0,%1,##};@select/inline strmatch(objid(%0),u(conf,STAFF_GROUP))=1,{th u(attrib_set,%1,V`ADMIN:1)};@select/inline %va=PennMUSH,{@dolist/inline/delimit | [u(FUN`GETSET,%0,CHANNELS)]={@chan/on %i0=%1}}
+&GRP`GMEMBER`ADD`DO [u(cobj,group)]=@check u(setr,member_id,u(call`2,volp_group_member,0,get(%0/D`ID),get(%1/D`ID)))=@attach %!/INC`MSG=ERROR: Could not add to group. Reason: %q<member_id>;th u(attrib_set,%1,D`GROUP`[num(%0)],%q<member_id>);@attach %!/GRP`GMEMBER`RANK`DO=%0,%1,u(strfirstof,%2,get(%0/SET`STARTRANK));&INVITES %0=u(filter,ISOBJID,setdiff(get(%0/INVITES),objid(%1)));@attach %!/INC`MSG`NOTICE=%3,%1;@attach %!/GRP`CACHE`MEMBERS=%0;@attach %!/GRP`CACHE`TIERS=%1;@attach %!/GRP`CACHE`CHARACTER`GROUP=%1,%0;@dolist/inline/nobreak if(%4,,IC OOC)={@check match(get(%1/V`GROUP`[get(%0/D`ID)]`PERMISSIONS),##);@attach %!/GRP`GCHANNEL`JOIN`DO=%0,%1,##};@select/inline strmatch(objid(%0),u(conf,STAFF_GROUP))=1,{th u(attrib_set,%1,V`ADMIN:1)};@select/inline %va=PennMUSH,{@dolist/inline/delimit | [u(FUN`GETSET,%0,CHANNELS)]={@chan/on %i0=%1}}
 
-&GRP`GMEMBER`RANK`DO [u(cobj,group)]=@attach %!/INC`DOSQL=UPDATE`RANK,get(%0/RANK`%2),get(%1/D`GROUP`%0);th u(attrib_set,%1,D`GROUP`[num(%0)]`RANK,%2);&MEMBERS u(setr,gsort,%0)=u(sortrank,u(sortname,u(filter,ISOBJID,get(%0/MEMBERS))));@attach %!/GRP`CACHE`MEMBERS=%0;@attach %!/GRP`CACHE`CHARACTER`GROUP=%1,%0;
+&GRP`GMEMBER`RANK`DO [u(cobj,group)]=@attach %!/INC`DOSQL=UPDATE`RANK,get(%0/RANK`%2),get(%1/D`GROUP`%0);th u(attrib_set,%1,D`GROUP`[num(%0)]`RANK,%2);@attach %!/GRP`CACHE`MEMBERS=%0;@attach %!/GRP`CACHE`CHARACTER`GROUP=%1,%0;
 
 &Q`UPDATE`RANK [u(cobj,group)]=UPDATE vol_group_member SET rank_id=? WHERE member_id=?
 
-&GRP`GMEMBER`KICK`DO [u(cobj,group)]=@dolist/inline/nobreak/localize get(%1/D`GROUP`%0`DIVISIONS)={@attach %!/GRP`GMEMBER`KICK`DO=##,%1};th u(setq,member_id,get(%1/D`GROUP`%0));&MEMBERS u(setr,gsort,%0)=u(sortrank,u(sortname,u(filter,ISOBJID,setdiff(get(%0/MEMBERS),objid(%1)))));@attach %!/WIPE=%1,D`GROUP`%0;@attach %!/WIPE=%1,V`GROUP`[get(%0/D`ID)];@attach %!/INC`DOSQL=DELETE`MEMBER,%q<member_id>;@attach %!/GRP`CACHE`TIERS=%1;@attach %!/GRP`CACHE`MEMBERS=%0;@select/inline strmatch(objid(%0),u(conf,STAFF_GROUP))=1,{th u(attrib_set,%1,V`ADMIN:0)};@attach %!/GRP`CACHE`CHARACTER`GROUP=%1,%0;@attach %!/INC`MSG=%2,%1
+&GRP`GMEMBER`KICK`DO [u(cobj,group)]=@dolist/inline/nobreak/localize get(%1/D`GROUP`%0`DIVISIONS)={@attach %!/GRP`GMEMBER`KICK`DO=##,%1};th u(setq,member_id,get(%1/D`GROUP`%0));@attach %!/WIPE=%1,D`GROUP`%0;@attach %!/WIPE=%1,V`GROUP`[get(%0/D`ID)];@attach %!/INC`DOSQL=DELETE`MEMBER,%q<member_id>;@attach %!/GRP`CACHE`TIERS=%1;@attach %!/GRP`CACHE`MEMBERS=%0;@select/inline strmatch(objid(%0),u(conf,STAFF_GROUP))=1,{th u(attrib_set,%1,V`ADMIN:0)};@attach %!/GRP`CACHE`CHARACTER`GROUP=%1,%0;@attach %!/INC`MSG=%2,%1
 
 &Q`DELETE`MEMBER [u(cobj,group)]=DELETE FROM vol_entity WHERE entity_id=?
 
