@@ -108,19 +108,19 @@ Support is limited by my time and energy, but it's my goal to provide an easy-to
 
   Be sure you are saving the cnf files with UNIX (LF) linebreaks if you're on Windows! I recommend notepad++ for the job.
   2. Examine your mush.cnf, make sure it has the following:
-    * Event Handler and Ancestors will be handled by the #1 Startup - leave these alone.
-    * function_invocation_limit 100000
-    * queue_entry_cpu_time 4500
-    * null_eq_zero yes
-    * pueblo yes
-    * Under the help section, comment out ahelp, anews, and news.
+     * Event Handler and Ancestors will be handled by the #1 Startup - leave these alone.
+     * function_invocation_limit 100000
+     * queue_entry_cpu_time 4500
+     * null_eq_zero yes
+     * pueblo yes
+     * Under the help section, comment out ahelp, anews, and news.
   3. Recommendations in mush.cnf: These are not NECESSARY, but are nice to have.
-    * mud_name - set it to something short but respectable, it'll be showing up in my code a lot!
-    * Uncomment all the dump_* messages and then clear dump_complete - this'll get rid of that annoying 'GAME: Save Complete.'
-    * Instead of using the built-in txt files, create in-game objects and put the displays there? It'll protect them from Git updates and lets you use ANSI and softcode displays!
-    * player_name_spaces yes
-    * page_aliases yes
-    * Under Flags section: You may also want to include ANSI and COLOR256 as a default but some clients might barf at this.
+     * mud_name - set it to something short but respectable, it'll be showing up in my code a lot!
+     * Uncomment all the dump_* messages and then clear dump_complete - this'll get rid of that annoying 'GAME: Save Complete.'
+     * Instead of using the built-in txt files, create in-game objects and put the displays there? It'll protect them from Git updates and lets you use ANSI and softcode displays!
+     * player_name_spaces yes
+     * page_aliases yes
+     * Under Flags section: You may also want to include ANSI and COLOR256 as a default but some clients might barf at this.
   4. In your restart file, uncomment and ensure your LANG=en_US if you want to take advantage of the expanded charset. Little requires this, but it does allow accented names and some other tricks. Some server OSes might need the ISO version of en_US specified: LANG=en_US.ISO-8859-1
   5. Logon to your code-WIZARD character who will own the code. Run the CORE 01 file from PennMUSH folder to create the Core Code Parent.
   6. Next, logon to #1 and run CORE 02.
