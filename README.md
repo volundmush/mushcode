@@ -1,4 +1,4 @@
-# Volund's MUSHcode Suite - For PennMUSH
+# Volund's Core Code Suite
 
 ## CONTACT INFO
 **Name:** Volund
