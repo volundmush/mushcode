@@ -106,6 +106,12 @@ Support is limited by my time and energy, but it's my goal to provide an easy-to
   2. While many bugs were stomped in the creation of 3.0, more doubtlessly remain. Don't be afraid to send in GitHub issues if you find them.
   3. My code uses lots and lots of action lists. If you're a mostly function-based softcoder, you're on your own.
 
+## INSTALLATION GUIDE - SQL
+  1. Obtain a SQL Database, Username, and Password. If you're on shared hosting, your provider should be able to give these to you.
+  2. Run the Schema.sql file from this repository. The easiest way to do this would be putting it in your shell account, browsing to the file, and then typing `mysql -u <username> -p <database> < Schema.sql` replacing the appropriate fields.
+  3. For PennMUSH, edit your mush.cnf so that the sql_* entries are appropriate. Note that MariaDB is counted as MySQL. Just use MySQL style if you're using MariaDB.
+     * For RhostMUSH, the file you want is game/rhost_mysql.conf
+
 ## INSTALLATION GUIDE - PennMUSH
   1. This readme assumes you at least know the basics of what you're doing by installing softcode and running a game, have a host, know how to get the game running and back it up, edit its files, etc. If you don't, I'd suggest checking out these fine people over at M*U*S*H, PennMUSH's development/social hangout establishment, available at: http://mush.pennmush.org/ - most coders there could easily get you going in a flash.
   2. Examine your mush.cnf, make sure it has the following:
