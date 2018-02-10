@@ -1,12 +1,12 @@
-Volund's MUSHcode Suite - For PennMUSH
+# Volund's MUSHcode Suite - For PennMUSH
 
-# CONTACT INFO
+## CONTACT INFO
 **Name:** Volund
 **Email:** volundmush@gmail.com
 **PayPal:** volundmush@gmail.com
 **Patreon:** [link](https://www.patreon.com/volund)
 
-# TERMS AND CONDITIONS
+## TERMS AND CONDITIONS
 
 You may copy, distribute, and alter this softcode with the following restrictions:
   1. The softcode may not be used for commercial purposes, whether this be selling the softcode or using it on a pay-to-play game.
@@ -15,23 +15,23 @@ You may copy, distribute, and alter this softcode with the following restriction
 
 Support is limited by my time and energy, but it's my goal to provide an easy-to-use and expansive suite of MUSHcode for all fans of the gaming platform to enjoy. If you have questions, bug reports, or feature requests, please use GitHub's Issues tab. Faiing that, email will do.
 
-# REQUIREMENTS
+## REQUIREMENTS
   * A reliable server host.
   * Access to a MySQL or MariaDB database. This MUST be a local server, preferably running on the same host as the game due to latency.
   * Decent computer administration skills.
 
-## REQUIREMENTS - PennMUSH
+### REQUIREMENTS - PennMUSH
   * The latest version of PennMUSH. You can find PennMUSH at https://github.com/pennmush/pennmush
   * A WIZARD character to install and maintain the code. (do NOT use #1 for this except where specified!)
   * Access to #1's STARTUP - you'll need to get VERY creative without it.
   * Very specific mush.cnf settings. Those will be detailed below.
 
-## REQUIREMENTS - RhostMUSH
+### REQUIREMENTS - RhostMUSH
   * The latest version of RhostMUSH. You can find RhostMUSH at https://github.com/RhostMUSH/trunk
   * An IMMORTAL (bittype 6) character to install and maintain the code.
   * Specific netrhost.conf settings. Those will be detailed below.
 
-# FEATURES
+## FEATURES
   * **CROSS-COMPATABILITY:** Run a game in either PennMUSH or RhostMUSH.
 
   * **MODULAR DESIGN:** Install only the features you want. The CORE INSTALL is designed to get along with most existing code for well-established games.
@@ -98,12 +98,12 @@ Support is limited by my time and energy, but it's my goal to provide an easy-to
 
   * **CUSTOM COLORS:** Players can alter most of the colors of things they see, from other character's names to groups to borders in commands like +who and +finger.
 
-# CONSIDERATIONS
+## CONSIDERATIONS
   1. Although this code was designed with the hope that it will be easy to install on an established game, those are always case-by-case situations. I can make no guarantees. On PennMUSH, the Core Code Parent must be the Event Handler. On RhostMUSH, it must be the hook_obj. Without this, many things simply will not work.
   2. While many bugs were stomped in the creation of 3.0, more doubtlessly remain. Don't be afraid to send in GitHub issues if you find them.
   3. My code uses lots and lots of action lists. If you're a mostly function-based softcoder, you're on your own.
 
-# INSTALLATION GUIDE - PennMUSH
+## INSTALLATION GUIDE - PennMUSH
   1. This readme assumes you at least know the basics of what you're doing by installing softcode and running a game, have a host, know how to get the game running and back it up, edit its files, etc. If you don't, I'd suggest checking out these fine people over at M*U*S*H, PennMUSH's development/social hangout establishment, available at: http://mush.pennmush.org/ - most coders there could easily get you going in a flash.
 
   Be sure you are saving the cnf files with UNIX (LF) linebreaks if you're on Windows! I recommend notepad++ for the job.
@@ -130,7 +130,7 @@ Support is limited by my time and energy, but it's my goal to provide an easy-to
   10. Use +gameconfig to configure all relevant settings as appropriate to your game.
   11. Have fun!
 
-# INSTALLATION GUIDE - RhostMUSH
+## INSTALLATION GUIDE - RhostMUSH
 1. This readme assumes you at least know the basics of what you're doing by installing softcode and running a game, have a host, know how to get the game running and back it up, edit its files, etc. If you don't, I'd suggest checking out these fine people over at M*U*S*H, PennMUSH's development/social hangout establishment, available at: http://mush.pennmush.org/ - most coders there could easily get you going in a flash. Even if you're using RhostMUSH.
 
 Be sure you are saving the .conf files with UNIX linebreaks if you're on Windows! I recommend notepad++ for the job.
