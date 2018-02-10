@@ -38,10 +38,10 @@ th u(NEWCOBJ,IdleSweeper <SWEEP>,sweep,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX
 &FIL`NOTADMIN [u(cobj,sweep)]=not(u(isadmin,%0))
 &FIL`LOCCHECK [u(cobj,sweep)]=not(strmatch(loc(%0),%1))
 
-&DO_SWEEP [u(cobj,sweep)]=@select/inline isdbref(u(setr,dest,u(conf,IDLE_DESTINATION)))=>0,{@select/inline words(u(setr,idlers,u(filter,NOTADMIN,u(filter,LOCCHECK,u(filter,OVERIDLE,u(lwhoid),%b,%b,u(conf,IDLE_TIME)),%b,%b,num(%q<dest>)))))=>0,{@attach %!/INC`MSG`NOTICE=You are being moved to the idle room due to inactivity.,%q<idlers>;@tel/list %q<idlers>=%q<dest>}},{@attach %!/INC`MSG`CHAN=[ansi(hr,ERROR:)] IdleSweep destination invalid. Fix in +sweep/config}
+&DO_SWEEP [u(cobj,sweep)]=@select/inline isdbref(u(setr,dest,u(conf,DESTINATION)))=>0,{@select/inline words(u(setr,idlers,u(filter,NOTADMIN,u(filter,LOCCHECK,u(filter,OVERIDLE,u(lwhoid),%b,%b,u(conf,IDLE_TIME)),%b,%b,num(%q<dest>)))))=>0,{@attach %!/INC`MSG`NOTICE=You are being moved to the idle room due to inactivity.,%q<idlers>;@tel/list %q<idlers>=%q<dest>}},{@attach %!/INC`MSG`CHAN=[ansi(hr,ERROR:)] IdleSweep destination invalid. Fix in +sweep/config}
 
 &STARTUP [u(cobj,sweep)]=@trigger %!/LOOP`IDLESWEEP
-&LOOP`IDLESWEEP [u(cobj,sweep)]=@trigger %!/DO_SWEEP;@select/inline u(conf,ENABLED)=1,{@wait u(conf,IDLE_INTERVAL)=@trigger %!/LOOP`IDLESWEEP}
+&LOOP`IDLESWEEP [u(cobj,sweep)]=@trigger %!/DO_SWEEP;@select/inline u(conf,ENABLED)=1,{@wait u(conf,INTERVAL)=@trigger %!/LOOP`IDLESWEEP}
 
 &SHLP`SWEEP [u(cobj,sweep)]=The IdleSweeper transfers players somewhere out of the way if they're found idling inside a room.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+sweep/now)] - Triggers an idlesweep right now.%R[ansi(h,+sweep/config)] - Configure the IdleSweeper.)]
 +shelp/add Administration/+sweep=[u(cobj,sweep)]/SHLP`SWEEP

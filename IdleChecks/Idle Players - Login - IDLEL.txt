@@ -1,0 +1,21 @@
+@@ DEPENDENCIES: Core
+@@ RECOMMENDED: Theme System
+@@ This version of +idle scans Login times and can filter by Theme-Type (OC, FC, etc) if the Theme Manager is installed.
+
+th u(NEWCOBJ,Idle Players LOGIN <IDLEL>,idlel,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+IDLERS`PENNMUSH [u(cobj,idlel)]=$^(?\:\+)?idlers(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IDLERS`MAIN
+@set [u(cobj,idlel)]/CMD`+IDLERS`PENNMUSH=regexp
+&CMD`+IDLERS`RHOSTMUSH [u(cobj,idlel)]=$^(?\:\+)?idlers(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+IDLERS`MAIN
+@set [u(cobj,idlel)]/CMD`+IDLERS`RHOSTMUSH=regexp
+&CMD`+IDLERS`MAIN [u(cobj,idlel)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`MAIN=%2,%3,%q<switch>
+@set [u(cobj,idlel)]/CMD`+IDLERS`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,idlel)]=IDLERS
+
+&INC`MAIN [u(cobj,idlel)]=@select/inline gt(strlen(%0),0)=1,{@attach %!/INC`VALID`POSINT=%0,Days},{th u(setq,value,30)};@check words(u(setr,idlers,sortkey(#lambda/convtime(get(\%0/LASTLOGOUT)),setdiff(lsearch(all,eplayer,\[cand(gt(sub(secs(),convtime(get(##/LASTLOGOUT))),mul(86400,%q<value>)),not(u(isguest,##)),not(u(isadmin,##)),not(gte(conn(##),0)))\]),num(u(cobj,ancestor_player))),n)))=@attach %!/INC`MSG=Nobody's been offline longer than %q<value>.;@select/inline strlen(%2)=>0,{@check words(u(setr,idlers,u(filter,CHARTYPE,%q<idlers>,%b,%b,%2)))=@attach %!/INC`MSG=No idling characters are type %2.};@pemit %#=u(header,if(strlen(%2),%2%B)Players over %q<value> Days Idle)%R[ansi(u(color,%#,COLUMN_NAMES),align(-6 3 2 3 4 21 4 21 6,Dbref,Sta,Al,Fac,Type,Name,Mail,IP,LastOn))]%R[u(separator)];@dolist/inline %q<idlers>=@pemit %#=u(FUN`ACCOUNT`CHARLINE,%i0);@pemit %#=u(footer,words(%q<idlers>) Characters Idle)
+
+&SWITCHES`ADMIN [u(cobj,idlel)]=
+&SWITCHES`PLAYER [u(cobj,idlel)]=if(isdbref(u(cobj,theme)),u(u(cobj,theme)/conf,TYPES))
+
+&FIL`CHARTYPE [u(cobj,idlel)]=strmatch(default(%0/D`FINGER`TYPE,OC),%1)

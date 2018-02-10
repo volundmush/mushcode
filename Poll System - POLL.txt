@@ -69,11 +69,8 @@ th u(NEWCOBJ,Poll Database <POLLDB>,polldb,u(cobj,poll),,1,WIZARD SAFE,INHERIT S
 &FIL`OPEN [u(cobj,poll)]=not(get(%0/STATUS))
 &FIL`UNANSWERED [u(cobj,poll)]=not(hasattr(%0/VOTER`%1))
 
-+help/add +poll=[u(cobj,poll)]/HLP`+poll
-+help/category +poll=Community
-+help/metatags +poll=poll
 &HLP`+poll [u(cobj,poll)]=The Poll system's used to manage any number of questions posed to the playerbase by admin on [mudname()].%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+poll)] - Lists all Polls in use.%R[ansi(hw,+poll <name>)] - List details about a poll.%R[ansi(h,+poll/full <name>)] - List 'other' answers to the poll. Can be REALLY spammy...%R[ansi(hw,+poll <name>=<letter>)] - Cast your vote. Just use it again with a different letter to change it. For multi-type polls\, each vote is added to a different option.%R[ansi(h,+poll/other <name>=<text>)] - Cast your vote for a write-in 'other' entry. If none of the existing options are sufficient. This is counted as a letter X vote.%R[ansi(h,+poll/remove <name>=<letter>)] - Works only for Multi-type polls. Remove a wrongly-cast vote. Don't forget to cast the right one! Use the letter X for removing an Other entry.%R%RPoll votes are tied to your account. One account\, one vote.%R%R<name> can be a partial match.)]
++help/add Community/+poll=[u(cobj,poll)]/HLP`+poll
 
-+shelp/add +poll=[u(cobj,poll)]/SHLP`+poll
-+shelp/category +poll=Community
 &SHLP`+poll [u(cobj,poll)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+poll/create <name>=<description>)] - Creates a new poll.%R[ansi(h,+poll/rename <name>=<newname>)] - Rename a poll.%R[ansi(h,+poll/delete <name>)] - Deletes a poll.%R[ansi(h,+poll/open <name>)] - Opens a poll so others can vote. Using this command announces it to everyone online.%R[ansi(h,+poll/close <name>)] - Close a poll. Announces to everyone online. Closed polls can't be voted on.%R[ansi(h,+poll/describe <name>=<description>)] - Updates a poll's description.%R[ansi(h,+poll/option <name>=<letter>/<text>)] - Set/describe a poll's options. Available letters: A through F.%R[ansi(h,+poll/multi <name>)] - Toggle a Poll's Multi-mode on or off. Polls begin with it off. Multi-mode polls allow people to vote for more than thing at a time.)]
++shelp/add Community/+poll=[u(cobj,poll)]/SHLP`+poll

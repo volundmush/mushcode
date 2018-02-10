@@ -7,14 +7,10 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &CMD`+SCENE`MAIN [u(cobj,scene)]=th u(setq,mode,switch(%1,scene,LOG,log,LOG,events,LOG,schedule,LOG,scenes,log,event,LOG,plot,plot,pot,pot,summary,summary,observer,observer,partners,partners));@attach %!/INC`CHECKPC=%#,1;@attach %!/INC`GETSWITCH=%2;th u(setq,page,u(strfirstof,%3,1));@attach %!/INC`%q<mode>`[u(strfirstof,%q<switch>,switch(%1,scenes,UPCOMING,events,UPCOMING,event,UPCOMING,schedule,UPCOMING,MAIN))]=trim(%4),trim(%5),%4[if(strlen(%5),=%5)]
 @set [u(cobj,scene)]/CMD`+SCENE`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&CMD`+SCHEDULE`PENNMUSH [u(cobj,scene)]
-&CMD`+SCHEDULE`RHOSTMUSH [u(cobj,scene)]
-&CMD`+SCHEDULE`MAIN [u(cobj,scene)]
-
 &CMD`CHARID [u(cobj,scene)]=$^\+charid(?\: +(.*))?$:@attach %!/CMD`+SCENE`MAIN=+log/id %1,log,id,,%1
 @set [u(cobj,scene)]/CMD`CHARID=regexp
 
-&SYSTEM`SWITCHES [u(cobj,scene)]=setunion(v(SWITCHES`%q<mode>`PLAYER),if(u(isadmin,%#),v(SWITCHES`%q<mode>`ADMIN)),|,|)
+&SYSTEM`SWITCHES [u(cobj,scene)]=setunion(u(SWITCHES`%q<mode>`PLAYER),if(u(isadmin,%#),u(SWITCHES`%q<mode>`ADMIN)),|,|)
 
 &SWITCHES`LOG`PLAYER [u(cobj,scene)]=ID|CREATE|LOUDCREATE|START|LOUDSTART|SCHEDULE|RESCHEDULE|JOIN|LEAVE|TITLE|OUTCOME|PITCH|RECALL|FINISH|PAUSE|CONTINUE|START|UNDO|REDO|EDIT|SPOOF|PLOT|OLD|WHO|WITH|EXCLUDE|TAG|UNTAG|MAIL|UPCOMING|MINE|DELETE|OPTIONS
 &SWITCHES`LOG`ADMIN [u(cobj,scene)]=MERGE|CONFIG
@@ -24,6 +20,8 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &SWITCHES`OBSERVER`PLAYER [u(cobj,scene)]=
 &SWITCHES`PARTNERS`PLAYER [u(cobj,scene)]=JOIN|LEAVE
+
+&INC`LOG`CONFIG [u(cobj,scene)]=@attach %!/INC`CONFIG
 
 &CONFIG`OPTIONS [u(cobj,scene)]=URL|PATH|IDLE|BOARD|BANNER|BANNER_TAGS|ROLEPLAY_CHANNEL
 
@@ -230,16 +228,16 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &INC`LOG`PLAYERLIST [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),2,1;@pemit %#=u(HEADER,if(strmatch(%q<t2objid>,%:),Your,%q<t2name>'s) [if(%3,Finished,Incomplete)] Scenes);th u(setq,total,u(mysql,COUNT`SCENEMINE,if(%3,=3,<3),%q<t2id>));th u(setq,page,bound(%q<page>,1,u(setr,max,firstof(ceil(fdiv(%q<total>,30)),1))));th u(setq,offset,mul(30,sub(%q<page>,1)));@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(4 41 20 10,ID,Title,Owner,if(%3,Date,Status)));@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] [u(mysql3,LOAD`SCENEMINE,if(%3,=3,<3),%q<t2id>,%q<offset>)]={@pemit %#=align(4 41 20 10,u(pueblize,elements(%i0,1,chr(177)),+log [elements(%i0,1,chr(177))]),elements(%i0,2,chr(177)),if(isobjid(elements(%i0,3,chr(177))),u(moniker,elements(%i0,3,chr(177))),ansi(hx,elements(%i0,4,chr(177)))),if(%3,u(choosegame,timefmt($m/$d/$y,elements(%i0,7,chr(177)),u(gettz,%#)),ptimefmt($m/$d/$y,elements(%i0,7,chr(177)),u(gettz,%#))),switch(elements(%i0,7,chr(177)),0,Active,1,Paused,2,Unfinished,3,Finished,???)))};@pemit %#=u(FOOTER,if(gt(%q<page>,1),ansi(hg,u(pueblize,<,+log[if(%3,/old)]/[sub(%q<page>,1)] %q<t2>)),ansi(hx,<))%BPage %q<page> of [bound(%q<max>,1)]%B[if(lt(%q<page>,%q<max>),ansi(hg,u(pueblize,>,+log[if(%3,/old)]/[add(%q<page>,1)] %q<t2>)),ansi(hx,>))])
 
 &Q`COUNT`SCENEMINE [u(cobj,scene)]=SELECT count(a.scene_id) FROM volv_actor AS a LEFT JOIN vol_scene AS s ON s.scene_id=a.scene_id WHERE s.scene_status! AND a.character_id=?
-&Q`LOAD`SCENEMINE [u(cobj,scene)]=SELECT a.scene_id,s.scene_title,s.runner_objid,s.runner_name,s.scene_status,s.scene_date_created_secs,s.scene_date_finished_secs,s.scene_outcome FROM volv_actor AS a LEFT JOIN vol_scene AS s ON s.scene_id=a.scene_id WHERE s.scene_status! AND a.character_id=? LIMIT 30 OFFSET ?
+&Q`LOAD`SCENEMINE [u(cobj,scene)]=SELECT a.scene_id,s.scene_title,s.runner_objid,s.runner_name,s.scene_status,s.scene_date_created_secs,s.scene_date_finished_secs,s.scene_outcome FROM volv_actor AS a LEFT JOIN volv_scene AS s ON s.scene_id=a.scene_id WHERE s.scene_status! AND a.character_id=? LIMIT 30 OFFSET ?
 
-&INC`LOG`WITH [u(cobj,scene)]=@attach %!/INC`CHECKPC=%0,2,1;@attach %!/INC`CHECKPC=u(strfirstof,%1,%#),3,1;@check words(u(setr,withlist,u(mysql3,GET`SCENESWITH,%q<t2id>,%q<t3id>)),chr(176))=@attach %!/INC`MSG=Oops! No scenes in common!;@pemit %#=u(header,Scenes Together: %q<t2name> and %q<t3name>);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(6 30 40,ID,Title,Participants));@pemit %#=u(separator);@dolist/inline/delimit [chr(176)] %q<withlist>={@pemit %#=align(6 30 40,u(pueblize,elements(%i0,1,chr(177)),+log [elements(%i0,1,chr(177))]),elements(%i0,2,chr(177)),iter(u(mysql3,GET`SCENEWITHNAMES,elements(%i0,1,chr(177))),%i0,chr(176),\,%b))};@pemit %#=u(footer,Total: [words(%q<withlist>,chr(176))] Scenes)
+&INC`LOG`WITH [u(cobj,scene)]=@attach %!/INC`CHECKPC=%0,2;@attach %!/INC`CHECKPC=u(strfirstof,%1,%#),3;@check words(u(setr,withlist,u(mysql3,GET`SCENESWITH,%q<t2id>,%q<t3id>)),chr(176))=@attach %!/INC`MSG=Oops! No scenes in common!;@pemit %#=u(header,Scenes Together: %q<t2name> and %q<t3name>);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(6 30 40,ID,Title,Participants));@pemit %#=u(separator);@dolist/inline/delimit [chr(176)] %q<withlist>={@pemit %#=align(6 30 40,u(pueblize,elements(%i0,1,chr(177)),+log [elements(%i0,1,chr(177))]),elements(%i0,2,chr(177)),iter(u(mysql3,GET`SCENEWITHNAMES,elements(%i0,1,chr(177))),%i0,chr(176),\,%b))};@pemit %#=u(footer,Total: [words(%q<withlist>,chr(176))] Scenes)
 
 &Q`GET`SCENESWITH [u(cobj,scene)]=SELECT s.scene_id,s.title FROM volv_actor_agg AS act LEFT JOIN vol_scene AS s ON s.scene_id=act.scene_id WHERE act.character_id IN(?,?) AND act.pose_count>0 GROUP BY act.scene_id HAVING COUNT(DISTINCT act.character_id)=2
 &Q`GET`SCENEWITHDET [u(cobj,scene)]=SELECT scene_title FROM vol_scene where scene_id=?
 &Q`GET`SCENEWITHNAMES [u(cobj,scene)]=SELECT DISTINCT character_name FROM volv_actor_agg WHERE scene_id=? AND pose_count>0 ORDER by character_name
 
 &INC`LOADSCENE`PLOT [u(cobj,scene)]=th u(setq,plots,u(mysql3,LOAD`SCENE_PLOTS,%q<scene>))
-&Q`LOAD`SCENE_PLOTS [u(cobj,scene)]=SELECT plot_id,plot_title,plot_type,plot_status,plot_date_start_secs,plot_date_end_secs,owner_id,owner_objid,owner_name FROM volv_plotlink WHERE scene_id=?
+&Q`LOAD`SCENE_PLOTS [u(cobj,scene)]=SELECT plot_id,plot_title,plot_date_start_secs,plot_date_end_secs,owner_id,owner_objid,owner_name FROM volv_plotlink WHERE scene_id=?
 
 &INC`LOADSCENE`LOCATIONS [u(cobj,scene)]=th u(setq,locs,u(mysql3,LOAD`SCENE_LOCATIONS,%q<scene>))
 &Q`LOAD`SCENE_LOCATIONS [u(cobj,scene)]=SELECT s.source_objid,s.source_name FROM vol_action_source as s WHERE s.scene_id=? AND s.source_type=0 ORDER BY s.source_name
@@ -386,36 +384,31 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &Q`ADD`PAIRING [u(cobj,scene)]=INSERT INTO $MATCH$ (pair_id, player_id) VALUES (?,?)
 &Q`DEL`PAIRING [u(cobj,scene)]=DELETE FROM $MATCH$ WHERE match_id=?
 
-+help/add +scene=[u(cobj,scene)]/HLP`+SCENE
-+help/category +scene=Roleplaying
-+help/metatags +scene=logging scenesys +log
+
 &HLP`+SCENE [u(cobj,scene)]=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H.%R[ansi(hc,Aliases:)] +log%R%R[ansi(hc,Setting up)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/id \[<target>\])] - Show your own unique Char_id. Or someone else's. This is used for linking to the wiki.%R[ansi(h,+config system/timezone=<code>)] - You must set your timezone for this system to work. Refer to help timezones2)]%R%R[ansi(hc,SceneRunner Commands)]%RThese commands are for anyone who wants to start and manage a scene.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/create <title text>)] - Begins a new scene.%R[ansi(h,+scene/loudcreate <title text>)] - Like /create but announces it on the RP channel.%R[ansi(h,+scene/pitch <id>=<text>)] - Changes a scene's Pitch (the paragraph for an upcoming scene.)%R[ansi(h,+scene/outcome <id>=<text>)] - Gives a scene a description/short summary.%R[ansi(h,+scene/finish \[<id>\])] - Finishes a scene. ID will be current scene if not specified.%R[ansi(h,+scene/pause \[<id>\])] - Pauses a scene. ID will be current scene if not specified.%R[ansi(h,+scene/continue \[<id>\])] - Resumes a scene that was paused or finished. ID will be current scene if not specified.%R%RThe following are for Scheduling Scenes:%R[ansi(h,+scene/schedule <time>/<title>=<description>)] - Schedules an upcoming scene. <time> is from your timezone-perspective. Acceptable format: [u(choosegame,timefmt($b $d $H:$M,,u(gettz,%#)),ptimefmt($b $d $H:$M,,u(gettz,%#)))]. Current year assumed if none provided.%R[ansi(h,+scene/reschedule <id>=<time>)] - Changes a scene's scheduled time. <time> is same as adding.%R[ansi(h,+scene/mail <id>=<message>)] - @mails all who have tagged a scene.%R[ansi(h,+scene/invite <id>)] - Automatically sends out summon requests to taggers.%R[ansi(h,+scene/start <id>)] - Convert a scheduled scene into an active one. Get posing!)]%R%R[ansi(hc,Participant Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/upcoming)] - Display the upcoming scene calendar. Also responds to: +scenes\, +upcoming\, +events\, and +schedule.%R[ansi(h,+scene/mine)] - As /upcoming but lists only those scenes you have either tagged or created.%R[ansi(h,+scene/tag <id>)] - Declare interest in an upcoming scene. Remove with /untag.%R[ansi(h,+scene/join \[<id or player>\])] - Joins a scene.%R[ansi(h,+scene/leave)] - Cease being logged.%R[ansi(h,+scene/undo \[<pose id>\])] - Undoes your last pose or a specified pose. Can re-enable the pose using /redo.%R[ansi(h,+scene/edit <pose id>=<before>\,<after>)] - Edit a recorded pose. useful for getting rid of typos.%R[ansi(h,+scene/recall <id>=<# of lines>)] - Displays scene's recorded poses.%R[ansi(h,+scene/spoof <altname>)] - Record poses as one of your alts. Use without arguments to clear.%R[ansi(h,+observer)] - Marks you as 'just watching'.%R%RTo be recorded\, you must be joined to an active scene and in the same location as the scene's owner. Additionally your pose must be at least ten words long.)]%R%R[ansi(hc,Listing Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene)] - Displays all scenes you are currently participating in or running that aren't finished.%R[ansi(h,+scene/old)] - Show all of the finished scenes you've been in or run.%R[ansi(h,+scene <id>)] - Show details of a particular scene.%R[ansi(h,+scene/who \[<id>\])] - Quick listing of who has this scene as their active scene.%R[ansi(h,+scene/with <name>\[=<name2>\])] - List what scenes you have in common with a given player or between X and Y players. Can get spammy.%R%RAll Listing commands support an additional /# switch for different pages. For instance\, +scene/old/3.%R%RUsage Procedure: 1. Creator starts scene. 2. Others join scene. 3. Scene is recorded as it's run. 4. Creator uses /finish. 5. Use the PHP intermediary site to format and post to wiki.)]
++help/add Roleplaying/+scene=[u(cobj,scene)]/HLP`+SCENE
 
-+shelp/add +scene=[u(cobj,scene)]/SHLP`+SCENE
-+shelp/category +Scene=Roleplaying
 &SHLP`+SCENE [u(cobj,scene)]=[ansi(hc,Wizard Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+scene/delete <id>)] - Deletes a scene and all recorded poses.%R[ansi(h,+scene/merge <player>=<char id>)] - This command exists for when a character is deleted and a new one is created and the new character needs to 'take the place' of the old one. This will re-assign the given <char id> to player and change any of the player's existing scenesys information to use that ID.)]
++shelp/add Roleplaying/+scene=[u(cobj,scene)]/SHLP`+SCENE
 
-+help/add +partners=[u(cobj,scene)]/HLP`+PARTNERS
-+help/category +partners=Roleplaying
+
 &HLP`+PARTNERS [u(cobj,scene)]=The Partners system helps keep track of matchups within scenes. Examples include a task force, a dogfight, a duel. The idea is that this will help participants of large scenes and scenerunners easily keep track of who is grouped together, who is fighting who, etc.%R%R[ansi(hc,Commands)]%RThese commands use the currently joined scene contextually. In other words, each list of matchups is unique-per-+scene.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+partners)] - List all matchups in the scene.%R[ansi(h,+partners/join <slot>)] - Join a particular matchup. <slot> must be a number 1-15.%R[ansi(h,+partners/leave <slot>)] - Same as /join except leaves a matchup.)]
++help/add Roleplaying/+partners=[u(cobj,scene)]/HLP`+PARTNERS
 
-+help/add +plot=[u(cobj,scene)]/HLP`+PLOT
-+help/category +plot=Roleplaying
+
 &HLP`+PLOT [u(cobj,scene)]=SceneSys is a scene scheduling, tracking, and logging tool that works alongside [mudname()]'s Wiki. The original version was designed by Mercutio @ M*U*S*H and some of his code remains - credits are due.%R[ansi(hc,See Also:)] [u(pueblize,+help +scene,+help +scene)]%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,{[ansi(h,+plot)] - Show all current plots.%R[ansi(h,+plot/all)] - Show all plots in the system.%R[ansi(h,+plot <id>)] - Show a plot's details.})]
++help/add Roleplaying/+plot=[u(cobj,scene)]/HLP`+PLOT
 
-+shelp/add +plot=[u(cobj,scene)]/SHLP`+PLOT
-+shelp/category +plot=Roleplaying
+
 &SHLP`+PLOT [u(cobj,scene)]=[ansi(hc,Administrator Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+plot/add <runner>/<title>=<description>)] - Creates a new plot.%R[ansi(h,+plot/desc <id>=<description>)] - Change a plot's description.%R[ansi(h,+plot/type <id>=<type>)] - Change a plot's type.%R[ansi(h,+plot/title <id>=<title>)] - Change a plot's title.%R[ansi(h,+plot/runner <id>=<player>)] - Change a plot's runner.%R[ansi(h,+plot/start <id>=<time>)] - Change a plot's start date. Uses the same format as +schedule scheduling.%R[ansi(h,+plot/end <id>=<time>)] - Change a plot's end date.%R[ansi(h,+plot/status <id>=<status>)] - Change a plot's status. This can be anything.%R[ansi(h,+plot/delete <id>)] - Deletes a plot. Do not use except for newly created mistakes! This is not how to finish a plot!%R%RPlots are 'finished' when their end date have passed.)]
++shelp/add Roleplaying/+plot=[u(cobj,scene)]/SHLP`+PLOT
 
 @@ POSE ORDER TRACKER - POT
-+help/add +pot=[u(cobj,scene)]/HLP`+POT
-+help/category +pot=Roleplaying
 &HLP`+POT [u(cobj,scene)]=+pot, or [ansi(h,Po)]se [ansi(h,T)]racker, is a system that stores poses within the room for easy retrieval for review. Sometimes, poses are lost in spam or scroll, or a player enters late and needs to see what's going on, or was disconnected when someone else posed, and that's what this system's here to aid with.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+pot)] - Show either +pot/list or +pot/brief\, depending on /mode. \(See below.\)%R[ansi(h,+pot/list)] - show the last 15 \(or set max\) poses.%R[ansi(h,+pot/list <number>)] - Show a specified amount of poses.%R[ansi(h,+pot/max <number>)] - Set a new default number of poses to show.%R[ansi(h,+pot/brief)] - Show when people last posed and their last +summary made after that pose if they have one.%R[ansi(h,+pot/mode)] - Change the behavior of +pot. By default\, +pot uses +pot/list display style. Change mode and it will use +pot/brief instead.%R%R[ansi(h,+pot/toggle)] - THINGS used as rooms WILL support +pot if they are within an IC room. Object owners can use +pot/toggle to switch off recording. It can also enable recording in areas that are normally OOC.)]
++help/add Roleplaying/+pot=[u(cobj,scene)]/HLP`+POT
 
-+help/add +summary=[u(cobj,scene)]/HLP`+SUMMARY
-+Help/category +summary=Roleplaying
 &HLP`+SUMMARY [u(cobj,scene)]=Usage: +summary <message>%R%RDisplays <message> in highlights along with your name and a note that it's a summary. This is to summarize long poses for use by both your fellow players as well as your game master (if the scene has a game master), in order to better help have an idea of what's going on. It's use in large scenes is STRONGLY encouraged. It's also used to keep track of who's posed in a given pose round, if a scene is using pose rounds.%R%RNote that <message> is meant to be short and very to the point. It shouldn't be more than two or three lines. The command will refuse to display messages that are over a certain limit.
++help/add Roleplaying/+summary=[u(cobj,scene)]/HLP`+SUMMARY
 
-+help/add +done=[u(cobj,scene)]/HLP`+DONE
-+Help/category +done=Roleplaying
 &HLP`+DONE [u(cobj,scene)]=Usage: +done%R%RDisplays a highlighted message that you are 'done'. This is usually used to keep track of who's posed in large scenes, for the convenience of the game master (if applicable) as well as other players. This is especially useful when pose rounds are being used.
++help/add Roleplaying/+done=[u(cobj,scene)]/HLP`+DONE

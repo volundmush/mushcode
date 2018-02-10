@@ -1,140 +1,138 @@
 @@ DEPENDENCIES - CORE
 
-th u(NEWCOBJ,FCList Management System <FCLIST>,fclist,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
-th u(NEWCOBJ,FCList Theme Database <THEMEDB>,themedb,u(cobj,fclist),,1,SAFE,SAFE)
+th u(NEWCOBJ,Theme Manager <THEME>,theme,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
-&CMD`+FCLIST`PENNMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|theme|series|cast)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
-@set [u(cobj,fclist)]/CMD`+FCLIST`PENNMUSH=regexp
-&CMD`+FCLIST`RHOSTMUSH [u(cobj,fclist)]=$^(?s)(?\:\+)?(fclist|themes|theme|series|cast)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
-@set [u(cobj,fclist)]/CMD`+FCLIST`RHOSTMUSH=regexp
-&CMD`+FCLIST`MAIN [u(cobj,fclist)]=th u(setq,com,lcstr(+%1));@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
-@set [u(cobj,fclist)]/CMD`+FCLIST`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+&CMD`+FCLIST`PENNMUSH [u(cobj,theme)]=$^(?s)(?\:\+)?(fclist|themes|theme|series|cast)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
+@set [u(cobj,theme)]/CMD`+FCLIST`PENNMUSH=regexp
+&CMD`+FCLIST`RHOSTMUSH [u(cobj,theme)]=$^(?s)(?\:\+)?(fclist|themes|theme|series|cast)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FCLIST`MAIN
+@set [u(cobj,theme)]/CMD`+FCLIST`RHOSTMUSH=regexp
+&CMD`+FCLIST`MAIN [u(cobj,theme)]=th u(setq,com,lcstr(+%1));@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,theme)]/CMD`+FCLIST`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&SWITCHES`PLAYER [u(cobj,fclist)]=INFO|SEARCH
-&SWITCHES`ADMIN [u(cobj,fclist)]=CREATE|RENAME|DELETE|ASSIGN|REMOVE|DESCRIBE|STATUS|SETINFO|CLEARINFO|UNASSIGNED
-&SWITCHES`WIZARD [u(cobj,fclist)]=CONFIG
+&SWITCHES`PLAYER [u(cobj,theme)]=INFO|SEARCH
+&SWITCHES`ADMIN [u(cobj,theme)]=CREATE|RENAME|DELETE|ASSIGN|REMOVE|DESCRIBE|STATUS|SETINFO|CLEARINFO|UNASSIGNED
+&SWITCHES`WIZARD [u(cobj,theme)]=CONFIG
 
-&SYSTEM`NAME [u(cobj,fclist)]=FCLIST
+&SYSTEM`NAME [u(cobj,theme)]=THEME
 
-&INC`MAIN [u(cobj,fclist)]=@select/inline strlen(%0)=>0,{@attach %!/INC`DISPLAY},0,{@attach %!/INC`LISTALL}
+&INC`MAIN [u(cobj,theme)]=@select/inline strlen(%0)=>0,{@attach %!/INC`DISPLAY},0,{@attach %!/INC`LISTALL}
 
-&INC`LISTALL [u(cobj,fclist)]=@check u(setr,count,u(mysql,SELECT`THEMECOUNT))=@attach %!/INC`MSG=No inhabited themes to display.;@pemit %#=u(HEADER,mudname() - All Themes);@dolist/inline lnum(1,u(setr,pages,add(1,div(%q<count>,250))))={@pemit %#=u(table,iter(u(mysql3,SELECT`THEME_NAMES,mul(250,sub(u(choosegame,%i0,%d0),1))),u(pueblize,%i0,+fclist %i0)),37,u(width,%#),chr(176))};@pemit %#=u(footer)
+&INC`LISTALL [u(cobj,theme)]=@check u(setr,count,u(mysql,SELECT`THEMECOUNT))=@attach %!/INC`MSG=No inhabited themes to display.;@pemit %#=u(HEADER,mudname() - All Themes);@dolist/inline lnum(1,u(setr,pages,add(1,div(%q<count>,250))))={@pemit %#=u(table,iter(u(mysql3,SELECT`THEME_NAMES,mul(250,sub(u(choosegame,%i0,%d0),1))),u(pueblize,%i0,+fclist %i0)),37,u(width,%#),chr(176))};@pemit %#=u(footer)
 
-&Q`SELECT`THEME_NAMES [u(cobj,fclist)]=SELECT theme_name FROM volv_theme ORDER BY theme_name LIMIT 250 OFFSET ?
+&Q`SELECT`THEME_NAMES [u(cobj,theme)]=SELECT theme_name FROM volv_theme ORDER BY theme_name LIMIT 250 OFFSET ?
 
-&Q`SELECT`THEMECOUNT [u(cobj,fclist)]=SELECT count(theme_id) FROM vol_theme
+&Q`SELECT`THEMECOUNT [u(cobj,theme)]=SELECT count(theme_id) FROM vol_theme
 
-&INC`FINDTHEME [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@select/inline words(u(setr,theme,u(mysql3,FIND`THEME[if(%2`EXACT)],%0,%0)))=0,{@stop 1=@attach %!/INC`MSG=ERROR: Theme '%0' not found!},1,{},>1,{@select/inline t(%2)=1,{},0,{th u(setq,theme,first(%q<theme>))}};th u(setq,themename,elements(%q<theme>,2,chr(177)));th u(setq,theme,elements(%q<theme>,1,chr(177)))
+&INC`FINDTHEME [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@select/inline words(u(setr,theme,u(mysql3,FIND`THEME[if(%2`EXACT)],%0,%0)))=0,{@stop 1=@attach %!/INC`MSG=ERROR: Theme '%0' not found!},1,{},>1,{@select/inline t(%2)=1,{},0,{th u(setq,theme,first(%q<theme>))}};th u(setq,themename,elements(%q<theme>,2,chr(177)));th u(setq,theme,elements(%q<theme>,1,chr(177)))
 
-&Q`FIND`THEME [u(cobj,fclist)]=SELECT theme_id,theme_name FROM volv_theme WHERE theme_name LIKE '!%' OR theme_id=? ORDER BY theme_name LIMIT 1
-&Q`FIND`THEME`EXACT [u(cobj,fclist)]=SELECT theme_id,theme_name FROM volv_theme WHERE theme_name=? OR theme_id=?
+&Q`FIND`THEME [u(cobj,theme)]=SELECT theme_id,theme_name FROM volv_theme WHERE theme_name LIKE '!%' OR theme_id=? ORDER BY theme_name LIMIT 1
+&Q`FIND`THEME`EXACT [u(cobj,theme)]=SELECT theme_id,theme_name FROM volv_theme WHERE theme_name=? OR theme_id=?
 
-&INC`DISPLAY [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0,1;@pemit %#=u(HEADER,Theme: %q<themename>);@pemit %#=u(mysql,SELECT`DESCRIPTION,%q<theme>);@pemit %#=u(separator,Cast);@attach %!/INC`CASTLIST=%q<theme>;@attach %!/INC`INFOLIST=%q<theme>;@pemit %#=u(footer,if(u(isadmin,%#),Theme ID: %q<theme>))
+&INC`DISPLAY [u(cobj,theme)]=@attach %!/INC`FINDTHEME=%0,1;@pemit %#=u(HEADER,Theme: %q<themename>);@pemit %#=u(mysql,SELECT`DESCRIPTION,%q<theme>);@pemit %#=u(separator,Cast);@attach %!/INC`CASTLIST=%q<theme>;@attach %!/INC`INFOLIST=%q<theme>;@pemit %#=u(footer,if(u(isadmin,%#),Theme ID: %q<theme>))
 
-&Q`SELECT`DESCRIPTION [u(cobj,fclist)]=SELECT theme_description FROM vol_theme WHERE theme_id=?
+&Q`SELECT`DESCRIPTION [u(cobj,theme)]=SELECT theme_description FROM vol_theme WHERE theme_id=?
 
-&INC`CASTLIST [u(cobj,fclist)]=@select/inline t(%1)=0,{@pemit %#=u(FUN`CASTCOLUMN);@pemit %#=u(separator)};@dolist/inline/delimit [chr(176)] [u(mysql3,SELECT`CAST,%0)]={@pemit %#=u(FUN`CASTROW,u(choosegame,%i0,%d0))}
+&INC`CASTLIST [u(cobj,theme)]=@select/inline t(%1)=0,{@pemit %#=u(FUN`CASTCOLUMN);@pemit %#=u(separator)};@dolist/inline/delimit [chr(176)] [u(mysql3,SELECT`CAST,%0)]={@pemit %#=u(FUN`CASTROW,u(choosegame,%i0,%d0))}
 
-&Q`SELECT`CAST [u(cobj,fclist)]=SELECT character_objid,tmember_type,character_status FROM volv_theme_member WHERE theme_id=? ORDER BY character_name
+&Q`SELECT`CAST [u(cobj,theme)]=SELECT character_objid,tmember_type,character_status FROM volv_theme_member WHERE theme_id=? ORDER BY character_name
 
-&FUN`CASTCOLUMN [u(cobj,fclist)]=ansi(u(color,%#,COLUMN_NAMES),align(26 24 8 8 10,Name,Faction,Last On,Type,Available))
+&FUN`CASTCOLUMN [u(cobj,theme)]=ansi(u(color,%#,COLUMN_NAMES),align(26 24 8 8 10,Name,Faction,Last On,Type,Available))
 
-&FUN`CASTROW [u(cobj,fclist)]=localize(align(26 24 8 8 10,u(namelink,u(setr,obj,elements(%0,1,chr(177)))),u(strfirstof,u(getproperty,%q<obj>,FIRSTNAMECLICK),Unaffiliated),u(lastidle,%q<obj>),u(strfirstof,elements(%0,2,chr(177))),u(strfirstof,elements(%0,3,chr(177)),Open)))
+&FUN`CASTROW [u(cobj,theme)]=localize(align(26 24 8 8 10,u(namelink,u(setr,obj,elements(%0,1,chr(177)))),u(strfirstof,u(getproperty,%q<obj>,FIRSTNAMECLICK),Unaffiliated),u(lastidle,%q<obj>),u(strfirstof,elements(%0,2,chr(177))),u(strfirstof,elements(%0,3,chr(177)),Open)))
 
-&INC`SEARCH [u(cobj,fclist)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Nothing entered to search by!;@check strlen(u(setr,results,u(mysql3,SEARCH`CAST,%0)))=@attach %!/INC`MSG=Nothing found. Sorry!;@pemit %#=u(header,Cast for: %0);@pemit %#=u(FUN`CASTCOLUMN);@dolist/inline/delimit [chr(176)] %q<results>={@select/inline strmatch(%q<themename>,u(setr,themename,elements(u(choosegame,%i0,%d0),4,chr(177))))=0,{@pemit %#=u(separator,%q<themename>)};@pemit %#=u(FUN`CASTROW,u(choosegame,%i0,%d0))};@pemit %#=u(footer)
+&INC`SEARCH [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Nothing entered to search by!;@check strlen(u(setr,results,u(mysql3,SEARCH`CAST,%0)))=@attach %!/INC`MSG=Nothing found. Sorry!;@pemit %#=u(header,Cast for: %0);@pemit %#=u(FUN`CASTCOLUMN);@dolist/inline/delimit [chr(176)] %q<results>={@select/inline strmatch(%q<themename>,u(setr,themename,elements(u(choosegame,%i0,%d0),4,chr(177))))=0,{@pemit %#=u(separator,%q<themename>)};@pemit %#=u(FUN`CASTROW,u(choosegame,%i0,%d0))};@pemit %#=u(footer)
 
-&Q`SEARCH`CAST [u(cobj,fclist)]=SELECT character_objid,tmember_type,character_status,theme_name FROm volv_theme_member WHERE theme_name LIKE '%!%' ORDER BY theme_name,character_name
+&Q`SEARCH`CAST [u(cobj,theme)]=SELECT character_objid,tmember_type,character_status,theme_name FROm volv_theme_member WHERE theme_name LIKE '%!%' ORDER BY theme_name,character_name
 
-&INC`INFO [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0,1;@pemit %#=u(HEADER,Theme Info: %q<themename1>);@pemit %#=get(%q<theme1>/INFO);@pemit %#=u(FOOTER)
+&INC`INFO [u(cobj,theme)]=@attach %!/INC`FINDTHEME=%0,1;@pemit %#=u(HEADER,Theme Info: %q<themename1>);@pemit %#=get(%q<theme1>/INFO);@pemit %#=u(FOOTER)
 
-&INC`VALID`INFONAME [u(cobj,fclist)]=@check strlen(u(setr,infoname,trim(stripansi(%0))))=@attach %!/INC`MSG=ERROR: Info name field empty.;@check gt(strlen(%q<infoname>),18)=@attach %!/INC`MSG=ERROR: Infonames should be 18 characters or less.;@stop u(charsearch,u(badchars) /)=@attach %!/INC`MSG=Characters not allowed in an infoname: [v(badchars)] /;@stop cand(u(setr,found,u(mysql,EXACT`FILE,%q<theme>,%q<infoname>)),not(eq(%q<found>,%1)))=@attach %!/INC`MSG=ERROR: Infoname is already in use!
+&INC`VALID`INFONAME [u(cobj,theme)]=@check strlen(u(setr,infoname,trim(stripansi(%0))))=@attach %!/INC`MSG=ERROR: Info name field empty.;@check gt(strlen(%q<infoname>),18)=@attach %!/INC`MSG=ERROR: Infonames should be 18 characters or less.;@stop u(charsearch,u(badchars) /)=@attach %!/INC`MSG=Characters not allowed in an infoname: [v(badchars)] /;@stop cand(u(setr,found,u(mysql,EXACT`FILE,%q<theme>,%q<infoname>)),not(eq(%q<found>,%1)))=@attach %!/INC`MSG=ERROR: Infoname is already in use!
 
-&Q`EXACT`FILE [u(cobj,fclist)]=SELECT field_id FROM vol_field WHERE entity_id=? AND field_type=3 AND field_name=? LIMIT 1
+&Q`EXACT`FILE [u(cobj,theme)]=SELECT field_id FROM vol_field WHERE entity_id=? AND field_type=3 AND field_name=? LIMIT 1
 
-&INC`SETINFO [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0,1;@attach %!/INC`VALID`INFONAME=before(%1,/);@attach %!/INC`VALID`INFOTEXT=after(%1,/);@check u(setr,results,u(call`5,volp_field,0,%q<theme>,3,'[sqlescape(%q<infoname>)]','[sqlescape(%q<infotext>)]',get(%#/D`ID)))=@attach %!/INC`MSG=ERROR: Could not set Info file. Reason: %q<results>;@attach %!/INC`DOSQl=SET`RENDER,u(render,%q<infotext>),%q<results>;@attach %!/INC`MSG=You have changed theme %q<themename>'s %q<infoname> info.;@attach %!/INC`MSG`CHAN=Set %q<themename>'s %q<infoname> file.
+&INC`SETINFO [u(cobj,theme)]=@attach %!/INC`FINDTHEME=%0,1;@attach %!/INC`VALID`INFONAME=before(%1,/);@attach %!/INC`VALID`INFOTEXT=after(%1,/);@check u(setr,results,u(call`5,volp_field,0,%q<theme>,3,'[sqlescape(%q<infoname>)]','[sqlescape(%q<infotext>)]',get(%#/D`ID)))=@attach %!/INC`MSG=ERROR: Could not set Info file. Reason: %q<results>;@attach %!/INC`DOSQl=SET`RENDER,u(render,%q<infotext>),%q<results>;@attach %!/INC`MSG=You have changed theme %q<themename>'s %q<infoname> info.;@attach %!/INC`MSG`CHAN=Set %q<themename>'s %q<infoname> file.
 
-&Q`SET`RENDER [u(cobj,fclist)]=UPDATE vol_field SET field_text_render=? WHERE field_id=?
+&Q`SET`RENDER [u(cobj,theme)]=UPDATE vol_field SET field_text_render=? WHERE field_id=?
 
-&INC`CLEARINFO [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0,1;@check u(setr,found,u(mysql,EXACT`FILE,%q<theme>,u(setr,infoname,trim(stripansi(before(%1,/))))))=@attach %!/INC`MSG=ERROR: Infoname not found!;@attach %!/INC`DOSQL=DELETE`FILE,%q<found>;@attach %!/INC`MSG=Deleted %q<themename>'s %q<infoname> file.;@attach %!/INC`MSG`CHAN=Deleted %q<themename>'s %q<infoname> info.
+&INC`CLEARINFO [u(cobj,theme)]=@attach %!/INC`FINDTHEME=%0,1;@check u(setr,found,u(mysql,EXACT`FILE,%q<theme>,u(setr,infoname,trim(stripansi(before(%1,/))))))=@attach %!/INC`MSG=ERROR: Infoname not found!;@attach %!/INC`DOSQL=DELETE`FILE,%q<found>;@attach %!/INC`MSG=Deleted %q<themename>'s %q<infoname> file.;@attach %!/INC`MSG`CHAN=Deleted %q<themename>'s %q<infoname> info.
 
-&Q`DELETE`FILE [u(Cobj,fclist)]=DELETE FROM vol_field WHERE field_id=?
+&Q`DELETE`FILE [u(cobj,theme)]=DELETE FROM vol_field WHERE field_id=?
 
-&INC`CLEARINFO [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0,1;@check u(setr,found,u(mysql,EXACT`FILE,%q<theme>,u(setr,infoname,trim(stripansi(before(%1,/))))))=@attach %!/INC`MSG=ERROR: Infoname not found!;@attach %!/INC`DOSQL=DELETE`FILE,%q<found>;@attach %!/INC`MSG=Deleted %q<themename>'s %q<infoname> file.;@attach %!/INC`MSG`CHAN=Deleted %q<themename>'s %q<infoname> info.
+&INC`CLEARINFO [u(cobj,theme)]=@attach %!/INC`FINDTHEME=%0,1;@check u(setr,found,u(mysql,EXACT`FILE,%q<theme>,u(setr,infoname,trim(stripansi(before(%1,/))))))=@attach %!/INC`MSG=ERROR: Infoname not found!;@attach %!/INC`DOSQL=DELETE`FILE,%q<found>;@attach %!/INC`MSG=Deleted %q<themename>'s %q<infoname> file.;@attach %!/INC`MSG`CHAN=Deleted %q<themename>'s %q<infoname> info.
 
-&INC`DESCRIBE [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No description entered!;@attach %!/INC`DOSQl=UPDATE`THEMEDESC,%1,%q<theme>;@attach %!/INC`DOSQl=UPDATE`THEMERENDER,u(render,%1),%q<theme>;@attach %!/INC`MSG=You have changed Theme %q<themename1>'s description.;@attach %!/INC`MSG`CHAN=Changed Description of '[u(pueblize,%q<themename>,+fclist %q<themename>)]'
+&INC`DESCRIBE [u(cobj,theme)]=@attach %!/INC`FINDTHEME=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No description entered!;@attach %!/INC`DOSQl=UPDATE`THEMEDESC,%1,%q<theme>;@attach %!/INC`DOSQl=UPDATE`THEMERENDER,u(render,%1),%q<theme>;@attach %!/INC`MSG=You have changed Theme %q<themename1>'s description.;@attach %!/INC`MSG`CHAN=Changed Description of '[u(pueblize,%q<themename>,+fclist %q<themename>)]'
 
-&Q`UPDATE`THEMEDESC [u(cobj,fclist)]=UPDATE vol_theme SET theme_description=? WHERE theme_id=?
-&Q`UPDATE`THEMERENDER [u(cobj,fclist)]=UPDATE vol_theme SET theme_description_render=? WHERE theme_id=?
+&Q`UPDATE`THEMEDESC [u(cobj,theme)]=UPDATE vol_theme SET theme_description=? WHERE theme_id=?
+&Q`UPDATE`THEMERENDER [u(cobj,theme)]=UPDATE vol_theme SET theme_description_render=? WHERE theme_id=?
 
-&INC`VALID`THEMENAME [u(cobj,fclist)]=@check strlen(u(setr,value,trim(stripansi(%0))))=@attach %!/INC`MSG=ERROR: Name field empty.;@stop u(mysql,FIND`THEME`EXACT,%0)=@attach %!/INC`MSG=ERROR: Theme '%0' already exists! Use /rename and /describe to modify it.;@stop cand(u(setr,found,u(mysql,FIND`THEME`EXACT,%0)),not(eq(%1,%q<found>)))=@attach %!/INC`MSG=ERROR: Theme '%0' already exists!
+&INC`VALID`THEMENAME [u(cobj,theme)]=@check strlen(u(setr,value,trim(stripansi(%0))))=@attach %!/INC`MSG=ERROR: Name field empty.;@stop u(mysql,FIND`THEME`EXACT,%0)=@attach %!/INC`MSG=ERROR: Theme '%0' already exists! Use /rename and /describe to modify it.;@stop cand(u(setr,found,u(mysql,FIND`THEME`EXACT,%0)),not(eq(%1,%q<found>)))=@attach %!/INC`MSG=ERROR: Theme '%0' already exists!
 
-&INC`CREATE [u(cobj,fclist)]=@attach %!/INC`VALID`THEMENAME=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Description field empty!;@check u(setr,theme,u(call`2,volp_theme,0,'[sqlescape(%0)]','[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: Theme could not be created. ERROR: %q<theme>;@attach %!/INC`REBUILDCACHE;@attach %!/INC`MSG=You have created the '%q<value>' Theme.;@attach %!/INC`MSG`CHAN=Created theme: '[u(pueblize,%q<value>,+fclist %q<value>)]'
+&INC`CREATE [u(cobj,theme)]=@attach %!/INC`VALID`THEMENAME=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Description field empty!;@check u(setr,theme,u(call`2,volp_theme,0,'[sqlescape(%0)]','[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: Theme could not be created. ERROR: %q<theme>;@attach %!/INC`REBUILDCACHE;@attach %!/INC`MSG=You have created the '%q<value>' Theme.;@attach %!/INC`MSG`CHAN=Created theme: '[u(pueblize,%q<value>,+fclist %q<value>)]'
 
-&INC`RENAME [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0,,1;@attach %!/INC`VALID`THEMENAME=%1,%q<theme>;@attach %!/INC`DOSQL=RENAME`THEME,%1,%q<theme>;@attach %!/INC`MSG=Theme '%q<themename>' Renamed to '%q<value>'!;@attach %!/INC`MSG`CHAN=Theme '%q<themename>' Renamed to '%q<value>';@attach %!/INC`REBUILDMEMBERS=%q<theme>
+&INC`RENAME [u(cobj,theme)]=@attach %!/INC`FINDTHEME=%0,,1;@attach %!/INC`VALID`THEMENAME=%1,%q<theme>;@attach %!/INC`DOSQL=RENAME`THEME,%1,%q<theme>;@attach %!/INC`MSG=Theme '%q<themename>' Renamed to '%q<value>'!;@attach %!/INC`MSG`CHAN=Theme '%q<themename>' Renamed to '%q<value>';@attach %!/INC`REBUILDMEMBERS=%q<theme>
 
-&Q`RENAME`THEME [u(cobj,fclist)]=UPDATE vol_entity SET entity_name=? WHERE entity_id=?
+&Q`RENAME`THEME [u(cobj,theme)]=UPDATE vol_entity SET entity_name=? WHERE entity_id=?
 
-&INC`DELETE [u(cobj,fclist)]=@attach %!/INC`FINDTHEME=%0,,1;@attach %!/INC`VERIFY={WARNING: This will delete Theme '%q<themename>' and all data associated with it. Are you SURE you want to do this? Enter the same command again within ten seconds to verify.},FCLIST DELETE %q<theme>;@attach %!/INC`MSG=Theme '%q<themename>' deleted!;@attach %!/INC`MSG`CHAN=Theme '%q<themename>' Deleted!;th u(setq,members,u(mysql,REBUILD`CHARACTERS,%q<theme>));@attach %!/INC`DOSQL=DELETE`THEME,%q<theme>;@dolist/inline %q<members>=@attach %!/INC`REBUILDCHARACTER=##
+&INC`DELETE [u(cobj,theme)]=@attach %!/INC`FINDTHEME=%0,,1;@attach %!/INC`VERIFY={WARNING: This will delete Theme '%q<themename>' and all data associated with it. Are you SURE you want to do this? Enter the same command again within ten seconds to verify.},FCLIST DELETE %q<theme>;@attach %!/INC`MSG=Theme '%q<themename>' deleted!;@attach %!/INC`MSG`CHAN=Theme '%q<themename>' Deleted!;th u(setq,members,u(mysql,REBUILD`CHARACTERS,%q<theme>));@attach %!/INC`DOSQL=DELETE`THEME,%q<theme>;@dolist/inline %q<members>=@attach %!/INC`REBUILDCHARACTER=##
 
-&Q`DELETE`THEME [u(cobj,fclist)]=DELETE FROM vol_entity WHERE entity_id=?
+&Q`DELETE`THEME [u(cobj,theme)]=DELETE FROM vol_entity WHERE entity_id=?
 
-&INC`ASSIGN [u(cobj,fclist)]=@attach %!/INC`CHECKPC=before(%0,/),1;@attach %!/INC`PARTIAL=after(%0,/),u(conf,CHARACTER_TYPES),|;@attach %!/INC`FINDTHEME=%1;@attach %!/INC`DOSQL=ASSIGN`MEMBER,%q<t1id>,%q<theme>,%q<tag>;@attach %!/INC`MSG=You assign %q<t1name> to Theme '%q<themename>';@attach %!/INC`MSG`CHAN=Assigned %q<t1name> to Theme '[u(pueblize,%q<themename>,+fclist %q<themename>)]';@attach %!/INC`REBUILDCHARACTER=%q<t1>
+&INC`ASSIGN [u(cobj,theme)]=@attach %!/INC`CHECKPC=before(%0,/),1;@attach %!/INC`PARTIAL=after(%0,/),u(conf,CHARACTER_TYPES),|;@attach %!/INC`FINDTHEME=%1;@attach %!/INC`DOSQL=ASSIGN`MEMBER,%q<t1id>,%q<theme>,%q<tag>;@attach %!/INC`MSG=You assign %q<t1name> to Theme '%q<themename>';@attach %!/INC`MSG`CHAN=Assigned %q<t1name> to Theme '[u(pueblize,%q<themename>,+fclist %q<themename>)]';@attach %!/INC`REBUILDCHARACTER=%q<t1>
 
-&Q`ASSIGN`MEMBER [u(cobj,fclist)]=INSERT INTO vol_tmember (character_id,theme_id,tmember_type) VALUES (?,?,?) ON DUPLICATE KEY UPDATE tmember_type=VALUES(tmember_type)
+&Q`ASSIGN`MEMBER [u(cobj,theme)]=INSERT INTO vol_tmember (character_id,theme_id,tmember_type) VALUES (?,?,?) ON DUPLICATE KEY UPDATE tmember_type=VALUES(tmember_type)
 
-&INC`REMOVE [u(cobj,fclist)]=@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`FINDTHEME=%1;@check u(mysql,REMOVE`MEMBER,%q<t1id>,%q<theme>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not a member of %q<themename>.;@attach %!/INC`MSG=You remove %q<t1name> from Theme '%q<themename>';@attach %!/INC`MSG`CHAN=Removed %q<t1name> from Theme '[u(pueblize,%q<themename>,+fclist %q<themename>)]';@attach %!/INC`REBUILDCHARACTER=%q<t1>
+&INC`REMOVE [u(cobj,theme)]=@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`FINDTHEME=%1;@check u(mysql,REMOVE`MEMBER,%q<t1id>,%q<theme>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not a member of %q<themename>.;@attach %!/INC`MSG=You remove %q<t1name> from Theme '%q<themename>';@attach %!/INC`MSG`CHAN=Removed %q<t1name> from Theme '[u(pueblize,%q<themename>,+fclist %q<themename>)]';@attach %!/INC`REBUILDCHARACTER=%q<t1>
 
-&Q`REMOVE`MEMBER [u(cobj,fclist)]=DELETE FROM vol_tmember WHERE character_id=? AND theme_id=?
+&Q`REMOVE`MEMBER [u(cobj,theme)]=DELETE FROM vol_tmember WHERE character_id=? AND theme_id=?
 
-&INC`UNASSIGNED [u(cobj,fclist)]=@check words(u(setr,unassigned,u(filter,UNASSIGNED,u(mysql,SELECT`UNASSIGNED))))=@attach %!/INC`MSG=No players lack theme assignments.;@pemit %#=u(HEADER,Unassigned Players);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(20 30,Name,Creation Time));@dolist/inline %q<unassigned>={@pemit %#=align(20 30,u(pueblize,u(moniker,##),+finger [name(##)]),ctime(##));@switch/inline eq(inum(0),words(%q<unassigned>))=1,{@pemit %#=u(FOOTER)}}
+&INC`UNASSIGNED [u(cobj,theme)]=@check words(u(setr,unassigned,u(filter,UNASSIGNED,u(mysql,SELECT`UNASSIGNED))))=@attach %!/INC`MSG=No players lack theme assignments.;@pemit %#=u(HEADER,Unassigned Players);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(20 30,Name,Creation Time));@dolist/inline %q<unassigned>={@pemit %#=align(20 30,u(pueblize,u(moniker,##),+finger [name(##)]),ctime(##));@switch/inline eq(inum(0),words(%q<unassigned>))=1,{@pemit %#=u(FOOTER)}}
 
-&FIl`UNASSIGNED [u(cobj,fclist)]=not(cor(u(isadmin,%0),u(isguest,%0)))
+&FIl`UNASSIGNED [u(cobj,theme)]=not(cor(u(isadmin,%0),u(isguest,%0)))
 
-&Q`SELECT`UNASSIGNED [u(cobj,fclist)]=SELECT character_objid FROM volv_character WHERE character_is_deleted=0 AND character_id NOT IN (SELECT character_id FROM vol_tmember) ORDER BY character_name
+&Q`SELECT`UNASSIGNED [u(cobj,theme)]=SELECT character_objid FROM volv_character WHERE character_is_deleted=0 AND character_id NOT IN (SELECT character_id FROM vol_tmember) ORDER BY character_name
 
-&INC`EMPTY [u(cobj,fclist)]=@check words(u(setr,empty,u(mysql3,SELECT`EMPTY_NAMES)))=@attach %!/INC`MSG=There are no empty themes.;@attach %!/INC`MSG=The following themes have no cast: [iter(%q<empty>,u(pueblize,%i0,+fclist %i0),chr(176),\,%b)]
+&INC`EMPTY [u(cobj,theme)]=@check words(u(setr,empty,u(mysql3,SELECT`EMPTY_NAMES)))=@attach %!/INC`MSG=There are no empty themes.;@attach %!/INC`MSG=The following themes have no cast: [iter(%q<empty>,u(pueblize,%i0,+fclist %i0),chr(176),\,%b)]
 
-&Q`SELECT`EMPTY_NAMES [u(cobj,fclist)]=SELECT theme_name FROM volv_theme WHERE theme_id NOT IN (SELECT theme_id FROM vol_tmember) ORDER BY theme_name
+&Q`SELECT`EMPTY_NAMES [u(cobj,theme)]=SELECT theme_name FROM volv_theme WHERE theme_id NOT IN (SELECT theme_id FROM vol_tmember) ORDER BY theme_name
 
-&INC`STATUS [u(cobj,fclist)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No status entered.;@attach %!/INC`PARTIAL=%1,u(conf,CHARACTER_STATUS),|,status,status;@attach %!/INC`MSG=%q<t1name>'s FCList status is now: %q<status>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<status>.;@attach %!/INC`DOSQL=CHARACTER`STATUS,%q<status>,%q<t1id>;
+&INC`STATUS [u(cobj,theme)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No status entered.;@attach %!/INC`PARTIAL=%1,u(conf,CHARACTER_STATUS),|,status,status;@attach %!/INC`MSG=%q<t1name>'s FCList status is now: %q<status>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<status>.;@attach %!/INC`DOSQL=CHARACTER`STATUS,%q<status>,%q<t1id>;
 
-&Q`CHARACTER`STATUS [u(cobj,fclist)]=UPDATE vol_character SET character_status=? WHERE character_id=?
+&Q`CHARACTER`STATUS [u(cobj,theme)]=UPDATE vol_character SET character_status=? WHERE character_id=?
 
-&STARTUP [u(cobj,fclist)]=@trigger %!/LOOP`REPORTEMPTY
+&STARTUP [u(cobj,theme)]=@trigger %!/LOOP`REPORTEMPTY
 
-&LOOP`REPORTEMPTY [u(cobj,fclist)]=@select/inline cand(words(u(setr,empty,u(mysql3,SELECT`EMPTY_NAMES))),u(conf,REPORT_EMPTY))=>0,{@attach %!/INC`MSG`CHAN=EMPTY THEMES: The following themes have no Cast: [iter(%q<empty>,u(pueblize,%i0,+fclist %i0),chr(176),\,%b)]};@wait mul(60,60,6)=@trigger %!/LOOP`REPORTEMPTY
+&LOOP`REPORTEMPTY [u(cobj,theme)]=@select/inline cand(words(u(setr,empty,u(mysql3,SELECT`EMPTY_NAMES))),u(conf,REPORT_EMPTY))=>0,{@attach %!/INC`MSG`CHAN=EMPTY THEMES: The following themes have no Cast: [iter(%q<empty>,u(pueblize,%i0,+fclist %i0),chr(176),\,%b)]};@wait mul(60,60,6)=@trigger %!/LOOP`REPORTEMPTY
 
-&CONFIG`OPTIONS [u(cobj,fclist)]=MAX_THEMES|REPORT_EMPTY|CHARACTER_TYPES|CHARACTER_STATUS
+&CONFIG`OPTIONS [u(cobj,theme)]=MAX_THEMES|REPORT_EMPTY|CHARACTER_TYPES|CHARACTER_STATUS
 
-&CONFIG`MAX_THEMES [u(cobj,fclist)]=How many themes can a Character be in?
-&CONFIG`MAX_THEMES`VALID [u(cobj,fclist)]=POSINT
-&CONFIG`MAX_THEMES`DEFAULT [u(cobj,fclist)]=1
+&CONFIG`MAX_THEMES [u(cobj,theme)]=How many themes can a Character be in?
+&CONFIG`MAX_THEMES`VALID [u(cobj,theme)]=POSINT
+&CONFIG`MAX_THEMES`DEFAULT [u(cobj,theme)]=1
 
-&CONFIG`REPORT_EMPTY [u(cobj,fclist)]=Report empty themes on alerts channel?
-&CONFIG`REPORT_EMPTY`VALID [u(cobj,fclist)]=BOOL
-&CONFIG`REPORT_EMPTY`DEFAULT [u(cobj,fclist)]=1
+&CONFIG`REPORT_EMPTY [u(cobj,theme)]=Report empty themes on alerts channel?
+&CONFIG`REPORT_EMPTY`VALID [u(cobj,theme)]=BOOL
+&CONFIG`REPORT_EMPTY`DEFAULT [u(cobj,theme)]=1
 
-&CONFIG`CHARACTER_TYPES [u(cobj,fclist)]=|-delimited list of types of characters. FC, EFC, OC, OFC, EFC, etc.
-&CONFIG`CHARACTER_TYPES`VALID [u(cobj,fclist)]=LIST
-&CONFIG`CHARACTER_TYPES`DEFAULT [u(cobj,fclist)]=FC|EFC|OC|OFC|EFC|SFC|TEMP|TP|PLOT|NPC
+&CONFIG`CHARACTER_TYPES [u(cobj,theme)]=|-delimited list of types of characters. FC, EFC, OC, OFC, EFC, etc.
+&CONFIG`CHARACTER_TYPES`VALID [u(cobj,theme)]=LIST
+&CONFIG`CHARACTER_TYPES`DEFAULT [u(cobj,theme)]=FC|EFC|OC|OFC|EFC|SFC|TEMP|TP|PLOT|NPC
 
-&CONFIG`CHARACTER_STATUS [u(cobj,fclist)]=|-delimited list of character statuses. Used for games that re-use published characters and have applications.
-&CONFIG`CHARACTER_STATUS`VALID [u(cobj,fclist)]=LIST
-&CONFIG`CHARACTER_STATUS`DEFAULT [u(cobj,fclist)]=OPEN|CLOSED|CLOSING|TEMP|DEAD|UNAVAILABLE
+&CONFIG`CHARACTER_STATUS [u(cobj,theme)]=|-delimited list of character statuses. Used for games that re-use published characters and have applications.
+&CONFIG`CHARACTER_STATUS`VALID [u(cobj,theme)]=LIST
+&CONFIG`CHARACTER_STATUS`DEFAULT [u(cobj,theme)]=OPEN|CLOSED|CLOSING|TEMP|DEAD|UNAVAILABLE
 
-&INC`REBUILDMEMBERS [u(cobj,fclist)]=@dolist/inline u(mysql,REBUILD`CHARACTERS,%0)={@attach %!/INC`REBUILDCHARACTER=%0}
+&INC`REBUILDMEMBERS [u(cobj,theme)]=@dolist/inline u(mysql,REBUILD`CHARACTERS,%0)={@attach %!/INC`REBUILDCHARACTER=%0}
 
-&Q`REBUILD`CHARACTERS [u(Cobj,fclist)]=SELECT character_objid FROM volv_theme_member WHERE theme_id=?
+&Q`REBUILD`CHARACTERS [u(cobj,theme)]=SELECT character_objid FROM volv_theme_member WHERE theme_id=?
 
-&INC`REBUILDCHARACTER [u(cobj,fclist)]=th u(attrib_set,%0,V`THEMES,u(mysql3,REBUILD`CHARACTER_CACHE,get(%0/D`ID)))
+&INC`REBUILDCHARACTER [u(cobj,theme)]=th u(attrib_set,%0,V`THEMES,u(mysql3,REBUILD`CHARACTER_CACHE,get(%0/D`ID)))
 
-&Q`REBUILD`CHARACTER_CACHE [u(cobj,fclist)]=SELECT theme_id,tmember_type,theme_name FROM volv_theme_member WHERE character_id=? ORDER BY theme_name
+&Q`REBUILD`CHARACTER_CACHE [u(cobj,theme)]=SELECT theme_id,tmember_type,theme_name FROM volv_theme_member WHERE character_id=? ORDER BY theme_name
 
-+help/add +fclist=[u(cobj,fclist)]/HLP`+FCLIST
-+help/category +fclist=Community
-+help/metatags +fclist=theme roster
-&HLP`+FCLIST [u(cobj,fclist)]=The FCList system tracks played characters belonging to themes used in [mudname()].%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+fclist)] - Lists all Themes in use.%R[ansi(hw,+fclist <theme>)] - List the roster of characters in a theme.%R[ansi(hw,+fclist/info <theme>)] - List details about a theme's listing.%R[ansi(h,+fclist/mail <theme>=<message>)] - Send an entire cast a @mail easily. Works just like @mail <cast>=<message> so help @mail!%R%RSTATUS:%ROpen - The character is available to play.%RClosing - The character is closing but staff is still accepting applications.%RPlayed - The character is played.%RDead - The character is dead and cannot be applied for.%RTemp - The character is being played temporarily for a plot or similar purpose.%R%RTYPE:%RFC - Feature Character. Created by official canon.%ROFC - Original Feature Character. Created for the game.%ROC - Original Character. Generally not listed.%REFC - Essential Feature Character. Crucial to the game's storytelling\, such as faction leaders.%RSFC - Special Feature Character.%R%RThis list is general and doesn't cover every game.)]
 
-+shelp/add +fclist=[u(cobj,fclist)]/SHLP`+FCLIST
-+shelp/category +fclist=Character
-&SHLP`+FCLIST [u(cobj,fclist)]=The FCList system allows characters to be added to one or more groups for listing purposes.%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+fclist/create <listname>=<description>)] - Creates a list to group characters under.%R[ansi(h,+fclist/rename <list>=<newname>)] - Rename a list.%R[ansi(h,+fclist/delete <listname>)] - Deletes a list.%R[ansi(h,+fclist/assign <character>=<list>)] - Assigns a character to a list.%R[ansi(h,+fclist/remove <character>=<listname>)] - Removes a character from a list.%R[ansi(h,+fclist/describe <list>=<description>)] - Explain an FCList.%R[ansi(h,+fclist/setinfo <list>=<info>)] - Extra room to hash out an FClist.%R[ansi(h,+fclist/clearinfo <list>)] - Clears an /info entry.%R[ansi(h,+fclist/status <character>=<status>)] - Change a character's status. Choices are OPEN\, CLOSING\, PLAYED\, DEAD\, and TEMP. Can be changed in +fclist/config.%R[ansi(h,+fclist/type <character>=<type>)] - Choices are FC\, OC\, OFC\, EFC\, and SFC. Can be changed in +fclist/config.)]
+&HLP`THEME [u(cobj,theme)]=The FCList system tracks played characters belonging to themes used in [mudname()].%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+fclist)] - Lists all Themes in use.%R[ansi(hw,+fclist <theme>)] - List the roster of characters in a theme.%R[ansi(hw,+fclist/info <theme>)] - List details about a theme's listing.%R[ansi(h,+fclist/mail <theme>=<message>)] - Send an entire cast a @mail easily. Works just like @mail <cast>=<message> so help @mail!%R%RSTATUS:%ROpen - The character is available to play.%RClosing - The character is closing but staff is still accepting applications.%RPlayed - The character is played.%RDead - The character is dead and cannot be applied for.%RTemp - The character is being played temporarily for a plot or similar purpose.%R%RTYPE:%RFC - Feature Character. Created by official canon.%ROFC - Original Feature Character. Created for the game.%ROC - Original Character. Generally not listed.%REFC - Essential Feature Character. Crucial to the game's storytelling\, such as faction leaders.%RSFC - Special Feature Character.%R%RThis list is general and doesn't cover every game.)]
++help/add Community/+theme=[u(cobj,theme)]/HLP`THEME
+
+&SHLP`+FCLIST [u(cobj,theme)]=The FCList system allows characters to be added to one or more groups for listing purposes.%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+fclist/create <listname>=<description>)] - Creates a list to group characters under.%R[ansi(h,+fclist/rename <list>=<newname>)] - Rename a list.%R[ansi(h,+fclist/delete <listname>)] - Deletes a list.%R[ansi(h,+fclist/assign <character>=<list>)] - Assigns a character to a list.%R[ansi(h,+fclist/remove <character>=<listname>)] - Removes a character from a list.%R[ansi(h,+fclist/describe <list>=<description>)] - Explain an FCList.%R[ansi(h,+fclist/setinfo <list>=<info>)] - Extra room to hash out an FClist.%R[ansi(h,+fclist/clearinfo <list>)] - Clears an /info entry.%R[ansi(h,+fclist/status <character>=<status>)] - Change a character's status. Choices are OPEN\, CLOSING\, PLAYED\, DEAD\, and TEMP. Can be changed in +fclist/config.%R[ansi(h,+fclist/type <character>=<type>)] - Choices are FC\, OC\, OFC\, EFC\, and SFC. Can be changed in +fclist/config.)]
++shelp/add Character/+fclist=[u(cobj,theme)]/SHLP`+FCLIST

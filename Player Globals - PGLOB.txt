@@ -28,38 +28,26 @@ th u(NEWCOBJ,Player Globals <PGLOB>,pglob,,,,WIZARD SAFE !NO_COMMAND,INHERIT SID
 
 &FUN`MSGOOC [u(cobj,pglob)]=localize(ansi(u(setr,borcol,u(color,%1,OOC,OOCEDGE)),-<)[ansi(u(color,%1,OOC,OOC),OOC)][ansi(%q<borcol>,>-)]%B[if(u(isadmin,%0),ansi(h,lit([Staff])%B))][u(speech,%0,u(colormarkup,%0,%2,%1),%1,,OOC,%3)])
 
-th u(NEWCONF,config,COLOR,OOC,hr,For +ooc tag.,COLOR)
-th u(NEWCONF,config,COLOR,OOCEDGE,hx,For +ooc edge.,COLOR)
-
-th u(NEWCONF,pconf,COLOR,OOC,hr,For +ooc tag.,COLOR)
-th u(NEWCONF,pconf,COLOR,OOCEDGE,hx,For +ooc edge.,COLOR)
-
-th u(NEWCONF,pconf,OOC,QUOTES,,For +ooc quotations.,COLOR)
-th u(NEWCONF,pconf,OOC,SPEECH,,For +ooc dialogue.,COLOR)
-
-&CONFLICT`PGLOBALS [u(cobj,migrate)]=@tel [u(coi,pgo)]=[u(cobj,oldbox)]
-
 @@ COMMUNICATIONS - +ooc
-+help/add +ooc=[u(cobj,pglob)]/HLP`+OOC
-+help/category +ooc=Communications
+
 &HLP`+OOC [u(cobj,pglob)]=[ansi(hc,OOC Commands)]%RThese are ALWAYS considered Out-of-character communications.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,osay <speech>)] - Equivalent to say.%R[ansi(h,+ooc <speech>)] - alias of osay%R[ansi(h,+ooc <speech>)] - Alias of Osay.)]
++help/add Communications/+ooc=[u(cobj,pglob)]/HLP`+OOC
 
 @@ ROLEPLAYING - +flip
-+help/add +flip=[u(cobj,pglob)]/HLP`+FLIP
-+help/category +flip=Roleplaying
 &HLP`+FLIP [u(cobj,pglob)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+flip)] - Flip a coin!)]
++help/add Roleplaying/+flip=[u(cobj,pglob)]/HLP`+FLIP
+
+&HLP`+DICE [u(cobj,pglob)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+dice <num>d<sides>)] - Roll some dice! Example: +dice 2d20)]
++help/add Roleplaying/+dice=[u(cobj,pglob)]/HLP`+DICE
 
 @@ Technical - QUIT
-+help/add QUIT=[u(cobj,pglob)]/HLP`QUIT
-+help/category QUIT=Technical
 &HLP`QUIT [u(cobj,pglob)]=[ansi(hc,Aliases:)] logoff, logout%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,QUIT)] - Disconnect safely from the game.)]%R%RDon't worry, PennMUSH saves are independent of safe logoffs. This just doesn't leave a ghost connection hanging.
++help/add Technical/QUIT=[u(cobj,pglob)]/HLP`QUIT
 
 @@ COMMUNICATIONS - +beep
-+help/add +beep=[u(cobj,pglob)]/HLP`+BEEP
-+help/category +beep=Communications
 &HLP`+BEEP [u(cobj,pglob)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+beep <player>)] - \(Hopefully\) makes a noise the other player can hear to try and get their attention. Using this excessively could be considered harassment so be polite. You have been warned!%R%RNot every client will make the noise and it is often disabled.)]
++help/add Communications/+beep=[u(cobj,pglob)]/HLP`+BEEP
 
 @@ TECHNICAL - +Charset
-+help/add +charset=[u(cobj,pglob)]/HLP`+CHARSET
-+Help/category +charset=Technical
 &HLP`+CHARSET [u(cobj,pglob)]=[ansi(hc,See Also:)] [u(pueblize,help chr\(\))]%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+charset)] - Display most special characters the game supports.)]
++help/add Technical/+charset=[u(cobj,pglob)]/HLP`+CHARSET

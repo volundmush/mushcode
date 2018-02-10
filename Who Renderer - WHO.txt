@@ -1,47 +1,50 @@
-&CMD`+WHO`PENNMUSH [u(cobj,account)]=$^(?s)(?\:\+)?who(?\:/(\S+))?(?\: +(.+?))?$:@attach %!/CMD`+WHO`MAIN
-@set [u(cobj,account)]/CMD`+WHO`PENNMUSH=regexp
-&CMD`+WHO`RHOSTMUSH [u(cobj,account)]=$^(?s)(?\:\+)?who(?\:/(\\S+))?(?\: +(.+?))?$:@attach %!/CMD`+WHO`MAIN
-@set [u(cobj,account)]/CMD`+WHO`RHOSTMUSH=regexp
-&CMD`+WHO`MAIN [u(cobj,account)]=th u(setq,sysname,WHO);@attach %!/INC`GETSWITCH=%1;th u(setq,portable,u(u(cobj,grid)/FUN`LISTROOMS));@attach %!/INC`WHO`[u(strfirstof,%q<switch>,MAIN)]=%2
-@set [u(cobj,account)]/CMD`+WHO`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@@ DEPENDENCIES: Core
 
-&SWITCHES`WHO`PLAYER [u(cobj,account)]=IDLE
+th u(NEWCOBJ,Who Renderer <WHO>,whe,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&INC`WHO`MAIN [u(cobj,account)]=@attach %!/INC`WHO`SORT`MAIN;@select/inline gt(strlen(%0),0)=1,{@attach %!/INC`WHO`SEARCH=%0};@attach %!/INC`WHO`LIST=,%0
+&CMD`+WHO`PENNMUSH [u(cobj,who)]=$^(?s)(?\:\+)?who(?\:/(\S+))?(?\: +(.+?))?$:@attach %!/CMD`+WHO`MAIN
+@set [u(cobj,who)]/CMD`+WHO`PENNMUSH=regexp
+&CMD`+WHO`RHOSTMUSH [u(cobj,who)]=$^(?s)(?\:\+)?who(?\:/(\\S+))?(?\: +(.+?))?$:@attach %!/CMD`+WHO`MAIN
+@set [u(cobj,who)]/CMD`+WHO`RHOSTMUSH=regexp
+&CMD`+WHO`MAIN [u(cobj,who)]=@attach %!/INC`GETSWITCH=%1;th u(setq,portable,u(u(cobj,grid)/FUN`LISTROOMS));@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2
+@set [u(cobj,who)]/CMD`+WHO`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
 
-&FUN`WHO`MAIN [u(cobj,account)]=u(sortname,setunion(u(lwhoid,%#),))
+&SYSTEm`NAME [u(Cobj,who)]=WHO
+&SWITCHES`PLAYER [u(cobj,who)]=IDLE
 
-&INC`WHO`SORT`MAIN [u(cobj,account)]=@check words(u(setr,who,u(FUN`WHO`MAIN)))=@attach %!/INC`MSG=No players to show!
+&INC`MAIN [u(cobj,who)]=@attach %!/INC`SORT`MAIN;@select/inline gt(strlen(%0),0)=1,{@attach %!/INC`SEARCH=%0};@attach %!/INC`LIST=,%0
 
-&INC`WHO`SEARCH [u(cobj,account)]=@check words(u(setr,who,namegraball(%q<who>,%0)))=@attach %!/INC`MSG=Search for '%0' turned up with nothing.
+&FUN`WHO`MAIN [u(cobj,who)]=u(sortname,setunion(u(lwhoid,%#),))
 
-&INC`WHO`IDLE [u(cobj,account)]=@attach %!/INC`WHO`SORT`IDLE;@select/inline gt(strlen(%1),0)=1,{@attach %!/INC`WHO`SEARCH=%1};@attach %!/INC`WHO`LIST=Idle,%1
-&INC`WHO`SORT`IDLE [u(cobj,account)]=@check words(u(setr,who,revwords(u(sortidle,u(FUN`WHO`MAIN)))))=@attach %!/INC`MSG=No players to show!
+&INC`SORT`MAIN [u(cobj,who)]=@check words(u(setr,who,u(FUN`WHO`MAIN)))=@attach %!/INC`MSG=No players to show!
 
-&INC`WHO`LIST [u(cobj,account)]=@pemit %#=u(HEADER,Who[if(strlen(%0),%b-%b%0)]);@attach %!/INC`WHO`HEADER`[strfirstof(%0,MAIN)];@pemit %#=u(separator);@dolist %q<who>={@pemit %#=u(FUN`WHO`PLAYERLINE`[strfirstof(%0,MAIN)],##);@select/inline eq(#@,words(%q<who>))=1,{&MAXPLAYERS %!=u(setr,max,max(get(%!/MAXPLAYERS),words(%q<who>)));@pemit %#=u(SUBHEADER,words(%q<who>) Characters[if(u(game_config,WHO,SHOW_IPS),%Bfrom [words(setunion(iter(%q<who>,get(%i0/LASTSITE),,|),,|),|)] IPs)]%BConnected - Record is %q<max>)}}
+&INC`SEARCH [u(cobj,who)]=@check words(u(setr,who,namegraball(%q<who>,%0)))=@attach %!/INC`MSG=Search for '%0' turned up with nothing.
 
-&CONFIG`WHO_HEADER [u(cobj,account)]=List of column names and widths in format of Text~Length. Like Name~20|Location~40. See +shelp +who.
-&CONFIG`WHO_HEADER`DEFAULT [u(cobj,account)]=Name~20|Alias~11|Fac~3|Idle~4|Conn~4|G~1|Location~29
-&CONFIG`WHO_HEADER`VALID [u(cobj,account)]=LIST
+&INC`IDLE [u(cobj,who)]=@attach %!/INC`SORT`IDLE;@select/inline gt(strlen(%1),0)=1,{@attach %!/INC`SEARCH=%1};@attach %!/INC`LIST=Idle,%1
+&INC`SORT`IDLE [u(cobj,who)]=@check words(u(setr,who,revwords(u(sortidle,u(FUN`WHO`MAIN)))))=@attach %!/INC`MSG=No players to show!
 
-&CONFIG`WHO_COLUMNS [u(cobj,account)]=List of Column GETPROPERTIES and widths in format of GET~Length. Check +shelp +who.
-&CONFIG`WHO_COLUMNS`DEFAULT [u(cobj,account)]=NAMELINK~20|ALIAS~11|MAJORABBR~3|HIDEIDLE~>4|HIDECONN~>4|SEXLETTER~1|LOCATION~29
-&CONFIG`WHO_COLUMNS`VALID [u(cobj,account)]=LIST
+&INC`LIST [u(cobj,who)]=@pemit %#=u(HEADER,Who[if(strlen(%0),%b-%b%0)]);@attach %!/INC`HEADER`[strfirstof(%0,MAIN)];@pemit %#=u(separator);@dolist %q<who>={@pemit %#=u(FUN`WHO`PLAYERLINE`[strfirstof(%0,MAIN)],##);@select/inline eq(#@,words(%q<who>))=1,{&MAXPLAYERS %!=u(setr,max,max(get(%!/MAXPLAYERS),words(%q<who>)));@pemit %#=u(SUBHEADER,words(%q<who>) Characters[if(u(game_config,WHO,SHOW_IPS),%Bfrom [words(setunion(iter(%q<who>,get(%i0/LASTSITE),,|),,|),|)] IPs)]%BConnected - Record is %q<max>)}}
 
-&CONFIG`WHO_IPS [u(cobj,account)]=Display number of unique IPs connected to the game at the +who footer?
-&CONFIG`WHO_IPS`DEFAULT [u(cobj,account)]=1
-&CONFIG`WHO_IPS`VALID [u(cobj,account)]=BOOL
+&CONFIG`HEADER [u(cobj,who)]=List of column names and widths in format of Text~Length. Like Name~20|Location~40. See +shelp +who.
+&CONFIG`HEADER`DEFAULT [u(cobj,who)]=Name~20|Alias~11|Fac~3|Idle~4|Conn~4|G~1|Location~29
+&CONFIG`HEADER`VALID [u(cobj,who)]=COLUMNS
 
-&INC`WHO`HEADER`MAIN [u(cobj,account)]=@pemit %#=ansi(u(color,%#,COLUMN_NAMES),lalign(iter(u(setr,hdr,u(conf,WHO_HEADER)),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,chr(177)),chr(177)))
-&INC`WHO`HEADER`IDLE [u(cobj,account)]=@attach %!/INC`WHO`HEADER`MAIN
+&CONFIG`COLUMNS [u(cobj,who)]=List of Column GETPROPERTIES and widths in format of GET~Length. Check +shelp +who.
+&CONFIG`COLUMNS`DEFAULT [u(cobj,who)]=NAMELINK~20|ALIAS~11|FACABBR~3|HIDEIDLE~>4|HIDECONN~>4|SEX/1~1|LOCATION/1~29
+&CONFIG`COLUMNS`VALID [u(cobj,who)]=GETTABLE
 
-&FUN`WHO`PLAYERLINE`MAIN [u(cobj,account)]=lalign(iter(u(setr,col,u(conf,WHO_COLUMNS)),after(%i0,~),|,%b),iter(%q<col>,u(strfirstof,u(getproperty,%0,before(%i0,~)),get(%0/D`FINGER`[before(%i0,~)])),|,chr(177)),chr(177))
-&FUN`WHO`PLAYERLINE`IDLE [u(cobj,account)]=u(FUN`WHO`PLAYERLINE`MAIN,%0)
+&CONFIG`SITES [u(cobj,who)]=Display number of unique IPs connected to the game at the +who footer?
+&CONFIG`SITES`DEFAULT [u(cobj,who)]=1
+&CONFIG`SITES`VALID [u(cobj,who)]=BOOL
 
-@@ &STARTUP [u(cobj,account)]=@hook/override WHO=%!,CMD`+WHO
+&INC`HEADER`MAIN [u(cobj,who)]=@pemit %#=ansi(u(color,%#,COLUMN_NAMES),lalign(iter(u(setr,hdr,u(conf,WHO_HEADER)),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,chr(177)),chr(177)))
+&INC`HEADER`IDLE [u(cobj,who)]=@attach %!/INC`HEADER`MAIN
+
+&FUN`WHO`PLAYERLINE`MAIN [u(cobj,who)]=lalign(iter(u(setr,col,u(conf,WHO_COLUMNS)),after(%i0,~),|,%b),iter(%q<col>,u(strfirstof,u(getproperty,%0,before(%i0,~)),get(%0/D`FINGER`[before(%i0,~)])),|,chr(177)),chr(177))
+&FUN`WHO`PLAYERLINE`IDLE [u(cobj,who)]=u(FUN`WHO`PLAYERLINE`MAIN,%0)
+
+&STARTUP [u(cobj,who)]=@hook/override WHO=%!,CMD`+WHO
 
 @@ COMMUNITY - WHO
-+help/add +who=[u(cobj,account)]/HLP`+WHO
-+help/category +who=Community
-+help/metatags +who=online players
-&HLP`+WHO [u(cobj,account)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+who)] - Show all visible\, connected players.%R[ansi(h,+who/idle)] - Like above\, but sorts by idle times.%R%R[ansi(h,+who <text>)] - Search for online players starting with <text>.)]
+&HLP`WHO [u(cobj,who)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+who)] - Show all visible\, connected players.%R[ansi(h,+who/idle)] - Like above\, but sorts by idle times.%R%R[ansi(h,+who <text>)] - Search for online players starting with <text>.)]
++help/add Community/+who=[u(cobj,who)]/HLP`WHO

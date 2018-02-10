@@ -16,7 +16,7 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &CMD`+MIGRATE`MAIN [u(cobj,mig)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Wizard only!;@attach %!/INC`GETSWITCH=%1;@attach %!/SWITCH`%q<switch>;@attach %!/INC`PARTIAL=%2,v(MIGRATION`CHOICES),|,choice;@attach %!/CHECK;@attach %!/%q<choice>=%2,%3
 @set [u(cobj,mig)]/CMD`+MIGRATE`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&MIGRATION`CHOICES [u(cobj,mig)]=ACCOUNT|CHARACTER|LOGIN|WATCH|GRID|THEME|INFO|MULTIDESC|THEME|GROUPS|SCENE|JOBS|BBS|GBS
+&MIGRATION`CHOICES [u(cobj,mig)]=ACCOUNT|CHARACTER|LOGIN|WATCH|GRID|THEME|INFO|MULTIDESC|GROUPS|SCENE|JOBS|BBS|GBS
 
 &SWITCHES`ADMIN [u(cobj,mig)]=FORCE
 &SYSTEM`NAME [u(cobj,mig)]=MIGRATE2.5->3
@@ -50,7 +50,7 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &GRID [u(cobj,mig)]=@check isdbref(u(cobj,district))=@attach %!/INC`MSG=ERROR: The new Grid Manager is not installed.;@check isdbref(u(oldcobj,district))=@attach %!/INC`MSG=ERROR: Could not locate the old District system.;@attach %!/INC`MSG`CHAN=Beginning GRID Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GRID.;&GRID`STATUS %!=1};@dolist/notify children(u(oldcobj,district))={@parent ##=[u(cobj,district)];&D`DISTRICT ##=1;@tel ##=u(cobj,district);@set ##/D`DISTRICT=no_inherit}
 
-&INFO [u(cobj,mig)]=@attach %!/INC`MSG`CHAN=Beginning INFO Conversion.;th u(setq,roots,1~D`INFOFILE|2~D`PINFOFILE);@dolist/inline setdiff(u(lattr,u(cobj,ims)/INIT`*),INIT`INFO INIT`PINFO)={@attach [u(cobj,ims)]/##;th u(setq,roots,setunion(%q<roots>,add(100,inum(0))~%q<root>,|,|))};@wait me={@attach %!/INC`MSG`CHAN=Finished migrating INFO. ROOTS DATA: %q<roots>};@dolist/notify lsearch(all,type,player)={@attach %!/INFO`CHARACTER=##,%q<roots>}
+&INFO [u(cobj,mig)]=@check isdbref(u(cobj,info))=@attach %!/INC`MSG=ERROR: The new Info Files code is not installed.;@check isdbref(u(oldcobj,ims))=@attach %!/INC`MSG=ERROR: Could not locate the old Info Files system.;@attach %!/INC`MSG`CHAN=Beginning INFO Conversion.;th u(setq,roots,1~D`INFOFILE|2~D`PINFOFILE);@dolist/inline setdiff(u(lattr,u(oldcobj,ims)/INIT`*),INIT`INFO INIT`PINFO)={@attach [u(cobj,ims)]/##;th u(setq,roots,setunion(%q<roots>,add(100,inum(0))~%q<root>,|,|))};@wait me={@attach %!/INC`MSG`CHAN=Finished migrating INFO. ROOTS DATA: %q<roots>;&INFO`STATUS %!=1};@dolist/notify lsearch(all,type,player)={@attach %!/INFO`CHARACTER=##,%q<roots>}
 
 &INFO`CHARACTER [u(cobj,mig)]=@dolist/inline/delimit | %1={@dolist/inline u(lattr,%0/[after(##,~)]`*)={@attach %!/INFO`CHARACTER`FILE=%0,u(choosegame,%i0,%d0),before(u(choosegame,%i1,%d1),~)}}
 
@@ -59,7 +59,7 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &Q`INFO`INSERT [u(cobj,mig)]=INSERT INTO vol_field (entity_id,field_type,field_name,field_text,field_date_modified,author_id) VALUES (?,?,?,?,FROM_UNIXTIME(?),?)
 &Q`INFO`LOCK [u(cobj,mig)]=INSERT INTO vol_field_lock (field_id,locker_id,locked_date) VALUES (?,?,FROM_UNIXTIME(?))
 
-&MULTIDESC [u(cobj,mig)]=@attach %!/INC`MSG`CHAN=Beginning MULTIDESC Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating MULTIDESC.};@dolist/notify lsearch(all,type,player)={@attach %!/MULTIDESC`CHARACTER=##}
+&MULTIDESC [u(cobj,mig)]=@check isdbref(u(cobj,desc))=@attach %!/INC`MSG=ERROR: The new MultiDescer code is not installed.;@check isdbref(u(oldcobj,dms))=@attach %!/INC`MSG=ERROR: Could not locate the old Desc system.;@attach %!/INC`MSG`CHAN=Beginning MULTIDESC Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating MULTIDESC.;&MULTIDESC`STATUS %!=1};@dolist/notify lsearch(all,type,player)={@attach %!/MULTIDESC`CHARACTER=##}
 
 &MULTIDESC`CHARACTER [u(cobj,mig)]=@dolist/inline u(lattr,%0/D`DESC`*)={@attach %!/INC`DOSQL=DESC`INSERT,get(%0/D`ID),get(%0/##),get(%0/##`DESC),get(%0/D`ID)}
 
@@ -109,7 +109,7 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &Q`GROUPS`PARENT [u(cobj,mig)]=UPDATE vol_group SET group_parent=? WHERE group_id=?
 
-&JOBS [u(cobj,mig)]=@attach %!/INC`MSG`CHAN=Beginning JOBS Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating JOBS.;&JOBS`STATUS %!=1};@dolist/inline BUCKETS BUCKETS2 JOBS LINKS COMMENTS={@attach %!/INC`DOSQL=JOBS`##};@attach %!/JOBS`FINISH
+&JOBS [u(cobj,mig)]=@check isdbref(u(cobj,job))=@attach %!/INC`MSG=ERROR: The New Job system is not installed!;@check isdbref(u(oldcobj,jms))=@attach %!/INC`MSG=ERROR: The Old Job system could not be found!;@attach %!/INC`MSG`CHAN=Beginning JOBS Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating JOBS.;&JOBS`STATUS %!=1};@dolist/inline BUCKETS BUCKETS2 JOBS LINKS COMMENTS={@attach %!/INC`DOSQL=JOBS`##};@attach %!/JOBS`FINISH
 
 &Q`JOBS`BUCKETS [u(cobj,mig)]=INSERT INTO vol_entity (entity_id,entity_type,entity_name) SELECT thing_id,3,object_name FROM mush_thing WHERE thing_type=2
 &Q`JOBS`BUCKETS2 [u(cobj,mig)]=INSERT INTO vol_bucket (bucket_id) SELECT thing_id FROM mush_thing WHERE thing_type=2
@@ -126,10 +126,9 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &Q`JOBS`STATS [u(cobj,mig)]=UPDATE vol_bucket SET bucket_stats=? WHERE bucket_id=?
 &Q`JOBS`DESC [u(cobj,mig)]=UPDATE vol_bucket SET bucket_description=?,bucket_description_render=? WHERE bucket_id=?
 
+&SCENE [u(cobj,mig)]=@check isdbref(u(cobj,scene))=@attach %!/INC`MSG=ERROR: The New SceneSys is not installed!;@check isdbref(u(oldcobj,scene))=@attach %!/INC`MSG=ERROR: The Old Scene system could not be found!;@attach %!/INC`MSG`CHAN=Beginning SCENE Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating SCENE.;&SCENE`STATUS %!=1};@dolist/inline/notify PLOT RUNNER SCENE ACTOR SOURCE ACTION PLOTLINK={@attach %!/INC`DOSQL=SCENE`##}
 
-&SCENE [u(cobj,mig)]=@attach %!/INC`MSG`CHAN=Beginning SCENE Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating SCENE.};@dolist/inline/notify PLOT RUNNER SCENE ACTOR SOURCE ACTION={@attach %!/INC`DOSQL=SCENE`##}
-
-&Q`SCENE`PLOT [u(cobj,mig)]=INSERT INTO vol_plot (plot_id,plot_title,plot_pitch,plot_outcome,plot_date_start,plot_date_end,plot_type,plot_status) SELECT plot_id,title,pitch,outcome,date_start,date_end,plot_type,plot_status FROM mush_plot
+&Q`SCENE`PLOT [u(cobj,mig)]=INSERT INTO vol_plot (plot_id,plot_title,plot_pitch,plot_outcome,plot_date_start,plot_date_end) SELECT plot_id,title,pitch,outcome,date_start,date_end FROM mush_plot
 
 &Q`SCENE`RUNNER [u(cobj,mig)]=INSERT INTo vol_runner (runner_id,character_id,plot_id,runner_type) SELECT runner_id,player_id,plot_id,runner_type FROM mush_runner
 
@@ -140,3 +139,5 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &Q`SCENE`SOURCE [u(cobj,mig)]=INSERT INTO vol_action_source (source_id,scene_id,source_objid,source_vr,source_name,source_type) SELECT source_id,scene_id,source_objid,source_vr,source_name,source_type FROM mush_action_source
 
 &Q`SCENE`ACTION [u(cobj,mig)]=INSERT INTO vol_action (action_id,actor_id,source_id,action_is_deleted,action_type,action_date_created,action_text) SELECT action_id,actor_id,source_id,is_deleted,action_type,date_created,action_text FROM mush_action
+
+&Q`SCENE`PLOTLINK [u(cobj,mig)]=INSERT IGNORE INTO vol_plotlink (plot_id,scene_id) SELECT plot_id,scene_id FROM mush_plot_link

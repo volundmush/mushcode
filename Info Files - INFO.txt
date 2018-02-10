@@ -20,11 +20,11 @@ th u(NEWCOBJ,Info Management System <INFO>,info,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &INC`TARGET [u(cobj,info)]=@select/inline t(strlen(%0))[t(strlen(%1))]=10,{@select/inline isdbref(u(setr,target,pmatch(%0)))=1,{@attach %!/INC`CHECKPC=%q<target>,1;th u(setq,filename,%1)},0,{@attach %!/INC`CHECKPC=%#,1;th u(setq,target,%#);th u(setq,filename,%0)}},00,{th u(setq,target,%#);@attach %!/INC`CHECKPC=%#,1},11,{@attach %!/INC`CHECKPC=%0,1;th u(setq,filename,%1);th u(setq,target,%q<t1>)};th u(setq,filename,iter(%q<filename>,trim(%i0),|,|))
 
-&INC`LOADFILE [u(cobj,info)]=th u(setq,infoload,u(mysql3,LOAD`INFOFILE,u(setr,i%1,%0)));th iter(type name modified ownerid ownername ownerobjid lockerid lockername lockerobjid lockdate,u(setq,i%1%i0,elements(%q<infoload>,inum(0),chr(177))))
+&INC`LOADFILE [u(cobj,info)]=th u(setq,infoload,u(mysql3,LOAD`INFOFILE,u(setr,i%1,%0)));th iter(type name modified ownerid ownername ownerobjid lockerid lockername lockerobjid lockdate authorname authorobjid,u(setq,i%1%i0,elements(%q<infoload>,inum(0),chr(177))))
 
 &Q`FIND`INFOFILE [u(cobj,info)]=SELECT info_id FROM volv_infofile WHERE owner_id=? AND info_type=? AND info_name LIKE '!%%' ORDER BY info_name LIMIT 1
 
-&Q`LOAD`INFOFILE [u(cobj,info)]=SELECT info_type,info_name,info_date_modified_secs,owner_id,owner_name,owner_objid,locker_id,locker_name,locker_objid,locked_date_secs FROM volv_infofile WHERE info_id=?
+&Q`LOAD`INFOFILE [u(cobj,info)]=SELECT info_type,info_name,info_date_modified_secs,owner_id,owner_name,owner_objid,locker_id,locker_name,locker_objid,locked_date_secs,author_name,author_objid FROM volv_infofile WHERE info_id=?
 
 &INC`FINDFILE [u(cobj,info)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Info name empty.;@check u(setr,field_id,u(mysql,FIND`INFOFILE,get(%q<target>/D`ID),%q<root>,sqlescape(%0)))=@attach %!/INC`MSG=ERROR: '%0' not found.;@attach %!/INC`LOADFILE=%q<field_id>,1;@attach %!/INC`LOADFILE=%q<field_id>
 

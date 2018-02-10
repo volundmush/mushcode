@@ -20,6 +20,7 @@ entity_type enumeration:
 6 - Group Rank.
 7 - Group Membership.
 8 - District.
+9 - Combat System Entity.
 
 100+ - Game-specific implementations.
 */
@@ -205,7 +206,7 @@ CREATE PROCEDURE volp_field(IN in_entity_id INT UNSIGNED,IN in_field_type TINYIN
 DELIMITER ;
 
 CREATE OR REPLACE VIEW volv_infofile AS
-	SELECT i.field_id AS info_id,i.field_type AS info_type,i.field_name AS info_name,i.field_text AS info_text,i.field_date_modified AS info_date_modified,UNIX_TIMESTAMP(i.field_date_modified) AS info_date_modified_secs,e.entity_id AS owner_id,e.entity_name AS owner_name,e.entity_objid AS owner_objid,l.locker_id,e2.entity_name AS locker_name,e2.entity_objid AS locker_objid,l.locked_date,UNIX_TIMESTAMP(l.locked_date) AS locked_date_secs FROM vol_field AS i LEFT JOIN vol_entity AS e ON i.entity_id=e.entity_id LEFT JOIN vol_field_lock AS l ON i.field_id=l.field_id LEFT JOIN vol_entity AS e2 ON e2.entity_id=l.locker_id
+	SELECT i.field_id AS info_id,i.field_type AS info_type,i.field_name AS info_name,i.field_text AS info_text,i.field_date_modified AS info_date_modified,UNIX_TIMESTAMP(i.field_date_modified) AS info_date_modified_secs,e.entity_id AS owner_id,e.entity_name AS owner_name,e.entity_objid AS owner_objid,l.locker_id,e2.entity_name AS locker_name,e2.entity_objid AS locker_objid,l.locked_date,UNIX_TIMESTAMP(l.locked_date) AS locked_date_secs,e3.entity_name as author_name,e3.entity_objid AS author_objid	FROM vol_field AS i LEFT JOIN vol_entity AS e ON i.entity_id=e.entity_id LEFT JOIN vol_field_lock AS l ON i.field_id=l.field_id LEFT JOIN vol_entity AS e2 ON e2.entity_id=l.locker_id LEFT JOIN vol_entity AS e3 ON e3.entity_id=i.author_id
 	ORDER BY i.entity_id,i.field_type,i.field_name;
 
 
@@ -866,8 +867,9 @@ CREATE OR REPLACE VIEW volv_sub_files AS
 	GROUP BY help_file_parent_id;
 
 CREATE OR REPLACE VIEW volv_help_file AS
-	SELECT *
-	FROM vol_help_file NATURAL JOIN vol_help_category;
+	SELECT h.help_file_id,h.help_category_id,h.help_file_name,h.help_file_date_created,UNIX_TIMESTAMP(h.help_file_date_created) AS help_file_date_created_secs,h.help_file_date_modified,UNIX_TIMESTAMP(h.help_file_date_modified) AS help_file_date_modified_secs,h.help_file_text,h.help_file_squished,h.help_file_dbattr,h.help_file_parent_id,c.help_category_type,c.help_category_name
+	FROM vol_help_file AS h LEFT JOIN vol_help_category AS c on h.help_category_id=c.help_category_id
+	ORDER BY c.help_category_name,h.help_file_name;
 
 CREATE OR REPLACE VIEW volv_help_file_load AS
 	SELECT f.help_file_id,f.help_file_name,f.help_category_name,f.help_file_dbattr,f.help_file_text,s.sub_file_count
@@ -1103,81 +1105,63 @@ CREATE OR REPLACE VIEW volv_plotlink AS
 	ORDER BY p.plot_id,s.scene_id;
 
 
-	
 -- SQL Schema for the Csys Core 
-CREATE TABLE IF NOT EXISTS vol_csys_entity (
-	entity_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	entity_name VARCHAR(100) NOT NULL,
-	entity_date_created DATETIME,
-	entity_version TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	entity_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	entity_is_deleted BOOL NOT NULL DEFAULT FALSE,
-	PRIMARY KEY(entity_id),
-	INDEX(entity_name,entity_version,entity_type,entity_is_deleted)
+CREATE TABLE IF NOT EXISTS vol_centity (
+	centity_id INT UNSIGNED NOT NULL,
+	centity_date_created DATETIME,
+	centity_version TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	centity_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	centity_is_deleted BOOL NOT NULL DEFAULT FALSE,
+	PRIMARY KEY(centity_id),
+	FOREIGN KEY(centity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	INDEX(centity_version,centity_type,centity_is_deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
-CREATE TABLE IF NOT EXISTS vol_csys_trait (
-	entity_id MEDIUMINT UNSIGNED NOT NULL,
+CREATE TABLE IF NOT EXISTS vol_ctrait (
+	centity_id INT UNSIGNED NOT NULL,
 	trait_id TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	trait_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	trait_value SMALLINT SIGNED NOT NULL DEFAULT 0,
-	FOREIGN KEY(entity_id) REFERENCES vol_csys_entity(entity_id) ON DELETE CASCADE ON UPDATE CASCADE,
-	UNIQUE(entity_id,trait_type,trait_id)
+	trait_value INT SIGNED NOT NULL DEFAULT 0,
+	FOREIGN KEY(centity_id) REFERENCES vol_centity(centity_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	UNIQUE(centity_id,trait_type,trait_id)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
-CREATE TABLE IF NOT EXISTS vol_csys_link (
-	link_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	link_display_num MEDIUMINT UNSIGNED NOT NULL,
-	player_id MEDIUMINT UNSIGNED NOT NULL,
-	entity_id MEDIUMINT UNSIGNED NOT NULL,
-	link_approved BOOL NOT NULL DEFAULT FALSE,
-	link_parent MEDIUMINT UNSIGNED NULL,
-	PRIMARY KEY(link_id),
-	FOREIGN KEY(entity_id) REFERENCES vol_csys_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(link_parent) REFERENCES vol_csys_link(link_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(player_id) REFERENCES vol_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	INDEX(player_id,link_display_num,entity_id)
+CREATE TABLE IF NOT EXISTS vol_clink (
+	clink_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	clink_display_num MEDIUMINT UNSIGNED NOT NULL,
+	character_id MEDIUMINT UNSIGNED NOT NULL,
+	centity_id INT UNSIGNED NOT NULL,
+	clink_approved BOOL NOT NULL DEFAULT FALSE,
+	clink_parent MEDIUMINT UNSIGNED NULL,
+	PRIMARY KEY(clink_id),
+	FOREIGN KEY(centity_id) REFERENCES vol_centity(centity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(clink_parent) REFERENCES vol_clink(clink_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(character_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	INDEX(character_id,clink_display_num,centity_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
-CREATE TABLE IF NOT EXISTS vol_csys_armory (
-	armory_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	entity_id MEDIUMINT UNSIGNED NULL,
-	link_id MEDIUMINT UNSIGNED NULL,
-	PRIMARY KEY(armory_id),
-	FOREIGN KEY(entity_id) REFERENCES vol_csys_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(link_id) REFERENCES vol_csys_link(link_id) ON UPDATE CASCADE ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS vol_carmory (
+	carmory_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	centity_id INT UNSIGNED NULL,
+	clink_id MEDIUMINT UNSIGNED NULL,
+	PRIMARY KEY(carmory_id),
+	FOREIGN KEY(centity_id) REFERENCES vol_centity(centity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(clink_id) REFERENCES vol_clink(clink_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
-CREATE TABLE IF NOT EXISTS vol_csys_attack (
-	attack_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	armory_id MEDIUMINT UNSIGNED NOT NULL,
-	attack_name VARCHAR(100) NOT NULL,
-	PRIMARY KEY(attack_id),
-	FOREIGN KEY(armory_id) REFERENCES vol_csys_armory(armory_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	UNIQUE(armory_id,attack_name)
+CREATE TABLE IF NOT EXISTS vol_cattack (
+	cattack_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	carmory_id MEDIUMINT UNSIGNED NOT NULL,
+	cattack_name VARCHAR(100) NOT NULL,
+	PRIMARY KEY(cattack_id),
+	FOREIGN KEY(carmory_id) REFERENCES vol_carmory(carmory_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(carmory_id,cattack_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
-CREATE TABLE IF NOT EXISTS vol_csys_attack_parameter (
-	attack_id MEDIUMINT UNSIGNED NOT NULL,
-	parameter_type TINYINT UNSIGNED NOT NULL,
-	parameter_id TINYINT UNSIGNED NOT NULL,
-	parameter_value SMALLINT SIGNED NOT NULL DEFAULT 0,
-	UNIQUE(attack_id,parameter_type,parameter_id)
+CREATE TABLE IF NOT EXISTS vol_cattack_parameter (
+	cattack_id MEDIUMINT UNSIGNED NOT NULL,
+	cparameter_type TINYINT UNSIGNED NOT NULL,
+	cparameter_id TINYINT UNSIGNED NOT NULL,
+	cparameter_value SMALLINT SIGNED NOT NULL DEFAULT 0,
+	UNIQUE(cattack_id,cparameter_type,cparameter_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
-	
--- MIGRATION FROM 2.x
-
-INSERT INTO vol_entity (entity_id,entity_type,entity_objid,entity_name) SELECT thing_id,0,objid,object_name FROM mush_thing WHERE thing_type=1;
-INSERT INTO vol_account (account_id,account_date_created) SELECT thing_id,UTC_TIMESTAMP() FROM mush_thing WHERE thing_type=1;
-
-INSERT INTO vol_entity (entity_id,entity_type,entity_objid,entity_name) SELECT thing_id,1,objid,object_name FROM mush_thing WHERE thing_type=0;
-INSERT INTO vol_character (character_id,character_is_deleted,account_id) SELECT thing_id,is_deleted,parent_id FROM mush_thing WHERE thing_type=0;
-
-INSERT INTO vol_ip (ip_id,ip_address) SELECT ip_id,ip_address FROM mush_ip;
-INSERT INTO vol_login (login_id,character_id,login_date,login_is_success,ip_id) SELECT login_id,player_id,date_login,is_success,ip_id FROM mush_login;
-
-INSERT INTO vol_entity (entity_id,entity_type,entity_objid,entity_name) SELECT thing_id,3,objid,object_name FROM mush_thing WHERE thing_type=2;
-INSERT INTO vol_bucket (bucket_id) SELECT thing_id FROM mush_thing WHERE thing_type=2;
-INSERT INTO vol_job (job_id,job_title,bucket_id,job_date_created,job_date_closed,job_date_player_activity,job_date_admin_activity,job_status,job_is_anonymous) SELECT job_id,title,thing_id,date_created,date_closed,date_player_activity,date_admin_activity,job_status,is_anonymous FROM mush_job;
-INSERT INTO vol_jlink (jlink_id,job_id,character_id,jlink_type,jlink_date_check) SELECT link_id,job_id,player_id,link_type,date_check FROM mush_job_link;
-INSERT INTO vol_jcomment (jcomment_id,jlink_id,jcomment_date_created,jcomment_text,jcomment_type,jcomment_is_visible) SELECT comment_id,link_id,date_created,comment_text,comment_type,is_visible FROM mush_job_comment;

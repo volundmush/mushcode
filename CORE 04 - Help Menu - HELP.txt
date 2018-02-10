@@ -32,7 +32,7 @@ th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &INC`DELETECATEGORY [u(cobj,help)]=@attach %!/INC`FINDCATEGORY=%0;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will Delete Category '%q<catname>' and ALL ASSOCIATED FILES/SUBFILES. Are you SURE? Enter the same command again to verify!},DELETE HELPCAT %q<db> %q<cat_id>;@attach %!/INC`DOSQL=DELETE`CATEGORY,%q<cat_id>;@attach %!/INC`MSG=Deleted Category '%q<catname>'!;@attach %!/INC`MSG`CHAN=Deleted Category '%q<catname>'!
 
-&INC`ADD [u(cobj,help)]=@attach %!/INC`NEWCATEGORY=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: What's the file name?;@check strlen(%3)=@attach %!/INC`MSG=ERROR: File needs contents darnit!;@check u(setr,file_id,u(call`2,volp_help_file,0,%q<cat_id>,'[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: %q<file_id>;@attach %!/INC`FILLFILE=%3,%q<file_id>;@attach %!/INC`MSG=Help File '%1' Created/Updated!;@attach %!/INC`MSG`CHAN=Added/Replaced File: %1
+&INC`ADD [u(cobj,help)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: What's the file name?;@check strlen(%3)=@attach %!/INC`MSG=ERROR: File needs contents darnit!;@attach %!/INC`NEWCATEGORY=%0;@check u(setr,file_id,u(call`2,volp_help_file,0,%q<cat_id>,'[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: %q<file_id>;@attach %!/INC`FILLFILE=%3,%q<file_id>;@attach %!/INC`MSG=Help File '%1' Created/Updated!;@attach %!/INC`MSG`CHAN=Added/Replaced File: %1
 
 &INC`ADDSUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;th u(setr,load,u(mysql3,LOAD`FILE,%q<file_id>));@check strlen(%1)=@attach %!/INC`MSG=ERROR: What's the sub-filename?;@check strlen(%3)=@attach %!/INC`MSG=ERROR: A helpfile must have contents!;@check u(setr,sub_id,u(call`2,volp_help_sub,0,%q<file_id>,'[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: %q<sub_id>;@attach %!/INC`FILLFILE=%3,%q<sub_id>;@attach %!/INC`MSG=Sub-Help File '[elements(%q<load>,3,chr(177))]/%1' Created/Updated!;@attach %!/INC`MSG`CHAN=Added/Replaced Sub-File: [elements(%q<load>,3,chr(177))]/%1
 
@@ -46,13 +46,17 @@ th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHER
 &FUN`CATEGORIES [u(cobj,help)]=u(mysql3,SELECT`CATEGORIES,%0)
 &Q`SELECT`CATEGORIES [u(cobj,help)]=SELECT help_category_id,help_category_name FROM volv_help_category WHERE help_count>0 AND help_category_type=? ORDER BY help_category_name
 
-&FUN`FILES [u(cobj,help)]=u(mysql3,SELECT`FILES,get(%1/D`ID),get(%1/D`ID),%0)
-&Q`SELECT`FILES [u(cobj,help)]=SELECT h.help_file_id,h.help_file_name,IF(r.help_read_date_checked>h.help_file_date_modified,0,1),UNIX_TIMESTAMP(h.help_file_date_modified),(SELECT IF(MAX(h2.help_file_date_modified)>MAX(r2.help_read_date_checked),0,1) FROM vol_help_file AS h2 LEFT JOIN vol_help_read AS r2 ON h2.help_file_id=r2.help_file_id AND r2.character_id=? WHERE h2.help_file_parent_id=h.help_file_id GROUP BY h2.help_file_id) FROM volv_help_file AS h LEFT JOIN vol_help_read AS r ON r.help_file_id=h.help_file_id AND r.character_id=? WHERE h.help_category_id=? AND h.help_file_parent_id IS NULL ORDER BY h.help_file_name ASC
+&FUN`FILES [u(cobj,help)]=u(mysql3,SELECT`FILES,%0)
+&Q`SELECT`FILES [u(cobj,help)]=SELECT help_file_id,help_file_name,help_file_date_modified_secs FROM volv_help_file WHERE help_category_id=? AND help_file_parent_id IS NULL
 
-&FUN`SUBFILES [u(cobj,help)]=u(mysql3,SELECT`SUBFILES,get(%1/D`ID),%0)
-&Q`SELECT`SUBFILES [u(cobj,help)]=SELECT h.help_file_id,h.help_file_name,IF(r.help_read_date_checked>h.help_file_date_modified,0,1),UNIX_TIMESTAMP(h.help_file_date_modified) FROM volv_help_file AS h LEFT JOIN vol_help_read AS r ON r.help_file_id=h.help_file_id AND r.character_id=? WHERE h.help_file_parent_id=? ORDER BY h.help_file_name
+&FUN`SUBFILES [u(cobj,help)]=u(mysql3,SELECT`SUBFILES,%0)
+&Q`SELECT`SUBFILES [u(cobj,help)]=SELECT help_file_id,help_file_name,help_file_date_modified_secs FROM volv_help_file WHERE help_file_parent_id=?
 
-&INC`SHOW`ALL [u(cobj,help)]=@pemit %#=u(header,%q<disp>);@dolist/inline/delimit [chr(176)] [u(FUN`CATEGORIES,%q<db>)]={th u(setq,hdat,u(choosegame,%i0,%d0));@pemit %#=u(separator,u(capnames,elements(%q<hdat>,2,chr(177))));@pemit %#=u(table,iter(u(FUN`FILES,elements(%q<hdat>,1,chr(177)),%#),ljust(u(pueblize,ansi(h,u(setr,name,elements(%i0,2,chr(177)))),[lcstr(%q<comm>)] %q<name>)%B,25)[rjust(u(FUN`HAVEREAD,elements(%i0,3,chr(177)),elements(%i0,5,chr(177))),1)][u(date,elements(%i0,4,chr(177)),%#)],chr(176),|),37,u(width,%#),|)};@pemit %#=u(separator)%R%TFor more information on the listed topics, please use '[ansi(h,lcstr(%q<comm>) <topic>)]'[if(u(isadmin,%#),%R%TAdmin\, please see [u(pueblize,ansi(h,lcstr(%q<comm>)/help),lcstr(%q<comm>)/help)] for config information.)];@pemit %#=u(footer)
+&INC`SHOW`ALL [u(cobj,help)]=@pemit %#=u(header,%q<disp>);@dolist/inline/delimit [chr(176)] [u(FUN`CATEGORIES,%q<db>)]={th u(setq,hdat,u(choosegame,%i0,%d0));@pemit %#=u(separator,u(capnames,elements(%q<hdat>,2,chr(177))));@pemit %#=u(table,iter(u(FUN`FILES,elements(%q<hdat>,1,chr(177)),%#),u(FUN`FORMATFILE,%i0),chr(176),|),18,u(width,%#),|)};@pemit %#=u(separator)%R%TFor more information on the listed topics, please use '[ansi(h,lcstr(%q<comm>) <topic>)]'[if(u(isadmin,%#),%R%TAdmin\, please see [u(pueblize,ansi(h,lcstr(%q<comm>)/help),lcstr(%q<comm>)/help)] for config information.)];@pemit %#=u(footer)
+
+&FUN`FORMATFILE [u(cobj,help)]=localize(ljust(u(pueblize,ansi(h,u(setr,name,elements(%0,2,chr(177)))),[lcstr(%q<comm>)] %q<name>),24))
+
+@@ ljust(u(pueblize,ansi(h,u(setr,name,elements(%i0,2,chr(177)))),[lcstr(%q<comm>)] %q<name>)%B,25)[rjust(u(FUN`HAVEREAD,elements(%i0,4,chr(177)),elements(%i0,5,chr(177))),1)][u(date,elements(%i0,3,chr(177)),%#)]
 
 &FUN`HAVEREAD [u(cobj,help)]=if(%0,ansi(hr,*),if(%1,ansi(y,&),%b)
 
@@ -67,7 +71,7 @@ th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHER
 &Q`FIND`EXACT_SUB [u(cobj,help)]=SELECT help_file_id,help_file_name FROM volv_help_file WHERE help_file_parent_id=? AND help_file_name=?
 &Q`FIND`LIKE_SUB [u(cobj,help)]=SELECT help_file_id,help_file_name FROM volv_help_file WHERE help_file_parent_id=? AND help_file_name LIKE '!%' ORDER BY help_file_name ASC,CHAR_LENGTH(help_file_name) ASC LIMIT 1
 
-&INC`SHOW`TOPIC [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0,1;@pemit %#=u(header,%q<comm>: [u(setr,name,elements(%q<file_load>,3,chr(177)))]);@select/inline t(elements(%q<file_load>,4,chr(177)))=1,{@pemit %#=u(elements(%q<file_load>,5,chr(177)))},0,{@pemit %#=elements(%q<file_load>,5,chr(177))};@select/inline words(u(setr,subs,u(FUN`SUBFILES,%q<file_id>,%#)),chr(176))=>0,{@pemit %#=u(subheader,Subfiles)%R%TTo read subfiles, use '[ansi(h,%q<comm> %q<name>/<file>)]';@pemit %#=u(table,iter(%q<subs>,ljust(u(pueblize,ansi(h,u(setr,subname,elements(%i0,2,chr(177)))),lcstr(%q<comm>) %q<name>/%q<subname>)%B,24)[rjust(u(FUN`HAVEREAD,elements(%i0,3,chr(177))),1)][u(date,elements(%i0,4,chr(177)),%#)],chr(176),|),37,u(width,%#),|)};@pemit %#=u(footer);@attach %!/INC`DOSQL=UPDATE`READ,get(%#/D`ID),%q<file_id>
+&INC`SHOW`TOPIC [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0,1;@pemit %#=u(header,%q<comm>: [u(setr,name,elements(%q<file_load>,3,chr(177)))]);@select/inline t(elements(%q<file_load>,4,chr(177)))=1,{@pemit %#=u(elements(%q<file_load>,5,chr(177)))},0,{@pemit %#=elements(%q<file_load>,5,chr(177))};@select/inline words(u(setr,subs,u(FUN`SUBFILES,%q<file_id>,%#)),chr(176))=>0,{@pemit %#=u(subheader,Subfiles)%R%TTo read subfiles, use '[ansi(h,%q<comm> %q<name>/<file>)]';@pemit %#=u(table,iter(%q<subs>,u(FUN`FORMATFILE,%i0),chr(176),|),18,u(width,%#),|)};@pemit %#=u(footer);@attach %!/INC`DOSQL=UPDATE`READ,get(%#/D`ID),%q<file_id>
 
 &Q`LOAD`FILE [u(cobj,help)]=SELECT help_file_id,help_category_name,help_file_name,help_file_dbattr,help_file_text,sub_file_count FROM volv_help_file_load WHERE help_file_id=?
 

@@ -1,0 +1,1 @@
+This directory contains various different Idle Trackers. Not every game wants to use the same standards!

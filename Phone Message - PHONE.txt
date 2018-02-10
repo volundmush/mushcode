@@ -1,4 +1,6 @@
-th u(NEWCOBJ,Phone Message System <PHONE>,phone,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+@@ DEPENDENCIES: Core
+
+th u(NEWCOBJ,Phone Message <PHONE>,phone,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 @lock/command [u(cobj,phone)]=!POWER^GUEST&!FLAG^JAILED&!FLAG^GAGGED
 
 &CMD`+PHONE`PENNMUSH [u(cobj,phone)]=$^(?\:\+)?(?\:phone|call)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+PHONE`MAIN
@@ -10,8 +12,6 @@ th u(NEWCOBJ,Phone Message System <PHONE>,phone,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &SWITCHES`PLAYER [u(cobj,phone)]=ON|OFF
 &SYSTEm`NAME [u(cobj,phone)]=PHONE
-
-th u(NEWCONF,pconf,PHONE,HEADER,hc,Color to display phone messages?,COLOR)
 
 &INC`MAIN [u(cobj,phone)]=@check u(FUN`ON,%#)=@attach %!/INC`MSG=Your phone is not on!;@attach %!/INC`VERIFYLIST=if(not(strlen(%1)),get(%#/D`PHONE`LAST),%0);@attach %!/INC`SEND=u(strfirstof,%1,%0)
 
@@ -28,6 +28,5 @@ th u(NEWCONF,pconf,PHONE,HEADER,hc,Color to display phone messages?,COLOR)
 &INC`ON [u(cobj,phone)]=@attach %!/INC`MSG=Your phone is now on!;&D`PHONE`ON %#=1
 &INC`OFF [u(cobj,phone)]=@attach %!/INC`MSG=Your phone is now off!;&D`PHONE`ON %#=0
 
-+help/add +phone=[u(cobj,phone)]/HLP`+PHONE
-+help/category +phone=Communications
-&HLP`+PHONE [u(cobj,phone)]=The Phone system is a simple communications command to represent direct radio, instant messaging, phones, or other methods for something too quick, private, or temporary to warrant a +radio frequency.%R[ansi(hc,Aliases:)] phone, call, +call%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+phone <namelist>=<message>)] - Send a message to one or more players. Namelist uses the same format as page\, so separate names with spaces and encapsulate multi-word names in quotes - "Firstname Lastname" etc (or use their alias!)%R[ansi(h,+phone <message>)] - Send another message to the last person or people you phone'd. Same as page\, do not include a = or the system will think your message is a list of targets.%R[ansi(h,+phone/off)] - Turn off your phone. Cannot receive or send messages.%R[ansi(h,+phone/on)] - Turn your phone back on.)]
+&HLP`PHONE [u(cobj,phone)]=The Phone system is a simple communications command to represent direct radio, instant messaging, phones, or other methods for something too quick, private, or temporary to warrant a +radio frequency.%R[ansi(hc,Aliases:)] phone, call, +call%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+phone <namelist>=<message>)] - Send a message to one or more players. Namelist uses the same format as page\, so separate names with spaces and encapsulate multi-word names in quotes - "Firstname Lastname" etc (or use their alias!)%R[ansi(h,+phone <message>)] - Send another message to the last person or people you phone'd. Same as page\, do not include a = or the system will think your message is a list of targets.%R[ansi(h,+phone/off)] - Turn off your phone. Cannot receive or send messages.%R[ansi(h,+phone/on)] - Turn your phone back on.)]
++help/add Communications/+phone=[u(cobj,phone)]/HLP`PHONE

@@ -23,7 +23,5 @@ th u(NEWCOBJ,Page Extension System,page,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &INC`LIST [u(cobj,page)]=@attach %!/INC`MSG={You are Ignoring: [strfirstof(itemize(iter(u(filter,ISOBJID,get(%#/IGNORELIST)),name(%i0),%b,|),|,and,\,),Nobody!)]}
 
 @@ COMMUNICATIONS - PAGE
-+help/add Page=[u(cobj,page)]/HLP`PAGE
-+help/category Page=Communications
-+help/metatags Page=Tell pm reply
 &HLP`PAGE [u(cobj,page)]=Page is Penn's built-in private message system.%R[ansi(hc,See Also:)] [u(pueblize,help page,help page)]%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,page)] - Show who you last paged.%R[ansi(h,page <recipients>=<speech>)] - Sends a message to <recipients.> Recipients is a space-seperated list of names. Enclose multi-word names in quotations such as "Firstname Lastname".%R[ansi(h,page <speech>)] - Sends a message to the last people you paged. Note that if you include a = it will consider everything before it to be <recipients> like the above command\, so you can't use = with this style of paging.%R[ansi(h,reply <text>)] - Sends a reply to the last character\(s\) who paged you. Helpful when mass-paged. Also responds to just [ansi(h,r)]%R[ansi(h,repage <text>)] - Send a Page to the last person you just messaged. While page does this normally\, retell lets you do it quickly if you just paged a lot of people who've yet to reply. Also responds to [ansi(h,rt)] and [ansi(h,retell)]%R%RBe careful with these commands because getting paged by surprise might result in mispaging.
++help/add Communications/Page=[u(cobj,page)]/HLP`PAGE

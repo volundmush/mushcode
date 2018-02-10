@@ -145,7 +145,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &MONIKER [u(cobj,ccp)]=localize(if(%1,if(setr(col,strfirstof(u(color,%1,NAMES,%0,,1),switch(1,strmatch(num(%0),num(%1)),u(color,%1,NAMES,MINE,,1),strmatch(num(%0),%#),u(color,%1,NAMES,SPEAKER,,1),u(color,%1,NAMES,OTHER,,1)))),ansi(%q<col>,name(%0)),moniker(%0)),moniker(%0)))
 
-&NAMELINK [u(cobj,ccp)]=localize(u(mxpmenu,u(moniker,%0,%1),iter(setr(com,u(game_config,SYSTEM,NAMELINK)),%i0 [name(%0)],|,|),%q<com>))
+&NAMELINK [u(cobj,ccp)]=localize(u(mxpmenu,u(moniker,%0,1),iter(setr(com,strfirstof(%1,u(conf,NAMELINK)),%i0 [name(%0)],|,|),%q<com>))
 
 &NAMEGRAB [u(cobj,ccp)]=namegrab(%0,%1)
 
@@ -229,23 +229,20 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 @@ PROPERTY SECTION
 &GETPROPERTY [u(cobj,ccp)]=localize(if(isdbref(%0),u(GETPROPERTY`%1,%0,%2,%3,%4)))
 
-&GETPROPERTY`SEX [u(cobj,ccp)]=if(%1,left(get(%0/SEX),%2),get(%0/SEX))
+&GETPROPERTY`SEX [u(cobj,ccp)]=if(%1,left(get(%0/SEX),%1),get(%0/SEX))
 &GETPROPERTY`NAME [u(cobj,ccp)]=u(moniker,%0)
 &GETPROPERTY`ALIAS [u(cobj,ccp)]=if(%1,u(fullalias,%0),u(getalias,%0))
 &GETPROPERTY`ALIASNAME [u(cobj,ccp)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
-&GETPROPERTY`ALIASMONIKER [u(cobj,ccp)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
-&GETPROPERTY`NAMELINK [u(cobj,ccp)]=u(namelink,%0)
+&GETPROPERTY`NAMELINK [u(cobj,ccp)]=u(namelink,%0,edit(%1,^,|))
 &GETPROPERTY`HIDEIDLE [u(cobj,ccp)]=u(hideidle,%0)
 &GETPROPERTY`HIDECONN [u(cobj,ccp)]=u(hideconn,%0)
 &GETPROPERTY`LASTIDLE [u(cobj,ccp)]=u(lastidle,%0)
-&GETPROPERTY`LOCATION [u(cobj,ccp)]=if(findable(%#,%0),if(elock(loc(%0)/Teleport,%#),u(pueblize,u(moniker,loc(%0)),+port [loc(%0)]),u(moniker,loc(%0))),*UNFINDABLE*)
+&GETPROPERTY`LOCATION [u(cobj,ccp)]=if(findable(%#,%0),if(cand(elock(loc(%0)/Teleport,%#),%1),u(pueblize,u(moniker,loc(%0)),+port [loc(%0)]),u(moniker,loc(%0))),*UNFINDABLE*)
 &GETPROPERTY`TIMEZONE [u(cobj,ccp)]=u(gettz,%0)
-&GETPROPERTY`UMAIL [u(cobj,ccp)]=u(umail,%0) Unread Messages
+&GETPROPERTY`UMAIL [u(cobj,ccp)]=u(umail,%0)
 &GETPROPERTY`ALTS [u(cobj,ccp)]=if(isdbref(u(cobj,account)),u(u(cobj,account)/FUN`ALTS`LIST,%0))
 
-&GETPROPERTY`PICTURE [u(cobj,ccp)]=u(weblink,get(%0/D`FINGER`PICTURE))
-&GETPROPERTY`WIKI [u(cobj,ccp)]=u(weblink,get(%0/D`FINGER`WIKI))
-&GETPROPERTY`EMAIL [u(cobj,ccp)]=if(strmatch(setr(email,get(%0/D`OOCFINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
+&GETPROPERTY`URL [u(cobj,ccp)]=u(weblink,get(%0/V`PROPERTY`%1))
 
 &GETPROPERTY`THEME [u(cobj,ccp)]=localize(u(pueblize,setr(theme,first(elements(get(%0/V`THEMES),2,chr(177)),chr(176))),+theme %q<theme>))
 &GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEMES),1,chr(177)),chr(176))
@@ -255,16 +252,25 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &GETPROPERTY`GROUPDB [u(cobj,ccp)]=if(%1,elements(get(%0/V`TIERS),%1),get(%0/V`TIERS))
 &GETPROPERTY`TIERDB [u(cobj,ccp)]=if(%1,elements(get(%0/V`TIERS`%1),%2),get(%0/V`TIERS`%1))
 &GETPROPERTY`FACTION [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`groupdb,%0,1))),u(%q<grp>/GET`NAME))
-&GETPROPERTY`RANK [u(cobj,ccp)]=if(isdbref(setr(grp,num(u(getproperty`groupdb,%0,1)))),setq(title,get(%0/D`GROUP`%q<grp>`TITLE))[setq(rankname,get(%q<grp>/RANK`[setr(rank,get(%0/D`GROUP`%q<grp>`RANK))]`NAME))][if(%1,u(strfirstof,%q<title>,%q<rankname>),%q<rankname>)])
+&GETPROPERTY`FACABBR [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`groupdb,%0,1))),u(%q<grp>/GET`ABBREVIATION))
+&GETPROPERTY`FACLETTER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`groupdb,%0,1))),u(%q<grp>/GET`LETTER))
+&GETPROPERTY`FACRANK [u(cobj,ccp)]=if(isdbref(setr(grp,num(u(getproperty`groupdb,%0,1)))),setq(title,get(%0/D`GROUP`%q<grp>`TITLE))[setq(rankname,get(%q<grp>/RANK`[setr(rank,get(%0/D`GROUP`%q<grp>`RANK))]`NAME))][setq,disp,if(%1,u(strfirstof,%q<title>,%q<rankname>),%q<rankname>))][if(%2,%q<rank>-%q<disp>,%q<disp>)])
 &GETPROPERTY`BANNER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`groupdb,%0,1))),u(%q<grp>/GET`COLORIZE,name(%0)),u(moniker,%0))
 
 &GETPROPERTY`GROUPNAMES [u(cobj,ccp)]=iter(u(getproperty`groupdb,%0,%1),u(%i0/GET`NAME),%b,if(%2,|,\,%b))
 &GETPROPERTY`TIERNAMES [u(cobj,ccp)]=iter(u(getproperty`tierdb,%0,%1,%2),u(%i0/GET`NAME),%b,if(%3,|,\,%b))
 
+&GETPROPERTY`GROUPABBRS [u(cobj,ccp)]=iter(u(getproperty`groupdb,%0,%1),u(%i0/GET`ABBREVIATION),%b,if(%2,|,\,%b))
+&GETPROPERTY`TIERABBRS [u(cobj,ccp)]=iter(u(getproperty`tierdb,%0,%1,%2),u(%i0/GET`ABBREVIATION),%b,if(%3,|,\,%b))
+
 &COLUMNLINE [u(cobj,ccp)]=lalign(iter(u(setr,hdr,%0),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,chr(177)),chr(177))
 &PLAYERLINE [u(cobj,ccp)]=lalign(iter(u(setr,col,%1),after(%i0,~),|,%b),iter(%q<col>,u(getprop,%0,%i0),|,chr(177)),chr(177))
 
 &GETPROP [u(cobj,ccp)]=u(strfirstof,u(getproperty,%0,setr(fget,elements(setr(get,before(%1,~)),1,/)),elements(%q<get>,2,/),elements(%q<get>,3,/)),u(getprop,%0,%q<fget>))
+
+&INC`VALID`COLUMNS [u(cobj,ccp)]=@check strlen(setr(value,stripansi(trim(%0))))=@attach %!/INC`MSG=ERROR: No Columns data given!;@check strmatch(u(COLUMNLINE,%q<value>),*#-1*)=@attach %!/INC`MSG=ERROR: Column definition results in an Error. Check input and try again. +help DynamicData
+
+&INC`VALID`GETTABLE [u(cobj,ccp)]=@check strlen(setr(value,stripansi(trim(%0))))=@attach %!/INC`MSG=ERROR: No Columns data given!;@check strmatch(u(PLAYERLINE,%#,%q<value>),*#-1*)=@attach %!/INC`MSG=ERROR: GetTable definition results in an Error. Check input and try again. +help DynamicData
 
 &chan_title_len [u(cobj,ccp)]=config(chan_title_len)
 
@@ -514,7 +520,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &INC`VALID`LIST [u(cobj,ccp)]=th setq(value,trim(%0))
 &INC`VALID`BOOL [u(cobj,ccp)]=@check match(0 1,setr(value,%0))=@attach %!/INC`MSG={ERROR: BOOL options can only be 0 (false) or 1 (true).}
 &INC`VALID`DBREF [u(cobj,ccp)]=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th setq(value,objid(%0))
-&INC`VALID`TZ [u(cobj,ccp)]=@check valid(timezone,setr(value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone}
+&INC`VALID`TIMEZONE [u(cobj,ccp)]=@check valid(timezone,setr(value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone}
 &INC`VALID`DURATION [u(cobj,ccp)]=@check setr(value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()}
 &INC`VALID`POSINT [u(cobj,ccp)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[strfirstof(%1,%0)]' must be a whole number 1 or greater.};th setq(value,%0)
 &INC`VALID`INT [u(cobj,ccp)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th setq(value,%0)

@@ -1,5 +1,5 @@
 @@ DEPENDENCIES - CORE
-th u(NEWCOBJ,Player Color SYSTEM <COLOR>,color,,,,!NO_COMMAND WIZARD SAFE,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Player Color <COLOR>,color,,,,!NO_COMMAND WIZARD SAFE,INHERIT SIDEFX SAFE)
 
 &CMD`+CONFIG`PENNMUSH [u(cobj,color)]=$^(?\:\+)?color(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+CONFIG`MAIN
 @set [u(cobj,color)]/CMD`+CONFIG`PENNMUSH=regexp
@@ -38,7 +38,7 @@ th u(NEWCOBJ,Player Color SYSTEM <COLOR>,color,,,,!NO_COMMAND WIZARD SAFE,INHERI
 
 &INC`SET [u(cobj,color)]=@attach %!/INC`PARTIAL=%0,u(COLOROPTIONS),|,option,option;@switch/inline strlen(%1)=0,{@attach %!/INC`MSG=%q<category> %q<option> restored to default.;@attach %!/WIPE=u(accid,%#),CUSTCOLOR`%q<option>},{@attach %!/INC`VALID`COLOR=%1;th u(attrib_set,u(accid,%#),CUSTCOLOR`%q<option>,%q<value>);@attach %!/INC`MSG=u(setr,msg,%q<option> Set to: %q<value>)}
 
-&INC`GROUP [u(cobj,color)]=th u(setq,groups,u(u(cobj,gms)/FUN`LISTGROUPS,%:));@switch/inline strlen(%0)=0,{@attach %!/INC`GROUP`LIST},{@attach %!/INC`GROUP`SET}
+&INC`GROUP [u(cobj,color)]=th u(setq,groups,u(u(cobj,group)/FUN`LISTGROUPS,%:));@switch/inline strlen(%0)=0,{@attach %!/INC`GROUP`LIST},{@attach %!/INC`GROUP`SET}
 
 &INC`GROUP`LIST [u(cobj,color)]=@pemit %#=u(header,Group Color);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(34 10,Group,Color));@pemit %#=u(separator);@dolist/inline %q<groups>={@pemit %#=align(34 10,u(moniker,##),u(groupcolor,%#,##))};@pemit %#=u(footer)
 
