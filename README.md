@@ -2,9 +2,12 @@
 
 ## CONTACT INFO
 **Name:** Volund
+
 **Email:** volundmush@gmail.com
+
 **PayPal:** volundmush@gmail.com
-**Patreon:** [link](https://www.patreon.com/volund)
+
+**Patreon:** https://www.patreon.com/volund
 
 ## TERMS AND CONDITIONS
 
@@ -105,7 +108,7 @@ Support is limited by my time and energy, but it's my goal to provide an easy-to
 
 ## INSTALLATION GUIDE - PennMUSH
   1. This readme assumes you at least know the basics of what you're doing by installing softcode and running a game, have a host, know how to get the game running and back it up, edit its files, etc. If you don't, I'd suggest checking out these fine people over at M*U*S*H, PennMUSH's development/social hangout establishment, available at: http://mush.pennmush.org/ - most coders there could easily get you going in a flash.
-
+  
   Be sure you are saving the cnf files with UNIX (LF) linebreaks if you're on Windows! I recommend notepad++ for the job.
   2. Examine your mush.cnf, make sure it has the following:
      * Event Handler and Ancestors will be handled by the #1 Startup - leave these alone.
