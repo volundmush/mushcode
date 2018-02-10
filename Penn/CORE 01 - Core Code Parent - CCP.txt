@@ -230,7 +230,6 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &GETPROPERTY [u(cobj,ccp)]=localize(if(isdbref(%0),u(GETPROPERTY`%1,%0,%2,%3,%4)))
 
 &GETPROPERTY`SEX [u(cobj,ccp)]=if(%1,left(get(%0/SEX),%2),get(%0/SEX))
-&GETPROPERTY`SEX`DESC [u(cobj,ccp)]=
 &GETPROPERTY`NAME [u(cobj,ccp)]=u(moniker,%0)
 &GETPROPERTY`ALIAS [u(cobj,ccp)]=if(%1,u(fullalias,%0),u(getalias,%0))
 &GETPROPERTY`ALIASNAME [u(cobj,ccp)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
@@ -262,6 +261,10 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &GETPROPERTY`GROUPNAMES [u(cobj,ccp)]=iter(u(getproperty`groupdb,%0,%1),u(%i0/GET`NAME),%b,if(%2,|,\,%b))
 &GETPROPERTY`TIERNAMES [u(cobj,ccp)]=iter(u(getproperty`tierdb,%0,%1,%2),u(%i0/GET`NAME),%b,if(%3,|,\,%b))
 
+&COLUMNLINE [u(cobj,ccp)]=lalign(iter(u(setr,hdr,%0),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,chr(177)),chr(177))
+&PLAYERLINE [u(cobj,ccp)]=lalign(iter(u(setr,col,%1),after(%i0,~),|,%b),iter(%q<col>,u(getprop,%0,%i0),|,chr(177)),chr(177))
+
+&GETPROP [u(cobj,ccp)]=u(strfirstof,u(getproperty,%0,setr(fget,elements(setr(get,before(%1,~)),1,/)),elements(%q<get>,2,/),elements(%q<get>,3,/)),u(getprop,%0,%q<fget>))
 
 &chan_title_len [u(cobj,ccp)]=config(chan_title_len)
 
