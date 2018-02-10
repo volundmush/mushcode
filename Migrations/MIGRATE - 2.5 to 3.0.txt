@@ -48,7 +48,7 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &Q`WATCH`INSERT [u(cobj,mig)]=INSERT IGNORE INTO vol_watch (entity_id,character_id) VALUES (?,?)
 
-&GRID [u(cobj,mig)]=@check isdbref(u(cobj,district))=@attach %!/INC`MSG=ERROR: The new Grid Manager is not installed.;@check isdbref(u(oldcobj,district))=@attach %!/INC`MSG=ERROR: Could not locate the old District system.;@attach %!/INC`MSG`CHAN=Beginning GRID Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GRID.;&GRID`STATUS %!=1};@dolist/notify children(u(oldcobj,district))={@parent ##=[u(cobj,district)];&D`DISTRICT ##=1;@tel ##=u(cobj,district)}
+&GRID [u(cobj,mig)]=@check isdbref(u(cobj,district))=@attach %!/INC`MSG=ERROR: The new Grid Manager is not installed.;@check isdbref(u(oldcobj,district))=@attach %!/INC`MSG=ERROR: Could not locate the old District system.;@attach %!/INC`MSG`CHAN=Beginning GRID Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GRID.;&GRID`STATUS %!=1};@dolist/notify children(u(oldcobj,district))={@parent ##=[u(cobj,district)];&D`DISTRICT ##=1;@tel ##=u(cobj,district);@set ##/D`DISTRICT=no_inherit}
 
 &INFO [u(cobj,mig)]=@attach %!/INC`MSG`CHAN=Beginning INFO Conversion.;th u(setq,roots,1~D`INFOFILE|2~D`PINFOFILE);@dolist/inline setdiff(u(lattr,u(cobj,ims)/INIT`*),INIT`INFO INIT`PINFO)={@attach [u(cobj,ims)]/##;th u(setq,roots,setunion(%q<roots>,add(100,inum(0))~%q<root>,|,|))};@wait me={@attach %!/INC`MSG`CHAN=Finished migrating INFO. ROOTS DATA: %q<roots>};@dolist/notify lsearch(all,type,player)={@attach %!/INFO`CHARACTER=##,%q<roots>}
 

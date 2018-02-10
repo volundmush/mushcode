@@ -3,7 +3,7 @@
 th u(NEWCOBJ,Group Management System <GROUP>,group,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 th u(NEWCOBJ,Group Object Parent <GOP>,gop,u(cobj,group),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
 th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
-)
+
 &PERM [u(cobj,gop)]=@@ Empty attr for Rhost.
 &RANK [u(cobj,gop)]=@@ Empty attr for Rhost.
 
@@ -197,7 +197,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,1,WIZARD SAFE,INHER
 
 &FIL`CANFOCUS [u(cobj,group)]=cor(u(isadmin,%1),t(words(get(%1/D`GROUP`%0`GRANTED))))
 
-&INC`CODE`MAKELOG [u(cobj,group)]=@@ th u(attrib_set,%1,u(setr,log,LOG`[u(nextslot,%1,LOG)]),%2);@@ &%q<log>`SUBMITTER %1=%0;@@ &%q<log>`SUBMITTED %1=secs()
+@@ &INC`CODE`MAKELOG [u(cobj,group)]=th u(attrib_set,%1,u(setr,log,LOG`[u(nextslot,%1,LOG)]),%2);&%q<log>`SUBMITTER %1=%0;&%q<log>`SUBMITTED %1=secs()
 
 &INC`TARGET [u(cobj,group)]=@check isobjid(get(%#/D`GROUP))=@attach %!/INC`MSG=ERROR: No group focused! Use +gfocus <groupname> to pick a group.;@attach %!/INC`LOADGROUP=get(%#/D`GROUP),1
 
@@ -538,9 +538,9 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,1,WIZARD SAFE,INHER
 &FIL`ONCHANNEL [u(cobj,group)]=t(match(get(%0/CHANNEL`%2),%1))
 
 @@ MAINTENANCE
-&PLAYER`CONNECT [u(cobj,group)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&PLAYER`DISCONNECT [u(cobj,group)]=@dolist/inline u(lattr,%!/PLAYER`DISCONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
-&OBJECT`DESTROY [u(cobj,group)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CONNECT [u(cobj,group)]=@dolist u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`DISCONNECT [u(cobj,group)]=@dolist u(lattr,%!/PLAYER`DISCONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`DESTROY [u(cobj,group)]=@dolist u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 
 &PLAYER`CONNECT`GROUPCHECK [u(cobj,group)]=@wait 2=@dolist u(filter,INVITES,u(FUN`LISTGROUPS,%0),%b,%b,%0)={@attach %!/INC`MSG=The [name(%i0)] have invited you to join their group! To accept\, type [u(pueblize,ansi(h,+gjoin [name(%i0)]),+gjoin [name(%i0)])]}
 

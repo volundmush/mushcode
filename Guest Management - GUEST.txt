@@ -1,18 +1,56 @@
-th u(NEWCOBJ,Guest Management <GUEST>,login,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+@@ DEPENDENCIES: Core
 
-&PLAYER`DISCONNECT`FIXNAME [u(cobj,guest)]=@stop %1;@check u(isguest,%0);@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))] disconnected.,u(game_config,CHANNELS,JOIN_GUESTS),,1,,1;@select/inline hasattr(%0/D`OLDNAME)=1,{@name %0=[get(%0/D`OLDNAME)];@attach %!/WIPE=%0,D`OLDNAME}
+th u(NEWCOBJ,Guest Management <GUEST>,guest,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&PLAYER`DISCONNECT`TELGUEST [u(cobj,guest)]=@stop %1;@select/inline u(isguest,%0)=1,{@select/inline %va=PennMUSH,{@tel/silent %0=u(game_config,NAVIGATION,GUEST_START,#0)},RhostMUSH,{@tel/quiet %0=u(game_config,NAVIGATION,GUEST_START,#0)}}
+&CMD`+GUESTS`PENNMUSH [u(cobj,guest)]=$^(?s)\+(guests)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GUESTS`MAIN
+@set [u(cobj,guest)]/CMD`+GUESTS`PENNMUSH=regexp
+&CMD`+GUESTS`RHOSTMUSH [u(cobj,guest)]=$^(?s)\+(guests)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GUESTS`MAIN
+@set [u(cobj,guest)]/CMD`+GUESTS`RHOSTMUSH=regexp
+&CMD`+GUESTS`MAIN [u(cobj,guest)]=@attach %!/INC`GETSWITCH=%2;@attach %!/GUEST`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,guest)]/CMD`+GUESTS`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&PLAYER`CONNECT`GUEST [u(cobj,guest)]=@check u(isguest,%0);th u(setq,chan,first(u(setr,chans,u(game_config,CHANNELS,JOIN_GUESTS)),|));@wait 4=@attach %!/INC`MSG=Welcome to [mudname()]\, [name(%0)]! You can speak on the %q<chan> channel with [ansi(h,+[left(%q<chan>,1)] <text here>)]. You can give yourself a custom Guest name by typing [ansi(h,+myname <word>)] \(Guest will be appended after <word>\). You can find our website at [u(weblink,mudurl())],%0;@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))] connected to [mudname()]!,%q<chans>,,1,,1
+&SWITCHES`PLAYER [u(cobj,guest)]=
+&SWITCHES`ADMIN [u(cobj,guest)]=FIX|CONFIG
+&SWITCHES`WIZARD [u(cobj,guest)]=CREATE
 
-&CMD`+MYNAME [u(cobj,guest)]=$+myname *:@check u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Guest only!;@check valid(playername,%0 Guest)=@attach %!/INC`MSG=Sorry\, you may not rename yourself to that. Try something simpler.;@select/inline hasattr(%#/D`OLDNAME)=0,{&D`OLDNAME %#=[name(%#)]};@attach %!/INC`MSG`CHAN=[ansi(h,%n)] renamed to %0 Guest,u(game_config,CHANNELS,JOIN_GUESTS),,1,,1;@name %#=%0 Guest;@attach %!/INC`MSG=You are now known as '%0 Guest'.
+&CONFIG`OPTIONS [u(cobj,guest)]=HOME|CHANNEL|MYNAME
 
-&CMD`+MAKEGUEST [u(cobj,guest)]=$+makeguest *:@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@check valid(playername,%0)=@attach %!/INC`MSG=ERROR: That is not a valid character name.;@pcreate %0=guest;@attach %!/INC`CHECKPC=%0,1;@describe %q<t1>=This is a Guest! Be kind to them!;@dolist/inline/delimit | [u(game_config,channels,join_guests)]={@chan/on %i0=%q<t1>};@tel %q<t1>=[u(game_config,navigation,guest_start)];@select/inline %va=PennMUSH,{@set %q<t1>=!UNREGISTERED;@power %q<t1>=GUEST},RhostMUSH,{@set %q<t1>=GUEST;th u(setq,guests,search(EPLAYER=\[hasflag(##,GUEST)\]));@admin guest_namelist=!ALL %q<guests>};@attach %!/INC`MSG=Guest '%0' created!;@attach %!/INC`MSG`CHAN=Guest '%0' created!
+&CONFIG`HOME [u(cobj,guest)]=DBREF of the Room that Guests start at/return to on logoff.
+&CONFIG`HOME`DEFAULT [u(cobj,guest)]=
+&CONFIG`HOME`VALID [u(cobj,guest)]=DBREF
 
-&CMD`+LISTGUESTS [u(cobj,guest)]=$+listguests:@check words(u(setr,guests,u(choosegame,lsearch(all,type,player,elock,POWER^GUEST),search(FLAGS=!))))=@attach %!/INC`MSG=ERROR: No Guests in the system.;@pemit %#=u(header,mudname() Guests);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(7 18 26 24,DBREF,Name,Current Name,Alias));@pemit %#=u(separator);@dolist/inline %q<guests>={@pemit %#=align(7 18 26 24,##,default(##/D`OLDNAME,name(##)),name(##),u(fullalias,##))};@pemit %#=u(subheader)
+&CONFIG`CHANNEL [u(cobj,guest)]=Name of the Channel Guests will be connected to and Guest announcements go out on. Can use multiples separated by |
+&CONFIG`CHANNEL`DEFAULT [u(cobj,Guest)]=
+&CONFIG`CHANNEL`VALID [u(cobj,guest)]=LIST
+
+&CONFIG`MYNAME [u(cobj,guest)]=Enable the +myname system, allowing guests to rename themselves to <whatever> Guest.
+&CONFIG`MYNAME`DEFAULT [u(cobj,guest)]=1
+&CONFIG`MYNAME`VALID [u(cobj,guest)]=BOOL
+
+&CMD`+MYNAME [u(cobj,guest)]=$+myname *:@check u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Guest only!;@check valid(playername,%0 Guest)=@attach %!/INC`MSG=Sorry\, you may not rename yourself to that. Try something simpler.;@select/inline hasattr(%#/D`OLDNAME)=0,{&D`OLDNAME %#=[name(%#)]};@attach %!/INC`MSG`CHAN=[ansi(h,%n)] renamed to %0 Guest,u(conf,CHANNEL),,1,,1;@name %#=%0 Guest;@attach %!/INC`MSG=You are now known as '%0 Guest'.
+
+&GUEST`CREATE [u(cobj,guest)]=@attach %!/GUEST`READY;@check valid(playername,%0)=@attach %!/INC`MSG=ERROR: That is not a valid character name.;@attach %!/GUEST`FIX`DO`%va;@attach %!/INC`MSG=Guest '%0' created!;@attach %!/INC`MSG`CHAN=Guest '%0' created!
+
+&GUEST`READY [u(cobj,guest)]=@check isdbref(u(conf,HOME))=@attach %!/INC`MSG`CHAN=ERROR: Guest System does not have a HOME set. Use +guests/config to rectify.;@check strlen(grab(stripansi(channels(|)),u(conf,CHANNEL)))=@attach %!/INC`MSG`CHAN=ERROR: Guest Channel not found. Rectify in +guests/config!
+
+&GUEST`CREATE`DO`PENNMUSH [u(cobj,guest)]=@attach %!/GUEST`FIX`DO=pcreate(%0,guestaroonie)
+
+&GUEST`CREATE`DO`RHOSTMUSH [u(cobj,guest)]=
+
+&GUEST`FIX [u(Cobj,guest)]=@attach %!/GUEST`READY;@select/inline strlen(%0)=>0,{@attach %!/INC`CHECKPC=%0,1;@check u(isguest,%q<t1>)=@attach %!/INC`MSG=ERROR: They are not a Guest!;@attach %!/GUEST`FIX`DO=%q<t1>},{@attach %!/INC`MSG=Integrity checking all Guests!;@dolist [u(FUN`GUESTS)]=@attach %!/GUEST`FIX`DO=##}
+
+&GUEST`FIX`DO [u(cobj,guest)]=@describe %0=This is a Guest! Be kind to them!;@dolist/inline/delimit | [u(conf,channel)]={@chan/on %i0=%0};@tel %0=[u(conf,HOME)];@select/inline %va=PennMUSH,{@power %0=Guest},RhostMUSH,{@set %0=GUEST;th u(setq,guests,search(EPLAYER=\[hasflag(##,GUEST)\]));@admin guest_namelist=!ALL %q<guests>};@select/inline cand(hasattr(%0/D`OLDNAME),not(hasflag(%0,CONNECTED)))=1,{@name %0=[get(%0/D`OLDNAME)];@attach %!/WIPE=%0,D`OLDNAME};
+
+&FUN`GUESTS [u(cobj,guest)]=u(choosegame,lsearch(all,type,player,elock,POWER^GUEST),search(FLAGS=!))
+
+&GUEST`MAIN [u(cobj,guest)]=@check words(u(setr,guests,u(FUN`GUESTS)))=@attach %!/INC`MSG=ERROR: No Guests in the system.;@pemit %#=u(header,mudname() Guests);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(7 18 26 24,DBREF,Name,Current Name,Alias));@pemit %#=u(separator);@dolist/inline %q<guests>={@pemit %#=align(7 18 26 24,##,default(##/D`OLDNAME,name(##)),name(##),u(fullalias,##))};@pemit %#=u(footer)
+
+&PLAYER`DISCONNECT [u(cobj,guest)]=@stop %1;@check u(isguest,%0);@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))] disconnected.,u(conf,CHANNEL),,1,,1;@attach %!/GUEST`FIX`DO=%0
+
+&PLAYER`CONNECT [u(cobj,guest)]=@check u(isguest,%0);th u(setq,chan,first(u(setr,chans,u(conf,CHANNEL)),|));@wait 4=@attach %!/INC`MSG=Welcome to [mudname()]\, [name(%0)]! You can speak on the %q<chan> channel with [ansi(h,+[left(%q<chan>,1)] <text here>)]. You can give yourself a custom Guest name by typing [ansi(h,+myname <word>)] \(Guest will be appended after <word>\). You can find our website at [u(weblink,mudurl())],%0;@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))] connected to [mudname()]!,%q<chans>,,1,,1
 
 @select/inline %va=RhostMUSH,{th u(setq,guests,search(EPLAYER=\[hasflag(##,GUEST)\]));@admin guest_namelist=!ALL %q<guests>}
 
-&SHLP`GUESTS [u(cobj,guest)]=Guests are special characters that exist solely to allow new players to logon without creating a character. They're traditionally restricted to a single channel (typically a Guest channel, sometimes the public channel) and have no privileges to modify themselves or anything else.%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+makeguest <name>)] - Creates a new guest. The NAVIGATION/GUEST_START and CHANNELS/JOIN_GUESTS +gameconfig options will be used and it will be given a basic @desc.%R[ansi(h,+listguests)] - Used to display existing guests and relevant info.)]
+&SHLP`GUESTS [u(cobj,guest)]=Guests are special characters that exist solely to allow new players to logon without creating a character. They're traditionally restricted to a single channel (typically a Guest channel, sometimes the public channel) and have no privileges to modify themselves or anything else.%R%RIt is STRONGLY recommended that you use the Guest# standard. Guest1, Guest2, Guest3, Guest4, etc. Make sure that at least one Guest has an @alias of 'Guest' for connect guest to work at the login screen.%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+guests/create <name>)] - Creates a new guest.%R[ansi(h,+guests)] - Used to display existing guests and relevant info.%R[ansi(h,+guests/fix <guest>)] - Performs an integrity check on a Guest. Will perform on all guests if no name is given.)]%R%RCHEATSHEET FOR CREATING 15 GUESTS AT ONCE:%R[lit(@dolist lnum(1,15)={+guests/create Guest##;@alias *Guest##=g##})]%R[lit(@alias *Guest1=g1;Guest)]
 +shelp/add Administration/Guests=[u(cobj,guest)]/SHLP`GUESTS
+

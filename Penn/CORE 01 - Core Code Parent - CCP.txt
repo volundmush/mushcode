@@ -555,6 +555,11 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &INC`VALID`FUTURE [u(cobj,ccp)]=@attach %!/INC`VALID`TIME;@check gt(%q<value>,secs())=@attach %!/INC`MSG=That would be in the past!
 &INC`VALID`GROUP [u(cobj,ccp)]=@check isdbref(u(setr,value,objid(u(u(cobj,gms)/FUN`FINDGROUP,%0,%:))))=@attach %!/INC`MSG=ERROR: Group '%0' not found.
 
+@@ MOVEMENT SECTION
+&INC`CANRELOCATE [u(cobj,ccp)]=@select/inline cor(u(isadmin,%#),u(isadmin,%0))=0,{@check elock(loc(%0)/leave,%0)=@attach %!/INC`MSG=LEAVE @lock Failure.;@check elock(%1/Enter,%0)=@attach %!/INC`MSG=ENTER @lock failure.;@check elock(%1/Teleport,%0)=@attach %!/INC`MSG=TELEPORT @lock failure.}
+
+&INC`RELOCATE [u(cobj,ccp)]=@select/inline u(ishidden,%0)=1,{@tel/silent %0=%1},{@tel %0=%1}
+
 @@ MESSAGING SECTION
 &INC`MSG [u(cobj,ccp)]=@message strfirstof(%1,%#)=%0,%!/MSG,##,%0,%1,strfirstof(%2,u(SYSTEM`NAME))
 @@ %0 - Message. %1 - Recipients. %2 - System name override.
@@ -604,9 +609,6 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &SPEECH [u(cobj,ccp)]=[setq(quote,ansi(u(player_config,%2,%4,QUOTES),"))][setq(speechcol,u(player_config,%2,%4,SPEECH))][regeditalli(speakpenn(&[if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),u(moniker,%0,%2)))],%1),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)]
 @@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup. %6 - Banner override bool.
-
-
-
 
 &REG`SPEECH [u(cobj,ccp)]=(?s)"([^ "][^"]*[^ "])"
 &REG`URL [u(cobj,ccp)]=\w+\://\S+[^"]
