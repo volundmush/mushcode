@@ -229,74 +229,39 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 @@ PROPERTY SECTION
 &GETPROPERTY [u(cobj,ccp)]=localize(if(isdbref(%0),u(GETPROPERTY`%1,%0,%2,%3,%4)))
 
-&GETPROPERTY`SEX [u(cobj,ccp)]=get(%0/SEX)
-&GETPROPERTY`NAME [u(cobj,ccp)]=name(%0)
-&GETPROPERTY`FULLALIAS [u(cobj,ccp)]=u(fullalias,%0)
-&GETPROPERTY`MONIKER [u(cobj,ccp)]=u(moniker,%0)
-&GETPROPERTY`ALIASNAME [u(cobj,ccp)]=name(%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`SEX [u(cobj,ccp)]=if(%1,left(get(%0/SEX),%2),get(%0/SEX))
+&GETPROPERTY`SEX`DESC [u(cobj,ccp)]=
+&GETPROPERTY`NAME [u(cobj,ccp)]=u(moniker,%0)
+&GETPROPERTY`ALIAS [u(cobj,ccp)]=if(%1,u(fullalias,%0),u(getalias,%0))
+&GETPROPERTY`ALIASNAME [u(cobj,ccp)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
 &GETPROPERTY`ALIASMONIKER [u(cobj,ccp)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
-&GETPROPERTY`ALIASMONIKERAPPROVED [u(cobj,ccp)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))][if(not(u(approved,%0)),%b- [ansi(hr,UNAPPROVED)])]
 &GETPROPERTY`NAMELINK [u(cobj,ccp)]=u(namelink,%0)
 &GETPROPERTY`HIDEIDLE [u(cobj,ccp)]=u(hideidle,%0)
 &GETPROPERTY`HIDECONN [u(cobj,ccp)]=u(hideconn,%0)
-&GETPROPERTY`SEXLETTER [u(cobj,ccp)]=left(get(%0/SEX),1)
-&GETPROPERTY`LOCATION [u(cobj,ccp)]=if(findable(%#,%0),u(moniker,loc(%0)),*UNFINDABLE*)
-&GETPROPERTY`JOINLOCATION [u(cobj,ccp)]=if(findable(%#,%0),if(elock(loc(%0)/Teleport,%#),u(pueblize,u(moniker,loc(%0)),+port [loc(%0)]),u(moniker,loc(%0))),*UNFINDABLE*)
+&GETPROPERTY`LASTIDLE [u(cobj,ccp)]=u(lastidle,%0)
+&GETPROPERTY`LOCATION [u(cobj,ccp)]=if(findable(%#,%0),if(elock(loc(%0)/Teleport,%#),u(pueblize,u(moniker,loc(%0)),+port [loc(%0)]),u(moniker,loc(%0))),*UNFINDABLE*)
 &GETPROPERTY`TIMEZONE [u(cobj,ccp)]=u(gettz,%0)
+&GETPROPERTY`UMAIL [u(cobj,ccp)]=u(umail,%0) Unread Messages
+&GETPROPERTY`ALTS [u(cobj,ccp)]=if(isdbref(u(cobj,account)),u(u(cobj,account)/FUN`ALTS`LIST,%0))
 
 &GETPROPERTY`PICTURE [u(cobj,ccp)]=u(weblink,get(%0/D`FINGER`PICTURE))
 &GETPROPERTY`WIKI [u(cobj,ccp)]=u(weblink,get(%0/D`FINGER`WIKI))
-&GETPROPERTY`GROUPNAMES2 [u(cobj,ccp)]=u(getproperty`groupnames,%0,1)
-&GETPROPERTY`FACTION2 [u(cobj,ccp)]=u(getproperty`faction,%0,1)
-&GETPROPERTY`MAIL [u(cobj,ccp)]=u(umail,%0) Unread Messages
-&GETPROPERTY`ALIAS [u(cobj,ccp)]=u(getalias,%0)
-&GETPROPERTY`LAST [u(cobj,ccp)]=u(lastidle,%0)
 &GETPROPERTY`EMAIL [u(cobj,ccp)]=if(strmatch(setr(email,get(%0/D`OOCFINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
-&GETPROPERTY`ACCEMAIL [u(cobj,ccp)]=if(isdbref(get(%0/D`ACCOUNT)),name(get(%0/D`ACCOUNT)))
-&GETPROPERTY`ACCALTS [u(cobj,ccp)]=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0))
-&GETPROPERTY`THEME [u(cobj,ccp)]=localize(u(pueblize,setr(theme,first(elements(get(%0/V`THEMES),2,chr(177)),chr(176))),+fclist %q<theme>))
+
+&GETPROPERTY`THEME [u(cobj,ccp)]=localize(u(pueblize,setr(theme,first(elements(get(%0/V`THEMES),2,chr(177)),chr(176))),+theme %q<theme>))
 &GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEMES),1,chr(177)),chr(176))
-&GETPROPERTY`OBSERVER [u(cobj,ccp)]=default(%0/D`OBSERVER,0)
-&GETPROPERTY`CURSCENE [u(cobj,ccp)]=if(u(getproperty`observer,%0),ansi(hw,OBS),default(%0/D`SCENE,???))
 
-&GETPROPERTY`GROUPCOLORIZE [u(cobj,ccp)]=localize(ansi(u(getproperty`groupcolor,%1),%0))
-&GETPROPERTY`GROUPNAME [u(cobj,ccp)]=localize(setq(gname,u(getproperty`groupcolorize,name(%0),%0))[if(%1,u(pueblize,%q<gname>,+group [name(%0)]),%q<gname>)])
-&GETPROPERTY`GROUPCOLOR [u(cobj,ccp)]=strfirstof(u(color,%#,GROUP,%0,,1),get(%0/SET`COLOR),n)
-&GETPROPERTY`GROUPABBR [u(cobj,ccp)]=u(getproperty`groupcolorize,default(%0/SET`ABBREVIATION,left(name(%0),3)),%0)
-&GETPROPERTY`GROUPLETTER [u(cobj,ccp)]=u(getproperty`groupcolorize,default(%0/SET`LETTER,strfirstof(left(get(%0/SET`ABBREVIATION),1),left(name(%0),1))),%0)
+&GETPROPERTY`SCENE [u(cobj,ccp)]=if(default(%0/D`OBSERVER,0),ansi(hw,OBS),default(%0/D`SCENE,???))
 
-&GETPROPERTY`FIRSTDB [u(cobj,ccp)]=first(get(%0/V`TIERS))
-&GETPROPERTY`FIRSTDBS [u(cobj,ccp)]=localize(if(setr(first,first(revwords(sort(edit(lattr(%0/V`TIERS`*),V`TIERS`,))))),get(%0/V`TIERS`%q<first>)))
-&GETPROPERTY`GROUPS [u(cobj,ccp)]=get(%0/V`TIERS)
-&GETPROPERTY`BANNER [u(cobj,ccp)]=localize(if(isdbref(setr(maj,u(getproperty`FIRSTDB,%0))),u(getproperty`groupcolorize,name(%0),%q<maj>),u(moniker,%0)))
-&GETPROPERTY`GROUPNAMES [u(cobj,ccp)]=iter(u(getproperty`groups,%0),u(getproperty,%i0,GROUPNAME,1),%b,if(%1,\,%B,|))
-&GETPROPERTY`RANK [u(cobj,ccp)]=localize(setr(rank,get(%0/D`GROUP`%1`RANK))-[strfirstof(get(%0/D`GROUP`%1`TITLE),get(%1/RANK`%q<rank>`NAME))])
+&GETPROPERTY`GROUPDB [u(cobj,ccp)]=if(%1,elements(get(%0/V`TIERS),%1),get(%0/V`TIERS))
+&GETPROPERTY`TIERDB [u(cobj,ccp)]=if(%1,elements(get(%0/V`TIERS`%1),%2),get(%0/V`TIERS`%1))
+&GETPROPERTY`FACTION [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`groupdb,%0,1))),u(%q<grp>/GET`NAME))
+&GETPROPERTY`RANK [u(cobj,ccp)]=if(isdbref(setr(grp,num(u(getproperty`groupdb,%0,1)))),setq(title,get(%0/D`GROUP`%q<grp>`TITLE))[setq(rankname,get(%q<grp>/RANK`[setr(rank,get(%0/D`GROUP`%q<grp>`RANK))]`NAME))][if(%1,u(strfirstof,%q<title>,%q<rankname>),%q<rankname>)])
+&GETPROPERTY`BANNER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`groupdb,%0,1))),u(%q<grp>/GET`COLORIZE,name(%0)),u(moniker,%0))
 
-&GETPROPERTY`FIRSTNAME [u(cobj,ccp)]=localize(if(isdbref(setr(fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`GROUPNAME,%q<fac>,%1)))
-&GETPROPERTY`FIRSTNAMECLICK [u(cobj,ccp)]=u(GETPROPERTY`FIRSTNAME,%0,1)
-&GETPROPERTY`FIRSTABBR [u(cobj,ccp)]=localize(switch(1,u(iswizard,%0),ansi(u(conf,WIZTAG),WIZ),u(isadmin,%0),ansi(u(conf,ROYTAG),ROY),if(isdbref(setr(fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`GROUPABBR,%q<fac>))))
-&GETPROPERTY`FIRSTLETTER [u(cobj,ccp)]=localize(switch(1,u(iswizard,%0),ansi(u(conf,WIZTAG),W),u(isadmin,%0),ansi(u(conf,ROYTAG),R),if(isdbref(setr(fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`GROUPLETTER,%q<fac>))))
-&GETPROPERTY`FIRSTRANK [u(cobj,ccp)]=localize(if(isdbref(setr(fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`RANK,%0,%q<fac>)))
-&GETPROPERTY`FIRSTNAMELIST [u(cobj,ccp)]=localize(if(words(setr(facs,u(GETPROPERTY`FIRSTDBS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`GROUPNAME,%i0,%1),%b,chr(176)),chr(176),if(%2,%R,\,%b))))
-&GETPROPERTY`FIRSTNAMELISTLINE [u(cobj,ccp)]=u(GETPROPERTY`FIRSTNAMELIST,%0,0,1)
-&GETPROPERTY`FIRSTNAMELISTCLICK [u(cobj,ccp)]=u(GETPROPERTY`FIRSTNAMELIST,%0,1,0)
-&GETPROPERTY`FIRSTNAMELISTLINECLICK [u(cobj,ccp)]=u(GETPROPERTY`FIRSTNAMELIST,%0,1,1)
-&GETPROPERTY`FIRSTRANKLIST [u(cobj,ccp)]=localize(if(words(setr(facs,u(GETPROPERTY`FIRSTDBS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`RANK,%0,%i0),%b,chr(176)),chr(176),if(%1,%R,\,%b))))
-&GETPROPERTY`FIRSTRANKLISTLINE [u(cobj,ccp)]=u(GETPROPERTY`FIRSTRANKLIST,%0,1)
+&GETPROPERTY`GROUPNAMES [u(cobj,ccp)]=iter(u(getproperty`groupdb,%0,%1),u(%i0/GET`NAME),%b,if(%2,|,\,%b))
+&GETPROPERTY`TIERNAMES [u(cobj,ccp)]=iter(u(getproperty`tierdb,%0,%1,%2),u(%i0/GET`NAME),%b,if(%3,|,\,%b))
 
-&GETPROPERTY`ALLNAMELIST [u(cobj,ccp)]=localize(if(words(setr(facs,u(GETPROPERTY`GROUPS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`GROUPNAME,%i0,%1),%b,chr(176)),chr(176),if(%2,%R,\,%b))))
-&GETPROPERTY`ALLNAMELISTLINE [u(cobj,ccp)]=u(GETPROPERTY`ALLNAMELIST,%0,0,1)
-&GETPROPERTY`ALLNAMELISTCLICK [u(cobj,ccp)]=u(GETPROPERTY`ALLNAMELIST,%0,1,0)
-&GETPROPERTY`ALLNAMELISTLINECLICK [u(cobj,ccp)]=u(GETPROPERTY`ALLNAMELIST,%0,1,1)
-&GETPROPERTY`ALLRANKLIST [u(cobj,ccp)]=localize(if(words(setr(facs,u(GETPROPERTY`GROUPS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`RANK,%0,%i0),%b,chr(176)),chr(176),if(%1,%R,\,%b))))
-&GETPROPERTY`ALLRANKLISTLINE [u(cobj,ccp)]=u(GETPROPERTY`ALLRANKLIST,%0,1)
-
-&GETPROPERTY`FIRSTDIV [u(cobj,ccp)]=if(isdbref(setr(mdb,u(GETPROPERTY`MAJORDB,%0))),if(u(nattr,%0/D`GROUP`%q<mdb>`DIVISION`*`RANK),if(setr(div,localize([setq(gid1,%q<mdb>)][last(first(u(filter,INDIV,u(u(cobj,gms)/SORTDIV,lattr(%q<mdb>/DIVISION`*)),%b,%b,%q<gid1>,objid(%0))),`)])),%q<div>)))
-&GETPROPERTY`FIRSTDIVNAME [u(cobj,ccp)]=if(u(getproperty`majordiv,%0),get(%q<mdb>/DIVISION`%q<div>))
-&GETPROPERTY`FIRSTDIVRANK [u(cobj,ccp)]=if(u(getproperty`majordiv,%0),get(%q<mdb>/DIVISION`%q<div>`RANK`[get(%0/D`GROUP`%q<mdb>`DIVISION`%q<div>`RANK)]))
-&GETPROPERTY`FIRSTDIVRANKNUM [u(cobj,ccp)]=if(u(getproperty`majordiv,%0),get(%0/D`GROUP`%q<mdb>`DIVISION`%q<div>`RANK))
-
-&FIL`INDIV [u(cobj,ccp)]=hasattr(%2/D`GROUP`%1`%0`RANK)
 
 &chan_title_len [u(cobj,ccp)]=config(chan_title_len)
 

@@ -1,8 +1,8 @@
 @@ DEPENDENCIES: Core
 
 th u(NEWCOBJ,Group Management System <GROUP>,group,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
-th u(NEWCOBJ,Group Object Parent <GOP>,gop,u(cobj,group),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
-th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,1,WIZARD SAFE,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Group Object Parent <GOP>,gop,u(cobj,group),,,WIZARD SAFE,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERIT SIDEFX SAFE)
 
 &PERM [u(cobj,gop)]=@@ Empty attr for Rhost.
 &RANK [u(cobj,gop)]=@@ Empty attr for Rhost.
@@ -21,6 +21,12 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,1,WIZARD SAFE,INHER
 &RANK`4`NODELETE [u(cobj,gop)]=1
 &RANK`ALL`PERM [u(cobj,gop)]=IC OOC REPORT
 &SET [u(cobj,gop)]=@@ Empty attr for Rhost.
+
+&GET`COLORIZE [u(cobj,gop)]=localize(ansi(u(GET`COLOR,%!),%0))
+&GET`NAME [u(cobj,gop)]=localize(setq(gname,u(GET`COLORIZE,name(%!)))[if(%1,u(pueblize,%q<gname>,+group [name(%!)]),%q<gname>)])
+&GET`COLOR [u(cobj,gop)]=u(strfirstof,u(groupcolor,%#,%!),default(%!/SET`COLOR,n))
+&GET`ABBR [u(cobj,gop)]=u(GET`COLORIZE,default(%!/SET`ABBREVIATION,left(name(%!),3)))
+&GET`LETTER [u(cobj,gop)]=u(GET`COLORIZE,if(strlen(v(SET`LETTER)),v(SET`LETTER),if(strlen(v(SET`ABBREVIATION)),left(v(SET`ABBREVIATION),1),left(name(%!),1))))
 
 &SET`STARTRANK [u(cobj,gop)]=4
 &SET`STARTRANK`DESC [u(cobj,gop)]=The Rank # for new members!

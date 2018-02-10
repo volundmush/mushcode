@@ -10,7 +10,7 @@ th u(NEWCOBJ,Approval System <APPROVE>,approve,,,,WIZARD SAFE !NO_COMMAND,INHERI
 @set [u(cobj,approve)]/CMD`+APPROVE`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,approve)]=APPROVE
-&SWITCHES`APPROVE`PLAYER [u(cobj,approve)]=LIST
+&SWITCHES`APPROVE`PLAYER [u(cobj,approve)]=LIST|CONFIG
 &SWITCHES`APPROVE`ADMIN [u(cobj,approve)]=
 
 &INC`APPROVE`MAIN [u(cobj,approve)]=@select/inline cand(u(isadmin,%#),strlen(%0))=1,{@attach %!/INC`CHECKPC=%0,1;@stop u(isapproved,%q<t1>)=@attach %!/INC`MSG=ERROR: They are already approved!;@attach %!/INC`APPROVE`DO=%q<t1>,%#,%1;@attach %!/INC`MSG=You have approved %q<t1name> for play!;@attach %!/INC`MSG`CHAN=%q<t1name> approved for play!},{@attach %!/INC`MSG=You [if(u(isapproved,%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
@@ -23,6 +23,11 @@ th u(NEWCOBJ,Approval System <APPROVE>,approve,,,,WIZARD SAFE !NO_COMMAND,INHERI
 &INC`UNAPPROVE`DO [u(cobj,approve)]=@check u(setr,results,u(call`4,volp_approve,0,get(%0/D`ID),get(%1/D`ID),0,'[sqlescape(%2)]'))=@attach %!/INC`MSG=ERROR: Could not run un-approval. reason: %q<results>;th u(attrib_set,%0,D`APPROVED,0);th u(attrib_set,%0,V`APPROVED,0);@select/inline words(u(setr,channels,u(conf,UNAPPROVE_CHANNELS)),|)=>0,{@attach %!/INC`MSG`CHAN=[ansi(h,u(moniker,%0))] is no longer approved for play![if(strlen(%2),%b%2)],%q<channels>,,1,,1}
 
 &INC`UNAPPROVE`MAIN [u(cobj,approve)]=@select/inline u(isadmin,%#)=1,{@attach %!/INC`CHECKPC=%0,1;@check u(isapproved,%q<t1>)=@attach %!/INC`MSG=ERROR: They are not approved!;@attach %!/INC`UNAPPROVE`DO=%q<t1>,%#,%1;@attach %!/INC`MSG=You have unapproved %q<t1name> for play!;@attach %!/INC`MSG`CHAN=%q<t1name> unapproved for play.;@attach %!/INC`MSG`PUBCHAN=%q<t1name> unapproved for play.},{@attach %!/INC`MSG=You [if(u(isapproved,%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
+
+&INC`APPROVE`CONFIG [u(cobj,approve)]=@attach %!/INC`CONFIG
+&INC`UNAPPROVE`CONFIG [u(cobj,approve)]=@attach %!/INC`CONFIG
+
+&CONFIG`OPTIONS [u(cobj,approve)]=APPROVE_CHANNELS|UNAPPROVE_CHANNELS
 
 &CONFIG`APPROVE_CHANNELS [u(cobj,approve)]=Channels to announce Approvals (and optional blurb message) on.
 &CONFIG`APPROVE_CHANNELS`DEFAULT [u(cobj,approve)]=
