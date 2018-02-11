@@ -10,8 +10,8 @@ th u(NEWCOBJ,Approval System <APPROVE>,approve,,,,WIZARD SAFE !NO_COMMAND,INHERI
 @set [u(cobj,approve)]/CMD`+APPROVE`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,approve)]=APPROVE
-&SWITCHES`APPROVE`PLAYER [u(cobj,approve)]=LIST|CONFIG
-&SWITCHES`APPROVE`ADMIN [u(cobj,approve)]=
+&SWITCHES`PLAYER [u(cobj,approve)]=LIST
+&SWITCHES`ADMIN [u(cobj,approve)]=CONFIG
 
 &INC`APPROVE`MAIN [u(cobj,approve)]=@select/inline cand(u(isadmin,%#),strlen(%0))=1,{@attach %!/INC`CHECKPC=%0,1;@stop u(isapproved,%q<t1>)=@attach %!/INC`MSG=ERROR: They are already approved!;@attach %!/INC`APPROVE`DO=%q<t1>,%#,%1;@attach %!/INC`MSG=You have approved %q<t1name> for play!;@attach %!/INC`MSG`CHAN=%q<t1name> approved for play!},{@attach %!/INC`MSG=You [if(u(isapproved,%#),ansi(hg,are),ansi(hr,are not))] are approved for play!}
 

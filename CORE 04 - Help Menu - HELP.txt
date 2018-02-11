@@ -54,7 +54,7 @@ th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &INC`SHOW`ALL [u(cobj,help)]=@pemit %#=u(header,%q<disp>);@dolist/inline/delimit [chr(176)] [u(FUN`CATEGORIES,%q<db>)]={th u(setq,hdat,u(choosegame,%i0,%d0));@pemit %#=u(separator,u(capnames,elements(%q<hdat>,2,chr(177))));@pemit %#=u(table,iter(u(FUN`FILES,elements(%q<hdat>,1,chr(177)),%#),u(FUN`FORMATFILE,%i0),chr(176),|),18,u(width,%#),|)};@pemit %#=u(separator)%R%TFor more information on the listed topics, please use '[ansi(h,lcstr(%q<comm>) <topic>)]'[if(u(isadmin,%#),%R%TAdmin\, please see [u(pueblize,ansi(h,lcstr(%q<comm>)/help),lcstr(%q<comm>)/help)] for config information.)];@pemit %#=u(footer)
 
-&FUN`FORMATFILE [u(cobj,help)]=localize(ljust(u(pueblize,ansi(h,u(setr,name,elements(%0,2,chr(177)))),[lcstr(%q<comm>)] %q<name>),24))
+&FUN`FORMATFILE [u(cobj,help)]=localize(ljust(u(pueblize,ansi(h,u(setr,name,elements(%0,2,chr(177)))),[lcstr(%q<comm>)] [if(strlen(%1),%1/)]%q<name>),24))
 
 @@ ljust(u(pueblize,ansi(h,u(setr,name,elements(%i0,2,chr(177)))),[lcstr(%q<comm>)] %q<name>)%B,25)[rjust(u(FUN`HAVEREAD,elements(%i0,4,chr(177)),elements(%i0,5,chr(177))),1)][u(date,elements(%i0,3,chr(177)),%#)]
 
@@ -71,7 +71,7 @@ th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHER
 &Q`FIND`EXACT_SUB [u(cobj,help)]=SELECT help_file_id,help_file_name FROM volv_help_file WHERE help_file_parent_id=? AND help_file_name=?
 &Q`FIND`LIKE_SUB [u(cobj,help)]=SELECT help_file_id,help_file_name FROM volv_help_file WHERE help_file_parent_id=? AND help_file_name LIKE '!%' ORDER BY help_file_name ASC,CHAR_LENGTH(help_file_name) ASC LIMIT 1
 
-&INC`SHOW`TOPIC [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0,1;@pemit %#=u(header,%q<comm>: [u(setr,name,elements(%q<file_load>,3,chr(177)))]);@select/inline t(elements(%q<file_load>,4,chr(177)))=1,{@pemit %#=u(elements(%q<file_load>,5,chr(177)))},0,{@pemit %#=elements(%q<file_load>,5,chr(177))};@select/inline words(u(setr,subs,u(FUN`SUBFILES,%q<file_id>,%#)),chr(176))=>0,{@pemit %#=u(subheader,Subfiles)%R%TTo read subfiles, use '[ansi(h,%q<comm> %q<name>/<file>)]';@pemit %#=u(table,iter(%q<subs>,u(FUN`FORMATFILE,%i0),chr(176),|),18,u(width,%#),|)};@pemit %#=u(footer);@attach %!/INC`DOSQL=UPDATE`READ,get(%#/D`ID),%q<file_id>
+&INC`SHOW`TOPIC [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0,1;@pemit %#=u(header,%q<comm>: [u(setr,name,elements(%q<file_load>,3,chr(177)))]);@select/inline t(elements(%q<file_load>,4,chr(177)))=1,{@pemit %#=u(elements(%q<file_load>,5,chr(177)))},0,{@pemit %#=elements(%q<file_load>,5,chr(177))};@select/inline words(u(setr,subs,u(FUN`SUBFILES,%q<file_id>,%#)),chr(176))=>0,{@pemit %#=u(subheader,Subfiles)%R%TTo read subfiles, use '[ansi(h,%q<comm> %q<name>/<file>)]';@pemit %#=u(table,iter(%q<subs>,u(FUN`FORMATFILE,%i0,%q<name>),chr(176),|),18,u(width,%#),|)};@pemit %#=u(footer);@attach %!/INC`DOSQL=UPDATE`READ,get(%#/D`ID),%q<file_id>
 
 &Q`LOAD`FILE [u(cobj,help)]=SELECT help_file_id,help_category_name,help_file_name,help_file_dbattr,help_file_text,sub_file_count FROM volv_help_file_load WHERE help_file_id=?
 

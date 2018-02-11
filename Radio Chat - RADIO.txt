@@ -136,9 +136,9 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,1,WIZARD SAFE !NO
 
 &FIL`LASTRADIO [u(cobj,radio)]=lt(sub(secs(),get(%0/LASTMSG)),u(stringsecs,20d))
 
-&SORTLAST [u(cobj,mco)]=u(SORTLAST,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
-&SORTLAST`PENNMUSH [u(cobj,mco)]=sortkey(#lambda/get(\%0/LASTMSG),%0,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B),)
-&SORTLAST`RHOSTMUSH [u(cobj,mco)]=sortby(#lambda/[lit([ncomp(get(%0/LASTMSG),get(%1/LASTMSG))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTLAST [u(cobj,ccp)]=u(SORTLAST,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTLAST`PENNMUSH [u(cobj,ccp)]=sortkey(#lambda/get(\%0/LASTMSG),%0,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B),)
+&SORTLAST`RHOSTMUSH [u(cobj,ccp)]=sortby(#lambda/[lit([ncomp(get(%0/LASTMSG),get(%1/LASTMSG))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 
 &FUN`FREQNAME [u(cobj,radio)]=u(strfirstof,get(%0/[first(u(wildgrepi,%0,D`RADIO`*,%1))]`NAME),%1)
 

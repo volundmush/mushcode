@@ -42,8 +42,8 @@
 @select/inline isdbref(u(setr,ap,u(oldcobj,ancestor_player)))=1,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_PLAYER,objid(%q<ap>));@newpass %q<ar>=scramble(digest(md5,secs()))},0,{@select/inline isdbref(u(cobj,ancestor_player))=0,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_PLAYER,objid(pcreate(Ancestor Player,scramble(digest(md5,secs())))))}}
 @tel [u(cobj,ancestor_player)]=[u(cobj,ancestor_room)]
 
-@pageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,COLOR,PAGE),vol_colormarkup(%!,vol_markup(%4,lwho(%!)),%#))
-@outpageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,COLOR,OUTPAGE),vol_colormarkup(%!,vol_markup(%4,lwho(%!)),%#))
+@pageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,PAGE),vol_colormarkup(%!,vol_markup(%4,lwho(%!)),%#))
+@outpageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,OUTPAGE),vol_colormarkup(%!,vol_markup(%4,lwho(%!)),%#))
 @adescribe [u(cobj,ancestor_player)]=@check [vol_my_config(ALERTS,ADESC)];think GAME> %n just looked at you.
 @idle [u(cobj,ancestor_player)]=if(cand(gte(idle(%!),v(IDLE_SECS)),v(IDLE_SECS)),Currently idle\, please try again later!)
 

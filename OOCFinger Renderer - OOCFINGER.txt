@@ -2,47 +2,49 @@
 
 th u(NEWCOBJ,OOCFinger <OOCFINGER>,oocfinger,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&CMD`+OOCFINGER`PENNMUSH [u(cobj,finger)]=$^(?s)(?\:\+)?oocfinger(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+OOCFINGER`MAIN
-@set [u(cobj,finger)]/CMD`+OOCFINGER`PENNMUSH=regexp
-&CMD`+FINGER`RHOSTMUSH [u(cobj,finger)]=$^(?s)(?\:\+)?oocfinger(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+OOCFINGER`MAIN
-@set [u(cobj,finger)]/CMD`+OOCFINGER`RHOSTMUSH=regexp
-&CMD`+OOCFINGER`MAIN [u(cobj,finger)]=@attach %!/INC`GETSWITCH=%1;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
-@set [u(cobj,finger)]/CMD`+OOCFINGER`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+&CMD`+OOCFINGER`PENNMUSH [u(cobj,oocfinger)]=$^(?s)(?\:\+)?oocfinger(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+OOCFINGER`MAIN
+@set [u(cobj,oocfinger)]/CMD`+OOCFINGER`PENNMUSH=regexp
+&CMD`+FINGER`RHOSTMUSH [u(cobj,oocfinger)]=$^(?s)(?\:\+)?oocfinger(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+OOCFINGER`MAIN
+@set [u(cobj,oocfinger)]/CMD`+OOCFINGER`RHOSTMUSH=regexp
+&CMD`+OOCFINGER`MAIN [u(cobj,oocfinger)]=@attach %!/INC`GETSWITCH=%1;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,oocfinger)]/CMD`+OOCFINGER`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&SYSTEM`NAME [u(cobj,finger)]=OOCFINGER
+&SYSTEM`NAME [u(cobj,oocfinger)]=OOCFINGER
 
-&SWITCHES`PLAYER [u(cobj,finger)]=SET|GET|FIELDS
-&SWITCHES`ADMIN [u(cobj,finger)]=CONFIG
+&SWITCHES`PLAYER [u(cobj,oocfinger)]=SET|GET|FIELDS
+&SWITCHES`ADMIN [u(cobj,oocfinger)]=CONFIG
 
-&CONFIG`OPTIONS [u(cobj,finger)]=PLAYER_FIELDS|ADMIN_FIELDS|COLUMN_DEFINITION|EXTRA_DEFINITION|WIDTH
+&CONFIG`OPTIONS [u(cobj,oocfinger)]=PLAYER_FIELDS|ADMIN_FIELDS|COLUMN_DEFINITION|EXTRA_DEFINITION|WIDTH
 
-&CONFIG`PLAYER_FIELDS [u(Cobj,finger)]=Fields settable by Players at any time.
-&CONFIG`PLAYER_FIELDS`DEFAULT [u(cobj,finger)]=EMAIL|CONTACT|HOMEPAGE|THEMESONG|OTHER|VOICEACTOR|ACTOR|NOTES|ALTS
-&CONFIG`PLAYER_FIELDS`VALID [u(cobj,finger)]=LIST
+&CONFIG`PLAYER_FIELDS [u(cobj,oocfinger)]=Fields settable by Players at any time.
+&CONFIG`PLAYER_FIELDS`DEFAULT [u(cobj,oocfinger)]=EMAIL|CONTACT|HOMEPAGE|THEMESONG|OTHER|VOICEACTOR|ACTOR|NOTES|ALTS
+&CONFIG`PLAYER_FIELDS`VALID [u(cobj,oocfinger)]=LIST
 
-&CONFIG`ADMIN_FIELDS [u(cobj,finger)]=Fields settably by Admin only.
-&CONFIG`ADMIN_FIELDS`DEFAULT [u(cobj,finger)]=
-&CONFIG`ADMIN_FIELDS`VALID [u(cobj,finger)]=LIST
+&CONFIG`ADMIN_FIELDS [u(cobj,oocfinger)]=Fields settably by Admin only.
+&CONFIG`ADMIN_FIELDS`DEFAULT [u(cobj,oocfinger)]=
+&CONFIG`ADMIN_FIELDS`VALID [u(cobj,oocfinger)]=LIST
 
-&CONFIG`COLUMN_DEFINITION [u(cobj,finger)]=Vertical column for +oocfinger. The first part. See +shelp +finger
-&CONFIG`COLUMN_DEFINITION`DEFAULT [u(cobj,finger)]=ALIAS~Alias|MAIL~Mush Mail|LAST~Last On|EMAIL~Email|CONTACT~Contact|HOMEPAGE~Homepage|THEMESONG~Theme Song|ACCALTS~Alts|OTHER~Other|ACTOR~Actor|VOICEACTOR~Voice Actor
-&CONFIG`COLUMN_DEFINITION`VALID [u(cobj,finger)]=LIST
+&CONFIG`COLUMN_DEFINITION [u(cobj,oocfinger)]=Vertical column for +oocfinger. The first part. See +shelp +finger
+&CONFIG`COLUMN_DEFINITION`DEFAULT [u(cobj,oocfinger)]=ALIAS~Alias|MAIL~Mush Mail|LAST~Last On|EMAIL~Email|CONTACT~Contact|HOMEPAGE~Homepage|THEMESONG~Theme Song|ACCALTS~Alts|OTHER~Other|ACTOR~Actor|VOICEACTOR~Voice Actor
+&CONFIG`COLUMN_DEFINITION`VALID [u(cobj,oocfinger)]=LIST
 
-&CONFIG`EXTRA_DEFINITION [u(cobj,finger)]=Vertical stack of big text boxes for second part of +oocfinger. See +shelp +finger
-&CONFIG`EXTRA_DEFINITION`DEFAULT [u(cobj,finger)]=NOTES
-&CONFIG`EXTRA_DEFINITION`VALID [u(cobj,finger)]=LIST
+&CONFIG`EXTRA_DEFINITION [u(cobj,oocfinger)]=Vertical stack of big text boxes for second part of +oocfinger. See +shelp +finger
+&CONFIG`EXTRA_DEFINITION`DEFAULT [u(cobj,oocfinger)]=NOTES
+&CONFIG`EXTRA_DEFINITION`VALID [u(cobj,oocfinger)]=LIST
 
-&CONFIG`WIDTH [u(cobj,finger)]=Width of first table's first column. Don't go under 11!
-&CONFIG`WIDTH`DEFAULT [u(cobj,finger)]=11
-&CONFIG`WIDTH`VALID [u(cobj,finger)]=POSINT
+&CONFIG`WIDTH [u(cobj,oocfinger)]=Width of first table's first column. Don't go under 11!
+&CONFIG`WIDTH`DEFAULT [u(cobj,oocfinger)]=11
+&CONFIG`WIDTH`VALID [u(cobj,oocfinger)]=POSINT
 
-&INC`MAIN [u(cobj,finger)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@pemit %#=u(HEADER,%q<t1name>);@dolist/inline/delimit | [u(conf,OOCFINGER_COLUMN)]={@pemit %#=align(1. >[u(setr,oocw,u(conf,OOCFINGER_WIDTH))] 1. [sub(u(width,%#),%q<oocw>,7)] 1.,ansi(u(color,%#,BORDER),|),elements(##,2,~),ansi(u(color,%#,BORDER),|),u(strfirstof,u(getproperty,%q<t1>,elements(##,1,~)),get(%q<t1>/D`OOCFINGER`[elements(##,1,~)])),ansi(u(color,%#,BORDER),|))};@dolist/inline/delimit | [u(conf,OOCFINGER_EXTRA)]={@select/inline t(strlen(u(setr,found,u(strfirstof,u(getproperty,%q<t1>,##),get(%q<t1>/D`OOCFINGER`##)))))=1,{@pemit %#=u(subheader,u(capnames,##));@pemit %#=align(1. [sub(u(width,%#),4)] 1.,ansi(u(color,%#,BORDER),|),edit(%q<found>,%t,space(8)),ansi(u(color,%#,BORDER),|))}};@pemit %#=u(FOOTER);
+&INC`MAIN [u(cobj,oocfinger)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@pemit %#=u(HEADER,%q<t1name>);@dolist/inline/delimit | [u(conf,COLUMN_DEFINITION)]={@pemit %#=align(1. >[u(setr,oocw,u(conf,WIDTH))] 1. [sub(u(width,%#),%q<oocw>,7)] 1.,ansi(u(color,%#,BORDER),|),elements(##,2,~),ansi(u(color,%#,BORDER),|),u(getprop,%q<t1>,elements(##,1,~),D`OOCFINGER),ansi(u(color,%#,BORDER),|))};@dolist/inline/delimit | [u(conf,EXTRA_DEFINITION)]={@select/inline t(strlen(u(setr,found,u(getprop,%q<t1>,##,D`OOCFINGER))))=1,{@pemit %#=u(subheader,u(capnames,##));@pemit %#=align(1. [sub(u(width,%#),4)] 1.,ansi(u(color,%#,BORDER),|),edit(%q<found>,%t,space(8)),ansi(u(color,%#,BORDER),|))}};@pemit %#=u(FOOTER);
 
-&INC`FIELDS [u(cobj,finger)]=@attach %!/INC`MSG=Available Fields: [iter(u(FUN`FIELDS,%#),%i0,|,\,%b)]
 
-&FUN`FIELDS [u(cobj,finger)]=setunion(u(conf,PLAYER_FIELDS),if(u(isadmin,%#),u(conf,ADMIN_FIELDS)),|,|)
 
-&INC`SET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin,%#),strmatch(%0,*/*)),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(cand(u(isadmin,%#),strmatch(%0,*/*)),after(%0,/),%0),setunion(u(conf,OOCFINGER_PLAYERSET),if(u(isadmin,%#),u(conf,OOCFINGER_ADMINSET)),|,|),|,field,field;@select/inline strlen(%1)=0,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR OOCFINGER %q<field>};&D`OOCFINGER`%q<field> %q<t1>=%1;@attach %!/INC`MSG=You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [u(capnames,%q<field>)] OOCFinger Field to: %1;@select/inline strmatch(%#,%q<t1>)=0,{@attach %!/INC`MSG={Your [u(capnames,%q<field>)] OOCFinger Field is now: %1},%q<t1>}
+&INC`FIELDS [u(cobj,oocfinger)]=@attach %!/INC`MSG=Available Fields: [iter(u(FUN`FIELDS,%#),%i0,|,\,%b)]
 
-&HLP`OOCFINGER [u(cobj,finger)]=The +oocfinger system keeps track of and presents out of character information for your fellow players' convenience.%R%R[ansi(hc,Commands)]%R[align(5 72,,[ansi(h,+oocfinger)] - Show your own OOCfinger.%R[ansi(h,+oocfinger <name>)] - Show someone else's +oocfinger.%R[ansi(h,+oocfinger/set <field>=<text>)] - Set an oocfinger field. Setting to nothing may clear it.)]%R%RFields settable by players: [u(itemize,get(u(cobj,finger)/OOCFINGER`PLAYERSET),|,and,\,)]%RFields Only settable by Admin: [u(itemize,get(u(cobj,finger)/OOCFINGER`ADMINSET),|,and,\,)]%R%RFields not listed here are controlled by other factors.%RThe EMAIL field is special. If you wish to hide your email from everyone but admin, prefix it with a ! - for example\, !user@site.com. This is different from your Account email\, which is seen only by admin.[if(u(isadmin,%#),%R%R[u(subheader,Admin Section)]%RAdmin may set the fields of other characters using [ansi(h,+oocfinger/set <name>/<field>=<text>)])]
-+help/add Character/+oocfinger=[u(cobj,finger)]/HLP`OOCFINGER
+&FUN`FIELDS [u(cobj,oocfinger)]=setunion(u(conf,PLAYER_FIELDS),if(u(isadmin,%#),u(conf,ADMIN_FIELDS)),|,|)
+
+&INC`SET [u(cobj,oocfinger)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin,%#),strmatch(%0,*/*)),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(cand(u(isadmin,%#),strmatch(%0,*/*)),after(%0,/),%0),setunion(u(conf,OOCFINGER_PLAYERSET),if(u(isadmin,%#),u(conf,OOCFINGER_ADMINSET)),|,|),|,field,field;@select/inline strlen(%1)=0,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR OOCFINGER %q<field>};&D`OOCFINGER`%q<field> %q<t1>=%1;@attach %!/INC`MSG=You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [u(capnames,%q<field>)] OOCFinger Field to: %1;@select/inline strmatch(%#,%q<t1>)=0,{@attach %!/INC`MSG={Your [u(capnames,%q<field>)] OOCFinger Field is now: %1},%q<t1>}
+
+&HLP`OOCFINGER [u(cobj,oocfinger)]=The +oocfinger system keeps track of and presents out of character information for your fellow players' convenience.%R%R[ansi(hc,Commands)]%R[align(5 72,,[ansi(h,+oocfinger)] - Show your own OOCfinger.%R[ansi(h,+oocfinger <name>)] - Show someone else's +oocfinger.%R[ansi(h,+oocfinger/set <field>=<text>)] - Set an oocfinger field. Setting to nothing may clear it.)]%R%RFields settable by players: [u(itemize,get(u(cobj,oocfinger)/OOCFINGER`PLAYERSET),|,and,\,)]%RFields Only settable by Admin: [u(itemize,get(u(cobj,oocfinger)/OOCFINGER`ADMINSET),|,and,\,)]%R%RFields not listed here are controlled by other factors.%RThe EMAIL field is special. If you wish to hide your email from everyone but admin, prefix it with a ! - for example\, !user@site.com. This is different from your Account email\, which is seen only by admin.[if(u(isadmin,%#),%R%R[u(subheader,Admin Section)]%RAdmin may set the fields of other characters using [ansi(h,+oocfinger/set <name>/<field>=<text>)])]
++help/add Character/+oocfinger=[u(cobj,oocfinger)]/HLP`OOCFINGER

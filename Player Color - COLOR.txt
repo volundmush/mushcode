@@ -17,7 +17,7 @@ th u(NEWCOBJ,Player Color <COLOR>,color,,,,!NO_COMMAND WIZARD SAFE,INHERIT SIDEF
 &CMD`COLORDEMO [u(cobj,color)]=$^(?s)(?\:\+)?color(?\:s|demo)(?\:/(\S+)?)?$:@attach %!/INC`PARTIAL=%1,LONG,|,switch;@select/inline %q<switch>=LONG,{@dolist/inline lnum(97,122)=@pemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,%i0))],%b,%r)))},{@pemit %#=iter(lnum(0,255),ansi(+xterm%i0,xterm%i0))}
 @set [u(cobj,color)]/CMD`COLORDEMO=regexp
 
-&COLOROPTIONS [u(cobj,color)]=BORDER|COLUMN_NAMES|HEADER_STAR|HEADER_TEXT|MSG|MSGTEXT|OOC|OOCEDGE|PAGE|OUTPAGE|QUOTES|SPEECH|ROW_A|ROW_B
+&COLOROPTIONS [u(cobj,color)]=BORDER|COLUMN_NAMES|HEADER_STAR|HEADER_TEXT|MSG|MSGTEXT|OOC|OOCEDGE|PAGE|OUTPAGE|QUOTES|SPEECH|ME|SPEAKER|OTHER|ROW_A|ROW_B
 
 &COLOROPTIONS`BORDER [u(cobj,color)]=Color of borders shown in all command systems.
 &COLOROPTIONS`COLUMN_NAMES [u(cobj,color)]=Color for column names in tables. Like this one.
@@ -31,6 +31,9 @@ th u(NEWCOBJ,Player Color <COLOR>,color,,,,!NO_COMMAND WIZARD SAFE,INHERIT SIDEF
 &COLOROPTIONS`OUTPAGE [u(cobj,color)]=Color applied to all outgoing pages. This only applies to how they look to you.
 &COLOROPTIONS`QUOTES [u(cobj,color)]=Color applied to the " " marks when they enclose text, in the context of player speech.
 &COLOROPTIONS`SPEECH [u(cobj,color)]=Color applied to dialogue enclosed in " " when spoken by another player.
+&COLOROPTIONS`ME [u(cobj,color)]=Color applied to YOUR name when spoken somewhere.
+&COLOROPTIONS`SPEAKER [u(cobj,color)]=Color applied to the name of someone speaking. Overridden by +color/name and ME.
+&COLOROPTIONS`OTHER [u(cobj,color)]=Color applied to names of people being referenced. Overriden by other +color/name options, ME, and SPEAKER.
 &COLOROPTIONS`ROW_A [u(cobj,color)]=For table displays, first color for alternating colored rows.
 &COLOROPTIONS`ROW_B [u(cobj,color)]=For table displays, second color for alternating colored rows.
 
