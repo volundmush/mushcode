@@ -32,7 +32,6 @@ th u(NEWCOBJ,Where Renderer <WHERE>,where,,,,WIZARD SAFE !NO_COMMAND,INHERIT SID
 
 &FUN`WHERELINE1 [u(cobj,where)]=align(30 1 [sub(u(width,%#),33)],if(match(%q<portable>,%0),pueblize(name(%0),+port %0),name(%0))[if(not(strmatch(%0,room(%0))),%R(IN [if(match(%q<portable>,room(%0)),u(pueblize,name(room(%0)),+port [room(%0)]),name(room(%0)))]))],ansi(u(color,%#,BORDER),-),u(itemize,iter(u(sortname,u(filter,FINDABLE,u(lvplayers,%0))),u(pueblize,u(moniker,%i0),+finger [name(%i0)])[if(hasflag(%i0,UNFINDABLE),\(Unfindable\))],,|),|,and,\,))
 
-+help/add +where=[u(cobj,where)]/HLP`+WHERE
-+help/category +where=Community
-+help/metatags +where=online players
-&HLP`+WHERE [u(cobj,where)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+where)] - Show all visible\, connected players by location.%R[ansi(h,+where <player>)] - See details about a specific player's location.)]
+
+&HLP`WHERE [u(cobj,where)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+where)] - Show all visible\, connected players by location.%R[ansi(h,+where <player>)] - See details about a specific player's location.)]
++help/add Community/+where=[u(cobj,where)]/HLP`WHERE

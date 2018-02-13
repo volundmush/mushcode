@@ -3,6 +3,23 @@
 
 th u(NEWCOBJ,Page Extension System,page,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
+&PAGE`EXTEND [u(cobj,page)]=$^(?s)(?\:page)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,PAGE
+@set [u(cobj,page)]/PAGE`extend=regexp
+
+&SWITCHES`PLAYER [u(cobj,page)]=OPTION|OPTIONS
+
+&INC`MAIN [u(cobj,page)]=@attach %!/INC`MSG=ERROR: We should not have ended up here. Try page/options!
+
+&OPTION`OPTIONS [u(cobj,page)]=QUOTES|SPEECH
+
+&OPTION`QUOTES [u(Cobj,page)]=Color the quotations of speech with this. "Blah"
+&OPTION`QUOTES`DEFAULT [u(Cobj,page)]=
+&OPTION`QUOTES`VALID [u(cobj,page)]=COLOR
+
+&OPTION`SPEECH [u(Cobj,page)]=Color text in quotations. "Blah"
+&OPTION`SPEECH`DEFAULT [u(Cobj,page)]=
+&OPTION`SPEECH`VALID [u(cobj,page)]=COLOR
+
 &CMD`REPLY [u(cobj,page)]=$^(?s)(?\:r|reply)(?\: +(.+?))?$:@check words(setr(list,filterbool(#lambda/isobjid(\%0),get(%#/LASTPAGEDBY))))=@nspemit %#=Nobody's sent you a page.;@check strlen(%1)=@nspemit %#=What will you reply with?;@force/inplace/noeval %#={page %q<list>=%1}
 @set [u(cobj,page)]/CMD`REPLY=regexp
 
@@ -11,7 +28,7 @@ th u(NEWCOBJ,Page Extension System,page,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &FUN`LASTPAGEDBY [u(cobj,page)]=if(words(u(setr,list,iter(u(filter,ISDBREF,if(strmatch(after(%u,%b),*=*),namelist(before(after(%u,%b),=)),get(%#/LASTPAGED))),objid(%i0)))),if(words(u(setr,recip,filterbool(#lambda/cand(hasflag(\%0,CONNECTED),cor(hasflag(%#,WIZARD),cand(elock(\%0/Page,%#),not(hasflag(\%0,HAVEN))))),%q<list>))),null(iter(%q<recip>,attrib_set(%i0/LASTPAGEDBY,setdiff(setunion(%q<recip>,%:),%i0))))))
 
-&STARTUP [u(cobj,page)]=@check strmatch(%va,PennMUSH);@command/add reply;@command/alias reply=r;@hook/override/inline reply=%!,CMD`REPLY;@command/add repage;@hook/override/inline repage=%!,CMD`RETELL;@hook/after page=%!,FUN`LASTPAGEDBY
+&STARTUP [u(cobj,page)]=@check strmatch(%va,PennMUSH);@command/add reply;@command/alias reply=r;@hook/override/inline reply=%!,CMD`REPLY;@command/add repage;@hook/override/inline repage=%!,CMD`RETELL;@hook/after page=%!,FUN`LASTPAGEDBY;@hook/extend page=%!,PAGE`EXTEND
 
 &CMD`+IGNORE [u(cobj,page)]=$^(?s)(?\:\+)?ignore(?\:/(\S+)?)?(?\: +(.*))?$:@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[strfirstof(%1,MAIN)]=%2
 @set u(cobj,page)/CMD`+IGNORE=regexp

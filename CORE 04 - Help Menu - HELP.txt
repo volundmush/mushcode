@@ -79,7 +79,7 @@ th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &INC`SHOW`SUB [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@attach %!/INC`FINDSUB=%1;@pemit %#=u(header,%q<disp>: [elements(%q<file_load>,3,chr(177))]/[elements(%q<load_sub>,3,chr(177))]);@select/inline t(elements(%q<load_sub>,4,chr(177)))=1,{@pemit %#=u(elements(%q<load_sub>,5,chr(177)))},{@pemit %#=elements(%q<load_sub>,5,chr(177))};@pemit %#=u(footer);@attach %!/INC`DOSQL=UPDATE`READ,get(%#/D`ID),%q<sub_id>
 
-&INC`RENAME [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@check strmatch(%3,*/*)=@attach %!/INC`MSG=ERROR: Helpfile names cannot contain a /.;@check u(setr,exist_id,u(mysql,FIND`EXACT_FILE,%q<db>,%3))=@attach %!/INC`MSG=ERROR: Helpfile of that name already exists.;@attach %!/INC`DOSQL=RENAME`FILE,%3,%q<file_id>;@attach %!/INC`MSG=File Renamed to '%3'!;@attach %!/INC`MSG`CHAN=Renamed File '[elements(%q<file_load>,3,chr(177))]' to: %3
+&INC`RENAME [u(cobj,help)]=@attach %!/INC`FINDMAIN=%0;@stop strmatch(%3,*/*)=@attach %!/INC`MSG=ERROR: Helpfile names cannot contain a /.;@stop u(setr,exist_id,u(mysql,FIND`EXACT_FILE,%q<db>,%3))=@attach %!/INC`MSG=ERROR: Helpfile of that name already exists.;@attach %!/INC`DOSQL=RENAME`FILE,%3,%q<file_id>;@attach %!/INC`MSG=File Renamed to '%3'!;@attach %!/INC`MSG`CHAN=Renamed File '[elements(%q<file_load>,3,chr(177))]' to: %3
 
 &Q`RENAME`FILE [u(cobj,help)]=UPDATE vol_help_file SET help_file_name=?,help_file_date_modified=UTC_TIMESTAMP() WHERE help_file_id=?
 &Q`DELETE`FILE [u(cobj,help)]=DELETE FROM vol_help_file WHERE help_file_id=?

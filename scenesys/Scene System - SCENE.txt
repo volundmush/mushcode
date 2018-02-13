@@ -49,19 +49,29 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &CONFIG`ROLEPLAY_CHANNEL`DEFAULT [u(cobj,scene)]=
 &CONFIG`ROLEPLAY_CHANNEL`VALID [u(cobj,scene)]=WORD
 
-&OPTIONS`OPTIONS [u(cobj,scene)]=BORDERS|UPCOMING
+&INC`LOG`OPTIONS [u(cobj,scene)]=@attach %!/INC`OPTION=%0,%1,SCENESYS
 
-&OPTIONS`BORDERS [u(cobj,scene)]=Show borders around poses?
-&OPTIONS`BORDERS`DEFAULT [u(Cobj,scene)]=1
-&OPTIONS`BORDERS`VALID [u(Cobj,scene)]=BOOL
+&OPTION`OPTIONS [u(cobj,scene)]=BORDERS|UPCOMING|QUOTES|SPEECH
 
-&OPTIONS`UPCOMING [u(cobj,scene)]=Run the +upcoming command at login?
-&OPTIONS`UPCOMING`DEFAULT [u(Cobj,scene)]=1
-&OPTIONS`UPCOMING`VALID [u(Cobj,scene)]=BOOL
+&OPTION`BORDERS [u(cobj,scene)]=Show borders around poses?
+&OPTION`BORDERS`DEFAULT [u(Cobj,scene)]=1
+&OPTION`BORDERS`VALID [u(Cobj,scene)]=BOOL
 
-&ACONNECT`SUITE`UPCOMING [u(cobj,ancestor_player)]=@select/inline t(u(op,UPCOMING))=1,{+upcoming}
+&OPTION`UPCOMING [u(cobj,scene)]=Run the +upcoming command at login?
+&OPTION`UPCOMING`DEFAULT [u(Cobj,scene)]=1
+&OPTION`UPCOMING`VALID [u(Cobj,scene)]=BOOL
+
+&OPTION`QUOTES [u(Cobj,scene)]=Color the quotations of speech with this. "Blah"
+&OPTION`QUOTES`DEFAULT [u(Cobj,scene)]=
+&OPTION`QUOTES`VALID [u(cobj,scene)]=COLOR
+
+&OPTION`SPEECH [u(Cobj,scene)]=Color text in quotations. "Blah"
+&OPTION`SPEECH`DEFAULT [u(Cobj,scene)]=
+&OPTION`SPEECH`VALID [u(cobj,scene)]=COLOR
 
 &SYSTEM`NAME [u(cobj,scene)]=SCENESYS
+
+@aconnect [u(Cobj,scene)]=@select/inline u(op,SCENESYS,UPCOMING)=1,{@attach %!/CMD`SCENES_UPCOMING}
 
 &CMD`SCENES_UPCOMING [u(cobj,scene)]=$+upcoming:@select/inline t(u(setr,scenes,u(mysql3,GET`UPCOMING`SCENES)))=1,{@attach %!/INC`MSG=Scenes happening within 24 hours: [iter(%q<scenes>,u(pueblize,elements(%i0,1,chr(177)): '[elements(%i0,2,chr(177))]' \([u(fancytime,elements(%i0,3,chr(177)),%#)]\),+log [elements(%i0,1,chr(177))]),chr(176),\,%b)],%0},0,{@attach %!/INC`MSG=No scenes are happening in the next 24 hours. Bummer!,%0}
 
@@ -73,7 +83,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &LOOP`IDLECHECK [u(cobj,scene)]=@dolist/inline/nobreak/delimit [chr(176)] [u(MYSQL3,LOG`IDLECHECK)]={@attach %!/INC`MSGSCENE=elements(%i0,1,chr(177)),{Scene [elements(%i0,1,chr(177))] - '[elements(%i0,2,chr(177))]' has been automatically marked Unfinished for idleness. Use [u(pueblize,+log/continue [elements(%i0,1,chr(177))])] to resume it.};@attach %!/INC`MSG`CHAN=Scene [elements(%i0,1,chr(177))] - '[elements(%i0,2,chr(177))]' has been automatically marked Unfinished for idleness.;@attach %!/INC`CLEANUPSCENE=elements(%i0,1,chr(177));@attach %!/INC`DOSQL=SET`SCENESTATE,2,elements(%i0,1,chr(177))};@wait 1800=@trigger %!/LOOP`IDLECHECK
 
-&Q`LOG`IDLECHECK [u(cobj,scene)]=SELECT scene_id,title FROM volv_scene_final WHERE scene_date_started IS NOT NULL AND action_count>0 AND action_latest<NOW() - INTERVAL 2 HOUR
+&Q`LOG`IDLECHECK [u(cobj,scene)]=SELECT scene_id,scene_title FROM volv_scene_final WHERE scene_date_started IS NOT NULL AND action_count>0 AND action_latest<NOW() - INTERVAL 2 HOUR
 
 &Q`SET`SCENESTATE [u(cobj,scene)]=UPDATE vol_scene SET scene_status=? WHERE scene_id=?
 
@@ -84,8 +94,9 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &Q`SELECT`SCENE_STATUS [u(cobj,scene)]=SELECT scene_status,runner_objid FROM volv_scene WHERE scene_id=?
 &Q`NEW`SOURCE [u(cobj,scene)]=INSERT INTO vol_action_source (scene_id,source_objid,source_vr,source_name,source_type) VALUES (?,?,?,?,?)
-&Q`EXISTS`SOURCE [u(cobj,scene)]=SELECT source_id FROM mush_action_source WHERE scene_id=? and source_objid=? AND source_vr=? AND source_type=? LIMIT 1
+&Q`EXISTS`SOURCE [u(cobj,scene)]=SELECT source_id FROM vol_action_source WHERE scene_id=? and source_objid=? AND source_vr=? AND source_type=? LIMIT 1
 &Q`NEW`POSE [u(cobj,scene)]=INSERT INTO vol_action (source_id,actor_id,action_date_created,action_text) VALUES (?,?,UTC_TIMESTAMP(),?)
+&Q`NEW`POSE_RENDER [u(cobj,scene)]=UPDATE vol_action SET action_text_render=? WHERE action_id=?
 &Q`SELECT`ACTOR_ID [u(cobj,scene)]=SELECT actor_id FROM vol_actor WHERE scene_id=? and character_id=? LIMIT 1
 &Q`SELECT`ACTIVE_SCENES [u(cobj,scene)]=SELECT DISTINCT src.scene_id FROM vol_action_source AS src LEFT JOIN vol_scene AS s ON s.scene_id=src.scene_id WHERE src.source_objid=? AND src.source_vr=? AND src.source_type=0 AND s.scene_status=0
 
@@ -94,19 +105,19 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &OVERRIDE`IC4 [u(cobj,scene)]=$\;*:@attach/command %!/OVERRIDE`IC=,semipose,%0
 @select/inline %va=PennMUSH,{@dolist/inline IC2 IC3 IC4=@set u(cobj,scene)/OVERRIDE`%i0=no_command}
 
-&BASICSPEAK [u(cobj,scene)]=u(BASICSPEAK,%0,%1)
+&BASICSPEAK [u(cobj,scene)]=u(BASICSPEAK`%va,%0,%1)
 &BASICSPEAK`PENNMUSH [u(cobj,scene)]=speak(%0,%1)
 &BASICSPEAK`RHOSTMUSH [u(cobj,scene)]=parsestr(%1,%0,",",,owner(%#))
 
-&FUN`FORMATPOSE [u(cobj,scene)]=u(speech,%1,u(colormarkup,%0,%2%3,%1),%0,,IC,%4)
+&FUN`FORMATPOSE [u(cobj,scene)]=u(speech,%1,u(colormarkup,%0,%2%3,%1),%0,,SCENESYS,%4)
 
 &FUN`ISLOGGED [u(cobj,scene)]=switch(%5,1,#-1 SCENE %3 IS PAUSED,3,#-1 SCENE %3 IS FINISHED,if(lt(words(%2),10),#-1 POSES REQUIRE 10 WORDS OR MORE,if(match(setunion(%6,iter(%6,get(%i0/D`SCENE`SPOOF))),%4),%3,#-1 SCENE %3 OWNER \([name(%4)]\) NOT PRESENT)))
 
-&INC`HEADER [u(cobj,scene)]=@check u(isic,objid(owner(%#)));th u(setq,poser,ansi(hw,u(moniker,%:)) has posed[if(u(setr,spoof,get(%#/D`SCENE`SPOOF)),%B\(as [u(moniker,%q<spoof>)]\))]%b);th u(setq,logheader,switch(1,not(words(%q<sceneactive>)),,cand(words(%q<sceneactive>),not(%q<logged>)),%[[ansi(hr,NO LOG: [u(itemize,%q<sceneactive>,%b,and,\,)])]%]%B,t(match(%q<sceneactive>,%q<logged>)),%[[ansi(hg,LOG: %0 - POSE: %2)]%]%B,));@dolist/inline u(setr,footrecp,u(filter,poseheader,%q<custrecp>,%b,%b,%0,%1))={@select/inline t(u(opother,##,BORDERS))=1,{@pemit ##=u(header,%q<logheader>%q<poser>,##)},{@pemit ##=u(center,%q<logheader>%q<poser>,u(width,##),%B)}}
+&INC`HEADER [u(cobj,scene)]=@check u(isic,objid(owner(%#)));th u(setq,poser,ansi(hw,u(moniker,%:)) has posed[if(u(setr,spoof,get(%#/D`SCENE`SPOOF)),%B\(as [u(moniker,%q<spoof>)]\))]%b);th u(setq,logheader,switch(1,not(words(%q<sceneactive>)),,cand(words(%q<sceneactive>),not(%q<logged>)),%[[ansi(hr,NO LOG: [u(itemize,%q<sceneactive>,%b,and,\,)])]%]%B,t(match(%q<sceneactive>,%q<logged>)),%[[ansi(hg,LOG: %0 - POSE: %2)]%]%B,));@dolist/inline u(setr,footrecp,u(filter,poseheader,%q<custrecp>,%b,%b,%0,%1))={@select/inline t(u(opother,##,SCNESYS,BORDERS))=1,{@pemit ##=u(header,%q<logheader>%q<poser>,##)},{@pemit ##=u(center,%q<logheader>%q<poser>,u(width,##),%B)}}
 
 &FIL`POSEHEADER [u(cobj,scene)]=cor(words(%2),t(u(opother,owner(%0),BORDERS)))
  
-&INC`FOOTER [u(cobj,scene)]=@check u(isic,objid(owner(%#)));th u(setq,poser,End of [ansi(hw,u(moniker,objid(owner(%#))))]'s pose[if(u(setr,spoof,get(%#/D`SCENE`SPOOF)),%B\(as [u(moniker,%q<spoof>)]\))]%b);@dolist/inline %q<footrecp>={@select/inline t(u(opother,##,BORDERS))=1,{@pemit ##=u(footer,%q<logheader>%q<poser>,##)}}
+&INC`FOOTER [u(cobj,scene)]=@check u(isic,objid(owner(%#)));th u(setq,poser,End of [ansi(hw,u(moniker,objid(owner(%#))))]'s pose[if(u(setr,spoof,get(%#/D`SCENE`SPOOF)),%B\(as [u(moniker,%q<spoof>)]\))]%b);@dolist/inline %q<footrecp>={@select/inline t(u(opother,##,SCENESYS,BORDERS))=1,{@pemit ##=u(footer,%q<logheader>%q<poser>,##)}}
 
 @@ --- POT SECTION
 
@@ -203,14 +214,14 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`CLEANUPSCENE [u(cobj,scene)]=@dolist/inline u(choosegame,lsearch(all,type,player,elock,D`SCENE:%0),search(TYPE=PLAYERS,EVAL=\[eq(get(##/D`SCENE),%0)\]))=@attach %!/INC`LOG`LEAVE`Do=##
 
-&INC`LOG`UNDO [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(firstof,get(%#/D`SCENE`SPOOF),%:),2,1;@attach %!/INC`VALID`SCENE=get(%#/D`SCENE);@attach %!/INC`LOADSCENE;@check eq(%q<status>,0)=@attach %!/INC`MSG=That scene is not Active!;@select/inline strlen(%1)=0,{@check gt(u(setr,pose,u(mysql,SELECT`LAST_POSE,%q<scene>,%q<t2id>,0)),0)=@attach %!/INC`MSG=You have no poses that can be undone.},{@check gt(u(setr,pose,u(mysql,SELECT`POSE_EXISTS,%q<scene>,%q<t2id>,0,%1)),0)=@attach %!/INC`MSG=ERROR: No active pose from you with ID '%1'.};th u(setr,act_id,u(mysql,SELECT`ACTOR_ID,%q<scene>,%q<t2id>));@attach %!/INC`DOSQL=SET`POSE_DELETED,1,%q<pose>;@attach %!/INC`DOSQL=DECREASE`action_count,%q<act_id>;@attach %!/INC`MSGSCENE=%q<scene>,[u(moniker,%#)] undid %p previous pose: %q<pose>
+&INC`LOG`UNDO [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(firstof,get(%#/D`SCENE`SPOOF),%:),2,1;@attach %!/INC`VALID`SCENE=get(%#/D`SCENE);@attach %!/INC`LOADSCENE;@check eq(%q<status>,0)=@attach %!/INC`MSG=That scene is not Active!;@select/inline strlen(%1)=0,{@check gt(u(setr,pose,u(mysql,SELECT`LAST_POSE,%q<scene>,%q<t2id>,0)),0)=@attach %!/INC`MSG=You have no poses that can be undone.},{@check gt(u(setr,pose,u(mysql,SELECT`POSE_EXISTS,%q<scene>,%q<t2id>,0,%1)),0)=@attach %!/INC`MSG=ERROR: No active pose from you with ID '%1'.};th u(setr,act_id,u(mysql,SELECT`ACTOR_ID,%q<scene>,%q<t2id>));@attach %!/INC`DOSQL=SET`POSE_DELETED,1,%q<pose>;@attach %!/INC`MSGSCENE=%q<scene>,[u(moniker,%#)] undid %p previous pose: %q<pose>
 
-&INC`LOG`REDO [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(firstof,get(%#/D`SCENE`SPOOF),%:),2;@attach %!/INC`VALID`SCENE=get(%#/D`SCENE);@attach %!/INC`LOADSCENE;@check eq(%q<status>,0)=@attach %!/INC`MSG=That scene is not Active!;@select/inline strlen(%1)=0,{@check gt(u(setr,pose,u(mysql,SELECT`LAST_POSE,%q<scene>,%q<t2id>,1)),0)=@attach %!/INC`MSG=You have no deleted poses that can be restored.},{@check gt(u(setr,pose,u(mysql,SELECT`POSE_EXISTS,%q<scene>,%q<t2id>,1,%1)),0)=@attach %!/INC`MSG=ERROR: No deleted pose from you with ID '%1'.};th u(setr,act_id,u(mysql,SELECT`ACTOR_ID,%q<scene>,%q<t2id>));@attach %!/INC`DOSQL=SET`POSE_DELETED,0,%q<pose>;@attach %!/INC`DOSQL=INCREASE`action_count,%q<act_id>;@attach %!/INC`MSGSCENE=%q<scene>,[u(moniker,%#)] restored %p previous undone pose: %q<pose>
+&INC`LOG`REDO [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(firstof,get(%#/D`SCENE`SPOOF),%:),2;@attach %!/INC`VALID`SCENE=get(%#/D`SCENE);@attach %!/INC`LOADSCENE;@check eq(%q<status>,0)=@attach %!/INC`MSG=That scene is not Active!;@select/inline strlen(%1)=0,{@check gt(u(setr,pose,u(mysql,SELECT`LAST_POSE,%q<scene>,%q<t2id>,1)),0)=@attach %!/INC`MSG=You have no deleted poses that can be restored.},{@check gt(u(setr,pose,u(mysql,SELECT`POSE_EXISTS,%q<scene>,%q<t2id>,1,%1)),0)=@attach %!/INC`MSG=ERROR: No deleted pose from you with ID '%1'.};th u(setr,act_id,u(mysql,SELECT`ACTOR_ID,%q<scene>,%q<t2id>));@attach %!/INC`DOSQL=SET`POSE_DELETED,0,%q<pose>;@attach %!/INC`MSGSCENE=%q<scene>,[u(moniker,%#)] restored %p previous undone pose: %q<pose>
 
 &INC`LOG`EDIT [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(firstof,get(%#/D`SCENE`SPOOF),%:),2;@attach %!/INC`VALID`SCENE=get(%#/D`SCENE);@attach %!/INC`LOADSCENE;@check eq(%q<status>,0)=@attach %!/INC`MSG=That scene is not Active!;@check gt(u(setr,pose,u(mysql,SELECT`POSE_EXISTS,%q<scene>,%q<t2id>,0,%0)),0)=@attach %!/INC`MSG=ERROR: No active pose from you with ID '%0'.;@check strlen(before(%1,/))=@attach %!/INC`MSG=ERROR: No text entered to alter!;th u(setq,oldtext,u(mysql,SELECT`TEXT,%q<pose>));@check strlen(u(setr,changed,edit(%q<oldtext>,before(%1,/),after(%1,/))))=@attach %!/INC`MSG=ERROR: Cannot alter a Pose to nothing.;@stop strmatch(digest(md5,%q<oldtext>),digest(md5,%q<changed>))=@attach %!/INC`MSG=ERROR: Nothing appears to have changed. Check your Before and After and try again.;@attach %!/INC`DOSQL=EDIT`POSE_TEXT,%q<changed>,%q<pose>;@attach %!/INC`DOSQL=EDIT`POSE_TEXT_RENDER,u(render,%q<changed>),%q<pose>;@attach %!/INC`MSGSCENE=%q<scene>,[u(moniker,%#)] edited %p previous pose: %q<pose>. ALTERED: >>[before(%1,/)]<< TO >>[after(%1,/)]<<
 
-&Q`SELECT`LAST_POSE [u(cobj,scene)]=SELECT max(action_id) FROM volv_action WHERE scene_id=? character_id=? AND action_is_deleted=?
-&Q`SELECT`POSE_EXISTS [u(cobj,scene)]=SELECT action_id FROM volv_action WHERE scene_id=? character_id=? AND action_is_deleted=?
+&Q`SELECT`LAST_POSE [u(cobj,scene)]=SELECT max(action_id) FROM volv_action WHERE scene_id=? AND character_id=? AND action_is_deleted=?
+&Q`SELECT`POSE_EXISTS [u(cobj,scene)]=SELECT action_id FROM volv_action WHERE scene_id=? AND character_id=? AND action_is_deleted=?
 &Q`SET`POSE_DELETED [u(cobj,scene)]=UPDATE vol_action SET action_is_deleted=? WHERE action_id=?
 &Q`EDIT`POSE_TEXT [u(cobj,scene)]=UPDATE vol_action SET action_text=? WHERE action_id=?
 &Q`EDIT`POSE_TEXT_RENDER [u(cobj,scene)]=UPDATE vol_action SET action_text_render=? WHERE action_id=?
@@ -272,7 +283,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &Q`action_count [u(cobj,scene)]=SELECT action_count FROM volv_scene_stats WHERE scene_id=?
 
 &INC`LOG`ADD [u(cobj,scene)]=@attach %!/INC`LOG`SCHEDULE
-&INC`LOG`SCHEDULE [u(cobj,scene)]=@attach %!/INC`VALID`FUTURE=trim(before(%0,/));@check strlen(u(setr,title,trim(after(%0,/))))=@attach %!/INC`MSG=You need to give the scene a title!;@stop u(charsearch,%q<title>,/ %r %t)=@attach %!/INC`MSG=The following characters are not permitted in titles: /\, \%r\, \%t.;@check strlen(u(setr,desc,%1))=@attach %!/INC`MSG=Your scene needs a Pitch!;@attach %!/INC`DOSQL=NEW`SCHEDULE/scene,u(trimtabs,u(trimlines,%q<title>)),u(trimtabs,u(trimlines,%q<desc>)),%q<value>;@attach %!/INC`DOSQL=SET`ACTOR_TYPE,2,%q<scene>,%q<t1id>;@select/inline cand(isdbref(u(cobj,bbs)),strlen(u(conf,BOARD)),u(setr,bbid,u(mysql,FIND`BB,u(CONF,BOARD))))=1,{@check u(setr,makepost,u(call`6,volp_bbpost,0,%q<t1id>,%q<bbid>,'[sqlescape(#%q<scene>: %q<title>)]','[sqlescape(u(FUN`FORMATPOST,%q<title>,[u(moniker,%#)],u(fancytime,%q<value>,,UTC),%q<desc>))]',0,%q<t1idfallback>))=@attach %!/INC`MSG=ERROR: Could not create post. Reason: %q<makepost>;th iter(postid postnum,u(setq,%i0,elements(%q<makepost>,inum(0))));@attach %!/INC`DOSQL=SET`SCENE_POST,%q<postid>,%q<scene>};@attach %!/INC`MSG`NOTICE=Scheduled new [u(pueblize,Scene %q<scene>: '%q<title>',+log %q<scene>)] on [u(fancytime,%q<value>,%#)],u(lwhoid)
+&INC`LOG`SCHEDULE [u(cobj,scene)]=@attach %!/INC`VALID`FUTURE=trim(before(%0,/));@check strlen(u(setr,title,trim(after(%0,/))))=@attach %!/INC`MSG=You need to give the scene a title!;@stop u(charsearch,%q<title>,/ %r %t)=@attach %!/INC`MSG=The following characters are not permitted in titles: /\, \%r\, \%t.;@check strlen(u(setr,desc,%1))=@attach %!/INC`MSG=Your scene needs a Pitch!;@attach %!/INC`DOSQL=NEW`SCHEDULE/scene,u(trimtabs,u(trimlines,%q<title>)),u(trimtabs,u(trimlines,%q<desc>)),%q<value>;@attach %!/INC`DOSQL=SET`ACTOR_TYPE,2,%q<scene>,%q<t1id>;@select/inline cand(isdbref(u(cobj,bbs)),strlen(u(conf,BOARD)),u(setr,bbid,u(mysql,FIND`BB,u(CONF,BOARD))))=1,{@check u(setr,makepost,u(call`6,volp_bbpost,0,%q<t1id>,%q<bbid>,'[sqlescape(#%q<scene>: %q<title>)]','[sqlescape(u(FUN`FORMATPOST,%q<title>,[u(moniker,%#)],u(fancytime,%q<value>,,UTC),%q<desc>))]',0,%q<t1idfallback>))=@attach %!/INC`MSG=ERROR: Could not create post. Reason: %q<makepost>;th iter(postid postnum,u(setq,%i0,elements(%q<makepost>,inum(0))));@attach %!/INC`DOSQL=SET`SCENE_POST,%q<postid>,%q<scene>};@attach %!/INC`MSG`NOTICE=Scheduled new [u(pueblize,Scene %q<scene>: '%q<title>',+log %q<scene>)] on ^^^%q<value>^^^,u(lwhoid),,1
 
 &Q`NEW`SCHEDULE [u(cobj,scene)]=INSERT INTO vol_scene (scene_title,scene_pitch,scene_date_scheduled,scene_date_created) VALUES (?,?,FROM_UNIXTIME(?),UTC_TIMESTAMP())
 &Q`SET`SCENE_POST [u(cobj,scene)]=UPDATE vol_scene SET post_id=? WHERE scene_id=?

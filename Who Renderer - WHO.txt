@@ -1,16 +1,17 @@
 @@ DEPENDENCIES: Core
 
-th u(NEWCOBJ,Who Renderer <WHO>,whe,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Who Renderer <WHO>,who,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&CMD`+WHO`PENNMUSH [u(cobj,who)]=$^(?s)(?\:\+)?who(?\:/(\S+))?(?\: +(.+?))?$:@attach %!/CMD`+WHO`MAIN
+&CMD`+WHO`PENNMUSH [u(cobj,who)]=$^(?s)(?\:\+)?who(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+WHO`MAIN
 @set [u(cobj,who)]/CMD`+WHO`PENNMUSH=regexp
-&CMD`+WHO`RHOSTMUSH [u(cobj,who)]=$^(?s)(?\:\+)?who(?\:/(\\S+))?(?\: +(.+?))?$:@attach %!/CMD`+WHO`MAIN
+&CMD`+WHO`RHOSTMUSH [u(cobj,who)]=$^(?s)(?\:\+)?who(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+WHO`MAIN
 @set [u(cobj,who)]/CMD`+WHO`RHOSTMUSH=regexp
-&CMD`+WHO`MAIN [u(cobj,who)]=@attach %!/INC`GETSWITCH=%1;th u(setq,portable,u(u(cobj,grid)/FUN`LISTROOMS));@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2
-@set [u(cobj,who)]/CMD`+WHO`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+&CMD`+WHO`MAIN [u(cobj,who)]=@attach %!/INC`GETSWITCH=%1;th u(setq,portable,u(u(cobj,grid)/FUN`LISTROOMS));@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,who)]/CMD`+WHO`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SYSTEm`NAME [u(Cobj,who)]=WHO
 &SWITCHES`PLAYER [u(cobj,who)]=IDLE
+&SWITCHES`ADMIN [u(cobj,who)]=CONFIG
 
 &INC`MAIN [u(cobj,who)]=@attach %!/INC`SORT`MAIN;@select/inline gt(strlen(%0),0)=1,{@attach %!/INC`SEARCH=%0};@attach %!/INC`LIST=,%0
 
@@ -25,6 +26,8 @@ th u(NEWCOBJ,Who Renderer <WHO>,whe,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 
 &INC`LIST [u(cobj,who)]=@pemit %#=u(HEADER,Who[if(strlen(%0),%b-%b%0)]);@attach %!/INC`HEADER`[strfirstof(%0,MAIN)];@pemit %#=u(separator);@dolist %q<who>={@pemit %#=u(FUN`WHO`PLAYERLINE`[strfirstof(%0,MAIN)],##);@select/inline eq(#@,words(%q<who>))=1,{&MAXPLAYERS %!=u(setr,max,max(get(%!/MAXPLAYERS),words(%q<who>)));@pemit %#=u(SUBHEADER,words(%q<who>) Characters[if(u(game_config,WHO,SHOW_IPS),%Bfrom [words(setunion(iter(%q<who>,get(%i0/LASTSITE),,|),,|),|)] IPs)]%BConnected - Record is %q<max>)}}
 
+&CONFIG`OPTIONS [u(cobj,who)]=HEADER|COLUMNS|SITES
+
 &CONFIG`HEADER [u(cobj,who)]=List of column names and widths in format of Text~Length. Like Name~20|Location~40. See +shelp +who.
 &CONFIG`HEADER`DEFAULT [u(cobj,who)]=Name~20|Alias~11|Fac~3|Idle~4|Conn~4|G~1|Location~29
 &CONFIG`HEADER`VALID [u(cobj,who)]=COLUMNS
@@ -37,10 +40,10 @@ th u(NEWCOBJ,Who Renderer <WHO>,whe,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 &CONFIG`SITES`DEFAULT [u(cobj,who)]=1
 &CONFIG`SITES`VALID [u(cobj,who)]=BOOL
 
-&INC`HEADER`MAIN [u(cobj,who)]=@pemit %#=ansi(u(color,%#,COLUMN_NAMES),lalign(iter(u(setr,hdr,u(conf,WHO_HEADER)),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,chr(177)),chr(177)))
+&INC`HEADER`MAIN [u(cobj,who)]=@pemit %#=ansi(u(color,%#,COLUMN_NAMES),u(columnline,u(conf,HEADER)))
 &INC`HEADER`IDLE [u(cobj,who)]=@attach %!/INC`HEADER`MAIN
 
-&FUN`WHO`PLAYERLINE`MAIN [u(cobj,who)]=lalign(iter(u(setr,col,u(conf,WHO_COLUMNS)),after(%i0,~),|,%b),iter(%q<col>,u(strfirstof,u(getproperty,%0,before(%i0,~)),get(%0/D`FINGER`[before(%i0,~)])),|,chr(177)),chr(177))
+&FUN`WHO`PLAYERLINE`MAIN [u(cobj,who)]=u(playerline,%0,u(conf,COLUMNS))
 &FUN`WHO`PLAYERLINE`IDLE [u(cobj,who)]=u(FUN`WHO`PLAYERLINE`MAIN,%0)
 
 &STARTUP [u(cobj,who)]=@hook/override WHO=%!,CMD`+WHO

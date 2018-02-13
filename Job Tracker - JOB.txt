@@ -38,12 +38,12 @@ th u(NEWCOBJ,Job Tracker <JOB>,job,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAF
 
 &INC`VALID`REQUEST [u(cobj,job)]=@check strlen(u(setr,value,stripansi(trim(%0))))=@attach %!/INC`MSG=ERROR: Request subject empty!;@stop u(charsearch,%q<value>,u(badchars))=@attach %!/INC`MSG=ERROR: Title cannot include: [v(badchars)];
 
-&INC`REQUEST [u(cobj,job)]=th u(setq,subm,u(strfirstof,objid(%3),%:));@attach %!/INC`VALID`REQUEST=%0;@attach %!/INC`FINDBUCKET=%2;@check cor(%q<isadmin>,testlock(%q<bpostlock>,%#))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%0)=@attach %!/INC`MSG=Initial message empty! What are you asking staff for?;@check u(setr,job_id,u(call`5,volp_job_new,0,%q<t1id>,%q<b1id>,%q<b1anonymous>,'[sqlescape(%q<value>)]','[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: Job could not be created. reason: %q<job_id>;@attach %!/INC`LOADJOB=first(%q<job_id>);@attach %!/INC`MSGJOB=Submitted by [if(%q<banonymous>,Anonymous,%q<t1name>)].
+&INC`REQUEST [u(cobj,job)]=th u(setq,subm,u(strfirstof,objid(%3),%:));@attach %!/INC`VALID`REQUEST=%0;@attach %!/INC`FINDBUCKET=%2;@check cor(%q<isadmin>,testlock(%q<b1postlock>,%#))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%0)=@attach %!/INC`MSG=Initial message empty! What are you asking staff for?;@check u(setr,job_id,u(call`5,volp_job_new,0,%q<t1id>,%q<b1id>,%q<b1anonymous>,'[sqlescape(%q<value>)]','[sqlescape(%1)]'))=@attach %!/INC`MSG=ERROR: Job could not be created. reason: %q<job_id>;@attach %!/INC`LOADJOB=first(%q<job_id>);@attach %!/INC`MSGJOB=Submitted by [if(%q<banonymous>,Anonymous,%q<t1name>)].
 
-&INC`LOCKSTART [u(cobj,job)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission Denied. This command is Wizard-only.;@attach %!/INC`FINDBUCKET=before(%0,/);@attach %!/INC`PARTIAL=after(%0,/),POST|ADMIN,|,lock;
+&INC`LOCKSTART [u(cobj,job)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission Denied. This command is Wizard-only.;@attach %!/INC`FINDBUCKET=before(%0,/);@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Choose a POST or ADMIN lock type.;@attach %!/INC`PARTIAL=after(%0,/),POST|ADMIN,|,lock;
 
 &INC`RAWLOCK [u(cobj,job)]=@attach %!/INC`LOCK=%0,%1,1;
-&INC`LOCK [u(cobj,job)]=@attach %!/INC`LOCKSTART;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No lock string entered. See [u(pueblize,help @lock)] and [u(pueblize,+help Groups/Locks)] for more information.;@select/inline t(%2)=0,{@attach %!/INC`GROUPLOCK=%1,0,%q<b1id>},1,{@attach %!/INC`VALID`LOCK=%1;th u(setq,lockstr,%q<value>)};@check u(setr,lockres,u(call`3,volp_lock,0,%q<b1id>,'%q<lock>','[sqlescape(%q<lockstr>)]'))=@attach %!/INC`MSG=ERROR: Could not set Lock. REASON: %q<lockres>;@attach %!/INC`MSG=Locked the Bucket to %q<lockstr>!;@attach %!/INC`MSG`CHAN=%q<lock> Locked Bucket %q<bname> to: %q<lockstr>
+&INC`LOCK [u(cobj,job)]=@attach %!/INC`LOCKSTART;@select/inline cor(t(%2),not(isdbref(u(cobj,group))))=1,{@attach %!/INC`VALID`LOCK=%1},0,{@attach %!/INC`VALID`GROUPLOCK=%1,1};@check u(setr,lockres,u(call`3,volp_lock,0,%q<b1id>,'%q<lock>','[sqlescape(%q<value>)]'))=@attach %!/INC`MSG=ERROR: Could not set Lock. REASON: %q<lockres>;@attach %!/INC`MSG=Locked the Bucket to %q<value>! (MEANING: %q<valueformat>);@attach %!/INC`MSG`CHAN=%q<lock> Locked Bucket %q<b1name> to: %q<value> (MEANING: %q<valueformat>)
 
 &INC`UNLOCK [u(cobj,job)]=@attach %!/INC`LOCK=%0,#TRUE,1
 
@@ -122,7 +122,9 @@ th u(NEWCOBJ,Job Tracker <JOB>,job,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAF
 
 &Q`JOBS`FROMIDS [u(cobj,job)]=SELECT j.job_status,j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL AS job_is_unread,j.job_id,j.job_is_anonymous,j.owner_objid,j.owner_name,j.job_title,j.handler_objids,j.job_date_due_secs,j.job_is_overdue,j.job_date_latest_activity_secs FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON jl.job_id=j.job_id AND jl.character_id=? WHERE j.job_id IN (!) ORDER BY j.job_id
 
-&INC`NEXT [u(cobj,job)]=@check words(%q<admbids>)=@attach %!/INC`MSG=Permission denied.;@check u(setr,next,u(mysql,UNREAD`JOB,%q<t1id>,u(SQL`IN`NUMBER,%q<admbids>)))=@attach %!/INC`MSG=There are no unread jobs to see!;@attach %!/INC`DISPLAYJOB=%q<next>
+&INC`NEXT [u(cobj,job)]=@check words(%q<admbids>)=@attach %!/INC`MSG=Permission denied.;@check u(setr,next,u(mysql,UNREAD`JOB,%q<t1id>,u(SQL`IN`NUMBER,%q<admbids>)))=@attach %!/INC`MSG=There are no unread jobs to see!;
+
+@attach %!/INC`DISPLAYJOB=%q<next>
 
 &Q`UNREAD`JOB [u(cobj,job)]=SELECT j.job_id from volv_job as j LEFT JOIN vol_jlink AS jl ON j.job_id=jl.job_id AND jl.character_id=? WHERE j.bucket_id IN (!) AND (j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL) ORDER BY j.bucket_name ASC,j.job_id ASC limit 1
 

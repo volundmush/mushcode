@@ -67,23 +67,36 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &BBS [u(cobj,mig)]=@check isdbref(u(cobj,bbs))=@attach %!/INC`MSG=ERROR: The new BBS is not installed!;@check isdbref(u(oldcobj,bbs))=@attach %!/INC`MSG=ERROR: COuld not find the old BBS!;@attach %!/INC`MSG`CHAN=Beginning BBS Conversion...;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating BBS.;&BBS`STATUS %!=1};@dolist/notify u(filter,ISBOARD,lthings(u(oldcobj,bbs)))={@check get(##/ORDER);@trigger %!/BBS`BOARD=objid(##),0}
 
+@@ NOTE: BBSquash is only to be run if something is -REALLY- gummed up order-wise.
+&BBS`SQUASH [u(Cobj,mig)]=@attach %!/INC`DOSQL=BBS`SQUASH1;@dolist/inline u(mysql,BBS`BOARD_ID)={@attach %!/INC`DOSQL=BBS`SQUASH2;@attach %!/INC`DOSQL=BBS`SQUASH3,##};
+
+&Q`BBS`SQUASH1 [u(cobj,mig)]=UPDATE vol_bbpost SET post_display_num=post_display_num+1000;
+&Q`BBS`SQUASH2 [u(Cobj,mig)]=SET @order = 0;
+&Q`BBS`SQUASH3 [u(cobj,mig)]=UPDATE vol_bbpost SET post_display_num=(@order := @order + 1) WHERE board_id=? ORDER BY post_date_created
+
+&Q`BBS`BOARD_ID [u(cobj,mig)]=SELECT board_id FROM volv_board
+
 &GBS [u(cobj,mig)]=@check isdbref(u(cobj,bbs))=@attach %!/INC`MSG=ERROR: The new BBS is not installed!;@check isdbref(u(oldcobj,bbs))=@attach %!/INC`MSG=ERROR: COuld not find the old BBS!;@check isdbref(u(cobj,group))=@attach %!/INC`MSG=ERROR: The New Group system is not installed!;@check isdbref(u(oldcobj,gms))=@attach %!/INC`MSG=ERROR: The Old group system could not be found!;@attach %!/INC`MSG`CHAN=Beginning GBS Conversion...;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GBS. DON'T FORGET TO SET ABBREVIATIONS!;&GBS`STATUS %!=1};@dolist/notify children(u(cobj,gop))={@attach %!/BBS`GROUPS=##}
 
 &BBS`GROUPS [u(cobj,mig)]=@dolist/inline/nobreak u(filter,ISBOARD,lthings(%0))={@trigger %!/BBS`BOARD=##,objid(%0)}
 
 &FIL`ISBOARD [u(cobj,mig)]=cand(hasattr(%0/NEXT),hasattr(%0/ORDER))
 
-&BBS`BOARD [u(cobj,mig)]=th u(setq,bbid,u(call`3,volp_board,0,'[sqlescape(name(%0))]',get(%0/ORDER),'%1'));th u(call`3,volp_lock,0,%q<bbid>,'READ','[sqlescape(switch(lock(%0/basic),*UNLOCKED*,#TRUE,lock(%0/basic)))]');th u(call`3,volp_lock,0,%q<bbid>,'POST','[sqlescape(switch(lock(%0/enter),*UNLOCKED*,#TRUE,lock(%0/enter)))]');@dolist/inline edit(u(lattr,%0/~`*),~`,)={@attach/localize %!/BBS`POST=##,%q<bbid>,%0,inum(0)};
+&BBS`BOARD [u(cobj,mig)]=th u(setq,bbid,u(call`3,volp_board,0,'[sqlescape(name(%0))]',get(%0/ORDER),'%1'));th u(call`3,volp_lock,0,%q<bbid>,'READ','[if(isobjid(%1),V`GROUP`[get(%1/D`ID)]:<=9001,sqlescape(switch(lock(%0/basic),*UNLOCKED*,#TRUE,lock(%0/basic))))]');th u(call`3,volp_lock,0,%q<bbid>,'POST','[if(isobjid(%1),V`GROUP`[get(%1/D`ID)]:<=9001,sqlescape(switch(lock(%0/enter),*UNLOCKED*,#TRUE,lock(%0/enter))))]');@dolist/inline u(FUN`LISTPOSTS,%0)={@attach/localize %!/BBS`POST=##,%q<bbid>,%0,inum(0)};
+
+&FUN`LISTPOSTS [u(cobj,mig)]=u(sortposts`%va,edit(u(lattr,%0/~`*),~`,),%b,%b)
+&SORTPOSTS`PENNMUSH [u(cobj,mig)]=sortkey(#lambda/baseconv(\%0,36,10),%0,n,%1,%2)
+&SORTPOSTS`RHOSTMUSH [u(cobj,mig)]=sortby(#lambda/[lit([ncomp(u(baseconv`%va,%0,36,10),u(baseconv`%va,%1,36,10))])],%0,%1,%2)
 
 &Q`BBS`CONFIG [u(cobj,mig)]=UPDATE vol_board SET board_mandatory=?,board_anonymous=? WHERE board_id=?
 
-&BBS`POST [u(cobj,mig)]=th iter(ownname ownobjid postdate postmodified,u(setq,%i0,elements(get(%2/~`%0`DETAILS),inum(0),|)));th u(setq,hdr,get(%2/~`%0`HDR));th if(%q<postmodified>,,u(setr,postmodified,%q<postdate>));th u(setq,postnum,u(baseconv,%0,36,10));@select/inline t(u(setr,pid,get(%q<ownobjid>/D`ID)))=0,{th u(setq,pid,u(call`2,volp_character,0,'[sqlescape(%q<ownobjid>)]','[sqlescape(%q<ownname>)]'));@select/inline isobjid(%q<ownobjid>)=0,{th u(mysql,UPDATE`DELETE_PLAYER,%q<pid>)}};@select/inline words(u(setr,comms,u(sortattr,u(lattr,%2/~`%0`COMM`*))))=>0,{th u(setr,postcommented,u(lmax,iter(%q<comms>,get(%2/%i0`ON))))},{th u(setr,postcommented,%q<postmodified>)};@select/inline strlen(u(setr,text,get(%2/~`%0)))=>4000,{th u(setq,part1,left(%q<text>,4000));th u(setq,part2,mid(%q<text>,4000,100000));@attach %!/INC`DOSQL=BBS`OLD_POST/post_id,%1,%3,%q<pid>,%q<postdate>,%q<postmodified>,%q<postcommented>,%q<hdr>,%q<part1>;@attach %!/INC`DOSQL=BBS`ADD_POST_TEXT,%q<part2>,%q<post_id>},{@attach %!/INC`DOSQL=BBS`OLD_POST,%1,%3,%q<pid>,%q<postdate>,%q<postmodified>,%q<postcommented>,%q<hdr>,%q<text>};@dolist/inline %q<comms>={@attach %!/BBS`COMMENT=##,%q<post_id>,%2,inum(0)};
+&BBS`POST [u(cobj,mig)]=th iter(ownname ownobjid postdate postmodified,u(setq,%i0,elements(get(%2/~`%0`DETAILS),inum(0),|)));th u(setq,hdr,get(%2/~`%0`HDR));th if(%q<postmodified>,,u(setr,postmodified,%q<postdate>));th u(setq,postnum,u(baseconv,%0,36,10));@select/inline t(u(setr,pid,get(%q<ownobjid>/D`ID)))=0,{th u(setq,pid,u(call`2,volp_character,0,'[sqlescape(%q<ownobjid>)]','[sqlescape(%q<ownname>)]'));@select/inline isobjid(%q<ownobjid>)=0,{th u(mysql,UPDATE`DELETE_PLAYER,%q<pid>)}};@select/inline words(u(setr,comms,u(sortattr,u(lattr,%2/~`%0`COMM`*))))=>0,{th u(setr,postcommented,u(lmax,iter(%q<comms>,get(%2/%i0`ON))))},{th u(setr,postcommented,%q<postmodified>)};@select/inline strlen(u(setr,text,get(%2/~`%0)))=>4000,{th u(setq,part1,left(%q<text>,4000));th u(setq,part2,mid(%q<text>,4000,100000));@attach %!/INC`DOSQL=BBS`OLD_POST/post_id,%1,%3,%q<pid>,%q<postdate>,%q<postmodified>,%q<postcommented>,%q<hdr>,%q<part1>;@attach %!/INC`DOSQL=BBS`ADD_POST_TEXT,%q<part2>,%q<post_id>},{@attach %!/INC`DOSQL=BBS`OLD_POST/post_id,%1,%3,%q<pid>,%q<postdate>,%q<postmodified>,%q<postcommented>,%q<hdr>,%q<text>};@dolist/inline %q<comms>={@attach %!/BBS`COMMENT=##,%q<post_id>,%2,inum(0)}
 
 &Q`BBS`OLD_POST [u(cobj,mig)]=INSERT INTO vol_bbpost (board_id,post_display_num,entity_id,post_date_created,post_date_modified,post_date_commented,post_title,post_text) VALUES (?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?)
 &Q`BBS`ADD_POST_TEXT [u(cobj,mig)]=UPDATE vol_bbpost SET post_text=CONCAT(post_text,?) WHERE post_id=?
 &Q`UPDATE`DELETE_PLAYER [u(cobj,mig)]=UPDATE vol_character SET character_is_deleted=1 WHERE character_id=?
 
-&BBS`COMMENT [u(cobj,mig)]=@select/inline t(u(setr,pid,get(u(setr,ownobjid,get(%2/%0`BYDB))/D`ID)))=0,{th u(setq,pid,u(call`2,volp_character,0,'[sqlescape(%q<ownobjid>)]','[sqlescape(if(isobjid(%q<ownobjid>),name(%q<ownobjid>),get(%2/%0`BY))]')));@select/inline isobjid(%q<ownobjid>)=0,{th u(mysql,UPDATE`DELETE_PLAYER,%q<pid>)}};@attach %!/INC`DOSQL=BBS`OLD_COMMENT,%1,last(%0,`),%q<pid>,get(%2/%0`ON),get(%2/%0`ON),get(%2/%0),0
+&BBS`COMMENT [u(cobj,mig)]=@select/inline t(u(setr,pid,get(u(setr,ownobjid,get(%2/%0`BYDB))/D`ID)))=0,{th u(setq,pid,u(call`2,volp_character,0,'[sqlescape(%q<ownobjid>)]','[sqlescape(if(isobjid(%q<ownobjid>),name(%q<ownobjid>),get(%2/%0`BY)))]'));@select/inline isobjid(%q<ownobjid>)=0,{th u(mysql,UPDATE`DELETE_PLAYER,%q<pid>)}};@attach %!/INC`DOSQL=BBS`OLD_COMMENT,%1,last(%0,`),%q<pid>,get(%2/%0`ON),get(%2/%0`ON),get(%2/%0),0
 
 &Q`BBS`OLD_COMMENT [u(cobj,mig)]=INSERT INTO vol_bbcomment (post_id,comment_display_num,entity_id,comment_date_created,comment_date_modified,comment_text,comment_anonymous) VALUES (?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?)
 

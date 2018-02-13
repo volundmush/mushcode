@@ -751,7 +751,7 @@ CREATE OR REPLACE VIEW volv_board AS
 	ORDER BY g.group_abbr,b.board_number;
 
 CREATE OR REPLACE VIEW volv_bbcomment AS 
-	SELECT c.comment_id,c.post_id,c.comment_display_num,c.comment_date_created,c.comment_date_modified,c.comment_text,c.comment_anonymous,e.entity_id,e.entity_name,e.entity_objid,e.entity_type
+	SELECT c.comment_id,c.post_id,c.comment_display_num,c.comment_date_created,UNIX_TIMESTAMP(c.comment_date_created) as comment_date_created_secs,c.comment_date_modified,UNIX_TIMESTAMP(c.comment_date_modified) AS comment_date_modified_secs,c.comment_text,c.comment_anonymous,e.entity_id,e.entity_name,e.entity_objid,e.entity_type
 	FROM vol_bbcomment AS c LEFT JOIN vol_entity AS e ON c.entity_id=e.entity_id
 	ORDER BY c.post_id ASC,c.comment_display_num ASC;
 	
@@ -809,19 +809,18 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS volp_bbcomment;
 DELIMITER $$
-CREATE PROCEDURE volp_bbcomment(IN in_author_id INT UNSIGNED,IN in_post_text TEXT,IN in_post_parent INT UNSIGNED,IN in_post_anonymous BOOLEAN,IN in_account_id INT UNSIGNED)
+CREATE PROCEDURE volp_bbcomment(IN in_author_id INT UNSIGNED,IN in_post_id INT UNSIGNED,IN in_comment_text TEXT,IN in_comment_anonymous BOOLEAN,IN in_account_id INT UNSIGNED)
 	BEGIN
-		DECLARE new_post_timestamp DATETIME DEFAULT UTC_TIMESTAMP();
-		DECLARE new_post_id,new_post_number INT UNSIGNED;
-		IF in_post_parent IS NULL THEN
-			SELECT next_post_number INTO new_post_number FROM volv_bb_stats WHERE board_id=in_board_id;
-		ELSE
-			SELECT MAX(post_display_num)+1 INTO new_post_number FROM vol_bbpost WHERE board_id=in_board_id AND post_parent_id=in_post_parent;
-		END IF;
-		INSERT INTO vol_bbpost (board_id,post_parent_id,post_display_num,entity_id,post_date_created,post_date_modified,post_title,post_text,post_anonymous) VALUES (in_board_id,in_post_parent,new_post_number,in_author_id,new_post_timestamp,new_post_timestamp,in_post_title,in_post_text,in_post_anonymous);
-		SET new_post_id=LAST_INSERT_ID();
-		INSERT INTO vol_bbread (post_id,entity_id,bbread_date_checked) VALUES (new_post_id,in_account_id,new_post_timestamp);
-		SELECT new_post_id,new_post_number;
+		DECLARE new_comment_timestamp DATETIME DEFAULT UTC_TIMESTAMP();
+		DECLARE new_comment_id,new_comment_number INT UNSIGNED;
+    SELECT MAX(comment_display_num)+1 INTO new_comment_number FROM vol_bbcomment WHERE post_id=in_post_id;
+    IF new_comment_number IS NULL THEN
+        SET new_comment_number=1;
+    END IF;
+		INSERT INTO vol_bbcomment (post_id,comment_display_num,entity_id,comment_date_created,comment_date_modified,comment_text,comment_anonymous) VALUES (in_post_id,new_comment_number,in_author_id,new_comment_timestamp,new_comment_timestamp,in_comment_text,in_comment_anonymous);
+		SET new_comment_id=LAST_INSERT_ID();
+		INSERT INTO vol_bbread (post_id,entity_id,bbread_date_checked) VALUES (in_post_id,in_account_id,new_comment_timestamp) ON DUPLICATE KEY UPDATE bbread_date_checked=VALUES(bbread_date_checked);
+		SELECT new_comment_id,new_comment_number;
 	END $$
 DELIMITER ;
 
@@ -831,6 +830,7 @@ CREATE PROCEDURE volp_bbcatchup(IN in_entity_id INT UNSIGNED,IN in_board_id INT 
 	BEGIN
 	DECLARE new_timestamp DATETIME DEFAULT UTC_TIMESTAMP();
 	INSERT INTO vol_bbread (post_id,entity_id,bbread_date_checked) SELECT post_id,in_entity_id,new_timestamp FROM vol_bbpost WHERE board_id=in_board_id ON DUPLICATE KEY UPDATE bbread_date_checked=new_timestamp;
+  SELECT in_board_id;
 	END $$
 DELIMITER ;
 
@@ -1138,7 +1138,7 @@ CREATE TABLE IF NOT EXISTS vol_ctrait (
 CREATE TABLE IF NOT EXISTS vol_clink (
 	clink_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	clink_display_num MEDIUMINT UNSIGNED NOT NULL,
-	character_id MEDIUMINT UNSIGNED NOT NULL,
+	character_id INT UNSIGNED NOT NULL,
 	centity_id INT UNSIGNED NOT NULL,
 	clink_approved BOOL NOT NULL DEFAULT FALSE,
 	clink_parent MEDIUMINT UNSIGNED NULL,

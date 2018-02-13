@@ -8,9 +8,7 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 &IDLE_SECS [u(cobj,accounts)]=1800
 &TIMEZONE [u(cobj,accounts)]=UTC
 
-&ACONNECT`SUITE`MAIL [u(cobj,ancestor_player)]=@stop u(isguest,%@);@check u(op,MAIL);+mailcheck
-
-&CMD`MAILCHECK [u(cobj,account)]=$+mailcheck:@attach %!/INC`CHECKPC=%#,1;@select/inline t(words(u(setr,ualts,u(FILTER,UMAIL,u(alts,%q<t1>)))))=1,{@pemit %0=ansi(hy,Unread Mail(s) by Character(s):) [iter(u(sortname,%q<ualts>),ansi(h,name(%i0)) ([u(umail,%i0)]),%b,\,%b)]},0,{@pemit %0=ansi(hy,You have no unread mail.)}
+&CMD`MAILCHECK [u(cobj,account)]=$+mailcheck:@attach %!/INC`CHECKPC=%#,1;@select/inline t(words(u(setr,ualts,u(FILTER,UMAIL,u(alts,%q<t1>)))))=1,{@pemit %#=ansi(hy,Unread Mail(s) by Character(s):) [iter(u(sortname,%q<ualts>),ansi(h,name(%i0)) ([u(umail,%i0)]),%b,\,%b)]},0,{@pemit %#=ansi(hy,You have no unread mail.)}
 &FIL`UMAIL [u(cobj,ccp)]=t(u(umail,%0))
 
 &SYSTEM`SWITCHES [u(cobj,account)]=setunion(setunion(setunion(u(SWITCHES`PLAYER),if(u(isadmin,%#),u(SWITCHES`ADMIN)),|,|),if(cor(u(OPEN_CREATION),u(conf,OPEN_ACCOUNT)),v(SWITCHES`OPEN_CREATION)),|,|),if(u(iswizard,%#),u(SWITCHES`WIZARD)),|,|)
@@ -47,6 +45,15 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 &CONFIG`CHANNELS_GUESTS`DEFAULT [u(cobj,account)]=
 &CONFIG`CHANNELS_GUESTS`VALID [u(cobj,account)]=LIST
 
+
+@aconnect [u(cobj,account)]=@stop u(isguest,%@);@check u(op,ACCOUNT,MAIL);@attach %!/CMD`MAILCHECK
+
+&OPTION`OPTIONS [u(cobj,account)]=MAIL
+
+&CONFIG`MAIL [u(cobj,account)]=Display @mail for all alts on Login?
+&CONFIG`MAIL`DEFAULT [u(cobj,account)]=1
+&CONFIG`MAIL`VALID [u(cobj,account)]=BOOL
+
 @@ ****** ACCOUNT SECTION *******
 &CMD`+ACCOUNT`PENNMUSH [u(cobj,account)]=$^(?\:\+)?account(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ACCOUNT`MAIN
 @set [u(cobj,account)]/CMD`+ACCOUNT`PENNMUSH=regexp
@@ -55,7 +62,7 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 &CMD`+ACCOUNT`MAIN [u(cobj,account)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
 @set [u(cobj,account)]/CMD`+ACCOUNT`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&SWITCHES`PLAYER [u(cobj,account)]=EMAIL
+&SWITCHES`PLAYER [u(cobj,account)]=EMAIL|OPTIONS|OPTION
 &SWITCHES`ADMIN [u(cobj,account)]=BIND|UNBIND|UNBOUND|CREATE|LIST|RENAME|INACTIVE|CONFIG
 &SWITCHES`WIZARD [u(cobj,account)]=ENABLE|DISABLE
 &SWITCHES`OPEN_CREATION [u(cobj,account)]=REQUEST|ACCEPT|NEW|RENAME
@@ -139,9 +146,11 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 
 &Q`UPDATE`CHARACTER_LAST [u(cobj,account)]=UPDATE vol_character SET character_date_activity=UTC_TIMESTAMP() WHERE character_id=?
 
-&START`ACCOUNTCHECK [u(cobj,account)]=@trigger %!/LOOP`ACCOUNTCHECK
+&STARTUP [u(cobj,account)]=@trigger %!/LOOP`ACCOUNTCHECK;@hook/ignore @parent=%!,PARENT_IGNORE
 
-&LOOP`ACCOUNTCHECK [u(cobj,account)]=@dolist/inline/nobreak u(lwhoid)={@select/inline [isdbref(get(##/D`ACCOUNT))][strmatch(get(get(##/D`ACCOUNT)/EMAIL),*@*.*)]=0*,{@select/inline t(u(conf,OPEN_ACCOUNT))=1,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] This Character has no Account! This is not supported. Please use [ansi(hw,+account/new <AccountName>)] to register an account. If you already have an account then use +account/request <alt> to begin the registration process.,##},0,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] This Character has no Account! This is not supported. Please contact staff with your email or existing alt/account name to be bound to an account.}},10,{@select/inline t(u(conf,ACCOUNT_RENAME))=1,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] Your Account does not follow the new email Guidelines. Please use [ansi(hw,+account/email <email>)] to fix this. Non-Email addresses may not be eligible for password resets or future database migration.},0,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] Your Account does not follow new Email Guidelines. Please ask staff to give your account an Email Address. Without one you may not be eligible for password resets or future database migration.}}};@wait 1200=@trigger %!/LOOP`ACCOUNTCHECK
+&PARENT_IGNORE [u(cobj,account)]=localize(null(u(setq,arg,after(before(%u,=),%b)))[if(cand(hastype(%#,PLAYER),strmatch(locate(%#,num(%q<arg>),N),%#),not(u(isadmin,%#))),0[pemit(%#,ERROR: You cannot @parent yourself due to the Account System.)]),1])
+
+&LOOP`ACCOUNTCHECK [u(cobj,account)]=@dolist/inline/nobreak u(lwhoid)={@stop u(isguest,##);@select/inline [isdbref(get(##/D`ACCOUNT))][strmatch(get(get(##/D`ACCOUNT)/EMAIL),*@*.*)]=0*,{@select/inline t(u(conf,OPEN_ACCOUNT))=1,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] This Character has no Account! This is not supported. Please use [ansi(hw,+account/new <AccountName>)] to register an account. If you already have an account then use +account/request <alt> to begin the registration process.,##},0,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] This Character has no Account! This is not supported. Please contact staff with your email or existing alt/account name to be bound to an account.}},10,{@select/inline t(u(conf,ACCOUNT_RENAME))=1,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] Your Account does not follow the new email Guidelines. Please use [ansi(hw,+account/email <email>)] to fix this. Accounts lacking addresses may not be eligible for password resets or future database migration.},0,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] Your Account does not follow new Email Guidelines. Please ask staff to give your account an Email Address. Without one you may not be eligible for password resets or future database migration.};@select/inline strmatch(name(get(##/D`ACCOUNT)),*Account*)=1,{@select/inline t(u(conf,ACCOUNT_RENAME))=1,{@attach %!/INC`MSG=Don't you want a better Account name than '[name(get(##/D`ACCOUNT))]'? You can use +account/rename <newname> to fix this! Note: Please pick something sensible\, short\, and memorable. Generic account names might not be migrated in the future!},0,{@attach %!/INC`MSG=Don't you want a better Account name than '[name(get(##/D`ACCOUNT))]'? You can ask Admin to fix this! Note: Please pick something sensible\, short\, and memorable. Generic account names might not be migrated in the future!}}}};@wait 7200=@trigger %!/LOOP`ACCOUNTCHECK
 
 &PLAYER`CREATE`CHANNELS [u(cobj,account)]=@select/inline %va=PennMUSH,{@dolist/inline/delimit | [u(conf,CHANNELS_PLAYERS)]={@channel/on %i0=%0}},RhostMUSH,{}
 

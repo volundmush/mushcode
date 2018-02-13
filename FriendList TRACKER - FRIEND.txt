@@ -3,19 +3,30 @@
 
 th u(NEWCOBJ,FriendList Tracker <FRIEND>,friend,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&CMD`+FRIEND`PENNMUSH [u(cobj,friend)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+FRIEND`MAIN
+&CMD`+FRIEND`PENNMUSH [u(cobj,friend)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+FRIEND`MAIN
 @set [u(cobj,friend)]/CMD`+FRIEND`PENNMUSH=regexp
-&CMD`+FRIEND`RHOSTMUSH [u(cobj,friend)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+FRIEND`MAIN
+&CMD`+FRIEND`RHOSTMUSH [u(cobj,friend)]=$^(?s)(?\:\+)?(?\:watch|wf|friend|friends)(?\:/(\\S+)?)?(?\: +(.*)?)?(?\:=(.*))?$:@attach %!/CMD`+FRIEND`MAIN
 @set [u(cobj,friend)]/CMD`+FRIEND`RHOSTMUSH=regexp
 &CMD`+FRIEND`MAIN [u(cobj,friend)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Guests may not use +watch.;@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
 @set [u(cobj,friend)]/CMD`+FRIEND`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,friend)]=FRIENDS
 &SWITCHES`PLAYER [u(cobj,friend)]=ADD|LIST|DELETE|HIDE|MUTE|ACCADD|ACCDELETE
+&SWITCHES`ADMIN [u(cobj,friend)]=CONFIG
 
-&INC`MAIN [u(cobj,friend)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - Online);@attach %!/INC`WHO`HEADER`MAIN;@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(footer)
+&CONFIG`OPTIONS [u(cobj,friend)]=HEADER|COLUMNS
 
-&INC`LIST [u(cobj,friend)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - All);@attach %!/INC`WHO`HEADER`MAIN;@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)))={@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ID)))={@pemit %#=u(FUN`WHO`PLAYERLINE`MAIN,##)};@pemit %#=u(footer)
+&CONFIG`HEADER [u(cobj,friend)]=List of column names and widths in format of Text~Length. Like Name~20|Location~40. See +help DynamicData
+&CONFIG`HEADER`DEFAULT [u(cobj,friend)]=Name~20|Alias~11|Fac~3|Idle~4|Conn~4|G~1|Location~29
+&CONFIG`HEADER`VALID [u(cobj,friend)]=COLUMNS
+
+&CONFIG`COLUMNS [u(cobj,friend)]=List of Column GETs and widths in format of GET~Length. Check +help DynamicData
+&CONFIG`COLUMNS`DEFAULT [u(cobj,friend)]=NAMELINK~20|ALIAS~11|FACABBR/2~3|HIDEIDLE~>4|HIDECONN~>4|SEX/1~1|LOCATION/1~29
+&CONFIG`COLUMNS`VALID [u(cobj,friend)]=GETTABLE
+
+&INC`MAIN [u(cobj,friend)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - Online);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),u(columnline,u(conf,HEADER)));@select/inline get(%#/D`ACCOUNT`ID)=>0,{@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(playerline,##,u(conf,COLUMNS))}};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(playerline,##,u(conf,COLUMNS))};@pemit %#=u(footer)
+
+&INC`LIST [u(cobj,friend)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - All);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),u(columnline,u(conf,HEADER)));@select/inline get(%#/D`ACCOUNT`ID)=>0,{@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)))={@pemit %#=u(playerline,##,u(conf,COLUMNS))}};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ID)))={@pemit %#=u(playerline,##,u(conf,COLUMNS))};@pemit %#=u(footer)
 
 &INC`ADD [u(cobj,friend)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to add.;@attach %!/INC`CHECKPC=%0,1;@stop match(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are already a friend.;@attach %!/INC`DOSQL=INSERT`WATCH,get(%#/D`ID),%q<t1id>;@attach %!/INC`MSG=%q<t1name> added to your Friends list!
 

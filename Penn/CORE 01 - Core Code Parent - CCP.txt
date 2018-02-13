@@ -25,7 +25,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &STARTUP [u(cobj,ccp)]=@dolist/inline lattr(%!/START`*)={@attach/nobreak %!/##}
 
-&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(game_config header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_config my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink codename getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(game_config header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_options my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink codename getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
 
 @@ &FUNCTIONLIST`EXTRA [u(cobj,ccp)]=
 @@ &FUNCTIONLIST`ADMIN [u(cobj,ccp)]=
@@ -51,9 +51,9 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &FIL`HASATTR [u(cobj,ccp)]=hasattr(%0/%1)
 
 @@ LOCK MANAGER
-&INC`GROUPLOCK [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No lock entered!;@check u(lmin,iter(%0,cand(isdbref(u(setr,fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%#))),cor(not(strlen(after(%i0,/))),if(isint(after(%i0,/)),gte(after(%i0,/),0),hasattr(%q<fgrp>/PERM`[after(%i0,/)])))),|,%B))=@attach %!/INC`MSG=ERROR: One or more group entries did not validate. Group names must be typed correctly and the /rank must be an integer.;th setq(lockstr,u(GROUP_LOCK,%0)[if(%1,|V`ADMIN:>0|FLAG^ROYALTY|FLAG^WIZARD)]);
+&INC`VALID`GROUPLOCK [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No lock entered!;@check u(lmin,iter(%0,cand(isdbref(u(setr,fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%#))),cor(not(strlen(after(%i0,/))),if(isint(after(%i0,/)),gte(after(%i0,/),0),match(u(u(cobj,group)/FUN`PERMS,%q<fgrp>,1),after(%i0,/),|)))),|,%B))=@attach %!/INC`MSG=ERROR: One or more group entries did not validate. Group names must be typed correctly and the /specification must be a Rank integer or a full Permission - sorry\, no partial match.;th setq(value,setr(lockstr,u(GROUP_LOCK,%0))[if(%1,|V`ADMIN:>0|FLAG^ROYALTY|FLAG^WIZARD)]);th u(setq,valueformat,iter(%0,[setq(fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%#))][if(get(%q<fgrp>/SET`PRIVATE),*PRIVATE*,u(%q<fgrp>/GET`NAME))]%B\([if(not(strlen(after(%i0,/))),Member,if(isint(setr(parm,after(%i0,/))),Rank %q<parm>+,ucstr(%q<parm>) Permission))]\),|,%BOR%B))
 
-&GROUP_LOCK [u(cobj,ccp)]=localize(iter(%0,[setq(fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%1))][if(not(strlen(after(%i0,/))),setq(parm,9001),setq(parm,after(%i0,/)))][if(isint(%q<parm>),V`GROUP`[get(%q<fgrp>/D`ID)]:<=[strfirstof(after(%i0,/),9001)],V`GROUP`[get(%q<fgrp>/D`ID)]`PERMISSIONS`%q<parm>:>0)],|,|))
+&GROUP_LOCK [u(cobj,ccp)]=localize(iter(%0,[setq(fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%1))][if(not(strlen(after(%i0,/))),setq(parm,9001),setq(parm,after(%i0,/)))][if(isint(%q<parm>),V`GROUP`[get(%q<fgrp>/D`ID)]:<=[strfirstof(after(%i0,/),9001)],V`GROUP`[get(%q<fgrp>/D`ID)]`PERMISSION`[ucstr(%q<parm>)]:>0)],|,|))
 
 @@ U-FUNCTION SECTION
 
@@ -65,6 +65,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &FIND_IN [u(cobj,ccp)]=locate(%0,%1,TXxi)
 
 &ACCID [u(cobj,ccp)]=default(%0/D`ACCOUNT,if(%1,,%0))
+&FALLBACK [u(cobj,ccp)]=u(strfirstof,get(%0/D`ACCOUNT`ID),get(%0/D`ID))
 
 &ALTS [u(cobj,ccp)]=u(filter,ISOBJID,strfirstof(get(u(accid,%0)/CHARACTERS),objid(%0)))
 &PALTS [u(cobj,ccp)]=alts(%@)
@@ -147,7 +148,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &MONIKER [u(cobj,ccp)]=localize(if(%1,if(setr(col,strfirstof(u(color,%1,NAMES,%0,,1),switch(1,strmatch(num(%0),num(%1)),u(color,%1,ME),strmatch(num(%0),%#),u(color,%1,SPEAKER),u(color,%1,SPEAKER)))),ansi(%q<col>,name(%0)),moniker(%0)),moniker(%0)))
 
-&NAMELINK [u(cobj,ccp)]=localize(u(mxpmenu,u(moniker,%0,1),iter(setr(com,strfirstof(%1,u(conf,NAMELINK)),%i0 [name(%0)],|,|),%q<com>))
+&NAMELINK [u(cobj,ccp)]=localize(u(mxpmenu,u(moniker,%0),iter(setr(com,strfirstof(%1,u(conf,NAMELINK))),%i0 [name(%0)],|,|),%q<com>))
 
 &NAMEGRAB [u(cobj,ccp)]=namegrab(%0,%1)
 
@@ -235,7 +236,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &GETPROPERTY`NAME [u(cobj,ccp)]=u(moniker,%0)
 &GETPROPERTY`ALIAS [u(cobj,ccp)]=if(%1,u(fullalias,%0),u(getalias,%0))
 &GETPROPERTY`ALIASNAME [u(cobj,ccp)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
-&GETPROPERTY`NAMELINK [u(cobj,ccp)]=u(namelink,%0,edit(%1,^,|))
+&GETPROPERTY`NAMELINK [u(cobj,ccp)]=u(namelink,%0,edit(%1,^^^,|))
 &GETPROPERTY`HIDEIDLE [u(cobj,ccp)]=u(hideidle,%0)
 &GETPROPERTY`HIDECONN [u(cobj,ccp)]=u(hideconn,%0)
 &GETPROPERTY`LASTIDLE [u(cobj,ccp)]=u(lastidle,%0)
@@ -252,13 +253,13 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &GETPROPERTY`SCENE [u(cobj,ccp)]=if(default(%0/D`OBSERVER,0),ansi(hw,OBS),default(%0/D`SCENE,???))
 
 &GETPROPERTY`GROUPDB [u(cobj,ccp)]=if(%1,elements(get(%0/V`TIERS),%1),get(%0/V`TIERS))
-&GETPROPERTY`TIERDB [u(cobj,ccp)]=if(%1,elements(get(%0/V`TIERS`%1),%2),get(%0/V`TIERS`%1))
-&GETPROPERTY`FACTION [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`groupdb,%0,1))),u(%q<grp>/GET`NAME))
-&GETPROPERTY`FACABBR [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`groupdb,%0,1))),u(%q<grp>/GET`ABBREVIATION))
-&GETPROPERTY`FACLETTER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`groupdb,%0,1))),u(%q<grp>/GET`LETTER))
-&GETPROPERTY`FACRANK [u(cobj,ccp)]=if(isdbref(setr(grp,num(u(getproperty`groupdb,%0,1)))),setq(title,get(%0/D`GROUP`%q<grp>`TITLE))[setq(rankname,get(%q<grp>/RANK`[setr(rank,get(%0/D`GROUP`%q<grp>`RANK))]`NAME))][setq(disp,if(%1,u(strfirstof,%q<title>,%q<rankname>),%q<rankname>))][if(%2,%q<rank>-%q<disp>,%q<disp>)])
+&GETPROPERTY`TIERDB [u(cobj,ccp)]=if(%2,elements(get(%0/V`TIERS`%1),%2),get(%0/V`TIERS`%1))
+&GETPROPERTY`FACTION [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`tierdb,%0,%1,1))),u(%q<grp>/GET`NAME))
+&GETPROPERTY`FACABBR [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`tierdb,%0,%1,1))),u(%q<grp>/GET`ABBREVIATION))
+&GETPROPERTY`FACLETTER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`tierdb,%0,%1,1))),u(%q<grp>/GET`LETTER))
+&GETPROPERTY`FACRANK [u(cobj,ccp)]=if(isdbref(setr(grp,num(u(getproperty`tierdb,%0,%1,1)))),setq(title,get(%0/D`GROUP`%q<grp>`TITLE))[setq(rankname,get(%q<grp>/RANK`[setr(rank,get(%0/D`GROUP`%q<grp>`RANK))]`NAME))][setq(disp,if(%2,u(strfirstof,%q<title>,%q<rankname>),%q<rankname>))][if(%3,%q<rank>-%q<disp>,%q<disp>)])
 &GETPROPERTY`GROUPS [u(cobj,ccp)]=iter(rest(u(getproperty`groupdb,%0,%1)),u(%i0/GET`NAME),%b,if(%2,|,\,%b))
-&GETPROPERTY`BANNER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`groupdb,%0,1))),u(%q<grp>/GET`COLORIZE,name(%0)),u(moniker,%0))
+&GETPROPERTY`BANNER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`tierdb,%0,%1,1))),u(%q<grp>/GET`COLORIZE,name(%0)),u(moniker,%0))
 
 &GETPROPERTY`GROUPNAMES [u(cobj,ccp)]=iter(u(getproperty`groupdb,%0,%1),u(%i0/GET`NAME),%b,if(%2,|,\,%b))
 &GETPROPERTY`TIERNAMES [u(cobj,ccp)]=iter(u(getproperty`tierdb,%0,%1,%2),u(%i0/GET`NAME),%b,if(%3,|,\,%b))
@@ -271,9 +272,9 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &GETPROP [u(cobj,ccp)]=u(strfirstof,u(getproperty,%0,setr(fget,elements(setr(get,before(%1,~)),1,/)),elements(%q<get>,2,/),elements(%q<get>,3,/),elements(%q<get>,4,/),elements(%q<get>,5,/)),if(strlen(%2),get(%0/%2`%q<fget>)))
 
-&INC`VALID`COLUMNS [u(cobj,ccp)]=@check strlen(setr(value,stripansi(trim(%0))))=@attach %!/INC`MSG=ERROR: No Columns data given!;@check strmatch(u(COLUMNLINE,%q<value>),*#-1*)=@attach %!/INC`MSG=ERROR: Column definition results in an Error. Check input and try again. +help DynamicData
+&INC`VALID`COLUMNS [u(cobj,ccp)]=@check strlen(setr(value,stripansi(trim(%0))))=@attach %!/INC`MSG=ERROR: No Columns data given!;@stop strmatch(u(COLUMNLINE,%q<value>),*#-1*)=@attach %!/INC`MSG=ERROR: Column definition results in an Error. Check input and try again. +help DynamicData
 
-&INC`VALID`GETTABLE [u(cobj,ccp)]=@check strlen(setr(value,stripansi(trim(%0))))=@attach %!/INC`MSG=ERROR: No Columns data given!;@check strmatch(u(PLAYERLINE,%#,%q<value>),*#-1*)=@attach %!/INC`MSG=ERROR: GetTable definition results in an Error. Check input and try again. +help DynamicData
+&INC`VALID`GETTABLE [u(cobj,ccp)]=@check strlen(setr(value,stripansi(trim(%0))))=@attach %!/INC`MSG=ERROR: No Columns data given!;@stop strmatch(u(PLAYERLINE,%#,%q<value>),*#-1*)=@attach %!/INC`MSG=ERROR: GetTable definition results in an Error. Check input and try again. +help DynamicData
 
 &chan_title_len [u(cobj,ccp)]=config(chan_title_len)
 
@@ -343,9 +344,9 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &CMD`+GAMECONFIG`MAIN [u(cobj,ccp)]=@attach %!/INC`CONFIG=%2,%3
 
 &INC`CONFIG [u(cobj,ccp)]=@select/inline strlen(%0)=0,{@attach %!/INC`CONFIG`DISPLAY},{@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Changing Config requires Wizard permissions.;@attach %!/INC`CONFIG`CHANGE}
-&INC`CONFIG`DISPLAY [u(cobj,ccp)]=@pemit %#=u(header,u(SYSTEM`NAME) Configuration);@dolist/inline/delimit | [v(CONFIG`OPTIONS)]={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10),v(CONFIG`##`VALID),ansi(hw,DESCRIPTION:),v(CONFIG`##));@pemit %#=[rjust(ansi(hw,DEFAULT:),10)]%b[v(CONFIG`##`DEFAULT)];@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[u(conf,##)]};@pemit %#=u(footer)
+&INC`CONFIG`DISPLAY [u(cobj,ccp)]=@pemit %#=u(header,u(SYSTEM`NAME) Configuration);@dolist/inline/delimit | [v(CONFIG`OPTIONS)]={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10),v(CONFIG`##`VALID),ansi(hw,DESCRIPTION:),v(CONFIG`##));@pemit %#=[rjust(ansi(hw,DEFAULT:),10)]%b[v(CONFIG`##`DEFAULT)];@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[u(setr,cur,u(conf,##))];@select/inline cand(strlen(u(setr,form,get(%!/CONFIG`##`FORMATTED))),not(strmatch(%q<form>,%q<cur>)))=1,{@pemit %#=[rjust(ansi(hw,FORMATTED:),10)]%B%q<form>}};@pemit %#=u(footer)
 &INC`CONFIG`CHANGE [u(cobj,ccp)]=@attach %!/INC`PARTIAL=%0,v(CONFIG`OPTIONS),|,op,Option;@select/inline strlen(%1)=>0,{@attach %!/INC`CONFIG`SET},{@attach %!/INC`CONFIG`CLEAR}
-&INC`CONFIG`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(CONFIG`%q<op>`VALID)]=%1;th u(attrib_set,%!,CONFIG`%q<op>`CUSTOM,%q<value>);@attach %!/INC`MSG=You set Config Option '%q<op>' to: %q<value>;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' set to: %q<value>;@attach %!/CONFIG`%q<op>`FINISH
+&INC`CONFIG`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(CONFIG`%q<op>`VALID)]=%1;th u(attrib_set,%!,CONFIG`%q<op>`CUSTOM,%q<value>);th u(attrib_set,%!,CONFIG`%q<op>`FORMATTED,%q<valueformat>);@attach %!/INC`MSG=You set Config Option '%q<op>' to: %q<value>;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' set to: %q<value>;@attach %!/CONFIG`%q<op>`FINISH
 &INC`CONFIG`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=%!,CONFIG`%q<op>`CUSTOM;@attach %!/INC`MSG=You set Config Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' reset to Default.;@attach %!/CONFIG`%q<op>`FINISH
 
 &CONFIG`OPTIONS [u(cobj,ccp)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|REQUIRE_APPROVAL|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|STAFF_GROUP|ROOM_PLAYERS|ROOM_THINGS|ROOM_EXITS|EXIT_COLOR|EXIT_ALIAS
@@ -459,16 +460,18 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 @@ Options System!
 &CMD`+OPTIONS`PENNMUSH [u(cobj,ccp)]=$^\+options(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+OPTIONS`MAIN
 @set [u(cobj,ccp)]/CMD`+OPTIONS`PENNMUSH=regexp no_inherit
-&CMD`+OPTIONS`MAIN [u(cobj,ccp)]=@attach %!/INC`OPTION=%2,%3
+&CMD`+OPTIONS`MAIN [u(cobj,ccp)]=@attach %!/INC`OPTION=%2,%3,SYSTEM
 
+&INC`OPTIONS [u(cobj,ccp)]=@attach %!/INC`OPTION
 &INC`OPTION [u(cobj,ccp)]=@select/inline strlen(%0)=0,{@attach %!/INC`OPTION`DISPLAY},{@attach %!/INC`OPTION`CHANGE}
-&INC`OPTION`DISPLAY [u(cobj,ccp)]=@pemit %#=u(header,u(SYSTEM`NAME) Options);@dolist/inline/delimit | [v(OPTION`OPTIONS)]={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10)%R[rjust(ansi(hw,DEFAULT:),10)],v(OPTION`##`VALID)%R[v(OPTION`##`DEFAULT)],ansi(hw,DESCRIPTION:),v(OPTION`##));@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[u(op,##)]};@pemit %#=u(footer)
+&INC`OPTION`DISPLAY [u(cobj,ccp)]=@pemit %#=u(header,u(SYSTEM`NAME) Options);@dolist/inline/delimit | [v(OPTION`OPTIONS)]={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10)%R[rjust(ansi(hw,DEFAULT:),10)],v(OPTION`##`VALID)%R[v(OPTION`##`DEFAULT)],ansi(hw,DESCRIPTION:),v(OPTION`##));@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[u(setr,cur,u(op,%2,##))];@select/inline cand(strlen(u(setr,form,get(u(accid,%#)/OPTION`%2`##`FORMATTED))),not(strmatch(%q<form>,%q<cur>)))=1,{@pemit %#=[rjust(ansi(hw,FORMATTED:),10)]%B%q<form>}};@pemit %#=u(footer)
 &INC`OPTION`CHANGE [u(cobj,ccp)]=@attach %!/INC`PARTIAL=%0,v(OPTION`OPTIONS),|,op,Option;@select/inline strlen(%1)=>0,{@attach %!/INC`OPTION`SET},{@attach %!/INC`OPTION`CLEAR}
-&INC`OPTION`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(OPTION`%q<op>`VALID)]=%1;th u(attrib_set,u(accid,%#),OPTION`%q<op>`CUSTOM,%q<value>);@attach %!/INC`MSG=You set OPTION Option '%q<op>' to: %q<value>;@attach %!/INC`MSG=OPTION Option '%q<op>' set to: %q<value>;@attach %!/OPTION`%q<op>`FINISH
-&INC`OPTION`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=u(accid,%#),OPTION`%q<op>`CUSTOM;@attach %!/INC`MSG=You set OPTION Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=OPTION Option '%q<op>' reset to Default.;@attach %!/OPTION`%q<op>`FINISH
+&INC`OPTION`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(OPTION`%q<op>`VALID)]=%1;th u(attrib_set,u(accid,%#),OPTION`%2`%q<op>`CUSTOM,%q<value>);th u(attrib_set,u(accid,%#),OPTION`%2`%q<op>`FORMATTED,%q<valueformat>);@attach %!/INC`MSG=You set OPTION Option '%q<op>' to: %q<value>;@attach %!/INC`MSG=OPTION Option '%q<op>' set to: %q<value>;@attach %!/OPTION`%q<op>`FINISH
+&INC`OPTION`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=u(accid,%#),OPTION`%2`%q<op>`CUSTOM;@attach %!/INC`MSG=You set OPTION Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=OPTION Option '%q<op>' reset to Default.;@attach %!/OPTION`%q<op>`FINISH
 
-&OP [u(cobj,ccp)]=strfirstof(get(%#/OPTION`%0`CUSTOM),v(OPTION`%0`DEFAULT))
-&OPOTHER [u(cobj,ccp)]=strfirstof(get(u(accid,%0)/OPTION`%1`CUSTOM),v(OPTION`%1`DEFAULT))
+&OP [u(cobj,ccp)]=strfirstof(get(%#/OPTION`%0`%1`CUSTOM),v(OPTION`%1`DEFAULT))
+&OPOTHER [u(cobj,ccp)]=strfirstof(get(%0/OPTION`%1`%2`CUSTOM),v(OPTION`%2`DEFAULT))
+&MY_OPTIONS [u(cobj,ccp)]=u(opother,%@,%0,%1)
 
 &OPTION`OPTIONS [u(cobj,ccp)]=TIMEZONE|IDLE|MAIL
 @set [u(cobj,ccp)]/OPTION`OPTIONS=no_inherit
@@ -476,7 +479,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &OPTION`TIMEZONE [u(cobj,ccp)]=Timezone used for all displays. See help timezones2 for a list. Is case-sensitive.
 &OPTION`TIMEZONE`DEFAULT [u(cobj,ccp)]=UTC
 &OPTION`TIMEZONE`VALID [u(cobj,ccp)]=TIMEZONE
-&OPTION`TIMEZONE`FINISH [u(cobj,ccp)]=&TIMEZONE [u(accid,%#)]=%q<value>
+&OPTION`TIMEZONE`FINISH [u(cobj,ccp)]=@tz [u(accid,%#)]=%q<value>
 
 &OPTION`IDLE [u(cobj,ccp)]=Seconds until pagers receive idle message. Only works if you haven't set an @idle. You must use @idle if you want a custom message.
 &OPTION`IDLE`DEFAULT [u(cobj,ccp)]=1800
@@ -517,20 +520,26 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &DELETE [u(cobj,ccp)]=@set %0=!SAFE;@nuke %0;@nuke %0
 
-&INC`VALID`EMAIL [u(cobj,ccp)]=th setq(value,trim(%0));@check strlen(%q<value>)=@attach %!/INC`MSG=ERROR: Nothing entered!;@check lte(strlen(%q<value>),255)=@attach %!/INC`MSG=ERROR: Emails must be 255 characters or less.;@stop strmatch(%q<value>,* *)=@attach %!/INC`MSG=ERROR: Email addresses may not contain spaces.;@check strmatch(%q<value>,*@*.*)=@attach %!/INC`MSG=ERROR: An Email must be in the format: *@*.* (example@game.com).
-&INC`VALID`COLOR [u(cobj,ccp)]=@stop strmatch(ansi(setr(value,%0),Test),#-*)=@attach %!/INC`MSG=ERROR: '%0' is not a valid color.
-&INC`VALID`WORD [u(cobj,ccp)]=th setq(value,trim(%0))
-&INC`VALID`LIST [u(cobj,ccp)]=th setq(value,trim(%0))
-&INC`VALID`BOOL [u(cobj,ccp)]=@check match(0 1,setr(value,%0))=@attach %!/INC`MSG={ERROR: BOOL options can only be 0 (false) or 1 (true).}
-&INC`VALID`DBREF [u(cobj,ccp)]=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th setq(value,objid(%0))
-&INC`VALID`TIMEZONE [u(cobj,ccp)]=@check valid(timezone,setr(value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone}
-&INC`VALID`DURATION [u(cobj,ccp)]=@check setr(value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()}
-&INC`VALID`POSINT [u(cobj,ccp)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[strfirstof(%1,%0)]' must be a whole number 1 or greater.};th setq(value,%0)
-&INC`VALID`INT [u(cobj,ccp)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th setq(value,%0)
-&INC`VALID`LOCK [u(cobj,ccp)]=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th setq(value,%0)
-&INC`VALID`TIME [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=You didn't enter a date!;@check gt(setr(value,convtime(%0,u(gettz,%#))),0)=@attach %!/INC`MSG=The entered date was not recognized. Did you typo? Dates should be in abbreviated 24-hour <month> <day> <hour>:<minute> format using YOUR timezone\, such as Jun 26 7:00 or Oct 31 13:00.;
+&INC`VALID`EMAIL [u(cobj,ccp)]=th setq(value,trim(%0));@check strlen(%q<value>)=@attach %!/INC`MSG=ERROR: Nothing entered!;@check lte(strlen(%q<value>),255)=@attach %!/INC`MSG=ERROR: Emails must be 255 characters or less.;@stop strmatch(%q<value>,* *)=@attach %!/INC`MSG=ERROR: Email addresses may not contain spaces.;@check strmatch(%q<value>,*@*.*)=@attach %!/INC`MSG=ERROR: An Email must be in the format: *@*.* (example@game.com).;th u(setq,valueformat,%q<value>)
+&INC`VALID`COLOR [u(cobj,ccp)]=@stop strmatch(ansi(setr(value,%0),Test),#-*)=@attach %!/INC`MSG=ERROR: '%0' is not a valid color.;th u(setq,valueformat,ansi(%q<value>,%q<value>))
+&INC`VALID`WORD [u(cobj,ccp)]=th setq(value,trim(%0));th u(setq,valueformat,%q<value>)
+&INC`VALID`LIST [u(cobj,ccp)]=th setq(value,trim(%0));th u(setq,valueformat,%q<value>)
+&INC`VALID`BOOL [u(cobj,ccp)]=@check match(0 1,setr(value,%0))=@attach %!/INC`MSG={ERROR: BOOL options can only be 0 (false) or 1 (true).};th u(setq,valueformat,if(%q<value>,True,False))
+&INC`VALID`DBREF [u(cobj,ccp)]=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th setq(value,objid(%0));th u(setq,valueformat,name(%q<value>))
+&INC`VALID`TIMEZONE [u(cobj,ccp)]=@check valid(timezone,setr(value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone};th u(setq,valueformat,%q<value>)
+&INC`VALID`DURATION [u(cobj,ccp)]=@check setr(value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()};th u(setq,valueformat,etime(%q<value>))
+&INC`VALID`POSINT [u(cobj,ccp)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[strfirstof(%1,%0)]' must be a whole number 1 or greater.};th setq(value,%0);th u(setq,valueformat,%q<value>)
+&INC`VALID`INT [u(cobj,ccp)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th setq(value,%0);th u(setq,valueformat,%q<value>)
+&INC`VALID`LOCK [u(cobj,ccp)]=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th setq(value,%0);th u(setq,valueformat,%q<value>)
+&INC`VALID`TIME [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=You didn't enter a date!;@check gt(setr(value,convtime(%0,u(gettz,%#))),0)=@attach %!/INC`MSG=The entered date was not recognized. Did you typo? Dates should be in abbreviated 24-hour <month> <day> <hour>:<minute> format using YOUR timezone\, such as Jun 26 7:00 or Oct 31 13:00.;th u(setq,valueformat,convsecs(%q<value>,UTC))
 &INC`VALID`FUTURE [u(cobj,ccp)]=@attach %!/INC`VALID`TIME;@check gt(%q<value>,secs())=@attach %!/INC`MSG=That would be in the past!
-&INC`VALID`GROUP [u(cobj,ccp)]=@check isdbref(u(setr,value,objid(u(u(cobj,group)/FUN`FINDGROUP,%0,%:))))=@attach %!/INC`MSG=ERROR: Group '%0' not found.
+&INC`VALID`GROUP [u(cobj,ccp)]=@check isdbref(u(setr,value,objid(u(u(cobj,group)/FUN`FINDGROUP,%0,%:))))=@attach %!/INC`MSG=ERROR: Group '%0' not found.;th u(setq,valueformat,u(%q<value>/GET`NAME))
+
+&INC`VALID`GROUPLIST [u(Cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No GroupList entered!;@dolist/inline/delimit | %0={@attach %!/INC`VALID`GROUP=before(u(choosegame,%i0,%d0),/);th u(setq,finalvalue,squish(cat(%q<finalvalue>,%q<value>)))};th u(setq,value,%q<finalvalue>);th u(setq,valueformat,iter(%q<value>,u(%i0/GET`NAME),%b,\,%b))
+
+&INC`VALID`RADIO [u(Cobj,ccp)]=@check isdbref(u(setr,value,objid(u(u(cobj,radio)/FUN`FINDFREQ,%0,%:))))=@attach %!/INC`MSG=ERROR: Radio '%0' not found.;th u(setq,valueformat,u(moniker,%q<value>))
+
+&INC`VALID`RADIOLIST [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No RadioList entered!;@dolist/inline/delimit | %0={@attach %!/INC`VALID`RADIO=before(u(choosegame,%i0,%d0),/);th u(setq,finalvalue,squish(cat(%q<finalvalue>,%q<value>)))};th u(setq,value,%q<finalvalue>);th u(setq,valueformat,iter(%q<value>,u(moniker,%i0),%b,\,%b))
 
 @@ MOVEMENT SECTION
 &INC`CANRELOCATE [u(cobj,ccp)]=@select/inline cor(u(isadmin,%#),u(isadmin,%0))=0,{@check elock(loc(%0)/leave,%0)=@attach %!/INC`MSG=LEAVE @lock Failure.;@check elock(%1/Enter,%0)=@attach %!/INC`MSG=ENTER @lock failure.;@check elock(%1/Teleport,%0)=@attach %!/INC`MSG=TELEPORT @lock failure.}
@@ -538,10 +547,10 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &INC`RELOCATE [u(cobj,ccp)]=@select/inline u(ishidden,%0)=1,{@tel/silent %0=%1},{@tel %0=%1}
 
 @@ MESSAGING SECTION
-&INC`MSG [u(cobj,ccp)]=@message strfirstof(%1,%#)=%0,%!/MSG,##,%0,%1,strfirstof(%2,u(SYSTEM`NAME))
-@@ %0 - Message. %1 - Recipients. %2 - System name override.
+&INC`MSG [u(cobj,ccp)]=@message strfirstof(%1,%#)=%0,%!/MSG,##,%0,%1,strfirstof(%2,u(SYSTEM`NAME)),%3,%4,%5,%6
+@@ %0 - Message. %1 - Recipients. %2 - System name override. %3 - Bool. Format dates?
 
-&INC`MSG`ROOM [u(cobj,ccp)]=@message strfirstof(%1,lcon(%l))=%0,%!/RMSG,##,%0,%1,u(SYSTEM`NAME),strfirstof(%4,%#)
+&INC`MSG`ROOM [u(cobj,ccp)]=@message strfirstof(%1,lcon(%l))=%0,%!/RMSG,##,%0,%1,u(SYSTEM`NAME),strfirstof(%4,%#),%5,%6,%7,%8
 
 &INC`MSG`NOTICE [u(cobj,ccp)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(conf,ANONYMOUS_NOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
@@ -550,8 +559,10 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &INC`MSG`SYSCHAN [u(cobj,ccp)]=th setq(chanmsg,[if(not(%5),ansi(h,\[[strfirstof(%4,SYSTEM)]\]%B))][if(cand(strlen(strfirstof(%2,u(SYSTEM`NAME))),not(%3)),strfirstof(%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit/noisy %i0=%q<chanmsg>}
 
-&MSG [u(cobj,ccp)]=u(msghead,%3,%0) %1
+&MSG [u(cobj,ccp)]=u(msghead,%3,%0) [if(%4,regeditalli(%1,v(REG`ENCODETIME),u(fancytime,$<time>,u(gettz,%0))),%1)]
 &RMSG [u(cobj,ccp)]=u(msgroom,%3,%0) \[[ansi(h,u(moniker,%4))]\] %1
+
+&REG`ENCODETIME [u(cobj,ccp)]=\^\^\^(?P<time>\d+)\^\^\^
 
 &MSGHEAD [u(cobj,ccp)]=localize(ansi(setr(msgcolor,u(color,u(firstof,%1,%#),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
 &MSGROOM [u(cobj,ccp)]=localize(ansi(setr(msgcolor,u(color,u(firstof,%1,%#),MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
@@ -581,10 +592,10 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &REG`MARKUP [u(cobj,ccp)]=\^\^\^(#\d+)\:([^^]+)\^\^\^
 
-@@ &SPEECH`PENNMUSH [u(cobj,ccp)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),setr(quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>)
+@@ &SPEECH`PENNMUSH [u(cobj,ccp)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),setr(quote,ansi(u(opother,%2,%4,QUOTES),"))[ansi(u(opother,%2,%4,SPEECH),$1)]%q<quote>)
 
 
-&SPEECH [u(cobj,ccp)]=[setq(quote,ansi(u(player_config,%2,%4,QUOTES),"))][setq(speechcol,u(player_config,%2,%4,SPEECH))][regeditalli(speakpenn(&[if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),u(moniker,%0,%2)))],%1),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)]
+&SPEECH [u(cobj,ccp)]=[setq(quote,ansi(u(opother,%2,%4,QUOTES),"))][setq(speechcol,u(opother,%2,%4,SPEECH))][regeditalli(speakpenn(&[if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),u(moniker,%0,%2)))],%1),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)]
 @@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup. %6 - Banner override bool.
 
 &REG`SPEECH [u(cobj,ccp)]=(?s)"([^ "][^"]*[^ "])"
