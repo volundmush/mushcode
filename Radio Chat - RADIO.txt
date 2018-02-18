@@ -1,13 +1,14 @@
 @@ DEPENDENCIES - CORE
 
 th u(NEWCOBJ,Radio Management System <RADIO>,radio,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
-th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,1,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
 &SEE_LOCK [u(cobj,freq)]=#TRUE
 &JOIN_LOCK [u(cobj,freq)]=#TRUE
 &SPEAK_LOCK [u(cobj,freq)]=#TRUE
 &MODERATE_LOCK [u(cobj,freq)]=#FALSE
 &ADMIN_LOCK [u(cobj,freq)]=#FALSE
+
 
 &CMD`+RADIO`PENNMUSH [u(cobj,radio)]=$^(?s)(?\:\+)?(radio|freq|tune)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+RADIO`MAIN
 @set [u(cobj,radio)]/CMD`+RADIO`PENNMUSH=regexp
@@ -84,7 +85,7 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,1,WIZARD SAFE !NO
 
 &INC`ALIAS [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@attach %!/INC`NAMECHECK=%1;@select/inline strmatch(%0,%1)=0,{@stop hasattr(%#/D`RADIO`%1)=@attach %!/INC`MSG=ERROR: That alias is already in use.;@attach %!/INC`MVTREE=%#,%q<slot>,%#,D`RADIO`%1};&D`RADIO`%1`NAME %#=%1;@attach %!/INC`MSG=You rename Slot '%0' to '%1';@mvattr %#/RADIO_%0=%#/RADIO_%1;@attach %!/INC`UPDATESLOTS=%#,%q<freq>
 
-&INC`CODENAME [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@select/inline strlen(%1)=0,{@attach %!/INC`MSG=Radio Slot %q<slotname>'s Codename has been Cleared!;&%q<slot>`CODENAME %#},{th u(setq,codename,trim(%1));@stop u(charsearch,%q<codename>,%r %t)=@attach %!/INC`MSG=ERROR: Codenames may not contain linebreaks or tabs.;@stop gt(strlen(%q<codename>),u(PLAYER_NAME_LEN))=@attach %!/INC`MSG=ERROR: Codename is beyond the allowed [u(PLAYER_NAME_LEN)] characters.;@stop words(setdiff(u(choosegame,lsearch(all,eplayer,\[strlen(wildgrepi(##,D`RADIO`*`CODENAME,%q<codename>))\]),EPLAYER=\[strlen(u(wildgrepi,##,D`RADIO`*`CODENAME,%q<codename>))\]),%#))=@attach %!/INC`MSG=ERROR: Another player is already using that Codename.;@check valid(playername,%q<codename>)=@attach %!/INC`MSG=ERROR: Codenames may not match any player's name or alias.;@attach %!/INC`MSG=Your Codename on Radio Slot %q<slotname> is now: %q<codename>;&%q<slot>`CODENAME %#=%q<codename>}
+&INC`CODENAME [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@select/inline strlen(%1)=0,{@attach %!/INC`MSG=Radio Slot %q<slotname>'s Codename has been Cleared!;&%q<slot>`CODENAME %#},{th u(setq,codename,trim(%1));@stop u(charsearch,%q<codename>,%r %t)=@attach %!/INC`MSG=ERROR: Codenames may not contain linebreaks or tabs.;@stop gt(strlen(%q<codename>),u(PLAYER_NAME_LEN))=@attach %!/INC`MSG=ERROR: Codename is beyond the allowed [u(PLAYER_NAME_LEN)] characters.;@stop cand(not(u(isadmin,%#)),words(setdiff(u(choosegame,lsearch(all,eplayer,\[strlen(wildgrepi(##,D`RADIO`*`CODENAME,%q<codename>))\]),EPLAYER=\[strlen(u(wildgrepi,##,D`RADIO`*`CODENAME,%q<codename>))\]),%#)))=@attach %!/INC`MSG=ERROR: Another player is already using that Codename.;@check cor(valid(playername,%q<codename>),u(isadmin,%#))=@attach %!/INC`MSG=ERROR: Codenames may not match any player's name or alias.;@attach %!/INC`MSG=Your Codename on Radio Slot %q<slotname> is now: %q<codename>;&%q<slot>`CODENAME %#=%q<codename>}
 
 &INC`TITLE [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@select/inline strlen(%1)=0,{@attach %!/INC`MSG=Radio Slot %q<slotname>'s Title has been Cleared!;@attach %!/WIPE=%#,%q<slot>`TITLE},{@stop u(charsearch,%1,%r %t)=@attach %!/INC`MSG=ERROR: Titles may not contain linebreaks or tabs.;@stop gt(strlen(%1),u(PLAYER_NAME_LEN))=@attach %!/INC`MSG=That radio title is too long!;@attach %!/INC`MSG=Your Title on Radio Slot %q<slotname> is now: %1;&%q<slot>`TITLE %#=%1}
 

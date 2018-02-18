@@ -656,6 +656,23 @@ CREATE PROCEDURE volp_group(IN in_group_objid VARCHAR(30),IN in_group_name VARCH
 	END $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS volp_group_division;
+DELIMITER $$
+CREATE PROCEDURE volp_group_division(IN in_division_objid VARCHAR(30),IN in_division_name VARCHAR(255),IN in_division_parent INT UNSIGNED)
+  BEGIN
+    DECLARE found_group_id INT UNSIGNED;
+    SELECT group_id INTO found_group_id FROM volv_group WHERE group_objid=in_division_objid;
+    IF found_group_id IS NULL THEN
+      INSERT INTO vol_entity(entity_objid,entity_name,entity_type) VALUES (in_division_objid,in_division_name,5);
+      SET found_group_id=LAST_INSERT_ID();
+      INSERT INTO vol_group (group_id,group_parent) VALUES (found_group_id,in_division_parent);
+    ELSE
+      UPDATE vol_entity SET entity_name=in_division_name WHERE entity_id=found_group_id;
+    END IF;
+    SELECT found_group_id;
+  END $$
+DELIMITER ;
+
 DROP PROCEDURE IF EXISTS volp_group_rank;
 DELIMITER $$
 CREATE PROCEDURE volp_group_rank(IN in_group_id INT UNSIGNED,IN in_rank_number SMALLINT UNSIGNED,IN in_rank_title VARCHAR(255))

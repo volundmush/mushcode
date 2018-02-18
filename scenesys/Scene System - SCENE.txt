@@ -23,7 +23,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`LOG`CONFIG [u(cobj,scene)]=@attach %!/INC`CONFIG
 
-&CONFIG`OPTIONS [u(cobj,scene)]=URL|PATH|IDLE|BOARD|BANNER|BANNER_TAGS|ROLEPLAY_CHANNEL
+&CONFIG`OPTIONS [u(cobj,scene)]=URL|PATH|IDLE|BOARD|BANNER|BANNER_TAGS|BANNER_TIER|ROLEPLAY_CHANNEL
 
 &CONFIG`URL [u(cobj,scene)]=The base URL for reaching the game's website. Used to generate links. No trailing / please.
 &CONFIG`URL`DEFAULT [u(cobj,scene)]=http://www.example.org
@@ -44,6 +44,10 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &CONFIG`BANNER_TAGS [u(cobj,scene)]=List Tagged players for scheduled scenes using their Faction colors?
 &CONFIG`BANNER_TAGS`DEFAULT [u(cobj,scene)]=1
 &CONFIG`BANNER_TAGS`VALID [u(cobj,scene)]=BOOL
+
+&CONFIG`BANNER_TIER [u(cobj,scene)]=What Tier shall be used for Banner colors? Leave this at default for 'first match.'
+&CONFIG`BANNER_TIER`DEFAULT [u(cobj,scene)]=
+&CONFIG`BANNER_TIER`VALID [u(cobj,scene)]=INT
 
 &CONFIG`ROLEPLAY_CHANNEL [u(cobj,scene)]=Channel to announce scenes on?
 &CONFIG`ROLEPLAY_CHANNEL`DEFAULT [u(cobj,scene)]=
@@ -259,11 +263,11 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &INC`LOADSCENE`REPORTS [u(cobj,scene)]=th u(setq,reports,u(mysql3,LOAD`SCENE_REPORTS,%q<scene>));
 &Q`LOAD`SCENE_REPORTS [u(cobj,scene)]=
 
-&INC`LOG`DETAILS [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@attach %!/INC`LOADSCENE;@dolist/inline PLOT LOCATIONS ACTORS REPORTS={@attach %!/INC`LOADSCENE`%i0};@pemit %#=u(HEADER,Scene %q<scene>[if(strlen(%q<title>),:%B%q<title>)]);@dolist/inline HEADER PLOTS REPORTS ACTORS URL={@attach %!/INC`LOG`DETAILS`%i0};@pemit %#=u(FOOTER)
+&INC`LOG`DETAILS [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@attach %!/INC`LOADSCENE;th u(setq,banner,u(conf,BANNER));@dolist/inline PLOT LOCATIONS ACTORS REPORTS={@attach %!/INC`LOADSCENE`%i0};@pemit %#=u(HEADER,Scene %q<scene>[if(strlen(%q<title>),:%B%q<title>)]);@dolist/inline HEADER PLOTS REPORTS ACTORS URL={@attach %!/INC`LOG`DETAILS`%i0};@pemit %#=u(FOOTER)
 
 &INC`LOG`DETAILS`HEADER [u(cobj,scene)]=@pemit %#=u(SUBHEADER,Details);@pemit %#=ansi(h,Pitch:)%B%q<pitch>;@pemit %#=ansi(h,Started:) [if(%q<started>,u(fancytime,%q<started>,%#),N/A)]%R[ansi(h,Outcome:)] %q<outcome>%R[ansi(h,Status:)] [switch(%q<status>,0,Active,1,Paused,2,Scheduled,3,Finished)];@select/inline strlen(%q<locs>)=>0,{@pemit %#=[ansi(h,Locations:)]%B[iter(%q<locs>,if(isobjid(elements(%i0,2,chr(177))),u(moniker,elements(%i0,2,chr(177))),ansi(hx,elements(%i0,2,chr(177)))),chr(176),\,%b)]}
 
-&INC`LOG`DETAILS`ACTORS [u(cobj,scene)]=@pemit %#=u(SUBHEADER,Players);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(30 30 15,ansi(h,Name),ansi(h,Status),ansi(h,Poses)));@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] %q<actors>={@pemit %#=align(30 30 15,if(isobjid(elements(%i0,2,chr(177))),u(getproperty,elements(%i0,2,chr(177)),banner),ansi(hx,elements(%i0,3,chr(177)))),if(eq(elements(%i0,4,chr(177)),2),Creator,switch(elements(%i0,5,chr(177)),0,Untagged,1,Tagged)),elements(%i0,7,chr(177)))};@select/inline gt(u(setr,total,u(mysql,get`sceneposecount,%q<scene>)),0)=1,{@pemit %#=align(30 >30 15,,Total:,%q<total>)}
+&INC`LOG`DETAILS`ACTORS [u(cobj,scene)]=@pemit %#=u(SUBHEADER,Players);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(30 30 15,ansi(h,Name),ansi(h,Status),ansi(h,Poses)));@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] %q<actors>={@pemit %#=align(30 30 15,if(isobjid(elements(%i0,2,chr(177))),if(%q<banner>,u(getproperty,elements(%i0,2,chr(177)),banner),u(moniker,elements(%i0,2,chr(177)))),ansi(hx,elements(%i0,3,chr(177)))),if(eq(elements(%i0,4,chr(177)),2),Creator,switch(elements(%i0,5,chr(177)),0,Untagged,1,Tagged)),elements(%i0,7,chr(177)))};@select/inline gt(u(setr,total,u(mysql,get`sceneposecount,%q<scene>)),0)=1,{@pemit %#=align(30 >30 15,,Total:,%q<total>)}
 
 &Q`GET`SCENEPOSECOUNT [u(cobj,scene)]=SELECT SUM(action_count) FROM vol_actor_agg WHERE scene_id=?
 
@@ -276,7 +280,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`LOG`WHO [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=u(strfirstof,%0,get(%#/D`SCENE));@attach %!/INC`MSG=Joined participants for Scene %q<scene>: [u(strfirstof,u(itemize,iter(lsearch(all,type,player,elock,D`SCENE:%q<scene>),name(%i0)[if(strmatch(%l,loc(%i0)),,%b\(not present\))],%b,|),|,and,\,),Nobody!)]
 
-&INC`LOG`DELETE [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0,,,,,,1;@attach %!/INC`LOADSCENE;@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),cand(strmatch(%:,%q<ownobjid>),not(u(mysql,action_count,%q<scene>))))=@attach %!/INC`MSG=ERROR: Permission denied.;@select/inline %q<deleted>=1,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will RESTORE Scene %q<scene>. This will not affect the Wiki's copy. Are you sure? Enter the same command to verify.},DELETE SCENE %q<scene>;@attach %!/INC`MESSAGE=%q<scene>,{[u(moniker,%#)] RESTORED deleted Scene %q<scene>.};@attach %!/INC`DOSQL=DELETE`SCENE,0,%q<scene>;@attach %!/INC`MSG`CHAN=Restored Scene %q<scene>.},{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will soft-delete Scene %q<scene>. It will no longer display or be accessible/usable unless restored. This will not affect the Wiki's copy. Are you sure? Enter the same command to verify.},DELETE SCENE %q<scene>;@attach %!/INC`MESSAGE=%q<scene>,{[u(moniker,%#)] deleted Scene %q<scene>.};@attach %!/INC`DOSQL=DELETE`SCENE,1,%q<scene>;@attach %!/INC`MSG=You have Deleted Scene %q<scene>. If this was in error use the command again to undo this.;@attach %!/INC`MSG`CHAN=Deleted Scene %q<scene>. Use +log/delete %q<scene> to undo.};
+&INC`LOG`DELETE [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),cand(strmatch(%:,%q<ownobjid>),not(u(mysql,action_count,%q<scene>))))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strmatch(%q<title>,%1)=@attach %!/INC`MSG=ERROR: Must include the Scene's Title for verification. Syntax: +log/delete <id>=<title>;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will COMPLETELY DELETE Scene %q<scene>. All associated poses and data will go with it. This will not affect the Wiki's copy. Are you sure? Enter the same command to verify.},DELETE SCENE %q<scene>;@attach %!/INC`MESSAGE=%q<scene>,{[u(moniker,%#)] deleted Scene %q<scene>.};@attach %!/INC`DOSQL=DELETE`SCENE,%q<scene>;@attach %!/INC`MSG=You have Deleted Scene %q<scene>. If this was in error use the command again to undo this.;@attach %!/INC`MSG`CHAN=Deleted Scene %q<scene>.;
 
 &Q`DELETE`SCENE [u(cobj,scene)]=DELETE FROM vol_scene WHERE scene_id=?
 
@@ -285,7 +289,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &INC`LOG`ADD [u(cobj,scene)]=@attach %!/INC`LOG`SCHEDULE
 &INC`LOG`SCHEDULE [u(cobj,scene)]=@attach %!/INC`VALID`FUTURE=trim(before(%0,/));@check strlen(u(setr,title,trim(after(%0,/))))=@attach %!/INC`MSG=You need to give the scene a title!;@stop u(charsearch,%q<title>,/ %r %t)=@attach %!/INC`MSG=The following characters are not permitted in titles: /\, \%r\, \%t.;@check strlen(u(setr,desc,%1))=@attach %!/INC`MSG=Your scene needs a Pitch!;@attach %!/INC`DOSQL=NEW`SCHEDULE/scene,u(trimtabs,u(trimlines,%q<title>)),u(trimtabs,u(trimlines,%q<desc>)),%q<value>;@attach %!/INC`DOSQL=SET`ACTOR_TYPE,2,%q<scene>,%q<t1id>;@select/inline cand(isdbref(u(cobj,bbs)),strlen(u(conf,BOARD)),u(setr,bbid,u(mysql,FIND`BB,u(CONF,BOARD))))=1,{@check u(setr,makepost,u(call`6,volp_bbpost,0,%q<t1id>,%q<bbid>,'[sqlescape(#%q<scene>: %q<title>)]','[sqlescape(u(FUN`FORMATPOST,%q<title>,[u(moniker,%#)],u(fancytime,%q<value>,,UTC),%q<desc>))]',0,%q<t1idfallback>))=@attach %!/INC`MSG=ERROR: Could not create post. Reason: %q<makepost>;th iter(postid postnum,u(setq,%i0,elements(%q<makepost>,inum(0))));@attach %!/INC`DOSQL=SET`SCENE_POST,%q<postid>,%q<scene>};@attach %!/INC`MSG`NOTICE=Scheduled new [u(pueblize,Scene %q<scene>: '%q<title>',+log %q<scene>)] on ^^^%q<value>^^^,u(lwhoid),,1
 
-&Q`NEW`SCHEDULE [u(cobj,scene)]=INSERT INTO vol_scene (scene_title,scene_pitch,scene_date_scheduled,scene_date_created) VALUES (?,?,FROM_UNIXTIME(?),UTC_TIMESTAMP())
+&Q`NEW`SCHEDULE [u(cobj,scene)]=INSERT INTO vol_scene (scene_title,scene_pitch,scene_date_scheduled,scene_date_created,scene_status) VALUES (?,?,FROM_UNIXTIME(?),UTC_TIMESTAMP(),4)
 &Q`SET`SCENE_POST [u(cobj,scene)]=UPDATE vol_scene SET post_id=? WHERE scene_id=?
 
 &Q`FIND`BB [u(cobj,scene)]=SELECT board_id FROM volv_board WHERE board_alias=?
@@ -312,7 +316,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &Q`GET`TAGOBJIDS [u(cobj,scene)]=SELECT character_objid FROM volv_actor WHERE scene_id=? AND actor_status=1
 
 &INC`LOG`RESCHEDULE [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),strmatch(%:,%q<ownobjid>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`FUTURE=%1;@attach %!/INC`DOSQL=SET`SCHEDULEDATE,%q<value>,%q<scene>;@attach %!/INC`MSGSCENE=%q<scene>,u(moniker,%#) rescheduled the Scene!;@attach %!/INC`UPDATEBB
-&Q`SET`SCHEDULEDATE [u(cobj,scene)]=UPDATE vol_scene SET scene_date_scheduled=FROM_UNIXTIME(?) WHERE scene_id=?
+&Q`SET`SCHEDULEDATE [u(cobj,scene)]=UPDATE vol_scene SET scene_date_scheduled=FROM_UNIXTIME(?),scene_status=4 WHERE scene_id=?
 
 &INC`LOG`MAIL [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),strmatch(%:,%q<ownobjid>))=@attach %!/INC`MSG=ERROR: Permission denied.;@check words(u(setr,tagged,u(mysql,GET`TAGOBJIDS,%q<scene>)))=@attach %!/INC`MSG=ERROR: Nobody has tagged the scene!;@attach %!/INC`MSG=The OBJID list of recipients to use for a @mail is: %q<tagged>
 

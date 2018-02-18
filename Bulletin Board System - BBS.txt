@@ -14,7 +14,9 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 &CMD`BBWRITE [u(cobj,bbs)]=$^(?s)\+bb(?\: +(.*))?$:th u(setq,sysname,ucstr(%1S));@attach %!/INIT;@attach %!/WRITE`MAIN=%1
 @set [u(cobj,bbs)]/CMD`BBWRITE=regexp
 
-&COMMANDS`PLAYER [u(cobj,bbs)]=INFO|READ|POST|REMOVE|MOVE|SCAN|NEXT|EDIT|WRITE|JOIN|LEAVE|LIST|PROOF|TOSS|CATCHUP|SEARCH|NEW|ALL|COMMENT|BRIEF|ADMIN|OPTIONS|LOGIN
+@aconnect [u(cobj,bbs)]=@check cor(u(op,BBS,AUTOSCAN),u(op,BBS,AUTOBRIEF));@attach %!/CMD`BB`MAIN=+bblogin,login
+
+&COMMANDS`PLAYER [u(cobj,bbs)]=INFO|READ|POST|REMOVE|MOVE|SCAN|NEXT|EDIT|WRITE|JOIN|LEAVE|LIST|PROOF|TOSS|CATCHUP|SEARCH|NEW|ALL|COMMENT|RIEF|BRIEF|ADMIN|OPTIONS|LOGIN
 &COMMANDS`ADMIN [u(cobj,bbs)]=
 &COMMANDS`WIZARD [u(cobj,bbs)]=IMPORT
 
@@ -145,9 +147,9 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 &OPTION`AUTOBRIEF`DEFAULT [u(cobj,bbs)]=0
 &OPTION`AUTOBRIEF`VALID [u(cobj,bbs)]=BOOL
 
-@aconnect [u(cobj,bbs)]=@attach %!/LOGIN`MAIN
 
-&LOGIN`MAIN [u(cobj,bbs)]=@select/inline u(op,BBS,AUTOSCAN)=1,{@attach %!/INIT;@attach %!/SCAN`MAIN};@select/inline u(op,BBS,AUTOBRIEF)=1,{@attach %!/INIT;@attach %!/BRIEF`MAIN}
+&LOGIN`MAIN [u(cobj,bbs)]=@select/inline u(op,BBS,AUTOSCAN)=1,{@attach %!/SCAN`MAIN};@select/inline u(op,BBS,AUTOBRIEF)=1,{@attach %!/BRIEF`MAIN}
+
 
 @@ Post Section
 &INC`VALID`TITLE [u(cobj,bbs)]=@check strlen(u(setr,value,trim(%0)))=@attach %!/INC`MSG=ERROR: Titles cannot be empty.;@stop cor(strmatch(%q<value>,*%r*),strmatch(%q<value>,*%t*))=@attach %!/INC`MSG=ERROR: Titles may not contain linebreaks or indents.
@@ -252,7 +254,7 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 &LEAVE`MAIN [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,1;@stop %q<bbmandatory>=@attach %!/INC`MSG=ERROR: Board is mandatory reading. Cannot leave it.;@stop u(FUN`GETOMIT,%#,%q<bbid>)=@attach %!/INC`MSG=You have already left that board.;th u(FUN`SETOMIT,%#,%q<bbid>,1);@attach %!/INC`MSG=You have removed yourself from the [name(%q<bb>)] board.
 &JOIN`MAIN [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,1;@check u(FUN`GETOMIT,%#,%q<bbid>)=@attach %!/INC`MSG=You are already watching this board.;th u(FUN`SETOMIT,%#,%q<bbid>,0);@attach %!/INC`MSG=You have joined the [name(%q<bb>)] board.
 
-&SCAN`MAIN [u(cobj,bbs)]=@check u(setr,results,u(mysql3,SELECT`BBSCAN,%q<t1accid>,u(sql`in`number,%q<readboardids>)))=@attach %!/INC`MSG=Hooray! No unread posts!;@pemit %#=u(header,u(FUN`NAME) - Unread Posts);th u(setq,section,START);@dolist/delimit/inline [chr(176)] %q<results>={th u(setq,bdat,u(choosegame,%i0,%d0));@select/inline strmatch(%q<section>,u(setr,section,elements(%q<bdat>,4,chr(177))))=0,{@select/inline strlen(%q<section>)=0,{@pemit %#=u(separator,Main Boards)},{@pemit %#=u(separator,u(elements(%q<bdat>,4,chr(177))/GET`NAME) Boards)}};th u(setq,pdat,u(mysql3,SELECT`BBSCAN`ROW,%q<t1accid>,elements(%q<bdat>,3,chr(177))));@pemit %#=[u(pueblize,elements(%q<bdat>,1,chr(177)) \([u(setr,bbalias,elements(%q<bdat>,2,chr(177)))]\),+bbread %q<bbalias>)]: [words(%q<pdat>)][u(setq,total,add(%q<total>,words(%q<pdat>)))] Unread \([iter(%q<pdat>,u(pueblize,%i0,+bbread %q<bbalias>/%i0),%b,\,%b)]\);@select/inline #@=words(%q<results>,chr(176)),{@pemit %#=u(footer,Total Unread: %q<total>)}}
+&SCAN`MAIN [u(cobj,bbs)]=@check u(setr,results,u(mysql3,SELECT`BBSCAN,%q<t1idfallback>,u(sql`in`number,%q<readboardids>)))=@attach %!/INC`MSG=Hooray! No unread posts!;@pemit %#=u(header,u(FUN`NAME) - Unread Posts);th u(setq,section,START);@dolist/delimit/inline [chr(176)] %q<results>={th u(setq,bdat,u(choosegame,%i0,%d0));@select/inline strmatch(%q<section>,u(setr,section,elements(%q<bdat>,4,chr(177))))=0,{@select/inline strlen(%q<section>)=0,{@pemit %#=u(separator,Main Boards)},{@pemit %#=u(separator,u(elements(%q<bdat>,4,chr(177))/GET`NAME) Boards)}};th u(setq,pdat,u(mysql3,SELECT`BBSCAN`ROW,%q<t1accid>,elements(%q<bdat>,3,chr(177))));@pemit %#=[u(pueblize,elements(%q<bdat>,1,chr(177)) \([u(setr,bbalias,elements(%q<bdat>,2,chr(177)))]\),+bbread %q<bbalias>)]: [words(%q<pdat>)][u(setq,total,add(%q<total>,words(%q<pdat>)))] Unread \([iter(%q<pdat>,u(pueblize,%i0,+bbread %q<bbalias>/%i0),%b,\,%b)]\);@select/inline #@=words(%q<results>,chr(176)),{@pemit %#=u(footer,Total Unread: %q<total>)}}
 
 &Q`SELECT`BBSCAN [u(cobj,bbs)]=SELECT b.board_alias,b.board_name,b.board_id,b.group_objid FROM volv_bbpost AS p LEFT JOIN volv_board AS b ON p.board_id=b.board_id LEFT JOIN vol_bbread AS r ON r.post_id=p.post_id AND r.entity_id=? WHERE b.board_id IN (!) AND (r.bbread_date_checked IS NULL OR r.bbread_date_checked<p.post_unread_check) GROUP BY b.board_id HAVING COUNT(p.post_display_num)>0 ORDER BY b.group_name,b.board_number,p.post_display_num
 
@@ -260,7 +262,9 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &Q`SELECT`BBSCAN`BRIEF [u(Cobj,bbs)]=SELECT b.board_alias,b.board_name,b.board_id,b.group_objid,COUNT(p.post_display_num) AS posts_unread FROM volv_bbpost AS p LEFT JOIN volv_board AS b ON p.board_id=b.board_id LEFT JOIN vol_bbread AS r ON r.post_id=p.post_id AND r.entity_id=? WHERE b.board_id IN (!) AND (r.bbread_date_checked IS NULL OR r.bbread_date_checked<p.post_unread_check) GROUP BY b.board_id HAVING COUNT(p.post_display_num)>0 ORDER BY b.group_name,b.board_number,p.post_display_num
 
-&BRIEF`MAIN [u(cobj,bbs)]=@check u(setr,results,u(mysql3,SELECT`BBSCAN,%q<t1accid>,u(setr,numql,u(sql`in`number,%q<readboardids>))))=@attach %!/INC`MSG=Hooray! No unread posts!;@attach %!/INC`MSG=Unread Posts: [iter(u(mysql3,SELECT`BBSCAN`BRIEF,%q<t1accid>,%q<numql>),[if(isobjid(u(setr,gobj,elements(%i0,4,chr(177)))),\([u(%q<gobj>/GET`NAME)]\)%B)][u(pueblize,elements(%i0,1,chr(177)) \([u(setr,bbalias,elements(%i0,2,chr(177)))]\),+bbread %q<bbalias>)]: [elements(%i0,5,chr(177))],chr(176),\,%b)]
+&RIEF`MAIN [u(cobj,bbs)]=@attach %!/BRIEF`MAIN
+
+&BRIEF`MAIN [u(cobj,bbs)]=@check u(setr,results,u(mysql3,SELECT`BBSCAN,%q<t1idfallback>,u(setr,numql,u(sql`in`number,%q<readboardids>))))=@attach %!/INC`MSG=Hooray! No unread posts!;@attach %!/INC`MSG=Unread Posts: [iter(u(mysql3,SELECT`BBSCAN`BRIEF,%q<t1accid>,%q<numql>),[if(isobjid(u(setr,gobj,elements(%i0,4,chr(177)))),\([u(%q<gobj>/GET`NAME)]\)%B)][u(pueblize,elements(%i0,1,chr(177)) \([u(setr,bbalias,elements(%i0,2,chr(177)))]\),+bbread %q<bbalias>)]: [elements(%i0,5,chr(177))],chr(176),\,%b)]
 
 &LIST`MAIN [u(cobj,bbs)]=@pemit %#=u(HEADER,u(FUN`NAME,%0,,%q<gid1>))%r[ansi(u(color,%#,BBS,COLUMN_NAMES),align(36 8 20 8,Available Bulletin Board Groups,Member?,Timeout,Capacity))]%r[u(SEPARATOR,)];@dolist %q<visigroups>={@pemit %#=align(5 31 -7 20 12,%b[get(##/ORDER)],u(moniker,##),switch(default(%#/D`BB`##`OMIT,0),0,Yes,No),if(u(FUN`CONFIG,##,timeout),etime(u(FUN`CONFIG,##,timeout)),none),rjust(u(nattr,##/~`*),4,0)/[switch(add(2,strlen(default(##/NEXT,1))),1,1800?,2,1800?,3,1800?,4,1600?,5,1300?,6,1100?,7,1000?,8,900?,9,800?,10,700?,11,600?,12,500?,13,400?)]);@select/inline #@=words(%q<visigroups>),{@pemit %#=u(SEPARATOR)%RTo join boards, type '+[lcstr(%0)]join <board number>'%RTo leave boards, type '+[lcstr(%0)]leave <board number>'%R[u(SUBHEADER)]}}
 

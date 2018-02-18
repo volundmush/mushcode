@@ -60,7 +60,7 @@ th u(NEWCOBJ,Info Management System <INFO>,info,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &Q`RENDER`FILE [u(cobj,info)]=UPDATE vol_field SET field_text_render=? WHERE field_id=?
 
-&Q`LOCK`FILE [u(cobj,info)]=INSERT INTO vol_field_lock (field_id,locker_id,locked_date) VALUES (?,?,UTC_TIMESTAMP()) ON DUPLICATE KEY SET locker_id=VALUES(locker_id),locked_date=VALUES(locked_date)
+&Q`LOCK`FILE [u(cobj,info)]=INSERT INTO vol_field_lock (field_id,locker_id,locked_date) VALUES (?,?,UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE locker_id=VALUES(locker_id),locked_date=VALUES(locked_date)
 
 &INC`RENAME [u(cobj,info)]=@attach %!/INC`TARGET;@attach %!/INC`FINDFILE=%q<filename>;@attach %!/INC`VALID`FILENAME=%0,%q<i1>;@attach %!/INC`DOSQL=RENAME`FILE,%q<filename>,%q<i1>;@select/inline %q<target>=%#,{@attach %!/INC`MSG=File named to '%q<filename>'!},{@attach %!/INC`MSG=You renamed %q<t1name>'s %q<iname> [u(capnames,%q<sysname>)] File to %q<filename>;@attach %!/INC`MSG`NOTICE=Your [u(capnames,%q<sysname>)] File %q<iname> was renamed to %q<filename>,%q<target>}
 
