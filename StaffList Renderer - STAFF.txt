@@ -16,7 +16,7 @@ th u(NEWCOBJ,StaffList Renderer <STAFF>,staff,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 
 &FUN`WIZLIST [u(cobj,staff)]=localize(align(3 20 3 40 8,u(hideidle,%0),u(moniker,%0),u(choosegame,switch(1,u(iswizard,%0),ansi(hr,WIZ),hasflag(%0,ROYALTY),ansi(hc,ROY),ansi(hx,N/A)),bittype(%0)),default(%0/D`GROUP`%2`TITLE,???),u(setq,adm,u(isadmin,%#))[u(setq,hid,u(ishidden,%0))][u(setq,conn,objeval(%#,gt(conn(%0),0)))][u(setq,vac,t(get(%0/D`STAFF`VACATION)))][u(setq,admsee,cand(%q<conn>,%q<hid>,%q<adm>))][u(setq,dut,t(get(%0/D`STAFF`DUTY)))][if(%q<vac>,ansi(if(%q<conn>,hg,hx),Vac),if(%q<dut>,if(%q<conn>,if(%q<admsee>,ansi(hx,On),ansi(hg,On)),ansi(hx,Off)),ansi(hx,Off)))]))
 
-&INC`DUTY [u(cobj,staff)]=@select/inline u(setr`%va,duty,not(default(%#/D`STAFF`DUTY,0)))=1,{@attach %!/INC`MSG=You are now On duty!},0,{@attach %!/INC`MSG=You are now Off Duty!};&D`STAFF`DUTY %#=%q<duty>
+&INC`DUTY [u(cobj,staff)]=@select/inline u(setr,duty,not(default(%#/D`STAFF`DUTY,0)))=1,{@attach %!/INC`MSG=You are now On duty!},0,{@attach %!/INC`MSG=You are now Off Duty!};&D`STAFF`DUTY %#=%q<duty>;
 
 &HLP`+STAFF [u(cobj,staff)]=+staff lists the game's administrators and their current status.%R[ansi(hc,See Also:)] [u(pueblize,help JUDGE)], [u(pueblize,help ROYALTY)], [u(pueblize,help WIZARD)]%R%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+staff)] - Show game's staff members.)]
 +help/add Community/+staff=[u(cobj,staff)]/HLP`+STAFF

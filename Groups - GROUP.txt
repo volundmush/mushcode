@@ -8,18 +8,18 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &RANK [u(cobj,gop)]=@@ Empty attr for Rhost.
 
 &RANK`1`NAME [u(cobj,gop)]=Leader
-&RANK`1`PERM [u(cobj,gop)]=MODERATE MANAGE GBADMIN IC OOC GEMIT REPADMIN
+&RANK`1`PERM [u(cobj,gop)]=MODERATE MANAGE GBADMIN IC OOC GEMIT REPADMIN RADIO
 &RANK`1`NODELETE [u(cobj,gop)]=1
 &RANK`2`NAME [u(cobj,gop)]=Second
-&RANK`2`PERM [u(cobj,gop)]=MODERATE MANAGE GBADMIN IC OOC GEMIT REPADMIN
+&RANK`2`PERM [u(cobj,gop)]=MODERATE MANAGE GBADMIN IC OOC GEMIT REPADMIN RADIO
 &RANK`2`NODELETE [u(cobj,gop)]=1
 &RANK`3`NAME [u(cobj,gop)]=Officer
-&RANK`3`PERM [u(cobj,gop)]=MODERATE MANAGE IC OOC REPADMIN
+&RANK`3`PERM [u(cobj,gop)]=MODERATE MANAGE IC OOC REPADMIN RADIO
 &RANK`3`NODELETE [u(cobj,gop)]=1
 &RANK`4`NAME [u(cobj,gop)]=Member
 &RANK`4`PERM [u(cobj,gop)]=
 &RANK`4`NODELETE [u(cobj,gop)]=1
-&RANK`ALL`PERM [u(cobj,gop)]=IC OOC REPORT
+&RANK`ALL`PERM [u(cobj,gop)]=IC OOC REPORT RADIO
 &SET [u(cobj,gop)]=@@ Empty attr for Rhost.
 
 &GET`COLORIZE [u(cobj,gop)]=localize(ansi(u(GET`COLOR,%!),%0))
@@ -126,7 +126,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &SYSTEM`SWITCHES [u(cobj,group)]=setunion(u(SWITCHES`%q<comm>`PLAYER),if(u(isadmin,%#),u(SWITCHES`%q<comm>`ADMIN)),|,|)
 
-&SWITCHES`GADMIN`PLAYER [u(cobj,group)]=CREATE|RENAME|DISBAND|SET|DESC
+&SWITCHES`GADMIN`PLAYER [u(cobj,group)]=CREATE|RENAME|DISBAND|SET|DESC[if(u(cobj,radio),|MAKERADIO|FIXRADIO)]
 &SWITCHES`GADMIN`ADMIN [u(cobj,group)]=CONFIG
 
 &INC`CHOOSE [u(cobj,group)]=th u(setq,comm,%0);@attach %!/INC`GETSWITCH=%1;@select/inline match(GOOC GIC GRADIO,%q<comm>)=>0,{@attach %!/GRP`GCHANNEL`[u(strfirstof,%q<switch>,MAIN)]=switch(%q<comm>,GOOC,OOC,GIC,IC,GRADIO,OOC),%2,%3},{@attach %!/%q<systype>`%q<comm>`[u(strfirstof,%q<switch>,MAIN)]=%2,%3}
@@ -286,12 +286,20 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &GRP`GADMIN`SET`FINISH [u(cobj,group)]=@attach %!/INC`CODE`MAKELOG=%:,%q<g1>,{Setting %q<option>: %q<value>};@attach %!/INC`MSG=You have changed %q<g1name>'s %q<option> Setting to: %q<value>;@attach %!/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n changed %q<option> Setting to: %q<value>},OOC,1
 
-&HLP`ADMIN [u(cobj,group)]=[ansi(hc,Administration Commands)]%RTier management is adminonly. Creation, Renaming, and Disbanding are admin-only unless opened via +gadmin/config.%R%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gtier)] - Display All Tiers. +gtier/private for private Tiers.%R[ansi(h,+gtier/rename <tier#>=<newname>)] - Give a name to a tier. /renameprivate for Private Tiers.%R[ansi(h,+gadmin/create <groupname>=<player>)] - This command creates a new Group and grants leadership to <player>.%R[ansi(h,+gadmin/rename <group>=<newname>)] - Renames a Group.%R[ansi(h,+gadmin/desc <group>=<description)] - Set a group's description.%R[ansi(h,+gadmin/disband <groupname>)] - Must be focused to the group AND typing its name.%R[ansi(h,+gadmin/config)] - Access the Group global Config system. <option>=<value> to change it!%R[ansi(h,+gadmin/set)] - Access the per-Group settings. Again\, <option>=<value> to change them!)]
+&GRP`GADMIN`MAKERADIO [u(cobj,group)]=@attach %!/INC`TARGET;@check u(FUN`GRPPERM,%:,%q<g1>,MANAGE)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach [u(Cobj,radio)]/INC`VALID`RADIONAME=%0;@stop isdbref(u(FUN`FINDFREQ,%q<value>))=@attach %!/INC`MSG=ERROR: A radio channel of that name already exists.;@tel u(setr,freq,create(%q<value>))=u(cobj,freq);@parent %q<freq>=u(cobj,freq);&OWNER %q<freq>=%:;@attach %!/GRP`GADMIN`FIXRADIO`DO=%q<g1>,%q<freq>;@attach %!/INC`MSG=Radio channel '%0' created.;@attach %!/INC`MSG`CHAN=Group Radio channel '%0' created.;@trigger [u(cobj,radio)]/INC`JOIn`DO=%#,%q<freq>,%1
+
+&GRP`GADMIN`FIXRADIO [u(cobj,group)]=@attach %!/INC`TARGET;@check u(FUN`GRPPERM,%:,%q<g1>,MANAGE)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`RADIO=%0;@check u(u(cobj,radio)/FUN`PERMISSION,u(setr,freq,%q<value>),ADMIN,%0)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/GRP`GADMIn`FIXRADIO`DO=%q<g1>,%q<value>;@attach %!/INC`MSG=Radio channel '%q<valueformat>' reset to %q<g1name>.;@attach %!/INC`MSG`CHAN=Radio channel '%q<valueformat>' reset to %q<g1name>.
+
+&GRP`GADMIN`FIXRADIO`DO [u(cobj,group)]=&GROUP %1=objid(%0);&SEE_LOCK %1=u(group_lock,%0|%0/RADIO);&JOIN_LOCK %1=get(%1/SEE_LOCK);&SPEAK_LOCK %1=get(%1/SEE_LOCK);&MODERATE_LOCK %1=u(group_lock,%0/MODERATE);&ADMIN_LOCK %1=u(group_lock,%0/MANAGE);&SET`RADIOS %0=u(filter,ISOBJID,setunion(get(%0/SET`RADIOS),objid(%1)))
+
+&HLP`ADMIN [u(cobj,group)]=[ansi(hc,Administration Commands)]%RTier management is admin only. Creation, Renaming, and Disbanding are admin-only unless opened via +gadmin/config.%R%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gtier)] - Display All Tiers. +gtier/private for private Tiers.%R[ansi(h,+gtier/rename <tier#>=<newname>)] - Give a name to a tier. /renameprivate for Private Tiers.%R[ansi(h,+gadmin/create <groupname>=<player>)] - This command creates a new Group and grants leadership to <player>.%R[ansi(h,+gadmin/rename <group>=<newname>)] - Renames a Group.%R[ansi(h,+gadmin/desc <group>=<description)] - Set a group's description.%R[ansi(h,+gadmin/disband <groupname>)] - Must be focused to the group AND typing its name.%R[ansi(h,+gadmin/config)] - Access the Group global Config system. <option>=<value> to change it!%R[ansi(h,+gadmin/set)] - Access the per-Group settings. Again\, <option>=<value> to change them!)]
 +help/addsub Groups/Admin=[u(cobj,group)]/HLP`ADMIN
 
+&STARTUP [u(Cobj,group)]=@trigger %!/LOOP`CLEANUPGROUPCHAT
 
+&LOOP`CLEANUPGROUPCHAT [u(Cobj,group)]=@attach %!/INC`DOSQL=CLEANUp`GROUPCHAT;@wait mul(60,60,2)=@trigger %!/LOOP`CLEANUPGROUPCHAT
 
-
+&Q`CLEANUP`GROUPCHAT [u(Cobj,group)]=DELETE FROm vol_messages WHERe message_type IN (1,2) AND message_date_created<NOW() - INTERVAL 2 HOUR
 
 @@ RANK SECTION
 &SWITCHES`GRANK`PLAYER [u(cobj,group)]=CREATE|DELETE|RENAME
@@ -331,7 +339,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &DIV`DRANK`MAIN [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/INC`FINDDIV=%0;@pemit %#=u(header,u(%q<g1>/GET`NAME): '%q<d1name>' Division Ranks);@pemit %#=u(header,u(%q<g1>/GET`NAME): Ranks);@attach %!/GRP`GRANK`MAIN`DO=%q<d1>,u(sortattr,u(lattrp,%q<g1>/RANK`*))
 
-&HLP`RANKS [u(cobj,group)]=[ansi(hc,Leader Commands)]%ROnly the group leader is allowed to alter the rank structure and associated permissions.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+grank/create <#>=<rankname>)] - Create a new rank.%R[ansi(h,+grank/delete <#>)] - Remove a rank\, if no players are in it.%R[ansi(h,+grank/rename <#>=<newname>)] - Renames a rank.%R%R[ansi(hc,Priveleged Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+grank <player>=<#>)] - Alter a player's rank to <#>. Can only be used on subordinates\, and not to your own rank or better. Requires the Manage permission.%R[ansi(h,+glog <#>)] - Looks back <#> amount of events and displays related logs.)]%R%R[ansi(hc,Member Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+grank)] - Display rank structure and permissions granted.)])]
+&HLP`RANKS [u(cobj,group)]=[ansi(hc,Leader Commands)]%ROnly the group leader is allowed to alter the rank structure and associated permissions.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+grank/create <#>=<rankname>)] - Create a new rank.%R[ansi(h,+grank/delete <#>)] - Remove a rank\, if no players are in it.%R[ansi(h,+grank/rename <#>=<newname>)] - Renames a rank.%R%R[ansi(hc,Priveleged Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+grank <player>=<#>)] - Alter a player's rank to <#>. Can only be used on subordinates\, and not to your own rank or better. Requires the Manage permission.%R%R[ansi(hc,Member Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+grank)] - Display rank structure and permissions granted.)])]
 +help/addsub Groups/Ranks=[u(cobj,group)]/HLP`RANKS
 
 @@ Permissions Section
@@ -384,14 +392,16 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &GRP`CACHE`CHARACTER`GROUP [u(cobj,group)]=@attach %!/WIPE=%0,u(setr,attr,V`GROUP`[get(%1/D`ID)]);@select/inline isint(u(setr,rnk,get(%0/D`GROUP`[num(%1)]`RANK)))=1,{th u(attrib_set,%0,%q<attr>,%q<rnk>)};@select/inline t(words(u(setr,prm,u(FUN`GETPERM,%1,%0))))=1,{th u(attrib_set,%0,%q<attr>`PERMISSIONS,%q<prm>);@dolist/inline %q<prm>={th u(attrib_set,%0,%q<attr>`PERMISSION`##,1)}}
 
-&GRP`CACHE`CHARACTER [u(cobj,group)]=@dolist/inline u(filter,ISDBREF,edit(u(lattr,%0/D`GROUP`*),D`GROUP`,))={@attach %!/GRP`CACHE`CHARACTER`GROUP=%0,##}
+&GRP`CACHE`CHARACTER [u(cobj,group)]=@dolist/inline u(filter,HASID,u(filter,ISDBREF,edit(u(lattr,%0/D`GROUP`*),D`GROUP`,)))={@attach %!/GRP`CACHE`CHARACTER`GROUP=objid(%0),##}
+
+&FIL`HASID [u(cobj,group)]=t(get(%0/D`ID))
 
 &GRP`CACHE`TIERS [u(cobj,group)]=@attach %!/WIPE=%0,V`TIERS;@dolist/inline/delimit [chr(176)] [u(mysql3,CACHE`TIERS,get(%0/D`ID))]={th u(attrib_set,%0,V`TIERS,trim(cat(get(%0/V`TIERS),after(##,chr(177)))));th u(attrib_set,%0,V`TIERS`[before(##,chr(177))],after(##,chr(177)))}
 
 &Q`CACHE`TIERS [u(cobj,group)]=SELECT group_tier,group_objids FROM volv_group_member_tiers WHERE character_id=? AND group_is_private=0
 
 @@ MEMBERSHIP SECTION
-&SWITCHES`GMEMBER`PLAYER [u(cobj,group)]=ADD|KICK|INVITE|RANK|LEAVE
+&SWITCHES`GMEMBER`PLAYER [u(cobj,group)]=ADD|KICK|INVITE|RANK|LEAVE[if(u(cobj,radio),|INITRADIO)]
 
 &SWITCHES`DMEMBER`PLAYER [u(cobj,group)]=ADD|KICK|RANK
 
@@ -431,6 +441,9 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &DIV`DMEMBER`RANK [u(cobj,group)]=@attach %!/INC`TARGET;@check u(FUN`GRPPERM,%:,%q<g1>,MANAGE)=@attach %!/INC`MSG=ERROR: You do not have permission to do that.;@attach %!/INC`FINDDIV=before(%0,/);@attach %!/INC`CHECKPC=after(%0,/),1;@check match(get(%q<g1>/MEMBERS),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are not a member of the Group.;@check match(get(%q<d1>/MEMBERS),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are not a member of the Division.;@check cand(isint(%1),get(%q<d1>/RANK`%1))=@attach %!/INC`MSG=ERROR: Rank '%1' does not exist!;@check cor(u(isadmin,%#),lt(get(%#/D`GROUP`%q<g1>`RANK),get(%q<t1>/D`GROUP`%q<g1>`RANK)))=@attach %!/INC`MSG=ERROR: Cannot change the rank of equals or superiors.;@check cor(u(isadmin,%#),lt(get(%#/D`GROUP`%q<g1>`RANK),%1))=@attach %!/INC`MSG=ERROR: Cannot assign a rank equal or greater to your own.;@attach %!/GRP`GMEMBER`RANK`DO=%q<d1>,%q<t1>,%1,Your %q<g1name> Rank for Division '%q<d1name>' is now: %1 '[get(%q<g1>/RANK`%1`NAME)]';@attach %!/INC`CODE`MAKELOG=%:,%q<g1>,{Altered %q<t1name> to Rank %1 for Division '%q<d1name>'.};@attach %!/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n changed %q<t1name> to Rank %1 '[get(%q<d1>/RANK`%1`NAME)]' for Division '%q<d1name>'!},OOC,1
 
+&GRP`GMEMBER`INITRADIO [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/GRP`GMEMBER`INITRADIO`DO=%q<g1>,%:;@attach %!/INC`MSG=Initialized Radio!
+
+&GRP`GMEMBER`INITRADIO`DO [u(cobj,group)]=@dolist/inline u(filter,ISOBJID,get(%0/SET`RADIOS))={@trigger [u(cobj,radio)]/INC`JOIN`DO=%1,##}
 
 &HLP`MEMBERSHIP [u(cobj,group)]=[ansi(hc,Inviting Members)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember/invite)] - Show all extended invitations.%R[ansi(h,+gmember/invite <player>)] - Send an invite.%R[ansi(h,+gmember/uninvite <player>)] - Revoke a pending invitation.)]%R%R[ansi(hc,Joining Groups)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember)] - Shows all groups who've invited you to join.%R[ansi(h,+gmember/join <group>)] - Accepts an offered invite.%R[ansi(h,+grefuse <group>)] - Rejects an offered invite.)]%R%R[ansi(hc,Removing Members)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember/leave)] - Leaves a group.%R[ansi(h,+gmember/kick <player>)] - Removes <player> from group. Requires MANAGE permission.)]
 +help/addsub Groups/Membership=[u(cobj,group)]/HLP`MEMBERSHIP
@@ -509,25 +522,35 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &GRP`GCHANNEL`MUZZLE`DO [u(cobj,group)]=th u(attrib_set,%1,D`GROUP`[num(%0)]`MUZZLE`%2,%3);
 &GRP`GCHANNEL`UNMUZZLE`DO [u(cobj,group)]=@attach %!/WIPE=%1,D`GROUP`[num(%0)]`MUZZLE`%2
 
-&GRP`GCHANNEL`JOIN [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/INC`VALID`GCHANNEL=%0;@check u(FUN`GRPPERM,%:,%q<g1>,%q<chan>)=@attach %!/INC`MSG=ERROR: You lack permission to do that.;@stop match(get(%q<g1>/CHANNEL`%q<chan>),%:)=@attach %!/INC`MSG=ERROR: You are already joined to that channel!;@attach %!/GRP`GCHANNEL`JOIN`DO=%q<g1>,%#,%q<chan>;@attach %!/INC`MSG=You have joined the %q<g1name> %q<chan> Channel!
+&GRP`GCHANNEL`JOIN [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/INC`VALID`GCHANNEL=%0;@attach %!/GRP`GCHANNEl`JOIN`START
+
+&GRP`GCHANNEL`JOIN`START [u(cobj,group)]=@check u(FUN`GRPPERM,%:,%q<g1>,%q<chan>)=@attach %!/INC`MSG=ERROR: You lack permission to do that.;@stop match(get(%q<g1>/CHANNEL`%q<chan>),%:)=@attach %!/INC`MSG=ERROR: You are already joined to that channel!;@attach %!/GRP`GCHANNEL`JOIN`DO=%q<g1>,%#,%q<chan>;@attach %!/INC`MSG=You have joined the %q<g1name> %q<chan> Channel!
 
 &GRP`GCHANNEL`JOIN`DO [u(cobj,group)]=th u(attrib_set,%0,CHANNEL`%2,u(filter,ISOBJID,setunion(get(%0/CHANNEL`%2),objid(%1))))
 
-&GRP`GCHANNEL`LEAVE [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/INC`VALID`GCHANNEL=%0;@check u(FUN`GRPPERM,%:,%q<g1>,%q<chan>)=@attach %!/INC`MSG=ERROR: You lack permission to do that.;@check match(get(%q<g1>/CHANNEL`%q<chan>),%:)=@attach %!/INC`MSG=ERROR: You are not joined to that channel!;@attach %!/GRP`GCHANNEL`LEAVE`DO=%q<g1>,%#,%q<chan>;@attach %!/INC`MSG=You have left the %q<g1name> %q<chan> Channel!
+&GRP`GCHANNEL`LEAVE [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/INC`VALID`GCHANNEL=%0;@attach %!/GRP`GCHANNEl`LEAVE`START
+
+&GRP`GCHANNEL`LEAVE`START [u(cobj,group)]=@check u(FUN`GRPPERM,%:,%q<g1>,%q<chan>)=@attach %!/INC`MSG=ERROR: You lack permission to do that.;@check match(get(%q<g1>/CHANNEL`%q<chan>),%:)=@attach %!/INC`MSG=ERROR: You are not joined to that channel!;@attach %!/GRP`GCHANNEL`LEAVE`DO=%q<g1>,%#,%q<chan>;@attach %!/INC`MSG=You have left the %q<g1name> %q<chan> Channel!
 
 &GRP`GCHANNEL`LEAVE`DO [u(cobj,group)]=th u(attrib_set,%0,CHANNEL`%2,u(filter,ISOBJID,setdiff(get(%0/CHANNEL`%2),objid(%1))))
 
-&GRP`GCHANNEL`GAG [u(cobj,group)]=
+&GRP`GCHANNEL`GAG [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/INC`VALID`GCHANNEL=%0;@attach %!/GRP`GCHANNEl`GAG`START
 
-&GRP`GCHANNEL`UNGAG [u(cobj,group)]=
+&GRP`GCHANNEL`GAG`START [u(cobj,group)]=@stop get(%#/D`GROUP`%q<g1>`GAG`%q<chan>)=@attach %!/INC`MSG=ERROR: Gag is currently on already!;@attach %!/GRP`GCHANNEl`GAG`DO=%#,%q<g1>,%q<chan>;@attach %!/INC`MSG=Gagged the %q<g1name> %q<chan> Channel!
+
+&GRP`GCHANNEL`GAG`DO [u(cobj,group)]=th u(attrib_set,%0,D`GROUP`%1`GAG`%2,1)
+
+&GRP`GCHANNEL`UNGAG [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/INC`VALID`GCHANNEL=%0;@attach %!/GRP`GCHANNEl`UNGAG`START
+
+&GRP`GCHANNEL`UNGAG`START [u(cobj,group)]=@check get(%#/D`GROUP`%q<g1>`GAG`%q<chan>)=@attach %!/INC`MSG=ERROR: Gag is not on!;@attach %!/GRP`GCHANNEl`UNGAG`DO=%#,%q<g1>,%q<chan>;@attach %!/INC`MSG=Un-gagged the %q<g1name> %q<chan> Channel!
+
+&GRP`GCHANNEL`UNGAG`DO [u(cobj,group)]=th u(attrib_set,%0,D`GROUP`%1`GAG`%2,0)
 
 &GRP`GCHANNEL`MAIN [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/INC`CODE`CHAT=%1[if(strlen(%2),=%2)],%0,0
 
-&GRP`GEMIT`MAIN [u(cobj,group)]=
+&GRP`GEMIT`MAIN [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/INC`VALID`GCHANNEL=%0;@check u(FUN`GRPPERM,%:,%q<g1>,GEMIT)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CODE`CHAT=%1,%q<chan>,,1
 
-&INC`CHOOSE`+G`EMIT`MAIN [u(cobj,group)]=@attach %!/INC`JAILCHECK;@attach %!/INC`CODE`VALGROUP=u(strfirstof,u(getstat,%#,D`GROUP,Group),0),1;@check u(FUN`GRPPERM,%:,%q<g1>,GEMIT)=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%0)=@attach %!/INC`MSG=ERROR: Must enter a Channel Type. Choices are: IC and OOC!;@attach %!/INC`PARTIAL=%0,IC|OOC,|,chan,Channel Type;@attach %!/INC`CODE`CHAT=%1,%q<chan>,,1
-
-&INC`CODE`CHAT [u(cobj,group)]=@check strlen(%0)=@pemit %#=What will you say?;@select/inline cor(%2,%3)=0,{@check u(strfirstof,u(FUN`GETSET,%q<g1>,u(setr,chan,%1)),1)=@attach %!/INC`MSG=ERROR: That channel is not enabled.;@check u(conf,%q<chan>)=@attach %!/INC`MSG=ERROR: %q<chan> Group Channels are globally disabled.;@check u(FUN`GRPPERM,%:,%q<g1>,%q<chan>)=@attach %!/INC`MSG=ERROR: Permission denied.;@check cor(gt(secs(),u(setr,until,default(%#/D`GROUP`%q<g1>`MUZZLE`%q<chan>,0))),u(isadmin,%#))=@attach %!/INC`MSG=ERROR: You are muzzled from [name(%q<g1>)]'s [ucstr(%q<chan>)] Channels until [convsecs(%q<until>)].;@check match(get(%q<g1>/CHANNEl`%q<chan>),%:)=@attach %!/INC`MSG=ERROR: Not joined to the channel!;@stop get(%#/D`GROUp`%q<g1>`GAG`%q<chan>)=@attach %!/INC`MSG=ERROR: Cannot use a channel while gagging it.;@stop strmatch(left(%0,1),|)=@attach %!/INC`MSG=ERROR: The Emit feature is disabled.};th u(setq,markup,u(markup,%0,setunion(u(setr,lwhoid,u(lwhoid)),get(%q<g1>/MEMBERS))));@check words(u(setr,list,u(filter,CHANLISTEN,%q<lwhoid>,%b,%b,%q<g1>,%q<chan>,%2,get(%q<g1>/CHANNEL`%q<chan>))));@attach %!/INC`CODE`CHAT`%va;@select/inline not(%2)=1,{@attach %!/INC`CODE`CHANLOG=%q<markup>,%2,left(%q<chan>,1),%q<g1>,%#,%3}
+&INC`CODE`CHAT [u(cobj,group)]=@check strlen(%0)=@pemit %#=What will you say?;@select/inline cor(%2,%3)=0,{@check u(strfirstof,u(FUN`GETSET,%q<g1>,u(setr,chan,%1)),1)=@attach %!/INC`MSG=ERROR: That channel is not enabled.;@check u(conf,%q<chan>)=@attach %!/INC`MSG=ERROR: %q<chan> Group Channels are globally disabled.;@check u(FUN`GRPPERM,%:,%q<g1>,%q<chan>)=@attach %!/INC`MSG=ERROR: Permission denied.;@check cor(gt(secs(),u(setr,until,default(%#/D`GROUP`%q<g1>`MUZZLE`%q<chan>,0))),u(isadmin,%#))=@attach %!/INC`MSG=ERROR: You are muzzled from [name(%q<g1>)]'s [ucstr(%q<chan>)] Channels until [convsecs(%q<until>)].;@check match(get(%q<g1>/CHANNEl`%q<chan>),%:)=@attach %!/INC`MSG=ERROR: Not joined to the channel!;@stop get(%#/D`GROUp`%q<g1>`GAG`%q<chan>)=@attach %!/INC`MSG=ERROR: Cannot use a channel while gagging it.;@stop strmatch(left(%0,1),|)=@attach %!/INC`MSG=ERROR: The Emit feature is disabled.};th u(setq,markup,u(markup,%0,setunion(u(setr,lwhoid,u(lwhoid)),get(%q<g1>/MEMBERS))));@check words(u(setr,list,u(filter,CHANLISTEN,%q<lwhoid>,%b,%b,%q<g1>,%q<chan>,%2,get(%q<g1>/CHANNEL`%q<chan>))));@attach %!/INC`CODE`CHAT`%va;@select/inline not(%2)=1,{@attach %!/INC`CODE`CHANLOG=%q<g1>,switch(%q<chan>,IC,1,OOC,2),%3,%#,get(%#/D`GROUP`%q<g1>`TITLE),get(%#/D`GROUP`%q<g1>`CODENAME),%q<markup>}
 
 &INC`CODE`CHAT`PENNMUSH [u(cobj,group)]=@message %q<list>=%0,%!/FUN`CHATFORMAT,##,%#,%q<markup>,%q<chan>,%2,%q<g1>,,,%3,%q<lwhoid>
 
@@ -535,9 +558,17 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &FIL`CHANLISTEN [u(cobj,group)]=if(%3,cor(u(isadmin,%0),cand(lte(get(%0/D`GROUP`%1`RANK),u(FUN`GETSET,%1,SYSALERT)))),cand(match(%4,%0),not(get(%0/D`GROUP`%1`GAG`%2))))
 
-&INC`CODE`CHANLOG [u(cobj,group)]=th u(attrib_set,%3,u(setr,attr,%2`[u(nextslot,%3,%2)]),%0);&%q<attr>`BY %3=objid(%4);&%q<attr>`ON %3=secs();&%q<attr>`AS %3=name(%4);&%q<attr>`TYPE %3=%1;&%q<attr>`GEMIT %3=%5;@select/inline gt(u(setr,count,u(nattr,%3/%2`*)),u(game_config,groups,buffer))=1,{@dolist/inline elements(u(sortattr,u(lattr,%3/%2`*)),lnum(1,sub(%q<count>,u(game_config,groups,buffer))))=@attach %!/WIPE=%3,##}
+&INC`CODE`CHANLOG [u(cobj,group)]=@attach %!/INC`DOSQL=INSERT`CHANLOG,objid(%0),name(%0),%1,t(%2),objid(%3),name(%3),%4,%5,%6
 
-&GRP`GCHANNEL`RECALL [u(cobj,group)]=th u(setq,lwhoid,u(lwhoid));@attach %!/INC`TARGET;@attach %!/INC`VALID`GCHANNEL=%0;@select/inline u(valnum,%1)=1,{th u(setq,amt,%1)},{th u(setq,amt,10)};@pemit %#=u(header,%q<g1name> [ucstr(%q<chan>)] Log);@dolist u(setr,total,revwords(elements(revwords(u(sortattr,u(lattr,%q<g1>/[left(%q<chan>,1)]`*))),lnum(1,%q<amt>))))={@pemit %#=%[[u(fancytime,get(%q<g1>/##`ON),%#)]%] [u(FUN`CHATFORMAT,%#,get(%q<g1>/##`BY),get(%q<g1>/##),%q<chan>,get(%q<g1>/##`TYPE),%q<g1>,1,get(%q<g1>/##`AS),get(%q<g1>/##`GEMIT),%q<lwhoid>)];@select/inline eq(words(%q<total>),#@)=1,{@pemit %#=u(FOOTER)}}
+&Q`INSERT`CHANLOG [u(Cobj,group)]=INSERT INTO vol_messages (message_date_created,source_objid,source_name,message_type,message_emit,speaker_objid,speaker_name,speaker_title,speaker_codename,message_contents) VALUES (UTC_TIMESTAMP(),?,?,?,?,?,?,?,?,?)
+
+&GRP`GCHANNEL`RECALL [u(cobj,group)]=@attach %!/INC`TARGET;@attach %!/INC`VALID`GCHANNEL=%0;@attach %!/GRP`GCHANNEl`RECALL`START=%1
+
+&GRP`GCHANNEl`RECALL`START [u(cobj,group)]=th u(setq,lwhoid,u(lwhoid));@select/inline u(valnum,%0)=1,{th u(setq,amt,%0)},{th u(setq,amt,10)};@pemit %#=u(header,%q<g1name> [ucstr(%q<chan>)] Log);@dolist u(setr,total,revwords(u(mysql,SELECT`RECALL_IDS,switch(%q<chan>,IC,1,OOC,2),objid(%q<g1>),%q<amt>)))={th u(setq,data,u(mysql3,SELECT`RECALL,##));@pemit %#=%[[u(fancytime,elements(%q<data>,1,chr(177)),%#)]%] [u(FUN`CHATFORMAT,%#,elements(%q<data>,3,chr(177)),elements(%q<data>,4,chr(177)),%q<chan>,get(%q<g1>/##`TYPE),%q<g1>,1,,elements(%q<data>,2,chr(177)),%q<lwhoid>)];@select/inline eq(words(%q<total>),#@)=1,{@pemit %#=u(FOOTER)}}
+
+&Q`SELECT`RECALL_IDS [u(cobj,group)]=SELECT message_id FROM vol_messages WHERE message_type=? AND source_objid=? ORDER BY message_date_created DESC LIMIT ?
+
+&Q`SELECT`RECALL [u(cobj,group)]=SELECT UNIX_TIMESTAMP(message_date_created),message_emit,speaker_objid,message_contents FROM vol_messages WHERE message_id=?
 
 &FUN`CHATFORMAT [u(cobj,group)]=if(cor(%6,%8),,switch(1,hasflag(%0,PARANOID),%[[name(%1)]%(%1%)%],hasflag(%0,NOSPOOF),%[[name(%1)]:%]))[ansi(c,<)][ansi(u(strfirstof,u(groupcolor,%0,%5),get(%5/SET`COLOR),hx),u(moniker,%5))][if(cand(%4,not(%8)),ansi(c,-)[switch(%4,2,REPORT,SYS)],switch(%3,OOC,ansi(c,-)[ansi(r,ucstr(%3))],IC,))][ansi(c,>)]%B[if(cor(%4,%8),u(colormarkup,%0,%2),if(u(FUN`GETSET,%5,CHANNELRANK),\[[u(strfirstof,u(FUN`GETRANK,%5,%1),?)]\]%B)[if(strlen(get(%1/D`GROUP`%5`TITLE)),get(%1/D`GROUP`%5`TITLE)%B)][u(speech,%1,u(colormarkup,%0,%2),%0,%7,GROUP,%9)])]
 
@@ -545,7 +576,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 @set [u(cobj,group)]/CMD`CHAT`PENNMUSH=regexp
 &CMD`CHAT`RHOSTMUSH [u(cobj,group)]=$^(?s)(-|=)(\\w+)?(?\:/(\\S+)?)?(?\: +(.+))?$:@attach %!/CMD`CHAT`MAIN
 @set [u(cobj,group)]/CMD`CHAT`RHOSTMUSH=regexp
-&CMD`CHAT`MAIN [u(cobj,group)]=@attach %!/INC`PARTIAL=%3,GAG|UNGAG|JOIN|LEAVE|RECALL,|,switch,switch;@select/inline strlen(%q<switch>)=>0,{@attach %!/INC`FINDGROUP=%2,1;@attach %!/GRP`GCHANNEL`%q<switch>=switch(%1,-,IC,=,OOC,OOC),%3},{@check isdbref(u(setr,g1,u(namegrab,u(filter,ONCHANNEL,u(FUN`LISTGROUPS,%:),%b,%b,%:,switch(%1,-,IC,=,OOC,OOC)),%2)))=@attach %!/INC`MSG=ERROR: Group not found!;@attach %!/INC`LOADGROUP=%q<g1>,1;@check strlen(%4)=@pemit %#=What will you say?;@attach %!/INC`CODE`CHAT=%4,switch(%1,-,IC,=,OOC,OOC),0}
+&CMD`CHAT`MAIN [u(cobj,group)]=th u(setq,chan,switch(%1,-,IC,=,OOC));@attach %!/INC`PARTIAL=%3,GAG|UNGAG|JOIN|LEAVE|RECALL,|,switch;@select/inline strlen(%q<switch>)=>0,{@attach %!/INC`FINDGROUP=%2,1;@attach %!/GRP`GCHANNEL`%q<switch>`START=%4},{@check isdbref(u(setr,g1,u(namegrab,u(filter,ONCHANNEL,u(FUN`LISTGROUPS,%:),%b,%b,%:,switch(%1,-,IC,=,OOC,OOC)),%2)))=@attach %!/INC`MSG=ERROR: Group not found!;@attach %!/INC`LOADGROUP=%q<g1>,1;@check strlen(%4)=@pemit %#=What will you say?;@attach %!/INC`CODE`CHAT=%4,switch(%1,-,IC,=,OOC,OOC),0}
 @set [u(cobj,group)]/CMD`CHAT`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &FIL`ONCHANNEL [u(cobj,group)]=t(match(get(%0/CHANNEL`%2),%1))
@@ -564,14 +595,12 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 @@ HELP FILES
 @@ COMMUNITY - GROUPS
-+help/addsub Groups/Divisions=[u(cobj,group)]/HLP`GROUPS`DIVISIONS
-&HLP`GROUPS`DIVISIONS [u(cobj,group)]=Divisions are groups within a group. Codedly they are simply extra labels to help with organizing members. Divisions have no extra permissions, and ranks are completely for show.%R%R[ansi(hc,Administrating Divisions)]%RThis requires the Manage permission.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+dcreate <name>)] - Creates a new division.%R[ansi(h,+drename <#>=<new name>)] - Renames a division.%R[ansi(h,+ddisband <division name or #>)] - Delete a division.%R[ansi(h,+daddrank <div>/<ranknumber>=<name>)] - Adds a new rank to a Division.%R[ansi(h,+ddelrank <div>/<rank>)] - Removes a rank if unused.%R[ansi(h,+dnamerank <div>/<rank>=<newname>)] - Renames a division rank.%R[ansi(h,+dassign <player>=<division name or #>)] - Add a player to <Division.>%R[ansi(h,+dkick <player>=<division name or #>)] - Remove a player from <division.>%R[ansi(h,+drank <division>/<player>=<#>)] - Sets a player's rank in <division.>)]%R%R[ansi(hc,Member Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+divisions)] - Show all Divisions.%R[ansi(h,+drank <division>)] - Display Rank information for <division>.)]
+&HLP`DIVISIONS [u(cobj,group)]=Divisions are groups within a group. Codedly they are simply extra labels to help with organizing members. Divisions have no extra permissions, and ranks are completely for show.%R%R[ansi(hc,Administrating Divisions)]%RThis requires the Manage permission.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+dadmin/create <name>)] - Creates a new division.%R[ansi(h,+dadmin/rename <#>=<new name>)] - Renames a division.%R[ansi(h,+dadmin/disband <division name or #>)] - Delete a division.%R[ansi(h,+drank/create <div>/<ranknumber>=<name>)] - Adds a new rank to a Division.%R[ansi(h,+drank/delete <div>/<rank>)] - Removes a rank if unused.%R[ansi(h,+drank/rename <div>/<rank>=<newname>)] - Renames a division rank.%R[ansi(h,+dmember/add <div>/<player>)] - Add a player to <Division.>%R[ansi(h,+dmember/kick <div>/<player>)] - Remove a player from <division.>%R[ansi(h,+drank <division>/<player>=<#>)] - Sets a player's rank in <division.>)]%R%R[ansi(hc,Member Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+divisions)] - Show all Divisions.%R[ansi(h,+drank <division>)] - Display Rank information for <division>.)]
++help/addsub Groups/Divisions=[u(cobj,group)]/HLP`DIVISIONS
 
-+help/addsub Groups/Settings=[u(cobj,group)]/HLP`GROUPS`SETTINGS
-&HLP`GROUPS`SETTINGS [u(cobj,group)]=[ansi(hc,Group Settings)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,Channelrank)] - <bool> - Display rank tags in group channels.%R[ansi(h,Color)] - <colorcode> - What color the group channels and group name will be\, unless personally overriden.%R[ansi(h,COMMAND)] - <rank#> - Members this rank or better will show under the Command staff in DIVISIONAL DISPLAYMODE.%R[ansi(h,IC)] - <bool> - enable or disable the IC/RADIO channel.%R[ansi(h,OOC)] - <bool> - enable or disable the OOC channel.%R[ansi(h,TIER)] - <#> - The Group's Tier #.%R[ansi(h,DISPLAYMODE)] - <word> - The group display uses special rules. \(See below\). Setting to anything else uses default display.%R[ansi(h,STARTRANK)] - <rank> - Rank# for newly added players. Defaults to 4.%R[ansi(h,ABBREVIATION)] - The abbreviation is used for the BBS\, +who list\, and other purposes. Must be unique amongst groups!%R[ansi(h,LETTER)] - Like abbreviation but a single letter. Must be unique amongst groups!%R[ansi(h,SYSALERT)] - <rank> - Anyone at or above this rank will receive group system alerts regarding major events.%R%ROnly the group leader may alter these using:%R[ansi(h,+gset <setting>=<value>)]%R'bool' refers to a true false value. 0 = false\, 1 = true.%RDISPLAYMODE\, TIER\, LETTER and ABBREVIATION may only be changed by staff.)]%R%R[ansi(hc,Display Types)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,FACTION)] - Alters display for large factions. +group <name> and +gwho will use a variable width roster showing only name\, rank number\, and the first found of either <title> or <rankname>\, such as 1-Field Marshal \(or if a title was set\, 1-Grand Poobah\).%R[ansi(h,DIVISIONAL)] - For well-organized groups that make use of divisions a lot. +group <name> and +gwho become a fusion of traditional +groups display and +divisions\, showing first anyone who is at or over COMMAND rank\, followed by every division\, then anyone who isn't in a division. The R# column is <grouprank>-<divrank>.)]
 
-+help/addsub Groups/Channels=[u(cobj,group)]/HLP`GROUPS`CHANNELS
-&HLP`GROUPS`CHANNELS [u(cobj,group)]=Groups have both IC and OOC softcoded channels that work much like normal @channels.%R%RNote: +gradio is an alias for +gic%R%R[ansi(hc,Basic Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gic/on)] - Joins the group's IC channel.%R[ansi(h,+gic/off)] - Leaves group's IC channel.%R[ansi(h,+gooc/on)] - Joins the group's OOC channel.%R[ansi(h,+gooc/off)] - Leaves the group's OOC channel.%R[ansi(h,+gic/gag)] - Stop receiving a group's messages. Resets on logout. Reversed with /ungag%R[ansi(h,+gooc/gag)] - Like above.)]%R%R[ansi(hc,Moderator Commands)]%RMuzzled players cannot use a group's channels for a set duration.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmuzzle)] - Show all muzzled players.%R[ansi(h,+gmuzzle <player>/<ic/ooc>=<duration>)] - Muzzles a player from group channels. <duration> must be in stringsecs\(\) compatible format - [u(pueblize,help stringsecs\(\))]%R[ansi(h,+gunmuzzle <player>/<ic/ooc>)] - Removes an existing muzzle.)]%R%R[ansi(hc,Sending Messages)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gemit <ic/ooc>=<message>)] - Send a sourceless message on the channel. GEMIT permission required.%R[ansi(h,+gooc <speech>)] - speaks over the group's OOC channel.%R[ansi(h,+gic <speech>)] - Speaks over the group's IC channel.%R[ansi(h,+gradio <speech>)] - Alternate for +gic%R%R[ansi(h,=<group> <speech>)] - Shortcut for a specific group's OOC channels.%R[ansi(h,-<group> <speech>)] - Shortcut for a group's IC channels.%R%R<group> must be a single word in this usage. The command performs partial matching based on what groups you are a member of and haven't disabled reception for. You may also use the /gag\, /ungag\, /on\, and /off switches with it. Extra filtering is not performed if using a switch!%R%R[ansi(h,+grecall <ic/ooc>=<#>)] - recall a number of lines of previous chat\, similar to @chan/recall.)]
+&HLP`CHANNELS [u(cobj,group)]=Groups have both IC and OOC softcoded channels that work much like normal @channels.%R%RNote: +gradio is an alias for +gic%R%R[ansi(hc,Basic Commands)]Note: These are presented with +gooc as an example but +gic and +gradio work the same!%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gooc/join)] - Joins the Channel.%R[ansi(h,+gooc/leave)] - Leaves the channel.%R[ansi(h,+gooc/gag)] - Stop receiving Channel messages. resets on logout. Reversed with /ungag%R%R[ansi(hc,Moderator Commands)]%RMuzzled players cannot use a group's channels for a set duration.%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gooc/muzzle)] - Show all muzzled players.%R[ansi(h,+gooc/muzzle <player>=<duration>)] - Muzzles a player from group channels.)]%R[ansi(h,+gooc/unmuzzle <player>)] - Removes an existing muzzle.)]%R%R[ansi(hc,Sending Messages)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gemit <ic/ooc>=<message>)] - Send a sourceless message on the channel. GEMIT permission required.%R[ansi(h,+gooc <speech>)] - speaks over the group's OOC channel.%R[ansi(h,+gic <speech>)] - Speaks over the group's IC channel.%R%R[ansi(h,=<group> <speech>)] - Shortcut for a specific group's OOC channels.%R[ansi(h,-<group> <speech>)] - Shortcut for a group's IC channels.%R%R<group> must be a single word in this usage. The command performs partial matching based on what groups you are a member of and haven't disabled reception for. You may also use the /gag\, /ungag\, /on\, and /off switches with it. Extra filtering is not performed if using a switch!%R%R[ansi(h,+gooc/recall <#>)] - recall a number of lines of previous chat\, similar to @chan/recall.)]
++help/addsub Groups/Channels=[u(cobj,group)]/HLP`CHANNELS
 
 &Q`UPDATE`ABBR [u(cobj,group)]=UPDATE vol_group SET group_abbr=? WHERE group_id=?
 

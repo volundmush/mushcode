@@ -82,7 +82,7 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &FIL`ISBOARD [u(cobj,mig)]=cand(hasattr(%0/NEXT),hasattr(%0/ORDER))
 
-&BBS`BOARD [u(cobj,mig)]=th u(setq,bbid,u(call`3,volp_board,0,'[sqlescape(name(%0))]',get(%0/ORDER),'%1'));th u(call`3,volp_lock,0,%q<bbid>,'READ','[if(isobjid(%1),V`GROUP`[get(%1/D`ID)]:<=9001,sqlescape(switch(lock(%0/basic),*UNLOCKED*,#TRUE,lock(%0/basic))))]');th u(call`3,volp_lock,0,%q<bbid>,'POST','[if(isobjid(%1),V`GROUP`[get(%1/D`ID)]:<=9001,sqlescape(switch(lock(%0/enter),*UNLOCKED*,#TRUE,lock(%0/enter))))]');@dolist/inline u(FUN`LISTPOSTS,%0)={@attach/localize %!/BBS`POST=##,%q<bbid>,%0,inum(0)};
+&BBS`BOARD [u(cobj,mig)]=th u(setq,bbid,u(call`3,volp_board,0,'[sqlescape(name(%0))]',get(%0/ORDER),'%1'));th u(call`3,volp_lock,0,%q<bbid>,'READ','[if(isobjid(%1),V`GROUP`[get(%1/D`ID)]:<=9001,sqlescape(switch(lock(%0/basic),*UNLOCKED*,#TRUE,lock(%0/basic))))]');th u(call`3,volp_lock,0,%q<bbid>,'POST','[if(isobjid(%1),V`GROUP`[get(%1/D`ID)]:<=9001,sqlescape(switch(lock(%0/enter),*UNLOCKED*,#TRUE,lock(%0/enter))))]');@attach %!/INC`DOSQL=BBS`CONFIG,t(get(%0/MANDATORY)),get(%0/ANONYMOUS),%q<bbid>;@dolist/inline u(FUN`LISTPOSTS,%0)={@attach/localize %!/BBS`POST=##,%q<bbid>,%0,inum(0)};
 
 &FUN`LISTPOSTS [u(cobj,mig)]=u(sortposts`%va,edit(u(lattr,%0/~`*),~`,),%b,%b)
 &SORTPOSTS`PENNMUSH [u(cobj,mig)]=sortkey(#lambda/baseconv(\%0,36,10),%0,n,%1,%2)
@@ -100,12 +100,16 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 
 &Q`BBS`OLD_COMMENT [u(cobj,mig)]=INSERT INTO vol_bbcomment (post_id,comment_display_num,entity_id,comment_date_created,comment_date_modified,comment_text,comment_anonymous) VALUES (?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?)
 
-&GROUPS [u(cobj,mig)]=@check isdbref(u(cobj,group))=@attach %!/INC`MSG=ERROR: The New Group system is not installed!;@check isdbref(u(oldcobj,gms))=@attach %!/INC`MSG=ERROR: The Old group system could not be found!;@attach %!/INC`MSG`CHAN=Beginning GROUPS Conversion.;@wait me={@attach %!/GROUPS`CACHE;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GROUPS.;&GROUPS`STATUS %!=1}};@dolist/notify children(u(oldcobj,gop))={@parent ##=u(cobj,gop);@tel ##=u(cobj,gop);th u(attrib_set,##,D`ID,u(setr,groupid,u(call`4,volp_group,0,'[sqlescape(objid(##))]','[sqlescape(name(##))]',0,u(u(cobj,group)/conf,CREATE_PRIVATE))));@attach %!/INC`DOSQL=GROUPS`ABBR,default(##/SET`ABBREVIATION,left(name(##),3)),%q<groupid>;@select/inline get(##/SET`MAJOR)=>0,{@cpattr ##/SET`MAJOR=##/SET`TIER;@attach %!/INC`DOSQL=GROUPS`TIER,get(##/SET`TIER),get(##/D`ID)};@dolist/inline setdiff(u(lattrp,##/RANK`*),RANK`ALL RANK`LURK)={@attach %!/GROUPS`RANK=u(choosegame,%i1,%d1),u(choosegame,%i0,%d0)};@attach %!/GROUPS`MEMBERS=##;@attach %!/GROUPS`DIVISIONS=##};
+&GROUPS [u(cobj,mig)]=@check isdbref(u(cobj,group))=@attach %!/INC`MSG=ERROR: The New Group system is not installed!;@check isdbref(u(oldcobj,gms))=@attach %!/INC`MSG=ERROR: The Old group system could not be found!;@attach %!/INC`MSG`CHAN=Beginning GROUPS Conversion.;@wait me={@attach %!/GROUPS`CACHE;@attach %!/GROUPS`CHANNELS;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GROUPS.;&GROUPS`STATUS %!=1}};@dolist/notify children(u(oldcobj,gop))={@parent ##=u(cobj,gop);@tel ##=u(cobj,gop);th u(attrib_set,##,D`ID,u(setr,groupid,u(call`4,volp_group,0,'[sqlescape(objid(##))]','[sqlescape(name(##))]',0,u(u(cobj,group)/conf,CREATE_PRIVATE))));@attach %!/INC`DOSQL=GROUPS`ABBR,default(##/SET`ABBREVIATION,left(name(##),3)),%q<groupid>;@select/inline get(##/SET`MAJOR)=>0,{@cpattr ##/SET`MAJOR=##/SET`TIER;@attach %!/INC`DOSQL=GROUPS`TIER,get(##/SET`TIER),get(##/D`ID)};@dolist/inline setdiff(u(lattrp,##/RANK`*),RANK`ALL RANK`LURK)={@attach %!/GROUPS`RANK=u(choosegame,%i1,%d1),u(choosegame,%i0,%d0)};@attach %!/GROUPS`MEMBERS=##;@attach %!/GROUPS`DIVISIONS=##};
 
 &Q`GROUPS`ABBR [u(cobj,mig)]=UPDATE vol_group SET group_abbr=?,group_is_private=0 WHERE group_id=?
-&Q`GROUPS`TIER [u(cobj,group)]=UPDATE vol_group SET group_tier=? WHERE group_id=?
+&Q`GROUPS`TIER [u(cobj,mig)]=UPDATE vol_group SET group_tier=? WHERE group_id=?
 
 &GROUPS`CACHE [u(cobj,mig)]=@dolist/inline/notify setunion(children(u(cobj,gop)),children(u(cobj,dop)))={@trigger [u(cobj,group)]/GRP`CACHE`MEMBERS=##};@dolist/notify lsearch(all,type,player)={@trigger [u(cobj,group)]/GRP`CACHE`TIERS=##;@trigger [u(cobj,group)]/GRP`CACHE`CHARACTER=##}
+
+&GROUPS`CHANNELS [u(cobj,mig)]=@dolist/inline children(u(cobj,gop))={th u(setq,grp,##);@dolist/inline/nobreak IC OOC={th u(setq,chan,u(choosegame,%i0,%d0));th u(attrib_set,%q<grp>,CHANNEl`%q<chan>,u(filter,ISOBJID,setunion(get(%q<grp>/CHANNEl`%q<chan>),u(FILTER,GROUPCHAN,get(%q<grp>/MEMBERS),%b,%b,%q<grp>,%q<chan>))))}}
+
+&FIL`GROUPCHAN [u(cobj,mig)]=t(match(u(u(cobj,group)/FUN`GETPERM,%1,%0),%2))
 
 &GROUPS`RANK [u(cobj,mig)]=@select/inline isint(u(setr,rnkval,last(%1,`)))=1,{th u(attrib_set,%0,%1,u(setr,rank_id,u(call`3,volp_group_rank,0,get(%0/D`ID),%q<rnkval>,'[sqlescape(get(%0/%1`NAME))]')))}
 
@@ -155,3 +159,10 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &Q`SCENE`ACTION [u(cobj,mig)]=INSERT INTO vol_action (action_id,actor_id,source_id,action_is_deleted,action_type,action_date_created,action_text) SELECT action_id,actor_id,source_id,is_deleted,action_type,date_created,action_text FROM mush_action
 
 &Q`SCENE`PLOTLINK [u(cobj,mig)]=INSERT IGNORE INTO vol_plotlink (plot_id,scene_id) SELECT plot_id,scene_id FROM mush_plot_link
+
+
+&THEME [u(Cobj,mig)]=@check isdbref(u(cobj,theme))=@attach %!/INC`MSG=ERROR: The New Theme system is not installed!;@check isdbref(u(oldcobj,themedb))=@attach %!/INC`MSG=ERROR: The Old Theme system could not be found!;@attach %!/INC`MSG`CHAN=Beginning THEME Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating THEME.;&THEME`STATUS %!=1};@dolist/notify children(u(oldcobj,themedb))={th u(setq,theme,u(call`2,volp_theme,0,'[sqlescape(u(setr,themename,name(##)))]','[sqlescape(get(##/DESCRIBE))]'));@attach %!/INC`DOSQL=THEME`RENDER,u(render,get(##/DESCRIBE)),%q<theme>;@dolist/inline u(filter,ISOBJID,get(##/CAST))={@attach %!/INC`DOSQL=THEME`CAST,get(u(setr,chr,u(choosegame,%i0,%d0))/D`ID),%q<theme>,get(%q<chr>/D`FINGER`TYPE);@attach %!/INC`DOSQL=THEME`STATUS,get(%q<chr>/D`FINGER`STATUS),get(%q<chr>/D`ID);th u(attrib_set,%q<chr>,V`THEME`STATUS,get(%q<chr>/D`FINGER`STATUS))}};
+
+&Q`THEME`RENDER [u(Cobj,mig)]=UPDATE vol_theme SET theme_description_render=? WHERE theme_id=?
+&Q`THEME`CAST [u(Cobj,mig)]=INSERT INTO vol_tmember (character_id,theme_id,tmember_type) VALUES (?,?,?) ON DUPLICATE KEY UPDATE tmember_type=VALUES(tmember_type)
+&Q`THEME`STATUS [u(Cobj,mig)]=UPDATE vol_character SET character_status=? WHERE character_id=?

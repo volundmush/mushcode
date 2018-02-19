@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS vol_character (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_character AS
-	SELECT c.character_id,e.entity_name AS character_name,e.entity_objid AS character_objid,c.character_is_deleted,c.account_id,c.character_alt,c.character_date_created,UNIX_TIMESTAMP(c.character_date_created) AS character_date_created_secs,c.character_date_activity,UNIX_TIMESTAMP(c.character_date_activity) AS character_date_activity_secs,c.character_date_approved,UNIX_TIMESTAMP(c.character_date_approved) AS character_date_approved_secs,c.character_is_guest
+	SELECT c.character_id,e.entity_name AS character_name,e.entity_objid AS character_objid,c.character_is_deleted,c.account_id,c.character_alt,c.character_date_created,UNIX_TIMESTAMP(c.character_date_created) AS character_date_created_secs,c.character_date_activity,UNIX_TIMESTAMP(c.character_date_activity) AS character_date_activity_secs,c.character_date_approved,UNIX_TIMESTAMP(c.character_date_approved) AS character_date_approved_secs,c.character_status,c.character_is_guest
 	FROM vol_character AS c LEFT JOIN vol_entity AS e ON e.entity_id=c.character_id;
 
 CREATE OR REPLACE VIEW volv_account_characters AS
@@ -964,7 +964,7 @@ DELIMITER ;
 -- SQL Schema for Pot, Radio, Group Channels, and normal Channels.
 -- source_objid is the Mogrifier for Channels, the Group object for Groups, the Room for Pot.
 -- message_type = 0 for Pot, 1 for Group IC, 2 for Group OOC, 3 for Radio, 4 for channels.
-CREATE TABLE IF NOT EXISTS vol_messages(
+CREATE TABLE IF NOT EXISTS vol_messages (
 	message_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	message_date_created DATETIME NOT NULL,
 	message_type INT UNSIGNED NOT NULL DEFAULT 0,
@@ -1130,6 +1130,21 @@ CREATE OR REPLACE VIEW volv_plotlink AS
 	SELECT p.*,s.* FROM vol_plotlink AS pl LEFT JOIN volv_scene AS s ON s.scene_id=pl.scene_id LEFT JOIN volv_plot AS p ON p.plot_id=pl.plot_id
 	ORDER BY p.plot_id,s.scene_id;
 
+CREATE TABLE IF NOT EXISTS vol_scene_partner (
+  scene_id INT UNSIGNED NOT NULL,
+  partner_slot TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  character_id INT UNSIGNED NOT NULL,
+  FOREIGN KEY(scene_id) REFERENCES vol_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  UNIQUE(scene_id,character_id)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE OR REPLACE VIEW volv_scene_partner AS
+  SELECT p.scene_id,p.partner_slot,c.character_id,c.character_name,c.character_objid FROM vol_scene_partner AS p LEFT JOIN volv_character AS c ON c.character_id=p.character_id ORDER BY p.scene_id,p.partner_slot;
+
+CREATE OR REPLACE VIEW volv_scene_partner_agg AS
+  SELECT scene_id,partner_slot,GROUP_CONCAT(character_objid ORDER BY character_name) AS character_objids
+  FROM volv_scene_partner GROUP BY scene_id,partner_slot;
 
 -- SQL Schema for the Csys Core 
 CREATE TABLE IF NOT EXISTS vol_centity (
