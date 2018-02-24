@@ -1,11 +1,30 @@
 @@ DEPENDENCIES - CORE
 
-th u(newconf,CONFIG,STORYTELLER,MAX_VIRTUES,0,Pool calcs assume max virtues?,BOOL)
-th u(newconf,CONFIG,STORYTELLER,MAX_WILLPOWER,0,Pool calcs assume max willpower?,BOOL)
-th u(newconf,CONFIG,STORYTELLER,MAX_BREEDING,0,Pool calcs assume max breeding?,BOOL)
-th u(newconf,CONFIG,STORYTELLER,MAX_OVERDRIVE,25,Maximum size of Overdrive pool.,POSINT)
-th u(newconf,CONFIG,STORYTELLER,GT_ESS_BREEDING,0,DB Pools substitute when Essence>Breeding?,BOOL)
-th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence by default?,BOOL)
+&CONFIG`OPTIONS [u(cobj,pool)]=PLAYER_GAIN|MAX_VIRTUES|MAX_WILLPOWER|MAX_BREEDING|MAX_OVERDRIVE|GT_ESS_BREEDING|ALWAYS_AWAKENED
+
+&CONFIG`MAX_VIRTUES [u(cobj,pool)]=HOUSE RULE: Pool Calculations Assume max virtues?
+&CONFIG`MAX_VIRTUES`DEFAULT [u(cobj,pool)]=0
+&CONFIG`MAX_VIRTUES`VALID [u(cobj,pool)]=BOOL
+
+&CONFIG`MAX_WILLPOWER [u(cobj,pool)]=HOUSE RULE: Pool Calculations Assume max Willpower?
+&CONFIG`MAX_WILLPOWER`DEFAULT [u(cobj,pool)]=0
+&CONFIG`MAX_WILLPOWER`VALID [u(cobj,pool)]=BOOL
+
+&CONFIG`MAX_BREEDING [u(cobj,pool)]=HOUSE RULE: Pool Calculations Assume max Breeding for Dragon-Blooded?
+&CONFIG`MAX_BREEDING`DEFAULT [u(cobj,pool)]=0
+&CONFIG`MAX_BREEDING`VALID [u(cobj,pool)]=BOOL
+
+&CONFIG`MAX_OVERDRIVE [u(cobj,pool)]=HOUSE RULE: Maximum size of Overdrive Pool?
+&CONFIG`MAX_OVERDRIVE`DEFAULT [u(cobj,pool)]=25
+&CONFIG`MAX_OVERDRIVE`VALID [u(cobj,pool)]=INT
+
+&CONFIG`GT_ESS_BREEDING [u(cobj,pool)]=HOUSE RULE: When calculating Dragon-Blooded pools, substitue Essence for Breeding where Essence > Breeding? This allows high-Essence Dragon-Blooded to close the gap on young, high-Breeding ones. At Essence 6, any Dragon-Blooded effectively has 'Legendary Breeding' for pools.
+&CONFIG`GT_ESS_BREEDING`DEFAULT [u(cobj,pool)]=0
+&CONFIG`GT_ESS_BREEDING`VALID [u(cobj,pool)]=BOOL
+
+&CONFIG`ALWAYS_AWAKENED [u(cobj,pool)]=HOUSE RULE: Player Character Mortals ALWAYS have an Essence Pool without purchasing Awakened Essence?
+&CONFIG`ALWAYS_AWAKENED`DEFAULT [u(cobj,pool)]=0
+&CONFIG`ALWAYS_AWAKENED`VALID [u(cobj,pool)]=BOOL
 
 &POOL`PERSONAL [u(cobj,pool)]=Pool
 &POOL`PERSONAL`UNITNAME [u(cobj,pool)]=Motes
@@ -92,9 +111,9 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 &POOL`VALOR`HAVE [u(cobj,pool)]=hasattr(%0/D`VIRTUES)
 &POOL`VALOR`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH
 
-&FUN`WILLCHECK [u(cobj,pool)]=if(u(game_Config,STORYTELLER,MAX_WILLPOWER),10,u(POOL`WILLPOWER`MAX,%0))
-&FUN`BREEDING [u(cobj,pool)]=u(lmax,if(u(game_config,STORYTELLER,MAX_BREEDING),5,u(getstat,%0,D`INFO,BREEDING)),if(u(game_config,STORYTELLER,GT_ESS_BREEDING),bound(max(getpower(%0),u(getstat,%0,D`INFO,BREEDING)),0,6)))
-&FUN`VIRTUES [u(cobj,pool)]=if(u(game_config,STORYTELLER,MAX_VIRTUES),20,u(ladd,iter(get(%0/D`VIRTUES),last(%i0,~),|)))
+&FUN`WILLCHECK [u(cobj,pool)]=if(u(conf,MAX_WILLPOWER),10,u(POOL`WILLPOWER`MAX,%0))
+&FUN`BREEDING [u(cobj,pool)]=u(lmax,if(u(conf,MAX_BREEDING),5,u(getstat,%0,D`INFO,BREEDING)),if(u(conf,GT_ESS_BREEDING),bound(max(getpower(%0),u(getstat,%0,D`INFO,BREEDING)),0,6)))
+&FUN`VIRTUES [u(cobj,pool)]=if(u(conf,MAX_VIRTUES),20,u(ladd,iter(get(%0/D`VIRTUES),last(%i0,~),|)))
 
 &FUN`EXTRA [u(cobj,pool)]=localize(u(ladd,iter(edit(u(lattr,%!/%1`%2`*),%1`%2`,),[u(setq,charms,v(%1`%2`%i0))][mul(iter(regrepi(%0,D`CHARMS`%1`*,%\b(%q<charms>)%\b),u(ladd,iter(regraballi(get(%0/%i0),%\b(%q<charms>)~%\d+,|,|),after(%i0,~),|,%b))),%i0)])))
 
@@ -115,7 +134,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 @@ LUNAR
 &CLASS`LUNAR [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT EXPANDED OVERDRIVE
 &POOL`PERSONAL`MAX`LUNAR [u(cobj,pool)]=add(getpower(%0),mul(2,u(FUN`WILLCHECK,%0)))
-&POOL`PERIPHERAL`MAX`LUNAR [u(cobj,pool)]=add(mul(4,getpower(%0)),mul(2,u(FUN`WILLCHECK,%0)),mul(4,if(u(game_config,STORYTELLER,MAX_VIRTUES),5,u(lmax,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
+&POOL`PERIPHERAL`MAX`LUNAR [u(cobj,pool)]=add(mul(4,getpower(%0)),mul(2,u(FUN`WILLCHECK,%0)),mul(4,if(u(conf,MAX_VIRTUES),5,u(lmax,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
 &POOL`EXPANDED`MAX`LUNAR [u(cobj,pool)]=u(FUN`EXTRA,%0,LUNAR,%1)
 &POOL`OVERDRIVE`MAX`LUNAR [u(cobj,pool)]=u(FUN`EXTRA,%0,LUNAR,%1)
 
@@ -128,7 +147,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 @@ TERRESTRIAL
 &CLASS`TERRESTRIAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT EXPANDED
 &POOL`PERSONAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(getpower(%0),u(FUN`WILLCHECK,%0),u(FUN`BREEDING,%0))
-&POOL`PERIPHERAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(mul(4,getpower(%0)),u(FUN`WILLCHECK,%0),if(u(game_config,STORYTELLER,MAX_VIRTUES),10,lmath(add,elements(sort(iter(get(%0/D`VIRTUES),last(%i0,~),|)),3 4))),switch(u(FUN`BREEDING,%0),1,2,2,3,3,5,4,7,5,9,6,11,0))
+&POOL`PERIPHERAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(mul(4,getpower(%0)),u(FUN`WILLCHECK,%0),if(u(conf,MAX_VIRTUES),10,lmath(add,elements(sort(iter(get(%0/D`VIRTUES),last(%i0,~),|)),3 4))),switch(u(FUN`BREEDING,%0),1,2,2,3,3,5,4,7,5,9,6,11,0))
 &POOL`EXPANDED`MAX`TERRESTRIAL [u(cobj,pool)]=u(FUN`EXTRA,%0,TERRESTRIAL,%1)
 &POOL`OVERDRIVE`MAX`TERRESTRIAL [u(cobj,pool)]=u(FUN`EXTRA,%0,TERRESTRIAL,%1)
 
@@ -196,7 +215,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 @@ ALCHEMICAL
 &CLASS`ALCHEMICAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER CLARITY EXPANDED OVERDRIVE
 &POOL`PERSONAL`MAX`ALCHEMICAL [u(cobj,pool)]=add(mul(3,getpower(%0)),u(FUN`WILLCHECK,%0))
-&POOL`PERIPHERAL`MAX`ALCHEMICAL [u(cobj,pool)]=add(mul(5,getpower(%0)),mul(3,u(FUN`WILLCHECK,%0)),mul(2,if(u(game_config,STORYTELLER,MAX_VIRTUES),5,u(lmax,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
+&POOL`PERIPHERAL`MAX`ALCHEMICAL [u(cobj,pool)]=add(mul(5,getpower(%0)),mul(3,u(FUN`WILLCHECK,%0)),mul(2,if(u(conf,MAX_VIRTUES),5,u(lmax,iter(get(%0/D`VIRTUES),last(%i0,~),|)))))
 &POOL`EXPANDED`MAX`ALCHEMICAL [u(cobj,pool)]=u(FUN`EXTRA,%0,ALCHEMICAL,%1)
 &POOL`OVERDRIVE`MAX`ALCHEMICAL [u(cobj,pool)]=u(FUN`EXTRA,%0,ALCHEMICAL,%1)
 
@@ -229,7 +248,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 
 @@ DRAGON-King
 &CLASS`DRAGON-KING [u(cobj,pool)]=PERSONAL WILLPOWER
-&POOL`PERSONAL`MAX`DRAGON-KING [u(cobj,pool)]=add(mul(4,getpower(%0)),mul(2,u(FUN`WILLCHECK,%0)),if(u(game_config,STORYTELLER,MAX_VIRTUES),10,add(u(getstat,%0,D`VIRTUES,Conviction),u(getstat,%0,D`VIRTUES,Valor))))
+&POOL`PERSONAL`MAX`DRAGON-KING [u(cobj,pool)]=add(mul(4,getpower(%0)),mul(2,u(FUN`WILLCHECK,%0)),if(u(conf,MAX_VIRTUES),10,add(u(getstat,%0,D`VIRTUES,Conviction),u(getstat,%0,D`VIRTUES,Valor))))
 
 @@ JADEBORN
 &CLASS`JADEBORN [u(cobj,pool)]=PERSONAL WILLPOWER DIVERGENCE
@@ -245,7 +264,7 @@ th u(newconf,CONFIG,STORYTELLER,ALWAYS_AWAKENED,0,Mortals have Awakened Essence 
 
 @@ MORTAL
 &CLASS`MORTAL [u(cobj,pool)]=PERSONAL WILLPOWER
-&POOL`PERSONAL`MAX`MORTAL [u(cobj,pool)]=if(cor(u(getstat,%0,D`MERITS,Awakened Essence),u(GAME_CONFIG,STORYTELLER,AWAKENED_ESSENCE)),mul(10,getpower(%0)),0)
+&POOL`PERSONAL`MAX`MORTAL [u(cobj,pool)]=if(cor(u(getstat,%0,D`MERITS,Awakened Essence),u(conf,AWAKENED_ESSENCE)),mul(10,getpower(%0)),0)
 
 @@ Spirit
 &CLASS`SPIRIT [u(cobj,pool)]=PERSONAL WILLPOWER EXPANDED

@@ -3,5 +3,5 @@
 &CMD`+INFO`RHOSTMUSH [u(cobj,ims)]=$^(?s)(?\:\+)?(info|pinfo|bg|condition)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
 @set [u(cobj,ims)]/CMD`+INFO`RHOSTMUSH=regexp
 
-&INIT`BG [u(cobj,ims)]=th u(setq`%va,sysname,BG);th u(setq`%va,root,D`BGFILE);th u(setq`%va,private,1);th u(setq`%va,comm,+bg)
-&INIT`CONDITION [u(cobj,ims)]=th u(setq`%va,sysname,CONDITION);th u(setq`%va,root,D`CONDITIONFILE);th u(setq`%va,private,1);th u(setq`%va,comm,+condition)
+&INIT`BG [u(cobj,ims)]=th u(setq,sysname,BG);th u(setq,root,3);th u(setq,private,1);th u(setq,comm,+bg)
+&INIT`CONDITION [u(cobj,ims)]=th u(setq,sysname,CONDITION);th u(setq,root,4);th u(setq,private,1);th u(setq,comm,+condition)

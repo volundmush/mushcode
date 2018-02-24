@@ -1,7 +1,5 @@
 @@ DEPENDENCIES - CORE
 
-
-
 &INC`MAIN [u(cobj,sheet)]=@pemit %#=u(FUN`SHEETHEADER,%0,u(setr,class,getclass(%0)));@select/inline strlen(setunion(u(u(cobj,data)/FUN`RET`ATTRIBUTES,%0),setunion(get(%0/D`FAVORED`ATTRIBUTES),get(%0/D`SUPERNAL`ATTRIBUTES),|,|),|,|))=>0,{@pemit %#=u(FUN`ATTRIBUTES,%0,%q<class>)};@select/inline strlen(setunion(u(u(cobj,data)/FUN`RET`ABILITIES,%0),setunion(get(%0/D`FAVORED`ABILITIES),get(%0/D`SUPERNAL`ABILITIES),|,|),|,|))=>0,{@pemit %#=u(FUN`ABILITIES,%0,%q<class>)};@select/inline strlen(get(%0/D`SPECIALTIES))=>0,{@pemit %#=u(FUN`SPECIALTIES,%0,%q<class>)};@select/inline u(nattr,%0/D`WARFORM_MUTATIONS`*)=>0,{@pemit %#=u(FUN`WARFORM_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`RAGE_MUTATIONS`*)=>0,{@pemit %#=u(FUN`RAGE_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`POSITIVE_MUTATIONS`*)=>0,{@pemit %#=u(FUN`POSITIVE_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`NEGATIVE_MUTATIONS`*)=>0,{@pemit %#=u(FUN`NEGATIVE_MUTATIONS,%0,%q<class>)};@select/inline u(nattr,%0/D`BACKGROUNDS`*)=>0,{@pemit %#=u(FUN`BACKGROUNDS,%0,%q<class>)};@select/inline u(nattr,%0/D`MERITS`*)=>0,{@pemit %#=u(FUN`MERITS,%0,%q<class>)};@select/inline u(nattr,%0/D`FLAWS`*)=>0,{@pemit %#=u(FUN`FLAWS,%0,%q<class>)};@select/inline u(nattr,%0/D`PACTS`*)=>0,{@pemit %#=u(FUN`PACTS,%0,%q<class>)};@select/inline strlen(get(%0/D`GRACES))=>0,{@pemit %#=u(FUN`GRACES,%0,%q<class>)};@attach %!/INC`ADVANTAGES;@attach %!/INC`FOOTER
 
 @@ @pemit %#=u(FUN`ADVANTAGES`%q<class>,%0,%q<class>);@pemit %#=u(FUN`OTHER,%0,%q<class>);@pemit %#=u(FUN`FOOTER,%0,%q<class>)
@@ -41,15 +39,15 @@
 
 &INC`ADVANTAGES [u(cobj,sheet)]=@select/inline gt(strlen(get(%0/D`COLLEGES)),0)=1,{@pemit %#=u(FUN`COLLEGES,%0,%q<class>)};@select/inline gt(strlen(get(%0/D`PATHS)),0)=1,{@pemit %#=u(FUN`PATHS,%0,%q<class>)};@attach %!/INC`CHARMS;@attach %!/INC`MACHARMS;@attach %!/INC`SPELLS;@attach %!/INC`CHARM_SLOTS
 
-&INC`CHARMS [u(cobj,sheet)]=@dolist/inline u(filter,HASCHARMS,CHARMS`SOLAR CHARMS`LUNAR CHARMS`ABYSSAL CHARMS`ALCHEMICAL CHARMS`INFERNAL CHARMS`TERRESTRIAL CHARMS`JADEBORN CHARMS`RAKSHA CHARMS`SIDEREAL CHARMS`SPIRIT CHARMS`MORTAL CHARMS`GHOST,%b,%b,%0)={@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,before(##,`))\, [u(capnames,after(##,`))]);@dolist/inline u(filter,HASATTRVAL,u(lattr,%0/D`%i0`*),%b,%b,%0)={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,u(capnames,last(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0),`)));@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,get(%0/[switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)])))}}
+&INC`CHARMS [u(cobj,sheet)]=@dolist/inline u(filter,HASCHARMS,CHARMS`SOLAR CHARMS`LUNAR CHARMS`ABYSSAL CHARMS`ALCHEMICAL CHARMS`INFERNAL CHARMS`TERRESTRIAL CHARMS`JADEBORN CHARMS`RAKSHA CHARMS`SIDEREAL CHARMS`SPIRIT CHARMS`MORTAL CHARMS`GHOST,%b,%b,%0)={@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,before(##,`))\, [u(capnames,after(##,`))]);@dolist/inline u(filter,HASATTRVAL,u(lattr,%0/D`%i0`*),%b,%b,%0)={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,u(capnames,last(u(choosegame,%i0,%d0),`)));@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,get(%0/[u(choosegame,%i0,%d0)])))}}
 
 &FIL`HASCHARMS [u(cobj,sheet)]=t(regrepi(%1,D`%0`*,.+))
 &FIL`HASATTRVAL [u(cobj,sheet)]=u(hasattrval,%1/%0)
 &FIL`HASATTRVAL2 [u(cobj,sheet)]=u(hasattrval,%1/D`%0)
 
-&INC`MACHARMS [u(cobj,sheet)]=@dolist/inline u(filter,HASCHARMS,CHARMS`TERRESTRIAL_MARTIAL_ARTS CHARMS`CELESTIAL_MARTIAL_ARTS CHARMS`SIDEREAL_MARTIAL_ARTS,%b,%b,%0)={@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,edit(elements(%i0,2,`),_,%b)));@dolist/inline u(filter,HASATTRVAL,u(lattr,%0/D`%i0`*),%B,%B,%0)={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,last(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0),`): [default(%0/[switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)]`NAME,Unnamed Style)]);@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,get(%0/[switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)])))}}
+&INC`MACHARMS [u(cobj,sheet)]=@dolist/inline u(filter,HASCHARMS,CHARMS`TERRESTRIAL_MARTIAL_ARTS CHARMS`CELESTIAL_MARTIAL_ARTS CHARMS`SIDEREAL_MARTIAL_ARTS,%b,%b,%0)={@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,edit(elements(%i0,2,`),_,%b)));@dolist/inline u(filter,HASATTRVAL,u(lattr,%0/D`%i0`*),%B,%B,%0)={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,last(u(choosegame,%i0,%d0),`): [default(%0/[u(choosegame,%i0,%d0)]`NAME,Unnamed Style)]);@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,get(%0/[u(choosegame,%i0,%d0)])))}}
 
-&INC`SPELLS [u(cobj,sheet)]=@dolist/inline u(filter,HASCHARMS,SPELLS PROTOCOLS ARTS SCIENCES,%b,%b,%0)={@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,before(%i0,`)));@dolist/inline u(filter,HASATTRVAL,switch(%i0,SPELLS,D`SPELLS`TERRESTRIAL D`SPELLS`CELESTIAL D`SPELLS`SOLAR D`SPELLS`SHADOWLANDS D`SPELLS`LABYRINTH D`SPELLS`VOID,PROTOCOLS,D`PROTOCOLS`MAN-MACHINE D`PROTOCOLS`GOD-MACHINE,ARTS,D`ARTS`DEGREES D`ARTS`PROCEDURES,SCIENCES,D`SCIENCES`DEGREES,D`SCIENCES`PROCEDURES),%b,%b,%0)={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,u(capnames,last(switch(v(game),PennMUSH,%i0,RhostMUSH,%d0),`)));@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,get(%0/[switch(v(game),PennMUSH,%i0,RhostMUSH,%d0)])))}}
+&INC`SPELLS [u(cobj,sheet)]=@dolist/inline u(filter,HASCHARMS,SPELLS PROTOCOLS ARTS SCIENCES,%b,%b,%0)={@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,before(%i0,`)));@dolist/inline u(filter,HASATTRVAL,switch(%i0,SPELLS,D`SPELLS`TERRESTRIAL D`SPELLS`CELESTIAL D`SPELLS`SOLAR D`SPELLS`SHADOWLANDS D`SPELLS`LABYRINTH D`SPELLS`VOID,PROTOCOLS,D`PROTOCOLS`MAN-MACHINE D`PROTOCOLS`GOD-MACHINE,ARTS,D`ARTS`DEGREES D`ARTS`PROCEDURES,SCIENCES,D`SCIENCES`DEGREES,D`SCIENCES`PROCEDURES),%b,%b,%0)={@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,u(capnames,last(u(choosegame,%i0,%d0),`)));@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,get(%0/[u(choosegame,%i0,%d0)])))}}
 
 &INC`CHARM_SLOTS [u(cobj,sheet)]=@dolist/inline u(filter,HASATTRVAL2,Slots,%b,%b,%0)={@pemit %#=u(FUN`DOTFORMAT,%0,%1,%i0,36,left(%i0,1),after(%i0,left(%i0,1)),D`%i0,sort(u(u(cobj,data)/FUN`RET`SLOTS,%0),i,|,|),,1)}
 
@@ -110,6 +108,3 @@
 &RAKSHA`FRONTSLASH [u(cobj,sheet)]=+powderblue
 &RAKSHA`HEADER [u(cobj,sheet)]=+powderblue
 &RAKSHA`CHARMHEADER [u(cobj,sheet)]=+powderblue
-
-
-| Strength.............**| Charisma.............*** | Perception..........*** |

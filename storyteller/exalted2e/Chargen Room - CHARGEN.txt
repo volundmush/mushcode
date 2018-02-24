@@ -1,9 +1,7 @@
 @@ DEPENDENCIES - CORE
 
-@select/inline isdbref(u(cobj,chargen))=0,{@dig/teleport Chargen;th u(attrib_set,u(cobj,mco),COBJ`CHARGEN,u(objid,%l));@parent %l=u(cobj,mco)}
-@select/inline v(game)=PennMUSH,{@set u(cobj,chargen)=WIZARD !NO COMMAND},RhostMUSH,{@set u(cobj,chargen)=INHERIT SIDEFX !NO COMMAND}
-
-@cpattr u(cobj,ancestor_room)/HEADER=u(cobj,chargen)/HEADER
+@select/inline isdbref(u(cobj,chargen))=0,{@dig/teleport Chargen;th u(attrib_set,u(cobj,ccp),COBJ`CHARGEN,u(objid,%l));@parent %l=u(cobj,ccp)}
+@select/inline u(game)=PennMUSH,{@set u(cobj,chargen)=WIZARD !NO COMMAND},RhostMUSH,{@set u(cobj,chargen)=INHERIT SIDEFX !NO COMMAND}
 
 &CMD`+PAGE [u(cobj,chargen)]=$^\+page(?\: +(.+))?$:@check strlen(%1)=@attach %!/INC`MSG=ERROR: +page requires a page to turn to. Your options are: [u(itemize,u(filter,ISPAGE,u(lattr,%!/CG`*,|),|,|),|,and,\,)];@check u(valnum,%1)=@attach %!/INC`MSG=ERROR: Pages must be whole\, positive numbers.;@check match(u(filter,ISPAGE,u(lattr,%!/CG`*,|),|,|),CG`%1,|)=@attach %!/INC`MSG=ERROR: Page not found!;th u(setstat,%#,D`CHARGEN,Page,CG`%1);@force/inline %#=look;@attach %!/INC`MSG=You are now viewing Page %1!
 @set [u(cobj,chargen)]/CMD`+PAGE=regexp

@@ -5,7 +5,7 @@ th u(newcobj,STORYTELLER: Intimacy Management System <INTIMACY>,intimacy,,,,WIZA
 &CMD`+INTIMACY`RHOSTMUSH [u(cobj,intimacy)]=$^(?s)\+intimacy(?\:/(\\S+))?(?\: +(.*))?$:@attach %!/CMD`+INTIMACY`MAIN
 @set [u(cobj,intimacy)]/CMD`+INTIMACY`RHOSTMUSH=regexp
 &CMD`+INTIMACY`MAIN [u(cobj,intimacy)]=@attach %!/INC`GETSWITCH=%1;@select/inline cand(strlen(%2),not(strlen(%1)),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%2,1},0,{@attach %!/INC`CHECKPC=%#,1};@attach %!/INC`[strfirstof(%q<switch>,MAIN)]=%2,%q<t1>
-@set [u(cobj,intimacy)]/CMD`+INTIMACY`[switch(v(game),PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,intimacy)]/CMD`+INTIMACY`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,intimacy)]=BUILD|ERODE|GAIN|LOSE|HELP|URGE|MOTIVATION
 
@@ -26,10 +26,8 @@ th u(newcobj,STORYTELLER: Intimacy Management System <INTIMACY>,intimacy,,,,WIZA
 &INC`MAIN [u(cobj,intimacy)]=@pemit %#=u(header,+intimacies for [name(%1)]);@dolist/inline MOTIVATION URGE={@select/inline gt(strlen(get(%1/D`INTIMACIES`%i0)),0)=1,{@pemit %#=rjust(ansi(h,%i0):,11) [get(%1/D`INTIMACIES`%i0)]}};@dolist/inline filterbool(#lambda/u(valnum,\%0),iter(u(lattr,%1/D`INTIMACIES`*),last(%i0,`)))=@pemit %#=ljust(rjust(ansi(h,%i0),3): [get(%1/D`INTIMACIES`%i0`CONTEXT)],60)[ljust([bound(get(%1/D`INTIMACIES`%i0`CUR),0,u(getstat,%1,D`VIRTUES,Conviction))]/[u(getstat,%1,D`VIRTUES,Conviction)],5)];@pemit %#=u(subheader)
 
 @@ ROLEPLAYING - +INTIMACY
-+help/add +intimacy=[u(cobj,intimacy)]/HLP`+INTIMACY
-+help/category +intimacy=Roleplaying
-&HLP`+INTIMACY [u(Cobj,intimacy)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+intimacy)] - Lists current Motivation\, Urge\, and Intimacies.%R[ansi(h,+intimacy/gain <text>)] - Gain a new Intimacy.%R[ansi(h,+intimacy/lose <id>)] - Lose a specified Intimacy.%R[ansi(h,+intimacy/build <id>)] - Raise Intimacy Health by 1.%R[ansi(h,+intimacy/erode <id>)] - Erode Intimacy Health by 1. Removes at 0 Health.%R[ansi(h,+intimacy/motivation <text>)] - Sets your Motivation.%R[ansi(h,+intimacy/urge <text>)] - Sets your urge if applicable.)]
+&HLP`INTIMACY [u(Cobj,intimacy)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+intimacy)] - Lists current Motivation\, Urge\, and Intimacies.%R[ansi(h,+intimacy/gain <text>)] - Gain a new Intimacy.%R[ansi(h,+intimacy/lose <id>)] - Lose a specified Intimacy.%R[ansi(h,+intimacy/build <id>)] - Raise Intimacy Health by 1.%R[ansi(h,+intimacy/erode <id>)] - Erode Intimacy Health by 1. Removes at 0 Health.%R[ansi(h,+intimacy/motivation <text>)] - Sets your Motivation.%R[ansi(h,+intimacy/urge <text>)] - Sets your urge if applicable.)]
++help/add Roleplaying/+intimacy=[u(cobj,intimacy)]/HLP`INTIMACY
 
-+shelp/add +intimacy=[u(cobj,intimacy)]/SHLP`+INTIMACY
-+shelp/category +intimacy=Characters
-&SHLP`+INTIMACY [u(Cobj,intimacy)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+intimacy <player>)] - Shows a player's Intimacy information.)]
+&SHLP`INTIMACY [u(Cobj,intimacy)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+intimacy <player>)] - Shows a player's Intimacy information.)]
++shelp/add Characters/+intimacy=[u(cobj,intimacy)]/SHLP`INTIMACY

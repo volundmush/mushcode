@@ -388,7 +388,7 @@ DELIMITER ;
 CREATE TABLE IF NOT EXISTS vol_bucket (
 	bucket_id INT UNSIGNED NOT NULL,
 	bucket_due INT UNSIGNED NOT NULL DEFAULT 1209600,
-	bucket_is_anonymous BOOLEAN DEFAULT FALSE,
+	bucket_is_anonymous TINYINT UNSIGNED DEFAULT 0,
 	bucket_description TEXT NULL DEFAULT NULL,
 	bucket_description_render TEXT NULL DEFAULT NULL,
 	bucket_stats BOOLEAN DEFAULT TRUE,
@@ -412,7 +412,7 @@ CREATE TABLE IF NOT EXISTS vol_job (
 	job_date_player_activity DATETIME NOT NULL,
 	job_date_admin_activity DATETIME NOT NULL,
 	job_status TINYINT UNSIGNED DEFAULT 0,
-	job_is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
+	job_is_anonymous TINYINT UNSIGNED DEFAULT 0,
 	INDEX(job_status,job_date_closed),
 	PRIMARY KEY(job_id),
 	FOREIGN KEY(bucket_id) REFERENCES vol_bucket(bucket_id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -1017,11 +1017,14 @@ CREATE OR REPLACE VIEW volv_runner AS
 CREATE OR REPLACE VIEW volv_plot AS
 	SELECT p.plot_id,p.plot_title,p.plot_pitch,p.plot_outcome,p.plot_date_start,UNIX_TIMESTAMP(p.plot_date_start) AS plot_date_start_secs,p.plot_date_end,UNIX_TIMESTAMP(p.plot_date_end) AS plot_date_end_secs,r.character_id AS owner_id,r.character_objid AS owner_objid,r.character_name AS owner_name FROM vol_plot AS p LEFT JOIN volv_runner AS r ON r.plot_id=p.plot_id AND r.runner_type=2 ORDER BY p.plot_id;
 	
-CREATE OR REPLACE VIEW volv_corunners AS
-	SELECT plot_id,GROUP_CONCAT(character_objid ORDER BY character_name SEPARATOR ' ') AS corunner_objids,GROUP_CONCAT(character_name ORDER BY character_name SEPARATOR '|') AS corunner_names FROM volv_runner WHERE runner_type=2 GROUP BY plot_id;
-	
+CREATE OR REPLACE VIEW volv_runners AS
+	SELECT plot_id,GROUP_CONCAT(character_objid ORDER BY character_name SEPARATOR ' ') AS runner_objids,GROUP_CONCAT(character_name ORDER BY character_name SEPARATOR '|') AS runner_names FROM volv_runner WHERE runner_type=2 GROUP BY plot_id;
+
+CREATE OR REPLACE VIEW volv_helpers AS
+  SELECT plot_id,GROUP_CONCAT(character_objid ORDER BY character_name SEPARATOR ' ') AS helper_objids,GROUP_CONCAT(character_name ORDER BY character_name SEPARATOR '|') AS helper_names FROM volv_runner WHERE runner_type=1 GROUP BY plot_id;
+
 CREATE OR REPLACE VIEW volv_plot_agg AS
-	SELECT p.*,r.corunner_objids,r.corunner_names FROM volv_plot AS p LEFT JOIn volv_corunners AS r ON p.plot_id=r.plot_id;
+	SELECT p.*,r.runner_objids,r.runner_names,h.helper_objids,h.helper_names FROM volv_plot AS p LEFT JOIN volv_runners AS r ON p.plot_id=r.plot_id LEFT JOIN volv_helpers AS h ON h.plot_id=p.plot_id;
 	
 CREATE TABLE IF NOT EXISTS vol_scene (
 	scene_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1035,6 +1038,7 @@ CREATE TABLE IF NOT EXISTS vol_scene (
 	scene_date_finished DATETIME NULL,
 	scene_status TINYINT DEFAULT 0,
 	scene_log_ooc BOOL NOT NULL DEFAULT FALSE,
+  scene_max_tags MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY(scene_id),
 	FOREIGN KEY(post_id) REFERENCES vol_bbpost(post_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	INDEX(scene_date_scheduled,scene_status),
@@ -1072,7 +1076,7 @@ CREATE OR REPLACE VIEW volv_actor AS
 	SELECT a.scene_id,a.actor_id,c.character_id,c.character_name,c.character_objid,a.actor_type,a.actor_status FROM vol_actor AS a LEFT JOIN volv_character AS c ON c.character_id=a.character_id;
 
 CREATE OR REPLACE VIEW volv_scene AS
-	SELECT s.scene_id,s.scene_title,s.scene_pitch,s.scene_outcome,s.post_id,s.scene_date_created,UNIX_TIMESTAMP(s.scene_date_created) AS scene_date_created_secs,s.scene_date_scheduled,UNIX_TIMESTAMP(s.scene_date_scheduled) AS scene_date_scheduled_secs,s.scene_date_started,UNIX_TIMESTAMP(s.scene_date_started) AS scene_date_started_secs,s.scene_date_finished,UNIX_TIMESTAMP(s.scene_date_finished) AS scene_date_finished_secs,s.scene_status,s.scene_log_ooc,a.character_id AS runner_id,a.character_name AS runner_name,a.character_objid AS runner_objid
+	SELECT s.scene_id,s.scene_title,s.scene_pitch,s.scene_outcome,s.post_id,s.scene_date_created,UNIX_TIMESTAMP(s.scene_date_created) AS scene_date_created_secs,s.scene_date_scheduled,UNIX_TIMESTAMP(s.scene_date_scheduled) AS scene_date_scheduled_secs,s.scene_date_started,UNIX_TIMESTAMP(s.scene_date_started) AS scene_date_started_secs,s.scene_date_finished,UNIX_TIMESTAMP(s.scene_date_finished) AS scene_date_finished_secs,s.scene_status,s.scene_log_ooc,a.character_id AS runner_id,a.character_name AS runner_name,a.character_objid AS runner_objid,s.scene_max_tags as scene_max_tags
 	FROM vol_scene AS s LEFT JOIN volv_actor AS a ON s.scene_id=a.scene_id AND a.actor_type=2
 	ORDER BY s.scene_id;
 	
@@ -1145,6 +1149,46 @@ CREATE OR REPLACE VIEW volv_scene_partner AS
 CREATE OR REPLACE VIEW volv_scene_partner_agg AS
   SELECT scene_id,partner_slot,GROUP_CONCAT(character_objid ORDER BY character_name) AS character_objids
   FROM volv_scene_partner GROUP BY scene_id,partner_slot;
+
+CREATE TABLE IF NOT EXISTS vol_experience (
+  xp_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  character_id INT UNSIGNED NOT NULL,
+  xp_type TINYINT UNSIGNED NOT NULL,
+  xp_display_num INT UNSIGNED NOT NULL,
+  xp_amount DECIMAL(7,3),
+  admin_id INT UNSIGNED NOT NULL,
+  xp_reason TEXT,
+  xp_date DATETIME NOT NULL,
+  PRIMARY KEY(xp_id),
+  FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY(admin_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
+  UNIQUE(character_id,xp_type,xp_display_num)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE OR REPLACE VIEW volv_experience AS
+  SELECT c.*,x.xp_id,x.xp_type,x.xp_display_num,x.xp_amount,x.xp_reason,x.xp_date,UNIX_TIMESTAMP(x.xp_date) AS xp_date_secs,x.admin_id,c1.character_objid AS admin_objid,c1.character_name AS admin_name
+  FROM vol_experience AS x LEFT JOIN volv_character AS c ON c.character_id=x.character_id LEFT JOIN volv_character AS c1 ON c1.character_id=x.admin_id;
+
+CREATE OR REPLACE VIEW volv_experience_totals AS
+  SELECT x.xp_type,x.character_id,x.character_objid,x.character_name,MAX(IF(x.xp_display_num,x.xp_display_num,1))+1 AS next_display_num,SUM(IF(x.xp_amount>0,x.xp_amount,0)) AS xp_gained,ABS(SUM(IF(x.xp_amount<0,x.xp_amount,0))) AS xp_spent,SUM(x.xp_amount) AS xp_current
+  FROM volv_experience AS x
+  GROUP BY x.xp_type,x.character_id ORDER BY x.xp_type,x.character_name;
+
+DROP PROCEDURE IF EXISTS volp_xp;
+DELIMITER $$
+CREATE PROCEDURE volp_xp(IN in_character_id INT UNSIGNED,IN in_xp_type TINYINT UNSIGNED,IN in_xp_amount DECIMAL(7,3),IN in_xp_reason TEXT,IN in_admin_id INT UNSIGNED)
+  BEGIN
+    DECLARE next_num INT UNSIGNED;
+    DECLARE new_xp_id BIGINT UNSIGNED;
+    SELECT next_display_num INTO next_num FROM volv_experience_totals WHERE character_id=in_character_id AND xp_type=in_xp_type;
+    IF next_num IS NULL THEN
+      SET next_num=1;
+    END IF;
+    INSERT INTO vol_experience(character_id,xp_type,xp_display_num,xp_amount,admin_id,xp_reason,xp_date) VALUES (in_character_id,in_xp_type,next_num,in_xp_amount,in_admin_id,in_xp_reason,UTC_TIMESTAMP());
+    SET new_xp_id=LAST_INSERT_ID();
+    SELECT new_xp_id;
+  END $$
+DELIMITER ;
 
 -- SQL Schema for the Csys Core 
 CREATE TABLE IF NOT EXISTS vol_centity (

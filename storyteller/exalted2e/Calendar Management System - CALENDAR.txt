@@ -42,6 +42,5 @@ th u(newcobj,STORYTELLER: Calendar Management System <CALENDAR>,calendar,,,,WIZA
 &STARTUP [u(cobj,calendar)]=@trigger %!/TRG`TICKER
 
 @@ ROLEPLAYING - +time
-+help/add +time=[u(cobj,calendar)]/HLP`+TIME
-+help/category +time=Roleplaying
-&HLP`+TIME [u(cobj,calendar)]=align(5 [sub(u(width,%#),6)],,[ansi(h,+time)] - Shows the current IC time.)
+&HLP`TIME [u(cobj,calendar)]=align(5 [sub(u(width,%#),6)],,[ansi(h,+time)] - Shows the current IC time.)
++help/add Roleplaying/+time=[u(cobj,calendar)]/HLP`TIME

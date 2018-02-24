@@ -16,14 +16,39 @@ th u(NEWCOBJ,Navigation System <NAVI>,navi,,,,WIZARD SAFE !NO_COMMAND,INHERIT SI
 &FUN`FINDTHINGS`RHOSTMUSH [u(cobj,navi)]=search(ETHING=\[get(##/PORT)\])
 &FUN`LISTALLDISTS [u(cobj,navi)]=u(choosegame,lsearch(all,type,thing,elock,D`DISTRICT:>0),search(ETHING=\[get(##/D`DISTRICT)\]))
 
-&CMD`+PORT [u(cobj,navi)]=$+port *:@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@select/inline isdbref(%0)=1,{th u(setq,dest,%0)},0,{@check words(u(setr,dest,u(FUN`FINDROOM,%0)))=@attach %!/INC`MSG=Nothing matches '%0'.;;@stop gt(words(%q<dest>),1)=@attach %!/INC`MSG=Multiple Matches:%R[iter(%q<dest>,u(pueblize,ansi(hx,%i0) - [ansi(c,name(%i0))],+port %i0),%b,%r)]};@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already there.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
+&CMD`+NAVI`PENNMUSH [u(cobj,navi)]=$^(?\:\+)?(ic|ooc|roomlist|port)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+NAVI`MAIN
+@set [u(cobj,navi)]/CMD`+NAVI`PENNMUSH=regexp
+&CMD`+NAVI`RHOSTMUSH [u(cobj,navi)]=$^(?\:\+)?(ic|ooc|roomlist|port)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+NAVI`MAIN
+@set [u(cobj,navi)]/CMD`+NAVI`RHOSTMUSH=regexp
+&CMD`+NAVI`MAIN [u(cobj,navi)]=@attach %!/INC`GETSWITCH=%2;@attach %!/%1`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
+@set [u(cobj,navi)]/CMD`+NAVI`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&CMD`+ROOMLIST [u(cobj,navi)]=$+roomlist:@pemit %#=u(header,mudname() Grid Rooms);@dolist/inline u(FUN`TELDISTS)={@pemit %#=u(SEPARATOR,name(##));th step(FUN`ROOMLIST,u(FUN`LISTDISTROOMS,##),30)};@select/inline words(u(setr,things,u(FUN`LISTTHINGS)))=>0,{@pemit %#=u(SEPARATOR,Player Things);th step(FUN`ROOMLIST,%q<things>,10)};@pemit %#=u(subheader)
+&SYSTEM`NAME [u(cobj,navi)]=NAVI
 
-&CMD`+ROOMLIST`ARG [u(cobj,navi)]=$+roomlist *:think u(setq,l,u(FUN`FINDROOM)); @check strlen(u(setr,m,strfirstof(grab(%ql,%0),u(namegraball,%ql,%0))))=@pemit %#=Nothing matches '%0'.;@pemit %#=u(header,'%0');th step(FUN`ROOMLIST,%qm,10);@pemit %#=u(subheader)
+&SWITCHES`ADMIN [u(Cobj,navi)]=CONFIG
+
+&CONFIG`OPTIONS [u(cobj,navi)]=IC_NEXUS|OOC_NEXUS
+
+&CONFIG`IC_NEXUS [u(cobj,navi)]=What room to use for the IC Nexus?
+&CONFIG`IC_NEXUS`DEFAULT [u(cobj,navi)]=
+&CONFIG`IC_NEXUS`VALID [u(cobj,navi)]=DBREF
+
+&CONFIG`OOC_NEXUS [u(cobj,navi)]=What room to use for the IC Nexus?
+&CONFIG`OOC_NEXUS`DEFAULT [u(cobj,navi)]=
+&CONFIG`OOC_NEXUS`VALID [u(cobj,navi)]=DBREF
+
+&PORT`MAIN [u(cobj,navi)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Where will you go?;@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@select/inline isdbref(%0)=1,{th u(setq,dest,%0)},0,{@check words(u(setr,dest,u(FUN`FINDROOM,%0)))=@attach %!/INC`MSG=Nothing matches '%0'.;;@stop gt(words(%q<dest>),1)=@attach %!/INC`MSG=Multiple Matches:%R[iter(%q<dest>,u(pueblize,ansi(hx,%i0) - [ansi(c,name(%i0))],+port %i0),%b,%r)]};@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already there.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
+
+&ROOMLIST`MAIN [u(cobj,navi)]=@select/inline strlen(%0)=>0,{think u(setq,l,u(FUN`FINDROOM)); @check strlen(u(setr,m,strfirstof(grab(%ql,%0),u(namegraball,%ql,%0))))=@pemit %#=Nothing matches '%0'.;@pemit %#=u(header,'%0');th step(FUN`ROOMLIST,%qm,10);@pemit %#=u(footer)},0,{@pemit %#=u(header,mudname() Grid Rooms);@dolist/inline u(FUN`TELDISTS)={@pemit %#=u(SEPARATOR,name(##));th step(FUN`ROOMLIST,u(FUN`LISTDISTROOMS,##),30)};@select/inline words(u(setr,things,u(FUN`LISTTHINGS)))=>0,{@pemit %#=u(SEPARATOR,Player Things);th step(FUN`ROOMLIST,%q<things>,10)};@pemit %#=u(footer)}
 
 &FUN`ROOMLIST [u(cobj,navi)]=pemit(%#,u(table,iter(lnum(0,sub(%+,1)),ljust(ansi(c,u(pueblize,v(%i0),+port [v(%i0)])),6) [ansi(hx,u(pueblize,name(v(%i0)),+port [v(%i0)]))],%b,|),38,u(width,%#),|))
 
+&IC`MAIN [u(cobj,navi)]=@stop strlen(%0);@check isdbref(u(setr,dest,u(conf,IC_NEXUS)))=@attach %!/INC`MSG=ERROR: The IC Nexus is not configured.;@attach %!/PORT`MAIN=%q<dest>
+
+&OOC`MAIN [u(cobj,navi)]=@stop strlen(%0);@check isdbref(u(setr,dest,u(conf,OOC_NEXUS)))=@attach %!/INC`MSG=ERROR: The OOC Nexus is not configured.;@attach %!/PORT`MAIN=%q<dest>
+
+&ROOMLIST`CONFIG [u(cobj,navi)]=@attach %!/INC`CONFIG
+&PORT`CONFIG [u(cobj,navi)]=@attach %!/INC`CONFIG
 
 &HLP`NAVI [u(cobj,navi)]=The Grid system is a series of commands that make it easy to navigate the IC rooms, or 'Grid.'%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+roomlist)] - List all IC rooms in the game that you can +port to.%R[ansi(h,+roomlist <search>)] - List all rooms partially matching the entered text.%R[ansi(h,+port <name or dbref>)] - Teleport to a room.%R[ansi(h,+sethome)] - Set the current location as your 'home.'%R[ansi(h,+gohome)] or [ansi(h,home)] - Teleport to your home.)]%R%RPlayers using THINGS as hangouts can make that object a valid +port destination by setting its PORT attribute to 1. use &PORT here=1 while within the object to set it.[u(choosegame,%RPENNMUSH: You must also set @lock/teleport here=#TRUE - Penn users can use @lock/teleport to restrict who can access the object with +port.)]
 +help/add Navigation/+port=[u(cobj,navi)]/HLP`NAVI

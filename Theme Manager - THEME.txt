@@ -96,7 +96,7 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
 &Q`SELECT`EMPTY_NAMES [u(cobj,theme)]=SELECT theme_name FROM volv_theme WHERE theme_id NOT IN (SELECT theme_id FROM vol_tmember) ORDER BY theme_name
 
-&INC`STATUS [u(cobj,theme)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No status entered.;@attach %!/INC`PARTIAL=%1,u(conf,CHARACTER_STATUS),|,status,status;@attach %!/INC`MSG=%q<t1name>'s FCList status is now: %q<status>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<status>.;@attach %!/INC`DOSQL=CHARACTER`STATUS,%q<status>,%q<t1id>;
+&INC`STATUS [u(cobj,theme)]=@attach %!/INC`CHECKPC=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No status entered.;@attach %!/INC`PARTIAL=%1,u(conf,CHARACTER_STATUS),|,status,status;@attach %!/INC`MSG=%q<t1name>'s FCList status is now: %q<status>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<status>.;@attach %!/INC`DOSQL=CHARACTER`STATUS,%q<status>,%q<t1id>;&V`THEME`STATUS %q<t1>=%q<status>
 
 &Q`CHARACTER`STATUS [u(cobj,theme)]=UPDATE vol_character SET character_status=? WHERE character_id=?
 
@@ -126,7 +126,7 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
 &Q`REBUILD`CHARACTERS [u(cobj,theme)]=SELECT character_objid FROM volv_theme_member WHERE theme_id=?
 
-&INC`REBUILDCHARACTER [u(cobj,theme)]=th u(attrib_set,%0,V`THEMES,u(mysql3,REBUILD`CHARACTER_CACHE,get(%0/D`ID)))
+&INC`REBUILDCHARACTER [u(cobj,theme)]=th u(attrib_set,%0,V`THEME,u(mysql3,REBUILD`CHARACTER_CACHE,get(%0/D`ID)))
 
 &Q`REBUILD`CHARACTER_CACHE [u(cobj,theme)]=SELECT theme_id,tmember_type,theme_name FROM volv_theme_member WHERE character_id=? ORDER BY theme_name
 

@@ -1,11 +1,16 @@
-th u(newconf,config,STORYTELLER,SHARDS_ABYSSALS,0,True: Abyssals use Doom (shards). False: Use Flawed Virtue. (MOEP),BOOL)
+&CONFIG`SHARDS_ABYSSALS [u(cobj,data)]=1: Abyssals use Doom (Shards of the Exalted Dream). 0: Abyssals use Flawed Virtue (Manual of Exalted Power: The Abyssals)
+&CONFIG`SHARDS_ABYSSALS [u(cobj,data)]=0
+&CONFIG`SHARDS_ABYSSALS`VALID [u(cobj,data)]=BOOL
+
+&CONFIG`OPTIONS [u(Cobj,data)]=CLASSES|INFOTYPES|ATTRIBUTES|ABILITIES|COLLEGES|SLOTS|PATHS|GRACES|VIRTUES|SPELLS|PROTOCOLS|SHARDS_ABYSSALS
 
 @@ Advantages
 &POWER`DEFAULT [u(cobj,data)]=Essence
 
 &INC`SET`ESSENCE [u(cobj,data)]=@attach %!/INC`SET`POWER
 &INC`SET`SPLAT [u(cobj,data)]=@attach [u(cobj,data)]/INC`SET`CLASS
-th u(newconf,config,STORYTELLER,CLASSES,MORTAL|SOLAR|LUNAR|TERRESTRIAL|ABYSSAL|SIDEREAL|ALCHEMICAL|DRAGON-KING|GOD-BLOODED|INFERNAL|JADEBORN|RAKSHA|SPIRIT,Available Spheres,LIST)
+
+&CONFIG`CLASSES [u(cobj,data)]=MORTAL|SOLAR|LUNAR|TERRESTRIAL|ABYSSAL|SIDEREAL|ALCHEMICAL|DRAGON-KING|GOD-BLOODED|INFERNAL|JADEBORN|RAKSHA|SPIRIT
 
 &INC`SET`CASTE [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`CASTE;@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))]'s [u(setr,msg,Caste is now set to: [ansi(h,u(capnames,%q<find>))])]},{Your %q<msg>},{[ansi(h,name(%0))]'s %q<msg>}
 
@@ -34,10 +39,12 @@ th u(newconf,config,STORYTELLER,CLASSES,MORTAL|SOLAR|LUNAR|TERRESTRIAL|ABYSSAL|S
 &DO`VAL`ATTRIBUTE [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Attribute name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,find,attribute;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Attributes,%2
 &DO`SET`ATTRIBUTE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ATTRIBUTE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`ATTRIBUTES,%q<find>,%q<value>
 
-&FUN`GET`ATTRIBUTES [u(cobj,data)]=u(game_config,STORYTELLER,ATTRIBUTES)
+&FUN`GET`ATTRIBUTES [u(cobj,data)]=u(conf,ATTRIBUTES)
 &FUN`RET`ATTRIBUTES [u(cobj,data)]=iter(ucstr(get(%0/D`ATTRIBUTES)),before(%i0,~),|,|)
 
-th u(newconf,config,STORYTELLER,ATTRIBUTES,STRENGTH|CHARISMA|PERCEPTION|DEXTERITY|MANIPULATION|INTELLIGENCE|STAMINA|APPEARANCE|WITS,Attributes list,list)
+&CONFIG`ATTRIBUTES [u(cobj,data)]=Attributes list.
+&CONFIG`ATTRIBUTES`DEFAULT [u(cobj,data)]=STRENGTH|CHARISMA|PERCEPTION|DEXTERITY|MANIPULATION|INTELLIGENCE|STAMINA|APPEARANCE|WITS
+&CONFIG`ATTRIBUTES`VALID [u(cobj,data)]=LIST
 
 @@ Abilities
 
@@ -46,10 +53,12 @@ th u(newconf,config,STORYTELLER,ATTRIBUTES,STRENGTH|CHARISMA|PERCEPTION|DEXTERIT
 &DO`VAL`ABILITY [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Ability name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`ABILITIES),|,find,ability;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Abilities,%2
 &DO`SET`ABILITY [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ABILITY;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`ABILITIES,%q<find>,%q<value>
 
-&FUN`GET`ABILITIES [u(cobj,data)]=u(game_config,STORYTELLER,ABILITIES)
+&FUN`GET`ABILITIES [u(cobj,data)]=u(conf,ABILITIES)
 &FUN`RET`ABILITIES [u(cobj,data)]=iter(ucstr(get(%0/D`ABILITIES)),before(%i0,~),|,|)
 
-th u(newconf,config,STORYTELLER,ABILITIES,ARCHERY|MARTIAL ARTS|MELEE|THROWN|WAR|BUREAUCRACY|LINGUISTICS|RIDE|SAIL|SOCIALIZE|ATHLETICS|AWARENESS|DODGE|LARCENY|STEALTH|CRAFT|INVESTIGATION|LORE|MEDICINE|OCCULT|INTEGRITY|PERFORMANCE|PRESENCE|RESISTANCE|SURVIVAL,Abilities list for display,LIST)
+&CONFIG`ABILITIES [u(cobj,data)]=Abilities list.
+&CONFIG`ABILITIES`DEFAULT [u(cobj,data)]=ARCHERY|MARTIAL ARTS|MELEE|THROWN|WAR|BUREAUCRACY|LINGUISTICS|RIDE|SAIL|SOCIALIZE|ATHLETICS|AWARENESS|DODGE|LARCENY|STEALTH|CRAFT|INVESTIGATION|LORE|MEDICINE|OCCULT|INTEGRITY|PERFORMANCE|PRESENCE|RESISTANCE|SURVIVAL
+&CONFIG`ABILITIES`VALID [u(cobj,data)]=LIST
 
 @@ Specialties
 
@@ -61,7 +70,7 @@ th u(newconf,config,STORYTELLER,ABILITIES,ARCHERY|MARTIAL ARTS|MELEE|THROWN|WAR|
 &FUN`RET`SPECIALTIES [u(cobj,data)]=iter(ucstr(get(%0/D`SPECIALTIES)),before(%i0,~),|,|)
 
 @@ Info
-th u(newconf,CONFIG,STORYTELLER,INFOTYPES,FAVORED YOZI|VIRTUE FLAW|DOOM|LIEGE|TOTEM ANIMAL|FLAWED VIRTUE|NATION|HOUSE|NATION|FACTION|LURE|URGE|PARENT,Extra Chargen settings?,LIST)
+&CONFIG`INFOTYPES`DEFAULT [u(cobj,data)]=FAVORED YOZI|VIRTUE FLAW|DOOM|LIEGE|TOTEM ANIMAL|FLAWED VIRTUE|NATION|HOUSE|NATION|FACTION|LURE|URGE|PARENT
 
 @@ Colleges
 &INC`SET`COLLEGE [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`COLLEGE=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,College
@@ -69,10 +78,12 @@ th u(newconf,CONFIG,STORYTELLER,INFOTYPES,FAVORED YOZI|VIRTUE FLAW|DOOM|LIEGE|TO
 &DO`VAL`COLLEGE [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No College name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`COLLEGES),|,find,college;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Colleges,%2
 &DO`SET`COLLEGE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`COLLEGE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`COLLEGES,%q<find>,%q<value>
 
-&FUN`GET`COLLEGES [u(cobj,data)]=u(game_config,STORYTELLER,COLLEGES)
+&FUN`GET`COLLEGES [u(cobj,data)]=u(conf,COLLEGES)
 &FUN`RET`COLLEGES [u(cobj,data)]=iter(ucstr(get(%0/D`COLLEGES)),before(%i0,~),|,|)
 
-th u(newconf,config,STORYTELLER,COLLEGES,THE CORPSE|THE CROW|THE HAYWAIN|THE RISING SMOKE|THE SWORD|THE CAPTAIN|THE GULL|THE MAST|THE MESSENGER|THE SHIP'S WHEEL|THE EWER|THE LOVERS|THE MUSICIAN|THE PEACOCK|THE PILLAR|THE GUARDIANS|THE KEY|THE MASK|THE SORCERER|THE TREASURE TROVE|THE BANNER|THE GAUNTLET|THE QUIVER|THE SHIELD|THE SPEAR|THE COMET|THE LIGHTNING BOLT,Sidereal Colleges list for chargen,LIST)
+&CONFIG`COLLEGES [u(cobj,data)]=Colleges list for Sidereals.
+&CONFIG`COLLEGES`DEFAULT [u(cobj,data)]=THE CORPSE|THE CROW|THE HAYWAIN|THE RISING SMOKE|THE SWORD|THE CAPTAIN|THE GULL|THE MAST|THE MESSENGER|THE SHIP'S WHEEL|THE EWER|THE LOVERS|THE MUSICIAN|THE PEACOCK|THE PILLAR|THE GUARDIANS|THE KEY|THE MASK|THE SORCERER|THE TREASURE TROVE|THE BANNER|THE GAUNTLET|THE QUIVER|THE SHIELD|THE SPEAR|THE COMET|THE LIGHTNING BOLT
+&CONFIG`COLLEGES`VALID [u(cobj,data)]=LIST
 
 @@ Slots
 &INC`SET`SLOT [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`SLOT=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Slot
@@ -80,10 +91,12 @@ th u(newconf,config,STORYTELLER,COLLEGES,THE CORPSE|THE CROW|THE HAYWAIN|THE RIS
 &DO`VAL`SLOT [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Slot name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`SLOTS),|,find,slot;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Slots,%2
 &DO`SET`SLOT [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SLOT;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`SLOTS,%q<find>,%q<value>
 
-&FUN`GET`SLOTS [u(cobj,data)]=u(game_config,STORYTELLER,SLOTS)
+&FUN`GET`SLOTS [u(cobj,data)]=u(conf,SLOTS)
 &FUN`RET`SLOTS [u(cobj,data)]=iter(ucstr(get(%0/D`SLOTS)),before(%i0,~),|,|)
 
-th u(newconf,config,STORYTELLER,SLOTS,DEDICATED|GENERAL,Alchemical Slots list for chargen,LIST)
+&CONFIG`SLOTS [u(cobj,data)]=Alchemical Slots list for chargen
+&CONFIG`SLOTS`DEFAULT [u(cobj,data)]=DEDICATED|GENERAL
+&CONFIG`SLOTS`VALID [u(cobj,data)]=LIST
 
 @@ Paths
 &INC`SET`PATH [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`PATH=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Path
@@ -91,10 +104,13 @@ th u(newconf,config,STORYTELLER,SLOTS,DEDICATED|GENERAL,Alchemical Slots list fo
 &DO`VAL`PATH [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Path name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`PATHS),|,find,path;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Paths,%2
 &DO`SET`PATH [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`PATH;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`PATHS,%q<find>,%q<value>
 
-&FUN`GET`PATHS [u(cobj,data)]=u(game_config,STORYTELLER,PATHS)
+&FUN`GET`PATHS [u(cobj,data)]=u(conf,PATHS)
 &FUN`RET`PATHS [u(cobj,data)]=iter(ucstr(get(%0/D`PATHS)),before(%i0,~),|,|)
 
-th u(newconf,config,STORYTELLER,PATHS,CELESTIAL AIR|CLEAR AIR|SOLID EARTH|YIELDING EARTH|BLAZING FIRE|FLICKERING FIRE|FLOWING WATER|SHIMMERING WATER|GROWING WOOD|SHAPING WOOD|GLORIOUS CONSUMPTION|COAGULATED EUCHARIST|TECHNOMORPHIC TRANSCENDANCE|ECSTATIC ARMAGEDDON|TORMENTED BODHISATTVA,Dragon-King Paths list for chargen,LIST)
+&CONFIG`PATHS [u(cobj,data)]=Dragon King Paths list.
+&CONFIG`PATHS`DEFAULT [u(cobj,data)]=CELESTIAL AIR|CLEAR AIR|SOLID EARTH|YIELDING EARTH|BLAZING FIRE|FLICKERING FIRE|FLOWING WATER|SHIMMERING WATER|GROWING WOOD|SHAPING WOOD|GLORIOUS CONSUMPTION|COAGULATED EUCHARIST|TECHNOMORPHIC TRANSCENDANCE|ECSTATIC ARMAGEDDON|TORMENTED BODHISATTVA
+&CONFIG`PATHS`VALID [u(cobj,data)]=LIST
+
 
 @@ GRACES
 &INC`SET`GRACE [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`GRACE=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Grace
@@ -102,10 +118,12 @@ th u(newconf,config,STORYTELLER,PATHS,CELESTIAL AIR|CLEAR AIR|SOLID EARTH|YIELDI
 &DO`VAL`GRACE [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Grace name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`GRACES),|,find,grace;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Graces,%2
 &DO`SET`GRACE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`GRACE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`GRACES,%q<find>,%q<value>
 
-&FUN`GET`GRACES [u(cobj,data)]=u(game_config,STORYTELLER,GRACES)
+&FUN`GET`GRACES [u(cobj,data)]=u(conf,GRACES)
 &FUN`RET`GRACES [u(cobj,data)]=iter(ucstr(get(%0/D`GRACES)),before(%i0,~),|,|)
 
-th u(newconf,config,STORYTELLER,GRACES,WAY|SWORD|STAFF|CUP|RING|HEART,Raksha Graces list for chargen,LIST)
+&CONFIG`GRACES [u(cobj,data)]=Raksha Graces list for chargen
+&CONFIG`GRACES`DEFAULT [u(cobj,data)]=WAY|SWORD|STAFF|CUP|RING|HEART
+&CONFIG`GRACES`VALID [u(cobj,data)]=LIST
 
 @@ VIRTUES
 &INC`SET`VIRTUE [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`VIRTUE=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Virtue
@@ -113,10 +131,12 @@ th u(newconf,config,STORYTELLER,GRACES,WAY|SWORD|STAFF|CUP|RING|HEART,Raksha Gra
 &DO`VAL`VIRTUE [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Virtue name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`VIRTUES),|,find,virtue;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Virtues,%2
 &DO`SET`VIRTUE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`VIRTUE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`VIRTUES,%q<find>,%q<value>
 
-&FUN`GET`VIRTUES [u(cobj,data)]=u(game_config,STORYTELLER,VIRTUES)
+&FUN`GET`VIRTUES [u(cobj,data)]=u(conf,VIRTUES)
 &FUN`RET`VIRTUES [u(cobj,data)]=iter(ucstr(get(%0/D`VIRTUES)),before(%i0,~),|,|)
 
-th u(newconf,config,STORYTELLER,VIRTUES,COMPASSION|CONVICTION|TEMPERANCE|VALOR,Virtues list for chargen,LIST)
+&CONFIG`VIRTUES [u(cobj,data)]=General Virtues list for chargen
+&CONFIG`VIRTUES`DEFAULT [u(cobj,data)]=COMPASSION|CONVICTION|TEMPERANCE|VALOR
+&CONFIG`VIRTUES`VALID [u(cobj,data)]=LIST
 
 &INC`SET`STYLE [u(cobj,data)]=@check strlen(elements(%1,2,|))=@attach %!/INC`MSG=ERROR: No Tier entered.;@attach %!/INC`PARTIAL=elements(%1,2,|),TERRESTRIAL|CELESTIAL|SIDEREAL,|,tier,tier;@check strlen(u(setr,slot,elements(%1,3,|)))=@attach %!/INC`MSG=ERROR: No Style ID entered.;@check valnum(%q<slot>)=@attach %!/INC`MSG=ERROR: Martial Arts Styles must be addressed by their slot IDs.;@check strlen(get(%0/D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<slot>))=@attach %!/INC`MSG=ERROR: [ansi(h,name(%0))] has no style by that ID.;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Style name field empty.;@attach %!/INC`MSG=[ansi(h,name(%0))]'s [u(numth,%q<slot>)] [ansi(h,%q<tier>)] Martial Arts Style is now called [ansi(h,%2)];@attach %!/INC`MSG`CHAN=[ansi(h,name(%0))]'s [u(numth,%q<slot>)] [ansi(h,%q<tier>)] Martial Arts Style is now called [ansi(h,%2)];@attach %!/INC`MSG`NOTICE=Your [u(numth,%q<slot>)] [ansi(h,%q<tier>)] Martial Arts Style is now called [ansi(h,%2)],%0;th u(attrib_set,%0,D`CHARMS`%q<tier>_MARTIAL_ARTS`%q<slot>`NAME,%2)
 
@@ -189,8 +209,11 @@ th u(newconf,config,STORYTELLER,VIRTUES,COMPASSION|CONVICTION|TEMPERANCE|VALOR,V
 &DO`ADD`SPELL [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SPELL;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`SPELLS`%q<find>,%q<value>
 &DO`REM`SPELL [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`SPELL;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`SPELLS`%q<find>,%q<value>;@select/inline strlen(get(%0/D`SPELLS`%q<find>))=0,{@wipe %0/D`SPELLS`%q<find>;@select/inline strlen(get(%0/D`SPELLS))=0,{@wipe %0/D`SPELLS}}
 
-&FUN`GET`SPELLS [u(cobj,data)]=u(game_config,STORYTELLER,SPELLS)
-th u(newconf,CONFIG,STORYTELLER,SPELLS,TERRESTRIAL|CELESTIAL|SOLAR|SHADOWLANDS|LABYRINTH|VOID,Available Spell Categories,LIST)
+&FUN`GET`SPELLS [u(cobj,data)]=u(conf,SPELLS)
+
+&CONFIG`SPELLS [u(cobj,data)]=Available spell categories.
+&CONFIG`SPELLS`DEFAULT [u(cobj,data)]=TERRESTRIAL|CELESTIAL|SOLAR|SHADOWLANDS|LABYRINTH|VOID
+&CONFIG`SPELLS`VALID [u(cobj,list)]=LIST
 
 @@ Protocols
 
@@ -202,8 +225,11 @@ th u(newconf,CONFIG,STORYTELLER,SPELLS,TERRESTRIAL|CELESTIAL|SOLAR|SHADOWLANDS|L
 &DO`ADD`PROTOCOL [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`PROTOCOL;@attach [u(cobj,data)]/WORDLIST`ADD=%0,D`PROTOCOLS`%q<find>,%q<value>
 &DO`REM`PROTOCOL [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`PROTOCOL;@attach [u(cobj,data)]/WORDLIST`REM=%0,D`PROTOCOLS`%q<find>,%q<value>;@select/inline strlen(get(%0/D`PROTOCOLS`%q<find>))=0,{@wipe %0/D`PROTOCOLS`%q<find>;@select/inline strlen(get(%0/D`PROTOCOLS))=0,{@wipe %0/D`PROTOCOLS}}
 
-&FUN`GET`PROTOCOLS [u(cobj,data)]=u(game_config,STORYTELLER,PROTOCOLS)
-th u(newconf,CONFIG,STORYTELLER,PROTOCOLS,MAN-MACHINE|GOD-MACHINE,Available Protocol Categories,LIST)
+&FUN`GET`PROTOCOLS [u(cobj,data)]=u(conf,PROTOCOLS)
+
+&CONFIG`PROTOCOLS [u(cobj,data)]=Available Protocol categories.
+&CONFIG`PROTOCOLS`DEFAULT [u(cobj,data)]=MAN-MACHINE|GOD-MACHINE
+&CONFIG`PROTOCOLS`VALID [u(cobj,list)]=LIST
 
 @@ Languages
 
@@ -240,12 +266,9 @@ th u(newconf,CONFIG,STORYTELLER,PROTOCOLS,MAN-MACHINE|GOD-MACHINE,Available Prot
 &FUN`GET`FAVORED`PATHS [u(cobj,data)]=u(FUN`GET`PATHS)
 
 @@ Charmnames
-&CMD`+CHARMNAMES [u(cobj,player_globals)]=$^\+charmnames(?\: +(.+))?$:@check strlen(%1)=@pemit %#=What Class's Charm names will you check?;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`CHARMTYPES),|,splat,Splat;@check words(u(lattr,u(cobj,pool)/%q<splat>`*))=@pemit %#=That Splat has no pool data to display.;@pemit %#=u(header,u(capnames,%q<splat>) Pool Charms);@select/inline words(u(setr,slots,u(sortattr,u(lattr,u(cobj,pool)/%q<splat>`EXPANDED`*))))=>0,{@pemit %#=ansi(h,* EXPANDED POOL *);@dolist/inline %q<slots>={@pemit %#=ansi(h,last(##,`) Motes:) [edit(u(capnames,get(u(cobj,pool)/##)),|,\,%b)]}};@select/inline words(u(setr,slots,u(sortattr,u(lattr,u(cobj,pool)/%q<splat>`OVERDRIVE`*))))=>0,{@pemit %#=ansi(h,* OVERDRIVE POOL *);@dolist/inline %q<slots>={@pemit %#=ansi(h,last(##,`) Motes:) [edit(u(capnames,get(u(cobj,pool)/##)),|,\,%b)]}};@pemit %#=%RTo codedly take advantage of these Charms so that they affect your pools, they must be entered exactly as spelled above. Expanders must have a number on the end such as Immanent Solar Glory 4 to denote how many times they were purchased (without such a number, it defaults to 1) and will be collectively checked in all Charm categories and added together. For Infernal Expanders, simply having them listed is enough. God-Blooded use the expanders of their parent Splats.;@pemit %#=u(subheader)
-@set [u(cobj,player_globals)]/CMD`+CHARMNAMES=regexp
-
-
+&CMD`+CHARMNAMES [u(cobj,pglob)]=$^\+charmnames(?\: +(.+))?$:@check strlen(%1)=@pemit %#=What Class's Charm names will you check?;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`CHARMTYPES),|,splat,Splat;@check words(u(lattr,u(cobj,pool)/%q<splat>`*))=@pemit %#=That Splat has no pool data to display.;@pemit %#=u(header,u(capnames,%q<splat>) Pool Charms);@select/inline words(u(setr,slots,u(sortattr,u(lattr,u(cobj,pool)/%q<splat>`EXPANDED`*))))=>0,{@pemit %#=ansi(h,* EXPANDED POOL *);@dolist/inline %q<slots>={@pemit %#=ansi(h,last(##,`) Motes:) [edit(u(capnames,get(u(cobj,pool)/##)),|,\,%b)]}};@select/inline words(u(setr,slots,u(sortattr,u(lattr,u(cobj,pool)/%q<splat>`OVERDRIVE`*))))=>0,{@pemit %#=ansi(h,* OVERDRIVE POOL *);@dolist/inline %q<slots>={@pemit %#=ansi(h,last(##,`) Motes:) [edit(u(capnames,get(u(cobj,pool)/##)),|,\,%b)]}};@pemit %#=%RTo codedly take advantage of these Charms so that they affect your pools, they must be entered exactly as spelled above. Expanders must have a number on the end such as Immanent Solar Glory 4 to denote how many times they were purchased (without such a number, it defaults to 1) and will be collectively checked in all Charm categories and added together. For Infernal Expanders, simply having them listed is enough. God-Blooded use the expanders of their parent Splats.;@pemit %#=u(subheader)
+@set [u(cobj,pglob)]/CMD`+CHARMNAMES=regexp
 
 
 @@ SHELP - CHARACTERS - +EDITCHAR
-+shelp/add +editchar=+editchar is used to modify all parts of a character's +sheet!%R%R[ansi(h,+editchar/<flag> <player>|<categories|and|objects>\[=<modification>\])]%r%r[ansi(h,FLAG: SET)]%r[ansi(h,Splat)]%t%t=<splat>%r[ansi(h,Caste)]%T%T=<caste>%R[ansi(h,Essence)]%t%t=<value>%R[ansi(h,Willpower)]%t=<value>%R[ansi(h,Attribute)]%t<attribute>=<value>%r[ansi(h,Ability)]%t%t<ability>=<value>%r[ansi(h,Specialty)]%t<ability or attribute>/<specialty>=<value>%r[ansi(h,Grace)]%t%t<Grace>=<value>%r[ansi(h,Path)]%t%t<Path>=<value> (Dragon King Steps, Blazing_Fire etc)%r[ansi(h,College)]%t%t<College>=<value> (Sidereal Astrology, The_Lovers etc)%r[ansi(h,Slot)]%t%t<Type>=<value>%r[ansi(h,Style)]%t%t<tier>|<slot>=<value> (used to set the style's display name)%r[ansi(h,Pool)]%t%t<pool>=<value> (added to normal calc for max size, can create pool without charms)%r%r[ansi(h,FLAG: ADD & REM)]%r[ansi(h,Charm)]%t%t<category>=<charm1>|<charm2>|etc (Native Charms)%r[ansi(h,MACharm)]%t%t<tier>|<slot>=<charm1>|<charm2>|etc (Martial Arts Charms)%r[ansi(h,OCharm)]%t%t<splat>|<category>=<charm1>|<charm2>|etc (Cross-Splat Charms)%r[ansi(h,Spell)]%t%t<circle>=<spell1>|<spell2>|etc%r[ansi(h,Protocol)]%t<tier>=<protocol1>|<protocol2>|etc%r[ansi(h,Favored)]%t%t<Attribute/Ability>=<Item1>|<Item2>|etc%r[ansi(h,Thaumaturgy)]%t%t<Arts/Sciences>|<Degrees/Procedures>=<Degree1>|<Degree2>|etc%r[ansi(h,Language)]%t=<language1>|<language2>|etc%r[ansi(h,Health)]%t%t=<level1> <level2> etc (must be -0, -1, D, etc)%r%r[ansi(h,EXAMPLES)]%r%r[ansi(h,+editchar/set Isidoros|Attribute|Dexterity=4)]%r%tSets Isidoros' Dexterity to 4%r[ansi(h,+editchar/add Isidoros|Language=High Realm|Low Realm)]%r%tAdds High Realm & Low Realm to Isidoros' Languages%r[ansi(h,+editchar/rem Isidoros|Health=-0 -1)]%r%tRemoves one -0 and one -1 from Isidoros' permanent Health Pool%R%R[ansi(h,MARTIAL ARTS)]%RMartial Arts Charms are stored in Slots which are addressed by numbers, such as:%R+editchar/add Isidoros|MACharm|Celestial|1=Searing Fist Attack|Flash-Fire Technique%R+editchar/set Isidoros|Style|Celestial|1=Fire Dragon Style%R%RRemoving all Charms in a style removes it.%R%R[ansi(h,EXPANSION/OVERDRIVE CHARMS)]%RPlease be sure to use EXACT Charmnames as shown in +charmnames or these will NOT function. The results should be immediately visible in a +sheet if added correctly.%R%R[ansi(h,CLEARING VALUES)]%RLeaves Values absolutely clear to remove them entirely! Example:%R+editchar/set Isidoros|Attribute|Dexterity=%R%R[ansi(h,BACKGROUNDS etc)]%RBackgrounds and Mutations of all kinds are added through the +merit system. Check +help +merits and +shelp +merits
-+shelp/category +editchar=Characters
++shelp/add Characters/+editchar=+editchar is used to modify all parts of a character's +sheet!%R%R[ansi(h,+editchar/<flag> <player>|<categories|and|objects>\[=<modification>\])]%r%r[ansi(h,FLAG: SET)]%r[ansi(h,Splat)]%t%t=<splat>%r[ansi(h,Caste)]%T%T=<caste>%R[ansi(h,Essence)]%t%t=<value>%R[ansi(h,Willpower)]%t=<value>%R[ansi(h,Attribute)]%t<attribute>=<value>%r[ansi(h,Ability)]%t%t<ability>=<value>%r[ansi(h,Specialty)]%t<ability or attribute>/<specialty>=<value>%r[ansi(h,Grace)]%t%t<Grace>=<value>%r[ansi(h,Path)]%t%t<Path>=<value> (Dragon King Steps, Blazing_Fire etc)%r[ansi(h,College)]%t%t<College>=<value> (Sidereal Astrology, The_Lovers etc)%r[ansi(h,Slot)]%t%t<Type>=<value>%r[ansi(h,Style)]%t%t<tier>|<slot>=<value> (used to set the style's display name)%r[ansi(h,Pool)]%t%t<pool>=<value> (added to normal calc for max size, can create pool without charms)%r%r[ansi(h,FLAG: ADD & REM)]%r[ansi(h,Charm)]%t%t<category>=<charm1>|<charm2>|etc (Native Charms)%r[ansi(h,MACharm)]%t%t<tier>|<slot>=<charm1>|<charm2>|etc (Martial Arts Charms)%r[ansi(h,OCharm)]%t%t<splat>|<category>=<charm1>|<charm2>|etc (Cross-Splat Charms)%r[ansi(h,Spell)]%t%t<circle>=<spell1>|<spell2>|etc%r[ansi(h,Protocol)]%t<tier>=<protocol1>|<protocol2>|etc%r[ansi(h,Favored)]%t%t<Attribute/Ability>=<Item1>|<Item2>|etc%r[ansi(h,Thaumaturgy)]%t%t<Arts/Sciences>|<Degrees/Procedures>=<Degree1>|<Degree2>|etc%r[ansi(h,Language)]%t=<language1>|<language2>|etc%r[ansi(h,Health)]%t%t=<level1> <level2> etc (must be -0, -1, D, etc)%r%r[ansi(h,EXAMPLES)]%r%r[ansi(h,+editchar/set Isidoros|Attribute|Dexterity=4)]%r%tSets Isidoros' Dexterity to 4%r[ansi(h,+editchar/add Isidoros|Language=High Realm|Low Realm)]%r%tAdds High Realm & Low Realm to Isidoros' Languages%r[ansi(h,+editchar/rem Isidoros|Health=-0 -1)]%r%tRemoves one -0 and one -1 from Isidoros' permanent Health Pool%R%R[ansi(h,MARTIAL ARTS)]%RMartial Arts Charms are stored in Slots which are addressed by numbers, such as:%R+editchar/add Isidoros|MACharm|Celestial|1=Searing Fist Attack|Flash-Fire Technique%R+editchar/set Isidoros|Style|Celestial|1=Fire Dragon Style%R%RRemoving all Charms in a style removes it.%R%R[ansi(h,EXPANSION/OVERDRIVE CHARMS)]%RPlease be sure to use EXACT Charmnames as shown in +charmnames or these will NOT function. The results should be immediately visible in a +sheet if added correctly.%R%R[ansi(h,CLEARING VALUES)]%RLeaves Values absolutely clear to remove them entirely! Example:%R+editchar/set Isidoros|Attribute|Dexterity=%R%R[ansi(h,BACKGROUNDS etc)]%RBackgrounds and Mutations of all kinds are added through the +merit system. Check +help +merits and +shelp +merits

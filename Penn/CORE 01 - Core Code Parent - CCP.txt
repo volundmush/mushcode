@@ -99,6 +99,8 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &FANCYTIME [u(cobj,ccp)]=timefmt($b $d $I:$M$p $Z,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
 
+&FANCYTIME2 [u(cobj,ccp)]=timefmt($a $b $d $I:$M$p $Z,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
+
 &FANCYDAY [u(cobj,ccp)]=timefmt($b $d $Y,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
 
 &FANCYDATE [u(cobj,ccp)]=timefmt($m/$d/$Y,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
@@ -247,8 +249,8 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &GETPROPERTY`URL [u(cobj,ccp)]=u(weblink,get(%0/V`PROPERTY`%1))
 
-&GETPROPERTY`THEME [u(cobj,ccp)]=localize(u(pueblize,setr(theme,first(elements(get(%0/V`THEMES),2,chr(177)),chr(176))),+theme %q<theme>))
-&GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEMES),1,chr(177)),chr(176))
+&GETPROPERTY`THEME [u(cobj,ccp)]=localize(u(pueblize,setr(theme,first(elements(get(%0/V`THEME),2,chr(177)),chr(176))),+theme %q<theme>))
+&GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEME),1,chr(177)),chr(176))
 
 &GETPROPERTY`SCENE [u(cobj,ccp)]=if(default(%0/D`OBSERVER,0),ansi(hw,OBS),default(%0/D`SCENE,???))
 
@@ -349,7 +351,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &INC`CONFIG`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(CONFIG`%q<op>`VALID)]=%1;th u(attrib_set,%!,CONFIG`%q<op>`CUSTOM,%q<value>);th u(attrib_set,%!,CONFIG`%q<op>`FORMATTED,%q<valueformat>);@attach %!/INC`MSG=You set Config Option '%q<op>' to: %q<value>;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' set to: %q<value>;@attach %!/CONFIG`%q<op>`FINISH
 &INC`CONFIG`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=%!,CONFIG`%q<op>`CUSTOM;@attach %!/INC`MSG=You set Config Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' reset to Default.;@attach %!/CONFIG`%q<op>`FINISH
 
-&CONFIG`OPTIONS [u(cobj,ccp)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|REQUIRE_APPROVAL|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|STAFF_GROUP|ROOM_PLAYERS|ROOM_THINGS|ROOM_EXITS|EXIT_COLOR|EXIT_ALIAS
+&CONFIG`OPTIONS [u(cobj,ccp)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|REQUIRE_APPROVAL|NAMELINK|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|STAFF_GROUP|ROOM_PLAYERS|ROOM_THINGS|ROOM_EXITS|EXIT_COLOR|EXIT_ALIAS
 @set [u(cobj,ccp)]/CONFIG`OPTIONS=no_inherit
 
 &CONFIG`WIZTAG [u(cobj,ccp)]=Color of WIZ tag in systems.
@@ -379,6 +381,10 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &CONFIG`REQUIRE_APPROVAL [u(cobj,ccp)]=Game requires use of the +approval system? Used for application-based games.
 &CONFIG`REQUIRE_APPROVAL`DEFAULT [u(cobj,ccp)]=1
 &CONFIG`REQUIRE_APPROVAL`VALID [u(cobj,ccp)]=BOOL
+
+&CONFIG`NAMELINK [u(cobj,ccp)]=List of commands targeting <character> to show in MXP menus for namelink displays. (PennMUSH only.)
+&CONFIG`NAMELINK`DEFAULT [u(cobj,ccp)]=+finger|+join
+&CONFIG`NAMELINK`VALID [u(cobj,ccp)]=LIST
 
 &CONFIG`HEADER_FILL [u(cobj,ccp)]=Symbol to use for Header lines.
 &CONFIG`HEADER_FILL`DEFAULT [u(cobj,ccp)]==

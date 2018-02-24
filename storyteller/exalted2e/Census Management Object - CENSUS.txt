@@ -13,6 +13,5 @@ th u(newcobj,STORYTELLER: Census Management System <CENSUS>,census,,,,WIZARD SAF
 &INC`SUB [u(cobj,census)]=@attach %!/INC`PARTIAL=%0,u(game_config,storyteller,CLASSES),|,choice,Class;@check words(u(setr,racelist,filterbool(#lambda/strmatch(%q<choice>,u(getstat,\%0,D`INFO,Class)),%q<list>)))=@attach %!/INC`MSG=No active [u(capnames,%q<choice>)] Players!;@pemit %#=u(header,mudname() Census Data);@dolist/inline/delimit | [get(u(cobj,data)/CASTE`%q<choice>)]={@select/inline gt(words(u(setr,castelist,u(filter,INFO,%q<racelist>,%b,%b,Caste,##))),0)=1,{@pemit %#=ljust(ansi(h,u(capnames,%i0)),70,.)[rjust(words(%q<castelist>),2,0)];@select/inline words(%q<castelist>)=0,#FFFFFF#FFFFFF{},{@pemit %#=u(itemize,iter(%q<castelist>,name(%i0),%b,|),|,and,\,)%R}}};@pemit %#=u(header,Total [u(capnames,%q<Class>)] Player Characters: [words(%q<racelist>)])
 
 @@ COMMUNITY - +CENSUS
-+help/add +census=[u(cobj,census)]/HLP`+CENSUS
-+help/category +census=Community
 &HLP`+CENSUS [u(cobj,census)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+census)] - Shows all approved players by Splat.%R[ansi(h,+census <splat>)] - Shows all players in a splat by Caste/Aspect/etc.)]
++help/add Community/+census=[u(cobj,census)]/HLP`+CENSUS

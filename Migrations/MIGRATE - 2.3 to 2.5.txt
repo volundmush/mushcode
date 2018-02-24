@@ -1,0 +1,139 @@
+th u(NEWCOBJ,SQL Migration System <MIG>,mig,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&Q`INSTALL`THING [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_thing (thing_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,display_num MEDIUMINT UNSIGNED NULL,objid VARCHAR(30) NOT NULL,object_name VARCHAR(60) NOT NULL,is_guest BOOL NOT NULL DEFAULT FALSE,parent_id MEDIUMINT UNSIGNED NULL,is_deleted BOOL NOT NULL DEFAULT FALSE,thing_type TINYINT UNSIGNED DEFAULT 0,PRIMARY KEY(thing_id),UNIQUE(objid),INDEX(object_name,thing_type,display_num),UNIQUE(display_num,thing_type),FOREIGN KEY(parent_id) REFERENCES mush_thing(thing_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`IP [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_ip (ip_id INT UNSIGNED NOT NULL AUTO_INCREMENT,ip_address VARCHAR(39) UNIQUE NOT NULL,INDEX(ip_address),PRIMARY KEY(ip_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`LOGIN [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_login (login_id INT UNSIGNED NOT NULL AUTO_INCREMENT,player_id MEDIUMINT UNSIGNED NOT NULL,date_login DATETIME NOT NULL,is_success BOOL NOT NULL DEFAULT TRUE,ip_id INT UNSIGNED NOT NULL,INDEX(ip_id, is_success),PRIMARY KEY(login_id),FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(ip_id) REFERENCES mush_ip(ip_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`JOB [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_job (job_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,title VARCHAR(120) NOT NULL,thing_id MEDIUMINT UNSIGNED NOT NULL,date_created DATETIME NOT NULL,date_due DATETIME,date_closed DATETIME,date_player_activity DATETIME NOT NULL,date_admin_activity DATETIME NOT NULL,is_deleted BOOL NOT NULL DEFAULT FALSE,job_status TINYINT UNSIGNED DEFAULT 0,is_anonymous BOOL NOT NULL DEFAULT FALSE,INDEX(job_status, date_closed),PRIMARY KEY(job_id),FOREIGN KEY(thing_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`LINK [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_job_link (link_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,job_id MEDIUMINT UNSIGNED NOT NULL,player_id MEDIUMINT UNSIGNED NOT NULL,link_type TINYINT UNSIGNED DEFAULT 0,date_check DATETIME,PRIMARY KEY(link_id),UNIQUE(job_id,player_id),INDEX(link_type,job_id),FOREIGN KEY(job_id) REFERENCES mush_job(job_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`COMMENT [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_job_comment (comment_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,link_id MEDIUMINT UNSIGNED NOT NULL,date_created DATETIME NOT NULL,comment_text TEXT NOT NULL,comment_type TINYINT UNSIGNED DEFAULT 0,is_visible BOOL NOT NULL DEFAULT TRUE,is_deleted TINYINT UNSIGNED DEFAULT 0,PRIMARY KEY(comment_id),INDEX(is_visible,is_deleted),FOREIGN KEY(link_id) REFERENCES mush_job_link(link_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`PLOT [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_plot (plot_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,title VARCHAR(120) UNIQUE,pitch TEXT,outcome TEXT,date_start DATETIME,date_end DATETIME,plot_type TINYINT UNSIGNED DEFAULT 0,plot_status TINYINT UNSIGNED DEFAULT 0,INDEX(date_start,date_end,plot_status),PRIMARY KEY(plot_id)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`RUNNER [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_runner (runner_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,player_id MEDIUMINT UNSIGNED NOT NULL,plot_id MEDIUMINT UNSIGNED NOT NULL,runner_type TINYINT UNSIGNED DEFAULT 0,PRIMARY KEY(runner_id),UNIQUE(player_id,plot_id),FOREIGN KEY(plot_id) REFERENCES mush_plot(plot_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`SCENE [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_scene (scene_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,title VARCHAR(120),pitch TEXT,outcome TEXT,post_id VARCHAR(10),date_created DATETIME,date_scheduled DATETIME,date_started DATETIME,date_finished DATETIME,scene_status TINYINT DEFAULT 0,is_deleted BOOL NOT NULL DEFAULT FALSE,log_ooc BOOL NOT NULL DEFAULT TRUE,PRIMARY KEY(scene_id),INDEX(scene_id,title,scene_status)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`SCENE_LINK [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_plot_link (link_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,scene_id MEDIUMINT UNSIGNED NOT NULL,plot_id MEDIUMINT UNSIGNED NOT NULL,PRIMARY KEY(link_id),UNIQUE(scene_id,plot_id),FOREIGN KEY(plot_id) REFERENCES mush_plot(plot_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(scene_id) REFERENCES mush_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`ACTOR [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_actor (actor_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,scene_id MEDIUMINT UNSIGNED NOT NULL,player_id MEDIUMINT UNSIGNED NOT NULL,actor_type TINYINT UNSIGNED NOT NULL DEFAULT 0,actor_status TINYINT UNSIGNED NOT NULL DEFAULT 0,actor_exclude BOOL NOT NULL DEFAULT TRUE,pose_count MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,PRIMARY KEY(actor_id),UNIQUE(scene_id,player_id),INDEX(scene_id,player_id,actor_type),FOREIGN KEY(scene_id) REFERENCES mush_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`ACTION_SOURCE [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_action_source (source_id INT UNSIGNED NOT NULL AUTO_INCREMENT,scene_id MEDIUMINT UNSIGNED NOT NULL,source_objid VARCHAR(30) NOT NULL,source_vr VARCHAR(30),source_name VARCHAR(60) NOT NULL,source_type TINYINT UNSIGNED NOT NULL DEFAULT 0,PRIMARY KEY(source_id),FOREIGN KEY(scene_id) REFERENCES mush_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE,UNIQUE(scene_id, source_objid, source_vr)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`ACTION [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_action (action_id INT UNSIGNED NOT NULL AUTO_INCREMENT,actor_id MEDIUMINT UNSIGNED NOT NULL,source_id INT UNSIGNED NOT NULL,is_deleted BOOL NOT NULL DEFAULT FALSE,action_type TINYINT UNSIGNED DEFAULT 0,date_created DATETIME NOT NULL,action_text TEXT NOT NULL,PRIMARY KEY(action_id),INDEX(actor_id, is_deleted),FOREIGN KEY(actor_id) REFERENCES mush_actor(actor_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(source_id) REFERENCES mush_action_source(source_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`MATCH [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_scene_match (pair_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,display_num MEDIUMINT UNSIGNED NOT NULL,scene_id MEDIUMINT UNSIGNED NOT NULL,player_id MEDIUMINT UNSIGNED NOT NULL,PRIMARY KEY(pair_id),UNIQUE(scene_id,display_num),UNIQUE(scene_id,player_id),FOREIGN KEY(scene_id) REFERENCES mush_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`REPORT [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_report (report_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,display_num MEDIUMINT UNSIGNED NOT NULL,title VARCHAR(255) NOT NULL,thing_id MEDIUMINT UNSIGNED NOT NULL,report_status TINYINT UNSIGNED NOT NULL DEFAULT 0,report_text TEXT,date_created DATETIME NOT NULL,date_modified DATETIME NOT NULL,is_deleted BOOL NOT NULL DEFAULT FALSE,report_type TINYINT UNSIGNED DEFAULT 0,PRIMARY KEY(report_id),FOREIGN KEY(thing_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE,UNIQUE(thing_id, title, report_type, display_num)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`REPORT_LINK [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_report_link (link_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,report_id MEDIUMINT UNSIGNED NOT NULL,player_id MEDIUMINT UNSIGNED NOT NULL,link_type TINYINT UNSIGNED DEFAULT 0,date_check DATETIME,PRIMARY KEY(link_id),UNIQUE(report_id,player_id),FOREIGN KEY(report_id) REFERENCES mush_report(report_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(player_id) REFERENCES mush_thing(thing_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`REPORT_SCENE [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_report_scene (rs_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,report_id MEDIUMINT UNSIGNED NOT NULL,scene_id MEDIUMINT UNSIGNED NOT NULL,PRIMARY KEY(rs_id),UNIQUE(report_id,scene_id),FOREIGN KEY(report_id) REFERENCES mush_report(report_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(scene_id) REFERENCES mush_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`REPORT_COMMENT [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_report_comment (comment_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,display_id MEDIUMINT UNSIGNED NOT NULL,link_id MEDIUMINT UNSIGNED NOT NULL,date_created DATETIME NOT NULL,comment_text TEXT NOT NULL,comment_type TINYINT UNSIGNED NOT NULL DEFAULT 0,is_deleted BOOL NOT NULL DEFAULT FALSE,PRIMARY KEY(comment_id),INDEX(is_deleted,display_id),FOREIGN KEY(link_id) REFERENCES mush_report_link(link_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&Q`INSTALL`REPORT_CASE [u(cobj,mig)]=CREATE TABLE IF NOT EXISTS mush_report_case (rc_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,case_file MEDIUMINT UNSIGNED NOT NULL,report_id MEDIUMINT UNSIGNED NOT NULL,PRIMARY KEY(rc_id),UNIQUE(case_file, report_id),FOREIGN KEY(report_id) REFERENCES mush_report(report_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(case_file) REFERENCES mush_report(report_id) ON UPDATE CASCADE ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1
+
+&SQL`TABLES [u(cobj,mig)]=THING|IP|LOGIN|JOB|LINK|COMMENT|PLOT|RUNNER|SCENE|SCENE_LINK|ACTOR|ACTION_SOURCE|ACTION|MATCH|REPORT|REPORT_LINK|REPORT_SCENE|REPORT_COMMENT|REPORT_CASE
+
+@trigger [u(cobj,mig)]/TRG`INSTALL
+
+
+@@ Some notes here...
+@@ mush_thing thing_type:
+@@ 0 - Player
+@@ 1 - Account
+@@ 2 - Job Category
+@@ 3 - Group / Report Category
+
+&Q`CONVERT`THING_1 [u(cobj,mig)]=INSERT IGNORE INTO mush_thing (thing_id,objid,object_name) SELECT player_id,objid,player_name FROM scene_players
+&Q`CONVERT`THING_2 [u(cobj,mig)]=INSERT IGNORE INTO mush_thing (objid,object_name) SELECT objid,player_name FROM mushcode_players
+&Q`CONVERT`THING_3 [u(cobj,mig)]=INSERT IGNORE INTO mush_thing (objid,object_name) SELECT objid,player_name FROM jobsys_players
+&Q`CONVERT`THING_4 [u(cobj,mig)]=INSERT IGNORE INTO mush_thing (display_num,objid,object_name,thing_type) SELECT id,objid,name,3 FROM reports_category
+
+&INC`MAIN [u(cobj,mig)]=@attach %!/INC`CONVERT`THING;@attach %!/INC`CONVERT`LOGIN;@attach %!/INC`CONVERT`SCENE;@attach %!/INC`CONVERT`JOB;@attach %!/INC`CONVERT`REPORT
+
+
+@@ START SECTION
+&INC`CONVERT`THING [u(cobj,mig)]=@dolist/inline THING_1 THING_2 THING_3 THING_4={@attach %!/INC`DOSQL=CONVERT`%i0};@dolist/inline [u(u(cobj,jms)/FUN`LISTCATS)]={@Sql INSERT IGNORE INTO mush_thing (display_num,objid,object_name,thing_type) VALUES ([inum(0)],'%i0','[name(%i0)]',2)}
+
+&INC`CONVERT`LOGIN [u(cobj,mig)]=@dolist/inline IP LOGIN={@attach %!/INC`DOSQL=CONVERT`%i0}
+
+&Q`CONVERT`IP [u(cobj,mig)]=INSERT IGNORE INTO mush_ip (ip_address) SELECT DISTINCT login_address FROM mushcode_logins
+
+&Q`CONVERT`LOGIN [u(cobj,mig)]=INSERT INTO mush_login (login_id,player_id,date_login,is_success,ip_id) SELECT l.login_id,t.thing_id,l.login_date,l.login_result,i.ip_id FROM mushcode_logins as l LEFT JOIN mushcode_players as p on p.player_id=l.player_id LEFT JOIN mush_thing as t ON t.objid=p.objid LEFT JOIN mush_ip AS i ON i.ip_address=l.login_address
+
+
+@@ SCENE SECTION
+&INC`CONVERT`SCENE [u(cobj,mig)]=@dolist/inline PLOT RUNNER SCENE ACTOR_1 ACTOR_2 ACTION_SOURCE ACTION ACTION_2 SCENE_2 SCENE_3 ACTOR_3={@attach %!/INC`DOSQL=CONVERT`%i0}
+
+&Q`CONVERT`PLOT [u(cobj,mig)]=INSERT INTO mush_plot (plot_id,title,pitch,date_start,date_end,plot_type) SELECT pl.plot_id,pl.plot_title,pl.plot_desc,pl.start_date,pl.end_date,pl.plot_type FROM scene_plots as pl LEFT JOIN mushcode_players as p on p.player_id=pl.player_id LEFT JOIN mush_thing as t ON t.objid=p.objid
+
+&Q`CONVERT`RUNNER [u(cobj,mig)]=INSERT INTO mush_runner (plot_id,player_id,runner_type) SELECT pl.plot_id,t.thing_id,2 FROM scene_plots as pl LEFT JOIN mushcode_players as p on p.player_id=pl.player_id LEFT JOIN mush_thing as t ON t.objid=p.objid
+
+&Q`CONVERT`SCENE [u(cobj,mig)]=INSERT INTO mush_scene(scene_id,title,outcome,date_created,date_finished,scene_status) SELECT s.scene_id,s.scene_title,s.scene_desc,s.creation_date,s.finish_date,IF(s.scene_state=4,3,s.scene_state) FROM scene_scenes as s LEFT JOIN mushcode_players as p on p.player_id=s.player_id LEFT JOIN mush_thing as t ON t.objid=p.objid
+
+&Q`CONVERT`ACTOR_1 [u(cobj,mig)]=INSERT INTO mush_actor(scene_id,player_id,actor_type) SELECT s.scene_id,t.thing_id,2 FROM scene_scenes AS s LEFT JOIN scene_players AS p on p.player_id=s.player_id LEFT JOIN mush_thing as t ON t.objid=p.objid
+
+&Q`CONVERT`ACTOR_2 [u(cobj,mig)]=INSERT IGNORE INTO mush_actor(scene_id,player_id) SELECT DISTINCT po.scene_id,t.thing_id FROM scene_poses as po LEFT JOIN scene_players as p on po.player_id=p.player_id LEFT JOIN mush_thing as t on t.objid=p.objid
+
+&Q`CONVERT`ACTION_SOURCE [u(cobj,mig)]=INSERT INTO mush_action_source(scene_id,source_objid,source_name,source_type) SELECT scene_id,room_objid,room_name,0 FROM scene_scenes
+
+&Q`CONVERT`ACTION [u(cobj,mig)]=INSERT INTO mush_action(action_id,actor_id,date_created,action_text,is_deleted,source_id,action_type) SELECT s.pose_id,act.actor_id,s.pose_time,s.pose,s.pose_ignore,src.source_id,0 FROM scene_poses AS s LEFT JOIN mush_actor AS act ON s.scene_id=act.scene_id AND s.player_id=act.player_id LEFT JOIN mush_action_source as src ON s.scene_id=src.scene_id WHERE act.actor_id IS NOT NULL
+
+&Q`CONVERT`ACTION_2 [u(cobj,mig)]=UPDATE mush_actor JOIN (SELECT actor_id, COUNT(*) AS c FROM mush_action WHERE is_deleted=0 GROUP BY actor_id) dt ON mush_actor.actor_id=dt.actor_id SET mush_actor.pose_count=dt.c
+
+&Q`CONVERT`SCENE_2 [u(cobj,mig)]=INSERT INTO mush_scene(title,pitch,date_created,date_scheduled,post_id) SELECT schedule_title,schedule_desc,schedule_date,schedule_date,post_id FROM scene_schedule WHERE schedule_date>NOW()
+
+&Q`CONVERT`SCENE_3 [u(cobj,mig)]=INSERT INTO mush_actor(scene_id,player_id,actor_type) SELECT sc.scene_id,s.player_id,2 FROM scene_schedule as s LEFT JOIN mush_scene as sc ON s.schedule_title=sc.title AND s.schedule_date=sc.date_scheduled WHERE sc.date_scheduled>NOW()
+
+&Q`CONVERT`ACTOR_3 [u(cobj,mig)]=INSERT IGNORE INTO mush_actor(scene_id,player_id,actor_status) SELECT sc.scene_id,tags.player_id,1 FROM scene_tags AS tags LEFT JOIN scene_schedule as s ON tags.schedule_id=s.schedule_id LEFT JOIN mush_scene as sc ON s.schedule_title=sc.title AND s.schedule_date=sc.date_scheduled
+
+
+@@ JOB SECTION
+&INC`CONVERT`JOB [u(cobj,mig)]=@dolist/inline JOB JOB_LINK_1 JOB_COMMENT JOB_LINK_2 JOB_LINK_3 JOB_LINK_4 JOB_COMMENT_2={@attach %!/INC`DOSQL=CONVERT`%i0}
+
+&Q`CONVERT`JOB [u(cobj,mig)]=INSERT INTO mush_job(job_id,title,thing_id,date_created,date_due,date_closed,job_status,date_player_activity,date_admin_activity) SELECT j.job_id,j.job_title,t.thing_id,j.submit_date,j.due_date,j.close_date,j.job_status,j.job_pactivity,j.job_activity FROM jobsys_jobs as j LEFT JOIN mush_thing as t ON t.objid=j.job_objid WHERE t.thing_id IS NOT NULL
+
+&Q`CONVERT`JOB_LINK_1 [u(cobj,mig)]=INSERT INTO mush_job_link(job_id,player_id,link_type) SELECT j.job_id,t.thing_id,3 FROM jobsys_jobs as j LEFT JOIN mush_thing as t2 ON t2.objid=j.job_objid LEFT JOIN jobsys_players as p on p.player_id=j.player_id LEFT JOIN mush_thing as t ON t.objid=p.objid WHERE t2.thing_id IS NOT NULL
+
+&Q`CONVERT`JOB_COMMENT [u(cobj,mig)]=INSERT INTO mush_job_comment(link_id,date_created,comment_text,comment_type) SELECT j2.link_id,j.submit_date,j.job_text,0 FROM jobsys_jobs AS j LEFT JOIN mush_thing as t2 ON t2.objid=j.job_objid LEFT JOIN mush_job_link AS j2 ON j.job_id=j2.job_id WHERE t2.thing_id IS NOT NULL
+
+&Q`CONVERT`JOB_LINK_2 [u(cobj,mig)]=INSERT INTO mush_job_link(job_id,player_id,date_check) SELECT j.job_id,t.thing_id,j.check_date FROM jobsys_check as j LEFT JOIN mush_job as j2 on j.job_id=j2.job_id LEFT JOIN jobsys_players as p on p.player_id=j.player_id LEFT JOIN mush_thing as t on t.objid=p.objid WHERE j2.thing_id IS NOT NULL ON DUPLICATE KEY UPDATE date_check=VALUES(date_check)
+
+&Q`CONVERT`JOB_LINK_3 [u(cobj,mig)]=INSERT INTO mush_job_link(job_id,player_id,link_type) SELECT j.job_id,t.thing_id,IF(j.claim_mode=0,2,1) FROM jobsys_claim as j LEFT JOIN mush_job as j2 on j.job_id=j2.job_id LEFT JOIN jobsys_players as p on p.player_id=j.player_id LEFT JOIN mush_thing as t on t.objid=p.objid WHERE j2.job_id IS NOT NULL ON DUPLICATE KEY UPDATE link_type=VALUES(link_type)
+
+&Q`CONVERT`JOB_LINK_4 [u(cobj,mig)]=INSERT IGNORE INTO mush_job_link(job_id,player_id) SELECT j.job_id,t.thing_id FROM jobsys_comments as j LEFT JOIN mush_job as j2 on j.job_id=j2.job_id LEFT JOIN jobsys_players as p on p.player_id=j.player_id LEFT JOIN mush_thing as t on t.objid=p.objid WHERE j2.job_id IS NOT NULL
+
+&Q`CONVERT`JOB_COMMENT_2 [u(cobj,mig)]=INSERT INTO mush_job_comment(link_id,date_created,comment_text,comment_type,is_visible) SELECT j3.link_id,j.comment_date,j.comment_text,IF(j.comment_type=1,2,1),IF(j.comment_type=1,0,1) FROM jobsys_comments as j LEFT JOIN mush_job as j2 on j.job_id=j2.job_id LEFT JOIN jobsys_players as p on p.player_id=j.player_id LEFT JOIN mush_thing as t on p.objid=t.objid LEFT JOIN mush_job_link as j3 ON j.job_id=j3.job_id AND j3.player_id=t.thing_id WHERE j2.job_id IS NOT NULL
+
+@@ REPORT SECTION
+
+
+
+
+@@ thing
+INSERT INTO super_1up (1up_id,display_id,player_id,source_id,date_created,location_name) SELECT up.1up_id,up.display_id,t1.thing_id,t2.thing_id,up.date_created,up.location_name FROM super_2up as up LEFT JOIN mushcode_players as p ON up.player_id=p.player_id LEFT JOIN mush_thing as t1 ON p.objid=t1.objid LEFT JOIN mushcode_players as p2 ON up.source_id=p2.player_id LEFT JOIN mush_thing AS t2 ON p2.objid=t2.objid
+
+
+
+@@ Stuff from 2.0 to 2.5
+
+INSERT INTO vol_entity (entity_id,entity_type,entity_objid,entity_name) SELECT thing_id,0,objid,object_name FROM mush_thing WHERE thing_type=1;
+INSERT INTO vol_account (account_id,account_date_created) SELECT thing_id,UTC_TIMESTAMP() FROM mush_thing WHERE thing_type=1;
+
+INSERT INTO vol_entity (entity_id,entity_type,entity_objid,entity_name) SELECT thing_id,1,objid,object_name FROM mush_thing WHERE thing_type=0;
+INSERT INTO vol_character (character_id,character_is_deleted,account_id) SELECT thing_id,is_deleted,parent_id FROM mush_thing WHERE thing_type=0;
+
+INSERT INTO vol_ip (ip_id,ip_address) SELECT ip_id,ip_address FROM mush_ip;
+INSERT INTO vol_login (login_id,character_id,login_date,login_is_success,ip_id) SELECT login_id,player_id,date_login,is_success,ip_id FROM mush_login;
+
+INSERT INTO vol_entity (entity_id,entity_type,entity_objid,entity_name) SELECT thing_id,3,objid,object_name FROM mush_thing WHERE thing_type=2;
+INSERT INTO vol_bucket (bucket_id) SELECT thing_id FROM mush_thing WHERE thing_type=2;
+INSERT INTO vol_job (job_id,job_title,bucket_id,job_date_created,job_date_closed,job_date_player_activity,job_date_admin_activity,job_status,job_is_anonymous) SELECT job_id,title,thing_id,date_created,date_closed,date_player_activity,date_admin_activity,job_status,is_anonymous FROM mush_job;
+INSERT INTO vol_jlink (jlink_id,job_id,character_id,jlink_type,jlink_date_check) SELECT link_id,job_id,player_id,link_type,date_check FROM mush_job_link;
+INSERT INTO vol_jcomment (jcomment_id,jlink_id,jcomment_date_created,jcomment_text,jcomment_type,jcomment_is_visible) SELECT comment_id,link_id,date_created,comment_text,comment_type,is_visible FROM mush_job_comment;
