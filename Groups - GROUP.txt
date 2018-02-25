@@ -96,6 +96,12 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &RANK`4`NODELETE [u(cobj,dop)]=1
 &SET`STARTRANK [u(cobj,dop)]=4
 
+&GET`COLORIZE [u(cobj,dop)]=localize(ansi(u(GET`COLOR,%!),%0))
+&GET`NAME [u(cobj,dop)]=localize(setq(gname,u(GET`COLORIZE,name(%!)))[if(%1,u(pueblize,%q<gname>,+group [name(%!)]),%q<gname>)])
+&GET`COLOR [u(cobj,dop)]=u(strfirstof,u(groupcolor,%#,%!),default(%!/SET`COLOR,n))
+&GET`ABBR [u(cobj,dop)]=u(GET`COLORIZE,default(%!/SET`ABBREVIATION,left(name(%!),3)))
+&GET`LETTER [u(cobj,dop)]=u(GET`COLORIZE,if(strlen(v(SET`LETTER)),v(SET`LETTER),if(strlen(v(SET`ABBREVIATION)),left(v(SET`ABBREVIATION),1),left(name(%!),1))))
+
 @@ &COLOR`GROUP`NAME u(pco)=hx
 @@ &COLOR`GROUP`ICNAME u(pco)=hx
 @@ &COLOR`GROUP`OOCNAME u(pco)=hx
@@ -128,6 +134,9 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &SWITCHES`GADMIN`PLAYER [u(cobj,group)]=CREATE|RENAME|DISBAND|SET|DESC[if(u(cobj,radio),|MAKERADIO|FIXRADIO)]
 &SWITCHES`GADMIN`ADMIN [u(cobj,group)]=CONFIG
+
+&SWITCHES`DADMIN`PLAYER [u(cobj,group)]=CREATE|RENAME|DISBAND
+&SWITCHES`DADMIN`ADMIN [u(cobj,group)]=
 
 &INC`CHOOSE [u(cobj,group)]=th u(setq,comm,%0);@attach %!/INC`GETSWITCH=%1;@select/inline match(GOOC GIC GRADIO,%q<comm>)=>0,{@attach %!/GRP`GCHANNEL`[u(strfirstof,%q<switch>,MAIN)]=switch(%q<comm>,GOOC,OOC,GIC,IC,GRADIO,OOC),%2,%3},{@attach %!/%q<systype>`%q<comm>`[u(strfirstof,%q<switch>,MAIN)]=%2,%3}
 
@@ -185,12 +194,10 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &INC`VALID`DIVISIONNAME [u(cobj,group)]=@check strlen(u(setr,value,trim(stripansi(%0))))=@attach %!/INC`MSG=ERROR: Division name field empty.;@check valid(name,%q<value>)=@attach %!/INC`MSG=ERROR: Bad name for a Division!;@stop u(charsearch,%q<value>,u(badchars) /)=@attach %!/INC`MSG=ERROR: Bad name for a Division! Try without characters: [v(badchars)] /;@stop cand(isdbref(u(setr,find,u(find_in,%1,%0))),if(isdbref(%2),not(comp(%2,%q<find>))))=@attach %!/INC`MSG=ERROR: A Division already has that name!
 
-&DIV`DADMIN`CREATE`MAIN [u(cobj,group)]=@attach %!/INC`TARGET;@check u(FUN`GRPPERM,%:,%q<g1>,MANAGE)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/DIV`DADMIN`CREATE`DO=%0,%q<g1>;@select/inline [t(strlen(%1))][isdbref(pmatch(%1))]=11,{@attach %!/INC`CHECKPC=%1,1;@attach %!/DIV`DMEMBER`ADD`DO=%q<g1>,%q<t1objid>,%q<d1id>,1,{%n added you to the %q<g1name>'s new Division: %q<value>};@attach %!/INC`MSG=You set %q<t1name> as leader of the %q<g1name>'s new Division: %q<value>!},10,{@attach %!/INC`MSG=The Division was created\, but '%1' does not match a player!},0*,{@attach %!/INC`MSG=The Division '%q<value>' was created.};@attach %!/INC`CODE`MAKELOG=%:,%q<g1>,{Created the Division '%q<value>'.[if(isobjid(%q<t1objid>),%B%q<t1name> is its leader.)]}
+&DIV`DADMIN`CREATE [u(cobj,group)]=@attach %!/INC`TARGET;@check u(FUN`GRPPERM,%:,%q<g1>,MANAGE)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/DIV`DADMIN`CREATE`DO=%0,%q<g1>;@select/inline [t(strlen(%1))][isdbref(pmatch(%1))]=11,{@attach %!/INC`CHECKPC=%1,1;@attach %!/DIV`DMEMBER`ADD`DO=%q<g1>,%q<t1objid>,%q<d1id>,1,{%n added you to the %q<g1name>'s new Division: %q<value>};@attach %!/INC`MSG=You set %q<t1name> as leader of the %q<g1name>'s new Division: %q<value>!},10,{@attach %!/INC`MSG=The Division was created\, but '%1' does not match a player!},0*,{@attach %!/INC`MSG=The Division '%q<value>' was created.};@attach %!/INC`CODE`MAKELOG=%:,%q<g1>,{Created the Division '%q<value>'.[if(isobjid(%q<t1objid>),%B%q<t1name> is its leader.)]}
 
-&DIV`DADMIN`CREATE`DO [u(cobj,group)]=@attach %!/INC`VALID`DIVISIONNAME=%0,%1;@check u(setr,d1objid,objid(u(setr,d1,create(u(setr,d1name,%q<value>)))))=@attach %!/INC`MSG=ERROR: Division could not be created. Could not create THING object.;@check u(setr,d1id,u(call`4,volp_group_division,0,'%q<d1objid>','[sqlescape(%q<d1name>)]',get(%1/D`ID)))={@attach %!/INC`MSG=ERROR: Division could not be created. Reason: %q<d1id>;@attach %!/DELETE=%q<d1>};th u(attrib_set,%q<d1>,D`ID,%q<d1id>);@attach %!/INC`DOSQL=DIVISION`PARENT,get(%0/D`ID),%q<d1id>;th u(attrib_set,%1,DIVISIONS,u(sortname,u(filter,ISOBJID,setunion(get(%1/DIVISIONS),%q<d1objid>))));@parent %q<d1>=u(cobj,dop);@tel %q<d1>=%1;@power %q<d1>=many_attribs;@set %q<d1>=[u(choosegame,WIZARD SAFE,INHERIT SAFE)];@dolist/inline/delimit | 1~Leader|2~Second|3~Officer|4~Member={@attach %!/GRP`GRANK`CREATE`DO=%q<d1>,before(##,~),after(##,~)}
+&DIV`DADMIN`CREATE`DO [u(cobj,group)]=@attach %!/INC`VALID`DIVISIONNAME=%0,%1;@check u(setr,d1objid,objid(u(setr,d1,create(u(setr,d1name,%q<value>)))))=@attach %!/INC`MSG=ERROR: Division could not be created. Could not create THING object.;@check u(setr,d1id,u(call`3,volp_group_division,0,'%q<d1objid>','[sqlescape(%q<d1name>)]',get(%1/D`ID)))={@attach %!/INC`MSG=ERROR: Division could not be created. Reason: %q<d1id>;@attach %!/DELETE=%q<d1>};th u(attrib_set,%q<d1>,D`ID,%q<d1id>);th u(attrib_set,%1,DIVISIONS,u(sortname,u(filter,ISOBJID,setunion(get(%1/DIVISIONS),%q<d1objid>))));@parent %q<d1>=u(cobj,dop);@tel %q<d1>=%1;@power %q<d1>=many_attribs;@set %q<d1>=[u(choosegame,WIZARD SAFE,INHERIT SAFE)];@dolist/inline/delimit | 1~Leader|2~Second|3~Officer|4~Member={@attach %!/GRP`GRANK`CREATE`DO=%q<d1>,before(##,~),after(##,~)}
 @@ Arg %0 - Division Name. %1 - Division Parent DBREF.
-
-&Q`DIVISION`PARENT [u(cobj,group)]=UPDATE vol_group SET group_parent=? WHERE group_id=?
 
 &FUN`FINDGROUP [u(cobj,group)]=u(namegrab,if(%2,get(%2/DIVISIONS),u(FUN`LISTGROUPS,%1)),%0)
 
@@ -226,7 +233,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &FUN`FINDDIV [u(cobj,group)]=u(FUN`FINDGROUP,%0,,%1)
 
-&INC`FINDDIV [u(cobj,group)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No Division name entered!;@check isint(u(setr,div,u(FUN`FINDDIV,%q<g1>,%0)))=@attach %!/INC`MSG=@attach %!/INC`MSG=ERROR: Division '%0' not found.;@attach %!/INC`LOADDIV=%q<div>,1
+&INC`FINDDIV [u(cobj,group)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No Division name entered!;@check isobjid(u(setr,div,u(FUN`FINDDIV,%0,%q<g1>)))=@attach %!/INC`MSG=ERROR: Division '%0' not found.;@attach %!/INC`LOADDIV=%q<div>,1
 
 &INC`LOADDIV [u(cobj,group)]=th u(setq,d%1name,name(u(setr,d%1objid,objid(u(setr,d%1,%0)))));th u(setq,d%1id,get(%0/D`ID))
 
@@ -237,13 +244,13 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &GRP`GADMIN`DISBAND`DO [u(cobj,group)]=@attach %!/INC`DOSQL=DELETE`GROUP,get(%0/D`ID);@dolist/inline get(%0/MEMBERS)={@trigger %!/GRP`CACHE`CHARACTER=##};@attach %!/INC`DOSQL=DELETE`GROUPCHAT,objid(%0);@attach %!/DELETE=%0
 
 &Q`DELETE`GROUP [u(cobj,group)]=DELETE FROM vol_entity WHERE entity_id=?
-&Q`DELETE`GROUPCHAT [u(cobj,group)]=DELETE from vol_messages WHERE message_source=?
+&Q`DELETE`GROUPCHAT [u(cobj,group)]=DELETE from vol_messages WHERE source_objid=?
 
 &PLAYER`DISCONNECT`CLEANGAG [u(cobj,group)]=@stop %1;@attach %!/WIPE=%0,D`GROUP`#*`*GAG
 
 &DIV`DADMIN`DISBAND [u(cobj,group)]=@attach %!/INC`TARGET;@check u(FUN`GRPPERM,%:,%q<g1>,MANAGE)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`FINDDIV=%0;@check strmatch(%1,%q<d1name>)=@attach %!/INC`MSG=ERROR: Must enter the Division's full name as the second argument to verify.;@attach %!/INC`VERIFY=[ansi(hr,WARNING:)] This will DELETE Division '%q<d1name>'. If you're sure\, enter the command again in ten seconds to verify.,DELETE DIV %q<g1> %q<d1id>;@attach %!/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n has Disbanded the '%q<d1name>' Division!},OOC,1;@attach %!/INC`MSG`CHAN=DISBANDED Group '%q<g1name>' Division '%q<d1name>';@attach %!/DIV`DADMIn`DISBAND`DO=%q<g1>,%q<d1>
 
-&DIV`DADMIN`DISBAND`DO [u(cobj,group)]=th u(attrib_set,%0,DIVISIONS,u(sortname,u(filter,ISOBJID,setdiff(get(%0/DIVISIONS),objid(%1)))));@attach %!/GRP`GADMIN`DISBAND`DO=%0
+&DIV`DADMIN`DISBAND`DO [u(cobj,group)]=th u(attrib_set,%0,DIVISIONS,u(sortname,u(filter,ISOBJID,setdiff(get(%0/DIVISIONS),objid(%1)))));@attach %!/GRP`GADMIN`DISBAND`DO=%1
 
 &ADMIN`PLAYER [u(cobj,group)]=COLOR|STARTRANK|IC|OOC|COMMAND|CHANNELRANK|SYSALERT
 &ADMIN`ADMIN [u(cobj,group)]=PRIVATE|TIER|DISPLAYMODE|ABBREVIATION|LETTER|CHANNELS|NOREPORT|RADIOS
@@ -252,36 +259,36 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &GRP`GADMIN`MAIN [u(cobj,group)]=@attach %!/INC`TARGET;@select/inline strlen(%0)=0,{@attach %!/GRP`GADMIN`LIST},{@attach %!/GRP`GADMIN`SET}
 
-&GRP`GADMIN`SET [u(cobj,group)]=@attach %!/INC`TARGET;@select/inline strlen(%0)=>0,{@check u(FUN`GRPPERM,%:,%q<g1>,MANAGE)=@attach %!/INC`MSG=ERROR: Permission denied.;@check cor(u(isadmin,%#),lte(get(%#/D`GROUP`%q<g1>`RANK),1))=@attach %!/INC`MSG=ERROR: You lack permission to do that.;@attach %!/INC`PARTIAL=%0,u(setr,choices,setunion(v(ADMIN`PLAYER),if(u(isadmin,%#),v(ADMIN`ADMIN)),|,|)),|,option;@attach %!/GRP`GADMIN`SET`%q<option>;@attach %!/INC`CODE`CHAT={%n Set '%q<option>' to: %q<value>},OOC,1},{@attach %!/GRP`GADMIN`SET`VIEW}
+&GRP`GADMIN`SET [u(cobj,group)]=@attach %!/INC`TARGET;@select/inline strlen(%0)=>0,{@check u(FUN`GRPPERM,%:,%q<g1>,MANAGE)=@attach %!/INC`MSG=ERROR: Permission denied.;@check cor(u(isadmin,%#),lte(get(%#/D`GROUP`%q<g1>`RANK),1))=@attach %!/INC`MSG=ERROR: You lack permission to do that.;@attach %!/INC`PARTIAL=%0,u(setr,choices,setunion(v(ADMIN`PLAYER),if(u(isadmin,%#),v(ADMIN`ADMIN)),|,|)),|,option;@attach %!/GRP`GADMIN`SET`%q<option>;@attach %!/GRP`GADMIN`SET`FINISH},{@attach %!/GRP`GADMIN`SET`VIEW}
 
-&GRP`GADMIN`SET`VIEW [u(cobj,group)]=@pemit %#=u(header,%q<g1name> - Settings);@dolist/inline COLOR STARTRANK IC OOC NOREPORT TIER PRIVATE ABBREVIATION LETTER DISPLAYMODE COMMAND CHANNELS RADIOS={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10),get(%q<g1>/SET`##`TYPE),ansi(hw,DESCRIPTION:),get(%q<g1>/SET`##`DESC));@pemit %#=[rjust(ansi(hw,DEFAULT:),10)]%b[get(u(cobj,gop)/SET`##)];@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[get(%q<g1>/SET`##)]};@pemit %#=u(footer)
+&GRP`GADMIN`SET`VIEW [u(cobj,group)]=@pemit %#=u(header,%q<g1name> - Settings);@dolist/inline COLOR STARTRANK IC OOC NOREPORT TIER PRIVATE ABBREVIATION LETTER DISPLAYMODE SYSALERT COMMAND CHANNELS RADIOS={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10),get(%q<g1>/SET`##`TYPE),ansi(hw,DESCRIPTION:),get(%q<g1>/SET`##`DESC));@pemit %#=[rjust(ansi(hw,DEFAULT:),10)]%b[get(u(cobj,gop)/SET`##)];@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[get(%q<g1>/SET`##)]};@pemit %#=u(footer)
 
-&GRP`GADMIN`SET`COLOR [u(cobj,group)]=@attach %!/INC`VALID`COLOR=%1;&SET`COLOR %q<g1>=%q<value>;@attach %!/GRP`GADMIN`SET`FINISH;
+&GRP`GADMIN`SET`COLOR [u(cobj,group)]=@attach %!/INC`VALID`COLOR=%1;&SET`COLOR %q<g1>=%q<value>
 
-&GRP`GADMIN`SET`STARTRANK [u(cobj,group)]=@attach %!/INC`VALID`POSINT=%1,STARTRANK;@stop lte(%q<value>,2)=@attach %!/INC`MSG=ERROR: STARTRANK may not be higher than 3.;@stop lte(%q<value>,u(FUN`GETRANK,%q<g1>,%:))=@attach %!/INC`MSG=ERROR: Cannot raise STARTRANK beyond your own rank.;@check hasattrp(%q<g1>/RANK`%q<value>)=@attach %!/INC`MSG=ERROR: Cannot find that rank.;&SET`STARTRANK %q<g1>=%q<value>;@attach %!/GRP`GADMIN`SET`FINISH;
+&GRP`GADMIN`SET`STARTRANK [u(cobj,group)]=@attach %!/INC`VALID`POSINT=%1,STARTRANK;@stop lte(%q<value>,2)=@attach %!/INC`MSG=ERROR: STARTRANK may not be higher than 3.;@stop lte(%q<value>,u(FUN`GETRANK,%q<g1>,%:))=@attach %!/INC`MSG=ERROR: Cannot raise STARTRANK beyond your own rank.;@check hasattrp(%q<g1>/RANK`%q<value>)=@attach %!/INC`MSG=ERROR: Cannot find that rank.;&SET`STARTRANK %q<g1>=%q<value>
 
-&GRP`GADMIN`SET`RADIOS [u(cobj,group)]=@attach %!/INC`VALID`RADIOLIST=%1;&SET`%q<option> %q<g1>=%q<value>;
+&GRP`GADMIN`SET`RADIOS [u(cobj,group)]=@attach %!/INC`VALID`RADIOLIST=%1;&SET`%q<option> %q<g1>=%q<value>
 
 &GRP`GADMIN`SET`IC [u(cobj,group)]=@attach %!/GRP`GADMIN`SET`OOC;
 &GRP`GADMIN`SET`CHANNELRANK [u(cobj,group)]=@attach %!/GRP`GADMIN`SET`OOC;
 &GRP`GADMIN`SET`NOREPORT [u(cobj,group)]=@attach %!/GRP`GADMIN`SET`OOC;
-&GRP`GADMIN`SET`PRIVATE [u(cobj,group)]=@attach %!/GRP`GADMIN`SET`OOC;@attach %!/INC`DOSQL=SET`PRIVATE,%q<value>,get(%q<g1>/D`ID);@dolist/inline get(%q<g1>/MEMBERS)={@attach %!/INC`CODE`REBUILDMEMBERCACHE=##};
-&GRP`GADMIN`SET`OOC [u(cobj,group)]=@attach %!/INC`VALID`BOOL=%1,%q<option>;&SET`%q<option> %q<g1>=%q<value>;
+&GRP`GADMIN`SET`PRIVATE [u(cobj,group)]=@attach %!/GRP`GADMIN`SET`OOC;@attach %!/INC`DOSQL=SET`PRIVATE,%q<value>,get(%q<g1>/D`ID);@dolist/inline get(%q<g1>/MEMBERS)={@attach %!/INC`CODE`REBUILDMEMBERCACHE=##}
+&GRP`GADMIN`SET`OOC [u(cobj,group)]=@attach %!/INC`VALID`BOOL=%1,%q<option>;&SET`%q<option> %q<g1>=%q<value>
 
 &GRP`GADMIN`SET`COMMAND [u(cobj,group)]=@attach %!/INC`VALID`POSINT=%1,%q<option>;&SET`%q<option> %q<g1>=%q<value>;@attach %!/GRP`CACHE`MEMBERS=%q<g1>
-&GRP`GADMIN`SET`SYSALERT [u(cobj,group)]=@attach %!/INC`VALID`POSINT=%1,%q<option>;&SET`%q<option> %q<g1>=%q<value>;
+&GRP`GADMIN`SET`SYSALERT [u(cobj,group)]=@attach %!/INC`VALID`POSINT=%1,%q<option>;&SET`%q<option> %q<g1>=%q<value>
 
-&GRP`GADMIN`SET`DISPLAYMODE [u(cobj,group)]=@attach %!/INC`PARTIAL=%1,STANDARD|DIVISIONAL,value;&SET`%q<option> %q<g1>=%q<value>;@attach %!/GRP`GADMIN`SET`FINISH;
+&GRP`GADMIN`SET`DISPLAYMODE [u(cobj,group)]=@attach %!/INC`PARTIAL=%1,STANDARD|DIVISIONAL,|,value;&SET`%q<option> %q<g1>=%q<value>
 
-&GRP`GADMIN`SET`ABBREVIATION [u(cobj,group)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: %q<option> must have content!;&SET`ABBREVIATION %q<g1>=u(setr,value,%1);@attach %!/INC`DOSQL=SET`ABBREVIATION,%q<value>,get(%q<g1>/D`ID);@attach %!/GRP`GADMIN`SET`FINISH;
+&GRP`GADMIN`SET`ABBREVIATION [u(cobj,group)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: %q<option> must have content!;&SET`ABBREVIATION %q<g1>=u(setr,value,%1);@attach %!/INC`DOSQL=SET`ABBREVIATION,%q<value>,get(%q<g1>/D`ID)
 
 &Q`SET`ABBREVIATION [u(cobj,group)]=UPDATE vol_group SET group_abbr=? WHERE group_id=?
 &Q`SET`PRIVATE [u(cobj,group)]=UPDATE vol_group SET group_is_private=? WHERE group_id=?
 
-&GRP`GADMIN`SET`LETTER [u(cobj,group)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: %q<option> must have content!;&SET`LETTER %q<g1>=u(setr,value,%1);@attach %!/GRP`GADMIN`SET`FINISH;
-&GRP`GADMIN`SET`CHANNELS [u(cobj,group)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: %q<option> must have content!;&SET`CHANNELS %q<g1>=u(setr,value,%1);@attach %!/GRP`GADMIN`SET`FINISH;
+&GRP`GADMIN`SET`LETTER [u(cobj,group)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: %q<option> must have content!;&SET`LETTER %q<g1>=u(setr,value,%1)
+&GRP`GADMIN`SET`CHANNELS [u(cobj,group)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: %q<option> must have content!;&SET`CHANNELS %q<g1>=u(setr,value,%1)
 
-&GRP`GADMIN`SET`TIER [u(cobj,group)]=@check cand(isint(u(setr,value,%1)),gte(%q<value>,0))=@attach %!/INC`MSG=ERROR: %q<option> must be a positive integer 0 or greater.;&SET`%q<option> %q<g1>=%q<value>;@attach %!/INC`DOSQL=SET`TIER,%q<value>,%q<g1id>;@dolist/inline get(%q<g1>/MEMBERS)={@attach %!/INC`CODE`REBUILDMEMBERCACHE=##};@attach %!/GRP`GADMIN`SET`FINISH;
+&GRP`GADMIN`SET`TIER [u(cobj,group)]=@check cand(isint(u(setr,value,%1)),gte(%q<value>,0))=@attach %!/INC`MSG=ERROR: %q<option> must be a positive integer 0 or greater.;&SET`%q<option> %q<g1>=%q<value>;@attach %!/INC`DOSQL=SET`TIER,%q<value>,%q<g1id>;@dolist/inline get(%q<g1>/MEMBERS)={@attach %!/INC`CODE`REBUILDMEMBERCACHE=##}
 
 &Q`SET`TIER [u(cobj,group)]=UPDATE vol_group SET group_tier=? WHERE group_id=?
 
@@ -371,7 +378,6 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &GRP`GPERM`DELETE`DO [u(cobj,group)]=th u(attrib_set,%0,PERM,setdiff(get(%0/PERMCUST),%1,|,|));@attach %!/WIPE=%0,PERM`%1
 
 &GRP`GPERM`GRANT [u(cobj,group)]=@attach %!/INC`TARGET;@check u(FUN`GRPPERM,%:,%q<g1>,MANAGE)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`PARTIAL=%0,u(FUN`PERMS,%q<g1>),|,permission;@check u(FUN`GRPPERM,%:,%q<g1>,%qchoice>)=@attach %!/INC`MSG=ERROR: Cannot grant a Permission you do not already possess.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Nobody/Nothing entered to grant to!;@dolist/inline/nobreak/delimit \, %1={@attach %!/GRP`GPERM`GRANT`DO=%q<g1>,u(choosegame,%i0,%d0),%q<permission>};@select/inline cor(words(%q<chars>),words(%q<ranks>))=1,{@attach %!/INC`MSG=Granted %q<permission> Permissions.},0,{@attach %!/INC`MSG=ERROR: Nothing matched to grant to!};@select/inline words(%q<chars>)=>0,{@attach %!/INC`MSG`NOTICE=You were granted the %q<permission> Permission in Group: %q<g1name>,%q<chars>};@dolist/inline %q<chars>=@trigger %!/GRP`CACHE`CHARACTER`GROUP=##,%q<g1>
-
 
 &GRP`GPERM`GRANT`DO [u(cobj,group)]=@check strlen(%1);@select/inline u(valnum,%1)=1,{@check hasattr(%0/RANK`%1)=@attach %!/INC`MSG=ERROR: [name(%0)] does not have a Rank %1!;@check cor(u(isadmin,%#),lt(%1,get(%#/D`GROUP`[num(%0)]`RANK)))=@attach %!/INC`MSG=ERROR: Cannot modify Ranks at or beyond your own.;@stop match(get(%0/RANK`%1`PERM),%2)=@attach %!/INC`MSG=ERROR: Rank %1 already has %2!;th u(attrib_set,%0,RANK`%1`PERM,setunion(get(%0/RANK`%1`PERM),%2));th u(setq,ranks,setunion(%q<ranks>,%1));th u(setq,ranks,setunion(%qranks>,%1))},0,{@attach %!/INC`CHECKPC=%1,2;@stop if(get(%q<t1>/D`GROUP`[num(%0)]`RANK),cor(lt(get(%q<t2>/D`GROUP`[num(%0)]`RANK),get(%#/D`GROUP`[num(%0)]`RANK)),u(isadmin,%#)),0)=@attach %!/INC`MSG=ERROR: Cannot modify a superior member.;@stop strmatch(%#,%q<t2>)=@attach %!/INC`MSG=ERROR: Cannot Grant permissions to yourself.;th u(attrib_set,%q<t2>,D`GROUP`[num(%0)]`GRANTED,setunion(get(%q<t2>/D`GROUP`[num(%0)]`GRANTED),%2));th u(attrib_set,%0,PERM`%2,setunion(u(filter,ISOBJID,get(%0/PERM`%2)),%q<t2objid>));th u(setq,chars,setunion(%q<chars>,%q<t2>))}
 
@@ -466,11 +472,11 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &FIL`GAPPROVE [u(cobj,group)]=cor(%1,u(isapproved,first(%0,chr(177))))
 
-&DISPLAY`DIVISIONAL [u(cobj,group)]=@pemit %#=ansi(u(color,%#,GROUP,COLUMN_NAMES),align(23 5 21 20 6,Name,R#,Rank,Title,Idle));@attach %!/DISPLAY`DIVISIONAL`COMMAND;@dolist/inline u(filter,ISOBJID,get(%q<g1>/DIVISIONS))={@attach %!/DISPLAY`DIVISIONAL`DIVISION=%q<g1>,##};@attach %!/DISPLAY`DIVISIONAL`UNASSIGNED;
+&DISPLAY`DIVISIONAL [u(cobj,group)]=@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(23 5 21 20 6,Name,R#,Rank,Title,Idle));@attach %!/DISPLAY`DIVISIONAL`COMMAND;@dolist/inline u(filter,ISOBJID,get(%q<g1>/DIVISIONS))={@attach %!/DISPLAY`DIVISIONAL`DIVISION=%q<g1>,##};@attach %!/DISPLAY`DIVISIONAL`UNASSIGNED;
 
-&DISPLAY`DIVISIONAL`COMMAND [u(cobj,group)]=@pemit %#=u(separator,Command Staff);@dolist/inline/delimit [chr(176)] [u(filter,GAPPROVE,u(filter,if(%q<online>,ONLINE,EXISTMEMBER),u(mysql3,SELECT`RANK_COMPARE,%q<g1id>,<=[default(%q<g1>/SET`COMMAND,2)]),chr(176),chr(176),%q<lwhoid>),chr(176),chr(176),cor(%q<all>,u(conf,SHOW_UNAPPROVED)))]={@pemit %#=align(23 5 21 19 >6,u(pueblize,u(moniker,u(setr,mem,first(u(setq,data,u(choosegame,%i0,%d0)),chr(177)))),+finger [name(%q<mem>)]),u(setr,rnk,default(%q<mem>/D`GROUP`%q<g1>`RANK,?)),get(%q<g1>/RANK`%q<rnk>`NAME),get(%q<mem>/D`GROUP`%q<g1>`TITLE),u(lastidle,%q<mem>,%#))};
+&DISPLAY`DIVISIONAL`COMMAND [u(cobj,group)]=@pemit %#=u(separator,Command Staff);@dolist/inline/delimit [chr(176)] [u(filter,GAPPROVE,u(filter,if(%q<online>,ONLINE,EXISTMEMBER),u(mysql3,SELECT`RANK_COMPARE,%q<g1id>,<=[default(%q<g1>/SET`COMMAND,2)]),chr(176),chr(176),%q<lwhoid>),chr(176),chr(176),cor(%q<all>,u(conf,SHOW_UNAPPROVED)))]={@pemit %#=align(23 5 21 19 >6,u(pueblize,u(moniker,u(setr,mem,first(u(setr,data,u(choosegame,%i0,%d0)),chr(177)))),+finger [name(%q<mem>)]),u(setr,rnk,default(%q<mem>/D`GROUP`%q<g1>`RANK,?)),get(%q<g1>/RANK`%q<rnk>`NAME),get(%q<mem>/D`GROUP`%q<g1>`TITLE),u(lastidle,%q<mem>,%#))};
  
-&DISPLAY`DIVISIONAL`DIVISION [u(cobj,group)]=@pemit %#=u(separator,u(%1/GET`NAME));@dolist/inline/delimit [chr(176)] [u(filter,GAPPROVE,u(filter,if(%q<online>,ONLINE,EXISTMEMBER),u(mysql3,SELECT`MEMBERS,get(%1/D`ID)),chr(176),chr(176),%q<lwhoid>),chr(176),chr(176),cor(%q<all>,u(conf,SHOW_UNAPPROVED)))]={@pemit %#=align(23 5 21 19 >6,u(pueblize,u(moniker,u(setr,mem,first(u(setq,data,u(choosegame,%i0,%d0)),chr(177)))),+finger [name(%q<mem>)]),default(%q<mem>/D`GROUP`[num(%0)]`RANK,?)-[elements(%q<data>,2,chr(177))],elements(%q<data>,3,chr(177)),u(strfirstof,elements(%q<data>,4,chr(177)),get(%q<mem>/D`GROUP`[num(%0)]`TITLE)),u(lastidle,%q<mem>,%#))}
+&DISPLAY`DIVISIONAL`DIVISION [u(cobj,group)]=@pemit %#=u(separator,u(%1/GET`NAME));@dolist/inline/delimit [chr(176)] [u(filter,GAPPROVE,u(filter,if(%q<online>,ONLINE,EXISTMEMBER),u(mysql3,SELECT`MEMBERS,get(%1/D`ID)),chr(176),chr(176),%q<lwhoid>),chr(176),chr(176),cor(%q<all>,u(conf,SHOW_UNAPPROVED)))]={@pemit %#=align(23 5 21 19 >6,u(pueblize,u(moniker,u(setr,mem,first(u(setr,data,u(choosegame,%i0,%d0)),chr(177)))),+finger [name(%q<mem>)]),default(%q<mem>/D`GROUP`[num(%0)]`RANK,?)-[elements(%q<data>,2,chr(177))],elements(%q<data>,3,chr(177)),u(strfirstof,elements(%q<data>,4,chr(177)),get(%q<mem>/D`GROUP`[num(%0)]`TITLE)),u(lastidle,%q<mem>,%#))}
 
 &DISPLAY`DIVISIONAL`UNASSIGNED [u(cobj,group)]=@pemit %#=u(separator,Unassigned Members);@dolist/inline/delimit [chr(176)] [u(filter,GAPPROVE,u(filter,if(%q<online>,ONLINE,EXISTMEMBER),u(mysql3,SELECT`MEMBERS_UNASSIGNED,%q<g1id>,%q<g1id>,>[default(%q<g1>/SET`COMMAND,2)]),chr(176),chr(176),%q<lwhoid>),chr(176),chr(176),u(conf,SHOW_UNAPPROVED))]={@pemit %#=align(23 5 21 19 >6,u(pueblize,u(moniker,u(setr,mem,first(u(setq,data,u(choosegame,%i0,%d0)),chr(177)))),+finger [name(%q<mem>)]),u(setr,rnk,default(%q<mem>/D`GROUP`%q<g1>`RANK,?)),get(%q<g1>/RANK`%q<rnk>`NAME),get(%q<mem>/D`GROUP`%q<g1>`TITLE),u(lastidle,%q<mem>,%#))};
 
@@ -485,7 +491,11 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &GRP`GWHO`LIST [u(cobj,group)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,if(%q<online>,ONLINE%B)MEMBERS: %q<g1name>);@select/inline cand(not(%2),hasattr(%q<g1>/DESCRIBE))=1,{@pemit %#=get(%q<g1>/DESCRIBE);@pemit %#=u(separator)};@attach %!/DISPLAY`[u(strfirstof,get(%q<g1>/SET`DISPLAYMODE),STANDARD)];@pemit %#=u(FOOTER)
 
-&DIV`DIVISIONS`MAIN [u(cobj,group)]=@attach %!/INC`TARGET;@pemit %#=u(HEADER,DIVISIONS: %q<g1name>);@pemit %#=ansi(u(color,%#,GROUPS,COLUMN_NAMES),align(24 21 20 10,Name,Rank,Title,Last/Idle));th u(setq,divcount,NULL);@dolist/inline/delimit [chr(176)] [u(mysql3,SELECT`DIVISION_CASCADE,%q<g1id>)]={th u(setq,ddat,u(choosegame,%i0,%d0));@select/inline strmatch(elements(%i0,1,chr(177)),%q<divcount>)=0,{@pemit %#=u(separator,u(elements(%q<ddat>,1,chr(177))/GET`NAME))};th u(setq,divcount,elements(%q<ddat>,1,chr(177)));@pemit %#=align(24 21 19 >10,u(pueblize,u(moniker,u(setr,obj,elements(%q<ddat>,2,chr(177)))),+finger [name(%q<obj>)]),elements(%q<ddat>,4,chr(177)),elements(%q<ddat>,5,chr(177)),u(lastidle,%q<obj>,%#))};@pemit %#=u(FOOTER)
+&DIV`DIVISIONS`MAIN [u(cobj,group)]=@attach %!/INC`TARGET;@pemit %#=u(HEADER,DIVISIONS: %q<g1name>);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(24 21 20 10,Name,Rank,Title,Last/Idle));th u(setq,divcount,NULL);@dolist/inline/delimit [chr(176)] [u(mysql3,SELECT`DIVISION_CASCADE,%q<g1id>)]={th u(setq,ddat,u(choosegame,%i0,%d0));th u(setq,divs,setunion(elements(%q<ddat>,1,chr(177)),%q<divs>));@select/inline strmatch(elements(%q<ddat>,1,chr(177)),%q<divcount>)=0,{@pemit %#=u(separator,u(elements(%q<ddat>,1,chr(177))/GET`NAME))};th u(setq,divcount,elements(%q<ddat>,1,chr(177)));@pemit %#=align(24 21 19 >10,u(pueblize,u(moniker,u(setr,obj,elements(%q<ddat>,2,chr(177)))),+finger [name(%q<obj>)]),elements(%q<ddat>,4,chr(177)),elements(%q<ddat>,5,chr(177)),u(lastidle,%q<obj>,%#))};@select/inline if(words(%q<divs>),words(u(setr,empty,u(mysql,SELECT`EMPTY_DIVISIONS`1,%q<g1id>,u(SQL`IN`STRING,%q<divs>)))),words(u(setr,empty,u(mysql,SELECT`EMPTY_DIVISIONS`2,%q<g1id>))))=>0,{@pemit %#=u(subheader,Empty Divisions);@pemit %#=iter(%q<empty>,u(%i0/GET`NAME),%b,\,%B)};@pemit %#=u(FOOTER)
+
+&Q`SELECT`EMPTY_DIVISIONS`1 [u(cobj,group)]=SELECT group_objid FROM volv_group WHERE group_parent=? AND group_objid NOT IN (!) ORDER BY group_name
+
+&Q`SELECT`EMPTY_DIVISIONS`2 [u(Cobj,group)]=SELECT group_objid FROM volv_group WHERE group_parent=? ORDER BY group_name
 
 &Q`SELECT`DIVISION_CASCADE [u(cobj,group)]=SELECT group_objid,character_objid,group_rank_number,group_rank_title,group_member_title FROM volv_group_member WHERE group_parent=? ORDER BY group_name ASC,group_rank_number ASC,character_name ASC
 
@@ -558,7 +568,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &INC`CODE`CHAT`RHOSTMUSH [u(cobj,group)]=@pemit/list %q<list>=udefault(FUN`CHATFORMAT,%0,##,%#,%q<markup>,%q<chan>,%2,%q<g1>,,,%3,%q<lwhoid>)
 
-&FIL`CHANLISTEN [u(cobj,group)]=if(%3,cor(u(isadmin,%0),cand(lte(get(%0/D`GROUP`%1`RANK),u(FUN`GETSET,%1,SYSALERT)))),cand(match(%4,%0),not(get(%0/D`GROUP`%1`GAG`%2))))
+&FIL`CHANLISTEN [u(cobj,group)]=if(%3,cor(u(isadmin,%0),cand(get(%0/D`GROUP`%1`RANK),lte(get(%0/D`GROUP`%1`RANK),default(%1/SET`SYSALERT,3)))),cand(match(%4,%0),not(get(%0/D`GROUP`%1`GAG`%2))))
 
 &INC`CODE`CHANLOG [u(cobj,group)]=@attach %!/INC`DOSQL=INSERT`CHANLOG,objid(%0),name(%0),%1,t(%2),objid(%3),name(%3),%4,%5,%6
 
