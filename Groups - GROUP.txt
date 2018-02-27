@@ -27,6 +27,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &GET`COLOR [u(cobj,gop)]=u(strfirstof,u(groupcolor,%#,%!),default(%!/SET`COLOR,n))
 &GET`ABBR [u(cobj,gop)]=u(GET`COLORIZE,default(%!/SET`ABBREVIATION,left(name(%!),3)))
 &GET`LETTER [u(cobj,gop)]=u(GET`COLORIZE,if(strlen(v(SET`LETTER)),v(SET`LETTER),if(strlen(v(SET`ABBREVIATION)),left(v(SET`ABBREVIATION),1),left(name(%!),1))))
+&GET`ABBREVIATION [u(cobj,gop)]=u(GET`COLORIZE,if(strlen(v(SET`ABBREVIATION)),v(SET`ABBREVIATION),if(strlen(v(SET`ABBREVIATION)),left(name(%!),1),left(name(%!),1))))
 
 &SET`STARTRANK [u(cobj,gop)]=4
 &SET`STARTRANK`DESC [u(cobj,gop)]=The Rank # for new members!
@@ -101,6 +102,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &GET`COLOR [u(cobj,dop)]=u(strfirstof,u(groupcolor,%#,%!),default(%!/SET`COLOR,n))
 &GET`ABBR [u(cobj,dop)]=u(GET`COLORIZE,default(%!/SET`ABBREVIATION,left(name(%!),3)))
 &GET`LETTER [u(cobj,dop)]=u(GET`COLORIZE,if(strlen(v(SET`LETTER)),v(SET`LETTER),if(strlen(v(SET`ABBREVIATION)),left(v(SET`ABBREVIATION),1),left(name(%!),1))))
+&GET`ABBREVIATION [u(cobj,dop)]=u(GET`COLORIZE,if(strlen(v(SET`ABBREVIATION)),v(SET`ABBREVIATION),if(strlen(v(SET`ABBREVIATION)),left(name(%!),1),left(name(%!),1))))
 
 @@ &COLOR`GROUP`NAME u(pco)=hx
 @@ &COLOR`GROUP`ICNAME u(pco)=hx
@@ -588,7 +590,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 @set [u(cobj,group)]/CMD`CHAT`PENNMUSH=regexp
 &CMD`CHAT`RHOSTMUSH [u(cobj,group)]=$^(?s)(-|=)(\\w+)?(?\:/(\\S+)?)?(?\: +(.+))?$:@attach %!/CMD`CHAT`MAIN
 @set [u(cobj,group)]/CMD`CHAT`RHOSTMUSH=regexp
-&CMD`CHAT`MAIN [u(cobj,group)]=th u(setq,chan,switch(%1,-,IC,=,OOC));@attach %!/INC`PARTIAL=%3,GAG|UNGAG|JOIN|LEAVE|RECALL,|,switch;@select/inline strlen(%q<switch>)=>0,{@attach %!/INC`FINDGROUP=%2,1;@attach %!/GRP`GCHANNEL`%q<switch>`START=%4},{@check isdbref(u(setr,g1,u(namegrab,u(filter,ONCHANNEL,u(FUN`LISTGROUPS,%:),%b,%b,%:,switch(%1,-,IC,=,OOC,OOC)),%2)))=@attach %!/INC`MSG=ERROR: Group not found!;@attach %!/INC`LOADGROUP=%q<g1>,1;@check strlen(%4)=@pemit %#=What will you say?;@attach %!/INC`CODE`CHAT=%4,switch(%1,-,IC,=,OOC,OOC),0}
+&CMD`CHAT`MAIN [u(cobj,group)]=th u(setq,chan,switch(%1,-,IC,=,OOC));@attach %!/INC`PARTIAL=%3,GAG|UNGAG|JOIN|LEAVE|RECALL,|,switch;@select/inline strlen(%q<switch>)=>0,{@attach %!/INC`FINDGROUP=u(strfirstof,%2,get(%#/D`GROUP)),1;@attach %!/GRP`GCHANNEL`%q<switch>`START=%4},{@check isdbref(u(setr,g1,u(namegrab,u(filter,ONCHANNEL,u(FUN`LISTGROUPS,%:),%b,%b,%:,switch(%1,-,IC,=,OOC,OOC)),u(strfirstof,%2,get(%#/D`GROUP)))))=@attach %!/INC`MSG=ERROR: Group not found!;@attach %!/INC`LOADGROUP=%q<g1>,1;@check strlen(%4)=@pemit %#=What will you say?;@attach %!/INC`CODE`CHAT=%4,switch(%1,-,IC,=,OOC,OOC),0}
 @set [u(cobj,group)]/CMD`CHAT`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &FIL`ONCHANNEL [u(cobj,group)]=t(match(get(%0/CHANNEL`%2),%1))

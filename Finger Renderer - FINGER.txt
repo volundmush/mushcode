@@ -33,7 +33,7 @@ th u(NEWCOBJ,Finger <FINGER>,finger,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 &CONFIG`FORMATTER`VALID [u(cobj,finger)]=WORD
 
 &CONFIG`HEADER_CONTENTS [u(cobj,finger)]=Header Text for +finger. See +shelp +finger
-&CONFIG`HEADER_CONTENTS`DEFAULT [u(cobj,finger)]=ALIASMONIKER
+&CONFIG`HEADER_CONTENTS`DEFAULT [u(cobj,finger)]=ALIASNAME
 &CONFIG`HEADER_CONTENTS`VALID [u(cobj,finger)]=WORD
 
 &CONFIG`FOOTER_CONTENTS [u(cobj,finger)]=Text for +finger's footer. See +shelp +finger

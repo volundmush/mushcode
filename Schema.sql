@@ -635,7 +635,7 @@ CREATE OR REPLACE VIEW volv_group_member_tiers AS
 	SELECT m.character_id,m.character_objid,m.character_name,m.group_tier,t.tier_name,GROUP_CONCAT(m.group_objid ORDER BY m.group_name ASC SEPARATOR ' ') AS group_objids,m.group_is_private AS group_is_private
 	FROM volv_group_member AS m LEFT JOIN vol_group_tier AS t ON t.group_tier=m.group_tier
 	WHERE group_objid IS NOT NULL
-	GROUP BY m.character_id,m.group_tier
+	GROUP BY m.character_id,m.group_tier,m.group_is_private
 	ORDER BY m.character_name ASC,m.group_tier DESC;
 
 -- Procedures for Group System

@@ -11,8 +11,6 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &VA [u(cobj,ccp)]=PennMUSH
 &GAME [u(cobj,ccp)]=PennMUSH
 
-&COI [u(cobj,ccp)]=localize(if(isdbref(setr(db,u(find_in,u(master_room),Code Object Index <COI>))),u(%q<db>/%0)))
-
 &IS_ANCESTOR [u(cobj,ccp)]=cand(hasattr(u(cobj,ccp),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player))))
 
 &ATTRIB_SET [u(cobj,ccp)]=if(u(IS_ANCESTOR,%0),,attrib_set(%0/%1,%2))
@@ -249,19 +247,19 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &GETPROPERTY`URL [u(cobj,ccp)]=u(weblink,get(%0/V`PROPERTY`%1))
 
-&GETPROPERTY`THEME [u(cobj,ccp)]=localize(u(pueblize,setr(theme,first(elements(get(%0/V`THEME),2,chr(177)),chr(176))),+theme %q<theme>))
+&GETPROPERTY`THEME [u(cobj,ccp)]=localize(if(strlen(u(setr,themes,get(%0/V`THEME))),u(pueblize,setr(theme,first(elements(%q<themes>,3,chr(177)),chr(176))),+theme %q<theme>))
 &GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEME),1,chr(177)),chr(176))
 
 &GETPROPERTY`SCENE [u(cobj,ccp)]=if(default(%0/D`OBSERVER,0),ansi(hw,OBS),default(%0/D`SCENE,???))
 
 &GETPROPERTY`GROUPDB [u(cobj,ccp)]=if(%1,elements(get(%0/V`TIERS),%1),get(%0/V`TIERS))
 &GETPROPERTY`TIERDB [u(cobj,ccp)]=if(%2,elements(get(%0/V`TIERS`%1),%2),get(%0/V`TIERS`%1))
-&GETPROPERTY`FACTION [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,%1,1))),u(%q<grp>/GET`NAME))
-&GETPROPERTY`FACABBR [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,%1,1))),u(%q<grp>/GET`ABBREVIATION))
-&GETPROPERTY`FACLETTER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,%1,1))),u(%q<grp>/GET`LETTER))
-&GETPROPERTY`FACRANK [u(cobj,ccp)]=if(isdbref(setr(grp,num(u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,%1,1)))),setq(title,get(%0/D`GROUP`%q<grp>`TITLE))[setq(rankname,get(%q<grp>/RANK`[setr(rank,get(%0/D`GROUP`%q<grp>`RANK))]`NAME))][setq(disp,if(%2,u(strfirstof,%q<title>,%q<rankname>),%q<rankname>))][if(%3,%q<rank>-%q<disp>,%q<disp>)])
+&GETPROPERTY`FACTION [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1))),u(%q<grp>/GET`NAME))
+&GETPROPERTY`FACABBR [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1))),u(%q<grp>/GET`ABBREVIATION))
+&GETPROPERTY`FACLETTER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1))),u(%q<grp>/GET`LETTER))
+&GETPROPERTY`FACRANK [u(cobj,ccp)]=if(isdbref(setr(grp,num(u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1)))),setq(title,get(%0/D`GROUP`%q<grp>`TITLE))[setq(rankname,get(%q<grp>/RANK`[setr(rank,get(%0/D`GROUP`%q<grp>`RANK))]`NAME))][setq(disp,if(%2,u(strfirstof,%q<title>,%q<rankname>),%q<rankname>))][if(%3,%q<rank>-%q<disp>,%q<disp>)])
 &GETPROPERTY`GROUPS [u(cobj,ccp)]=iter(rest(u(getproperty`groupdb,%0,%1)),u(%i0/GET`NAME),%b,if(%2,|,\,%b))
-&GETPROPERTY`BANNER [u(cobj,ccp)]=if(isdbref(setr(grp,first(u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,%1,1)))),u(%q<grp>/GET`COLORIZE,name(%0)),u(moniker,%0))
+&GETPROPERTY`BANNER [u(cobj,ccp)]=if(isdbref(setr(grp,first(u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1)))),u(%q<grp>/GET`COLORIZE,name(%0)),u(moniker,%0))
 
 &GETPROPERTY`GROUPNAMES [u(cobj,ccp)]=iter(u(getproperty`groupdb,%0,%1),u(%i0/GET`NAME),%b,if(%2,|,\,%b))
 &GETPROPERTY`TIERNAMES [u(cobj,ccp)]=iter(u(getproperty`tierdb,%0,%1,%2),u(%i0/GET`NAME),%b,if(%3,|,\,%b))
@@ -305,9 +303,9 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &RENDER [u(cobj,ccp)]=render(%0,ansi html)
 
-&MYSQL [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-1 SQL QUERY DATA NOT FOUND)
-&MYSQL2 [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),|,^),#-1 SQL QUERY DATA NOT FOUND)
-&MYSQL3 [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),chr(176),chr(177)),#-1 SQL QUERY DATA NOT FOUND)
+&MYSQL [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(setr,sqlformat,u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9))),#-1 SQL QUERY DATA NOT FOUND)
+&MYSQL2 [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(setr,sqlformat,u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),|,^),#-1 SQL QUERY DATA NOT FOUND)
+&MYSQL3 [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(setr,sqlformat,u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),chr(176),chr(177)),#-1 SQL QUERY DATA NOT FOUND)
 
 &CALL`0 [u(cobj,ccp)]=sql(CALL %0(),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
 
@@ -332,7 +330,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &SQL`FORMAT [u(cobj,ccp)]=localize(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,'[sqlescape(%q<set>)]'))))
 
-&INC`DOSQL [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),sql(SELECT last_insert_id\(\))))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+&INC`DOSQL [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),sql(SELECT last_insert_id\(\))))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck> - QUERY: %q<sqlformat>}
 
 &INC`DOCALL`0 [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(call`0,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
 
@@ -351,7 +349,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &INC`CONFIG`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(CONFIG`%q<op>`VALID)]=%1;th u(attrib_set,%!,CONFIG`%q<op>`CUSTOM,%q<value>);th u(attrib_set,%!,CONFIG`%q<op>`FORMATTED,%q<valueformat>);@attach %!/INC`MSG=You set Config Option '%q<op>' to: %q<value>;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' set to: %q<value>;@attach %!/CONFIG`%q<op>`FINISH
 &INC`CONFIG`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=%!,CONFIG`%q<op>`CUSTOM;@attach %!/INC`MSG=You set Config Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' reset to Default.;@attach %!/CONFIG`%q<op>`FINISH
 
-&CONFIG`OPTIONS [u(cobj,ccp)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|REQUIRE_APPROVAL|NAMELINK|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|STAFF_GROUP|ROOM_PLAYERS|ROOM_THINGS|ROOM_EXITS|EXIT_COLOR|EXIT_ALIAS
+&CONFIG`OPTIONS [u(cobj,ccp)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|REQUIRE_APPROVAL|NAMELINK|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|OOC|OOCEDGE|STAFF_GROUP|ROOM_PLAYERS|ROOM_THINGS|ROOM_EXITS|EXIT_COLOR|EXIT_ALIAS
 @set [u(cobj,ccp)]/CONFIG`OPTIONS=no_inherit
 
 &CONFIG`WIZTAG [u(cobj,ccp)]=Color of WIZ tag in systems.
@@ -421,6 +419,14 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &CONFIG`BORDER [u(cobj,ccp)]=Color for borders in enclosed tables.
 &CONFIG`BORDER`DEFAULT [u(cobj,ccp)]=m
 &CONFIG`BORDER`VALID [u(cobj,ccp)]=COLOR
+
+&CONFIG`OOC [u(cobj,ccp)]=Used for the OOC tag prefixing +ooc messages.
+&CONFIG`OOC`DEFAULT [u(cobj,ccp)]=hr
+&CONFIG`OOC`VALID [u(cobj,ccp)]=COLOR
+
+&CONFIG`OOCEDGE [u(cobj,ccp)]=Used for the symbols of the +ooc message prefix.
+&CONFIG`OOCEDGE`DEFAULT [u(cobj,ccp)]=hw
+&CONFIG`OOCEDGE`VALID [u(cobj,ccp)]=COLOR
 
 &CONFIG`MSG [u(cobj,ccp)]=Color for the -=<>=- part of System Messages.
 &CONFIG`MSG`DEFAULT [u(cobj,ccp)]=hm

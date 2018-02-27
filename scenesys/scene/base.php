@@ -1,14 +1,6 @@
 <?php
 	require 'db.php';
 	require 'ansi.php';
-
-	if (isset($_REQUEST['id']))
-	{
-		$num = intval($_REQUEST['id']);
-	}
-	else
-	{
-	$num = -1;
-	}
+	$num = ($_REQUEST['id']  ? $_REQUEST['id'] : $num );
 	include('Smarty.class.php');
 ?>

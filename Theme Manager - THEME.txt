@@ -122,7 +122,7 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 &CONFIG`CHARACTER_STATUS`VALID [u(cobj,theme)]=LIST
 &CONFIG`CHARACTER_STATUS`DEFAULT [u(cobj,theme)]=OPEN|CLOSED|CLOSING|TEMP|DEAD|UNAVAILABLE
 
-&INC`REBUILDMEMBERS [u(cobj,theme)]=@dolist/inline u(mysql,REBUILD`CHARACTERS,%0)={@attach %!/INC`REBUILDCHARACTER=%0}
+&INC`REBUILDMEMBERS [u(cobj,theme)]=@dolist/inline u(mysql,REBUILD`CHARACTERS,%0)={@attach %!/INC`REBUILDCHARACTER=##}
 
 &Q`REBUILD`CHARACTERS [u(cobj,theme)]=SELECT character_objid FROM volv_theme_member WHERE theme_id=?
 
