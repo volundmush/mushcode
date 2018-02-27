@@ -2,7 +2,7 @@
 	require 'base.php';
 	$smarty = new Smarty;
 	
-	$scene_list = array_reverse($scenedb->select('volv_scene', ["scene_id", "runner_id", "runner_name", "scene_title", "scene_outcome", "scene_status"], ["scene_status[<]"=>4]));
+	$scene_list = array_reverse($scenedb->select('volv_scene', ["scene_id", "runner_id", "runner_name", "scene_title", "scene_outcome", "scene_status"], ["scene_status[!]"=>2]));
 	
 	$state_array = ["0"=>"Active", "1"=>"Paused", "2"=>"Unfinished", "3"=>"Finished", "4"=>"Scheduled"];
 	$scene_data = array();

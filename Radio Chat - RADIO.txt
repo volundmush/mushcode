@@ -154,9 +154,9 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_
 
 &STARTUP [u(cobj,radio)]=@trigger %!/LOOP`CLEANUPRADIO
 
-&LOOP`CLEANUPRADIO [u(Cobj,radio)]=@dolist children(u(cobj,freq))={@attach %!/INC`DOSQL=CLEANUp`RADIO,objid(##)};@wait mul(60,60,2)=@trigger %!/LOOP`CLEANUPRADIO
+&LOOP`CLEANUPRADIO [u(Cobj,radio)]=@dolist children(u(cobj,freq))={@attach %!/INC`DOSQL=CLEANUp`RADIO,objid(##),objid(##)};@wait mul(60,60,2)=@trigger %!/LOOP`CLEANUPRADIO
 
-&Q`CLEANUP`RADIO [u(Cobj,radio)]=DELETE FROM vol_messages WHERE message_type=3 AND message_source=? AND message_id NOT IN (SELECT message_id FROM vol_messages WHERE message_type=3 AND message_source=? ORDER BY message_date_created DESC LIMIT 100)
+&Q`CLEANUP`RADIO [u(Cobj,radio)]=DELETE m FROM vol_messages AS m LEFT JOIN (SELECT message_id FROM vol_messages as msg WHERE msg.source_objid=? ORDER BY msg.message_date_created DESC LIMIT 100) AS m2 ON m.message_id=m2.message_id WHERE m.source_objid=? AND m2.message_id IS NULL
 
 &OPTION`OPTIONS [u(cobj,radio)]=EDGE|PREFIX|FREQNAME|QUOTES|SPEECH
 
