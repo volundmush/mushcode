@@ -121,6 +121,7 @@ Support is limited by my time and energy, but it's my goal to provide an easy-to
      * null_eq_zero yes
      * pueblo yes
      * Under the help section, comment out ahelp, anews, and news.
+	 * max_named_qregs 250
   3. Recommendations in mush.cnf: These are not NECESSARY, but are nice to have.
      * mud_name - set it to something short but respectable, it'll be showing up in my code a lot!
      * Uncomment all the dump_* messages and then clear dump_complete - this'll get rid of that annoying 'GAME: Save Complete.'

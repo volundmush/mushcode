@@ -8,7 +8,7 @@ th u(NEWCOBJ,Poll Database <POLLDB>,polldb,u(cobj,poll),,1,WIZARD SAFE,INHERIT S
 &CMD`+POLL`RHOSTMUSH [u(cobj,poll)]=$^(?s)(?\:\+)?(poll)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+POLL`MAIN
 @set [u(cobj,poll)]/CMD`+POLL`RHOSTMUSH=regexp
 &CMD`+POLL`MAIN [u(cobj,poll)]=th u(setq,com,lcstr(+%1));@attach %!/INC`GETSWITCH=%2;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
-@set [u(cobj,poll)]/CMD`+POLL`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,poll)]/CMD`+POLL`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,poll)]=REMOVE|OTHER|FULL
 &SWITCHES`ADMIN [u(cobj,poll)]=CREATE|RENAME|DELETE|OPEN|CLOSE|OPTION|DESCRIBE|HELP|MULTI
@@ -19,7 +19,7 @@ th u(NEWCOBJ,Poll Database <POLLDB>,polldb,u(cobj,poll),,1,WIZARD SAFE,INHERIT S
 
 &INC`MAIN [u(cobj,poll)]=@select/inline t(strlen(%0))[t(strlen(%1))]=10,{@attach %!/INC`DISPLAY},11,{@attach %!/INC`VOTE},0*,{@attach %!/INC`LISTALL}
 
-&INC`LISTALL [u(cobj,poll)]=@check words(u(setr,polls,u(sortname,children(u(cobj,polldb)))))=@attach %!/INC`MSG=No polls to display.;@pemit %#=u(HEADER,mudname() - All Polls);th u(setq,accid,u(accid,%#));@pemit %#=ansi(u(color,%#,POLL,COLUMN_NAMES),align(15 20 7 3 3 3 3 3 3 3 3 1,Name,Created,Status,A,B,C,D,E,F,X,Tot,V));@pemit %#=u(separator);@dolist/inline u(sortcreated,%q<polls>)={@pemit %#=align(15 20 7 3 3 3 3 3 3 3 3 1,u(pueblize,u(moniker,##),+poll [u(moniker,##)]),u(fancytime,u(csecs,##),%#),if(get(##/STATUS),Closed,Open),u(FUN`VOTECOUNT,##,A),u(FUN`VOTECOUNT,##,B),u(FUN`VOTECOUNT,##,C),u(FUN`VOTECOUNT,##,D),u(FUN`VOTECOUNT,##,E),u(FUN`VOTECOUNT,##,F),u(FUN`VOTECOUNT,##,X),u(nattr,##/VOTER`*),if(hasattr(##/VOTER`%q<accid>),ansi(hg,Y),ansi(hr,N)))};@pemit %#=u(FOOTER)
+&INC`LISTALL [u(cobj,poll)]=@check words(u(setr,polls,u(sortname,children(u(cobj,polldb)))))=@attach %!/INC`MSG=No polls to display.;@pemit %#=u(HEADER,mudname() - All Polls);th u(setq,accid,u(accid,%#));@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(15 20 7 3 3 3 3 3 3 3 3 1,Name,Created,Status,A,B,C,D,E,F,X,Tot,V));@pemit %#=u(separator);@dolist/inline u(sortcreated,%q<polls>)={@pemit %#=align(15 20 7 3 3 3 3 3 3 3 3 1,u(pueblize,u(moniker,##),+poll [u(moniker,##)]),u(fancytime,u(csecs,##),%#),if(get(##/STATUS),Closed,Open),u(FUN`VOTECOUNT,##,A),u(FUN`VOTECOUNT,##,B),u(FUN`VOTECOUNT,##,C),u(FUN`VOTECOUNT,##,D),u(FUN`VOTECOUNT,##,E),u(FUN`VOTECOUNT,##,F),u(FUN`VOTECOUNT,##,X),u(nattr,##/VOTER`*),if(hasattr(##/VOTER`%q<accid>),ansi(hg,Y),ansi(hr,N)))};@pemit %#=u(FOOTER)
 
 &FUN`VOTECOUNT [u(cobj,poll)]=words(u(filter,VOTE,u(lattr,%0/VOTER`*),%b,%b,%0,%1))
 
@@ -58,7 +58,7 @@ th u(NEWCOBJ,Poll Database <POLLDB>,polldb,u(cobj,poll),,1,WIZARD SAFE,INHERIT S
 &OBJECT`DESTROY [u(cobj,poll)]=@dolist/inline u(lattr,%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 &OBJECT`DESTROY`PURGEPOLL [u(cobj,poll)]=@select/inline %2=PLAYER,{@dolist/inline children(u(cobj,polldb))={@attach %!/WIPE=##,VOTER`[before(%0,:)]}}
 
-&SORTCREATED [u(cobj,poll)]=u(SORTCREATED,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTCREATED [u(cobj,poll)]=u(SORTCREATED`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 &SORTCREATED`PENNMUSH [u(cobj,poll)]=sortkey(#lambda/csecs(\%0),%0,n,%1,%2)
 &SORTCREATED`RHOSTMUSH [u(cobj,poll)]=sortby(#lambda/[lit([ncomp(convtime(createtime(%0),convtime(createtime(%1))])],%0,%1,%2)
 
