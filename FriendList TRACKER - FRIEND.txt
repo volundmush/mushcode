@@ -11,6 +11,9 @@ th u(NEWCOBJ,FriendList Tracker <FRIEND>,friend,,,,WIZARD SAFE !NO_COMMAND,INHER
 @set [u(cobj,friend)]/CMD`+FRIEND`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,friend)]=FRIENDS
+&SYSTEM`OPTIONS [u(cobj,friend)]=FRIENDS
+&SYSTEM`COLORS [u(Cobj,friend)]=FRIENDS
+
 &SWITCHES`PLAYER [u(cobj,friend)]=ADD|LIST|DELETE|HIDE|MUTE|ACCADD|ACCDELETE
 &SWITCHES`ADMIN [u(cobj,friend)]=CONFIG
 
@@ -24,9 +27,9 @@ th u(NEWCOBJ,FriendList Tracker <FRIEND>,friend,,,,WIZARD SAFE !NO_COMMAND,INHER
 &CONFIG`COLUMNS`DEFAULT [u(cobj,friend)]=NAMELINK~20|ALIAS~11|FACABBR/2~3|HIDEIDLE~>4|HIDECONN~>4|SEX/1~1|LOCATION/1~29
 &CONFIG`COLUMNS`VALID [u(cobj,friend)]=GETTABLE
 
-&INC`MAIN [u(cobj,friend)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - Online);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),u(columnline,u(conf,HEADER)));@select/inline get(%#/D`ACCOUNT`ID)=>0,{@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(playerline,##,u(conf,COLUMNS))}};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(playerline,##,u(conf,COLUMNS))};@pemit %#=u(footer)
+&INC`MAIN [u(cobj,friend)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - Online);@pemit %#=ansi(u(color,%#,FRIENDS,COLUMN_NAMES),u(columnline,u(conf,HEADER)));@select/inline get(%#/D`ACCOUNT`ID)=>0,{@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(playerline,##,u(conf,COLUMNS))}};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(sortidle,u(filter,ISOBJID,setinter(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<lwhoid>)))={@check gte(objeval(%#,conn(##)),0);@pemit %#=u(playerline,##,u(conf,COLUMNS))};@pemit %#=u(footer)
 
-&INC`LIST [u(cobj,friend)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - All);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),u(columnline,u(conf,HEADER)));@select/inline get(%#/D`ACCOUNT`ID)=>0,{@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)))={@pemit %#=u(playerline,##,u(conf,COLUMNS))}};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ID)))={@pemit %#=u(playerline,##,u(conf,COLUMNS))};@pemit %#=u(footer)
+&INC`LIST [u(cobj,friend)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,Watch - All);@pemit %#=ansi(u(color,%#,FRIENDS,COLUMN_NAMES),u(columnline,u(conf,HEADER)));@select/inline get(%#/D`ACCOUNT`ID)=>0,{@pemit %#=u(separator,Account Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ACCOUNT`ID)))={@pemit %#=u(playerline,##,u(conf,COLUMNS))}};@pemit %#=u(separator,Character Watch);@dolist/inline/nobreak u(filter,ISOBJID,u(mysql,SELECT`WATCH,get(%#/D`ID)))={@pemit %#=u(playerline,##,u(conf,COLUMNS))};@pemit %#=u(footer)
 
 &INC`ADD [u(cobj,friend)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No player entered to add.;@attach %!/INC`CHECKPC=%0,1;@stop match(u(mysql,SELECT`WATCH,get(%#/D`ID)),%q<t1objid>)=@attach %!/INC`MSG=ERROR: They are already a friend.;@attach %!/INC`DOSQL=INSERT`WATCH,get(%#/D`ID),%q<t1id>;@attach %!/INC`MSG=%q<t1name> added to your Friends list!
 
@@ -46,11 +49,11 @@ th u(NEWCOBJ,FriendList Tracker <FRIEND>,friend,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &INC`MUTE [u(cobj,friend)]=th setq(choose,if(t(get(%#/D`WATCH`MUTE)),1,0));@attach %!/INC`MSG=You will [if(%q<choose>,now,no longer)] be alerted when your friends connect or disconnect.;&D`WATCH`MUTE %#=%q<choose>
 
-&PLAYER`CONNECT [u(cobj,friend)]=@stop cor(u(ishidden,%0),get(%0/D`WATCH`HIDE),gt(%1,1));th u(setq,lwhoid,u(lwhoid));@check words(u(setr,watchers,u(mysql,SELECT`WATCHERS,get(%0/D`ID))));@check words(u(setr,final,u(filter,NOTMUTE,setinter(iter(%q<watchers>,switch(type(%i0),PLAYER,%i0,THING,get(%i0/MEMBERS))),%q<lwhoid>))));@attach %!/INC`MSG=[u(moniker,%0)] has connected.,%q<final>,WATCH
+&PLAYER`CONNECT [u(cobj,friend)]=@stop cor(u(ishidden,%0),get(%0/D`WATCH`HIDE),gt(%1,1));th u(setq,lwhoid,u(lwhoid));@check words(u(setr,watchers,u(mysql,SELECT`WATCHERS,get(%0/D`ID))));@check words(u(setr,final,u(filter,NOTMUTE,setinter(iter(%q<watchers>,switch(type(%i0),PLAYER,%i0,THING,get(%i0/CHARACTERS))),%q<lwhoid>))));@attach %!/INC`MSG=[u(moniker,%0)] has connected.,%q<final>,WATCH
 
 &Q`SELECT`WATCHERS [u(cobj,friend)]=SELECT watcher_objid FROM volv_watch WHERE character_id=?
 
-&PLAYER`DISCONNECT [u(cobj,friend)]=@select/inline %1=0,{&IDLERS [u(cobj,friend)]=setdiff(v(IDLERS),%0)};@stop cor(u(ishidden,%0),get(%0/D`WATCH`HIDE),gt(%1,1));th u(setq,lwhoid,u(lwhoid));@check words(u(setr,watchers,u(mysql,SELECT`WATCHERS,get(%0/D`ID))));@check words(u(setr,final,u(filter,NOTMUTE,setinter(iter(%q<watchers>,switch(type(%i0),PLAYER,%i0,THING,get(%i0/MEMBERS))),%q<lwhoid>))));@attach %!/INC`MSG=[u(moniker,%0)] has disconnected.,%q<final>,WATCH
+&PLAYER`DISCONNECT [u(cobj,friend)]=@select/inline %1=0,{&IDLERS [u(cobj,friend)]=setdiff(v(IDLERS),%0)};@stop cor(u(ishidden,%0),get(%0/D`WATCH`HIDE),gt(%1,1));th u(setq,lwhoid,u(lwhoid));@check words(u(setr,watchers,u(mysql,SELECT`WATCHERS,get(%0/D`ID))));@check words(u(setr,final,u(filter,NOTMUTE,setinter(iter(%q<watchers>,switch(type(%i0),PLAYER,%i0,THING,get(%i0/CHARACTERS))),%q<lwhoid>))));@attach %!/INC`MSG=[u(moniker,%0)] has disconnected.,%q<final>,WATCH
 
 &FIL`NOTMUTE [u(cobj,friend)]=not(get(%0/D`WATCH`MUTE))
 

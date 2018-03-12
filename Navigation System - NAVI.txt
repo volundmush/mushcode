@@ -11,7 +11,7 @@ th u(NEWCOBJ,Navigation System <NAVI>,navi,,,,WIZARD SAFE !NO_COMMAND,INHERIT SI
 &FUN`FINDROOM [u(cobj,navi)]=u(namegraball,u(FUN`LISTROOMS),%0)
 &FUN`LISTROOMS [u(cobj,navi)]=squish(iter(u(FUN`TELDISTS,,%1),u(FUN`LISTDISTROOMS,%i0))%B[u(FUN`LISTTHINGS)])
 &FUN`LISTDISTROOMS [u(cobj,navi)]=u(sortname,u(u(cobj,grid)/filter,NOTDIST,children(%0)))
-&FUN`LISTTHINGS [u(cobj,navi)]=squish(iter(u(FUN`FINDTHINGS),if(cor(elock(%i0/[u(choosegame,Teleport,Tport)],u(strfirstof,%1,%#)),u(isadmin,u(strfirstof,%1,%#))),%i0)))
+&FUN`LISTTHINGS [u(cobj,navi)]=squish(iter(u(FUN`FINDTHINGS`%va),if(cor(elock(%i0/[u(choosegame,Teleport,Tport)],u(strfirstof,%1,%#)),u(isadmin,u(strfirstof,%1,%#))),%i0)))
 &FUN`FINDTHINGS`PENNMUSH [u(cobj,navi)]=lsearch(all,type,thing,elock,PORT:>0)
 &FUN`FINDTHINGS`RHOSTMUSH [u(cobj,navi)]=search(ETHING=\[get(##/PORT)\])
 &FUN`LISTALLDISTS [u(cobj,navi)]=u(choosegame,lsearch(all,type,thing,elock,D`DISTRICT:>0),search(ETHING=\[get(##/D`DISTRICT)\]))

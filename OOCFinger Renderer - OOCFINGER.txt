@@ -25,7 +25,7 @@ th u(NEWCOBJ,OOCFinger <OOCFINGER>,oocfinger,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 &CONFIG`ADMIN_FIELDS`VALID [u(cobj,oocfinger)]=LIST
 
 &CONFIG`COLUMN_DEFINITION [u(cobj,oocfinger)]=Vertical column for +oocfinger. The first part. See +shelp +finger
-&CONFIG`COLUMN_DEFINITION`DEFAULT [u(cobj,oocfinger)]=ALIAS~Alias|MAIL~Mush Mail|LAST~Last On|EMAIL~Email|CONTACT~Contact|HOMEPAGE~Homepage|THEMESONG~Theme Song|ACCALTS~Alts|OTHER~Other|ACTOR~Actor|VOICEACTOR~Voice Actor
+&CONFIG`COLUMN_DEFINITION`DEFAULT [u(cobj,oocfinger)]=ALIAS~Alias|MAIL~Mush Mail|LAST~Last On|CONTACT~Contact|HOMEPAGE~Homepage|THEMESONG~Theme Song|ACCALTS~Alts|OTHER~Other|ACTOR~Actor|VOICEACTOR~Voice Actor
 &CONFIG`COLUMN_DEFINITION`VALID [u(cobj,oocfinger)]=LIST
 
 &CONFIG`EXTRA_DEFINITION [u(cobj,oocfinger)]=Vertical stack of big text boxes for second part of +oocfinger. See +shelp +finger

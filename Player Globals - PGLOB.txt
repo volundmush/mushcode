@@ -26,7 +26,7 @@ th u(NEWCOBJ,Player Globals <PGLOB>,pglob,,,,WIZARD SAFE !NO_COMMAND,INHERIT SID
 &CMD`QUIT [u(cobj,pglob)]=$^(quit|logoff|logout)$:@select/inline %va=PennMUSH,{@boot/silent %#},RhostMUSH,{@boot/quiet %#}
 @set [u(cobj,pglob)]/CMD`QUIT=regexp
 
-&FUN`MSGOOC [u(cobj,pglob)]=localize(ansi(u(setr,borcol,u(color,%1,OOCEDGE)),-<)[ansi(u(color,%1,OOC),OOC)][ansi(%q<borcol>,>-)]%B[if(u(isadmin,%0),ansi(h,lit([Staff])%B))][u(speech,%0,u(colormarkup,%0,%2,%1),%1,,OOC,%3)])
+&FUN`MSGOOC [u(cobj,pglob)]=localize(ansi(u(setr,borcol,u(color,%1,OOCEDGE)),-<)[ansi(u(color,%1,OOC),OOC)][ansi(%q<borcol>,>-)]%B[if(u(isadmin,%0),ansi(h,lit([Staff])%B))][u(speech,%0,u(colormarkup,%1,%2,%0),%1,,OOC,%3)])
 
 @@ COMMUNICATIONS - +ooc
 

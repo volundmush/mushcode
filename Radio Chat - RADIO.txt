@@ -25,8 +25,10 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_
 @set [u(cobj,radio)]/CMD`+RADIOSHORT`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,radio)]=RADIO
+&SYSTEm`OPTIONS [u(cobj,radio)]=RADIO
+&SYSTEM`COLORS [u(cobj,radio)]=RADIO
 
-&SWITCHES`PLAYER [u(cobj,radio)]=CREATE|JOIN|LEAVE|ON|OFF|GAG|UNGAG|ALIAS|RENAME|RECALL|CODENAME|NOSPOOF|TITLE|NSRECALL|WHO|COLOR|CHOWN|CONFIG|DIRECTORY|LIST|ADDMOD|DELMOD|BAN|MUZZLE|UNMUZZLE|EMIT|DESCRIBE|INFO|SUMMARY|LOCK|RAWLOCK|UNLOCK|GROUP|DELETE|OPTIONS
+&SWITCHES`PLAYER [u(cobj,radio)]=CREATE|JOIN|LEAVE|ON|OFF|GAG|UNGAG|ALIAS|RENAME|RECALL|CODENAME|NOSPOOF|TITLE|NSRECALL|WHO|COLORS|CUSTCOLOR|CHOWN|CONFIG|DIRECTORY|LIST|ADDMOD|DELMOD|BAN|MUZZLE|UNMUZZLE|EMIT|DESCRIBE|INFO|SUMMARY|LOCK|RAWLOCK|UNLOCK|GROUP|DELETE|OPTIONS
 &SWITCHES`ADMIN [u(cobj,radio)]=MONITOR|ACCMUZZLE|UNACCMUZZLE
 
 &INC`CREATE [u(cobj,radio)]=@attach %!/INC`NAMECHECK=u(setr,chosename,trim(before(%0,/)));@stop isdbref(u(FUN`FINDFREQ,%q<chosename>))=@attach %!/INC`MSG=ERROR: A radio channel of that name already exists.;@tel u(setr,freq,create(%q<chosename>))=u(cobj,freq);@parent %q<freq>=u(cobj,freq);&OWNER %q<freq>=%:;@attach %!/INC`MSG=Radio channel '%0' created.;@attach %!/INC`MSG`CHAN=Radio channel '%0' created.;@attach %!/INC`JOIN
@@ -61,7 +63,9 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_
 
 &INC`CHECKSLOT [u(cobj,radio)]=@select/inline %2=TUNE,{@attach %!/INC`FINDFREQ},{@check strlen(%0)=@attach %!/INC`MSG=ERROR: No Slot entered to use.;@attach %!/INC`PARTIAL=%0,iter(lattr(%#/D`RADIO`*),last(%i0,`),%b,|),|,found,Radio Slot;@check hasattr(%#/D`RADIO`%q<found>)=@attach %!/INC`MSG=ERROR: No slot by that name.;th u(setq,slot,D`RADIO`%q<found>);th u(setq,slotname,default(%#/D`RADIO`%q<found>`NAME,ucstr(%q<found>)));th u(setq,freq,get(%#/%q<slot>))}
 
-&INC`LEAVE [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@attach %!/WIPE=%#,%q<slot>;@attach %!/WIPE=%#,RADIO_[last(%q<slot>,`)];@attach %!/INC`UPDATESLOTS=%#,%q<freq>;@attach %!/INC`MSG=You have left Radio Channel '[u(moniker,%q<freq>)]'.;@select/inline words(get(%#/D`RADIO_META`[num(%q<freq>)]))=0,{@attach %!/INC`DISCONNECT=%:,%q<freq>;@select/inline u(isadmin,%#)=0,{@attach %!/INC`SYSRADIO=[ansi(hw,%n)] has left the Radio Channel.}}
+&INC`LEAVE [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@attach %!/INC`LEAVE`DO=%#,%q<slot>,%q<freq>;
+
+&INC`LEAVE`DO [u(cobj,radio)]=@attach %!/WIPE=%0,u(setr,slot,%1);@attach %!/WIPE=%0,RADIO_[last(%1,`)];@attach %!/INC`UPDATESLOTS=%0,u(setr,freq,%2);@attach %!/INC`MSG=You have left Radio Channel '[u(moniker,%2)]'.,%0;@select/inline words(get(%0/D`RADIO_META`[num(%2)]))=0,{@attach %!/INC`DISCONNECT=objid(%0),%2;@select/inline u(isadmin,%0)=0,{@attach %!/INC`SYSRADIO=[ansi(hw,%n)] has left the Radio Channel.}}
 
 &INC`SYSRADIO [u(cobj,radio)]=@attach %!/INC`BROADCAST=,%0,,1,%1
 
@@ -73,9 +77,9 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_
 
 &INC`MAIN [u(cobj,radio)]=@select/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`JAILCHECK;@attach %!/INC`CHECKSLOT;@check isobjid(%q<freq>)=@attach %!/INC`MSG=ERROR: Slot is no longer valid. Delete it!;@check match(get(%q<freq>/ENABLED),%:)=@attach %!/INC`MSG=That Slot is turned off.;@stop match(u(getstat,%#,D`RADIO,GAG),%q<freq>)=@attach %!/INC`MSG=ERROR: Slot is gagged.;@attach %!/INC`BROADCAST=%0,%1}
 
-&INC`LIST [u(cobj,radio)]=@pemit %#=u(header,Your Radio Config);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(3 12 15 22 22,Sta,Alias,FreqName,Codename,Title));@pemit %#=u(separator);@dolist/inline u(sortattr,u(lattr,%#/D`RADIO`*))={th u(setq,freq,get(%#/##));@pemit %#=align(3 12 15 22 22,if(match(get(%q<freq>/GAGGED),%:),Gag,if(match(get(%q<freq>/ENABLED),%:),ansi(hg,On),ansi(hx,Off))),default(%#/##`NAME,last(##,`)),if(u(FIL`PRIVATE,%q<freq>),ansi(hx,name(%q<freq>)),u(moniker,%q<freq>)),get(%#/##`CODENAME),get(%#/##`TITLE))};@pemit %#=u(footer)
+&INC`LIST [u(cobj,radio)]=@pemit %#=u(header,Your Radio Config);@pemit %#=ansi(u(color,%#,RADIO,COLUMN_NAMES),align(3 12 15 22 22,Sta,Alias,FreqName,Codename,Title));@pemit %#=u(separator);@dolist/inline u(sortattr,u(lattr,%#/D`RADIO`*))={th u(setq,freq,get(%#/##));@pemit %#=align(3 12 15 22 22,if(match(get(%q<freq>/GAGGED),%:),Gag,if(match(get(%q<freq>/ENABLED),%:),ansi(hg,On),ansi(hx,Off))),default(%#/##`NAME,last(##,`)),if(u(FIL`PRIVATE,%q<freq>),ansi(hx,name(%q<freq>)),u(moniker,%q<freq>)),get(%#/##`CODENAME),get(%#/##`TITLE))};@pemit %#=u(footer)
 
-&INC`DIRECTORY [u(cobj,radio)]=@pemit %#=u(header,Radio Directory);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(3 15 18 41,Sta,Name,Owner,Description));@pemit %#=u(Public Frequencies);@dolist/inline u(setr,public,u(sortname,u(filter,NOTGROUP,u(filter,PUBLIC,u(setr,freqs,children(u(cobj,freq)))))))={@pemit %#=u(FUN`RADIOLINE,##)};@pemit %#=u(separator,Hidden Frequencies);@dolist/inline u(sortname,u(setr,hidden,u(filter,NOTGROUP,u(setr,pregroup,setdiff(u(filter,CANSEE,%q<freqs>,%b,%b,%:),%q<public>)))))={@pemit %#=u(FUN`RADIOLINE,##)};@select/inline isobjid(u(cobj,group))=1,{@pemit %#=u(separator,Group Frequencies);@dolist/inline u(sortname,setdiff(%q<pregroup>,%q<hidden>))={@pemit %#=u(FUN`RADIOLINE,##)}};@pemit %#=u(footer)
+&INC`DIRECTORY [u(cobj,radio)]=@pemit %#=u(header,Radio Directory);@pemit %#=ansi(u(color,%#,RADIO,COLUMN_NAMES),align(3 15 18 41,Sta,Name,Owner,Description));@pemit %#=u(Public Frequencies);@dolist/inline u(setr,public,u(sortname,u(filter,NOTGROUP,u(filter,PUBLIC,u(setr,freqs,children(u(cobj,freq)))))))={@pemit %#=u(FUN`RADIOLINE,##)};@pemit %#=u(separator,Hidden Frequencies);@dolist/inline u(sortname,u(setr,hidden,u(filter,NOTGROUP,u(setr,pregroup,setdiff(u(filter,CANSEE,%q<freqs>,%b,%b,%:),%q<public>)))))={@pemit %#=u(FUN`RADIOLINE,##)};@select/inline isobjid(u(cobj,group))=1,{@pemit %#=u(separator,Group Frequencies);@dolist/inline u(sortname,setdiff(%q<pregroup>,%q<hidden>))={@pemit %#=u(FUN`RADIOLINE,##)}};@pemit %#=u(footer)
 
 &FIL`NOTGROUP [u(Cobj,radio)]=not(isobjid(get(%0/GROUP)))
 
@@ -83,7 +87,7 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_
 
 &INC`INFO [u(Cobj,radio)]=@attach %!/INC`FINDFREQ;@check u(FUN`PERMISSION,%q<freq>,USE)=@attach %!/INC`MSG=ERROR: Permission denied.;@pemit %#=u(header,Radio Frequency: [u(moniker,%q<freq>)]);@pemit %#=get(%q<freq>/DESCRIBE);@pemit %#=u(separator);@pemit %#=[ansi(hw,OWNER:)] [if(get(%q<freq>/OWNER),u(moniker,get(%q<freq>/OWNER)),N/A)];@pemit %#=[ansi(hw,MODERATORS:)] [iter(u(sortname,u(filter,ISOBJID,get(%q<freq>/MODERATE))),name(%i0),%B,\,%b)];@pemit %#=[ansi(hw,MEMBERS:)] [iter(u(sortname,u(filter,ISOBJID,get(%q<freq>/MEMBERS))),name(%i0),%B,\,%b)];@pemit %#=u(footer)
 
-&INC`COLOR [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@select/inline t(strlen(%1))=1,{@attach %!/INC`VALID`COLOR=%1;@attach %!/INC`MSG=You color Radio Slot [ucstr(%0)] to [ansi(%q<value>,ucstr(%0))];&%q<slot>`COLOR %#=%q<value>},0,{@attach %!/INC`MSG=You clear Radio Slot [ucstr(%0)]'s Color setting.;&%q<slot>`COLOR %#}
+&INC`CUSTCOLOR [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@select/inline t(strlen(%1))=1,{@attach %!/INC`VALID`COLOR=%1;@attach %!/INC`MSG=You color Radio Slot [ucstr(%0)] to [ansi(%q<value>,ucstr(%0))];&%q<slot>`COLOR %#=%q<value>},0,{@attach %!/INC`MSG=You clear Radio Slot [ucstr(%0)]'s Color setting.;&%q<slot>`COLOR %#}
 
 &INC`ALIAS [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@attach %!/INC`NAMECHECK=%1;@select/inline strmatch(%0,%1)=0,{@stop hasattr(%#/D`RADIO`%1)=@attach %!/INC`MSG=ERROR: That alias is already in use.;@attach %!/INC`MVTREE=%#,%q<slot>,%#,D`RADIO`%1};&D`RADIO`%1`NAME %#=%1;@attach %!/INC`MSG=You rename Slot '%0' to '%1';@mvattr %#/RADIO_%0=%#/RADIO_%1;@attach %!/INC`UPDATESLOTS=%#,%q<freq>
 
@@ -97,11 +101,11 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_
 
 &INC`EMIT [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@attach %!/INC`BROADCAST=%0,%1,1
 
-&INC`GAG [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@stop match(u(getstat,%#,D`RADIO,GAG),%q<freq>)=@attach %!/INC`MSG=Already gagging %q<slotname>.;@attach %!/INC`MSG=Frequency gagged.;@attach %!/INC`DISABLE`GAG=%:,%q<freq>
-&INC`UNGAG [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@check match(u(getstat,%#,D`RADIO,GAG),%q<freq>)=@attach %!/INC`MSG=Not gagging %q<slotname>.;@attach %!/INC`MSG=Frequency ungagged.;@attach %!/INC`ENABLE`GAG=%:,%q<freq>
+&INC`GAG [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@stop match(u(getstat,%#,D`RADIO,GAG),%q<freq>)=@attach %!/INC`MSG=Already gagging %q<slotname>.;@attach %!/INC`MSG=Frequency gagged.;@attach %!/INC`ENABLE`GAG=%:,%q<freq>
+&INC`UNGAG [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@check match(u(getstat,%#,D`RADIO,GAG),%q<freq>)=@attach %!/INC`MSG=Not gagging %q<slotname>.;@attach %!/INC`MSG=Frequency ungagged.;@attach %!/INC`DISABLE`GAG=%:,%q<freq>
 
-&INC`ENABLE`GAG [u(cobj,radio)]=&GAGGED %1=setdiff(get(%1/GAGGED),%0);th u(setstat,%0,D`RADIO,GAG,setdiff(u(getstat,%0,D`RADIO,Gag),%1))
-&INC`DISABLE`GAG [u(cobj,radio)]=&GAGGED %1=setunion(get(%1/GAGGED),%0);th u(setstat,%0,D`RADIO,GAG,setunion(u(getstat,%0,D`RADIO,Gag),%1))
+&INC`DISABLE`GAG [u(cobj,radio)]=&GAGGED %1=setdiff(get(%1/GAGGED),%0);th u(setstat,%0,D`RADIO,GAG,setdiff(u(getstat,%0,D`RADIO,Gag),%1))
+&INC`ENABLE`GAG [u(cobj,radio)]=&GAGGED %1=setunion(get(%1/GAGGED),%0);th u(setstat,%0,D`RADIO,GAG,setunion(u(getstat,%0,D`RADIO,Gag),%1))
 
 &INC`CHOWN [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@check u(FUN`PERMISSION,%q<freq>,OWNER)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=%1,1;@attach %!/INC`VERIFY={WARNING: This will change ownership of Frequency %q<slotname>. Are you sure? Enter command again in ten seconds to confirm.},RADIO CHOWN %q<freq> %q<t1>;&OWNER %q<freq>=%q<t1objid>;@attach %!/INC`MSG=Radio [u(moniker,%q<freq>)] ownership changed to: %q<t1name>\, by %n.,setunion(%# %q<t1>,);@attach %!/INC`MSG`CHAN=Radio [u(moniker,%q<freq>)] ownership changed to: %q<t1name>.
 
@@ -198,7 +202,7 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_
 
 &INC`NSRECALL [u(cobj,radio)]=@attach %!/INC`RECALL=%0,%1,1
 
-&INC`RECALL [u(cobj,radio)]=@select/inline regmatchi(%0,^\\d+\\.\\d+$)=1,{th u(setq,freq,%0)},0,{@attach %!/INC`CHECKSLOT;@check strlen(%q<freq>)=@attach %!/INC`MSG=ERROR: That Radio Slot has no Frequency set.};@select/inline %1=0,{th u(setq,max,u(mysql,COUNT`RADIO,objid(%q<freq>)))},{@select/inline strlen(%1)=0,{th u(setq,max,100)},{@check cand(gt(%1,-1),isint(u(setr,max,%1)))=@attach %!/INC`MSG=ERROR: Line Recall must be an integer 0 or greater.}};th u(setq,banner,u(FUN`CONFIG,%q<freq>,BANNER));@check words(u(setr,list,u(mysql,RECALL`RADIO_IDS,objid(%q<freq>),%q<max>)))=@attach %!/INC`MSG=ERROR: Nothing to recall!;@pemit %#=u(header,Frequency: %q<slotname> - %q<freq>);@dolist %q<list>={th u(setq,row,u(mysql3,RECALL`RADIO,##));@pemit %#=(On [u(fancytime,elements(%q<row>,4,chr(177)),%#)])%B[u(FUN`FORMAT[if(u(getstat,%#,D`RADIO,Monitor),MONITOR,BROADCAST)],elements(%q<row>,1,chr(177)),%#,%q<freq>,elements(%q<row>,5,chr(177)),elements(%q<row>,6,chr(177)),elements(%q<row>,3,chr(177)),elements(%q<row>,2,chr(177)),elements(%q<row>,6,chr(177)),%2)];@select/inline #@=words(%q<list>),{@pemit %#=u(footer)}}
+&INC`RECALL [u(cobj,radio)]=@select/inline regmatchi(%0,^\\d+\\.\\d+$)=1,{th u(setq,freq,%0)},0,{@attach %!/INC`CHECKSLOT;@check strlen(%q<freq>)=@attach %!/INC`MSG=ERROR: That Radio Slot has no Frequency set.};@select/inline %1=0,{th u(setq,max,u(mysql,COUNT`RADIO,objid(%q<freq>)))},{@select/inline strlen(%1)=0,{th u(setq,max,10)},{@check cand(gt(%1,-1),isint(u(setr,max,%1)))=@attach %!/INC`MSG=ERROR: Line Recall must be an integer 0 or greater.}};th u(setq,banner,u(FUN`CONFIG,%q<freq>,BANNER));@check words(u(setr,list,u(mysql,RECALL`RADIO_IDS,objid(%q<freq>),%q<max>)))=@attach %!/INC`MSG=ERROR: Nothing to recall!;@pemit %#=u(header,Frequency: %q<slotname>);@dolist %q<list>={th u(setq,row,u(mysql3,RECALL`RADIO,##));@pemit %#=(On [u(fancytime,elements(%q<row>,4,chr(177)),%#)])%B[u(FUN`FORMAT[if(u(getstat,%#,D`RADIO,Monitor),MONITOR,BROADCAST)],elements(%q<row>,1,chr(177)),%#,%q<freq>,elements(%q<row>,5,chr(177)),elements(%q<row>,6,chr(177)),elements(%q<row>,3,chr(177)),elements(%q<row>,2,chr(177)),elements(%q<row>,6,chr(177)),%2)];@select/inline #@=words(%q<list>),{@pemit %#=u(footer)}}
 
 @@ %0 - Enactor, %1 - recipient, %2 - frequency, %3 - message, %4 - System msg mode, %5 - codename, %6 - title, %7 -  emit mode. %8 - Banner.
 

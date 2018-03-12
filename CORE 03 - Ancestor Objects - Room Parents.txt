@@ -42,12 +42,10 @@
 @select/inline isdbref(u(setr,ap,u(oldcobj,ancestor_player)))=1,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_PLAYER,objid(%q<ap>));@newpass %q<ar>=scramble(digest(md5,secs()))},0,{@select/inline isdbref(u(cobj,ancestor_player))=0,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_PLAYER,objid(pcreate(Ancestor Player,scramble(digest(md5,secs())))))}}
 @tel [u(cobj,ancestor_player)]=[u(cobj,ancestor_room)]
 
-@pageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,PAGE),vol_colormarkup(%!,vol_markup(%4,lwho(%!)),%#))
-@outpageformat [u(cobj,ancestor_player)]=ansi(vol_color(%@,OUTPAGE),vol_colormarkup(%!,vol_markup(%4,lwho(%!)),%#))
 @adescribe [u(cobj,ancestor_player)]=@check [vol_my_config(ALERTS,ADESC)];think GAME> %n just looked at you.
 @idle [u(cobj,ancestor_player)]=if(cand(gte(idle(%!),v(IDLE_SECS)),v(IDLE_SECS)),Currently idle\, please try again later!)
 
-@CHATFORMAT [u(cobj,ancestor_player)]=if(cor(vol_chanpriority(%1),strmatch(%#,%!)),if(strlen(setr(color,vol_chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_options(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))],<%1>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)[vol_colormarkup(%!,vol_chanhash(%1,%2),%#)],%!,strfirstof(vol_codename(cmogrifier(%1)),if(vol_my_options(CHANNELS,NAMELINK),vol_namelink(%#,%!))),CHANNELS)]))
+@CHATFORMAT [u(cobj,ancestor_player)]=if(cor(vol_chanpriority(%1),strmatch(%#,%!)),if(strlen(setr(color,vol_chancolor(%1))),<[ansi(%q<color>,stripansi(%1))]>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)%2,%!,if(vol_my_options(CHANNELS,NAMELINK),vol_namelink(%#)),CHANNELS,setunion(lwho(),))],<%1>[if(strlen(%4),%B%4%B,%B)][vol_speech(%#,switch(%0,@,|,%0)[vol_colormarkup(%!,vol_chanhash(%1,%2),%#,,vol_my_options(CHANNELS,OTHERLINK))],%!,vol_codename(cmogrifier(%1)),CHANNELS,,,vol_my_options(CHANNELS,NAMELINK))]))
 
 &ACONNECT [u(cobj,ancestor_player)]=@dolist/inline/nobreak u(lattrp,%!/ACONNECT`SUITE`*)={@attach %!/##}
 

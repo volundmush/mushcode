@@ -14,6 +14,8 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &IS_ANCESTOR [u(cobj,ccp)]=cand(hasattr(u(cobj,ccp),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player))))
 
 &ATTRIB_SET [u(cobj,ccp)]=if(u(IS_ANCESTOR,%0),,attrib_set(%0/%1,%2))
+&VATTRIB_SET [u(cobj,ccp)]=u(attrib_set,%0,%1,%2)[set(%0/%1,visual)]
+
 &LATTR [u(cobj,ccp)]=lattr(%0,%1)
 &LATTRP [u(cobj,ccp)]=lattrp(%0,%1)
 &REGLATTR [u(cobj,ccp)]=reglattr(%0,%1)
@@ -21,15 +23,15 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &SETQ [u(cobj,ccp)]=setq(%0,%1)
 &SETR [u(cobj,ccp)]=setr(%0,%1)
 
-&STARTUP [u(cobj,ccp)]=@dolist/inline lattr(%!/START`*)={@attach/nobreak %!/##}
+&STARTUP [u(cobj,ccp)]=@dolist/inline lattr(%!/START`*)={@include/nobreak %!/##}
 
-&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(game_config header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_options my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink weblink codename getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(game_config header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_options my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink namecolor weblink codename getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
 
 @@ &FUNCTIONLIST`EXTRA [u(cobj,ccp)]=
 @@ &FUNCTIONLIST`ADMIN [u(cobj,ccp)]=
 @@ These are meant to be added to by game packages.
 
-&STARTUP`MAIN [u(cobj,ccp)]=@command/disable kill;@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc playstatus={@attribute/access/retroactive %i0=visual};@dolist/inline D={@attribute/access/retroactive %i0=mortal_dark WIZARD};@dolist/inline V={@attribute/access/retroactive %i0=WIZARD visual}
+&START`MAIN [u(cobj,ccp)]=@command/disable kill;@dolist/inline/nobreak @dig @open @link={@command/restrict %i0=!POWER^GUEST&!FLAG^GAGGED&(POWER^BUILDER|FLAG^WIZARD|FLAG^ROYALTY)};@dolist/inline short-desc playstatus={@attribute/access/retroactive %i0=visual};@dolist/inline D={@attribute/access/retroactive %i0=mortal_dark WIZARD};@dolist/inline V={@attribute/access/retroactive %i0=WIZARD visual veiled}
 
 @DESCRIBE [u(cobj,ccp)]=This needs a desc!
 
@@ -107,7 +109,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &DATE [u(cobj,ccp)]=timefmt($x,%0,strfirstof(u(gettz,%1),u(gettz,%#)))
 
-&CHANCOLOR [u(cobj,ccp)]=localize(if(isdbref(setr(mog,cmogrifier(stripansi(%0)))),u(color,%@,CHANNEL,%q<mog>,,1)))
+&CHANCOLOR [u(cobj,ccp)]=localize(if(isdbref(setr(mog,cmogrifier(stripansi(%0)))),u(channelcolor,%@,%q<mog>)))
 
 &GETTZ [u(cobj,ccp)]=strfirstof(get(%0/TZ),UTC)
 
@@ -146,9 +148,9 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &NEXTSLOT [u(cobj,ccp)]=add(1,lmath(max,iter(u(filter,ISSLOT,lattr(%0/[if(strlen(%1),%1`*,*)])),last(%i0,`))))
 
-&MONIKER [u(cobj,ccp)]=localize(if(%1,if(setr(col,strfirstof(u(color,%1,NAMES,%0,,1),switch(1,strmatch(num(%0),num(%1)),u(color,%1,ME),strmatch(num(%0),%#),u(color,%1,SPEAKER),u(color,%1,SPEAKER)))),ansi(%q<col>,name(%0)),moniker(%0)),moniker(%0)))
+&MONIKER [u(cobj,ccp)]=localize(if(%1,if(setr(col,strfirstof(u(color,%1,NAMES,%0,,1),switch(1,strmatch(num(%0),num(%1)),u(color,%1,v(SYSTEM`COLORS),ME),strmatch(num(%0),%#),u(color,%1,v(SYSTEM`COLORS),SPEAKER),u(color,%1,v(SYSTEM`COLORS),SPEAKER)))),ansi(%q<col>,name(%0)),moniker(%0)),moniker(%0)))
 
-&NAMELINK [u(cobj,ccp)]=localize(u(mxpmenu,u(moniker,%0),iter(setr(com,strfirstof(%1,u(conf,NAMELINK))),%i0 [name(%0)],|,|),%q<com>))
+&NAMELINK [u(cobj,ccp)]=localize(u(mxpmenu,u(strfirstof,%2,u(moniker,%0)),iter(setr(com,strfirstof(%1,u(conf,NAMELINK))),%i0 [name(%0)],|,|),%q<com>))
 
 &NAMEGRAB [u(cobj,ccp)]=namegrab(%0,%1)
 
@@ -248,16 +250,18 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &GETPROPERTY`URL [u(cobj,ccp)]=u(weblink,get(%0/V`PROPERTY`%1))
 
 &GETPROPERTY`THEME [u(cobj,ccp)]=localize(if(strlen(u(setr,themes,get(%0/V`THEME))),u(pueblize,setr(theme,first(elements(%q<themes>,3,chr(177)),chr(176))),+theme %q<theme>))
-&GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEME),1,chr(177)),chr(176))
+&GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEME),2,chr(177)),chr(176))
 
 &GETPROPERTY`SCENE [u(cobj,ccp)]=if(default(%0/D`OBSERVER,0),ansi(hw,OBS),default(%0/D`SCENE,???))
 
 &GETPROPERTY`GROUPDB [u(cobj,ccp)]=if(%1,elements(get(%0/V`TIERS),%1),get(%0/V`TIERS))
 &GETPROPERTY`TIERDB [u(cobj,ccp)]=if(%2,elements(get(%0/V`TIERS`%1),%2),get(%0/V`TIERS`%1))
-&GETPROPERTY`FACTION [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1))),u(%q<grp>/GET`NAME))
-&GETPROPERTY`FACABBR [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1))),u(%q<grp>/GET`ABBREVIATION))
-&GETPROPERTY`FACLETTER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1))),u(%q<grp>/GET`LETTER))
-&GETPROPERTY`FACRANK [u(cobj,ccp)]=if(isdbref(setr(grp,num(u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1)))),setq(title,get(%0/D`GROUP`%q<grp>`TITLE))[setq(rankname,get(%q<grp>/RANK`[setr(rank,get(%0/D`GROUP`%q<grp>`RANK))]`NAME))][setq(disp,if(%2,u(strfirstof,%q<title>,%q<rankname>),%q<rankname>))][if(%3,%q<rank>-%q<disp>,%q<disp>)])
+
+&GETPROPERTY`FACTION [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`tierdb,%0,u(conf,FACTION_TIER),1))),u(%q<grp>/GET`NAME))
+&GETPROPERTY`FACABBR [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`tierdb,%0,u(conf,FACTION_TIER),1))),u(%q<grp>/GET`ABBREVIATION))
+&GETPROPERTY`FACLETTER [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`tierdb,%0,u(conf,FACTION_TIER),1))),u(%q<grp>/GET`LETTER))
+&GETPROPERTY`FACRANK [u(cobj,ccp)]=if(isdbref(setr(grp,num(u(getproperty`tierdb,%0,u(conf,FACTION_TIER),1)))),setq(title,get(%0/D`GROUP`%q<grp>`TITLE))[setq(rankname,get(%q<grp>/RANK`[setr(rank,get(%0/D`GROUP`%q<grp>`RANK))]`NAME))][setq(disp,if(%1,u(strfirstof,%q<title>,%q<rankname>),%q<rankname>))][if(%2,%q<rank>-%q<disp>,%q<disp>)])
+
 &GETPROPERTY`GROUPS [u(cobj,ccp)]=iter(rest(u(getproperty`groupdb,%0,%1)),u(%i0/GET`NAME),%b,if(%2,|,\,%b))
 &GETPROPERTY`BANNER [u(cobj,ccp)]=if(isdbref(setr(grp,first(u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1)))),u(%q<grp>/GET`COLORIZE,name(%0)),u(moniker,%0))
 
@@ -349,7 +353,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &INC`CONFIG`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(CONFIG`%q<op>`VALID)]=%1;th u(attrib_set,%!,CONFIG`%q<op>`CUSTOM,%q<value>);th u(attrib_set,%!,CONFIG`%q<op>`FORMATTED,%q<valueformat>);@attach %!/INC`MSG=You set Config Option '%q<op>' to: %q<value>;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' set to: %q<value>;@attach %!/CONFIG`%q<op>`FINISH
 &INC`CONFIG`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=%!,CONFIG`%q<op>`CUSTOM;@attach %!/INC`MSG=You set Config Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' reset to Default.;@attach %!/CONFIG`%q<op>`FINISH
 
-&CONFIG`OPTIONS [u(cobj,ccp)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|REQUIRE_APPROVAL|NAMELINK|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|OOC|OOCEDGE|STAFF_GROUP|ROOM_PLAYERS|ROOM_THINGS|ROOM_EXITS|EXIT_COLOR|EXIT_ALIAS
+&CONFIG`OPTIONS [u(cobj,ccp)]=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|REQUIRE_APPROVAL|NAMELINK|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|OOC|OOCEDGE|STAFF_GROUP|ROOM_PLAYERS|ROOM_THINGS|ROOM_EXITS|EXIT_COLOR|EXIT_ALIAS|FACTION_TIER
 @set [u(cobj,ccp)]/CONFIG`OPTIONS=no_inherit
 
 &CONFIG`WIZTAG [u(cobj,ccp)]=Color of WIZ tag in systems.
@@ -379,6 +383,10 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &CONFIG`REQUIRE_APPROVAL [u(cobj,ccp)]=Game requires use of the +approval system? Used for application-based games.
 &CONFIG`REQUIRE_APPROVAL`DEFAULT [u(cobj,ccp)]=1
 &CONFIG`REQUIRE_APPROVAL`VALID [u(cobj,ccp)]=BOOL
+
+&CONFIG`FACTION_TIER [u(cobj,ccp)]=Group Tier that will be used by default for all 'Faction' GetProperty features. 0 or higher please!
+&CONFIG`FACTION_TIER`DEFAULT [u(cobj,ccp)]=1
+&CONFIG`FACTION_TIER`VALID [u(cobj,ccp)]=INT
 
 &CONFIG`NAMELINK [u(cobj,ccp)]=List of commands targeting <character> to show in MXP menus for namelink displays. (PennMUSH only.)
 &CONFIG`NAMELINK`DEFAULT [u(cobj,ccp)]=+finger|+join
@@ -464,10 +472,93 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &CONF [u(cobj,ccp)]=strfirstof(get(%!/CONFIG`%0`CUSTOM),get(%!/CONFIG`%0`DEFAULT))
 &PCONF [u(cobj,ccp)]=u(color,%@,%1)
 
-&COLOR [u(cobj,ccp)]=u(strfirstof,get(%0/CUSTCOLOR`%1),u(conf,%1))
+@@ COLOR SYSTEM!
+&CMD`+COLORS`PENNMUSH [u(cobj,ccp)]=$^\+color(?\:s)?(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+COLORS`MAIN
+@set [u(cobj,ccp)]/CMD`+COLORS`PENNMUSH=regexp no_inherit
+&CMD`+COLORS`MAIN [u(cobj,ccp)]=@select/inline strlen(%1)=>0,{@attach %!/INC`PARTIAL=%1,NAME,|,switch;@attach %!/INC`COLOR`NAME=%2,%3},{@attach %!/INC`COLOR=%2,%3,SYSTEM}
+@set [u(cobj,ccp)]/CMD`+COLORS`MAIN=no_inherit
+
+&INC`COLOR`NAME [u(cobj,ccp)]=@switch/inline strlen(%0)=0,{@attach %!/INC`COLOR`NAME`LIST},{@attach %!/INC`COLOR`NAME`SET}
+@set [u(cobj,ccp)]/INC`COLOR`NAME=no_inherit
+
+&INC`COLOR`NAME`LIST [u(cobj,ccp)]=@pemit %#=u(header,Name Color);@pemit %#=ansi(u(color,%#,v(SYSTEM`COLORS),COLUMN_NAMES),align(34 10,Name,Color));@pemit %#=u(separator);@dolist/inline u(filter,ISDBREF,edit(u(lattr,u(strfirstof,u(accid,%#),%#)/CUSTCOLOR`CHARACTER`#*),CUSTCOLOR`CHARACTER`,))={@pemit %#=align(34 10,u(moniker,##),get(%#/CUSTCOLOR`CHARACTER`##))};@pemit %#=u(footer)
+@set [u(cobj,ccp)]/INC`COLOR`NAME`LIST=no_inherit
+
+&INC`COLOR`NAME`SET [u(cobj,ccp)]=@attach %!/INC`CHECKPC=%0,1;@switch/inline strlen(%1)=0,{@attach %!/INC`MSG=Colorname for '%q<t1name>' restored to default.;@attach %!/WIPE=u(accid,%#),CUSTCOLOR`CHARACTER`%q<t1>},{@attach %!/INC`VALID`COLOR=%1;th u(attrib_set,u(accid,%#),CUSTCOLOR`CHARACTER`%q<t1>,%q<value>);@attach %!/INC`MSG=u(setr,msg,NAMES %q<t1name> Set to: %q<value>)}
+@set [u(cobj,ccp)]/INC`COLOR`NAME`SET=no_inherit
+
+&COLOR [u(cobj,ccp)]=switch(%+,2,u(strfirstof,get(%0/CUSTCOLOR`%1),u(conf,%1)),3,strfirstof(get(%0/CUSTCOLOR`%1`%2`CUSTOM),v(COLOR`%2`DEFAULT),get(%0/CUSTCOLOR`SYSTEM`%2`CUSTOM),u(conf,%2)))
 &GROUPCOLOR [u(cobj,ccp)]=get(%0/CUSTCOLOR`GROUP`%1)
-&NAMECOLOR [u(cobj,ccp)]=get(%0/CUSTCOLOR`CHARACTER`%1)
+&NAMECOLOR [u(cobj,ccp)]=udefault(%0/COLOR_CHARACTER,switch(1,strmatch(num(%0),num(%1)),u(color,%0,v(SYSTEM`COLORS),ME),strmatch(num(%1),num(%2)),u(color,%0,v(SYSTEM`COLORS),SPEAKER),default(%0/CUSTCOLOR`CHARACTER`%1,u(color,%0,v(SYSTEM`COLORS),OTHER))),%1)
+
+&CMD`COLORDEMO [u(cobj,ccp)]=$^(?s)(?\:\+)?colordemo(?\:/(\S+)?)?$:@attach %!/INC`PARTIAL=%1,LONG,|,switch;@select/inline %q<switch>=LONG,{@dolist/inline lnum(97,122)=@pemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,+%i0))],%b,%r)))},{@pemit %#=iter(lnum(0,255),ansi(+xterm%i0,+xterm%i0))}
+@set [u(cobj,ccp)]/CMD`COLORDEMO=regexp no_inherit
+
 &CHANNELCOLOR [u(cobj,ccp)]=get(%0/CUSTCOLOR`CHANNEL`%1)
+
+&GOODCOLORS [u(cobj,ccp)]=setdiff(lnum(1,231),7 8 [lnum(16,21)])
+
+&INC`COLORS [u(cobj,ccp)]=@attach %!/INC`COLOR
+&INC`COLOR [u(cobj,ccp)]=@select/inline strlen(%0)=0,{@attach %!/INC`COLOR`DISPLAY},{@attach %!/INC`COLOR`CHANGE}
+&INC`COLOR`DISPLAY [u(cobj,ccp)]=@pemit %#=u(header,u(SYSTEM`NAME) Colors);@dolist/inline/delimit | [v(COLORS`OPTIONS)]={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10)%R[rjust(ansi(hw,DEFAULT:),10)],default(COLOR`##`VALID,COLOR)%R[v(COLORS`##`DEFAULT)],ansi(hw,DESCRIPTION:),v(COLORS`##));@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[u(setr,cur,u(color,%#,v(SYSTEM`COLORS),##))];@select/inline cand(strlen(u(setr,form,get(u(accid,%#)/CUSTCOLOR`[v(SYSTEM`COLORS)]`##`FORMATTED))),not(strmatch(%q<form>,%q<cur>)))=1,{@pemit %#=[rjust(ansi(hw,FORMATTED:),10)]%B%q<form>}};@pemit %#=u(footer,+colordemo for color list)
+&INC`COLOR`CHANGE [u(cobj,ccp)]=@attach %!/INC`PARTIAL=%0,v(COLORS`OPTIONS),|,col,Color;@select/inline strlen(%1)=>0,{@attach %!/INC`COLOR`SET},{@attach %!/INC`COLOR`CLEAR}
+&INC`COLOR`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[default(COLORS`%q<col>`VALID,COLOR)]=%1;th u(attrib_set,u(accid,%#),CUSTCOLOR`[v(SYSTEM`COLORS)]`%q<col>`CUSTOM,%q<value>);th u(attrib_set,u(accid,%#),CUSTCOLOR`[v(SYSTEM`COLORS)]`%q<col>`FORMATTED,%q<valueformat>);@attach %!/INC`MSG=Color '%q<col>' set to: %q<valueformat>;@attach %!/COLOR`%q<col>`FINISH
+&INC`COLOR`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=u(accid,%#),CUSTCOLOR`[v(SYSTEM`COLORS)]`%q<col>`CUSTOM;@attach %!/INC`MSG=You set Color '%q<col>' to its Default.;@attach %!/INC`MSG`CHAN=Color '%q<col>' reset to Default.;@attach %!/COLORS`%q<col>`FINISH
+
+&COLORS`OPTIONS [u(cobj,ccp)]=BORDER|COLUMN_NAMES|HEADER_STAR|HEADER_TEXT|MSG|MSGTEXT|QUOTES|SPEECH|ME|SPEAKER|OTHER|ROW_A|ROW_B
+&SYSTEM`COLORS [u(cobj,ccp)]=SYSTEM
+
+&COLORS`BORDER [u(cobj,ccp)]=Color of borders shown in all command systems.
+&COLORS`BORDER`DEFAULT [u(cobj,ccp)]=
+&COLORS`BORDER`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`COLUMN_NAMES [u(cobj,ccp)]=Color for column names in tables. Like this one.
+&COLORS`COLUMN_NAMES`DEFAULT [u(cobj,ccp)]=
+&COLORS`COLUMN_NAMES`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`HEADER_STAR [u(cobj,ccp)]=Used for the * in Headers of most system.
+&COLORS`HEADER_STAR`DEFAULT [u(cobj,ccp)]=
+&COLORS`HEADER_STAR`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`HEADER_TEXT [u(cobj,ccp)]=Used for the text that shows in headers.
+&COLORS`HEADER_TEXT`DEFAULT [u(cobj,ccp)]=
+&COLORS`HEADER_TEXT`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`MSG [u(cobj,ccp)]=Used for the -=<>=- message component of system messages.
+&COLORS`MSG`DEFAULT [u(cobj,ccp)]=
+&COLORS`MSG`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`MSGTEXT [u(cobj,ccp)]=Used for the system name shown between -=<>=- in system messages.
+&COLORS`MSGTEXT`DEFAULT [u(cobj,ccp)]=
+&COLORS`MSGTEXT`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`QUOTES [u(cobj,ccp)]=Color applied to the " " marks when they enclose text, in the context of player speech.
+&COLORS`QUOTES`DEFAULT [u(cobj,ccp)]=
+&COLORS`QUOTES`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`SPEECH [u(cobj,ccp)]=Color applied to dialogue enclosed in " " when spoken by another player.
+&COLORS`SPEECH`DEFAULT [u(cobj,ccp)]=
+&COLORS`SPEECH`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`ME [u(cobj,ccp)]=Color applied to YOUR name when spoken somewhere.
+&COLORS`ME`DEFAULT [u(cobj,ccp)]=
+&COLORS`ME`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`SPEAKER [u(cobj,ccp)]=Color applied to the name of someone speaking. Overridden by +color/name and ME.
+&COLORS`SPEAKER`DEFAULT [u(cobj,ccp)]=
+&COLORS`SPEAKER`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`OTHER [u(cobj,ccp)]=Color applied to names of people being referenced. Overriden by other +color/name options, ME, and SPEAKER.
+&COLORS`OTHER`DEFAULT [u(cobj,ccp)]=
+&COLORS`OTHER`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`ROW_A [u(cobj,ccp)]=For table displays, first color for alternating colored rows.
+&COLORS`ROW_A`DEFAULT [u(cobj,ccp)]=
+&COLORS`ROW_A`VALID [u(cobj,ccp)]=COLOR
+
+&COLORS`ROW_B [u(cobj,ccp)]=For table displays, second color for alternating colored rows.
+&COLORS`ROW_B`DEFAULT [u(cobj,ccp)]=
+&COLORS`ROW_B`VALID [u(cobj,ccp)]=COLOR
 
 @@ Options System!
 &CMD`+OPTIONS`PENNMUSH [u(cobj,ccp)]=$^\+options(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+OPTIONS`MAIN
@@ -478,7 +569,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &INC`OPTION [u(cobj,ccp)]=@select/inline strlen(%0)=0,{@attach %!/INC`OPTION`DISPLAY},{@attach %!/INC`OPTION`CHANGE}
 &INC`OPTION`DISPLAY [u(cobj,ccp)]=@pemit %#=u(header,u(SYSTEM`NAME) Options);@dolist/inline/delimit | [v(OPTION`OPTIONS)]={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10)%R[rjust(ansi(hw,DEFAULT:),10)],v(OPTION`##`VALID)%R[v(OPTION`##`DEFAULT)],ansi(hw,DESCRIPTION:),v(OPTION`##));@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[u(setr,cur,u(op,%2,##))];@select/inline cand(strlen(u(setr,form,get(u(accid,%#)/OPTION`%2`##`FORMATTED))),not(strmatch(%q<form>,%q<cur>)))=1,{@pemit %#=[rjust(ansi(hw,FORMATTED:),10)]%B%q<form>}};@pemit %#=u(footer)
 &INC`OPTION`CHANGE [u(cobj,ccp)]=@attach %!/INC`PARTIAL=%0,v(OPTION`OPTIONS),|,op,Option;@select/inline strlen(%1)=>0,{@attach %!/INC`OPTION`SET},{@attach %!/INC`OPTION`CLEAR}
-&INC`OPTION`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(OPTION`%q<op>`VALID)]=%1;th u(attrib_set,u(accid,%#),OPTION`%2`%q<op>`CUSTOM,%q<value>);th u(attrib_set,u(accid,%#),OPTION`%2`%q<op>`FORMATTED,%q<valueformat>);@attach %!/INC`MSG=You set OPTION Option '%q<op>' to: %q<value>;@attach %!/INC`MSG=OPTION Option '%q<op>' set to: %q<value>;@attach %!/OPTION`%q<op>`FINISH
+&INC`OPTION`SET [u(cobj,ccp)]=@attach %!/INC`VALID`[v(OPTION`%q<op>`VALID)]=%1;th u(attrib_set,u(accid,%#),OPTION`%2`%q<op>`CUSTOM,%q<value>);th u(attrib_set,u(accid,%#),OPTION`%2`%q<op>`FORMATTED,%q<valueformat>);@attach %!/INC`MSG=OPTION Option '%q<op>' set to: %q<value>;@attach %!/OPTION`%q<op>`FINISH
 &INC`OPTION`CLEAR [u(cobj,ccp)]=@attach %!/WIPE=u(accid,%#),OPTION`%2`%q<op>`CUSTOM;@attach %!/INC`MSG=You set OPTION Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=OPTION Option '%q<op>' reset to Default.;@attach %!/OPTION`%q<op>`FINISH
 
 &OP [u(cobj,ccp)]=strfirstof(get(%#/OPTION`%0`%1`CUSTOM),v(OPTION`%1`DEFAULT))
@@ -576,39 +667,36 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &REG`ENCODETIME [u(cobj,ccp)]=\^\^\^(?P<time>\d+)\^\^\^
 
-&MSGHEAD [u(cobj,ccp)]=localize(ansi(setr(msgcolor,u(color,u(firstof,%1,%#),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
-&MSGROOM [u(cobj,ccp)]=localize(ansi(setr(msgcolor,u(color,u(firstof,%1,%#),MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
+&MSGHEAD [u(cobj,ccp)]=localize(ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
+&MSGROOM [u(cobj,ccp)]=localize(ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
 
-&HEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),HEADER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][setr(borderstar,ansi(u(color,%q<target>,HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&HEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),HEADER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][setr(borderstar,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
 &SUBHEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
 &SEPARATOR [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&FOOTER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),FOOTER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&FOOTER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),FOOTER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
 
-&HEADER`PREP [u(cobj,ccp)]=setq(target,owner(u(firstof,%0,%#)))[setq(bordercolor,u(color,%q<target>,BORDER))][setq(bordermode,%1)][setq(width,sub(strfirstof(%3,u(width,%q<target>)),2))][setq(fill,u(conf,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,setq(start,ansi(%q<bordercolor>,/))[setq(end,ansi(%q<bordercolor>,chr(92)))],FOOTER,setq(start,ansi(%q<bordercolor>,chr(92)))[setq(end,ansi(%q<bordercolor>,/))]),1,setq(start,setr(end,ansi(%q<bordercolor>,+))),setq(start,setr(end,ansi(%q<bordercolor>,%q<fill>))))]
+&HEADER`PREP [u(cobj,ccp)]=setq(target,owner(u(firstof,%0,%#)))[setq(bordercolor,u(color,%q<target>,v(SYSTEM`COLORS),BORDER))][setq(bordermode,%1)][setq(width,sub(strfirstof(%3,u(width,%q<target>)),2))][setq(fill,u(conf,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,setq(start,ansi(%q<bordercolor>,/))[setq(end,ansi(%q<bordercolor>,chr(92)))],FOOTER,setq(start,ansi(%q<bordercolor>,chr(92)))[setq(end,ansi(%q<bordercolor>,/))]),1,setq(start,setr(end,ansi(%q<bordercolor>,+))),setq(start,setr(end,ansi(%q<bordercolor>,%q<fill>))))]
 
 &HEADER`RENDER [u(cobj,ccp)]=%q<start>[u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>
 
 @@ HEADER family args: %0 - Title. %1 - Viewer dbref. %2 - True: Do not color title. %3 - Border mode bool. %4 - Width.
 
-&MARKUP [u(cobj,ccp)]=regeditalli(%0,\([edit(edit(iter(%1,name(%i0),%b,|),-,\\-),.,\\.)]\),if(neq(ord(left(setr(found,$0),1)),ord(lcstr(left($0,1)))),^^^[pmatch(%q<found>)]:%q<found>^^^,%q<found>))
+&MARKUP [u(cobj,ccp)]=regeditalli(%0,\([edit(edit(iter(%1,\\b[name(%i0)]\\b,%b,|),-,\\-),.,\\.)]\),if(neq(ord(left(setr(found,$0),1)),ord(lcstr(left($0,1)))),^^^[pmatch(%q<found>)]:%q<found>^^^,%q<found>))
 @@ %0 - Text to search. %1 - Dbrefs to check.
 
-&COLORMARKUP [u(cobj,ccp)]=localize(if(%3,regeditalli(%1,v(REG`MARKUP),$2),regeditalli(%1,v(REG`MARKUP),if(strlen(setr(a,if(strlen(setr(b,u(namecolor,%0,$1))),%qb,if(strlen(setr(c,switch($1,%0,u(color,%0,ME),%2,u(color,%0,SPEAKER),u(color,%0,OTHER)))),%qc,)))),ansi(%qa,$2),$2))))
+&COLORMARKUP [u(cobj,ccp)]=localize(if(%3,regeditalli(%1,v(REG`MARKUP),$2),regeditalli(%1,v(REG`MARKUP),if(%4,u(namelink,$1,,ansi(u(namecolor,%0,$1,%2),$2)),ansi(u(namecolor,%0,$1,%2),$2)))))
 
 &CHANHASH [u(cobj,ccp)]=default(cmogrifier(%0)/HASH`[digest(md5,%1)],%1)
 
-@@ %0 - Viewer. %1 - Text to search. %2 - Speaker. %3 - Bool for 'just demarkup'
+@@ %0 - Viewer. %1 - Text to search. %2 - Speaker. %3 - Bool for 'just demarkup'. %4 - Also use namelink?
 
 &REG`MARKUP [u(cobj,ccp)]=\^\^\^(#\d+)\:([^^]+)\^\^\^
 
-@@ &SPEECH`PENNMUSH [u(cobj,ccp)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),setr(quote,ansi(u(opother,%2,%4,QUOTES),"))[ansi(u(opother,%2,%4,SPEECH),$1)]%q<quote>)
-
-
-&SPEECH [u(cobj,ccp)]=[setq(quote,ansi(u(opother,%2,%4,QUOTES),"))][setq(speechcol,u(opother,%2,%4,SPEECH))][regeditalli(speakpenn(&[if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),u(moniker,%0,%2)))],%1),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)]
-@@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup. %6 - Banner override bool.
+&SPEECH [u(cobj,ccp)]=localize([setq(quote,ansi(u(color,%2,%4,QUOTES),"))][setq(speechcol,u(color,%2,%4,SPEECH))][setq(dispname,if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),ansi(u(namecolor,%2,%0,%0),name(%0)))))][regeditalli(speakpenn(&[if(%7,u(namelink,%0,,%q<dispname>),%q<dispname>)],%1),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)])
+@@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup. %6 - Banner override bool. %7 - Use Namelink?
 
 &REG`SPEECH [u(cobj,ccp)]=(?s)"([^ "][^"]*[^ "])"
 &REG`URL [u(cobj,ccp)]=\w+\://\S+[^"]
@@ -679,6 +767,6 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &SQL`CONNECT [u(cobj,ccp)]=@sql SET time_zone = '+00:00';@nscemit/noisy u(cmo`staffrep)=SQL server connect: %0
 &SQL`CONNECTFAIL [u(cobj,ccp)]=@attach %!/INC`MSG`SYSCHAN={SQL server connect fail: %0}
 &SQL`DISCONNECT [u(cobj,ccp)]=@attach %!/INC`MSG`SYSCHAN={SQL server disconnect: %0}
-&STARTUP`SQL [u(cobj,ccp)]=@check sql(SELECT DATABASE());@trigger %!/LOOP`SQL;@trigger %!/LOOP`REINDEX
+&START`SQL [u(cobj,ccp)]=@check sql(SELECT DATABASE());@trigger %!/LOOP`SQL;@trigger %!/LOOP`REINDEX
 &LOOP`SQL [u(cobj,ccp)]=@sql SELECT DATABASE();@wait 60=@trigger %!/LOOP`SQL
 &LOOP`REINDEX [u(cobj,ccp)]=@dolist sql(SHOW TABLES)=@sql ANALYZE TABLE %i0;@wait mul(60,60,24)=@trigger %!/LOOP`REINDEX

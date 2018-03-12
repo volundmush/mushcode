@@ -12,23 +12,33 @@ th u(NEWCOBJ,Muzzle Database <MUZZLE>,muzzle,u(cobj,channel),,,WIZARD SAFE !NO_C
 &CMD`+CHANNEL`RHOSTMUSH [u(cobj,channel)]=$^(?s)(?\:\+)?(?\:channel|chan|channels)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.*?))?(?\:=(.*))?$:@attach %!/CMD`+CHANNEL`MAIN
 @set [u(cobj,channel)]/CMD`+CHANNEL`RHOSTMUSH=regexp
 &CMD`+CHANNEL`MAIN [u(cobj,channel)]=th setq(sysname,CHANNEL);@attach %!/INC`GETSWITCH=%1;@include %!/INC`CHANNEL`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,%4
-@set [u(cobj,channel)]/CMD`+CHANNEL`[switch(%va,PennMUSH,RHOSTMUSH,RhostMUSH,PENNMUSH)]=no_command
+@set [u(cobj,channel)]/CMD`+CHANNEL`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &CMD`+SPEAKER [u(cobj,channel)]=$^(?s)(?\:\+)(?\:speaker)(?\: +(.+?))?(?\:/(.*?))?(?\:=(.*))?$:th setq(sysname,CHANNEL);@attach %!/INC`CHANNEL`SPEAKER=%1,%2,%3
 @set [u(cobj,channel)]/CMD`+SPEAKER=regexp
 
-&SYSTEM`NAME [u(cobj,channel)]=u(strfirstof,%q<sysname>,CHANNEL)
+&CMD`STAFFTAG [u(Cobj,channel)]=$+stafftag *:@attach %!/CMD`+CHANNEL`MAIN=+channel/stafftag %0,stafftag,%0
 
-&SWITCHES`CHANNEL`PLAYER [u(cobj,channel)]=RECALL|FACHEAD|OPTIONS
+&SYSTEM`NAME [u(cobj,channel)]=u(strfirstof,%q<sysname>,CHANNEL)
+&SYSTEm`COLORS [u(cobj,channel)]=CHANNEL
+&SYSTEM`OPTIONS [u(cobj,channel)]=CHANNEL
+
+&SWITCHES`CHANNEL`PLAYER [u(cobj,channel)]=RECALL|FACHEAD|OPTIONS|CODENAME|CUSTCOLORS|COLORS
 &SWITCHES`CHANNEL`ADMIN [u(cobj,channel)]=ADD|DELETE|STAFFTAG|RENAME|CONFIG||MOGCONF|INIT|SPEAKER
 
 &INC`CHANNEL`OPTIONS [u(cobj,channel)]=@attach %!/INC`OPTIONS=%0,%2,CHANNELS
 
-&OPTION`OPTIONS [u(cobj,channel)]=NAMELINK|QUOTES|SPEECH
+&OPTION`OPTIONS [u(cobj,channel)]=NAMELINK|OTHERLINK|QUOTES|SPEECH
 
-&OPTION`NAMELINK [u(Cobj,channel)]=Should names be clickable on channels?
+&OPTION`NAMELINK [u(Cobj,channel)]=Should speaker names be clickable on channels?
 &OPTION`NAMELINK`DEFAULT [u(Cobj,channel)]=1
 &OPTION`NAMELINK`VALID [u(cobj,channel)]=BOOL
+&OPTION`CHANNELS`NAMELINk`CUSTOM [u(cobj,ancestor_player)]=1
+
+&OPTION`OTHERLINK [u(Cobj,channel)]=Should other names be clickable on channels?
+&OPTION`OTHERLINK`DEFAULT [u(Cobj,channel)]=1
+&OPTION`OTHERLINK`VALID [u(cobj,channel)]=BOOL
+&OPTION`CHANNELS`OTHERLINK`CUSTOM [u(cobj,ancestor_player)]=1
 
 &OPTION`QUOTES [u(Cobj,channel)]=Color the quotations of speech with this. "Blah"
 &OPTION`QUOTES`DEFAULT [u(Cobj,channel)]=
@@ -37,6 +47,18 @@ th u(NEWCOBJ,Muzzle Database <MUZZLE>,muzzle,u(cobj,channel),,,WIZARD SAFE !NO_C
 &OPTION`SPEECH [u(Cobj,channel)]=Color text in quotations. "Blah"
 &OPTION`SPEECH`DEFAULT [u(Cobj,channel)]=
 &OPTION`SPEECH`VALID [u(cobj,channel)]=COLOR
+
+&INC`CHANNEL`CONFIG [u(cobj,channel)]=@attach %!/INC`CONFIG
+
+&INC`CHANNEL`COLORS [u(cobj,channel)]=@attach %!/INC`COLOR=%0,%1,CHANNELS
+
+&INC`CHANNEL`CUSTCOLORS [u(cobj,channel)]=th u(setq,channels,u(filter,RIGHTMOG,objeval(%#,channels(|)),|,|,num(u(cobj,mop))));@switch/inline strlen(%0)=0,{@attach %!/INC`CHANNEL`CUSTCOLORS`LIST},{@attach %!/INC`CHANNEL`CUSTCOLORS`SET}
+
+&FIL`RIGHTMOG [u(cobj,channel)]=strmatch(parent(cmogrifier(%0)),%1)
+
+&INC`CHANNEL`CUSTCOLORS`LIST [u(cobj,channel)]=@pemit %#=u(header,Channel Color);@pemit %#=ansi(u(color,%#,CHANNELS,COLUMN_NAMES),align(34 10,Channel,Color));@pemit %#=u(separator);@dolist/inline/delimit | %q<channels>={@pemit %#=align(34 10,%i0,u(CHANNELCOLOR,%#,cmogrifier(%i0)))};@pemit %#=u(footer)
+
+&INC`CHANNEL`CUSTCOLORS`SET [u(cobj,channel)]=@attach %!/INC`PARTIAL=%0,stripansi(%q<channels>),|,channel,channel;@switch/inline strlen(%1)=0,{@attach %!/INC`MSG=CHANNEL %q<channel> restored to default.;@attach %!/WIPE=u(strfirstof,u(accid,%#),%#),CUSTCOLOR`CHANNEL`[cmogrifier(%q<channel>)]},{@attach %!/INC`VALID`COLOR=%1;th u(attrib_set,u(strfirstof,u(accid,%#),%#),CUSTCOLOR`CHANNEL`[cmogrifier(%q<channel>)],%q<value>);@attach %!/INC`MSG=u(setr,msg,CHANNEL %q<channel> Set to: %q<value>)}
 
 &INC`CHANNEL`MAIN [u(cobj,channel)]=@select/inline strlen(%0)=0,{@pemit %#=u(header,mudname() Channel Status);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(3 20 9 41,On?,Name,Users,Description));@pemit %#=u(separator);@dolist/inline/delimit | [objeval(%#,channels(|))]={@pemit %#=align(3 20 9 41,rjust(cstatus(%i0,%#),3),ljust(u(pueblize,%i0,+channel [stripansi(%i0)]),31),rjust(words(objeval(%#,cwho(%i0,on))),3)/[words(objeval(%#,cwho(%i0,all)))],cdesc(%i0))};@pemit %#=u(footer)},{@attach %!/INC`PARTIAL=%0,objeval(%#,channels(|)),|,channel,channel;@pemit %#=u(header,Channel Info for: %q<channel>);@stop not(strmatch(parent(u(setr,mog,cmogrifier(%q<channel>))),num(u(cobj,mop))))=@attach %!/INC`MSG=ERROR: Channel is not initialized. Please use +channel/init %q<channel>;@pemit %#=OWNER: [u(moniker,cowner(%q<channel>))]%RBUFFER: [cbuffer(%q<channel>)] - [cmsgs(%q<channel>)] Messages stored!%RFLAGS: [clflags(%q<channel>)]%RDESC: [cdesc(%q<channel>)];@pemit %#=ansi(hg,ONLINE USERS:) [words(objeval(%#,cwho(%q<channel>,on)))] - [u(itemize,iter(objeval(%#,cwho(%q<channel>,on)),if(u(valnum,objeval(%#,conn(%i0))),u(moniker,%i0),ansi(hx,name(%i0)))[if(strlen(clflags(%q<channel>,%i0)),\([clflags(%q<channel>,%i0)]\))],%b,|),|,and,\,)]%R;@pemit %#=ansi(hx,OFFLINE USERS:) [words(objeval(%#,cwho(%q<channel>,off)))] - [u(itemize,iter(objeval(%#,cwho(%q<channel>,off)),u(moniker,%i0)[if(strlen(clflags(%q<channel>,%i0)),\([clflags(%q<channel>,%i0)]\))],%b,|),|,and,\,)];@pemit %#=u(footer)}
 
@@ -74,7 +96,7 @@ th u(NEWCOBJ,Muzzle Database <MUZZLE>,muzzle,u(cobj,channel),,,WIZARD SAFE !NO_C
 &MOGTYPES [u(cobj,channel)]=BLOCK|CHANNAME|TITLE|PLAYERNAME|SPEECHTEXT|MESSAGE
 &MOGTYPES`BLOCK [u(cobj,channel)]=BADWORDS
 &MOGTYPES`CHANNAME [u(cobj,channel)]=
-&MOGTYPES`TITLE [u(cobj,channel)]=TRIM|STAFFTAG
+&MOGTYPES`TITLE [u(cobj,channel)]=TRIM|STAFFTAG|RANKTAG
 &MOGTYPES`PLAYERNAME [u(cobj,channel)]=
 &MOGTYPES`SPEECHTEXT [u(cobj,channel)]=
 &MOGTYPES`MESSAGE [u(cobj,channel)]=
@@ -148,6 +170,8 @@ th u(NEWCOBJ,Muzzle Database <MUZZLE>,muzzle,u(cobj,channel),,,WIZARD SAFE !NO_C
 &CONFIG`STAFFTAG`DEFAULT [u(cobj,channel)]=hR
 &CONFIG`STAFFTAG`VALID [u(Cobj,channel)]=COLOR
 
+&CONFIG`OPTIONS [u(cobj,channel)]=DEFAULT_PRIVS|MUZZLE_INTERVAL|STAFFTAG
+
 &LOOP`CLEANHASH [u(cobj,channel)]=@dolist children(u(cobj,mop))={@dolist/inline filterbool(#lambda/gte(sub(secs(),get(%i0/\%0`TIMESTAMP)),300),lattr(%i0/HASH`*))=@attach %!/WIPE=%i1,%i0};@wait 300=@trigger %!/LOOP`CLEANHASH
 
 @@ Mogrify and CDB section
@@ -174,14 +198,14 @@ th u(NEWCOBJ,Muzzle Database <MUZZLE>,muzzle,u(cobj,channel),,,WIZARD SAFE !NO_C
 &FUN`TITLE`CODENAME [u(cobj,mop)]=(%5)[if(strlen(%0),%b%0)]
 &MOGCONF`TITLE`CODENAME [u(cobj,mop)]=0
 
-&FUN`TITLE`STAFFTAG [u(cobj,mop)]=if(cand(v(MOGCONF`TITLE`STAFFTAG),match(v(VAR`STAFFTAG),%:),u(isadmin,%#)),\[[ansi(u(game_config,CHANNELS,STAFFTAG),Staff)]\][if(strlen(%0),%B%0)],%0)
+&FUN`TITLE`STAFFTAG [u(cobj,mop)]=if(cand(v(MOGCONF`TITLE`STAFFTAG),match(v(VAR`STAFFTAG),%:),u(isadmin,%#)),\[[ansi(u(u(cobj,channel)/conf,STAFFTAG),Staff)]\][if(strlen(%0),%B%0)],%0)
 &MOGCONF`TITLE`STAFFTAG [u(cobj,mop)]=1
 &FUN`TITLE`NOANSI [u(cobj,mop)]=stripansi(%0)
 &FUN`TITLE`TRIM [u(cobj,mop)]=trim(if(v(MOGCONF`TITLE`TRIM),left(%0,v(MOGCONF`TITLE`TRIM)),%0))
 &MOGCONF`TITLE`TRIM [u(cobj,mop)]=0
 
 &FUN`TITLE`RANKTAG [u(cobj,mop)]=if(cand(isdbref(u(setr,fac,v(MOGCONF`TITLE`RANKTAG))),strlen(u(setr,num,get(%#/D`GROUP`%q<fac>`RANK)))),\[%q<num>\][if(strlen(%0),%b%0)],if(strlen(%0),%0))
-&INC`CHANNEL`MOGCONF`TITLE`RANKTAG [u(cobj,channel)]=@check isdbref(u(setr,entry,u(u(cobj,gms)/FUN`FINDGROUP,%2)))=@attach %!/INC`MSG=ERROR: Ranktags must be pointed at DBREFs. Make sure it's a group DBref!
+&INC`CHANNEL`MOGCONF`TITLE`RANKTAG [u(cobj,channel)]=@check isdbref(u(setr,entry,u(u(cobj,group)/FUN`FINDGROUP,%2)))=@attach %!/INC`MSG=ERROR: Ranktags must be pointed at DBREFs. Make sure it's a group DBref!
 
 &FUN`TITLE`SPEAKER [u(cobj,mop)]=if(cand(v(MOGCONF`TITLE`SPEAKER),lt(secs(),get(%#/D`SPEAKER`%!))),ansi(h,\[[ansi(Bw,Speaker)]\])[if(strlen(%0),%B%0)],%0)
 &MOGCONF`TITLE`SPEAKER [u(cobj,mop)]=1

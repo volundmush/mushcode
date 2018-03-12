@@ -6,19 +6,41 @@ th u(NEWCOBJ,Page Extension System,page,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &PAGE`EXTEND [u(cobj,page)]=$^(?s)(?\:page)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3,PAGE
 @set [u(cobj,page)]/PAGE`extend=regexp
 
-&SWITCHES`PLAYER [u(cobj,page)]=OPTION|OPTIONS
+&SWITCHES`PLAYER [u(cobj,page)]=COLORS|OPTIONS
+&SYSTEM`NAME [u(cobj,page)]=PAGE
+&SYSTEM`COLORS [u(cobj,page)]=PAGE
+&SYSTEm`OPTIONS [u(cobj,page)]=PAGE
+
+&OPTION`OPTIONS [u(cobj,page)]=NEWSTYLE|NAMELINK
+
+&OPTION`NEWSTYLE [u(cobj,page)]=Use New-style Page format? Example: PAGE: <name> says, "" | PAGE (<recipients>): <name> says, "". If this is false, the old style will be used.
+&OPTION`NEWSTYLE`DEFAULT [u(cobj,page)]=0
+&OPTION`NEWSTYLE`VALID [u(cobj,page)]=BOOL
+
+&OPTION`NAMELINK [u(cobj,page)]=Turn on Namelink in new-style pages.
+&OPTION`NAMELINK`DEFAULT [u(cobj,page)]=0
+&OPTION`NAMELINK`VALID [u(cobj,page)]=BOOL
+
+&COLORS`OPTIONS [u(cobj,page)]=QUOTES|SPEECH|ME|SPEAKER|OTHER|INPAGE|OUTPAGE|PREFIX|PARENTHESES|COLON
+
+&COLORS`INPAGE [u(Cobj,page)]=Color of the ENTIRE MESSAGE in old-style page format for incoming pages.
+
+&COLORS`OUTPAGE [u(Cobj,page)]=Color of the ENTIRE MESSAGE in old-style page format for outgoing pages.
+
+&COLORS`PREFIX [u(cobj,page)]=Color of the PAGE prefix for new-style page format.
+&COLORS`PREFIX`DEFAULT [u(cobj,page)]=hg
+&CUSTCOLOR`PAGE`PREFIX`CUSTOM [u(cobj,ancestor_player)]=hg
+
+&COLORS`PARENTHESES [u(cobj,page)]=Color of enclosing parenthetical for new-style page format multiple recipient section.
+&COLORS`PARENTHESES`DEFAULT [u(cobj,page)]=hr
+&CUSTCOLOR`PAGE`PARENTHESES`CUSTOM [u(cobj,ancestor_player)]=hr
+
+&COLORS`COLON [u(cobj,page)]=Color of ending COLON : for new-style page format.
+&COLORS`COLON`DEFAULT [u(cobj,page)]=hw
+&CUSTCOLOR`PAGE`COLON`CUSTOM [u(cobj,ancestor_player)]=hw
+
 
 &INC`MAIN [u(cobj,page)]=@attach %!/INC`MSG=ERROR: We should not have ended up here. Try page/options!
-
-&OPTION`OPTIONS [u(cobj,page)]=QUOTES|SPEECH
-
-&OPTION`QUOTES [u(Cobj,page)]=Color the quotations of speech with this. "Blah"
-&OPTION`QUOTES`DEFAULT [u(Cobj,page)]=
-&OPTION`QUOTES`VALID [u(cobj,page)]=COLOR
-
-&OPTION`SPEECH [u(Cobj,page)]=Color text in quotations. "Blah"
-&OPTION`SPEECH`DEFAULT [u(Cobj,page)]=
-&OPTION`SPEECH`VALID [u(cobj,page)]=COLOR
 
 &CMD`REPLY [u(cobj,page)]=$^(?s)(?\:r|reply)(?\: +(.+?))?$:@check words(setr(list,filterbool(#lambda/isobjid(\%0),get(%#/LASTPAGEDBY))))=@nspemit %#=Nobody's sent you a page.;@check strlen(%1)=@nspemit %#=What will you reply with?;@force/inplace/noeval %#={page %q<list>=%1}
 @set [u(cobj,page)]/CMD`REPLY=regexp
@@ -33,12 +55,14 @@ th u(NEWCOBJ,Page Extension System,page,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &CMD`+IGNORE [u(cobj,page)]=$^(?s)(?\:\+)?ignore(?\:/(\S+)?)?(?\: +(.*))?$:@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[strfirstof(%1,MAIN)]=%2
 @set u(cobj,page)/CMD`+IGNORE=regexp
 
-&SYSTEM`NAME [u(cobj,page)]=PAGE
-
 &INC`MAIN [u(cobj,page)]=@select/inline strmatch(setr(old,lock(%#/PAGE)),*!DBREFLIST^IGNORELIST*)=0,{@lock/page %#=!DBREFLIST^IGNORELIST;@attach %!/INC`MSG=Your @lock/page was replaced for +ignore to work. It was: %q<old>};@select/inline strlen(%0)=0,{@attach %!/INC`LIST},{@attach %!/INC`CHECKPC=%0,1;@select/inline t(match(get(%#/IGNORELIST),%q<t1objid>))=1,{&IGNORELIST %#=u(filter,ISOBJID,setdiff(get(%#/IGNORELIST),%q<t1objid>));@include %!/INC`MSG=%q<t1name> is no longer page-ignored.},0,{&IGNORELIST %#=u(filter,ISOBJID,setunion(get(%#/IGNORELIST),%q<t1objid>));@attach %!/INC`MSG=%q<t1name> is now page-ignored.}}
 
 &INC`LIST [u(cobj,page)]=@attach %!/INC`MSG={You are Ignoring: [strfirstof(itemize(iter(u(filter,ISOBJID,get(%#/IGNORELIST)),name(%i0),%b,|),|,and,\,),Nobody!)]}
 
+&PAGEFORMAT`NEWSTYLE [u(Cobj,ancestor_player)]=[ansi(vol_color(%@,PAGE,PREFIX),PAGE)]%B[ansi(vol_color(%@,PAGE,PARENTHESES),\()][iter(sort(%3,namei),ansi(vol_namecolor(%@,%i0,%#),name(%i0)),%b,\,%b)][ansi(vol_color(%@,PAGE,PARENTHESES),\))][ansi(vol_color(%@,PAGE,COLON),:)]%B[vol_speech(%#,%1[vol_colormarkup(%@,vol_markup(%0,lwho(%@)),%#)],%@,,PAGE,lwho(%@),,vol_my_options(PAGE,NAMELINK))]
+@pageformat [u(cobj,ancestor_player)]=if(vol_my_options(PAGE,NEWSTYLE),u(pageformat`newstyle,%0,%1,%2,%3,%4),ansi(vol_color(%@,PAGE,INPAGE),vol_colormarkup(%@,vol_markup(%4,lwho(%@)),%#)))
+@outpageformat [u(cobj,ancestor_player)]=if(vol_my_options(PAGE,NEWSTYLE),u(pageformat`newstyle,%0,%1,%2,%3,%4),ansi(vol_color(%@,PAGE,OUTPAGE),vol_colormarkup(%!,vol_markup(%4,lwho(%!)),%#)))
+
 @@ COMMUNICATIONS - PAGE
-&HLP`PAGE [u(cobj,page)]=Page is Penn's built-in private message system.%R[ansi(hc,See Also:)] [u(pueblize,help page,help page)]%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,page)] - Show who you last paged.%R[ansi(h,page <recipients>=<speech>)] - Sends a message to <recipients.> Recipients is a space-seperated list of names. Enclose multi-word names in quotations such as "Firstname Lastname".%R[ansi(h,page <speech>)] - Sends a message to the last people you paged. Note that if you include a = it will consider everything before it to be <recipients> like the above command\, so you can't use = with this style of paging.%R[ansi(h,reply <text>)] - Sends a reply to the last character\(s\) who paged you. Helpful when mass-paged. Also responds to just [ansi(h,r)]%R[ansi(h,repage <text>)] - Send a Page to the last person you just messaged. While page does this normally\, retell lets you do it quickly if you just paged a lot of people who've yet to reply. Also responds to [ansi(h,rt)] and [ansi(h,retell)]%R%RBe careful with these commands because getting paged by surprise might result in mispaging.
+&HLP`PAGE [u(cobj,page)]=Page is Penn's built-in private message system.%R[ansi(hc,See Also:)] [u(pueblize,help page,help page)]%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,page)] - Show who you last paged. Page in any of its forms also responds to just [ansi(h,p)].%R[ansi(h,page <recipients>=<speech>)] - Sends a message to <recipients.> Recipients is a space-seperated list of names. Enclose multi-word names in quotations such as "Firstname Lastname".%R[ansi(h,page <speech>)] - Sends a message to the last people you paged. Note that if you include a = it will consider everything before it to be <recipients> like the above command\, so you can't use = with this style of paging.%R[ansi(h,reply <text>)] - Sends a reply to the last character\(s\) who paged you. Helpful when mass-paged. Also responds to just [ansi(h,r)]%R[ansi(h,repage <text>)] - Send a Page to the last person you just messaged. While page does this normally\, retell lets you do it quickly if you just paged a lot of people who've yet to reply. Also responds to [ansi(h,rt)] and [ansi(h,retell)]%R%RBe careful with these commands because getting paged by surprise might result in mispaging.%R%RYou can use [ansi(h,page/options)] and [ansi(h,page/colors)] to further customize page. To change a color/option use [ansi(h,page/options <option>=<value>)]. Help +options%R%RIf you're feeling adventurous check out [ansi(h,help @pageformat)] and [ansi(h,help @outpageformat)].
 +help/add Communications/Page=[u(cobj,page)]/HLP`PAGE
