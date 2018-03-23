@@ -31,7 +31,7 @@ th u(NEWCOBJ,Guest Management <GUEST>,guest,,,,WIZARD SAFE !NO_COMMAND,INHERIT S
 
 &CMD`+MYNAME [u(cobj,guest)]=$+myname *:@check u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Guest only!;@check valid(playername,%0 Guest)=@attach %!/INC`MSG=Sorry\, you may not rename yourself to that. Try something simpler.;@select/inline hasattr(%#/D`OLDNAME)=0,{&D`OLDNAME %#=[name(%#)]};@attach %!/INC`MSG`CHAN=[ansi(h,%n)] renamed to %0 Guest,u(conf,CHANNEL),,1,,1;@name %#=%0 Guest;@attach %!/INC`MSG=You are now known as '%0 Guest'.
 
-&GUEST`CREATE [u(cobj,guest)]=@attach %!/GUEST`READY;@check valid(playername,%0)=@attach %!/INC`MSG=ERROR: That is not a valid character name.;@attach %!/GUEST`FIX`DO`%va;@attach %!/INC`MSG=Guest '%0' created!;@attach %!/INC`MSG`CHAN=Guest '%0' created!
+&GUEST`CREATE [u(cobj,guest)]=@attach %!/GUEST`READY;@check valid(playername,%0)=@attach %!/INC`MSG=ERROR: That is not a valid character name.;@attach %!/GUEST`CREATE`DO`%va;@attach %!/INC`MSG=Guest '%0' created!;@attach %!/INC`MSG`CHAN=Guest '%0' created!
 
 &GUEST`READY [u(cobj,guest)]=@check isdbref(u(conf,HOME))=@attach %!/INC`MSG`CHAN=ERROR: Guest System does not have a HOME set. Use +guests/config to rectify.;@check strlen(grab(stripansi(channels(|)),u(conf,CHANNEL),|))=@attach %!/INC`MSG`CHAN=ERROR: Guest Channel not found. Rectify in +guests/config!
 
