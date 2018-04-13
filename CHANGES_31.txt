@@ -1,0 +1,20 @@
+CHANGELOG: 3.1
+
+SCENESYS:
+* +scene/edit now properly documented. it uses ^^^ to split before/after, just like +bbedit.
+* +scene/joins are now timestamped. Timestamps older than 8h are invalidated. This is to prevent posing to the wrong scene two days later by accident.
+* +scene/start and +scene/continue now link the room to the scene. To log a scene you must be in said room. This means only one scene can ever be active in a location at a time. Again, to prevent accidental cross-scene logging.
+* +scene/upcoming aka +events, +Scenes, etc, now shows an empty day for today if there are no scenes today. This should make it easier to not mistake tomorrow for today, etc.
+* +scene/old now displays the scene's creation date instead of its finish date, as the latter might be wildly inaccurate.
+
+BBS:
+* The Mandatory board alert system now functions properly.
+* +bbadmin/create now gives output on a success.
+* +bbadmin/create works properly for setting default permissions now.
+
+JOBS:
++job/newbucket now sets default permissions properly.
+
+TECHNICAL/MISC:
+* Removed the vol_game_config legacy function.
+* Guests are no longer automatically added to 'CHANNELS_PLAYERS' list by the Account System.

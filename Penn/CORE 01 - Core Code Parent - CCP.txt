@@ -25,7 +25,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &STARTUP [u(cobj,ccp)]=@dolist/inline lattr(%!/START`*)={@include/nobreak %!/##}
 
-&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(game_config header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_options my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink namecolor weblink codename getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_options my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink namecolor weblink codename getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
 
 @@ &FUNCTIONLIST`EXTRA [u(cobj,ccp)]=
 @@ &FUNCTIONLIST`ADMIN [u(cobj,ccp)]=

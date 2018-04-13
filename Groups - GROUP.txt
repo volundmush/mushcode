@@ -8,7 +8,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &RANK [u(cobj,gop)]=@@ Empty attr for Rhost.
 
 &RANK`1`NAME [u(cobj,gop)]=Leader
-&RANK`1`PERM [u(cobj,gop)]=MODERATE MANAGE GBADMIN IC OOC GEMIT REPADMIN RADIO
+&RANK`1`PERM [u(cobj,gop)]=MODERATE MANAGE GBADMIN IC OOC GEMIT REPADMIN RADIO BBADMIN
 &RANK`1`NODELETE [u(cobj,gop)]=1
 &RANK`2`NAME [u(cobj,gop)]=Second
 &RANK`2`PERM [u(cobj,gop)]=MODERATE MANAGE GBADMIN IC OOC GEMIT REPADMIN RADIO
