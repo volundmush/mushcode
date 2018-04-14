@@ -100,7 +100,7 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
 &Q`SELECT`EMPTY_NAMES [u(cobj,theme)]=SELECT theme_name FROM volv_theme WHERE theme_id NOT IN (SELECT theme_id FROM vol_tmember) ORDER BY theme_name
 
-&INC`VALID`STATUS [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No status entered.;@attach %!/INC`PARTIAL=%1,u(conf,CHARACTER_STATUS),|,value;
+&INC`VALID`STATUS [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No status entered.;@attach %!/INC`PARTIAL=%0,u(conf,CHARACTER_STATUS),|,value;
 
 &INC`STATUS [u(cobj,theme)]=@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`VALID`STATUS=%1;@attach %!/INC`MSG=%q<t1name>'s FCList status is now: %q<value>;@attach %!/INC`MSG`CHAN=%q<t1name> is now listed as %q<value>.;@attach %!/INC`DOSQL=CHARACTER`STATUS,%q<value>,%q<t1id>;th u(vattrib_set,%q<t1>,V`THEME`STATUS,%q<value>)
 

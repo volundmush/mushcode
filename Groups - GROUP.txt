@@ -8,10 +8,10 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &RANK [u(cobj,gop)]=@@ Empty attr for Rhost.
 
 &RANK`1`NAME [u(cobj,gop)]=Leader
-&RANK`1`PERM [u(cobj,gop)]=MODERATE MANAGE GBADMIN IC OOC GEMIT REPADMIN RADIO BBADMIN
+&RANK`1`PERM [u(cobj,gop)]=MODERATE MANAGE BBADMIN IC OOC GEMIT REPADMIN RADIO 
 &RANK`1`NODELETE [u(cobj,gop)]=1
 &RANK`2`NAME [u(cobj,gop)]=Second
-&RANK`2`PERM [u(cobj,gop)]=MODERATE MANAGE GBADMIN IC OOC GEMIT REPADMIN RADIO
+&RANK`2`PERM [u(cobj,gop)]=MODERATE MANAGE BBADMIN IC OOC GEMIT REPADMIN RADIO
 &RANK`2`NODELETE [u(cobj,gop)]=1
 &RANK`3`NAME [u(cobj,gop)]=Officer
 &RANK`3`PERM [u(cobj,gop)]=MODERATE MANAGE IC OOC REPADMIN RADIO
@@ -132,6 +132,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &SYSTEM`NAME [u(cobj,group)]=GROUP
 &SYSTEm`COLORS [u(cobj,group)]=GROUPS
+&SYSTEm`OPTIONS [u(cobj,group)]=GROUPS
 
 &SYSTEM`SWITCHES [u(cobj,group)]=setunion(u(SWITCHES`%q<comm>`PLAYER),if(u(isadmin,%#),u(SWITCHES`%q<comm>`ADMIN)),|,|)
 
@@ -430,7 +431,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &Q`UPDATE`RANK [u(cobj,group)]=UPDATE vol_group_member SET rank_id=? WHERE member_id=?
 
-&GRP`GMEMBER`KICK`DO [u(cobj,group)]=@dolist/inline/nobreak/localize get(%1/D`GROUP`[num(%0)]`DIVISIONS)={@attach %!/GRP`GMEMBER`KICK`DO=##,%1};th u(setq,member_id,get(%1/D`GROUP`[num(%0)]));@attach %!/WIPE=%1,D`GROUP`[num(%0)];@attach %!/WIPE=%1,V`GROUP`[get(%0/D`ID)];@attach %!/INC`DOSQL=DELETE`MEMBER,%q<member_id>;@attach %!/GRP`CACHE`MEMBERS=%0;@attach %!/GRP`CACHE`TIERS=%1;@select/inline strmatch(objid(%0),u(conf,STAFF_GROUP))=1,{th u(vattrib_set,%1,V`ADMIN,0)};@attach %!/GRP`CACHE`CHARACTER`GROUP=%1,%0;@dolist/inline/nobreak IC OOC={@attach %!/GRP`GCHANNEL`LEAVE`DO=%0,%1,##};@attach %!/INC`MSG=%2,%1;@select/inline words(u(setr,radios,get(%0/SET`RADIOS)))=>0,{@select/inline u(u(cobj,radio)/FUN`PERMISSION,##,JOIN,objid(%1))=0,{@dolist/inline get(%1/D`RADIO_META`[num(##)])={@trigger [u(cobj,radio)]/INC`LEAVE`DO=%1,after(u(choosegame,%i0,%d0),D`RADIO`),u(choosegame,%i1,%d1)}}};
+&GRP`GMEMBER`KICK`DO [u(cobj,group)]=@dolist/inline/nobreak/localize get(%1/D`GROUP`[num(%0)]`DIVISIONS)={@attach %!/GRP`GMEMBER`KICK`DO=##,%1};th u(setq,member_id,get(%1/D`GROUP`[num(%0)]));@attach %!/WIPE=%1,D`GROUP`[num(%0)];@attach %!/WIPE=%1,V`GROUP`[get(%0/D`ID)];@attach %!/INC`DOSQL=DELETE`MEMBER,%q<member_id>;@attach %!/GRP`CACHE`MEMBERS=%0;@attach %!/GRP`CACHE`TIERS=%1;@select/inline strmatch(objid(%0),u(conf,STAFF_GROUP))=1,{th u(vattrib_set,%1,V`ADMIN,0)};@attach %!/GRP`CACHE`CHARACTER`GROUP=%1,%0;@dolist/inline/nobreak IC OOC={@attach %!/GRP`GCHANNEL`LEAVE`DO=%0,%1,##};@attach %!/INC`MSG=%2,%1;@dolist/inline u(setr,radios,get(%0/SET`RADIOS))={@select/inline u(u(cobj,radio)/FUN`PERMISSION,##,JOIN,objid(%1))=0,{@dolist/inline get(%1/D`RADIO_META`[num(##)])={@trigger [u(cobj,radio)]/INC`LEAVE`DO=%1,u(choosegame,%i0,%d0),u(choosegame,%i1,%d1)}}};
 
 &Q`DELETE`MEMBER [u(cobj,group)]=DELETE FROM vol_entity WHERE entity_id=?
 
@@ -464,14 +465,23 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &GRP`GMEMBER`INITRADIO`DO [u(cobj,group)]=@dolist/inline u(filter,ISOBJID,get(%0/SET`RADIOS))={@trigger [u(cobj,radio)]/INC`JOIN`DO=%1,##}
 
-&HLP`MEMBERSHIP [u(cobj,group)]=[ansi(hc,Inviting Members)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember/invite)] - Show all extended invitations.%R[ansi(h,+gmember/invite <player>)] - Send an invite.%R[ansi(h,+gmember/uninvite <player>)] - Revoke a pending invitation.)]%R%R[ansi(hc,Joining Groups)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember)] - Shows all groups who've invited you to join.%R[ansi(h,+gmember/join <group>)] - Accepts an offered invite.%R[ansi(h,+grefuse <group>)] - Rejects an offered invite.%R[ansi(h,+gmember/add <character>)] - Adds a player to a group directly. Generally admin-only.)]%R%R[ansi(hc,Removing Members)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember/leave)] - Leaves a group.%R[ansi(h,+gmember/kick <player>)] - Removes <player> from group. Requires MANAGE permission.)]%R%R[ansi(hc,Promoting Members)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember/rank <player>=<#>)] - Alter a player's rank to <#>. Can only be used on subordinates\, and not to your own rank or better. Requires the Manage permission.)]
+&HLP`MEMBERSHIP [u(cobj,group)]=[ansi(hc,Inviting Members)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember/invite)] - Show all extended invitations.%R[ansi(h,+gmember/invite <player>)] - Send an invite.%R[ansi(h,+gmember/uninvite <player>)] - Revoke a pending invitation.)]%R%R[ansi(hc,Joining Groups)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember)] - Shows all groups who've invited you to join.%R[ansi(h,+gmember/join <group>)] - Accepts an offered invite.%R[ansi(h,+grefuse <group>)] - Rejects an offered invite.%R[ansi(h,+gmember/add <character>)] - Adds a player to a group directly. Generally admin-only.)]%R%R[ansi(hc,Removing Members)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember/leave)] - Leaves a group.%R[ansi(h,+gmember/kick <player>)] - Removes <player> from group. Requires MANAGE permission.)]%R%R[ansi(hc,Promoting Members)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gmember/rank <player>=<#>)] - Alter a player's rank to <#>. Can only be used on subordinates\, and not to your own rank or better. Requires the Manage permission.)]%R%R[ansi(hc,Titles)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+gtitle <player>=<text>)] - Alter a player's group title. Requires the TITLESELF or TITLEOTHER permission as appropriate.)]
 +help/addsub Groups/Membership=[u(cobj,group)]/HLP`MEMBERSHIP
 
 
 @@ LISTING SECTION
 
-&SWITCHES`GROUPS`PLAYER [u(cobj,group)]=PRIVATE|CUSTCOLORS|COLORS
-&SWITCHES`GROUP`PLAYER [u(cobj,group)]=ALL|CUSTCOLORS|COLORS
+&SWITCHES`GROUPS`PLAYER [u(cobj,group)]=PRIVATE|CUSTCOLORS|COLORS|OPTIONS
+&SWITCHES`GROUP`PLAYER [u(cobj,group)]=ALL|CUSTCOLORS|COLORS|OPTIONS
+
+&GRP`GROUP`OPTIONS [u(cobj,group)]=@attach %!/INC`OPTIONS=%0,%1,GROUPS
+&GRP`GROUPS`OPTIONS [u(cobj,group)]=@attach %!/INC`OPTIONS=%0,%1,GROUPS
+
+&OPTION`OPTIONS [u(cobj,group)]=FOCUS
+
+&OPTION`FOCUS [u(cobj,group)]=Does +group <group> change focus?
+&OPTION`FOCUS`DEFAULT [u(cobj,group)]=0
+&OPTION`FOCUS`VALID [u(cobj,group)]=BOOL
 
 &GRP`GROUP`CUSTCOLORS [u(cobj,group)]=@attach %!/CUSTCOLORS
 &GRP`GROUPS`CUSTCOLORS [u(Cobj,group)]=@attach %!/CUSTCOLORS
@@ -488,7 +498,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &GRP`GWHO`MAIN [u(cobj,group)]=@select/inline strlen(%0)=0,{@attach %!/INC`TARGET},{@attach %!/INC`FINDGROUP=%0,1};th u(setq,online,1);th u(setq,all,0);@attach %!/GRP`GWHO`LIST
 
-&GRP`GROUP`MAIN [u(cobj,group)]=@select/inline strlen(%0)=0,{@attach %!/INC`TARGET},{@attach %!/INC`FINDGROUP=%0,1};th u(setq,online,0);th u(setq,all,0);@attach %!/GRP`GWHO`LIST
+&GRP`GROUP`MAIN [u(cobj,group)]=@select/inline strlen(%0)=0,{@attach %!/INC`TARGET},{@attach %!/INC`FINDGROUP=%0,1};th u(setq,online,0);th u(setq,all,0);@attach %!/GRP`GWHO`LIST;@select/inline t(u(op,GROUPS,FOCUS))=1,{@check u(FIL`CANFOCUS,%q<g1>,%:);@attach %!/GRP`GFOCUS`MAIN`DO=%q<g1>}
 
 &GRP`GROUP`ALL [u(cobj,group)]=@select/inline strlen(%0)=0,{@attach %!/INC`TARGET},{@attach %!/INC`VALID`GROUP=%0,1};th u(setq,online,0);th u(setq,all,1);@attach %!/GRP`GWHO`LIST
 

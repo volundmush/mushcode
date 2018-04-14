@@ -52,9 +52,9 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 
 &OPTION`OPTIONS [u(cobj,account)]=MAIL
 
-&CONFIG`MAIL [u(cobj,account)]=Display @mail for all alts on Login?
-&CONFIG`MAIL`DEFAULT [u(cobj,account)]=1
-&CONFIG`MAIL`VALID [u(cobj,account)]=BOOL
+&OPTION`MAIL [u(cobj,account)]=Display @mail for all alts on Login?
+&OPTION`MAIL`DEFAULT [u(cobj,account)]=1
+&OPTION`MAIL`VALID [u(cobj,account)]=BOOL
 
 @@ ****** ACCOUNT SECTION *******
 &CMD`+ACCOUNT`PENNMUSH [u(cobj,account)]=$^(?\:\+)?account(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ACCOUNT`MAIN
