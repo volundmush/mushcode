@@ -52,9 +52,9 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 
 &OPTION`OPTIONS [u(cobj,account)]=MAIL
 
-&CONFIG`MAIL [u(cobj,account)]=Display @mail for all alts on Login?
-&CONFIG`MAIL`DEFAULT [u(cobj,account)]=1
-&CONFIG`MAIL`VALID [u(cobj,account)]=BOOL
+&OPTION`MAIL [u(cobj,account)]=Display @mail for all alts on Login?
+&OPTION`MAIL`DEFAULT [u(cobj,account)]=1
+&OPTION`MAIL`VALID [u(cobj,account)]=BOOL
 
 @@ ****** ACCOUNT SECTION *******
 &CMD`+ACCOUNT`PENNMUSH [u(cobj,account)]=$^(?\:\+)?account(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ACCOUNT`MAIN
@@ -154,7 +154,7 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 
 &LOOP`ACCOUNTCHECK [u(cobj,account)]=@dolist/inline/nobreak u(lwhoid)={@stop u(isguest,##);@select/inline [isdbref(get(##/D`ACCOUNT))][strmatch(get(get(##/D`ACCOUNT)/EMAIL),*@*.*)]=0*,{@select/inline t(u(conf,OPEN_ACCOUNT))=1,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] This Character has no Account! This is not supported. Please use [ansi(hw,+account/new <AccountName>)] to register an account. If you already have an account then use +account/request <alt> to begin the registration process.,##},0,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] This Character has no Account! This is not supported. Please contact staff with your email or existing alt/account name to be bound to an account.}},10,{@select/inline t(u(conf,ACCOUNT_RENAME))=1,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] Your Account does not follow the new email Guidelines. Please use [ansi(hw,+account/email <email>)] to fix this. Accounts lacking addresses may not be eligible for password resets or future database migration.},0,{@attach %!/INC`MSG=[ansi(hr,WARNING:)] Your Account does not follow new Email Guidelines. Please ask staff to give your account an Email Address. Without one you may not be eligible for password resets or future database migration.};@select/inline strmatch(name(get(##/D`ACCOUNT)),*Account*)=1,{@select/inline t(u(conf,ACCOUNT_RENAME))=1,{@attach %!/INC`MSG=Don't you want a better Account name than '[name(get(##/D`ACCOUNT))]'? You can use +account/rename <newname> to fix this! Note: Please pick something sensible\, short\, and memorable. Generic account names might not be migrated in the future!},0,{@attach %!/INC`MSG=Don't you want a better Account name than '[name(get(##/D`ACCOUNT))]'? You can ask Admin to fix this! Note: Please pick something sensible\, short\, and memorable. Generic account names might not be migrated in the future!}}}};@wait 7200=@trigger %!/LOOP`ACCOUNTCHECK
 
-&PLAYER`CREATE`CHANNELS [u(cobj,account)]=@select/inline %va=PennMUSH,{@dolist/inline/delimit | [u(conf,CHANNELS_PLAYERS)]={@channel/on %i0=%0}},RhostMUSH,{}
+&PLAYER`CREATE`CHANNELS [u(cobj,account)]=@stop u(isguest,%0);@select/inline %va=PennMUSH,{@dolist/inline/delimit | [u(conf,CHANNELS_PLAYERS)]={@channel/on %i0=%0}},RhostMUSH,{}
 
 &HLP`+ACCOUNT [u(cobj,account)]=The account system tracks players (and their alts) and their current status in the game (unapproved, approved, builder, admin, etc.).%R%R[ansi(hc,Player Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+account)] - Shows your account if you have one.%R[ansi(h,+account/new <name>)] - For new players. Enter this to start a new account on our game. You should preferably use your email address!%R[if(u(conf,OPEN_CREATION),[ansi(h,+account/rename <newname>)] - Renames your account.%R)][ansi(h,@password <old>=<new>)] - Change your password. If you forget your password\, staff will send a new one to your <email> on request - or if your Guest IP matches your previous logins.)]
 +help/add Character/+account=[u(cobj,account)]/HLP`+ACCOUNT

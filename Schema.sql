@@ -470,11 +470,6 @@ CREATE OR REPLACE VIEW volv_bucket_list AS
 	SELECT b.*,bs.pending_count,bs.approved_count,bs.deny_count,bs.cancel_count,bs.overdue_count FROM volv_bucket AS b LEFT JOIN volv_bucket_status AS bs ON b.bucket_id=bs.bucket_id ORDER by b.bucket_name;
 	
 -- Stored Procedure to create and manage Jobs.
-
-
-
-
-
 DROP PROCEDURE IF EXISTS volp_job_bucket;
 DELIMITER $$
 CREATE PROCEDURE volp_job_bucket(IN in_bucket_name VARCHAR(255))
@@ -485,8 +480,6 @@ CREATE PROCEDURE volp_job_bucket(IN in_bucket_name VARCHAR(255))
 			INSERT INTO vol_entity(entity_type,entity_name) VALUES (3,in_bucket_name);
 			SET found_bucket_id=LAST_INSERT_ID();
 			INSERT INTO vol_bucket(bucket_id) VALUES (found_bucket_id);
-			CALL volp_lock(found_bucket_id,'POST','#TRUE');
-			CALL volp_lock(found_bucket_id,'ADMIN','V`ADMIN:>0');
 		ELSE
 			UPDATE vol_entity SET entity_name=in_bucket_name WHERE entity_id=found_bucket_id;
 		END IF;

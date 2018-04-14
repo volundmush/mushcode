@@ -65,7 +65,7 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_
 
 &INC`LEAVE [u(cobj,radio)]=@attach %!/INC`CHECKSLOT;@attach %!/INC`LEAVE`DO=%#,%q<slot>,%q<freq>;
 
-&INC`LEAVE`DO [u(cobj,radio)]=@attach %!/WIPE=%0,u(setr,slot,%1);@attach %!/WIPE=%0,RADIO_[last(%1,`)];@attach %!/INC`UPDATESLOTS=%0,u(setr,freq,%2);@attach %!/INC`MSG=You have left Radio Channel '[u(moniker,%2)]'.,%0;@select/inline words(get(%0/D`RADIO_META`[num(%2)]))=0,{@attach %!/INC`DISCONNECT=objid(%0),%2;@select/inline u(isadmin,%0)=0,{@attach %!/INC`SYSRADIO=[ansi(hw,%n)] has left the Radio Channel.}}
+&INC`LEAVE`DO [u(cobj,radio)]=@attach %!/WIPE=%0,[u(setr,slot,%1)];@attach %!/WIPE=%0,RADIO_%1;@attach %!/INC`UPDATESLOTS=%0,u(setr,freq,%2);@attach %!/INC`MSG=You have left Radio Channel '[u(moniker,%2)]'.,%0;@select/inline words(get(%0/D`RADIO_META`[num(%2)]))=0,{@attach %!/INC`DISCONNECT=objid(%0),%2;@select/inline u(isadmin,%0)=0,{@attach %!/INC`SYSRADIO=[ansi(hw,u(moniker,%0))] has left the Radio Channel.}}
 
 &INC`SYSRADIO [u(cobj,radio)]=@attach %!/INC`BROADCAST=,%0,,1,%1
 
