@@ -32,23 +32,23 @@ th u(NEWCOBJ,Finger <FINGER>,finger,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 &CONFIG`FORMATTER`DEFAULT [u(cobj,finger)]=STANDARD
 &CONFIG`FORMATTER`VALID [u(cobj,finger)]=WORD
 
-&CONFIG`HEADER_CONTENTS [u(cobj,finger)]=Header Text for +finger. See +shelp +finger
+&CONFIG`HEADER_CONTENTS [u(cobj,finger)]=Header Text for +finger. See +help dynamicdata
 &CONFIG`HEADER_CONTENTS`DEFAULT [u(cobj,finger)]=ALIASNAME
 &CONFIG`HEADER_CONTENTS`VALID [u(cobj,finger)]=WORD
 
-&CONFIG`FOOTER_CONTENTS [u(cobj,finger)]=Text for +finger's footer. See +shelp +finger
+&CONFIG`FOOTER_CONTENTS [u(cobj,finger)]=Text for +finger's footer. See +help dynamicdata
 &CONFIG`FOOTER_CONTENTS`DEFAULT [u(cobj,finger)]=
 &CONFIG`FOOTER_CONTENTS`VALID [u(cobj,finger)]=WORD
 
-&CONFIG`LEFT_COLUMN [u(cobj,finger)]=Finger definition for Left Column. See +shelp +finger
+&CONFIG`LEFT_COLUMN [u(cobj,finger)]=Finger definition for Left Column. See +help dynamicdata
 &CONFIG`LEFT_COLUMN`DEFAULT [u(cobj,finger)]=SEX~Sex|SPECIES~Species
 &CONFIG`LEFT_COLUMN`VALID [u(cobj,finger)]=LIST
 
-&CONFIG`RIGHT_COLUMN [u(cobj,finger)]=Finger definition for Right Column. See +shelp +finger
+&CONFIG`RIGHT_COLUMN [u(cobj,finger)]=Finger definition for Right Column. See +help dynamicdata
 &CONFIG`RIGHT_COLUMN`DEFAULT [u(cobj,finger)]=JOB~Job
 &CONFIG`RIGHT_COLUMN`VALID [u(cobj,finger)]=LIST
 
-&CONFIG`BOTTOM_COLUMN [u(cobj,finger)]=Finger definition for vertical column. Below the right/left split. See +shelp +finger.
+&CONFIG`BOTTOM_COLUMN [u(cobj,finger)]=Finger definition for vertical column. Below the right/left split. See +help dynamicdata.
 &CONFIG`BOTTOM_COLUMN`DEFAULT [u(cobj,finger)]=GROUPNAMES2~Groups|QUOTE~Quote|PROFILE~Profile|SKILLS~Skills|WIKI~Wiki
 &CONFIG`BOTTOM_COLUMN`VALID [u(cobj,finger)]=LIST
 
