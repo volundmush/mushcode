@@ -1,0 +1,1 @@
+INSERT INTO vol_story_templates 

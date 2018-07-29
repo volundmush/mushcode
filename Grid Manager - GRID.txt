@@ -4,6 +4,8 @@
 th u(NEWCOBJ,Grid Manager <GRID>,grid,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_room),,WIZARD SAFE,INHERIT SIDEFX SAFE)
 
+&D`GRID [u(cobj,district)]=1
+
 @select/inline %va=PennMUSH,{@lock/enter [u(cobj,district)]=FUN`ENTER/1;@lset [u(cobj,district)]/enter=!no_inherit;@lock/teleport [u(cobj,district)]=FUN`TELEPORT/1;@lset [u(cobj,district)]/teleport=!no_inherit},RhostMUSH,{@lock/use [u(cobj,district)]=FUN`TELEPORT/1}
 &FUN`ENTER [u(cobj,district)]=vol_approved(%#)
 &FUN`TELEPORT [u(cobj,district)]=vol_approved(%#)

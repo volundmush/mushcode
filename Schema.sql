@@ -206,7 +206,7 @@ CREATE PROCEDURE volp_field(IN in_entity_id INT UNSIGNED,IN in_field_type TINYIN
 DELIMITER ;
 
 CREATE OR REPLACE VIEW volv_infofile AS
-	SELECT i.field_id AS info_id,i.field_type AS info_type,i.field_name AS info_name,i.field_text AS info_text,i.field_date_modified AS info_date_modified,UNIX_TIMESTAMP(i.field_date_modified) AS info_date_modified_secs,e.entity_id AS owner_id,e.entity_name AS owner_name,e.entity_objid AS owner_objid,l.locker_id,e2.entity_name AS locker_name,e2.entity_objid AS locker_objid,l.locked_date,UNIX_TIMESTAMP(l.locked_date) AS locked_date_secs,e3.entity_name as author_name,e3.entity_objid AS author_objid	FROM vol_field AS i LEFT JOIN vol_entity AS e ON i.entity_id=e.entity_id LEFT JOIN vol_field_lock AS l ON i.field_id=l.field_id LEFT JOIN vol_entity AS e2 ON e2.entity_id=l.locker_id LEFT JOIN vol_entity AS e3 ON e3.entity_id=i.author_id
+	SELECT i.field_id AS info_id,i.field_type AS info_type,i.field_name AS info_name,i.field_text AS info_text,i.field_date_modified AS info_date_modified,UNIX_TIMESTAMP(i.field_date_modified) AS info_date_modified_secs,e.entity_id AS owner_id,e.entity_name AS owner_name,e.entity_objid AS owner_objid,l.locker_id,e2.entity_name AS locker_name,e2.entity_objid AS locker_objid,l.locked_date,UNIX_TIMESTAMP(l.locked_date) AS locked_date_secs,e3.entity_name as author_name,e3.entity_objid AS author_objid FROM vol_field AS i LEFT JOIN vol_entity AS e ON i.entity_id=e.entity_id LEFT JOIN vol_field_lock AS l ON i.field_id=l.field_id LEFT JOIN vol_entity AS e2 ON e2.entity_id=l.locker_id LEFT JOIN vol_entity AS e3 ON e3.entity_id=i.author_id
 	ORDER BY i.entity_id,i.field_type,i.field_name;
 
 
@@ -1200,6 +1200,8 @@ CREATE TABLE IF NOT EXISTS vol_ctrait (
 	trait_id TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	trait_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	trait_value INT SIGNED NOT NULL DEFAULT 0,
+	trait_flags_1 TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	trait_flags_2 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	FOREIGN KEY(centity_id) REFERENCES vol_centity(centity_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	UNIQUE(centity_id,trait_type,trait_id)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
@@ -1211,12 +1213,26 @@ CREATE TABLE IF NOT EXISTS vol_clink (
 	centity_id INT UNSIGNED NOT NULL,
 	clink_approved BOOL NOT NULL DEFAULT FALSE,
 	clink_parent MEDIUMINT UNSIGNED NULL,
+	clink_loan_lock VARCHAR(255) NOT NULL DEFAULT '#FALSE',
+	clink_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	clink_locked TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY(clink_id),
 	FOREIGN KEY(centity_id) REFERENCES vol_centity(centity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(clink_parent) REFERENCES vol_clink(clink_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(character_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	INDEX(character_id,clink_display_num,centity_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS vol_clink_trait (
+	clink_id MEDIUMINT UNSIGNED NOT NULL,
+	trait_id TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	trait_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	trait_value INT SIGNED NOT NULL DEFAULT 0,
+	trait_flags_1 TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	trait_flags_2 TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	FOREIGN KEY(clink_id) REFERENCES vol_clink(clink_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	UNIQUE(clink_id,trait_type,trait_id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS vol_carmory (
 	carmory_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,

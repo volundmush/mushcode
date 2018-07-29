@@ -636,7 +636,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &PLAYER`CONNECT`GROUPCHECK [u(cobj,group)]=@wait 2=@dolist u(filter,INVITES,u(FUN`LISTGROUPS,%0),%b,%b,%0)={@attach %!/INC`MSG=The [name(%i0)] have invited you to join their group! To accept\, type [u(pueblize,ansi(h,+gjoin [name(%i0)]),+gjoin [name(%i0)])]}
 
-&OBJECT`DESTROY`CLEANUP [u(cobj,group)]=@select/inline %2=PLAYER,{@dolist/inline u(filter,ISGROUPMEMBER,u(FUN`LISTGROUPS),%B,%B,%0)={@attach %!/INC`CODE`REMFROMGROUP=%i0,%0}}
+&OBJECT`DESTROY`CLEANUP [u(cobj,group)]=@select/inline %2=PLAYER,{@dolist/inline u(filter,ISGROUPMEMBER,u(FUN`LISTGROUPS),%B,%B,%0)={@attach %!/GRP`GMEMBER`KICK`DO=%i0,%0}}
 
 &FIL`ISGROUPMEMBER [u(cobj,group)]=match(get(%0/MEMBERS),%1)
 

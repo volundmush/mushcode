@@ -2,20 +2,17 @@
 th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 @lock/use [u(cobj,data)]=ISADMIN2/1
 
-&CMD`+EDITCHAR`PENNMUSH [u(cobj,data)]=$^\+editchar(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+EDITCHAR`MAIN
-@set [u(cobj,data)]/CMD`+EDITCHAR`PENNMUSH=regexp
-&CMD`+EDITCHAR`RHOSTMUSH [u(cobj,data)]=$^\+editchar(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+EDITCHAR`MAIN
-@set [u(cobj,data)]/CMD`+EDITCHAR`RHOSTMUSH=regexp
-&CMD`+EDITCHAR`MAIN [u(cobj,data)]=@attach %!/INC`GETSWITCH=%1;th iter(before(%2,=),u(setq,chr(add(inum(0),64)),%i0),|);@attach %!/INC`CHECKPC=%qa,1,,1;@check strlen(%qb)=@attach %!/INC`MSG=ERROR: No Type entered to %q<switch> Your choices are: [itemize(iter(u(lattr,[u(cobj,data)]/INC`%q<switch>`*,|),last(%i0,`),|,|),|,and,\,)]!;@attach %!/INC`PARTIAL=%qb,iter(u(lattr,%!/INC`%q<switch>`*,|),last(%i0,`),|,|),|,topic,option;@attach [u(cobj,data)]/INC`%q<switch>`%q<topic>=%q<t1>,after(iter(%2,trim(%i0),|,|),elements(%2,1,|)|),squish(squish(trim(%3)),|)
+&CMD`+EDITCHAR`PENNMUSH [u(cobj,data)]=$^\+edit(char|db)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+EDITCHAR`%1=%2,%3,%4
+@set [u(cobj,data)]/CMD`+EDITCHAR`PENNMUSH=regexp no_inherit
+&CMD`+EDITCHAR`RHOSTMUSH [u(cobj,data)]=$^\+edit(char|db)(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+EDITCHAR`%1=%2,%3,%4
+@set [u(cobj,data)]/CMD`+EDITCHAR`RHOSTMUSH=regexp no_inherit
 @set [u(cobj,data)]/CMD`+EDITCHAR`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&GETCLASS [u(cobj,data)]=u(strfirstof,u(getstat,switch(type(%0),THING,get(%0/OWNER),%0),D`INFO,Class),Mortal)
-&GETPOWER [u(cobj,data)]=u(strfirstof,u(getstat,switch(type(%0),THING,get(%0/OWNER),%0),D`INFO,Power),1)
-&GETBONUS [u(cobj,data)]=add(u(getstat,%0,D`BONUS,%1),u(GETBONUS`[u(getclass,%0)],%0,%1))
+&CMD`+EDITCHAR`CHAR [u(cobj,data)]=@attach %!/INC`GETSWITCH=%0;th iter(%1,u(setq,chr(add(inum(0),64)),%i0),|);@select/inline %q<switch>=CONFIG,{@attach %!/INC`CONFIG=%1,%2},{@attach %!/INC`CHECKPC=%qa,1,,1;@check strlen(%qb)=@attach %!/INC`MSG=ERROR: No Type entered to %q<switch> Your choices are: [itemize(iter(u(lattr,[u(cobj,data)]/CHAR`%q<switch>`*,|),last(%i0,`),|,|),|,and,\,)]!;@attach %!/INC`PARTIAL=%qb,iter(u(lattr,%!/CHAR`%q<switch>`*,|),last(%i0,`),|,|),|,topic,option;@attach [u(cobj,data)]/CHAR`%q<switch>`%q<topic>=%q<t1>,iter(after(%1,elements(%1,1 2,|,|)|),squish(trim(%i0)),|,|),iter(%2,squish(trim(%i0)),|,|)}
 
-&STARTUP [u(cobj,data)]=@select/inline u(game)=PennMUSH,{@dolist/inline getclass getpower getbonus={@function %i0=%!,%i0}},RhostMUSH,{@dolist/inline getclass getpower getbonus={@function/privileged getclass=%!,GETCLASS}}
+&CMD`+EDITCHAR`DB [u(Cobj,data)]=
 
-&SWITCHES`ADMIN [u(cobj,data)]=SET|REM|ADD|CONFIG
+&SWITCHES`ADMIN [u(cobj,data)]=SET|REM|ADD|TAG|CONFIG|CREATE|DELETE|RENAME
 &SYSTEM`NAME [u(cobj,data)]=EDITCHAR
 
 &DO`ANNOUNCE [u(cobj,data)]=@attach %!/INC`MSG`CHAN=%1;@select/inline strmatch(%#,%0)=0,{@attach %!/INC`MSG=%2,%0;@attach %!/INC`MSG=%3},1,{@attach %!/INC`MSG=%2,%0}
@@ -28,41 +25,110 @@ th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERI
 
 @@ Advantages
 
-&INC`SET`CLASS [u(cobj,data)]=@attach %!/DO`SET`CLASS;@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))]'s [u(setr,msg,Class is now set to: [ansi(h,u(capnames,%q<find>))])]},{Your %q<msg>},{[ansi(h,name(%0))]'s %q<msg>}
+&CHAR`SET`TEMPLATE [u(cobj,data)]=@attach %!/DO`SET`TEMPLATE;@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))]'s [u(setr,msg,Template is now set to: [ansi(h,u(capnames,%q<find>))])]},{Your %q<msg>},{[ansi(h,name(%0))]'s %q<msg>}
 
-&DO`VAL`CLASS [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No Class name entered.;@attach %!/INC`PARTIAL=%2,u(conf,CLASSES),|,find,sphere;
-&DO`SET`CLASS [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`CLASS;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`INFO,CLASS,u(capnames,%q<find>)
+&DO`VAL`TEMPLATE [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No Template name entered.;th u(setq,temps,u(mysql3,LIST`TEMPLATE));@attach %!/INC`PARTIAL=%2,iter(%q<temps>,before(%i0,chr(177)),chr(176),|),|,find,sphere;th u(setq,temp_id,after(grab(%q<temps>,%q<find>[chr(177)]*,chr(176)),chr(177)));
+&DO`SET`TEMPLATE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`TEMPLATE;@attach [u(cobj,data)]/INC`DOSQL=SET`TEMPLATE,%q<temp_id>,get(%0/D`ID);th u(vattrib_set,%0,V`PERSONA`TEMPLATE,%q<find>)
 
-&CONFIG`OPTIONS [u(Cobj,data)]=CLASSES|INFOTYPES
+&Q`LIST`TEMPLATE [u(cobj,data)]=SELECT template_name,template_id FROM vol_story_templates WHERE template_playable=1
+&Q`SET`TEMPLATE [u(cobj,data)]=UPDATE vol_story_personas SET template_id=?,x_splat_id=NULL,y_splat_id=NULL,z_splat_id=NULL WHERE persona_id=?
 
-&CONFIG`CLASSES [u(cobj,data)]=List of all of the Classes/Templates available in this game.
-&CONFIG`CLASSES`DEFAULT [u(cobj,data)]=MORTAL
-&CONFIG`CLASSES`VALID [u(cobj,data)]=LIST
+&Q`GET`TEMPLATE [u(cobj,data)]=SELECT template_id FROM vol_story_personas WHERE persona_id=?
+&Q`GET`TEMPLATE_NAME [u(Cobj,data)]=SELECT template_name FROM volv_story_personas WHERE persona_id=?
 
-&INC`SET`POWER [u(cobj,data)]=@attach %!/DO`SET`POWER;@attach %!/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0))'s [u(setr,have,default(u(cobj,data)/POWER`[getclass(%0)],u(strfirstof,v(POWER`DEFAULT),Power)) is now: [ansi(h,%q<entry>)])])]},{Your %q<have>},{%q<msg>}
+&DO`VAL`X_SPLAT [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No %3 name entered!;@check u(setr,pers,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No persona selected!;th u(setq,temp_id,u(mysql,GET`TEMPLATE,%q<pers>));@check words(u(setr,x_splats,u(mysql3,LIST`X_SPLAT,%q<temp_id>)),chr(176))=@attach %!/INC`MSG=ERROR: This Template has no %3 entries!;@attach %!/INC`PARTIAL=%2,iter(%q<x_splats>,before(%i0,chr(177)),chr(176),|),|,find,splat;th u(setq,splat_id,after(grab(%q<x_splats>,%q<find>[chr(177)]*,chr(176)),chr(177)));
+&DO`SET`X_SPLAT [u(cobj,data)]=@attach %!/DO`VAL`X_SPLAT;@attach %!/INC`DOSQL=SET`X_SPLAT,%q<splat_id>,%q<pers>;th u(vattrib_set,%0,V`PERSONA`SPLAT`X,%q<find>)
 
-&DO`VAL`POWER [u(cobj,data)]=@check u(valnum,%2)=@attach %!/INC`MSG=ERROR: [default(u(cobj,data)/POWER`[getclass(%0)],u(strfirstof,v(POWER`DEFAULT),Power))] must be a positive integer.;th u(setq,entry,%2)
-&DO`SET`POWER [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`POWER;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`INFO,POWER,%q<entry>
+&DO`VAL`Y_SPLAT [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No %3 name entered!;@check u(setr,pers,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No persona selected!;th u(setq,temp_id,u(mysql,GET`TEMPLATE,%q<pers>));@check words(u(setr,y_splats,u(mysql3,LIST`Y_SPLAT,%q<temp_id>)),chr(176))=@attach %!/INC`MSG=ERROR: This Template has no %3 entries!;@attach %!/INC`PARTIAL=%2,iter(%q<y_splats>,before(%i0,chr(177)),chr(176),|),|,find,splat;th u(setq,splat_id,after(grab(%q<y_splats>,%q<find>[chr(177)]*,chr(176)),chr(177)));
+&DO`SET`Y_SPLAT [u(cobj,data)]=@attach %!/DO`VAL`Y_SPLAT;@attach %!/INC`DOSQL=SET`Y_SPLAT,%q<splat_id>,%q<pers>;th u(vattrib_set,%0,V`PERSONA`SPLAT`Y,%q<find>)
 
-&INC`SET`WILLPOWER [u(cobj,data)]=@attach %!/DO`SET`WILLPOWER;@attach %!/DO`ANNOUNCE=%0,{u(setr,msg,ansi(h,name(%0))'s [u(setr,have,Willpower is now: [ansi(h,%q<entry>)])])},{Your %q<have>},{%q<msg>}
+&DO`VAL`Z_SPLAT [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No %3 name entered!;@check u(setr,pers,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No persona selected!;th u(setq,temp_id,u(mysql,GET`TEMPLATE,%q<pers>));@check words(u(setr,z_splats,u(mysql3,LIST`Z_SPLAT,%q<temp_id>)),chr(176))=@attach %!/INC`MSG=ERROR: This Template has no %3 entries!;@attach %!/INC`PARTIAL=%2,iter(%q<z_splats>,before(%i0,chr(177)),chr(176),|),|,find,splat;th u(setq,splat_id,after(grab(%q<z_splats>,%q<find>[chr(177)]*,chr(176)),chr(177)));
+&DO`SET`Z_SPLAT [u(cobj,data)]=@attach %!/DO`VAL`Z_SPLAT;@attach %!/INC`DOSQL=SET`Z_SPLAT,%q<splat_id>,%q<pers>;th u(vattrib_set,%0,V`PERSONA`SPLAT`Z,%q<find>)
 
-&DO`VAL`WILLPOWER [u(cobj,data)]=@check u(valnum,%2)=@attach %!/INC`MSG=ERROR: Willpower must be a positive integer.;th u(setq,entry,%2)
-&DO`SET`WILLPOWER [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`WILLPOWER;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`INFO,WILLPOWER,%q<entry>
+&Q`LIST`X_SPLAT [u(cobj,data)]=SELECT x_splat_name,x_splat_id FROM vol_story_x_splats WHERE template_id=?
+&Q`LIST`Y_SPLAT [u(cobj,data)]=SELECT y_splat_name,y_splat_id FROM vol_story_y_splats WHERE template_id=?
+&Q`LIST`Z_SPLAT [u(cobj,data)]=SELECT z_splat_name,z_splat_id FROM vol_story_z_splats WHERE template_id=?
 
-&INC`SET`INFO [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`INFO=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Ability
+&Q`SET`X_SPLAT [u(cobj,data)]=UPDATE vol_story_personas SET x_splat_id=? WHERE persona_id=?
+&Q`SET`Y_SPLAT [u(cobj,data)]=UPDATE vol_story_personas SET y_splat_id=? WHERE persona_id=?
+&Q`SET`Z_SPLAT [u(cobj,data)]=UPDATE vol_story_personas SET z_splat_id=? WHERE persona_id=?
 
-&DO`VAL`INFO [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Ability name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`INFO),|,find,info;th u(setq,value,%2)
-&DO`SET`INFO [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`INFO;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`INFO,%q<find>,%q<value>
+&DO`VAL`VALUE [u(Cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: Need to enter a rating!;@select/inline %2=0,{th u(setq,value,0)},{@attach %!/INC`VALID`POSINT=%2}
 
-&CONFIG`INFOTYPES [u(cobj,data)]=What kinds of INFO are able to be set?
-&CONFIG`INFOTYPES`DEFAULT [u(cobj,data)]=
-&CONFIG`INFOTYPES`VALID [u(cobj,data)]=LIST
+&DO`VAL`STAT [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No %3 name entered!;@check u(setr,pers,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No persona selected!;@check u(setr,stat_id,after(u(setr,stat,u(strfirstof,u(mysql3,FIND`STAT`EXACT,%4,%1,%1),u(mysql3,FIND`STAT`WILD,%4,sqlescape(%1)))),chr(177)))=@attach %!/INC`MSG=ERROR: %3 not found! Choices are: [ansi(h,iter(u(mysql3,LIST`STAT,%4),before(%i0,chr(177)),chr(176),\,%b))];th u(setq,stat_name,before(%q<stat>,chr(177)));
+&DO`SET`STAT [u(cobj,data)]=@attach %!/DO`VAL`STAT;@attach %!/DO`VAL`VALUE;@attach %!/INC`DOSQL=SET`STAT,%q<stat_id>,%q<pers>,%q<value>;th u(vattrib_set,%0,V`PERSONA`STAT`%q<stat_id>,%q<value>);@attach %!/INC`MSG=You now have the [u(setr,msg,[ansi(h,%q<stat_name>)] %3 Rated at: [ansi(h,%q<value>)])],%0
 
-&FUN`GET`INFO [u(cobj,data)]=u(conf,INFOTYPES)
+&Q`FIND`STAT`EXACT [u(cobj,data)]=SELECT stat_name,stat_id FROM vol_story_stats WHERE stat_category_id=? AND (stat_id=? OR stat_name=?)
+&Q`FIND`STAT`WILD [u(cobj,data)]=SELECT stat_name,stat_id FROM vol_story_stats WHERE stat_category_id=? AND stat_name LIKE "!%%"
 
-&WORDLIST`VAL [u(cobj,data)]=@stop u(charsearch,%2,~)=@attach %!/INC`MSG=ERROR: ~ is a system-reserved character.;th u(setq,filtered,u(filter,STRLEN,iter(ucstr(%2),squish(%i0),|,|),|,|))
-&KEYVALUE`SET [u(cobj,data)]=@stop u(charsearch,%2 %3,| ~)=@attach %!/INC`MSG=ERROR: ~ and | are system-reserved characters.;@select/inline strlen(%3)=>0,{th u(setstat,%0,%1,ucstr(%2),%3)},{th u(delstat,%0,%1,ucstr(%2))}
-&WORDLIST`ADD [u(cobj,data)]=@attach [u(cobj,data)]/WORDLIST`VAL;@dolist/inline/delimit | %q<filtered>={th if(u(valnum,last(u(choosegame,%i0,%d0))),u(setq,add,last(u(choosegame,%i0,%d0)))[u(setq,word,elements(u(choosegame,%i0,%d0),lnum(1,sub(words(u(choosegame,%i0,%d0)),1))))],u(setq,word,u(choosegame,%i0,%d0))[u(setq,add,1)]);th u(setq,wordlist,setunion(%q<wordlist>,%q<word>,|,|));th u(setstat,%0,%1,%q<word>,add(%q<add>,u(getstat,%0,%1,%q<word>)))};th u(setq,returnlist,iter(ucstr(%q<wordlist>),%i0~[u(getstat,%0,%1,%q<word>)],|,|));th u(setq,returnformat,u(itemize,iter(%q<returnlist>,u(capnames,before(%i0,~))%b%([add(,after(%i0,~),0)]%),|,|),|,and,\,))
-&WORDLIST`REM [u(cobj,data)]=@attach [u(cobj,data)]/WORDLIST`VAL;@dolist/inline/delimit | %q<filtered>={th if(u(valnum,last(u(choosegame,%i0,%d0))),u(setq,sub,last(u(choosegame,%i0,%d0)))[u(setq,word,elements(u(choosegame,%i0,%d0),lnum(1,sub(words(u(choosegame,%i0,%d0)),1))))],u(setq,word,u(choosegame,%i0,%d0))[u(setq,sub,1)]);th u(setq,wordlist,setunion(%q<wordlist>,%q<word>,|,|));@select/inline u(setr,rank,sub(u(getstat,%0,%1,%q<word>),%q<sub>))=>1,{th u(setstat,%0,%1,%q<word>,sub(%q<rank>,%q<sub>))},{th u(delstat,%0,%1,%q<word>)}};th u(setq,returnlist,iter(ucstr(%q<wordlist>),%i0~[bound(u(getstat,%0,%1,%i0),0)],|,|));th u(setq,returnformat,u(itemize,iter(%q<returnlist>,u(capnames,before(%i0,~))%b%([add(after(%i0,~),0)]%),|,|),|,and,\,))
+&Q`LIST`STAT [u(cobj,data)]=SELECT stat_name,stat_id FROM vol_story_stats WHERE stat_category_id=?
+
+&Q`SET`STAT [u(cobj,data)]=INSERT INTO vol_story_persona_stats (stat_id,persona_id,stat_value) VALUES (?,?,?) ON DUPLICATE KEY UPDATE stat_value=VALUES(stat_value)
+&Q`DELETE`STAT [u(cobj,data)]=DELETE FROM vol_story_persona_stats WHERE persona_id=? AND stat_id=?
+
+&DO`TAG`STAT`1 [u(cobj,data)]=@attach %!/DO`VAL`STAT;@attach %!/DO`VAL`VALUE;@attach %!/INC`DOSQL=SET`STAT_FLAGS`1,%q<pers>,%q<stat_id>,%q<value>;@attach %!/INC`MSG=Your [u(setr,msg,[ansi(hw,%q<stat_name>)] %3 is now Tagged: [ansi(h,switch(%q<value>,0,<Nothing>,1,Favored,2,Caste,3,Supernal,???))])],%0
+
+&DO`TAG`STAT`2 [u(cobj,data)]=@attach %!/DO`VAL`STAT;@attach %!/DO`VAL`VALUE;@attach %!/INC`DOSQL=SET`STAT_FLAGS`1,%q<pers>,%q<stat_id>,%q<value>
+
+&Q`SET`STAT_FLAGS`1 [u(cobj,data)]=INSERT INTO vol_story_persona_stats (persona_id,stat_id,stat_flags_1) VALUES (?,?,?) ON DUPLICATE KEY UPDATE stat_flags_1=VALUES(stat_flags_1)
+
+&Q`SET`STAT_FLAGS`2 [u(cobj,data)]=INSERT INTO vol_story_persona_stats (persona_id,stat_id,stat_flags_2) VALUES (?,?,?) ON DUPLICATE KEY UPDATE stat_flags_1=VALUES(stat_flags_2)
+
+&Q`SET`WORDPOWER_ID [u(cobj,data)]=INSERT INTO vol_story_persona_wordpower (persona_id,wordpower_id,wordpower_purchases) VALUES (?,?,?) ON DUPLICATE KEY UPDATE wordpower_purchases=VALUES(wordpower_purchases)
+&Q`DELETE`WORDPOWER [u(cobj,data)]=DELETE FROM vol_story_persona_wordpower WHERE persona_id=? AND wordpower_id=?
+
+&Q`SET`SPECIALTY [u(Cobj,data)]=INSERT INTO vol_story_persona_stats_specialties (persona_id,stat_id,specialty_name,specialty_value) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE specialty_value=VALUES(specialty_value)
+&Q`DELETE`SPECIALTY [u(Cobj,data)]=DELETE FROM vol_story_persona_stats_specialties WHERE persona_specialty_id=?
+&Q`EXIST`SPECIALTY [u(cobj,data)]=SELECT persona_specialty_id FROM vol_story_persona_stats_specialties WHERE persona_id=? AND stat_id=? AND specialty_name=?
+
+&Q`LIST`ALL_TEMPLATE [u(cobj,data)]=SELECT template_name,template_id FROM vol_story_templates ORDER BY template_sort,template_name
+&Q`LIST`WORDPOWER_STATS [u(cobj,data)]=SELECT stat_name,stat_id FROM vol_story_stats WHERE stat_id IN (SELECT DISTINCT stat_id FROM vol_story_wordpower WHERE template_id=?) ORDER BY stat_name
+
+&Q`COUNT`WORDPOWER [u(cobj,data)]=SELECT count(wordpower_id) FROM vol_story_wordpower WHERE template_id=? AND stat_id=?
+&Q`FIND`WORDPOWER`EXACT [u(cobj,data)]=SELECT wordpower_name,wordpower_id FROM vol_story_wordpower WHERE template_id=? AND stat_id=? AND (wordpower_id=? OR wordpower_name=?)
+&Q`FIND`WORDPOWER`WILD [u(cobj,data)]=SELECT wordpower_name,wordpower_id FROM vol_story_wordpower WHERE template_id=? AND stat_id=? AND wordpower_name LIKE "!%%"
+
+&DO`VAL`WORDPOWER [u(cobj,data)]=@check u(setr,persona_id,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No Persona available for [name(%0)]!;@check strlen(before(%1,/))=@attach %!/INC`MSG=ERROR: No Template Type entered.;@attach %!/INC`PARTIAL=before(%1,/),iter(u(setr,temps,u(mysql3,LIST`ALL_TEMPLATE)),before(%i0,chr(177)),chr(176),|),|,template,TemplateType;th u(setq,template_id,after(grab(%q<temps>,%q<template>[chr(177)]*,chr(176)),chr(177)));@check strlen(after(%1,/))=@attach %!/INC`MSG=ERROR: No Stat entered.;@attach %!/INC`PARTIAL=after(%1,/),iter(u(setr,stats,u(mysql3,LIST`WORDPOWER_STATS,%q<template_id>)),before(%i0,chr(177)),chr(176),|),|,stat,%3 Category;th u(setq,stat_id,after(grab(%q<stats>,%q<stat>[chr(177)]*,chr(176)),chr(177)));@check u(mysql,COUNT`WORDPOWER,%q<template_id>,%q<stat_id>)=@attach %!/INC`MSG=ERROR: No %3s to select from!;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No %3 name entered!;@check u(setr,wordpower_id,after(u(setr,wordpower,u(strfirstof,u(mysql3,FIND`WORDPOWER`EXACT,%q<template_id>,%q<stat_id>,%2,%2),u(mysql3,FIND`WORDPOWER`WILD,%q<template_id>,%q<stat_id>,sqlescape(%2)))),chr(177)))=@attach %!/INC`MSG=ERROR: %3 not found!
+&DO`ADD`WORDPOWER [u(cobj,data)]=@attach %!/DO`VAL`WORDPOWER;@attach %!/INC`DOSQL=ADD`WORDPOWER,%q<persona_id>,%q<wordpower_id>;@attach %!/INC`MSG=You now have the [u(setr,msg,[ansi(hw,%q<template> %3)]: [ansi(hw,before(%q<wordpower>,chr(177)))])],%0
+&DO`REM`WORDPOWER [u(cobj,data)]=@attach %!/DO`VAL`WORDPOWER;@check u(mysql,HAS`WORDPOWER,%q<persona_id>,%q<wordpower_id>)=@attach %!/INC`MSG=ERROR: Character does not have that %3!;@attach %!/INC`DOSQL=REM`WORDPOWER,%q<persona_id>,%q<wordpower_id>;@attach %!/INC`MSG=You no longer have the [u(setr,msg,[ansi(hw,%q<template> %3)]: [ansi(hw,before(%q<wordpower>,chr(177)))])],%0
+
+&DO`TAG`WORDPOWER [u(cobj,data)]=@attach %!/DO`VAL`WORDPOWER;@check u(mysql,HAS`WORDPOWER,%q<persona_id>,%q<wordpower_id>)=@attach %!/INC`MSG=ERROR: [name(%0)] does not have this %3!;@check isint(%4)=@attach %!/INC`MSG=ERROR: Tag # must be an integer!;@attach %!/INC`DOSQL=TAG`WORDPOWER,%4,%q<persona_id>,%q<wordpower_id>;@attach %!/INC`MSG=Your [u(setr,msg,[ansi(hw,%q<template> %3)]: [ansi(hw,before(%q<wordpower>,chr(177)))] is now set: [ansi(hw,switch(%4,1,Control,0,Nothing,?))])],%0
+
+&Q`ADD`WORDPOWER [u(cobj,data)]=INSERT INTO vol_story_persona_wordpower (persona_id,wordpower_id) VALUES (?,?) ON DUPLICATE KEY UPDATE wordpower_purchases=wordpower_purchases+1
+&Q`REM`WORDPOWER [u(cobj,data)]=DELETE from vol_story_persona_wordpower WHERE persona_id=? AND wordpower_id=?
+&Q`HAS`WORDPOWER [u(cobj,data)]=SELECT count(*) FROM vol_story_persona_wordpower WHERE persona_id=? AND wordpower_id=?
+&Q`TAG`WORDPOWER [u(Cobj,data)]=UPDATE vol_story_persona_wordpower SET wordpower_flags_1=? WHERE persona_id=? AND wordpower_id=?
+
+&INC`VALID`SNAME [u(cobj,data)]=@check strlen(u(setr,sname,u(capnames,trim(squish(%0)))))=@attach %!/INC`MSG=ERROR: No Name entered!;@check regmatchi(%q<sname>,^\(\\w+|%b|\'\)+$)=@attach %!/INC`MSG=ERROR: Names must be comprised purely of alphanumeric characters and spaces.;
+
+&Q`EXIST`SYSMERIT [u(cobj,data)]=SELECT merit_id FROM vol_story_merits WHERE merit_category_id=? AND merit_name=?
+
+&DO`LIST`SYSMERIT [u(cobj,data)]=
+
+&DO`CREATE`SYSMERIT [u(cobj,data)]=@attach %!/INC`VALID`SNAME=%1;@stop u(mysql,EXIST`SYSMERIT,%4,%q<sname>)=@attach %!/INC`MSG=ERROR: %3 with that name already exists!;@attach %!/INC`DOSQL=CREATE`SYSMERIT/merit_id,%4,%q<sname>;
+
+&Q`CREATE`SYSMERIT [u(Cobj,data)]=INSERT INTO vol_story_merits (merit_category_id,merit_name) VALUES (?,?)
+
+&Q`EXIST`SYSSTAT [u(cobj,data)]=SELECT stat_id FROM vol_story_stats WHERE stat_category_id=? AND stat_name=?
+
+&DO`CREATE`SYSSTAT [u(Cobj,data)]=@attach %!/INC`VALID`SNAME=%1;@stop u(mysql,EXIST`SYSSTAT,%4,%q<sname>)=@attach %!/INC`MSG=ERROR: %3 with that name already exists!;@attach %!/INC`DOSQL=CREATE`SYSSTAT/stat_id,%4,%q<sname>
+
+&Q`CREATE`SYSSTAT [u(Cobj,data)]=INSERT INTO vol_story_stats (stat_category_id,stat_name) VALUES (?,?)
+
+&REG`WORDPOWER_NAME [u(cobj,data)]=^\(\w+| |\?|\,|\!\)+$
+
+&INC`VALID`WORDPOWER_NAME [u(cobj,data)]=@check strlen(u(setr,wordpower_name,u(capnames,trim(squish(%0)))))=@attach %!/INC`MSG=ERROR: No %1 name entered!;@check regmatchi(%q<wordpower_name>,v(REG`WORDPOWER_NAME))=@attach %!/INC`MSG=ERROR: %1 Names must be comprised purely of alphanumeric characters\, spaces\, commas\, question marks\, and exclamation marks. Nothing else!
+
+&DO`VAL`MERIT_WORDPOWER [u(cobj,data)]=@check u(setr,persona_id,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No Persona available for [name(%0)]!;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No %3 Context entered!;@check u(setr,persona_merit_id,before(u(setr,persona_merit,u(strfirstof,u(mysql3,FIND`ID_MERIT_ID_CONTEXT`EXACT,%q<persona_id>,%4,%1),u(mysql3,FIND`ID_MERIT_ID_CONTEXT`WILD,%q<persona_id>,%4,sqlescape(%1)))),chr(177)))=@attach %!/INC`MSG=ERROR: %3 not found!;th u(setq,merit_context,before(%q<persona_merit>,chr(177)));@attach %!/INC`VALID`WORDPOWER_NAME=%2,%5;
+@@ %3 - Merit_name! %4 - merit_id to build off of. Must be one that requires contexts! %5 - What kind of MERIT_WORDPOWER are we adding?
+
+&Q`FIND`ID_MERIT_ID_CONTEXT`EXACT [u(cobj,data)]=SELECT persona_merit_id,merit_context FROM volv_story_persona_merits WHERE persona_id=? AND merit_id=? AND merit_context=?
+&Q`FIND`ID_MERIT_ID_CONTEXT`WILD [u(cobj,data)]=SELECT persona_merit_id,merit_context FROM volv_story_persona_merits WHERE persona_id=? AND merit_id=? AND merit_context LIKE "!%%"
+
+&DO`ADD`MERIT_WORDPOWER [u(cobj,data)]=@attach %!/DO`VAL`MERIT_WORDPOWER;@attach %!/INC`DOSQL=ADD`MERIT_WORDPOWER,%q<persona_merit_id>,%q<wordpower_name>
+&DO`REM`MERIT_WORDPOWER [u(Cobj,data)]=@attach %!/DO`VAL`MERIT_WORDPOWER;@attach %!/INC`DOSQL=DELETE`MERIT_WORDPOWER,%q<persona_merit_id>,%q<wordpower_name>
+
+&Q`ADD`MERIT_WORDPOWER [u(cobj,data)]=INSERT INTO vol_story_persona_merits_wordpowers (persona_merit_id,merit_wordpower_name) VALUES (?,?) ON DUPLICATE KEY UPDATE merit_wordpower_purchases=merit_wordpower_purchases+1
+&Q`DELETE`MERIT_WORDPOWER [u(cobj,data)]=DELETE FROM vol_story_persona_merits_wordpowers WHERE persona_merit_id=? AND merit_wordpower_name=?
 
 @@ %0 - Target. %1 - Attr. %2 - List. %3 - Entry for keyvalue.

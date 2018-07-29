@@ -1,0 +1,1 @@
+&PERSONA`INIT [u(Cobj,persona)]=@dolist/inline 1000~1 1001~3 [iter(lnum(2000,2008),%i0~1)]={th u(u(cobj,data)/mysql,SET`STAT,before(##,~),%q<pers>,after(##,~));&D`PERSONA`STAT`[before(##,~)] %0=[after(##,~)]}

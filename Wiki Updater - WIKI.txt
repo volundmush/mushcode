@@ -1,0 +1,20 @@
+@@ NOTE: this file is just a framework, fairly useless on its own. It is used for synchronizing a character's MUSH data into the SQL database for wiki display.
+
+th u(NEWCOBJ,Wiki Updater <WIKI>,wiki,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+
+&CMD`+WIKI`PENNMUSH [u(cobj,wiki)]=$^(?s)(?\:\+)?wiki(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+WIKI`MAIN
+@set [u(cobj,wiki)]/CMD`+WIKI`PENNMUSH=regexp
+&CMD`+WIKI`RHOSTMUSH [u(cobj,wiki)]=$^(?s)(?\:\+)?wiki(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+WIKI`MAIN
+@set [u(cobj,wiki)]/CMD`+WIKI`RHOSTMUSH=regexp
+&CMD`+WIKI`MAIN [u(cobj,wiki)]=@attach %!/INC`GETSWITCH=%1;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,wiki)]/CMD`+WIKI`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,wiki)]=WIKI
+&SYSTEM`ID [u(cobj,wiki)]=100
+
+&FIELDS [u(cobj,wiki)]=SEX
+
+&INC`MAIN [u(cobj,wiki)]=@attach %!/INC`CHECKPC=if(cand(strlen(%0),u(isadmin,%#)),%0,%#),1;@dolist/inline/delimit | [v(FIELDS)]={@attach %!/FIELD`##=%q<t1>};@select/inline %#=%q<t1>,{@attach %!/INC`MSG=Wiki updated!},{@attach %!/INC`MSG=You have updated %q<t1name>'s Wiki fields!}
+
+&FIELD`SEX [u(cobj,wiki)]=th u(call`5,volp_field,0,get(%0/D`ID),v(SYSTEM`ID),'SEX','[sqlescape(get(%0/SEX))]',get(%#/D`ID))

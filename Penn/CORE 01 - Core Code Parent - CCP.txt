@@ -632,6 +632,8 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &INC`VALID`TIMEZONE [u(cobj,ccp)]=@check valid(timezone,setr(value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone};th u(setq,valueformat,%q<value>)
 &INC`VALID`DURATION [u(cobj,ccp)]=@check setr(value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()};th u(setq,valueformat,etime(%q<value>))
 &INC`VALID`POSINT [u(cobj,ccp)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[strfirstof(%1,%0)]' must be a whole number 1 or greater.};th setq(value,%0);th u(setq,valueformat,%q<value>)
+&INC`VALID`POSNUM [u(cobj,ccp)]=@check gt(u(setr,value,%0),0)=@attach %!/INC`MSG=ERROR: '%0' must be a positive number.
+&INC`VALID`NUMBER [u(cobj,ccp)]=@check isnum(u(setr,value,%0))=@attach %!/INC`MSG=ERROR: '%0' must be a number.
 &INC`VALID`INT [u(cobj,ccp)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th setq(value,%0);th u(setq,valueformat,%q<value>)
 &INC`VALID`LOCK [u(cobj,ccp)]=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th setq(value,%0);th u(setq,valueformat,%q<value>)
 &INC`VALID`TIME [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=You didn't enter a date!;@check gt(setr(value,convtime(%0,u(gettz,%#))),0)=@attach %!/INC`MSG=The entered date was not recognized. Did you typo? Dates should be in abbreviated 24-hour <month> <day> <hour>:<minute> format using YOUR timezone\, such as Jun 26 7:00 or Oct 31 13:00.;th u(setq,valueformat,convsecs(%q<value>,UTC))
@@ -662,8 +664,8 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &INC`MSG`SYSCHAN [u(cobj,ccp)]=th setq(chanmsg,[if(not(%5),ansi(h,\[[strfirstof(%4,SYSTEM)]\]%B))][if(cand(strlen(strfirstof(%2,u(SYSTEM`NAME))),not(%3)),strfirstof(%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit/noisy %i0=%q<chanmsg>}
 
-&MSG [u(cobj,ccp)]=u(msghead,%3,%0) [if(%4,regeditalli(%1,v(REG`ENCODETIME),u(fancytime,$<time>,u(gettz,%0))),%1)]
-&RMSG [u(cobj,ccp)]=u(msgroom,%3,%0) \[[ansi(h,u(moniker,%4))]\] %1
+&MSG [u(cobj,ccp)]=if(not(%5),u(msghead,%3,%0)%B)[if(%4,regeditalli(%1,v(REG`ENCODETIME),u(fancytime,$<time>,u(gettz,%0))),%1)]
+&RMSG [u(cobj,ccp)]=if(not(%5),u(msghead,%3,%0)%B\[[ansi(h,u(moniker,%4))]\]%B)%1
 
 &REG`ENCODETIME [u(cobj,ccp)]=\^\^\^(?P<time>\d+)\^\^\^
 

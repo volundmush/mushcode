@@ -15,7 +15,7 @@ th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &SYSTEM`NAME [u(cobj,help)]=u(strfirstof,%q<sysname>,HELP)
 &SWITCHES`PLAYER [u(cobj,help)]=
-&SWITCHES`ADMIN [u(cobj,help)]=HELP|NEWCATEGORY|DELETECATEGORY|RENAMECATEGORY|CATEGORY|ADD|RENAME|DELETE|GET|ADDSUB|RENAMESUB|DELETESUB
+&SWITCHES`ADMIN [u(cobj,help)]=HELP|NEWCATEGORY|DELETECATEGORY|RENAMECATEGORY|CATEGORY|ADD|RENAME|DELETE|GET|ADDSUB|RENAMESUB|DELETESUB|VIEWCODE
 
 &INC`NEWCATEGORY [u(cobj,help)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Must enter a Category name.;@check u(setr,cat_id,u(call`2,volp_help_category,0,%q<db>,'[sqlescape(%0)]'))=@attach %!/INC`MSG=ERROR: %q<cat_id>;@attach %!/INC`MSG`CHAN=New Category: %0
 

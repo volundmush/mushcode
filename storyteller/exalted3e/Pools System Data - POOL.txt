@@ -1,29 +1,33 @@
 &POOL`PERSONAL [u(cobj,pool)]=Pool
+&POOL`PERSONAL`ID [u(cobj,pool)]=2
 &POOL`PERSONAL`UNITNAME [u(cobj,pool)]=Motes
 &POOL`PERSONAL`UNITTYPE [u(cobj,pool)]=Personal Essence
-&POOL`PERSONAL`MAX [u(cobj,pool)]=add(u(POOL`PERSONAL`MAX`[getclass(%0)],%0),0)
+&POOL`PERSONAL`MAX [u(cobj,pool)]=add(u(POOL`PERSONAL`MAX`[u(gettemplate,%0)],%0),0)
 &POOL`PERSONAL`INIT [u(cobj,pool)]=u(POOL`PERSONAL`MAX,%0)
 &POOL`PERSONAL`ORDER [u(cobj,pool)]=5
 &POOL`PERSONAL`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT
 
 &POOL`PERIPHERAL [u(cobj,pool)]=Pool
+&POOL`PERIPHERAL`ID [u(cobj,pool)]=3
 &POOL`PERIPHERAL`UNITNAME [u(cobj,pool)]=Motes
 &POOL`PERIPHERAL`UNITTYPE [u(cobj,pool)]=Peripheral Essence
-&POOL`PERIPHERAL`MAX [u(cobj,pool)]=add(u(POOL`PERIPHERAL`MAX`[getclass(%0)],%0),0)
+&POOL`PERIPHERAL`MAX [u(cobj,pool)]=add(u(POOL`PERIPHERAL`MAX`[u(gettemplate,%0)],%0),0)
 &POOL`PERIPHERAL`INIT [u(cobj,pool)]=u(POOL`PERIPHERAL`MAX,%0)
 &POOL`PERIPHERAL`ORDER [u(cobj,pool)]=10
 &POOL`PERIPHERAL`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT
 
 &POOL`WILLPOWER [u(cobj,pool)]=Pool
+&POOL`WILLPOWER`ID [u(cobj,pool)]=1
 &POOL`WILLPOWER`UNITNAME [u(cobj,pool)]=Points
 &POOL`WILLPOWER`UNITTYPE [u(cobj,pool)]=Willpower
-&POOL`WILLPOWER`MAX [u(cobj,pool)]=u(strfirstof,u(getstat,%0,D`INFO,Willpower),0)
+&POOL`WILLPOWER`MAX [u(cobj,pool)]=default(%0/V`PERSONA`STAT`1001,3)
 &POOL`WILLPOWER`INIT [u(cobj,pool)]=u(POOL`WILLPOWER`MAX,%0)
 &POOL`WILLPOWER`ORDER [u(cobj,pool)]=15
 
 &POOL`WILLPOWER`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT
 
 &POOL`LIMIT [u(cobj,pool)]=Track
+&POOL`WILLPOWER`ID [u(cobj,pool)]=1
 &POOL`LIMIT`UNITNAME [u(cobj,pool)]=Points
 &POOL`LIMIT`UNITTYPE [u(cobj,pool)]=Limit
 &POOL`LIMIT`MAX [u(cobj,pool)]=10
@@ -32,35 +36,35 @@
 &POOL`LIMIT`OPTIONS [u(cobj,pool)]=SPEND GAIN COMMIT
 
 @@ MORTAL
-&CLASS`MORTAL [u(cobj,pool)]=WILLPOWER
+&TEMPLATE`MORTAL [u(cobj,pool)]=WILLPOWER
 
 @@ SOLAR
-&CLASS`SOLAR [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
-&POOL`PERSONAL`MAX`SOLAR [u(cobj,pool)]=add(mul(3,getpower(%0)),10)
-&POOL`PERIPHERAL`MAX`SOLAR [u(cobj,pool)]=add(mul(7,getpower(%0)),26)
+&TEMPLATE`SOLAR [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
+&POOL`PERSONAL`MAX`SOLAR [u(cobj,pool)]=add(mul(3,default(%0/V`PERSONA`STAT`1000,1)),10)
+&POOL`PERIPHERAL`MAX`SOLAR [u(cobj,pool)]=add(mul(7,default(%0/V`PERSONA`STAT`1000,1)),26)
 
 @@ LUNAR
-&CLASS`LUNAR [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
-&POOL`PERSONAL`MAX`LUNAR [u(cobj,pool)]=add(mul(1,getpower(%0)),15)
-&POOL`PERIPHERAL`MAX`LUNAR [u(cobj,pool)]=add(mul(4,getpower(%0)),34)
+&TEMPLATE`LUNAR [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
+&POOL`PERSONAL`MAX`LUNAR [u(cobj,pool)]=add(mul(1,default(%0/V`PERSONA`STAT`1000,1)),15)
+&POOL`PERIPHERAL`MAX`LUNAR [u(cobj,pool)]=add(mul(4,default(%0/V`PERSONA`STAT`1000,1)),34)
 
 @@ TERRESTIAL
-&CLASS`TERRESTRIAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
-&POOL`PERSONAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(mul(1,getpower(%0)),11)
-&POOL`PERIPHERAL`MAX`TERRESTRIAL [u(cobj,pool)]=add(mul(4,getpower(%0)),23)
+&TEMPLATE`DRAGON-BLOODED [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER
+&POOL`PERSONAL`MAX`DRAGON-BLOODED [u(cobj,pool)]=add(mul(1,default(%0/V`PERSONA`STAT`1000,1)),11)
+&POOL`PERIPHERAL`MAX`DRAGON-BLOODED [u(cobj,pool)]=add(mul(4,default(%0/V`PERSONA`STAT`1000,1)),23)
 
 @@ SIDEREAL
-&CLASS`SIDEREAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
-&POOL`PERSONAL`MAX`SIDEREAL [u(cobj,pool)]=add(mul(2,getpower(%0)),9)
-&POOL`PERIPHERAL`MAX`SIDEREAL [u(cobj,pool)]=add(mul(6,getpower(%0)),25)
+&TEMPLATE`SIDEREAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
+&POOL`PERSONAL`MAX`SIDEREAL [u(cobj,pool)]=add(mul(2,default(%0/V`PERSONA`STAT`1000,1)),9)
+&POOL`PERIPHERAL`MAX`SIDEREAL [u(cobj,pool)]=add(mul(6,default(%0/V`PERSONA`STAT`1000,1)),25)
 
 @@ LIMINAL
-&POOL`PERSONAL`MAX`LIMINAL [u(cobj,pool)]=add(mul(3,getpower(%0)),10)
-&POOL`PERIPHERAL`MAX`LIMINAL [u(cobj,pool)]=add(mul(4,getpower(%0)),23)
+&POOL`PERSONAL`MAX`LIMINAL [u(cobj,pool)]=add(mul(3,default(%0/V`PERSONA`STAT`1000,1)),10)
+&POOL`PERIPHERAL`MAX`LIMINAL [u(cobj,pool)]=add(mul(4,default(%0/V`PERSONA`STAT`1000,1)),23)
 
 @@ ABYSSAL
-&POOL`PERSONAL`MAX`ABYSSAL [u(cobj,pool)]=add(mul(3,getpower(%0)),10)
-&POOL`PERIPHERAL`MAX`ABYSSAL [u(cobj,pool)]=add(mul(7,getpower(%0)),26)
+&POOL`PERSONAL`MAX`ABYSSAL [u(cobj,pool)]=add(mul(3,default(%0/V`PERSONA`STAT`1000,1)),10)
+&POOL`PERIPHERAL`MAX`ABYSSAL [u(cobj,pool)]=add(mul(7,default(%0/V`PERSONA`STAT`1000,1)),26)
 
 &HLP`POOLS [u(cobj,pool)]=[ansi(h,+pools)]%RDisplays your current Pool information, including Commitments.%R%R[ansi(h,+burn <poolname>=<#>)]%RUses up some of a pool, aka subtracts from it. Used for spending Essence, clearing up Limit, etc.%R%R[ansi(h,+gain <poolname>=<#>)]%RRestores a Pool, aka adds to it. Used for refilling Essence, gaining Limit, etc.%R%R[ansi(h,+refresh)]%RRestores all Pools and Channels (willpower, virtues, etc) but leaves Tracks such as Limit alone.%R%R[ansi(h,+commit <poolname>/<#>=<reason>)]%RCommits a number of points for a given reason. Example: +commit Peripheral/5=Daiklave%RIf used on Tracks like Limit, Commits raise the minimum instead of lowering maximum- 2 points of Committed Limit mean you're always at least at 2/10, for instance.%R%R[ansi(h,+uncommit <pool>=<commit ID>)]%RRemoves a commitment. Use +pools to see which commitment slot to free up.%R%RNote: Pool names take partial matches!
 +help/add Roleplaying/+pools=[u(cobj,pool)]/HLP`POOLS

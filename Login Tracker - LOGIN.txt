@@ -26,11 +26,11 @@ th u(NEWCOBJ,Login Tracker <LOGIN>,login,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDE
 
 &Q`GET`LOGINS [u(cobj,login)]=SELECT login_is_success,ip_address,login_date_secs FROM volv_login WHERE character_objid=? LIMIT 10
 
-&PLAYER`CONNECT`IPLOG [u(cobj,login)]=@attach %!/INC`CHECKPC=%0,1;th u(call`3,volp_login_record,0,%q<t1id>,1,'[sqlescape(get(%0/LASTIP))]')
+&PLAYER`CONNECT [u(cobj,login)]=@attach %!/INC`CHECKPC=%0,1;th u(call`3,volp_login_record,0,%q<t1id>,1,'[sqlescape(get(%0/LASTIP))]')
 
-&PLAYER`CONNECTFAIL`IPLOG [u(cobj,login)]=@attach %!/INC`CHECKPC=%0,1;th u(call`3,volp_login_record,0,%q<t1id>,0,'[sqlescape(get(%0/LASTIP))]')
+&PLAYER`CONNECTFAIL [u(cobj,login)]=@attach %!/INC`CHECKPC=%0,1;th u(call`3,volp_login_record,0,%q<t1id>,0,'[sqlescape(get(%0/LASTIP))]')
 
-&SOCKET`LOGINFAIL`IPLOG [u(cobj,login)]=@select/inline isdbref(%4)=1,{@trigger %!/PLAYER`CONNECTFAIL`IPLOG=%4,%3;th u(setq,isgod,strmatch(#1,%4))[u(setq,admin,u(isadmin,%4))];@attach %!/INC`MSG`SYSCHAN={[if(cor(%q<isgod>,%q<admin>),ansi(hr,WARNING:),ansi(hy,ALERT:))]%BFailed [switch(1,%q<isgod>,ansi(hr,GOD),%q<admin>,ansi(hr,ADMIN),Player)] ([name(%4)]) login attempt from IP '%1' HOST '[host(%0)]' PORT '%0'. Consecutive Failure %2: %3. [if(strmatch(get(%4/LASTSITE),host(%0)),,ansi(hr,ALERT:)%BAttempt not from previous LASTSITE!)]};@select/inline cor(%q<isgod>,%q<admin>)=1,{@pemit/port %0=[ansi(hrf,WARNING:)]%BAdmin login failures are logged.};@select/inline %2=>1,{@pemit/port %0=If you have forgotten your password\, ask an admin for a reset. Too many login attempts will cause a temporary lockout.}}
+&SOCKET`LOGINFAIL [u(cobj,login)]=@select/inline isdbref(%4)=1,{@trigger %!/PLAYER`CONNECTFAIL`IPLOG=%4,%3;th u(setq,isgod,strmatch(#1,%4))[u(setq,admin,u(isadmin,%4))];@attach %!/INC`MSG`SYSCHAN={[if(cor(%q<isgod>,%q<admin>),ansi(hr,WARNING:),ansi(hy,ALERT:))]%BFailed [switch(1,%q<isgod>,ansi(hr,GOD),%q<admin>,ansi(hr,ADMIN),Player)] ([name(%4)]) login attempt from IP '%1' HOST '[host(%0)]' PORT '%0'. Consecutive Failure %2: %3. [if(strmatch(get(%4/LASTSITE),host(%0)),,ansi(hr,ALERT:)%BAttempt not from previous LASTSITE!)]};@select/inline cor(%q<isgod>,%q<admin>)=1,{@pemit/port %0=[ansi(hrf,WARNING:)]%BAdmin login failures are logged.};@select/inline %2=>1,{@pemit/port %0=If you have forgotten your password\, ask an admin for a reset. Too many login attempts will cause a temporary lockout.}}
 
 &HLP`IP [u(cobj,login)]=[ansi(h,+ip)] - Shows your recent logins. Please report any suspicious login attempts to staff!
 +help/add Character/+ip=[u(cobj,login)]/HLP`IP

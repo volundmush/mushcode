@@ -1,6 +1,6 @@
-&CMD`+INFO`PENNMUSH [u(cobj,ims)]=$^(?s)(?\:\+)?(info|pinfo|bg)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
-@set [u(cobj,ims)]/CMD`+INFO`PENNMUSH=regexp
-&CMD`+INFO`RHOSTMUSH [u(cobj,ims)]=$^(?s)(?\:\+)?(info|pinfo|bg)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
-@set [u(cobj,ims)]/CMD`+INFO`RHOSTMUSH=regexp
+&CMD`+INFO`PENNMUSH [u(cobj,info)]=$^(?s)(?\:\+)?(info|pinfo|bg)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
+@set [u(cobj,info)]/CMD`+INFO`PENNMUSH=regexp
+&CMD`+INFO`RHOSTMUSH [u(cobj,info)]=$^(?s)(?\:\+)?(info|pinfo|bg)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
+@set [u(cobj,info)]/CMD`+INFO`RHOSTMUSH=regexp
 
-&INIT`BG [u(cobj,ims)]=th u(setq,sysname,BG);th u(setq,root,3);th u(setq,private,0);th u(setq,comm,+bg);th u(setq,lockapprove,1);
+&INIT`BG [u(cobj,info)]=th u(setq,sysname,BG);th u(setq,root,3);th u(setq,private,0);th u(setq,comm,+bg);th u(setq,lockapprove,1);

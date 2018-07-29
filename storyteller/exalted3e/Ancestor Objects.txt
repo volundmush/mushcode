@@ -1,3 +1,3 @@
 &SETTINGS`ROOM_PLAYERS [u(cobj,ancestor_room)]=EXALTED
 
-&PLAYERS`EXALTED [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(vol_color(%#,ROOM,COLUMN_NAMES),align(28 10 35,Name,Class,Short-Desc))]%R[iter(vol_sortname(lvplayers(%!)),align(28 10 35,vol_mxpmenu(moniker(%i0),look [name(%i0)]),capstr(lcstr(getclass(%i0))),get(%i0/short-desc)),%b,%R)]
+&PLAYERS`EXALTED [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(vol_color(%#,ROOM,COLUMN_NAMES),align(22 17 34,Name,Template,Short-Desc))]%R[iter(vol_sortname(lvplayers(%!)),align(22 17 34,vol_mxpmenu(moniker(%i0),look [name(%i0)]),u(capnames,default(%i0/V`PERSONA`TEMPLATE,MORTAL)),get(%i0/short-desc)),%b,%R)]

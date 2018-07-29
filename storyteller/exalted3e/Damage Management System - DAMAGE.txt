@@ -2,7 +2,7 @@ th u(newcobj,STORYTELLER: Damage Management System <DAMAGE>,damage,,,,WIZARD SAF
 
 &SYSTEM`NAME [u(cobj,damage)]=HEALTH
 
-&CMD`DAMAGE [u(cobj,damage)]=$^(?\:\+)(damage|heal)(?\: +(.+?))?(?\: +(.*))?$:@attach %!/INC`%1=%2,%3
+&CMD`DAMAGE [u(cobj,damage)]=$^(?\:\+)(damage|heal|bonushealth)(?\: +(.+?))?(?\: +(.*))?$:@attach %!/INC`%1=%2,%3
 @set [u(cobj,damage)]/CMD`DAMAGE=regexp
 
 &CMD`INIT [u(cobj,damage)]=$^(?\:\+)(init)(?\:/(\S+))?(?\: +(.+?))?$:@attach %!/INC`GETSWITCH=%2;@attach %!/INC`INIT`[u(strfirstof,%q<switch>,MAIN)]=%3
@@ -19,6 +19,10 @@ th u(newcobj,STORYTELLER: Damage Management System <DAMAGE>,damage,,,,WIZARD SAF
 
 &INC`TYPE [u(cobj,damage)]=@attach %!/INC`PARTIAL=%0,v(VAR`TYPES),|,find,Damage Track
 
+&INC`VALID`HEALTH [u(Cobj,damage)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Health levels field empty.;@check lmath(min,iter(ucstr(%0),or(isnum(%i0),regmatchi(%i0,^\(I|D\)$))))=@attach %!/INC`MSG=ERROR: %0 contains an invalid value. Health values must be a negative number\, I\, or D.
+
+&INC`BONUSHEALTH [u(cobj,damage)]=@select/inline strlen(%0)=>0,{@attach %!/INC`VALID`HEALTH=%0 %1;th u(attrib_set,%#,D`HEALTH,%0 %1);@attach %!/INC`MSG=Your current Bonus Health Levels are: %0 %1},{@wipe %#/D`HEALTH;@attach %!/INC`MSG=You cleared your Bonus Health Levels.}
+
 &FUN`INC`BASHING [u(cobj,damage)]=switch(1,gt(u(FUN`GET`EMPTY,%0),0),u(setstat,%0,D`DAMAGE,Bashing,add(u(FUN`GET`BASHING,%0),1))[u(setq,bashcount,add(1,%q<bashcount>))],u(FUN`INC`LETHAL,%#))
 
 &FUN`INC`LETHAL [u(cobj,damage)]=switch(1,gt(or(u(FUN`GET`EMPTY,%0),u(FUN`GET`BASHING,%0)),0),u(setstat,%0,D`DAMAGE,Lethal,add(u(FUN`GET`Lethal,%0),1))[u(setq,lethcount,add(1,%q<lethcount>))],u(FUN`INC`AGGRAVATED,%#))
@@ -27,9 +31,9 @@ th u(newcobj,STORYTELLER: Damage Management System <DAMAGE>,damage,,,,WIZARD SAF
 
 &VAR`TYPES [u(cobj,damage)]=AGGRAVATED|LETHAL|BASHING
 
-&FUN`HEALTHBOXES [u(cobj,damage)]=elements(cat(iter(lnum(add(u(getstat,%0,D`DAMAGE,Aggravated),%3)),A),iter(lnum(add(u(getstat,%0,D`DAMAGE,Lethal),%2)),L),iter(lnum(add(u(getstat,%0,D`DAMAGE,Bashing),%1)),B),iter(lnum(30),E)),lnum(1,u(FUN`MAX`HEALTH,%0)))
+&FUN`HEALTHBOXES [u(cobj,damage)]=elements(cat(iter(lnum(add(u(getstat,%0,D`DAMAGE,Aggravated),%3)),A),iter(lnum(add(u(getstat,%0,D`DAMAGE,Lethal),%2)),L),iter(lnum(add(u(getstat,%0,D`DAMAGE,Bashing),%1)),B),iter(lnum(30),E)),lnum(1,%4))
 
-&FUN`FORMATHEALTH [u(cobj,damage)]=[iter(u(FUN`HEALTHBOXES,%0),ansi(switch(%i0,A,hr,L,+orange,B,hy,E,n),[elements(get(%0/D`HEALTH),inum(0))][switch(%i0,A,*,L,X,B,/,E,)]),%B)]
+&FUN`FORMATHEALTH [u(cobj,damage)]=localize([u(setq,health,u(FUN`GET`HEALTH,%0))][iter(u(FUN`HEALTHBOXES,%0,,,,words(%q<health>)),ansi(switch(%i0,A,hr,L,+orange,B,hy,E,n),[elements(%q<health>,inum(0))][switch(%i0,A,*,L,X,B,/,E,)]),%B)])
 
 &FUN`CURDAMAGE [u(cobj,damage)]=bound(add(u(getstat,%0,D`DAMAGE,Bashing),u(getstat,%0,D`DAMAGE,Lethal),u(getstat,%0,D`DAMAGE,Aggravated)),0,u(FUN`MAX`HEALTH,%0))
 
@@ -40,8 +44,26 @@ th u(newcobj,STORYTELLER: Damage Management System <DAMAGE>,damage,,,,WIZARD SAF
 
 &FIL`HEALTH [u(cobj,damage)]=strmatch(%1,%0)
 
-&FUN`MAX`HEALTH [u(cobj,damage)]=words(get(%0/D`HEALTH))
+&FUN`MAX`HEALTH [u(cobj,damage)]=words(u(FUN`GET`HEALTH,%0))
 
-&SORTINIT [u(cobj,damage)]=revwords(u(SORTINIT`[v(game)],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B)))
+&Q`SELECT`HEALTH_MERIT [u(Cobj,damage)]=SELECT merit_value FROM vol_story_persona_merits WHERE persona_id=? AND merit_id=?
+&Q`SELECT`WORD_POWER [u(cobj,damage)]=SELECT wordpower_purchases FROM vol_story_persona_wordpower WHERE persona_id=? AND wordpower_id=?
+
+&TEMPLATE`BASE [u(cobj,damage)]=cat(if(u(mysql,SELECT`HEALTH_MERIT,%1,1016),-0),-0 -1 -1 -2 -2 -4 I,get(%0/D`HEALTH))
+
+&TEMPLATE`MORTAL [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),)
+&TEMPLATE`SOLAR [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,218003)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-1 -2,2,-1 -2,3,-1 -2 -2,4,-1 -2 -2,5,-0 -1 -2)%B,%q<oxbody>)))
+&TEMPLATE`DRAGON-BLOODED [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,418000)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-2 -2,2,-2 -2,3,-1 -2,4,-1 -2,5,-1 -2 -2)%B,%q<oxbody>)))
+&TEMPLATE`LUNAR [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,0)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-2 -2 -2,2,-2 -2 -2,3,-2 -2 -2 -2,4,-2 -2 -2 -2,5,-2 -2 -2 -2 -4)%B,%q<oxbody>)))
+
+&FUN`GET`HEALTH [u(cobj,damage)]=u(sorthealth,localize(u(TEMPLATE`[get(%0/V`PERSONA`TEMPLATE)],%0,get(%0/D`ID))))
+
+&FUN`HEALTHSORT [u(cobj,damage)]=comp(u(FUN`HEALTHSORT`GET,%0),u(FUN`HEALTHSORT`GET,%1),N)
+
+&FUN`HEALTHSORT`GET [u(cobj,damage)]=switch(%0,-0,1,-1,2,-2,3,-4,4,I,5,D,6)
+
+&SORTHEALTH [u(cobj,damage)]=sortby(FUN`HEALTHSORT,%0)
+
+&SORTINIT [u(cobj,damage)]=revwords(u(SORTINIT`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B)))
 &SORTINIT`PENNMUSH [u(cobj,damage)]=sortkey(#lambda/default(\%0/D`INIT,3),%0,n,%1,%2)
 &SORTINIT`RHOSTMUSH [u(cobj,damage)]=sortby(#lambda/[lit([ncomp(default(%0/D`INIT,3),default(%1/D`INIT,3))])],%0,%1,%2)

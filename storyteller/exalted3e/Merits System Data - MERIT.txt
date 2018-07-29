@@ -1,12 +1,13 @@
-&CMD`+MERITS`PENNMUSH [u(cobj,merit)]=$^(?s)(?\:\+)?(merits|flaws|rituals)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
+&CMD`+MERITS`PENNMUSH [u(cobj,merit)]=$^(?s)(?\:\+)?(smerits|merits|flaws|rituals)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
 @set [u(cobj,merit)]/CMD`+MERITS`PENNMUSH=regexp
-&CMD`+MERITS`RHOSTMUSH [u(cobj,merit)]=$^(?s)(?\:\+)?(merits|flaws|rituals)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
+&CMD`+MERITS`RHOSTMUSH [u(cobj,merit)]=$^(?s)(?\:\+)?(smerits|merits|flaws|rituals)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
 @set [u(cobj,merit)]/CMD`+MERITS`RHOSTMUSH=regexp
 &CMD`+MERITS`MAIN [u(cobj,merit)]=@attach %!/INIT`%1;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[strfirstof(%q<switch>,MAIN)]=squish(trim(%3)),trim(%4)
 @set [u(cobj,merit)]/CMD`+MERITS`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&INIT`MERITS [u(cobj,merit)]=th u(setq,sysname,MERITS);th u(setq,root,D`MERITS);th u(setq,type,Merit)
-&INIT`FLAWS [u(cobj,merit)]=th u(setq,sysname,FLAWS);th u(setq,root,D`FLAWS);th u(setq,type,Flaw)
-&INIT`RITUALS [u(cobj,merit)]=th u(setq,sysname,RITUALS);th u(setq,root,D`RITUALS);th u(setq,type,Ritual)
+&INIT`SMERITS [u(cobj,merit)]=th u(setq,sysname,SMERITS);th u(setq,mcatid,2);th u(setq,type,Supernatural Merit)
+&INIT`MERITS [u(cobj,merit)]=th u(setq,sysname,MERITS);th u(setq,mcatid,1);th u(setq,type,Merit)
+&INIT`FLAWS [u(cobj,merit)]=th u(setq,sysname,FLAWS);th u(setq,mcatid,3);th u(setq,type,Flaw)
+&INIT`RITUALS [u(cobj,merit)]=th u(setq,sysname,RITUALS);th u(setq,mcatid,4);th u(setq,type,Ritual)
 
-&HLP`MERITS`GAME [u(cobj,merit)]=[ansi(hc,Types)]%R+merits can be used as the following commands:%R[ansi(h,+flaws)] - For Flaws. Set them to 0 points.%R[ansi(h,+rituals)] - For Shaping Rituals (Sorcerers.) Use 0 points for Free ones.
+&HLP`MERITS`GAME [u(cobj,merit)]=[ansi(hc,Types)]%R+merits can be used as the following commands:%R[ansi(h,+smerits)] - For Supernatural Merits like Wings and Enhanced Senses.%R[ansi(h,+flaws)] - For Flaws. Set them to 0 points.%R[ansi(h,+rituals)] - For Shaping Rituals (Sorcerers.) Use 0 points for Free ones.

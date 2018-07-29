@@ -17,7 +17,7 @@ th u(NEWCOBJ,Alts Tracker <ALTS>,alts,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX 
 
 &INC`LIST [u(cobj,alts)]=@check u(setr,accid,u(accid,%#,1))=@attach %!/INC`MSG=ERROR: This character is not bound to an account.;@check strlen(%0)=@attach %!/INC`MSG=ERROR: List or target field empty. Please enter a name or a number to list this alt under.;@select/inline cand(strlen(%0),strlen(%1))=1,{@attach %!/INC`CHECKPC=%0,1;@check strmatch(u(accid,%q<t1objid>),%q<accid>)=@attach %!/INC`MSG=ERROR: %q<t1name> is not one of your registered characters.;@check cand(gte(u(setr,list,%1),0),isint(%1))=@attach %!/INC`MSG=ERROR: Alts list must be a whole number 0 or greater.},0,{@attach %!/INC`CHECKPC=%#,1;@check t(match(lnum(0,255),u(setr,list,%0)))=@attach %!/INC`MSG=ERROR: Alts list must be a whole number 0-255.};&D`ALTS %q<t1>=%q<list>;@attach %!/INC`DOSQL=SET`ALTS,%q<list>,%q<t1id>;@attach %!/INC`MSG=Okay! %q<t1name> will [if(%q<list>,now appear in Alts List #%q<list>.,not appear in any Alts lists.)]
 
-&FUN`ALTS`LIST [u(cobj,alts)]=if(get(%0/D`ALTS),u(strfirstof,u(itemize,iter(u(sortname,squish(iter(get(u(accid,%0)/CHARACTERS),if(eq(default(%0/D`ALTS,0),default(%i0/D`ALTS,0)),%i0)))),u(moniker,%i0)[if(not(%1),\([u(hideidle,%i0)]\))],%b,|),|,and,\,),None),None)
+&FUN`ALTS`LIST [u(cobj,alts)]=if(get(%0/D`ALTS),u(strfirstof,u(itemize,iter(u(sortname,squish(iter(u(filter,ISOBJID,get(u(accid,%0)/CHARACTERS)),if(eq(default(%0/D`ALTS,0),default(%i0/D`ALTS,0)),%i0)))),u(moniker,%i0)[if(not(%1),\([u(hideidle,%i0)]\))],%b,|),|,and,\,),None),None)
 
 &Q`SET`ALTS [u(cobj,alts)]=UPDATE vol_character SET character_alt=? WHERE character_id=?
 
