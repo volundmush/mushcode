@@ -1,12 +1,11 @@
 <?php 
-	require 'base.php';
-	$smarty = new Smarty;
+	require 'libraries/base.php';
 	$num = ($_REQUEST['id']  ? $_REQUEST['id'] : $num );
 	
 	if (!$scenedb->count('volv_scene', ['scene_id'=>$num]))
 	{
 		$smarty->assign('message', "The entered ID was not found.");
-		$smarty->display('error.tpl');
+		$smarty->display('templates/error.tpl');
 	}
 	else
 	{
@@ -20,7 +19,7 @@
 		$schedule = ['player_name'=>$schedule_data['runner_name'],'date'=>$truetime[0],'id'=>$num,'title'=>$schedule_data['scene_title'],'desc'=>$schedule_data['scene_pitch'],'time'=>$scene_time];
 		
 		$smarty->assign('schedule',$schedule);
-		$smarty->display('schedule.tpl');
+		$smarty->display('templates/schedule.tpl');
 	}
 	
 ?>

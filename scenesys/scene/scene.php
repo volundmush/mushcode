@@ -1,6 +1,5 @@
 <?php
-	require 'base.php';
-	$smarty = new Smarty;
+	require 'libraries/base.php';
 	$num = ($_REQUEST['id']  ? $_REQUEST['id'] : $num );
 
 	if (!$scenedb->count('volv_scene', ['scene_id'=>$num]))
@@ -35,7 +34,7 @@
 		
 		$smarty->assign('poses', $pose_data);
 		$smarty->assign('scene', $scene);
-		$smarty->display('scene.tpl');
+		$smarty->display('templates/scene.tpl');
 	}
 
 ?>

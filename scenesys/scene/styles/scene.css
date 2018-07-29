@@ -1,0 +1,193 @@
+@charset "utf-8";
+/* CSS Document */
+
+* {
+	margin-bottom: 0px;
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 0px;
+	padding-bottom: 0px;
+	padding-left: 0px;
+	padding-right: 0px;
+	padding-top: 0px;
+}
+
+html {
+	font-size: 12;
+	font-family: monospace;
+	background: -webkit-gradient(linear, left top, left bottom, from(#53538C), to(#111122));
+}
+
+body {
+	width: 100%;
+	margin: auto;
+}
+
+nav {
+	position: sticky;
+	top: 0px;
+	z-index: 1;
+}
+
+#navlist {
+	display: block;
+	width: 100%;
+	list-style: none;
+	text-align: center;
+	background-color: black;
+}
+
+.nav-item {
+	font-size: 110%;
+	float: left;
+	width: 25%;
+	background-color: black;
+}
+
+.nav-link {
+	display: block;
+	width: 100%;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+	text-decoration: none;
+	color: white;
+}
+
+.nav-link:hover {
+	background-color: gray;
+}
+
+main {
+	position: relative;
+	width: 100%;
+	overflow-y: auto;
+	z-index: 0;
+}
+
+.table-scenesys {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.table-scenesys thead {
+	text-align: left;
+	background-color: black;
+	color: white;
+}
+
+.table-scenesys tbody tr:nth-child(even) {
+	background-color: black;
+}
+
+.table-scenesys tbody tr:nth-child(odd) {
+	background-color: #525252;
+}
+
+.table-scenesys tbody tr:nth-child(even):hover {
+	background-color: #868686;
+}
+
+.table-scenesys tbody tr:nth-child(odd):hover {
+	background-color: #868686;
+}
+
+.table-scenesys a {
+	color: white;
+}
+
+.table-scenesys a:visited {
+	color: white;
+}
+
+.table-scenesys td {
+	color: white;
+}
+
+.cell-id {
+	width: 7%;
+}
+
+.cell-status {
+	width: 10%;
+}
+
+.cell-owner {
+	width: 20%;
+}
+
+.cell-title {
+	width: auto;
+}
+
+.cell-desc {
+	width: auto;
+	display: none;
+}
+
+
+footer {
+	position: sticky;
+	bottom: 0px;
+	z-index: 1;
+}
+
+#index-footer {
+	width: 100%;
+	background-color: black;
+	color: white;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+
+#scene-footer {
+	width: 100%;
+	background-color: black;
+	color: white;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+
+@media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */ }
+
+@media (min-width:481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ }
+
+
+@media (min-width:641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ }
+
+
+@media (min-width:961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */ }
+
+
+@media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */ }
+
+
+@media (min-width:1281px) { /* hi-res laptops and desktops */ 
+	body {
+		width: 80%;
+		margin: auto;
+	}
+	
+	.nav-item {
+		font-size: 130%;
+	}
+	
+	.cell-id {
+		width: 5%;
+	}
+
+	.cell-status {
+		width: 8%;
+	}
+
+	.cell-owner {
+		width: 15%;
+	}
+
+	.cell-title {
+		width: 15%;
+	}
+	
+	.cell-desc {
+		display: block;
+	}
+}

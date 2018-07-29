@@ -697,7 +697,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &REG`MARKUP [u(cobj,ccp)]=\^\^\^(#\d+)\:([^^]+)\^\^\^
 
-&SPEECH [u(cobj,ccp)]=localize([setq(quote,ansi(u(color,%2,%4,QUOTES),"))][setq(speechcol,u(color,%2,%4,SPEECH))][setq(dispname,if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),ansi(u(namecolor,%2,%0,%0),name(%0)))))][regeditalli(speakpenn(&[if(%7,u(namelink,%0,,%q<dispname>),%q<dispname>)],%1),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)])
+&SPEECH [u(cobj,ccp)]=localize([setq(quote,ansi(u(color,%2,%4,QUOTES),"))][setq(speechcol,u(color,%2,%4,SPEECH))][setq(dispname,if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),if(strlen(setr(namecol,u(namecolor,%2,%0,%0))),ansi(%q<namecol>,name(%0)),u(moniker,%0)))))][regeditalli(speakpenn(&[if(%7,u(namelink,%0,,%q<dispname>),%q<dispname>)],%1),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)])
 @@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup. %6 - Banner override bool. %7 - Use Namelink?
 
 &REG`SPEECH [u(cobj,ccp)]=(?s)"([^ "][^"]*[^ "])"
