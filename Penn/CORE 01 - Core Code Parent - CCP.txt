@@ -730,35 +730,35 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &ISAPPROVED [u(cobj,ccp)]=cor(u(isadmin,%0),if(u(conf,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1))
 
 @@ EVENT HANDLING - PENN
-&PLAYER`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`CONNECT`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger/spoof ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`CONNECT=no_inherit
 
 @@ Player-Approve is a pseudo-event triggered by the Account Management System.
-&PLAYER`APPROVE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`APPROVE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`APPROVE)={@trigger ##/PLAYER`APPROVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`APPROVE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`APPROVE`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`APPROVE)={@trigger/spoof ##/PLAYER`APPROVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`APPROVE=no_inherit
 
-&PLAYER`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CREATE)={@trigger ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`CREATE`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CREATE)={@trigger/spoof ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`CREATE=no_inherit
 
-&PLAYER`DISCONNECT [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`DISCONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`DISCONNECT)={@trigger ##/PLAYER`DISCONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`DISCONNECT [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`DISCONNECT`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`DISCONNECT)={@trigger/spoof ##/PLAYER`DISCONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`DISCONNECT=no_inherit
 
-&SOCKET`LOGINFAIL [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/SOCKET`LOGINFAIL`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`LOGINFAIL)={@trigger ##/SOCKET`LOGINFAIL=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&SOCKET`LOGINFAIL [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/SOCKET`LOGINFAIL`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`LOGINFAIL)={@trigger/spoof ##/SOCKET`LOGINFAIL=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/SOCKET`LOGINFAIL=no_inherit
 
-&SOCKET`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/SOCKET`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`CONNECT)={@trigger ##/SOCKET`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&SOCKET`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/SOCKET`CONNECT`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`CONNECT)={@trigger/spoof ##/SOCKET`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/SOCKET`CONNECT=no_inherit
 
-&OBJECT`RENAME [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`RENAME`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`RENAME)={@trigger ##/OBJECT`RENAME=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`RENAME [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`RENAME`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`RENAME)={@trigger/spoof ##/OBJECT`RENAME=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`RENAME=no_inherit
 
-&OBJECT`DESTROY [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`DESTROY`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`DESTROY)={@trigger ##/OBJECT`DESTROY=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`DESTROY [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`DESTROY`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`DESTROY)={@trigger/spoof ##/OBJECT`DESTROY=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`DESTROY=no_inherit
 
-&OBJECT`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`CREATE)={@trigger ##/OBJECT`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`CREATE`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`CREATE)={@trigger/spoof ##/OBJECT`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`CREATE=no_inherit
 
-&OBJECT`MOVE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`MOVE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`MOVE)={@trigger ##/OBJECT`MOVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`MOVE [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/OBJECT`MOVE`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`MOVE)={@trigger/spoof ##/OBJECT`MOVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`MOVE=no_inherit
 
 &PLAYER`CREATE`ID [u(cobj,ccp)]=th u(attrib_set,%0,D`ID,u(call`4,volp_character,0,'%0','[sqlescape(%1)]',u(csecs,%0),u(isguest,%0)));
