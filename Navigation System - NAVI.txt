@@ -40,7 +40,7 @@ th u(NEWCOBJ,Navigation System <NAVI>,navi,,,,WIZARD SAFE !NO_COMMAND,INHERIT SI
 &CONFIG`OOC_NEXUS`DEFAULT [u(cobj,navi)]=
 &CONFIG`OOC_NEXUS`VALID [u(cobj,navi)]=DBREF
 
-&PORT`MAIN [u(cobj,navi)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Where will you go?;@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@select/inline isdbref(%0)=1,{th u(setq,dest,%0)},0,{@check words(u(setr,dest,u(FUN`FINDROOM,%0)))=@attach %!/INC`MSG=Nothing matches '%0'.;@stop gt(words(%q<dest>),1)=@attach %!/INC`MSG=Multiple Matches:%R[iter(%q<dest>,u(pueblize,ansi(hx,%i0) - [ansi(c,name(%i0))]%B\([u(u(cobj,grid)/FUN`CHAIN,%i0)]\),+port %i0),%b,%r)]};@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already there.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
+&PORT`MAIN [u(cobj,navi)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Where will you go?;@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@select/inline isdbref(%0)=1,{th u(setq,dest,%0)},0,{@check words(u(setr,dest,u(FUN`FINDROOM,%0)))=@attach %!/INC`MSG=Nothing matches '%0'.;@stop gt(words(%q<dest>),1)={@attach %!/INC`MSG=Multiple Matches;@dolist/inline %q<dest>=@pemit %#=u(pueblize,ansi(hx,%i0) - [ansi(c,name(%i0))]%B\([u(u(cobj,grid)/FUN`CHAIN,%i0)]\),+port %i0)}};@stop strmatch(%l,%q<dest>)=@attach %!/INC`MSG=You are already there.;@attach %!/INC`CANRELOCATE=%#,%q<dest>;@attach %!/INC`RELOCATE=%#,%q<dest>
 
 &ROOMLIST`RECURSE [u(Cobj,navi)]=@dolist/inline u(FUN`TELDISTS,%0)={@select/inline words(u(setr,rooms,u(FUN`LISTDISTROOMS,u(choosegame,%i0,%d0))))=>0,{@pemit %#=u(SEPARATOR,u(u(cobj,grid)/FUN`CHAIN,u(choosegame,%i0,%d0)));th step(FUN`ROOMLIST,%q<rooms>,30)};@attach %!/ROOMLIST`RECURSE=u(choosegame,%i0,%d0)}
 

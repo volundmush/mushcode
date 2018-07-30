@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS vol_character (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_character AS
-	SELECT c.character_id,e.entity_name AS character_name,e.entity_objid AS character_objid,c.character_is_deleted,c.account_id,c.character_alt,c.character_date_created,UNIX_TIMESTAMP(c.character_date_created) AS character_date_created_secs,c.character_date_activity,UNIX_TIMESTAMP(c.character_date_activity) AS character_date_activity_secs,c.character_date_approved,UNIX_TIMESTAMP(c.character_date_approved) AS character_date_approved_secs,c.character_status,c.character_is_guest
+	SELECT c.character_id,e.entity_name AS character_name,e.entity_objid AS character_objid,c.character_is_deleted,c.account_id,c.character_alt,c.character_date_created,UNIX_TIMESTAMP(c.character_date_created) AS character_date_created_secs,c.character_date_activity,UNIX_TIMESTAMP(c.character_date_activity) AS character_date_activity_secs,c.character_is_approved,c.character_date_approved,UNIX_TIMESTAMP(c.character_date_approved) AS character_date_approved_secs,c.character_status,c.character_is_guest
 	FROM vol_character AS c LEFT JOIN vol_entity AS e ON e.entity_id=c.character_id;
 
 CREATE OR REPLACE VIEW volv_account_characters AS
@@ -893,7 +893,7 @@ CREATE OR REPLACE VIEW volv_help_file AS
 CREATE OR REPLACE VIEW volv_help_file_load AS
 	SELECT f.help_file_id,f.help_file_name,f.help_category_name,f.help_file_dbattr,f.help_file_text,s.sub_file_count
 	FROM volv_help_file AS f LEFT JOIN volv_sub_files AS s ON f.help_file_id=s.help_file_id;
-	
+
 CREATE OR REPLACE VIEW volv_help_pile AS
 	SELECT help_category_id,COUNT(help_file_id) AS help_count
 	FROM vol_help_file

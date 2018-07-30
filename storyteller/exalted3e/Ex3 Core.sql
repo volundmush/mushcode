@@ -11,7 +11,7 @@ VALUES
 	(8,"Exigent",1,NULL,7),
 	(100,"Martial Arts",0,NULL,80),
 	(120,"Sorcery",0,NULL,90)
-	ON DUPLICATE KEY UPDATE template_name=VALUES(template_name),template_x_name=VALUES(template_x_name);
+	ON DUPLICATE KEY UPDATE template_name=VALUES(template_name),template_x_name=VALUES(template_x_name),template_sort=VALUES(template_sort);
 	
 INSERT INTO vol_story_x_splats 
 	(x_splat_id,template_id,x_splat_name)

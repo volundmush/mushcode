@@ -96,7 +96,7 @@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &Q`BBS`ADD_POST_TEXT [u(cobj,mig)]=UPDATE vol_bbpost SET post_text=CONCAT(post_text,?) WHERE post_id=?
 &Q`UPDATE`DELETE_PLAYER [u(cobj,mig)]=UPDATE vol_character SET character_is_deleted=1 WHERE character_id=?
 
-&BBS`COMMENT [u(cobj,mig)]=@select/inline t(u(setr,pid,get(u(setr,ownobjid,get(%2/%0`BYDB))/D`ID)))=0,{th u(setq,pid,u(call`2,volp_character,0,'[sqlescape(%q<ownobjid>)]','[sqlescape(if(isobjid(%q<ownobjid>),name(%q<ownobjid>),get(%2/%0`BY)))]'));@select/inline isobjid(%q<ownobjid>)=0,{th u(mysql,UPDATE`DELETE_PLAYER,%q<pid>)}};@attach %!/INC`DOSQL=BBS`OLD_COMMENT,%1,last(%0,`),%q<pid>,get(%2/%0`ON),get(%2/%0`ON),get(%2/%0),0
+&BBS`COMMENT [u(cobj,mig)]=@select/inline t(u(setr,pid,get(u(setr,ownobjid,get(%2/%0`BYDB))/D`ID)))=0,{th u(setq,pid,u(call`4,volp_character,0,'[sqlescape(%q<ownobjid>)]','[sqlescape(if(isobjid(%q<ownobjid>),name(%q<ownobjid>),get(%2/%0`BY)))]',secs(),0));@select/inline isobjid(%q<ownobjid>)=0,{th u(mysql,UPDATE`DELETE_PLAYER,%q<pid>)}};@attach %!/INC`DOSQL=BBS`OLD_COMMENT,%1,last(%0,`),%q<pid>,get(%2/%0`ON),get(%2/%0`ON),get(%2/%0),0
 
 &Q`BBS`OLD_COMMENT [u(cobj,mig)]=INSERT INTO vol_bbcomment (post_id,comment_display_num,entity_id,comment_date_created,comment_date_modified,comment_text,comment_anonymous) VALUES (?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?)
 

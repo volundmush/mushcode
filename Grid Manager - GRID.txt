@@ -34,7 +34,9 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &INC`MAIN [u(cobj,grid)]=@select/inline strlen(%0)=>0,{@attach %!/INC`CHOOSE},{@attach %!/INC`LIST}
 
-&INC`LIST [u(cobj,grid)]=@pemit %#=u(HEADER,mudname() District Parents);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(5 2 26 9 33,DBREF,IC,Name,Rooms,Description));@pemit %#=u(SEPARATOR);@dolist/inline u(FUN`LISTDISTRICTS,u(cobj,district))={@pemit %#=u(FUN`DISTRICTLINE,##,0)};@pemit %#=u(FOOTER)
+&INC`LIST [u(cobj,grid)]=@pemit %#=u(HEADER,mudname() District Parents);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(5 2 26 9 33,DBREF,IC,Name,Rooms,Description));@pemit %#=u(SEPARATOR);@dolist/inline u(FUN`LISTDISTRICTS,u(cobj,district))={@attach %!/INC`DISTRICTLINE=##,0};@pemit %#=u(FOOTER)
+
+&INC`DISTRICTLINE [u(cobj,grid)]=th [u(setq,subs,u(FUN`LISTDISTRICTS,%0))];@pemit %#=[align(5 2 26 9 33,u(pueblize,ansi(if(controls(%#,%0),hg,hr),num(%0)),+district u(setr,distn,u(FUN`DISTNAME,%0))),default(%0/D`IC,0),[if(%1,space(mul(%1,2))-%B)][u(pueblize,name(%0),+district %q<distn>)],sub(u(nchildren,%0),words(%q<subs>)),default(%0/DESCRIBE,???))];@dolist/inline %q<subs>=@attach %!/INC`DISTRICTLINE=%i0,add(1,%1),words(%q<subs>)
 
 &FUN`DISTRICTLINE [u(cobj,grid)]=[u(setq,subs,u(FUN`LISTDISTRICTS,%0))][align(5 2 26 9 33,u(pueblize,ansi(if(controls(%#,%0),hg,hr),num(%0)),+district u(setr,distn,u(FUN`DISTNAME,%0))),default(%0/D`IC,0),[if(%1,space(mul(%1,2))-%B)][u(pueblize,name(%0),+district %q<distn>)],sub(u(nchildren,%0),words(%q<subs>)),default(%0/DESCRIBE,???))][if(words(%q<subs>),%R[iter(%q<subs>,u(FUN`DISTRICTLINE,%i0,add(1,%1),words(%q<subs>)),%B,%R)])]
 
@@ -54,7 +56,7 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &INC`RENAME [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@attach %!/INC`VALID`DISTRICT=%1,parent(%q<dist>);@attach %!/INC`MSG=District Renamed!;@attach %!/INC`MSG`CHAN={Renamed District %q<dist> '%q<distname>' to '%q<value>'};@name %q<dist>=%q<value>
 
-&INC`DESCRIBE [u(cobj,grid)]=@attach %!/INC`FINDDIST;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Nothing entered for the description!;@attach %!/INC`MSG=Description set.;@desc %q<dist>=%1;@attach %!/INC`MSG`CHAN={Changed Description for %q<dist> '%q<distname>'}
+&INC`DESCRIBE [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Nothing entered for the description!;@attach %!/INC`MSG=Description set.;@describe %q<dist>=%1;@attach %!/INC`MSG`CHAN={Changed Description for %q<dist> '%q<distname>'}
 
 &INC`IC [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`BOOL=%1;@attach %!/INC`MSG=IC value set.;&D`IC %q<dist>=%q<value>;@attach %!/INC`MSG`CHAN={Changed IC for %q<dist> to '%q<value>'}
 
