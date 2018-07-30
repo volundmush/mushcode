@@ -23,10 +23,31 @@ If you need help with topics such as installing MySQL, a webserver, and Mediawik
 5) Go to your wiki's Special:Import page and upload scenesys_volund_pages.xml
 6) Copy the 'scene' directory in this folder to somewhere your webserver can serve it up.
 7) Edit the db.php file in the scene directory to use the proper MySQL settings. This is where that SELECT-only account comes in handy.
-8) Open up view.php in the scene directory and find, near the bottom line, the following: <form action="../mw/index.php/Special:FormEdit/Roleplaying Log/<?php echo $num.'/'.$title['scene_title'] ?>" method="POST"> - it should be line 151. You'll have to edit this to point at your wiki.
+8) While still editing db.php, near the bottom line, the following: $url = "../index.php/Special:FormEdit/Roleplaying Log/";
+ - it should be line 11. You'll have to edit this to point at your wiki.
 9) You will need to edit several pages. The Logs page will need monthly updating for new tabs, you will likely want to change the character template drastically, and the character creation form.
 10) ???
 11) Profit!
+
+=================================<* Notes *>==================================
+>> ExternalData Notes
+
+ExternalData v1.8.3 has a Known Bug where it placed a SPACE character inbetween your database name and the table name such as the following example debugging data - No table: 'mush'. 'volv_scene'
+
+The remedy to this situation is to edit <Wiki Install Dir>/extensions/ExternalData/ED_Utils.php
+Now find the function called searchDB. You will want to comment out the below line, should be around line 474.
+If you have a tablePrefix, you probably don't need to edit this line.
+
+                if ( $db->tablePrefix() == '' ) {
+                        // $table = ' ' . $table;
+                }
+
+Save ED_Utils.php
+???
+Profit!
+
+>> Scene/Index.php Notes
+If you are experiencing a 'white page' navigating to /scene/index.php or schedule.php, be sure your files are owned by www-data group if using default Apache settings on your own server. chmod -R :www-data scene/
 
 ===============================<* Resources *>================================
 

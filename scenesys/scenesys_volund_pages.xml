@@ -106,10 +106,10 @@ For an actual calendar view (which can give you full scene briefings): [http://m
 }}
 {{#get_db_data:
 db=scenesys
-|from=scene_schedule
-|data=scheduleId=schedule_id,scheduleTime=schedule_date,scheduleTitle=schedule_title,scheduleDesc=schedule_desc
-|where=schedule_date &gt; &quot;{{CURRENTYEAR}}-{{CURRENTMONTH}}-{{CURRENTDAY}}&quot;
-|order by=schedule_date ASC
+|from=volv_scene
+|data=scheduleId=scene_id,scheduleTime=scene_date_scheduled,scheduleTitle=scene_title,scheduleDesc=scene_pitch
+|where=scene_date_scheduled > "{{CURRENTYEAR}}-{{CURRENTMONTH}}-{{CURRENTDAY}}"
+|order by=scene_date_scheduled ASC
 |limit=20
 }}
 {| class=&quot;LogTable&quot;

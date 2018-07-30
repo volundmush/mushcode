@@ -1,4 +1,5 @@
 @@ @switch/inline isdbref(u(vroom))=0,{@tel create(Virtual Room Parent V2.0)=u(coi)}
+th u(NEWCOBJ,Virtual Room Parent <VROOM>,vroom,,,,SAFE NO_COMMAND,SIDEFX SAFE)
 
 &AENTER [u(cobj,vroom)]=think [if(hasattr(me,loc-%#),,set(me,loc-%#:[u(default-startingroom)]))][pemit(%#,u(format-enter))]
 @set [u(cobj,vroom)]/AENTER=no_command prefixmatch
