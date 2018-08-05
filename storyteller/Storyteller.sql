@@ -167,7 +167,10 @@ CREATE TABLE IF NOT EXISTS vol_story_persona_merits_wordpowers (
 	
 CREATE OR REPLACE VIEW volv_story_persona_merits_wordpowers AS
 	SELECT p.persona_merit_wordpower_id,m.*,p.merit_wordpower_name,p.merit_wordpower_purchases,p.merit_wordpower_flags_1 FROM vol_story_persona_merits_wordpowers AS p LEFT JOIN volv_story_persona_merits AS m ON p.persona_merit_id=m.persona_merit_id;
-	
+
+CREATE OR REPLACE VIEW volv_story_persona_merits_wordpowers_categories AS
+	SELECT DISTINCT persona_id,persona_merit_id,merit_name,merit_context FROM volv_story_persona_merits_wordpowers;
+
 CREATE TABLE IF NOT EXISTS vol_story_wordpower (
 	wordpower_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	template_id TINYINT UNSIGNED NOT NULL,
@@ -192,6 +195,12 @@ CREATE TABLE IF NOT EXISTS vol_story_persona_wordpower (
 CREATE OR REPLACE VIEW volv_story_persona_wordpower AS
 	SELECT p.persona_id,w.*,p.wordpower_purchases,p.wordpower_flags_1 FROM vol_story_persona_wordpower AS p LEFT JOIN volv_story_wordpower AS w ON p.wordpower_id=w.wordpower_id;
 
+CREATE OR REPLACE VIEW volv_story_persona_wordpower_templates AS
+	SELECT DISTINCT persona_id,template_id,template_name FROM volv_story_persona_wordpower;
+	
+CREATE OR REPLACE VIEW volv_story_persona_wordpower_stats AS
+	SELECT DISTINCT persona_id,template_id,template_name,stat_id,stat_name FROM volv_story_persona_wordpower;
+	
 CREATE TABLE IF NOT EXISTS vol_story_pools_categories (
 	pool_category_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	pool_category_name VARCHAR(20) NOT NULL UNIQUE,

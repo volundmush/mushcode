@@ -101,6 +101,8 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &FANCYTIME2 [u(cobj,ccp)]=timefmt($a $b $d $I:$M$p $Z,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
 
+&FANCYTIME3 [u(cobj,ccp)]=timefmt($b $d $I:$M$p $Y $Z,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
+
 &FANCYDAY [u(cobj,ccp)]=timefmt($b $d $Y,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
 
 &FANCYDATE [u(cobj,ccp)]=timefmt($m/$d/$Y,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
@@ -245,7 +247,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &GETPROPERTY`LOCATION [u(cobj,ccp)]=if(findable(%#,%0),if(cand(elock(loc(%0)/Teleport,%#),%1),u(pueblize,u(moniker,loc(%0)),+port [loc(%0)]),u(moniker,loc(%0))),*UNFINDABLE*)
 &GETPROPERTY`TIMEZONE [u(cobj,ccp)]=u(gettz,%0)
 &GETPROPERTY`UMAIL [u(cobj,ccp)]=u(umail,%0)
-&GETPROPERTY`ALTS [u(cobj,ccp)]=if(isdbref(u(cobj,account)),u(u(cobj,account)/FUN`ALTS`LIST,%0))
+&GETPROPERTY`ALTS [u(cobj,ccp)]=if(isdbref(u(cobj,alts)),u(u(cobj,alts)/FUN`ALTS`LIST,%0))
 
 &GETPROPERTY`URL [u(cobj,ccp)]=u(weblink,get(%0/V`PROPERTY`%1))
 

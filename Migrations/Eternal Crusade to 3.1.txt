@@ -1,0 +1,169 @@
+@@ MIGRATE from Eternal Crusade to 3.x!
+th u(NEWCOBJ,Migrate System - EC to 3.0 <MIG>,mig,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+@@ th u(NEWCOBJ,Old Code Box <OLD23>,old23,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+@lock/use [u(cobj,mig)]=ISWIZARD2/1
+
+&FIL`ISOLDCODE [u(cobj,ccp)]=cand(hastype(%0,THING),strmatch(num(parent(%0)),num(%1)))
+
+@@ @select/inline isdbref(u(setr,mco,u(find_in,u(master_room),Master Code Object <MCO>)))=1,{th u(attrib_set,u(cobj,ccp),COBJ`MCO,objid(%q<mco>));@dolist/inline u(filter,ISOLDCODE,lcon(u(master_room)),%B,%B,%q<mco>)={@set ##=HALT;@tel ##=u(cobj,old23)};@tel %q<mco>=u(cobj,old23)}
+
+&OLDCOBJ [u(cobj,ccp)]=u(#110/%0)
+
+&CMD`+MIGRATE`PENNMUSH [u(cobj,mig)]=$^(?s)(?\:\+)?migrate(?\:/(\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+MIGRATE`MAIN
+@set [u(cobj,mig)]/CMD`+MIGRATE`PENNMUSH=regexp
+&CMD`+MIGRATE`RHOSTMUSH [u(cobj,mig)]=$^(?s)(?\:\+)?migrate(?\:/(\\S+)?)?(?\: +(.*))?$:@attach %!/CMD`+MIGRATE`MAIN
+@set [u(cobj,mig)]/CMD`+MIGRATE`RHOSTMUSH=regexp
+&CMD`+MIGRATE`MAIN [u(cobj,mig)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Wizard only!;@attach %!/INC`GETSWITCH=%1;@attach %!/SWITCH`%q<switch>;@attach %!/INC`PARTIAL=%2,v(MIGRATION`CHOICES),|,choice;@attach %!/CHECK;@attach %!/%q<choice>=%2,%3
+@set [u(cobj,mig)]/CMD`+MIGRATE`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&MIGRATION`CHOICES [u(cobj,mig)]=ACCOUNT|CHARACTER|LOGIN|WATCH|GRID|THEME|INFO|MULTIDESC|GROUPS|SCENE|JOBS|BBS|GBS
+
+&SWITCHES`ADMIN [u(cobj,mig)]=FORCE
+&SYSTEM`NAME [u(cobj,mig)]=MIGRATE EC->3
+
+&SWITCH`FORCE [u(cobj,mig)]=th u(setq,force,1)
+
+&CHECK [u(cobj,mig)]=@check cor(%q<force>,not(v(%q<choice>`STATUS)))=@attach %!/INC`MSG=ERROR: This has already been run. Use the /force switch to run anyways.
+
+&ACCOUNT [u(cobj,mig)]=@check isdbref(u(cobj,accounts))=@attach %!/INC`MSG=ERROR: The new Account System is not installed!;@check isdbref(u(oldcobj,adb))=@attach %!/INC`MSG=ERROR: Cannot find old Account database!;@attach %!/INC`MSG`CHAN=Beginning Account Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating ACCOUNT.;&ACCOUNT`STATUS %!=1};@dolist/notify u(sortattr,lattr(u(oldcobj,adb)/*))={@select/inline cand(isint(%i0),words(u(setr,members,u(filter,ISOBJID,get(u(oldcobj,adb)/%i0)))))=1,{@attach [u(cobj,account)]/INC`CREATE`DO=u(setr,value,Account %i0);@dolist/inline %q<members>={@trigger u(cobj,account)/INC`ADDTOACCOUNT=objid(%q<accid>),objid(%i0)};@cpattr u(oldcobj,adb)/%i0`EMAIL=%q<accid>/EMAIL}}
+
+
+&Q`ACCOUNT`DATES [u(cobj,mig)]=UPDATE vol_account SET account_date_created=FROM_UNIXTIME(?),account_date_activity=FROM_UNIXTIME(?) WHERE account_id=?
+
+&LOGIN [u(cobj,mig)]=@check isdbref(u(cobj,login))=@attach %!/INC`MSG=ERROR: The new Login System is not installed!;@attach %!/INC`MSG`CHAN=Beginning LOGIN Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating LOGIN.;&LOGIN`STATUS %!=1};@dolist/inline/notify IP LOGIN={@attach %!/INC`DOSQL=LOGIN`CONVERT_##}
+
+&Q`LOGIN`CONVERT_IP [u(cobj,mig)]=INSERT INTO vol_ip (ip_id,ip_address) SELECT ip_id,ip_address FROM mush_ip
+&Q`LOGIN`CONVERT_LOGIN [u(cobj,mig)]=INSERT INTO vol_login (login_id,character_id,login_date,login_is_success,ip_id) SELECT login_id,player_id,date_login,is_success,ip_id FROM mush_login
+
+&CHARACTER [u(cobj,mig)]=@attach %!/INC`MSG`CHAN=Beginning CHARACTER Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating CHARACTER.;&CHARACTER`STATUS %!=1};@dolist/inline 1 2={@attach %!/INC`DOSQL=CHARACTER`CHARACTER_IDS`##};@dolist/notify lsearch(all,type,player)={th u(attrib_set,##,D`ID,u(call`4,volp_character,0,'[objid(##)]','[sqlescape(name(##))]',u(csecs,##),u(isguest,##)));@select/inline isdbref(get(##/D`ACCOUNT))=1,{@parent ##=get(##/D`ACCOUNT)};@attach %!/INC`DOSQL=CHARACTER`DATES,u(csecs,##),convtime(get(##/LAST)),default(##/D`ALT,0),get(##/D`ID)}
+
+&Q`CHARACTER`CHARACTER_IDS`1 [u(cobj,mig)]=INSERT INTO vol_entity (entity_id,entity_type,entity_name,entity_objid) SELECT thing_id,1,object_name,objid FROM mush_thing WHERE thing_type=0
+&Q`CHARACTER`CHARACTER_IDS`2 [u(cobj,mig)]=INSERT INTO vol_character (character_id,character_is_deleted,account_id) SELECT thing_id,is_deleted,parent_id FROM mush_thing WHERE thing_type=0
+
+&Q`CHARACTER`DATES [u(cobj,mig)]=UPDATE vol_character SET character_date_created=FROM_UNIXTIME(?),character_date_activity=FROM_UNIXTIME(?),character_alt=? WHERE character_id=?
+
+&WATCH [u(cobj,mig)]=@check isdbref(u(cobj,friend))=@attach %!/INC`MSG=ERROR: The new Friend System is not installed!;@check isdbref(u(oldcobj,watch))=@attach %!/INC`MSG=ERROR: The old Watch system could not be found!;@attach %!/INC`MSG`CHAN=Beginning WATCH Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating WATCH.;&WATCH`STATUS %!=1};@dolist/notify children(u(cobj,accounts))={@dolist/inline u(filter,ISOBJID,get(##/D`WATCH))={@attach %!/INC`DOSQL=WATCH`INSERT,get(u(choosegame,%i1,%d1)/D`ACCOUNT`ID),get(u(choosegame,%i0,%d0)/D`ID)}}
+
+&Q`WATCH`INSERT [u(cobj,mig)]=INSERT IGNORE INTO vol_watch (entity_id,character_id) VALUES (?,?)
+
+&GRID [u(cobj,mig)]=@check isdbref(u(cobj,district))=@attach %!/INC`MSG=ERROR: The new Grid Manager is not installed.;@check isdbref(u(oldcobj,district))=@attach %!/INC`MSG=ERROR: Could not locate the old District system.;@attach %!/INC`MSG`CHAN=Beginning GRID Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GRID.;&GRID`STATUS %!=1};@dolist/notify children(u(oldcobj,district))={@parent ##=[u(cobj,district)];&D`DISTRICT ##=1;@tel ##=u(cobj,district);@set ##/D`DISTRICT=no_inherit}
+
+&INFO [u(cobj,mig)]=@check isdbref(u(cobj,info))=@attach %!/INC`MSG=ERROR: The new Info Files code is not installed.;@check isdbref(u(oldcobj,ifo))=@attach %!/INC`MSG=ERROR: Could not locate the old Info Files system.;@attach %!/INC`MSG`CHAN=Beginning INFO Conversion.;th u(setq,roots,1~D`INFOFILE|2~D`PINFOFILE);@@ @dolist/inline setdiff(u(lattr,u(oldcobj,ims)/INIT`*),INIT`INFO INIT`PINFO)={@attach [u(oldcobj,ims)]/##;th u(setq,roots,setunion(%q<roots>,add(100,inum(0))~%q<root>,|,|))};@wait me={@attach %!/INC`MSG`CHAN=Finished migrating INFO. ROOTS DATA: %q<roots>;&INFO`STATUS %!=1};@dolist/notify lsearch(all,type,player)={@attach %!/INFO`CHARACTER=##,%q<roots>}
+
+&INFO`CHARACTER [u(cobj,mig)]=@dolist/inline/delimit | %1={@dolist/inline u(lattr,%0/[after(##,~)]`*)={@attach %!/INFO`CHARACTER`FILE=%0,u(choosegame,%i0,%d0),before(u(choosegame,%i1,%d1),~)}}
+
+&INFO`CHARACTER`FILE [u(cobj,mig)]=th u(setq,title,get(%0/%1));th u(setq,contents,get(%0/%1`CONTENTS));@select/inline isobjid(u(setr,ownobjid,objid(u(getstat,%0,%1`FLAGS,SetBy))))=1,{th u(setq,author_id,get(%q<ownobjid>/D`ID))},0,{th u(setq,author_id,get(%0/D`ID))};th u(setq,seton,u(strfirstof,u(getstat,%0,%1`FLAGS,SetOn),secs()));th iter(Locked LockedBy LockedOn,u(setq,%i0,u(getstat,%0,%1`FLAGS,%i0)));@attach %!/INC`DOSQL=INFO`INSERT/field_id,get(%0/D`ID),%2,%q<title>,%q<contents>,%q<seton>,%q<author_id>;@select/inline %q<locked>=1,{@select/inline isobjid(u(setr,lockedby,objid(%q<lockedby>)))=1,{th u(setq,locker_id,get(%q<lockedby>/D`ID))},0,{th u(setq,locker_id,get(%#/D`ID))};@attach %!/INC`DOSQL=INFO`LOCK,%q<field_id>,%q<locker_id>,%q<lockedon>}
+
+&Q`INFO`INSERT [u(cobj,mig)]=INSERT INTO vol_field (entity_id,field_type,field_name,field_text,field_date_modified,author_id) VALUES (?,?,?,?,FROM_UNIXTIME(?),?)
+&Q`INFO`LOCK [u(cobj,mig)]=INSERT INTO vol_field_lock (field_id,locker_id,locked_date) VALUES (?,?,FROM_UNIXTIME(?))
+
+&MULTIDESC [u(cobj,mig)]=@check isdbref(u(cobj,desc))=@attach %!/INC`MSG=ERROR: The new MultiDescer code is not installed.;@@ @check isdbref(u(oldcobj,dms))=@attach %!/INC`MSG=ERROR: Could not locate the old Desc system.;@attach %!/INC`MSG`CHAN=Beginning MULTIDESC Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating MULTIDESC.;&MULTIDESC`STATUS %!=1};@dolist/notify lsearch(all,type,player)={@attach %!/MULTIDESC`CHARACTER=##}
+
+&MULTIDESC`CHARACTER [u(cobj,mig)]=@dolist/inline u(lattr,%0/D`DESC`*)={@attach %!/INC`DOSQL=DESC`INSERT,get(%0/D`ID),get(%0/##),get(%0/##`DESC),get(%0/D`ID)}
+
+&Q`DESC`INSERT [u(cobj,mig)]=INSERT INTO vol_field (entity_id,field_type,field_name,field_text,field_date_modified,author_id) VALUES (?,0,?,?,UTC_TIMESTAMP(),?) ON DUPLICATE KEY UPDATE field_name=VALUES(field_name),field_text=VALUES(field_text),field_date_modified=VALUES(field_date_modified)
+
+&BBS [u(cobj,mig)]=@check isdbref(u(cobj,bbs))=@attach %!/INC`MSG=ERROR: The new BBS is not installed!;@check isdbref(u(oldcobj,bbs))=@attach %!/INC`MSG=ERROR: COuld not find the old BBS!;@attach %!/INC`MSG`CHAN=Beginning BBS Conversion...;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating BBS.;&BBS`STATUS %!=1};@dolist/notify u(filter,ISBOARD,lthings(u(oldcobj,bbs-db)))={@check u(setr,order,match(get(u(oldcobj,bbs-db)/GROUPS),##));@trigger %!/BBS`BOARD=objid(##),0,%q<order>}
+
+@@ NOTE: BBSquash is only to be run if something is -REALLY- gummed up order-wise.
+&BBS`SQUASH [u(Cobj,mig)]=@attach %!/INC`DOSQL=BBS`SQUASH1;@dolist/inline u(mysql,BBS`BOARD_ID)={@attach %!/INC`DOSQL=BBS`SQUASH2;@attach %!/INC`DOSQL=BBS`SQUASH3,##};
+
+&Q`BBS`SQUASH1 [u(cobj,mig)]=UPDATE vol_bbpost SET post_display_num=post_display_num+1000;
+&Q`BBS`SQUASH2 [u(Cobj,mig)]=SET @order = 0;
+&Q`BBS`SQUASH3 [u(cobj,mig)]=UPDATE vol_bbpost SET post_display_num=(@order := @order + 1) WHERE board_id=? ORDER BY post_date_created
+
+&Q`BBS`BOARD_ID [u(cobj,mig)]=SELECT board_id FROM volv_board
+
+&GBS [u(cobj,mig)]=@check isdbref(u(cobj,bbs))=@attach %!/INC`MSG=ERROR: The new BBS is not installed!;@check isdbref(u(oldcobj,bbs))=@attach %!/INC`MSG=ERROR: COuld not find the old BBS!;@check isdbref(u(cobj,group))=@attach %!/INC`MSG=ERROR: The New Group system is not installed!;@check isdbref(u(oldcobj,gms))=@attach %!/INC`MSG=ERROR: The Old group system could not be found!;@attach %!/INC`MSG`CHAN=Beginning GBS Conversion...;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GBS. DON'T FORGET TO SET ABBREVIATIONS!;&GBS`STATUS %!=1};@dolist/notify children(u(cobj,gop))={@attach %!/BBS`GROUPS=##}
+
+&BBS`GROUPS [u(cobj,mig)]=@dolist/inline/nobreak u(filter,ISBOARD,lthings(%0))={@trigger %!/BBS`BOARD=##,objid(%0)}
+
+&FIL`ISBOARD [u(cobj,mig)]=1
+
+&BBS`BOARD [u(cobj,mig)]=th u(setq,bbid,u(call`3,volp_board,0,'[sqlescape(name(%0))]',%2,'%1'));th u(call`3,volp_lock,0,%q<bbid>,'READ','[if(isobjid(%1),V`GROUP`[get(%1/D`ID)]:<=9001,sqlescape(switch(lock(%0/READ),*UNLOCKED*,#TRUE,lock(%0/READ))))]');th u(call`3,volp_lock,0,%q<bbid>,'POST','[if(isobjid(%1),V`GROUP`[get(%1/D`ID)]:<=9001,sqlescape(switch(lock(%0/WRITE),*UNLOCKED*,#TRUE,lock(%0/WRITE))))]');@attach %!/INC`DOSQL=BBS`CONFIG,t(get(%0/MANDATORY)),get(%0/ANONYMOUS),%q<bbid>;@dolist/inline u(FUN`LISTPOSTS,%0)={@attach/localize %!/BBS`POST=##,%q<bbid>,%0,inum(0)};
+
+&FUN`LISTPOSTS [u(cobj,mig)]=u(sortposts`%va,u(lattr,%0/*),%b,%b)
+&SORTPOSTS`PENNMUSH [u(cobj,mig)]=sortkey(#lambda/baseconv(\%0,36,10),%0,n,%1,%2)
+&SORTPOSTS`RHOSTMUSH [u(cobj,mig)]=sortby(#lambda/[lit([ncomp(u(baseconv,%0,36,10),u(baseconv,%1,36,10))])],%0,%1,%2)
+
+&Q`BBS`CONFIG [u(cobj,mig)]=UPDATE vol_board SET board_mandatory=?,board_anonymous=? WHERE board_id=?
+
+&BBS`POST [u(cobj,mig)]=th iter(ownname ownobjid postdate postmodified,u(setq,%i0,switch(%i0,ownname,get(%2/%0`BY),ownobjid,get(%2/%0`BYDB),postdate,get(%2/%0`ON),postmodified,get(%2/%0`EDITED))));th u(setq,hdr,get(%2/%0`HDR));th if(%q<postmodified>,,u(setr,postmodified,%q<postdate>));th u(setq,postnum,u(baseconv,%0,36,10));@select/inline t(u(setr,pid,get(%q<ownobjid>/D`ID)))=0,{th u(setq,pid,u(call`4,volp_character,0,'[sqlescape(%q<ownobjid>)]','[sqlescape(%q<ownname>)]',secs(),0));@select/inline isobjid(%q<ownobjid>)=0,{th u(mysql,UPDATE`DELETE_PLAYER,%q<pid>)}};@select/inline words(u(setr,comms,u(sortattr,u(lattr,%2/%0`COMM`*))))=>0,{th u(setr,postcommented,u(lmax,iter(%q<comms>,get(%2/%i0`ON))))},{th u(setr,postcommented,%q<postmodified>)};@select/inline strlen(u(setr,text,get(%2/%0)))=>4000,{th u(setq,part1,left(%q<text>,4000));th u(setq,part2,mid(%q<text>,4000,100000));@attach %!/INC`DOSQL=BBS`OLD_POST/post_id,%1,%3,%q<pid>,%q<postdate>,%q<postmodified>,%q<postcommented>,%q<hdr>,%q<part1>,t(strlen(get(%2/ANONYMOUS)));@attach %!/INC`DOSQL=BBS`ADD_POST_TEXT,%q<part2>,%q<post_id>},{@attach %!/INC`DOSQL=BBS`OLD_POST/post_id,%1,%3,%q<pid>,%q<postdate>,%q<postmodified>,%q<postcommented>,%q<hdr>,%q<text>,t(strlen(get(%2/ANONYMOUS)))};@dolist/inline %q<comms>={@attach %!/BBS`COMMENT=##,%q<post_id>,%2,inum(0)}
+
+&Q`BBS`OLD_POST [u(cobj,mig)]=INSERT INTO vol_bbpost (board_id,post_display_num,entity_id,post_date_created,post_date_modified,post_date_commented,post_title,post_text,post_anonymous) VALUES (?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?,?)
+&Q`BBS`ADD_POST_TEXT [u(cobj,mig)]=UPDATE vol_bbpost SET post_text=CONCAT(post_text,?) WHERE post_id=?
+&Q`UPDATE`DELETE_PLAYER [u(cobj,mig)]=UPDATE vol_character SET character_is_deleted=1 WHERE character_id=?
+
+&BBS`COMMENT [u(cobj,mig)]=@select/inline t(u(setr,pid,get(u(setr,ownobjid,get(%2/%0`BYDB))/D`ID)))=0,{th u(setq,pid,u(call`4,volp_character,0,'[sqlescape(%q<ownobjid>)]','[sqlescape(if(isobjid(%q<ownobjid>),name(%q<ownobjid>),get(%2/%0`BY)))]',secs(),0));@select/inline isobjid(%q<ownobjid>)=0,{th u(mysql,UPDATE`DELETE_PLAYER,%q<pid>)}};@attach %!/INC`DOSQL=BBS`OLD_COMMENT,%1,last(%0,`),%q<pid>,get(%2/%0`ON),get(%2/%0`ON),get(%2/%0),0
+
+&Q`BBS`OLD_COMMENT [u(cobj,mig)]=INSERT INTO vol_bbcomment (post_id,comment_display_num,entity_id,comment_date_created,comment_date_modified,comment_text,comment_anonymous) VALUES (?,?,?,FROM_UNIXTIME(?),FROM_UNIXTIME(?),?,?)
+
+&GROUPS [u(cobj,mig)]=@check isdbref(u(cobj,group))=@attach %!/INC`MSG=ERROR: The New Group system is not installed!;@check isdbref(u(oldcobj,gop))=@attach %!/INC`MSG=ERROR: The Old group system could not be found!;@attach %!/INC`MSG`CHAN=Beginning GROUPS Conversion.;@wait me={@attach %!/GROUPS`CACHE;@attach %!/GROUPS`CHANNELS;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating GROUPS.;&GROUPS`STATUS %!=1}};@dolist/notify children(u(oldcobj,gop))={@parent ##=u(cobj,gop);@tel ##=u(cobj,gop);th u(attrib_set,##,D`ID,u(setr,groupid,u(call`4,volp_group,0,'[sqlescape(objid(##))]','[sqlescape(name(##))]',0,u(u(cobj,group)/conf,CREATE_PRIVATE))));th u(attrib_set,##,SET`PRIVATE,u(u(cobj,group)/conf,CREATE_PRIVATE));@attach %!/INC`DOSQL=GROUPS`ABBR,default(##/SET`ABBREVIATION,left(name(##),3)),%q<groupid>;@select/inline get(##/SET`MAJOR)=>0,{@cpattr ##/SET`MAJOR=##/SET`TIER;@attach %!/INC`DOSQL=GROUPS`TIER,get(##/SET`TIER),get(##/D`ID)};@attach %!/GROUPS`CHECKRANK=##;@dolist/inline setdiff(u(lattrp,##/RANK`*),RANK`ALL RANK`LURK)={@attach %!/GROUPS`RANK=u(choosegame,%i1,%d1),u(choosegame,%i0,%d0)};@attach %!/GROUPS`MEMBERS=##;@attach %!/GROUPS`DIVISIONS=##};
+
+&GROUPS`CHECKRANK [u(cobj,mig)]=@dolist/inline/nobreak setdiff(iter(u(filter,ISOBJID,get(%0/MEMBERS)),get(%i0/D`GROUP`%0`RANK)),LURK)={@stop hasattrval(%0/RANK`##`NAME);th u(attrib_set,%0,RANK`##`NAME,repeat(##,?))};
+
+&Q`GROUPS`ABBR [u(cobj,mig)]=UPDATE vol_group SET group_abbr=?,group_is_private=0 WHERE group_id=?
+&Q`GROUPS`TIER [u(cobj,mig)]=UPDATE vol_group SET group_tier=? WHERE group_id=?
+
+&GROUPS`CACHE [u(cobj,mig)]=@dolist/inline/notify setunion(children(u(cobj,gop)),children(u(cobj,dop)))={@trigger [u(cobj,group)]/GRP`CACHE`MEMBERS=##};@dolist/notify lsearch(all,type,player)={@trigger [u(cobj,group)]/GRP`CACHE`TIERS=##;@trigger [u(cobj,group)]/GRP`CACHE`CHARACTER=##}
+
+&GROUPS`CHANNELS [u(cobj,mig)]=@dolist/inline children(u(cobj,gop))={th u(setq,grp,##);@dolist/inline/nobreak IC OOC={th u(setq,chan,u(choosegame,%i0,%d0));th u(attrib_set,%q<grp>,CHANNEl`%q<chan>,u(filter,ISOBJID,setunion(get(%q<grp>/CHANNEl`%q<chan>),u(FILTER,GROUPCHAN,get(%q<grp>/MEMBERS),%b,%b,%q<grp>,%q<chan>))))}}
+
+&FIL`GROUPCHAN [u(cobj,mig)]=t(match(u(u(cobj,group)/FUN`GETPERM,%1,%0),%2))
+
+&GROUPS`RANK [u(cobj,mig)]=@select/inline isint(u(setr,rnkval,last(%1,`)))=1,{th u(attrib_set,%0,%1,u(setr,rank_id,u(call`3,volp_group_rank,0,get(%0/D`ID),%q<rnkval>,'[sqlescape(default(%0/%1`NAME,???))]')))}
+
+&Q`GROUPS`RANKS_CACHE [u(cobj,mig)]=SELECT group_objid,group_rank_number,character_objids,group_id FROM volv_group_rankgroups WHERE group_objid IS NOT NULL
+&Q`GROUPS`MEMBER_CACHE [u(cobj,mig)]=SELECT player_objid,group_tier,group_objids FROM volv_group_member_tiers
+
+&Q`GROUPS`RANK [u(cobj,mig)]=INSERT INTO vol_group_rank (group_id,group_rank_number,group_rank_title) VALUES (?,?,?)
+
+&GROUPS`MEMBERS [u(cobj,mig)]=@dolist/inline/nobreak u(filter,ISOBJID,get(%0/MEMBERS))={@check u(setr,mrnk,default(##/D`GROUP`%0`RANK,4));th u(attrib_set,##,D`GROUP`%0,u(setr,member_id,u(call`2,volp_group_member,0,get(%0/D`ID),get(##/D`ID))));@select/inline %q<mrnk>=LURK,{},{@attach %!/INC`DOSQL=GROUPS`SETRANK,get(%0/RANK`%q<mrnk>),%q<member_id>};@select/inline strlen(u(setr,title,get(##/D`GROUP`%0`TITLE)))=>0,{@attach %!/INC`DOSQL=GROUPS`SETTITLE,%q<title>,%q<member_id>}}
+
+&Q`GROUPS`SETRANK [u(cobj,mig)]=UPDATE vol_group_member SET rank_id=? WHERE member_id=?
+&Q`GROUPS`SETTITLE [u(cobj,mig)]=UPDATE vol_entity SET entity_name=? WHERE entity_id=?
+
+&GROUPS`DIVISIONS [u(cobj,mig)]=@dolist/inline/nobreak u(lattr,%0/DIVISION`*)={th u(setq,divatt,u(choosegame,%i0,%d0));th u(attrib_set,u(setr,d1objid,objid(u(setr,d1,create(u(setr,d1name,get(%0/%q<divatt>)))))),D`ID,u(setr,d1id,u(CALL`3,volp_group_division,0,'%q<d1objid>','[sqlescape(get(%0/%q<divatt>))]',get(%0/D`ID))));th u(setq,divisions,u(filter,ISOBJID,setunion(%q<divisions>,%q<d1objid>)));@parent %q<d1>=u(cobj,dop);@tel %q<d1>=%0;@power %q<d1>=many_attribs;@set %q<d1>=[u(choosegame,WIZARD SAFE,INHERIT SAFE)];th u(attrib_set,%q<d1>,MEMBERS,u(sortname,u(filter,ISOBJID,setinter(get(%0/%q<divatt>`MEMBERS),get(%0/MEMBERS)))));@dolist/inline setunion(u(lattr,%0/%q<divatt>`RANK`*),%q<divatt>`RANK`4)={@cpattr %0/[u(choosegame,%i0,%d0)]=%q<d1>/[u(setr,rnkatt,RANK`[u(setr,rnknum,last(u(choosegame,%i0,%d0),`))])]`NAME;@select/inline %q<rnknum>=4,{th u(attrib_set,%q<d1>,%q<rnkatt>`NAME,New Member)};@attach %!/GROUPS`RANK=%q<d1>,%q<rnkatt>};@dolist/inline get(%q<d1>/MEMBERS)={th u(attrib_set,u(setr,ply,u(choosegame,%i0,%d0)),D`GROUP`%q<d1>`RANK,get(%q<ply>/D`GROUP`%0`DIVISION`[last(%q<divatt>,`)]`RANK))};@attach %!/GROUPS`MEMBERS=%q<d1>};th u(attrib_set,%0,DIVISIONS,%q<divisions>)
+
+@@ Fix groups that didn't have a 4th Division!
+@@ @dolist/inline children(u(cobj,dop))={&RANK`4`NAME ##=New Member;@trigger [u(cobj,mig)]/GROUPS`RANK=##,RANK`4}
+
+&JOBS [u(cobj,mig)]=@check isdbref(u(cobj,job))=@attach %!/INC`MSG=ERROR: The New Job system is not installed!;@check isdbref(u(oldcobj,jms))=@attach %!/INC`MSG=ERROR: The Old Job system could not be found!;@attach %!/INC`MSG`CHAN=Beginning JOBS Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating JOBS.;&JOBS`STATUS %!=1};@dolist/inline BUCKETS BUCKETS2 JOBS LINKS COMMENTS={@attach %!/INC`DOSQL=JOBS`##};@attach %!/JOBS`FINISH
+
+&Q`JOBS`BUCKETS [u(cobj,mig)]=INSERT INTO vol_entity (entity_id,entity_type,entity_name) SELECT thing_id,3,object_name FROM mush_thing WHERE thing_type=2
+&Q`JOBS`BUCKETS2 [u(cobj,mig)]=INSERT INTO vol_bucket (bucket_id) SELECT thing_id FROM mush_thing WHERE thing_type=2
+&Q`JOBS`JOBS [u(cobj,mig)]=INSERT INTO vol_job (job_id,job_title,bucket_id,job_date_created,job_date_closed,job_date_due,job_date_player_activity,job_date_admin_activity,job_status,job_is_anonymous) SELECT job_id,title,thing_id,date_created,date_closed,date_due,date_player_activity,date_admin_activity,job_status,is_anonymous FROM mush_job
+&Q`JOBS`LINKS [u(cobj,mig)]=INSERT INTO vol_jlink (jlink_id,job_id,character_id,jlink_type,jlink_date_check) SELECT link_id,job_id,player_id,link_type,date_check FROM mush_job_link
+&Q`JOBS`COMMENTS [u(cobj,mig)]=INSERT INTO vol_jcomment (jcomment_id,jlink_id,jcomment_date_created,jcomment_text,jcomment_type,jcomment_is_visible) SELECT comment_id,link_id,date_created,comment_text,comment_type,is_visible FROM mush_job_comment
+
+&Q`JOBS`OLD_BUCKETS [u(cobj,mig)]=SELECT thing_id,objid FROM mush_thing WHERE thing_type=2
+
+&JOBS`FINISH [u(cobj,mig)]=@dolist/inline/notify/delimit [chr(176)] [u(mysql3,JOBS`OLD_BUCKETS)]={th u(setq,data,u(choosegame,%i0,%d0));@select/inline t(get(elements(%q<data>,2,chr(177))/ANONYMOUS))=1,{@attach %!/INC`DOSQL=JOBS`ANONYMOUS,1,elements(%q<data>,1,chr(177))};@select/inline t(u(setr,due,get(elements(%q<data>,2,chr(177))/DUE)))=1,{@attach %!/INC`DOSQL=JOBS`DUE,%q<due>,elements(%q<data>,1,chr(177))};@select/inline t(get(elements(%q<data>,2,chr(177))/NOSTATS))=1,{@attach %!/INC`DOSQL=JOBS`STATS,0,elements(%q<data>,1,chr(177))};@select/inline t(strlen(u(setr,desc,get(elements(%q<data>,2,chr(177))/DESCRIBE))))=1,{@attach %!/INC`DOSQL=JOBS`DESC,%q<desc>,u(render,%q<desc>),elements(%q<data>,1,chr(177))};th u(call`3,volp_lock,0,elements(%q<data>,1,chr(177)),'POST','#TRUE');th u(call`3,volp_lock,0,elements(%q<data>,1,chr(177)),'ADMIN','V`ADMIN:>0')}
+
+&Q`JOBS`ANONYMOUS [u(cobj,mig)]=UPDATE vol_bucket SET bucket_is_anonymous=? WHERE bucket_id=?
+&Q`JOBS`DUE [u(cobj,mig)]=UPDATE vol_bucket SET bucket_due=? WHERE bucket_id=?
+&Q`JOBS`STATS [u(cobj,mig)]=UPDATE vol_bucket SET bucket_stats=? WHERE bucket_id=?
+&Q`JOBS`DESC [u(cobj,mig)]=UPDATE vol_bucket SET bucket_description=?,bucket_description_render=? WHERE bucket_id=?
+
+&SCENE [u(cobj,mig)]=@check isdbref(u(cobj,scene))=@attach %!/INC`MSG=ERROR: The New SceneSys is not installed!;@check isdbref(u(oldcobj,scene))=@attach %!/INC`MSG=ERROR: The Old Scene system could not be found!;@attach %!/INC`MSG`CHAN=Beginning SCENE Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating SCENE.;&SCENE`STATUS %!=1};@dolist/inline/notify PLOT RUNNER SCENE ACTOR SOURCE ACTION PLOTLINK={@attach %!/INC`DOSQL=SCENE`##}
+
+&Q`SCENE`PLOT [u(cobj,mig)]=INSERT INTO vol_plot (plot_id,plot_title,plot_pitch,plot_outcome,plot_date_start,plot_date_end) SELECT plot_id,title,pitch,outcome,date_start,date_end FROM mush_plot
+
+&Q`SCENE`RUNNER [u(cobj,mig)]=INSERT INTo vol_runner (runner_id,character_id,plot_id,runner_type) SELECT runner_id,player_id,plot_id,runner_type FROM mush_runner
+
+&Q`SCENE`SCENE [u(cobj,mig)]=INSERT INTO vol_scene (scene_id,scene_title,scene_pitch,scene_outcome,scene_date_created,scene_date_scheduled,scene_date_started,scene_date_finished,scene_status,scene_log_ooc) SELECT scene_id,title,pitch,outcome,date_created,date_scheduled,date_started,date_finished,scene_status,log_ooc FROM mush_scene
+
+&Q`SCENE`ACTOR [u(cobj,mig)]=INSERT INTO vol_actor (actor_id,scene_id,character_id,actor_type,actor_status) SELECT actor_id,scene_id,player_id,actor_type,actor_status FROM mush_actor
+
+&Q`SCENE`SOURCE [u(cobj,mig)]=INSERT INTO vol_action_source (source_id,scene_id,source_objid,source_vr,source_name,source_type) SELECT source_id,scene_id,source_objid,source_vr,source_name,source_type FROM mush_action_source
+
+&Q`SCENE`ACTION [u(cobj,mig)]=INSERT INTO vol_action (action_id,actor_id,source_id,action_is_deleted,action_type,action_date_created,action_text) SELECT action_id,actor_id,source_id,is_deleted,action_type,date_created,action_text FROM mush_action
+
+&Q`SCENE`PLOTLINK [u(cobj,mig)]=INSERT IGNORE INTO vol_plotlink (plot_id,scene_id) SELECT plot_id,scene_id FROM mush_plot_link
+
+
+&THEME [u(Cobj,mig)]=@check isdbref(u(cobj,theme))=@attach %!/INC`MSG=ERROR: The New Theme system is not installed!;@check isdbref(u(oldcobj,themedb))=@attach %!/INC`MSG=ERROR: The Old Theme system could not be found!;@attach %!/INC`MSG`CHAN=Beginning THEME Conversion.;@wait me={@attach %!/INC`MSG`CHAN=Finished migrating THEME.;&THEME`STATUS %!=1};@dolist/notify children(u(oldcobj,themedb))={th u(setq,theme,u(call`2,volp_theme,0,'[sqlescape(u(setr,themename,name(##)))]','[sqlescape(get(##/DESCRIBE))]'));@attach %!/INC`DOSQL=THEME`RENDER,u(render,get(##/DESCRIBE)),%q<theme>;@dolist/inline u(filter,ISOBJID,get(##/CAST))={@attach %!/INC`DOSQL=THEME`CAST,get(u(setr,chr,u(choosegame,%i0,%d0))/D`ID),%q<theme>,get(%q<chr>/D`FINGER`TYPE);@attach %!/INC`DOSQL=THEME`STATUS,get(%q<chr>/D`FINGER`STATUS),get(%q<chr>/D`ID);th u(attrib_set,%q<chr>,V`THEME`STATUS,get(%q<chr>/D`FINGER`STATUS))}};@dolist/inline lsearch(all,type,player)=@trigger [u(cobj,theme)]/INC`REBUILDCHARACTER=##
+
+&Q`THEME`RENDER [u(Cobj,mig)]=UPDATE vol_theme SET theme_description_render=? WHERE theme_id=?
+&Q`THEME`CAST [u(Cobj,mig)]=INSERT INTO vol_tmember (character_id,theme_id,tmember_type) VALUES (?,?,?) ON DUPLICATE KEY UPDATE tmember_type=VALUES(tmember_type)
+&Q`THEME`STATUS [u(Cobj,mig)]=UPDATE vol_character SET character_status=? WHERE character_id=?

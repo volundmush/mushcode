@@ -12,7 +12,7 @@ th u(NEWCOBJ,STORYTELLER: Persona Management System <PERSONA>,persona,,,,WIZARD 
 &SWITCHES`PLAYER [u(cobj,persona)]=ASSUME|RETURN
 &SWITCHES`ADMIN [u(cobj,persona)]=CREATE|DELETE|ASSIGN|REMOVE|ALL|MAKEMAIN
 
-&PLAYER`CREATE [u(cobj,persona)]=@select/inline not(get(%0/D`PERSONA))=1,{@attach %!/INC`DOSQL=PERSONA`CREATE/pers,get(%0/D`ID);@attach %!/PERSONA`INIT};
+&PLAYER`CREATE [u(cobj,persona)]=@select/inline cand(not(get(%0/D`PERSONA)),u(setr,pers,get(%0/D`ID)))=1,{@attach %!/INC`DOSQL=PERSONA`CREATE,%q<pers>;@attach %!/PERSONA`INIT};
 
 &Q`PERSONA`CREATE [u(Cobj,persona)]=INSERT INTO vol_story_personas (persona_id) VALUES (?)
 

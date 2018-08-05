@@ -188,7 +188,9 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &Q`LOAD`POST`TEXT [u(cobj,bbs)]=SELECT post_text FROM vol_bbpost WHERE post_id=?
 
-&EDIT`MAIN [u(cobj,bbs)]=@attach %!/POST`EDIT
+&EDIT`MAIN [u(cobj,bbs)]=@select/inline hasattr(%#/D`BB`NEW`BBID)=1,{@attach %!/EDIT`PENDING},0,{@attach %!/POST`EDIT}
+
+&EDIT`PENDING [u(Cobj,bbs)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Edit field empty!;@attach %!/INC`PARTIAL=%0,TEXT|TITLE,|,choice;@check strlen(u(setr,before,before(%2,^^^)))=@attach %!/INC`MSG=ERROR: No 'before' field entered!;th u(setq,after,after(%2,^^^));@check comp(u(setr,rep,edit(u(setr,ptext,get(%#/D`BB`NEW`%q<choice>)),%q<before>,%q<after>)),%q<ptext>)=@attach %!/INC`MSG=ERROR: Nothing changes!;th u(attrib_set,%#,D`BB`NEW`%q<choice>,%q<rep>);@attach %!/INC`MSG=Post-in-Progress modified!
 
 &POST`EDIT [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,POST;@attach %!/INC`FINDPOST=%1,EDIT;@check strlen(u(setr,before,before(%2,^^^)))=@attach %!/INC`MSG=ERROR: Nothing entered in 'before' field!;th u(setq,after,after(%2,^^^));@check comp(u(setr,rep,edit(%q<ptext>,%q<before>,%q<after>)),%q<ptext>)=@attach %!/INC`MSG=ERROR: Nothing changes!;@attach %!/INC`DOSQL=REPLACE`POST,%q<rep>,%q<pid>;@attach %!/INC`MSG=Post modified.
 
@@ -234,13 +236,13 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &Q`LIST`POSTS_PAGE [u(cobj,bbs)]=SELECT p.post_display_num,p.post_title,p.post_date_created_secs,p.entity_name,p.entity_objid,r.bbread_date_checked IS NULL OR r.bbread_date_checked<p.post_unread_check,r.bbread_date_checked IS NOT NULL AND p.post_date_commented>r.bbread_date_checked FROM volv_bbpost AS p LEFT JOIN vol_bbread AS r ON p.post_id=r.post_id AND r.entity_id=? WHERE p.board_id=? ORDER BY p.post_display_num DESC LIMIT 100 OFFSET ?
 
-&READ`CHECKPOST [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,READ;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No posts entered to check.;@check words(u(setr,mes,u(mysql,POSTS`EXISTS,u(sql`in`number,u(FUN`MESSLIST,%q<t1idfallback>,%q<bbid>,%1)),%q<bbid>)))=@attach %!/INC`MSG=ERROR: Posts not found.;@stop gt(u(setr,tot,words(%q<mes>)),100)=@attach %!/INC`MSG=ERROR: Cannot display over 100 posts at once.;@dolist/inline %q<mes>={@attach/localize %!/READ`SHOWPOST=##};@pemit %#=u(footer)
+&READ`CHECKPOST [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,READ;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No posts entered to check.;@check words(u(setr,mes,u(mysql,POSTS`EXISTS,u(sql`in`number,u(FUN`MESSLIST,%q<t1idfallback>,%q<bbid>,%1)),%q<bbid>)))=@attach %!/INC`MSG=ERROR: Posts not found.;@select/inline u(setr,tot,words(%q<mes>))=>100,{@attach %!/INC`MSG=ERROR: Attempt to display over 100 posts at once squished.;th u(setq,mes,elements(%q<mes>,lnum(1,100)))};@dolist/inline %q<mes>={@attach/localize %!/READ`SHOWPOST=##};@pemit %#=u(footer)
 
 &Q`POSTS`EXISTS [u(cobj,bbs)]=SELECT post_display_num FROM volv_bbpost WHERE post_display_num IN (!) AND board_id=?
 
 &READ`SHOWPOST [u(cobj,bbs)]=@attach %!/INC`FINDPOST=%0;@attach %!/READ`SHOWPOST`DISPLAY
 
-&READ`SHOWPOST`DISPLAY [u(cobj,bbs)]=@pemit %#=u(HEADER,u(fun`name,if(strlen(%q<gname>),%q<gname>%B-%B)%q<bbnum>: %q<bbname> - %q<pnum>));@pemit %#=ljust(Message: %q<bbalias>/%q<pnum>,35)Posted[space(8)]Author%r[ljust(%q<ptitle>,35)][ljust(u(fancyday,%q<pcreated>,%q<t1tz>),14)][u(setq,namedisp,if(strlen(%q<bbanon>),if(%q<isadmin>,%([ansi(hx,if(isobjid(%q<pauthorobjid>),u(moniker,%q<pauthorobjid>),%q<pauthorname> \(Deleted\)))]%),%q<bbanon>),if(isobjid(%q<pauthorobjid>),u(moniker,%q<pauthorobjid>),%q<pauthorname> \(Deleted\))))][u(choosegame,left(%q<namedisp>,21),ljc(%q<namedisp>,21))]%R[u(SEPARATOR)];@pemit %#=%q<ptext>;@attach %!/INC`DOSQL=UPDATE`CHECKREAD,%q<pid>,%q<t1idfallback>;@select/inline t(eq(1,%q<tot>))[t(%q<pcomments>)]=11,{@attach %!/READ`COMMENTS},01,{@pemit u(footer,u(pueblize,+bbread %q<bbalias>/%q<pnum>) for %q<pcomments> comments.)}
+&READ`SHOWPOST`DISPLAY [u(cobj,bbs)]=@pemit %#=u(HEADER,u(fun`name,if(strlen(%q<gname>),%q<gname>%B-%B)%q<bbnum>: %q<bbname> - %q<pnum>));@pemit %#=ljust(Message: %q<bbalias>/%q<pnum>,35)Posted[space(8)]Author%r[ljust(%q<ptitle>,35)][ljust(u(fancyday,%q<pcreated>,%q<t1tz>),14)][u(setq,namedisp,if(strlen(%q<bbanon>),if(%q<isadmin>,%([ansi(hx,if(isobjid(%q<pauthorobjid>),u(moniker,%q<pauthorobjid>),%q<pauthorname> \(Deleted\)))]%),%q<bbanon>),if(isobjid(%q<pauthorobjid>),u(moniker,%q<pauthorobjid>),%q<pauthorname> \(Deleted\))))][u(choosegame,left(%q<namedisp>,21),ljc(%q<namedisp>,21))]%R[u(SEPARATOR)];@pemit %#=%q<ptext>;@attach %!/INC`DOSQL=UPDATE`CHECKREAD,%q<pid>,%q<t1idfallback>;@select/inline t(eq(1,1))[t(%q<pcomments>)]=11,{@attach %!/READ`COMMENTS},01,{@pemit u(footer,u(pueblize,+bbread %q<bbalias>/%q<pnum>) for %q<pcomments> comments.)}
 
 &Q`UPDATE`CHECKREAD [u(cobj,bbs)]=INSERT INTO vol_bbread (post_id,entity_id,bbread_date_checked) VALUES (?,?,UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE bbread_date_checked=VALUES(bbread_date_checked)
 
@@ -264,7 +266,7 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 &NEW`MAIN [u(cobj,bbs)]=@attach %!/NEXT`MAIN
 
 &LEAVE`MAIN [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,READ;@stop %q<bbmandatory>=@attach %!/INC`MSG=ERROR: Board is mandatory reading. Cannot leave it.;@stop u(FUN`GETOMIT,%#,%q<bbid>)=@attach %!/INC`MSG=You have already left that board.;th u(FUN`SETOMIT,%#,%q<bbid>,1);@attach %!/INC`MSG=You have removed yourself from the %q<bbname> board.
-&JOIN`MAIN [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,READ;@check u(FUN`GETOMIT,%#,%q<bbid>)=@attach %!/INC`MSG=You are already watching this board.;th u(FUN`SETOMIT,%#,%q<bbid>,0);@attach %!/INC`MSG=You have joined the %q<bbname> board.
+&JOIN`MAIN [u(cobj,bbs)]=@select/inline %0=ALL,{@attach %!/WIPE=%0,D`BB`*`OMIT;@attach %!/INC`MSG=Cleared out all +bbleave's},{@attach %!/INC`FINDBB=%0,READ;@check u(FUN`GETOMIT,%#,%q<bbid>)=@attach %!/INC`MSG=You are already watching this board.;th u(FUN`SETOMIT,%#,%q<bbid>,0);@attach %!/INC`MSG=You have joined the %q<bbname> board.}
 
 &FUN`GETOMIT [u(cobj,bbs)]=default(%0/D`BB`%1`OMIT,0)
 &FUN`SETOMIT [u(cobj,bbs)]=u(attrib_set,%0,D`BB`%1`OMIT,%2)
