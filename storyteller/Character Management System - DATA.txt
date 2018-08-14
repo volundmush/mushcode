@@ -28,7 +28,7 @@ th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERI
 &CHAR`SET`TEMPLATE [u(cobj,data)]=@attach %!/DO`SET`TEMPLATE;@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))]'s [u(setr,msg,Template is now set to: [ansi(h,u(capnames,%q<find>))])]},{Your %q<msg>},{[ansi(h,name(%0))]'s %q<msg>}
 
 &DO`VAL`TEMPLATE [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No Template name entered.;th u(setq,temps,u(mysql3,LIST`TEMPLATE));@attach %!/INC`PARTIAL=%2,iter(%q<temps>,before(%i0,chr(177)),chr(176),|),|,find,sphere;th u(setq,temp_id,after(grab(%q<temps>,%q<find>[chr(177)]*,chr(176)),chr(177)));
-&DO`SET`TEMPLATE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`TEMPLATE;@attach [u(cobj,data)]/INC`DOSQL=SET`TEMPLATE,%q<temp_id>,get(%0/D`ID);th u(vattrib_set,%0,V`PERSONA`TEMPLATE,%q<find>)
+&DO`SET`TEMPLATE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`TEMPLATE;@attach [u(cobj,data)]/INC`DOSQL=SET`TEMPLATE,%q<temp_id>,get(%0/D`ID);@trigger [u(cobj,persona)]/REBUILD`V=%0
 
 &Q`LIST`TEMPLATE [u(cobj,data)]=SELECT template_name,template_id FROM vol_story_templates WHERE template_playable=1
 &Q`SET`TEMPLATE [u(cobj,data)]=UPDATE vol_story_personas SET template_id=?,x_splat_id=NULL,y_splat_id=NULL,z_splat_id=NULL WHERE persona_id=?
@@ -37,13 +37,13 @@ th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERI
 &Q`GET`TEMPLATE_NAME [u(Cobj,data)]=SELECT template_name FROM volv_story_personas WHERE persona_id=?
 
 &DO`VAL`X_SPLAT [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No %3 name entered!;@check u(setr,pers,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No persona selected!;th u(setq,temp_id,u(mysql,GET`TEMPLATE,%q<pers>));@check words(u(setr,x_splats,u(mysql3,LIST`X_SPLAT,%q<temp_id>)),chr(176))=@attach %!/INC`MSG=ERROR: This Template has no %3 entries!;@attach %!/INC`PARTIAL=%2,iter(%q<x_splats>,before(%i0,chr(177)),chr(176),|),|,find,splat;th u(setq,splat_id,after(grab(%q<x_splats>,%q<find>[chr(177)]*,chr(176)),chr(177)));
-&DO`SET`X_SPLAT [u(cobj,data)]=@attach %!/DO`VAL`X_SPLAT;@attach %!/INC`DOSQL=SET`X_SPLAT,%q<splat_id>,%q<pers>;th u(vattrib_set,%0,V`PERSONA`SPLAT`X,%q<find>)
+&DO`SET`X_SPLAT [u(cobj,data)]=@attach %!/DO`VAL`X_SPLAT;@attach %!/INC`DOSQL=SET`X_SPLAT,%q<splat_id>,%q<pers>;@trigger [u(cobj,persona)]/REBUILD`V=%0
 
 &DO`VAL`Y_SPLAT [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No %3 name entered!;@check u(setr,pers,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No persona selected!;th u(setq,temp_id,u(mysql,GET`TEMPLATE,%q<pers>));@check words(u(setr,y_splats,u(mysql3,LIST`Y_SPLAT,%q<temp_id>)),chr(176))=@attach %!/INC`MSG=ERROR: This Template has no %3 entries!;@attach %!/INC`PARTIAL=%2,iter(%q<y_splats>,before(%i0,chr(177)),chr(176),|),|,find,splat;th u(setq,splat_id,after(grab(%q<y_splats>,%q<find>[chr(177)]*,chr(176)),chr(177)));
-&DO`SET`Y_SPLAT [u(cobj,data)]=@attach %!/DO`VAL`Y_SPLAT;@attach %!/INC`DOSQL=SET`Y_SPLAT,%q<splat_id>,%q<pers>;th u(vattrib_set,%0,V`PERSONA`SPLAT`Y,%q<find>)
+&DO`SET`Y_SPLAT [u(cobj,data)]=@attach %!/DO`VAL`Y_SPLAT;@attach %!/INC`DOSQL=SET`Y_SPLAT,%q<splat_id>,%q<pers>;@trigger [u(cobj,persona)]/REBUILD`V=%0
 
 &DO`VAL`Z_SPLAT [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No %3 name entered!;@check u(setr,pers,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No persona selected!;th u(setq,temp_id,u(mysql,GET`TEMPLATE,%q<pers>));@check words(u(setr,z_splats,u(mysql3,LIST`Z_SPLAT,%q<temp_id>)),chr(176))=@attach %!/INC`MSG=ERROR: This Template has no %3 entries!;@attach %!/INC`PARTIAL=%2,iter(%q<z_splats>,before(%i0,chr(177)),chr(176),|),|,find,splat;th u(setq,splat_id,after(grab(%q<z_splats>,%q<find>[chr(177)]*,chr(176)),chr(177)));
-&DO`SET`Z_SPLAT [u(cobj,data)]=@attach %!/DO`VAL`Z_SPLAT;@attach %!/INC`DOSQL=SET`Z_SPLAT,%q<splat_id>,%q<pers>;th u(vattrib_set,%0,V`PERSONA`SPLAT`Z,%q<find>)
+&DO`SET`Z_SPLAT [u(cobj,data)]=@attach %!/DO`VAL`Z_SPLAT;@attach %!/INC`DOSQL=SET`Z_SPLAT,%q<splat_id>,%q<pers>;
 
 &Q`LIST`X_SPLAT [u(cobj,data)]=SELECT x_splat_name,x_splat_id FROM vol_story_x_splats WHERE template_id=?
 &Q`LIST`Y_SPLAT [u(cobj,data)]=SELECT y_splat_name,y_splat_id FROM vol_story_y_splats WHERE template_id=?
@@ -56,7 +56,7 @@ th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERI
 &DO`VAL`VALUE [u(Cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: Need to enter a rating!;@select/inline %2=0,{th u(setq,value,0)},{@attach %!/INC`VALID`POSINT=%2}
 
 &DO`VAL`STAT [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No %3 name entered!;@check u(setr,pers,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No persona selected!;@check u(setr,stat_id,after(u(setr,stat,u(strfirstof,u(mysql3,FIND`STAT`EXACT,%4,%1,%1),u(mysql3,FIND`STAT`WILD,%4,sqlescape(%1)))),chr(177)))=@attach %!/INC`MSG=ERROR: %3 not found! Choices are: [ansi(h,iter(u(mysql3,LIST`STAT,%4),before(%i0,chr(177)),chr(176),\,%b))];th u(setq,stat_name,before(%q<stat>,chr(177)));
-&DO`SET`STAT [u(cobj,data)]=@attach %!/DO`VAL`STAT;@attach %!/DO`VAL`VALUE;@attach %!/INC`DOSQL=SET`STAT,%q<stat_id>,%q<pers>,%q<value>;th u(vattrib_set,%0,V`PERSONA`STAT`%q<stat_id>,%q<value>);@attach %!/INC`MSG=You now have the [u(setr,msg,[ansi(h,%q<stat_name>)] %3 Rated at: [ansi(h,%q<value>)])],%0
+&DO`SET`STAT [u(cobj,data)]=@attach %!/DO`VAL`STAT;@attach %!/DO`VAL`VALUE;@attach %!/INC`DOSQL=SET`STAT,%q<stat_id>,%q<pers>,%q<value>;@attach %!/INC`MSG=You now have the [u(setr,msg,[ansi(h,%q<stat_name>)] %3 Rated at: [ansi(h,%q<value>)])],%0;@trigger [u(cobj,persona)]/REBUILD`V=%0
 
 &Q`FIND`STAT`EXACT [u(cobj,data)]=SELECT stat_name,stat_id FROM vol_story_stats WHERE stat_category_id=? AND (stat_id=? OR stat_name=?)
 &Q`FIND`STAT`WILD [u(cobj,data)]=SELECT stat_name,stat_id FROM vol_story_stats WHERE stat_category_id=? AND stat_name LIKE "!%%"

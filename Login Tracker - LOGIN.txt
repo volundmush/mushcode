@@ -20,13 +20,13 @@ th u(NEWCOBJ,Login Tracker <LOGIN>,login,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDE
 
 &Q`DELETE`ALL_LOGS [u(cobj,login)]=DELETE from vol_login WHERE character_id=?
 
-&INC`IPSHOW [u(cobj,login)]=@check gt(words(u(setr,ips,if(%2,%0,u(mysql,GET`LOGIN_IPS,%q<t1id>)))),0)=@attach %!/INC`MSG=ERROR: No IP logs found to match against.;th u(setq,pcs,u(filter,if(u(isadmin,%#),ISOBJID,NOTGUEST),u(mysql,GET`OBJIDS_FROM_IPS,u(SQL`IN`STRING,%q<ips>))));@check words(%q<pcs>)=@attach %!/INC`MSG=ERROR: No Matching Logs found.;@pemit %#=u(header,Site matches for [if(%2,%0,name(%0))]);@dolist/inline %q<pcs>={@pemit %#=u(separator,ansi(h,u(pueblize,u(moniker,##),+finger [name(##)]))[ansi(h,\(##\))] - [u(lastidle,##)]);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(20 22 25,Date,Address,Result));@pemit %#=iter(u(mysql2,GET`LOGINS,objid(##)),align(20 22 25,u(fancytime,elements(%i0,3,^),%#),elements(%i0,2,^),if(elements(%i0,1,^),Success,elements(%i0,4,^))),|,%R)};@pemit %#=u(footer)
+&INC`IPSHOW [u(cobj,login)]=@check gt(words(u(setr,ips,if(%2,%0,u(mysql,GET`LOGIN_IPS,%q<t1id>)))),0)=@attach %!/INC`MSG=ERROR: No IP logs found to match against.;th u(setq,pcs,u(filter,if(u(isadmin,%#),ISOBJID,NOTGUEST),u(mysql,GET`OBJIDS_FROM_IPS,u(SQL`IN`STRING,%q<ips>))));@check words(%q<pcs>)=@attach %!/INC`MSG=ERROR: No Matching Logs found.;@pemit %#=u(header,Site matches for [if(%2,%0,name(%0))]);@dolist/inline %q<pcs>={@pemit %#=u(separator,ansi(h,u(pueblize,u(moniker,##),+finger [name(##)]))[ansi(h,\(##\))] - [u(lastidle,##)]);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(20 22 25,Date,Address,Result));@pemit %#=iter(revwords(u(mysql2,GET`LOGINS,objid(##)),|),align(20 22 25,u(fancytime,elements(%i0,3,^),%#),elements(%i0,2,^),if(elements(%i0,1,^),Success,elements(%i0,4,^))),|,%R)};@pemit %#=u(footer)
 
 &Q`GET`LOGIN_IPS [u(cobj,login)]=SELECT DISTINCT ip_address FROM volv_login WHERE character_id=? AND login_is_success=1
 
 &Q`GET`OBJIDS_FROM_IPS [u(cobj,login)]=SELECT DISTINCT character_objid from volv_login WHERE ip_address IN (!) ORDER BY character_name DESC
 
-&Q`GET`LOGINS [u(cobj,login)]=SELECT login_is_success,ip_address,login_date_secs FROM volv_login WHERE character_objid=? LIMIT 10
+&Q`GET`LOGINS [u(cobj,login)]=SELECT login_is_success,ip_address,login_date_secs FROM volv_login WHERE character_objid=? ORDER BY login_date_secs DESC LIMIT 10
 
 &PLAYER`CONNECT [u(cobj,login)]=@attach %!/INC`CHECKPC=%0,1;th u(call`3,volp_login_record,0,%q<t1id>,1,'[sqlescape(get(%0/LASTIP))]')
 

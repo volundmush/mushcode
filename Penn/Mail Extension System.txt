@@ -1,0 +1,8 @@
+@@ DEPENDENCIES: Core, PennMUSH
+@@ This won't work at all on RhostMUSH.
+
+th u(NEWCOBJ,Mail Extension System,Mail,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&STARTUP [u(cobj,mail)]=@hook/ignore @mail=%!,MAIL`CHECK
+
+&MAIL`CHECK [u(Cobj,mail)]=if(lte(strlen(%u),4080),1,0[pemit(%#,ansi(hr,ERROR:) This @mail is too big! Keep the entire command under 4080 characters)])

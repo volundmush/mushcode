@@ -189,86 +189,88 @@ VALUES
 ON DUPLICATE KEY UPDATE stat_category_name=VALUES(stat_category_name),stat_category_custom=VALUES(stat_category_custom),stat_category_specialties=VALUES(stat_category_specialties);
 	
 INSERT INTO vol_story_stats
-	(stat_id,stat_category_id,stat_name,stat_sort)
+	(stat_id,stat_category_id,stat_name,stat_default,stat_sort)
 VALUES
 
 	/* Advantages */
-	(1000,1,"Essence",0),
-	(1001,1,"Willpower",0),
+	(1000,1,"Essence",1,0),
+	(1001,1,"Willpower",5,0),
 	
 	/* Attributes */
-	(2000,2,"Strength",1),
-	(2001,2,"Dexterity",2),
-	(2002,2,"Stamina",3),
-	(2003,2,"Charisma",4),
-	(2004,2,"Manipulation",5),
-	(2005,2,"Appearance",6),
-	(2006,2,"Perception",7),
-	(2007,2,"Intelligence",8),
-	(2008,2,"Wits",9),
+	(2000,2,"Strength",1,1),
+	(2001,2,"Dexterity",1,2),
+	(2002,2,"Stamina",1,3),
+	(2003,2,"Charisma",1,4),
+	(2004,2,"Manipulation",1,5),
+	(2005,2,"Appearance",1,6),
+	(2006,2,"Perception",1,7),
+	(2007,2,"Intelligence",1,8),
+	(2008,2,"Wits",1,9),
 	
 	/* Abilities */
-	(3000,3,"Archery",0),
-	(3001,3,"Athletics",0),
-	(3002,3,"Awareness",0),
-	(3003,3,"Brawl",0),
-	(3004,3,"Bureaucracy",0),
-	(3005,3,"Craft",0),
-	(3006,3,"Dodge",0),
-	(3007,3,"Integrity",0),
-	(3008,3,"Investigation",0),
-	(3009,3,"Larceny",0),
-	(3010,3,"Linguistics",0),
-	(3011,3,"Lore",0),
-	(3012,3,"Martial Arts",0),
-	(3013,3,"Medicine",0),
-	(3014,3,"Melee",0),
-	(3015,3,"Occult",0),
-	(3016,3,"Performance",0),
-	(3017,3,"Presence",0),
-	(3018,3,"Resistance",0),
-	(3019,3,"Ride",0),
-	(3020,3,"Sail",0),
-	(3021,3,"Socialize",0),
-	(3022,3,"Stealth",0),
-	(3023,3,"Survival",0),
-	(3024,3,"Thrown",0),
-	(3025,3,"War",0),
+	(3000,3,"Archery",0,0),
+	(3001,3,"Athletics",0,0),
+	(3002,3,"Awareness",0,0),
+	(3003,3,"Brawl",0,0),
+	(3004,3,"Bureaucracy",0,0),
+	(3005,3,"Craft",0,0),
+	(3006,3,"Dodge",0,0),
+	(3007,3,"Integrity",0,0),
+	(3008,3,"Investigation",0,0),
+	(3009,3,"Larceny",0,0),
+	(3010,3,"Linguistics",0,0),
+	(3011,3,"Lore",0,0),
+	(3012,3,"Martial Arts",0,0),
+	(3013,3,"Medicine",0,0),
+	(3014,3,"Melee",0,0),
+	(3015,3,"Occult",0,0),
+	(3016,3,"Performance",0,0),
+	(3017,3,"Presence",0,0),
+	(3018,3,"Resistance",0,0),
+	(3019,3,"Ride",0,0),
+	(3020,3,"Sail",0,0),
+	(3021,3,"Socialize",0,0),
+	(3022,3,"Stealth",0,0),
+	(3023,3,"Survival",0,0),
+	(3024,3,"Thrown",0,0),
+	(3025,3,"War",0,0),
 	
 	/* Styles */
-	(4000,4,"Snake",0),
-	(4001,4,"Tiger",0),
-	(4002,4,"Single Point Shining Into the Void",0),
-	(4003,4,"White Reaper",0),
-	(4004,4,"Ebon Shadow",0),
-	(4005,4,"Crane",0),
-	(4006,4,"Silver-Voiced Nightingale",0),
-	(4007,4,"Righteous Devil",0),
-	(4008,4,"Black Claw",0),
-	(4009,4,"Dreaming Pearl Courtesan",0),
-	(4010,4,"Steel Devil",0),
+	(4000,4,"Snake",0,0),
+	(4001,4,"Tiger",0,0),
+	(4002,4,"Single Point Shining Into the Void",0,0),
+	(4003,4,"White Reaper",0,0),
+	(4004,4,"Ebon Shadow",0,0),
+	(4005,4,"Crane",0,0),
+	(4006,4,"Silver-Voiced Nightingale",0,0),
+	(4007,4,"Righteous Devil",0,0),
+	(4008,4,"Black Claw",0,0),
+	(4009,4,"Dreaming Pearl Courtesan",0,0),
+	(4010,4,"Steel Devil",0,0),
 	
 	/* What Fire Has Wrought KS styles */
-	(4011,4,"Air Dragon",0),
-	(4012,4,"Earth Dragon",0),
-	(4013,4,"Fire Dragon",0),
-	(4014,4,"Water Dragon",0),
-	(4015,4,"Wood Dragon",0),
-	(4016,4,"Golden Janissary",0),
-	(4017,4,"Mantis",0),
-	(4018,4,"White Veil",0),
+	(4011,4,"Air Dragon",0,0),
+	(4012,4,"Earth Dragon",0,0),
+	(4013,4,"Fire Dragon",0,0),
+	(4014,4,"Water Dragon",0,0),
+	(4015,4,"Wood Dragon",0,0),
+	(4016,4,"Golden Janissary",0,0),
+	(4017,4,"Mantis",0,0),
+	(4018,4,"White Veil",0,0),
 	
 	
 	/* Sorcery */
-	(6000,6,"Terrestrial",1),
-	(6001,6,"Celestial",2),
-	(6002,6,"Solar",3);
+	(6000,6,"Terrestrial",0,1),
+	(6001,6,"Celestial",0,2),
+	(6002,6,"Solar",0,3)
+
+ON DUPLICATE KEY UPDATE stat_name=VALUES(stat_name),stat_category_id=VALUES(stat_category_id),stat_default=VALUES(stat_default),stat_sort=VALUES(stat_sort);
 
 DROP PROCEDURE IF EXISTS volp_rollable_stats;
 DELIMITER $$
 CREATE PROCEDURE volp_rollable_stats(IN in_persona_id INT UNSIGNED)
   BEGIN
-    SELECT s.stat_name,IF(p.stat_value IS NULL,0,p.stat_value) FROM vol_story_stats AS s LEFT JOIN vol_story_persona_stats AS p ON s.stat_id=p.stat_id AND p.persona_id=in_persona_id WHERE s.stat_category_id<4 OR p.stat_value>0 UNION SELECT CONCAT_WS('/',s1.stat_name,ps.specialty_name),IF(p1.stat_value IS NULL,0,p1.stat_value)+ps.specialty_value FROM vol_story_persona_stats_specialties AS ps LEFT JOIN vol_story_persona_stats AS p1 ON p1.stat_id=ps.stat_id AND p1.persona_id=ps.persona_id LEFT JOIN vol_story_stats AS s1 ON s1.stat_id=p1.stat_id WHERE ps.persona_id=in_persona_id;
+    SELECT s.stat_name,IF(p.stat_value IS NULL,0,p.stat_value) FROM vol_story_stats AS s LEFT JOIN vol_story_persona_stats AS p ON s.stat_id=p.stat_id AND p.persona_id=in_persona_id WHERE s.stat_category_id<4 OR p.stat_value>0 UNION SELECT CONCAT_WS('/',s1.stat_name,ps.specialty_name),p1.stat_value+ps.specialty_value FROM vol_story_persona_stats_specialties AS ps LEFT JOIN vol_story_persona_stats AS p1 ON p1.stat_id=ps.stat_id AND p1.persona_id=ps.persona_id LEFT JOIN vol_story_stats AS s1 ON s1.stat_id=p1.stat_id WHERE ps.persona_id=in_persona_id;
   END $$
 DELIMITER ;
 	

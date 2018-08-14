@@ -129,7 +129,7 @@ Support is limited by my time and energy, but it's my goal to provide an easy-to
      * player_name_spaces yes
      * page_aliases yes
      * Under Flags section: You may also want to include ANSI and COLOR256 as a default but some clients might barf at this.
-  4. In your restart file, uncomment and ensure your LANG=en_US if you want to take advantage of the expanded charset. Little requires this, but it does allow accented names and some other tricks. Some server OSes might need the ISO version of en_US specified: LANG=en_US.ISO-8859-1
+  4. In your restart file, uncomment and ensure your LANG=en_US to enable the expanded charset. This is required because many SQL queries utilize unusual characters as delimiters. Some server OSes might need the ISO version of en_US specified, typically: LANG=en_US.ISO-8859-1
   5. Logon to your code-WIZARD character who will own the code. Run the CORE 01 file from PennMUSH folder to create the Core Code Parent.
   6. Next, logon to #1 and run CORE 02.
   7. Return to your WIZARD character and run CORE 03, CORE 04, and CORE 05.

@@ -1259,3 +1259,16 @@ CREATE TABLE IF NOT EXISTS vol_cattack_parameter (
 	cparameter_value SMALLINT SIGNED NOT NULL DEFAULT 0,
 	UNIQUE(cattack_id,cparameter_type,cparameter_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS vol_clog (
+  clog_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  character_id INT UNSIGNED NOT NULL,
+  clog_date_created DATETIME NOT NULL,
+  clog_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  clog_text TEXT NOT NULL,
+  PRIMARY KEY(clog_id),
+  FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE OR REPLACE VIEW volv_clog AS
+  SELECT cl.clog_id,cl.clog_date_created,UNIX_TIMESTAMP(cl.clog_date_created) AS clog_date_created_secs,cl.clog_type,cl.clog_text,ch.* FROM vol_clog AS cl LEFT JOIN volv_character AS ch ON ch.character_id=cl.character_id;

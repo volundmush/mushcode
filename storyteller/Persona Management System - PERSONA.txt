@@ -12,9 +12,15 @@ th u(NEWCOBJ,STORYTELLER: Persona Management System <PERSONA>,persona,,,,WIZARD 
 &SWITCHES`PLAYER [u(cobj,persona)]=ASSUME|RETURN
 &SWITCHES`ADMIN [u(cobj,persona)]=CREATE|DELETE|ASSIGN|REMOVE|ALL|MAKEMAIN
 
-&PLAYER`CREATE [u(cobj,persona)]=@select/inline cand(not(get(%0/D`PERSONA)),u(setr,pers,get(%0/D`ID)))=1,{@attach %!/INC`DOSQL=PERSONA`CREATE,%q<pers>;@attach %!/PERSONA`INIT};
+&PLAYER`CREATE [u(cobj,persona)]=@select/inline cand(not(get(%0/D`PERSONA)),u(setr,pers,get(%0/D`ID)))=1,{@attach %!/INC`DOSQL=PERSONA`CREATE,%q<pers>;@attach %!/INC`DOSQL=PERSONA`STAT_INIT,%q<pers>;@attach %!/REBUILD`V=%0};
 
-&Q`PERSONA`CREATE [u(Cobj,persona)]=INSERT INTO vol_story_personas (persona_id) VALUES (?)
+&Q`PERSONA`CREATE [u(Cobj,persona)]=INSERT IGNORE INTO vol_story_personas (persona_id) VALUES (?)
+&Q`PERSONA`STAT_INIT [u(cobj,persona)]=INSERT IGNORE INTO vol_story_persona_stats (persona_id,stat_id) SELECT ?,stat_id from vol_story_stats
+
+&REBUILD`V [u(cobj,persona)]=@attach %!/WIPE=%0,V`PERSONA;@dolist/inline/delimit [chr(176)] [u(mysql3,SELECT`STAT_VAL,get(%0/D`ID))]={th u(vattrib_set,%0,V`PERSONA`STAT`[elements(##,1,chr(177))],elements(##,2,chr(177)))};th u(setq,temp,u(mysql3,SELECT`TEMPLATE_DATA,get(%0/D`ID)));@dolist/inline TEMPLATE X Y Z={th u(vattrib_set,%0,V`PERSONA`##,elements(%q<temp>,inum(0),chr(177)))}
+
+&Q`SELECT`STAT_VAL [u(cobj,persona)]=SELECT stat_id,stat_value FROM volv_story_persona_stats WHERE persona_id=? AND (stat_value>0 OR stat_value<0)
+&Q`SELECT`TEMPLATE_DATA [u(cobj,persona)]=SELECT template_name,x_splat_name,y_splat_name,z_splat_name FROM volv_story_personas WHERE persona_id=?
 
 &INC`MAIN [u(cobj,persona)]=@check words(u(setr,covers,u(FUN`MYCOVERS,%#)))=@attach %!/INC`MSG=You have no covers!;@pemit %#=u(HEADER,Covers);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(6 25,DBREF,Name));@pemit %#=u(SEPARATOR);@dolist/inline %q<covers>={@pemit %#=align(6 25,%i0,u(moniker,%i0))};@pemit %#=u(subheader)
 

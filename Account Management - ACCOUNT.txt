@@ -109,7 +109,7 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 
 &Q`SET`ACCOUNT_ID [u(cobj,account)]=UPDATE vol_character SET account_id=? WHERE character_id=?
 
-&INC`REMFROMACCOUNT [u(cobj,account)]=@parent %1;@attach %!/INC`DOSQL=CLEAN`LOGIN_LOGS,get(%1/D`ID);@attach %!/INC`DOSQL=CLEAN`ACCOUNT_ID,get(%1/D`ID);th u(attrib_set,%0,CHARACTERS,u(filter,ISOBJID,setdiff(get(%0/CHARACTERS),objid(%1))));@attach %!/INC`REMFROMACCOUNT`EXTRA
+&INC`REMFROMACCOUNT [u(cobj,account)]=@parent %1;@dolist/inline D`ALTS D`ACCOUNT={@attach %!/WIPE=%1,##};@attach %!/INC`DOSQL=CLEAN`LOGIN_LOGS,get(%1/D`ID);@attach %!/INC`DOSQL=CLEAN`ACCOUNT_ID,get(%1/D`ID);th u(attrib_set,%0,CHARACTERS,u(filter,ISOBJID,setdiff(get(%0/CHARACTERS),objid(%1))));@attach %!/INC`REMFROMACCOUNT`EXTRA
 
 &Q`CLEAN`LOGIN_LOGS [u(cobj,account)]=DELETE FROM vol_login WHERE character_id=?
 &Q`CLEAN`ACCOUNT_ID [u(cobj,account)]=UPDATE vol_character SET account_id=NULL WHERE character_id=?

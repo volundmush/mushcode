@@ -85,18 +85,19 @@ CREATE TABLE IF NOT EXISTS vol_story_stats (
 	stat_category_id TINYINT UNSIGNED NOT NULL,
 	stat_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	stat_sort INT UNSIGNED NOT NULL DEFAULT 0,
+	stat_default INT SIGNED NOT NULL DEFAULT 0,
 	stat_name VARCHAR(40) UNIQUE,
 	PRIMARY KEY(stat_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1000000;
 
 CREATE OR REPLACE VIEW volv_story_stats AS
-	SELECT s.stat_id,s.stat_name,s.stat_sort,s.stat_category_id,c.stat_category_name,c.stat_category_custom,c.stat_category_specialties FROM vol_story_stats AS s LEFT JOIN vol_story_stats_categories AS c ON s.stat_category_id=c.stat_category_id;
+	SELECT s.stat_id,s.stat_name,s.stat_sort,s.stat_default,s.stat_category_id,c.stat_category_name,c.stat_category_custom,c.stat_category_specialties FROM vol_story_stats AS s LEFT JOIN vol_story_stats_categories AS c ON s.stat_category_id=c.stat_category_id;
 
 CREATE TABLE IF NOT EXISTS vol_story_persona_stats (
 	persona_stat_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	persona_id INT UNSIGNED NOT NULL,
 	stat_id INT UNSIGNED NOT NULL,
-	stat_value TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	stat_value TINYINT SIGNED NOT NULL DEFAULT 0,
 	stat_flags_1 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	stat_flags_2 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY(persona_stat_id),
@@ -105,7 +106,7 @@ CREATE TABLE IF NOT EXISTS vol_story_persona_stats (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_story_persona_stats AS
-	SELECT p.persona_stat_id,p.persona_id,s.*,p.stat_value,p.stat_flags_1,p.stat_flags_2 FROM vol_story_persona_stats AS p LEFT JOIN volv_story_stats AS s ON p.stat_id=s.stat_id;
+	SELECT p.persona_stat_id,p.persona_id,s.*,IF(p.stat_value IS NULL,s.stat_default,p.stat_value) as stat_value,p.stat_flags_1,p.stat_flags_2 FROM vol_story_persona_stats AS p LEFT JOIN volv_story_stats AS s ON p.stat_id=s.stat_id;
 
 CREATE TABLE IF NOT EXISTS vol_story_persona_stats_specialties (
 	persona_specialty_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
