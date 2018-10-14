@@ -86,9 +86,8 @@
 
 @@ &CMD`+CASTEFAVATTR [u(cobj,chargen)]=$+castefavattr:@check strlen(u(getstat,%#,D`INFO,Caste))=@attach %!/INC`MSG=You do not have a Caste set!;@check match(ALCHEMICAL|LUNAR,getclass(%#),|)=@attach %!/INC`MSG=Only Alchemical and Lunar Exalted may favor Attributes.;@check strlen(u(setr,newfavored,v(DAT`2`FAVORED`[edit(u(getstat,%#,D`INFO,Caste),%B, )])))=@attach %!/INC`MSG=Your Caste does not have any listed Favored Attributes.;@attach %!/INC`MSG=You set your Favored Attributes to those of the [ansi(h,u(getstat,%#,D`INFO,Caste))] Caste.;th attrib set(%#/D`ATTRIBUTES`FAVORED,setunion(get(%#/D`ATTRIBUTES`FAVORED),%q<newfavored>,|,|))
 
-&CMD`+FAVATTR [u(cobj,chargen)]=$^\+(un)?(fav)attr(?\: +(.+))?$:th switch(%1,un,u(setq,mode,rem),u(setq,mode,add));th u(setq,mode2,switch(%2,fav,FAVORED,sup,SUPERNAL));@attach u(cobj,data)/DO`%q<mode>`%q<mode2>=%#,ATTRIBUTES,%3;@attach %!/INC`MSG=You [switch(%q<mode>,add,now,no longer)] [switch(%q<mode2>,SUPERNAL,Supernal Ability,Attribute)] Favor [u(itemize,iter(%q<entry>,ansi(h,u(capnames,%i0)),|,|),|,and,\,)]. Current [switch(%q<mode2>,SUPERNAL,Supernal Ability,Attribute)] Favors: [words(get(%#/D`%q<mode2>`ATTRIBUTES),|)]
-@set [u(cobj,chargen)]/CMD`+FAVATTR=regexp
-
+&CMD`+FAVATTR [u(cobj,chargen)]=$^\+(un)?(fav|sup|cas)attr(?\: +(.+))?$:th switch(%1,un,u(setq,mode,rem),u(setq,mode,add));th u(setq,mode2,switch(%2,fav,FAVORED,sup,SUPERNAL,cas,CASTE));@attach %!/DO`TAG`STAT`1=%#,%3,if(%1,0,switch(%2,fav,1,cas,2,sup,3)),Attribute,2;@attach %!/INC`MSG=You [switch(%q<mode>,add,now,no longer)] [switch(%q<mode2>,SUPERNAL,Supernal Attribute,CASTE,Caste Attribute,FAVORED,Favored Attribute)] [ansi(h,%q<stat_name>)].
+@set [u(cobj,chargen)]/CMD`+FAVABIL=regexp
 
 &DAT`2`FAVORED`ADAMANT [u(cobj,chargen)]=Strength|Appearance|Perception
 &DAT`2`FAVORED`CHANGING MOON [u(cobj,chargen)]=Charisma|Manipulation|Appearance
@@ -234,7 +233,7 @@
 
 &CG`5`DRAGON-BLOODED [u(cobj,chargen)]=Terrestrials begin play with 15 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(u(mysql,COUNT`STATS,%1,4),%R%R[u(CG`5`MACHARMS)])][if(u(mysql,HAS_MERITS,%1,1002),%R%R[u(CG`5`EVOCATIONS)])][if(u(mysql,HAS_WORDPOWERS,%1,415020),%R%R[u(CG`5`SORCERY)])]
 
-&CG`5`LUNAR [u(cobj,chargen)]=Lunars begin play with 15 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(strlen(get(%#/D`STYLES)),%R%R[u(CG`5`MACHARMS)])][if(words(u(wildgrepi,%#,D`MERITS`*,ARTIFACT)),%R%R[u(CG`5`EVOCATIONS)])][if(words(graball(get(%#/D`CHARMS`LUNAR`INTELLIGENCE),* CIRCLE SORCERY*,|,|),|),%R%R[u(CG`5`SORCERY)])]
+&CG`5`LUNAR [u(cobj,chargen)]=Lunars begin play with 15 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(u(mysql,COUNT`STATS,%1,4),%R%R[u(CG`5`MACHARMS)])][if(words(u(wildgrepi,%#,D`MERITS`*,ARTIFACT)),%R%R[u(CG`5`EVOCATIONS)])][if(words(graball(get(%#/D`CHARMS`LUNAR`INTELLIGENCE),* CIRCLE SORCERY*,|,|),|),%R%R[u(CG`5`SORCERY)])]
 
 &CG`5`NATIVECHARMS [u(cobj,chargen)]=[ansi(h,+addcharm <category>=<charm>) to add native Charms.]%R[ansi(h,+delcharm <category>=<charm>)] to delete native Charms.%RCategories for your character type's Native Charms: [u(itemize,u(mysql2,LIST`WORDPOWER_CATEGORIES,%q<template_id>),|,and,\,)]
 

@@ -251,16 +251,16 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`SEX [u(cobj,mco)]=get(%0/SEX)
 &GETPROPERTY`NAME [u(cobj,mco)]=name(%0)
 &GETPROPERTY`FULLALIAS [u(cobj,mco)]=u(fullalias,%0)
-&GETPROPERTY`MONIKER [u(cobj,mco)]=u(moniker,%0)
+&GETPROPERTY`MONIKER [u(cobj,mco)]=u(getmoniker,%0)
 &GETPROPERTY`ALIASNAME [u(cobj,mco)]=name(%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
-&GETPROPERTY`ALIASMONIKER [u(cobj,mco)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
-&GETPROPERTY`ALIASMONIKERAPPROVED [u(cobj,mco)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))][if(not(u(approved,%0)),%b- [ansi(hr,UNAPPROVED)])]
+&GETPROPERTY`ALIASMONIKER [u(cobj,mco)]=u(getmoniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`ALIASMONIKERAPPROVED [u(cobj,mco)]=u(getmoniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))][if(not(u(approved,%0)),%b- [ansi(hr,UNAPPROVED)])]
 &GETPROPERTY`NAMELINK [u(cobj,mco)]=u(namelink,%0)
 &GETPROPERTY`HIDEIDLE [u(cobj,mco)]=u(hideidle,%0)
 &GETPROPERTY`HIDECONN [u(cobj,mco)]=u(hideconn,%0)
 &GETPROPERTY`SEXLETTER [u(cobj,mco)]=left(get(%0/SEX),1)
-&GETPROPERTY`LOCATION [u(cobj,mco)]=if(findable(%#,%0),u(moniker,loc(%0)),*UNFINDABLE*)
-&GETPROPERTY`JOINLOCATION [u(cobj,mco)]=if(findable(%#,%0),if(elock(loc(%0)/Teleport,%#),u(pueblize,u(moniker,loc(%0)),+port [loc(%0)]),u(moniker,loc(%0))),*UNFINDABLE*)
+&GETPROPERTY`LOCATION [u(cobj,mco)]=if(findable(%#,%0),u(getmoniker,loc(%0)),*UNFINDABLE*)
+&GETPROPERTY`JOINLOCATION [u(cobj,mco)]=if(findable(%#,%0),if(elock(loc(%0)/Teleport,%#),u(pueblize,u(getmoniker,loc(%0)),+port [loc(%0)]),u(getmoniker,loc(%0))),*UNFINDABLE*)
 &GETPROPERTY`TIMEZONE [u(cobj,mco)]=u(gettz,%0)
 
 &GETPROPERTY`PICTURE [u(cobj,mco)]=u(weblink,get(%0/D`FINGER`PICTURE))
@@ -273,13 +273,13 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 &GETPROPERTY`EMAIL [u(cobj,mco)]=if(strmatch(u(setr,email,get(%0/D`OOCFINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
 &GETPROPERTY`ACCEMAIL [u(cobj,mco)]=if(isdbref(u(accid,%0)),get(u(accid,%0)/EMAIL))
 &GETPROPERTY`ACCALTS [u(cobj,mco)]=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0))
-&GETPROPERTY`THEME [u(cobj,mco)]=if(u(setr,theme,first(get(%0/D`THEME))),u(pueblize,u(setr,mon,u(moniker,%q<theme>)),+fclist %q<mon>))
+&GETPROPERTY`THEME [u(cobj,mco)]=if(u(setr,theme,first(get(%0/D`THEME))),u(pueblize,u(setr,mon,u(getmoniker,%q<theme>)),+fclist %q<mon>))
 &GETPROPERTY`TYPE [u(cobj,mco)]=default(%0/D`FINGER`TYPE,??)
 &GETPROPERTY`EMAILSET [u(cobj,mco)]=if(not(u(setr,acc,u(accid,%0,1))),pemit(%0,You do not have an Account!)0,if(not(get(%q<acc>/EMAIL)),pemit(%0,You have no account email set! Use +account/email <email> to correct this.)0,1))
 &GETPROPERTY`OBSERVER [u(cobj,mco)]=default(%0/D`OBSERVER,0)
 &GETPROPERTY`CURSCENE [u(cobj,mco)]=if(u(getproperty`observer,%0),ansi(hw,OBS),default(%0/D`SCENE,???))
 
-&GETPROPERTY`BANNER [u(cobj,mco)]=localize(if(cand(isdbref(u(setr,maj,u(getproperty`majordb,%0))),strlen(u(setr,col,u(getproperty`groupcolor,%q<maj>)))),ansi(%q<col>,name(%0)),u(moniker,%0)))
+&GETPROPERTY`BANNER [u(cobj,mco)]=localize(if(cand(isdbref(u(setr,maj,u(getproperty`majordb,%0))),strlen(u(setr,col,u(getproperty`groupcolor,%q<maj>)))),ansi(%q<col>,name(%0)),u(getmoniker,%0)))
 
 &GETPROPERTY`GROUPS [u(cobj,mco)]=localize(default(%0/D`CACHE`GROUPS,u(setr,cache,u(sortgroups,u(sortname,u(filter,NOTLURK,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)),%b,%b,%0))))[u(attrib_set,%0,D`CACHE`GROUPS,%q<cache>)]))
 
@@ -294,7 +294,7 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &GETPROPERTY`GROUPNAMES [u(cobj,mco)]=iter(u(sortgroups,u(sortname,setdiff(u(getproperty`groups,%0),u(getproperty,%0,MAJORDB)))),u(getproperty,%i0,GROUPNAME,1),%b,if(%1,\,%B,|))
 
-&GETPROPERTY`GROUPNAME [u(cobj,mco)]=localize(u(setq,gname,ansi(u(GETPROPERTY`GROUPCOLOR,%0),u(moniker,%0)))[if(%1,u(pueblize,%q<gname>,+group [name(%0)]),%q<gname>)])
+&GETPROPERTY`GROUPNAME [u(cobj,mco)]=localize(u(setq,gname,ansi(u(GETPROPERTY`GROUPCOLOR,%0),u(getmoniker,%0)))[if(%1,u(pueblize,%q<gname>,+group [name(%0)]),%q<gname>)])
 &GETPROPERTY`GROUPCOLOR [u(cobj,mco)]=u(strfirstof,u(color,%#,GROUP,%0,,1),get(%0/SET`COLOR),n)
 &GETPROPERTY`GROUPABBR [u(cobj,mco)]=ansi(u(GETPROPERTY`GROUPCOLOR,%0),default(%0/SET`ABBREVIATION,left(name(%0),3)))
 &GETPROPERTY`GROUPLETTER [u(cobj,mco)]=ansi(u(GETPROPERTY`GROUPCOLOR,%0),default(%0/SET`LETTER,u(strfirstof,left(get(%0/SET`ABBREVIATION),1),left(name(%0),1))))
@@ -581,13 +581,13 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &INC`MSG`NOTICE [u(cobj,mco)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(conf,ANONYMOUS_NOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
-&INC`MSG`CHAN [u(cobj,mco)]=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(moniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof,%1,u(conf,STAFF_ALERTS))]={@cemit %d0=%q<chanmsg>}
+&INC`MSG`CHAN [u(cobj,mco)]=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(getmoniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof,%1,u(conf,STAFF_ALERTS))]={@cemit %d0=%q<chanmsg>}
 @@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
 
 &INC`MSG`SYSCHAN [u(cobj,mco)]=th u(setq,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit %d0=%q<chanmsg>}
 
 &MSG [u(cobj,mco)]=u(msghead,%3,%0) %1
-&RMSG [u(cobj,mco)]=u(msgroom,%3,%0) \[[ansi(h,u(moniker,%4))]\] %1
+&RMSG [u(cobj,mco)]=u(msgroom,%3,%0) \[[ansi(h,u(getmoniker,%4))]\] %1
 
 &MSGHEAD [u(cobj,mco)]=localize(ansi(u(setr,msgcolor,u(color,u(firstof,%1,%#),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
 &MSGROOM [u(cobj,mco)]=localize(ansi(u(setr,msgcolor,u(color,u(firstof,%1,%#),MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
@@ -617,15 +617,15 @@ th if(isdbref(u(cobj,mco)),,setq(0,create(Master Code Object <MCO>))[tel(%q0,swi
 
 &REG`MARKUP [u(cobj,mco)]=\^\^\^(#\d+)\:([^^]+)\^\^\^
 
-@@ &SPEECH`PENNMUSH [u(cobj,mco)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(moniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>)
+@@ &SPEECH`PENNMUSH [u(cobj,mco)]=regeditalli(speakpenn(&[if(strlen(%3),%3,u(getmoniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>)
 
-&SPEECH [u(cobj,mco)]=localize(regeditalli(parsestr(u(colornames,%2,escape(%1),%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(moniker,%0))]),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>))
+&SPEECH [u(cobj,mco)]=localize(regeditalli(parsestr(u(colornames,%2,escape(%1),%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(getmoniker,%0))]),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>))
 @@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup. %6 - Banner override bool.
 
 &REG`SPEECH [u(cobj,mco)]=(?s)"([^ "][^"]*[^ "])"
 &REG`URL [u(cobj,mco)]=\w+\://\S+[^"]
 
-&COLORNAMES [u(cobj,mco)]=localize(u(setq,colstring,iter(%3,lit(%\b)[name(%i0)][lit(%\b)][beep()][switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,OTHER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[strfunc(regeditalli,%1[beep()]%q<colstring>,beep())])
+&COLORNAMES [u(cobj,mco)]=localize(u(setq,colstring,iter(%3,lit(%\b)[name(%i0)][lit(%\b)][beep()][switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(getmoniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(getmoniker,%i0)),if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,OTHER,,1)))),ansi(%q<colfound>,name(%i0)),u(getmoniker,%i0)))],%b,beep()))[strfunc(regeditalli,%1[beep()]%q<colstring>,beep())])
 
 @@ %0 - Viewer. %1 - Text to search. %2 - Display mode. %3 - Dbrefs to check. %4 - Speaker.
 

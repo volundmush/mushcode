@@ -361,7 +361,7 @@ VALUES
 	(508003,5,2008,"Internal Form Mastery"),
 	(508004,5,2008,"Courtesan's Possession"),
 	(508005,5,2008,"Twin-Faced Hero"),
-	(508006,5,2008,"Hybrid Body rearrangement"),
+	(508006,5,2008,"Hybrid Body Rearrangement"),
 	(508007,5,2008,"The Spider's Trap Door"),
 	(508008,5,2008,"Thieving Magpie Prana"),
 	(508009,5,2008,"Many-Pockets Meditation"),

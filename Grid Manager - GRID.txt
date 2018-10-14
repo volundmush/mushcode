@@ -25,9 +25,9 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &SYSTEM`NAME [u(cobj,grid)]=GRID
 
-&FUN`LISTDISTRICTS [u(cobj,grid)]=u(sortorder,u(sortname,u(filter,ISDIST,children(%0))))
+&FUN`LISTDISTRICTS [u(cobj,grid)]=u(sortname,u(filter,ISDIST,children(%0)))
 
-&FUN`CHAIN [u(cobj,grid)]=iter(u(filter,ISDIST,revwords(lparent(%0))),u(moniker,%i0),%b,if(%1,/,%B-%B))
+&FUN`CHAIN [u(cobj,grid)]=iter(u(filter,ISDIST,revwords(lparent(%0))),u(getmoniker,%i0),%b,if(%1,/,%B-%B))
 
 &FIL`ISDIST [u(cobj,grid)]=cand(hastype(%0,THING),get(%0/D`DISTRICT))
 &FIL`NOTDIST [u(cobj,grid)]=not(u(FIL`ISDIST,%0))
@@ -62,7 +62,7 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &INC`ORDER [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Order value empty.;@check valnum(%1)=@attach %!/INC`MSG=ERROR: Order values must be whole, positive numbers.;&ORDER %q<dist>=%1;@set %q<dist>/ORDER=no_inherit;@attach %!/INC`MSG=Order set.;@attach %!/INC`MSG`CHAN={Changed order for %q<dist> '%q<distname>'}
 
-&INC`FINDDIST [u(cobj,grid)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No District entered to check.;th u(setq,dist%1,u(cobj,district));@select/inline strlen(%0)=0,{@@ We're sticking with the root district!},{@dolist/inline/delimit / %0={th u(setq,dname,trim(u(choosegame,%i0,%d0)));@check words(u(setr,dist%1,namegraball(u(FUN`LISTDISTRICTS,r(dist%1)),%q<dname>)))=@attach %!/INC`MSG=ERROR: District '%q<dname>' not found.;@stop gt(words(r(dist%1)),1)=@attach %!/INC`MSG=ERROR: '%q<dname>' matched [u(itemize,iter(r(dist%1),u(pueblize,name(%i0),+district %i0),%b,|),|,and,\,)]. Please be more specific!;th u(setq,distname%1,name(r(dist%1)));th u(setq,alldists%1,cat(r(alldists%1),r(dist%1)))}};th u(setq,distnames%1,iter(r(alldists%1),u(moniker,%i0),%b,ansi(hy,/)));
+&INC`FINDDIST [u(cobj,grid)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No District entered to check.;th u(setq,dist%1,u(cobj,district));@select/inline strlen(%0)=0,{@@ We're sticking with the root district!},{@dolist/inline/delimit / %0={th u(setq,dname,trim(u(choosegame,%i0,%d0)));@check words(u(setr,dist%1,namegraball(u(FUN`LISTDISTRICTS,r(dist%1)),%q<dname>)))=@attach %!/INC`MSG=ERROR: District '%q<dname>' not found.;@stop gt(words(r(dist%1)),1)=@attach %!/INC`MSG=ERROR: '%q<dname>' matched [u(itemize,iter(r(dist%1),u(pueblize,name(%i0),+district %i0),%b,|),|,and,\,)]. Please be more specific!;th u(setq,distname%1,name(r(dist%1)));th u(setq,alldists%1,cat(r(alldists%1),r(dist%1)))}};th u(setq,distnames%1,iter(r(alldists%1),u(getmoniker,%i0),%b,ansi(hy,/)));
 
 &INC`LOCK [u(cobj,grid)]=@check isdbref(u(cobj,lms))=@attach %!/INC`MSG=ERROR: Lock Management System <LMS> not installed. Use @lock instead.;@attach %!/INC`FINDDIST=before(%0,/);@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach u(cobj,lms)/INC`DOLOCK=%q<dist>,after(%0,/),%1,1
 &INC`UNLOCK [u(cobj,grid)]=@attach %!/INC`MSG=To Unlock, use the @unlock command directly.

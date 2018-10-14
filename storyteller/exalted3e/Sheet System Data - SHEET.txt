@@ -9,7 +9,7 @@
 &FUN`CLASSINFO`MORTAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex,STAT_1000~Essence~1|SPLAT_X~Profession~N/A)
 &FUN`CLASSINFO`SOLAR [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex,STAT_1000~Essence~1|SPLAT_X~Caste~N/A)
 &FUN`CLASSINFO`LUNAR [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex|FIELD_50~Totem Animal~None,STAT_1000~Essence~1|SPLAT_X~Caste~N/A)
-&FUN`CLASSINFO`DRAGON-BLOODED [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SPLAT_X~Aspect~N/A,STAT_1000~Essence~1|FIELD_40~Nation~Outcaste|FIELD_41~House~None)
+&FUN`CLASSINFO`DRAGON-BLOODED [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex|SPLAT_X~Aspect~N/A,STAT_1000~Essence~1|FIELD_40~Nation~Outcaste|FIELD_41~House~None)
 
 &FUN`CLASSINFO`ABYSSAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,NAME~Name|CASTE~Caste~N/A|[if(u(game_config,STORYTELLER,RESONANCE),FLAWED VIRTUE~Flawed Virtue~None,DOOM~Doom~None)],POWER~Essence~1|LIEGE~Liege~None)
 

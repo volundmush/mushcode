@@ -25,7 +25,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &STARTUP [u(cobj,ccp)]=@dolist/inline lattr(%!/START`*)={@include/nobreak %!/##}
 
-&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_options my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink namecolor weblink codename getproperty hideidle lastidle chanhash,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_options my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink namecolor weblink codename getproperty hideidle lastidle chanhash getmoniker,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
 
 @@ &FUNCTIONLIST`EXTRA [u(cobj,ccp)]=
 @@ &FUNCTIONLIST`ADMIN [u(cobj,ccp)]=
@@ -150,9 +150,9 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &NEXTSLOT [u(cobj,ccp)]=add(1,lmath(max,iter(u(filter,ISSLOT,lattr(%0/[if(strlen(%1),%1`*,*)])),last(%i0,`))))
 
-&MONIKER [u(cobj,ccp)]=localize(if(%1,if(setr(col,strfirstof(u(color,%1,NAMES,%0,,1),switch(1,strmatch(num(%0),num(%1)),u(color,%1,v(SYSTEM`COLORS),ME),strmatch(num(%0),%#),u(color,%1,v(SYSTEM`COLORS),SPEAKER),u(color,%1,v(SYSTEM`COLORS),SPEAKER)))),ansi(%q<col>,name(%0)),moniker(%0)),moniker(%0)))
+&GETMONIKER [u(cobj,ccp)]=localize(if(%1,if(setr(col,strfirstof(u(color,%1,NAMES,%0,,1),switch(1,strmatch(num(%0),num(%1)),u(color,%1,v(SYSTEM`COLORS),ME),strmatch(num(%0),%#),u(color,%1,v(SYSTEM`COLORS),SPEAKER),u(color,%1,v(SYSTEM`COLORS),SPEAKER)))),ansi(%q<col>,name(%0)),moniker(%0)),moniker(%0)))
 
-&NAMELINK [u(cobj,ccp)]=localize(u(mxpmenu,u(strfirstof,%2,u(moniker,%0)),iter(setr(com,strfirstof(%1,u(conf,NAMELINK))),%i0 [name(%0)],|,|),%q<com>))
+&NAMELINK [u(cobj,ccp)]=localize(u(mxpmenu,u(strfirstof,%2,u(getmoniker,%0)),iter(setr(com,strfirstof(%1,u(conf,NAMELINK))),%i0 [name(%0)],|,|),%q<com>))
 
 &NAMEGRAB [u(cobj,ccp)]=namegrab(%0,%1)
 
@@ -237,15 +237,15 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &GETPROPERTY [u(cobj,ccp)]=localize(if(isdbref(%0),u(GETPROPERTY`%1,%0,%2,%3,%4)))
 
 &GETPROPERTY`SEX [u(cobj,ccp)]=if(%1,left(get(%0/SEX),%1),get(%0/SEX))
-&GETPROPERTY`NAME [u(cobj,ccp)]=u(moniker,%0)
+&GETPROPERTY`NAME [u(cobj,ccp)]=u(getmoniker,%0)
 &GETPROPERTY`ALIAS [u(cobj,ccp)]=if(%1,u(fullalias,%0),u(getalias,%0))
-&GETPROPERTY`ALIASNAME [u(cobj,ccp)]=u(moniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`ALIASNAME [u(cobj,ccp)]=u(getmoniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
 &GETPROPERTY`NAMELINK [u(cobj,ccp)]=u(namelink,%0,edit(%1,^^^,|))
 &GETPROPERTY`HIDEIDLE [u(cobj,ccp)]=u(hideidle,%0)
 &GETPROPERTY`HIDECONN [u(cobj,ccp)]=u(hideconn,%0)
 &GETPROPERTY`LASTIDLE [u(cobj,ccp)]=u(lastidle,%0)
 &GETPROPERTY`LASTIDLE2 [u(cobj,ccp)]=u(lastidle2,%0)
-&GETPROPERTY`LOCATION [u(cobj,ccp)]=if(findable(%#,%0),if(cand(elock(loc(%0)/Teleport,%#),%1),u(pueblize,u(moniker,loc(%0)),+port [loc(%0)]),u(moniker,loc(%0))),*UNFINDABLE*)
+&GETPROPERTY`LOCATION [u(cobj,ccp)]=if(findable(%#,%0),if(cand(elock(loc(%0)/Teleport,%#),%1),u(pueblize,u(getmoniker,loc(%0)),+port [loc(%0)]),u(getmoniker,loc(%0))),*UNFINDABLE*)
 &GETPROPERTY`TIMEZONE [u(cobj,ccp)]=u(gettz,%0)
 &GETPROPERTY`UMAIL [u(cobj,ccp)]=u(umail,%0)
 &GETPROPERTY`ALTS [u(cobj,ccp)]=if(isdbref(u(cobj,alts)),u(u(cobj,alts)/FUN`ALTS`LIST,%0))
@@ -266,7 +266,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &GETPROPERTY`FACRANK [u(cobj,ccp)]=if(isdbref(setr(grp,num(u(getproperty`tierdb,%0,u(conf,FACTION_TIER),1)))),setq(title,get(%0/D`GROUP`%q<grp>`TITLE))[setq(rankname,get(%q<grp>/RANK`[setr(rank,get(%0/D`GROUP`%q<grp>`RANK))]`NAME))][setq(disp,if(%1,u(strfirstof,%q<title>,%q<rankname>),%q<rankname>))][if(%2,%q<rank>-%q<disp>,%q<disp>)])
 
 &GETPROPERTY`GROUPS [u(cobj,ccp)]=iter(rest(u(getproperty`groupdb,%0,%1)),u(%i0/GET`NAME),%b,if(%2,|,\,%b))
-&GETPROPERTY`BANNER [u(cobj,ccp)]=if(isdbref(setr(grp,first(u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1)))),u(%q<grp>/GET`COLORIZE,name(%0)),u(moniker,%0))
+&GETPROPERTY`BANNER [u(cobj,ccp)]=if(isdbref(setr(grp,first(u(getproperty`[if(strlen(%1),tierdb,groupdb)],%0,u(strfirstof,%1,1),1)))),u(%q<grp>/GET`COLORIZE,name(%0)),u(getmoniker,%0))
 
 &GETPROPERTY`GROUPNAMES [u(cobj,ccp)]=iter(u(getproperty`groupdb,%0,%1),u(%i0/GET`NAME),%b,if(%2,|,\,%b))
 &GETPROPERTY`TIERNAMES [u(cobj,ccp)]=iter(u(getproperty`tierdb,%0,%1,%2),u(%i0/GET`NAME),%b,if(%3,|,\,%b))
@@ -484,7 +484,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 &INC`COLOR`NAME [u(cobj,ccp)]=@switch/inline strlen(%0)=0,{@attach %!/INC`COLOR`NAME`LIST},{@attach %!/INC`COLOR`NAME`SET}
 @set [u(cobj,ccp)]/INC`COLOR`NAME=no_inherit
 
-&INC`COLOR`NAME`LIST [u(cobj,ccp)]=@pemit %#=u(header,Name Color);@pemit %#=ansi(u(color,%#,v(SYSTEM`COLORS),COLUMN_NAMES),align(34 10,Name,Color));@pemit %#=u(separator);@dolist/inline u(filter,ISDBREF,edit(u(lattr,u(strfirstof,u(accid,%#),%#)/CUSTCOLOR`CHARACTER`#*),CUSTCOLOR`CHARACTER`,))={@pemit %#=align(34 10,u(moniker,##),get(%#/CUSTCOLOR`CHARACTER`##))};@pemit %#=u(footer)
+&INC`COLOR`NAME`LIST [u(cobj,ccp)]=@pemit %#=u(header,Name Color);@pemit %#=ansi(u(color,%#,v(SYSTEM`COLORS),COLUMN_NAMES),align(34 10,Name,Color));@pemit %#=u(separator);@dolist/inline u(filter,ISDBREF,edit(u(lattr,u(strfirstof,u(accid,%#),%#)/CUSTCOLOR`CHARACTER`#*),CUSTCOLOR`CHARACTER`,))={@pemit %#=align(34 10,u(getmoniker,##),get(%#/CUSTCOLOR`CHARACTER`##))};@pemit %#=u(footer)
 @set [u(cobj,ccp)]/INC`COLOR`NAME`LIST=no_inherit
 
 &INC`COLOR`NAME`SET [u(cobj,ccp)]=@attach %!/INC`CHECKPC=%0,1;@switch/inline strlen(%1)=0,{@attach %!/INC`MSG=Colorname for '%q<t1name>' restored to default.;@attach %!/WIPE=u(accid,%#),CUSTCOLOR`CHARACTER`%q<t1>},{@attach %!/INC`VALID`COLOR=%1;th u(attrib_set,u(accid,%#),CUSTCOLOR`CHARACTER`%q<t1>,%q<value>);@attach %!/INC`MSG=u(setr,msg,NAMES %q<t1name> Set to: %q<value>)}
@@ -645,9 +645,9 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &INC`VALID`GROUPLIST [u(Cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No GroupList entered!;@dolist/inline/delimit | %0={@attach %!/INC`VALID`GROUP=before(u(choosegame,%i0,%d0),/);th u(setq,finalvalue,squish(cat(%q<finalvalue>,%q<value>)))};th u(setq,value,%q<finalvalue>);th u(setq,valueformat,iter(%q<value>,u(%i0/GET`NAME),%b,\,%b))
 
-&INC`VALID`RADIO [u(Cobj,ccp)]=@check isdbref(u(setr,value,objid(u(u(cobj,radio)/FUN`FINDFREQ,%0,%:))))=@attach %!/INC`MSG=ERROR: Radio '%0' not found.;th u(setq,valueformat,u(moniker,%q<value>))
+&INC`VALID`RADIO [u(Cobj,ccp)]=@check isdbref(u(setr,value,objid(u(u(cobj,radio)/FUN`FINDFREQ,%0,%:))))=@attach %!/INC`MSG=ERROR: Radio '%0' not found.;th u(setq,valueformat,u(getmoniker,%q<value>))
 
-&INC`VALID`RADIOLIST [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No RadioList entered!;@dolist/inline/delimit | %0={@attach %!/INC`VALID`RADIO=before(u(choosegame,%i0,%d0),/);th u(setq,finalvalue,squish(cat(%q<finalvalue>,%q<value>)))};th u(setq,value,%q<finalvalue>);th u(setq,valueformat,iter(%q<value>,u(moniker,%i0),%b,\,%b))
+&INC`VALID`RADIOLIST [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No RadioList entered!;@dolist/inline/delimit | %0={@attach %!/INC`VALID`RADIO=before(u(choosegame,%i0,%d0),/);th u(setq,finalvalue,squish(cat(%q<finalvalue>,%q<value>)))};th u(setq,value,%q<finalvalue>);th u(setq,valueformat,iter(%q<value>,u(getmoniker,%i0),%b,\,%b))
 
 @@ MOVEMENT SECTION
 &INC`CANRELOCATE [u(cobj,ccp)]=@select/inline cor(u(isadmin,%#),u(isadmin,%0))=0,{@check elock(loc(%0)/leave,%0)=@attach %!/INC`MSG=LEAVE @lock Failure.;@check elock(%1/Enter,%0)=@attach %!/INC`MSG=ENTER @lock failure.;@check elock(%1/Teleport,%0)=@attach %!/INC`MSG=TELEPORT @lock failure.}
@@ -662,13 +662,13 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &INC`MSG`NOTICE [u(cobj,ccp)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(conf,ANONYMOUS_NOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
-&INC`MSG`CHAN [u(cobj,ccp)]=th setq(chanmsg,if(not(%5),ansi(h,\[[u(moniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(strfirstof(%2,u(SYSTEM`NAME))),not(%3)),strfirstof(%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [strfirstof(%1,u(conf,STAFF_ALERTS))]={@cemit/noisy %i0=%q<chanmsg>}
+&INC`MSG`CHAN [u(cobj,ccp)]=th setq(chanmsg,if(not(%5),ansi(h,\[[u(getmoniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(strfirstof(%2,u(SYSTEM`NAME))),not(%3)),strfirstof(%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [strfirstof(%1,u(conf,STAFF_ALERTS))]={@cemit/noisy %i0=%q<chanmsg>}
 @@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
 
 &INC`MSG`SYSCHAN [u(cobj,ccp)]=th setq(chanmsg,[if(not(%5),ansi(h,\[[strfirstof(%4,SYSTEM)]\]%B))][if(cand(strlen(strfirstof(%2,u(SYSTEM`NAME))),not(%3)),strfirstof(%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit/noisy %i0=%q<chanmsg>}
 
 &MSG [u(cobj,ccp)]=if(not(%5),u(msghead,%3,%0)%B)[if(%4,regeditalli(%1,v(REG`ENCODETIME),u(fancytime,$<time>,u(gettz,%0))),%1)]
-&RMSG [u(cobj,ccp)]=if(not(%5),u(msghead,%3,%0)%B\[[ansi(h,u(moniker,%4))]\]%B)%1
+&RMSG [u(cobj,ccp)]=if(not(%5),u(msghead,%3,%0)%B\[[ansi(h,u(getmoniker,%4))]\]%B)%1
 
 &REG`ENCODETIME [u(cobj,ccp)]=\^\^\^(?P<time>\d+)\^\^\^
 
@@ -700,15 +700,15 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,confi
 
 &REG`MARKUP [u(cobj,ccp)]=\^\^\^(#\d+)\:([^^]+)\^\^\^
 
-&SPEECH [u(cobj,ccp)]=localize([setq(quote,ansi(u(color,%2,%4,QUOTES),"))][setq(speechcol,u(color,%2,%4,SPEECH))][setq(dispname,if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),if(strlen(setr(namecol,u(namecolor,%2,%0,%0))),ansi(%q<namecol>,name(%0)),u(moniker,%0)))))][regeditalli(speakpenn(&[if(%7,u(namelink,%0,,%q<dispname>),%q<dispname>)],%1),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)])
+&SPEECH [u(cobj,ccp)]=localize([setq(quote,ansi(u(color,%2,%4,QUOTES),"))][setq(speechcol,u(color,%2,%4,SPEECH))][setq(dispname,if(strlen(%3),%3,if(%6,u(getproperty,%0,banner),if(strlen(setr(namecol,u(namecolor,%2,%0,%0))),ansi(%q<namecol>,name(%0)),u(getmoniker,%0)))))][regeditalli(speakpenn(&[if(%7,u(namelink,%0,,%q<dispname>),%q<dispname>)],%1),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>)])
 @@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup. %6 - Banner override bool. %7 - Use Namelink?
 
 &REG`SPEECH [u(cobj,ccp)]=(?s)"([^ "][^"]*[^ "])"
 &REG`URL [u(cobj,ccp)]=\w+\://\S+[^"]
 
-&COLORNAMES [u(cobj,ccp)]=localize(setq(names,sortkey(#lambda/strlen(\%0),iter(setr(dbs,setunion(%3,u(get_names,%0))),localize(setr(norname,name(%i0))[if(not(strmatch(%q<norname>,setr(accname,accname(%i0)))),|%q<accname>)]),%b,|),-n,|,|))[regeditalli(%1,\\b\(%q<names>\)\\b,if(match(name(%0)|[accname(%0)],setr(fname,$0),|),if(strlen(setr(fcolor,strfirstof(u(color,%0,NAMES,%0,,1),u(color,%0,NAMES,MINE,,1)))),ansi(%q<fcolor>,accname(%0)),u(moniker,%0)),if(isdbref(setr(fdb,namegrab(%q<dbs>,stripaccents(%q<fname>)))),if(strlen(setr(fcolor,strfirstof(u(color,%0,NAMES,%q<fdb>,,1),u(color,%0,NAMES,switch(%q<fdb>,%4,SPEAKER,OTHER),,1)))),ansi(%q<fcolor>,accname(%q<fdb>)),u(moniker,%q<fdb>)),%q<fname>)))])
+&COLORNAMES [u(cobj,ccp)]=localize(setq(names,sortkey(#lambda/strlen(\%0),iter(setr(dbs,setunion(%3,u(get_names,%0))),localize(setr(norname,name(%i0))[if(not(strmatch(%q<norname>,setr(accname,accname(%i0)))),|%q<accname>)]),%b,|),-n,|,|))[regeditalli(%1,\\b\(%q<names>\)\\b,if(match(name(%0)|[accname(%0)],setr(fname,$0),|),if(strlen(setr(fcolor,strfirstof(u(color,%0,NAMES,%0,,1),u(color,%0,NAMES,MINE,,1)))),ansi(%q<fcolor>,accname(%0)),u(getmoniker,%0)),if(isdbref(setr(fdb,namegrab(%q<dbs>,stripaccents(%q<fname>)))),if(strlen(setr(fcolor,strfirstof(u(color,%0,NAMES,%q<fdb>,,1),u(color,%0,NAMES,switch(%q<fdb>,%4,SPEAKER,OTHER),,1)))),ansi(%q<fcolor>,accname(%q<fdb>)),u(getmoniker,%q<fdb>)),%q<fname>)))])
 @@ Old one, in case I need it again
-@@ &COLORNAMES`PENNMUSH [u(cobj,ccp)]=setq(colstring,iter(%3,\\b[name(%i0)]\\b^[switch(%i0,%0,if(strlen(setr(colfound,strfirstof(u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),%4,if(strlen(setr(colfound,strfirstof(u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)),if(strlen(setr(colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(moniker,%i0)))],%b,beep()))[setq(final,fold(COLORNAME`PENN,%q<colstring>,%1,beep()))]%q<final>
+@@ &COLORNAMES`PENNMUSH [u(cobj,ccp)]=setq(colstring,iter(%3,\\b[name(%i0)]\\b^[switch(%i0,%0,if(strlen(setr(colfound,strfirstof(u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(getmoniker,%i0)),%4,if(strlen(setr(colfound,strfirstof(u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(getmoniker,%i0)),if(strlen(setr(colfound,u(color,%0,NAMES,%i0,,1))),ansi(%q<colfound>,name(%i0)),u(getmoniker,%i0)))],%b,beep()))[setq(final,fold(COLORNAME`PENN,%q<colstring>,%1,beep()))]%q<final>
 
 &COLORNAME`PENN [u(cobj,ccp)]=regeditalli(%0,before(%1,^),after(%1,^))
 @@ %0 - Viewer. %1 - Text to search. %2 - Display mode. %3 - Dbrefs to check. %4 - Speaker.

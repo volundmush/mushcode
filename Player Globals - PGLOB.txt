@@ -14,7 +14,7 @@ th u(NEWCOBJ,Player Globals <PGLOB>,pglob,,,,WIZARD SAFE !NO_COMMAND,INHERIT SID
 &CMD`DICE [u(cobj,pglob)]=$+dice *d*:think [u(setq,0,0)][if(strmatch(%1,*+*),[u(setq,a,[before(%1,+)])][u(setq,b,[after(%1,+)])],[u(setq,a,%1)][u(setq,b,0)])] [switch([and([gt(%0,0)],[lt(%0,50)],[gt(%qa,0)],[lt(%qa,250)],[gte(%qb,-10)],[lt(%0,250)],[isint(%0)],[isint(%qa)],[isint(%qb)])],0,[pemit(%#,I'm sorry but you can only have positive integers when you roll dice. The addition at the end must be between -10 and 250.)],[remit([loc(%#)],<[ansi(xterm130,DICE ROLLER)]> %N rolled %0d%qa [map(me/full_die,[lnum(%0)], ,[space(1)])] + %qb = [if(%qb,[u(setq,0,[add(%q0,%qb)])])]%q0)])]
 &FULL_DIE [u(cobj,pglob)]=[u(setq,1,add(rand(%qa),1))][u(setq,0,add(%q0,%q1))]<%q1>
 
-&CMD`UNAFF [u(cobj,pglob)]=$+unaff:@check words(u(setr,unaff,u(sortname,u(filter,UNAFF,lsearch(all,type,player)))))=@attach %!/INC`MSG=ERROR: No unaffiliated players to display. Oops!;@pemit %#=u(header,Unaffiliated Characters);@pemit %#=u(table,iter(%q<unaff>,u(moniker,%i0),%b,|),36,u(width,%#),|);@pemit %#=u(footer)
+&CMD`UNAFF [u(cobj,pglob)]=$+unaff:@check words(u(setr,unaff,u(sortname,u(filter,UNAFF,lsearch(all,type,player)))))=@attach %!/INC`MSG=ERROR: No unaffiliated players to display. Oops!;@pemit %#=u(header,Unaffiliated Characters);@pemit %#=u(table,iter(%q<unaff>,u(getmoniker,%i0),%b,|),36,u(width,%#),|);@pemit %#=u(footer)
 
 &FIL`UNAFF [u(cobj,pglob)]=cand(nor(u(ISGUEST,%0),u(isadmin,%0),strmatch(name(%0),Guest *)),not(isdbref(u(getproperty,%0,majordb))),hasattrval(%0/D`FINGER`PROFILE),hasattrval(%0/D`FINGER`FUNCTION))
 
