@@ -22,9 +22,9 @@
 &FUN`EXTRA`MUSIC [u(cobj,ancestor_room)]=[ansi(hc,This room has a soundtrack! Type)] [vol_pueblize(ansi(h,soundtrack),soundtrack)] [ansi(hc,to list!)]
 &FUN`EXTRA`PLACE [u(cobj,ancestor_room)]=This room has places! Type [vol_pueblize(ansi(h,places),places)] to list!
 
-&EXITFORMAT [u(cobj,ancestor_room)]=[if(words(lvexits(%!)),udefault(EXITFORMAT`[u(SETTINGS`ROOM_EXITS)],u(EXITFORMAT`DEFAULT)),u(SUBHEADER))]
+&EXITFORMAT [u(cobj,ancestor_room)]=[if(words(lvexits(%!)),udefault(EXITFORMAT`[u(SETTINGS`ROOM_EXITS)],u(EXITFORMAT`DEFAULT)),u(SUBHEADER,u(FOOTER_TEXT)))]
 
-&EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[table(iter(vol_sortorder(vol_sortname(lvexits(%!))),ljust(if(strlen(alias(%i0)),<[ansi(vol_color(%#,ROOM,EXIT_ALIAS),vol_pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(vol_color(%#,ROOM,EXIT_NAME),vol_pueblize(moniker(%i0),name(%i0)))] to [ansi(vol_color(%#,ROOM,EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))],%b,|),37,width(%#),|)]%R[u(SUBHEADER)]
+&EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[table(iter(vol_sortorder(vol_sortname(lvexits(%!))),ljust(if(strlen(alias(%i0)),<[ansi(vol_color(%#,ROOM,EXIT_ALIAS),vol_pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(vol_color(%#,ROOM,EXIT_NAME),vol_pueblize(moniker(%i0),name(%i0)))] to [ansi(vol_color(%#,ROOM,EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))],%b,|),37,width(%#),|)]%R[u(SUBHEADER,u(FOOTER_TEXT))]
 
 &FIL`VISIBLE [u(cobj,ancestor_room)]=not(u(FIL`DARK,%0))
 &FIL`DARK [u(cobj,ancestor_room)]=hasflag(%0,DARK)

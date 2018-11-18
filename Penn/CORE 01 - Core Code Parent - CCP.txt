@@ -3,7 +3,7 @@
 @@ RUN THIS ON CODE WIZARD OBJECT!
 @switch/first/inline hasflag(%#,UNREGISTERED)=1,{@set me=!UNREGISTERED};@power me=no_pay
 
-th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,config(master_room))][parent(%#,%q0)][set(%q0,COBJ`CCP:[objid(%q0)])][set(%q0,WIZARD SAFE !NO_COMMAND)])
+think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,config(master_room))][parent(%#,%q0)][set(%q0,COBJ`CCP:[objid(%q0)])][set(%q0,WIZARD SAFE !NO_COMMAND)])
 @@ Yeah, it's an awful hodgepodge of side effect functions. For a good cause.
 
 &COBJ [parent(%#)]=u(COBJ`%0)

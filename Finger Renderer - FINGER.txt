@@ -20,13 +20,13 @@ th u(NEWCOBJ,Finger <FINGER>,finger,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 
 &INC`FIELDS [u(cobj,finger)]=@attach %!/INC`MSG=Available Fields: [iter(u(FUN`FIELDS,%#),%i0,|,\,%b)]
 
-&FUN`FIELDS [u(cobj,finger)]=setunion(setunion(u(conf,PLAYER_FIELDS),if(u(isadmin,%#),u(conf,ADMIN_FIELDS)),|,|),if(u(approved,%0),,u(conf,CHARGEN_FIELDS)),|,|)
+&FUN`FIELDS [u(cobj,finger)]=setunion(setunion(u(conf,PLAYER_FIELDS),if(u(isadmin,%#),u(conf,ADMIN_FIELDS)),|,|),setunion(if(u(approved,%0),,u(conf,CHARGEN_FIELDS)),if(cor(u(isadmin,%#),not(get(%0/D`APPROVED`EVER))),u(conf,LOCKED_FIELDS)),|,|),|,|)
 
 &INC`SET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(cand(u(isadmin,%#),strmatch(%0,*/*)),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(cand(u(isadmin,%#),strmatch(%0,*/*)),after(%0,/),%0),u(FUN`FIELDS,%q<t1>),|,field;@select/inline strlen(%1)=0,{@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] Setting %q<field> to nothing will clear it. Are you sure? Enter that again to verify!},CLEAR FINGER %q<field>},>0,{@attach %!/INC`CHECK`%q<field>=%1};&D`FINGER`%q<field> %q<t1>=%1;@attach %!/INC`MSG=You set [if(strmatch(%#,%q<t1>),your,%q<t1name>'s)] [u(capnames,%q<field>)] Finger Field to: %1;@select/inline strmatch(%#,%q<t1>)=0,{@attach %!/INC`MSG`NOTICE=Your [u(capnames,%q<field>)] Finger Field is now: %1,%q<t1>}
 
 &INC`GET [u(cobj,finger)]=@attach %!/INC`CHECKPC=if(strmatch(%0,*/*),before(%0,/),%#),1;@attach %!/INC`PARTIAL=if(strmatch(%0,*/*),after(%0,/),%0),setunion(setunion(u(conf,PLAYER_FIELDS),u(conf,ADMIN_FIELDS),|,|),u(conf,CHARGEN_FIELDS),|,|),|,field;@pemit %#=u(strfirstof,u(getproperty,%q<T1>,%q<field>),get(%q<t1>/D`FINGER`%q<field>))
 
-&CONFIG`OPTIONS [u(cobj,finger)]=FORMATTER|HEADER_CONTENTS|FOOTER_CONTENTS|LEFT_COLUMN|RIGHT_COLUMN|BOTTOM_COLUMN|PLAYER_FIELDS|ADMIN_FIELDS|CHARGEN_FIELDS|FIELD_COLOR
+&CONFIG`OPTIONS [u(cobj,finger)]=FORMATTER|HEADER_CONTENTS|FOOTER_CONTENTS|LEFT_COLUMN|RIGHT_COLUMN|BOTTOM_COLUMN|PLAYER_FIELDS|ADMIN_FIELDS|CHARGEN_FIELDS|LOCKED_FIELDS|FIELD_COLOR
 
 &CONFIG`FORMATTER [u(cobj,finger)]=+finger calls FINGER`<this> to render the display. Leave this be unless you know how to MUSHcode an alternate renderer!
 &CONFIG`FORMATTER`DEFAULT [u(cobj,finger)]=STANDARD
@@ -63,6 +63,10 @@ th u(NEWCOBJ,Finger <FINGER>,finger,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 &CONFIG`CHARGEN_FIELDS [u(cobj,finger)]=Fields settable by players but only while unapproved/in chargen.
 &CONFIG`CHARGEN_FIELDS`DEFAULT [u(cobj,finger)]=
 &CONFIG`CHARGEN_FIELDS`VALID [u(cobj,finger)]=LIST
+
+&CONFIG`LOCKED_FIELDS [u(cobj,finger)]=Fields settable during chargen on never-approved characters.
+&CONFIG`LOCKED_FIELDS`DEFAULT [u(cobj,finger)]=
+&CONFIG`LOCKED_FIELDS`VALID [u(cobj,finger)]=LIST
 
 &CONFIG`FIELD_COLOR [u(cobj,finger)]=Color for field names. Such as Group: or Sex: or Theme:
 &CONFIG`FIELD_COLOR`DEFAULT [u(cobj,finger)]=hw

@@ -17,7 +17,7 @@ th u(NEWCOBJ,Approval System <APPROVE>,approve,,,,WIZARD SAFE !NO_COMMAND,INHERI
 
 &INC`APPROVE`QUIET [u(cobj,approve)]=@attach %!/INC`APPROVE`MAIN=%0,%1,1
 
-&INC`APPROVE`DO [u(cobj,approve)]=@check u(setr,results,u(call`4,volp_approve,0,get(%0/D`ID),get(%1/D`ID),1,'[sqlescape(%2)]'))=@attach %!/INC`MSG=ERROR: Could not run approval. reason: %q<results>;th u(attrib_set,%0,D`APPROVED,secs());th u(attrib_set,%0,V`APPROVED,secs());@select/inline cand(words(u(setr,channels,u(conf,APPROVE_CHANNELS))),not(%3))=1,{@attach %!/INC`MSG`CHAN=[ansi(h,u(getmoniker,%0))] [if(hasflag(%0,CONNECTED),,\(offline\)%b)]is now approved for play![if(strlen(%2),%b%2)],u(conf,APPROVE_CHANNELS),,1,,1};@trigger [u(cobj,ccp)]/PLAYER`APPROVE=objid(%0);
+&INC`APPROVE`DO [u(cobj,approve)]=@check u(setr,results,u(call`4,volp_approve,0,get(%0/D`ID),get(%1/D`ID),1,'[sqlescape(%2)]'))=@attach %!/INC`MSG=ERROR: Could not run approval. reason: %q<results>;th u(attrib_set,%0,D`APPROVED,secs());th u(attrib_set,%0,V`APPROVED,secs());th u(attrib_set,%0,D`APPROVED`EVER,secs());@select/inline cand(words(u(setr,channels,u(conf,APPROVE_CHANNELS))),not(%3))=1,{@attach %!/INC`MSG`CHAN=[ansi(h,u(getmoniker,%0))] [if(hasflag(%0,CONNECTED),,\(offline\)%b)]is now approved for play![if(strlen(%2),%b%2)],u(conf,APPROVE_CHANNELS),,1,,1};@trigger [u(cobj,ccp)]/PLAYER`APPROVE=objid(%0);
 
 &Q`SET`APPROVE [u(cobj,approve)]=UPDATE vol_character SET character_date_approved=UTC_TIMESTAMP(),character_is_approved=1
 &Q`SET`UNAPPROVE [u(cobj,approve)]=UPDATE vol_character SET character_date_approved=NULL,character_is_approved=0
