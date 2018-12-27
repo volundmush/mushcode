@@ -1,0 +1,89 @@
+th u(NEWCOBJ,STORYTELLER: Rec Management System <REC>,rec,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+REC`PENNMUSH [u(cobj,rec)]=$^(?s)\+rec(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REC`MAIN
+@set [u(cobj,rec)]/CMD`+REC`PENNMUSH=regexp
+&CMD`+REC`RHOSTMUSH [u(cobj,rec)]=$^(?s)\+rec(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REC`MAIN
+@set [u(cobj,rec)]/CMD`+REC`RHOSTMUSH=regexp
+&CMD`+REC`MAIN [u(cobj,rec)]=th u(setq,sysname,ACCOUNT);@attach %!/INC`GETSWITCH=%1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,rec)]/CMD`+REC`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,rec)]=REC
+&SWITCHES`PLAYER [u(cobj,rec)]=READ|LIST|DELETE|AMOUNT|DESCRIBE|TYPE
+&SWITCHES`ADMIN [u(cobj,rec)]=APPROVE|UNAPPROVE|DENY|PROCESS
+
+&INC`MAIN [u(cobj,rec)]=@break cor(u(isguest,%#),not(u(isapproved,%#)))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=elements(%0,1,/),1;@check u(isapproved,%q<t1>)=@attach %!/INC`MSG=ERROR: Cannot recommend unapproved characters.;@attach %!/INC`PARTIAL=u(strfirstof,elements(%0,2,/),XP),XP|ARCANE,|,type,XP Type;th u(setq,xp_id,switch(%q<type>,XP,1,ARCANE,2));@attach %!/INC`VALID`POSNUM=u(strfirstof,elements(%0,3,/),0.2),XP Type;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No reason entered to rec for!;@break u(charsearch,%1,[chr(176)] [chr(177)])=@attach %!/INC`MSG=ERROR: The characters [chr(176)] and [chr(177)] are not allowed in a reason.;@attach %!/INC`DOSQL=INSERT`REC/rec_id,get(%#/D`ID),%q<t1id>,%q<xp_id>,%q<value>,%1;@attach %!/INC`MSG=You have recommended %q<t1name> for %q<value> %q<type> XP.;@attach %!/INC`MSG`CHAN=[ansi(h,%q<t1name>)] received a [u(pueblize,recommendation,+rec/read %q<rec_id>)] for %q<value> %q<type> XP from [ansi(h,%n)].
+
+&Q`INSERT`REC [u(cobj,rec)]=INSERT INTO vol_story_rec (source_id,persona_id,xp_id,rec_amount,rec_reason,rec_submit_date) VALUES (?,?,?,?,?,UTC_TIMESTAMP())
+
+&INC`LIST [u(cobj,rec)]=@attach %!/INC`VALID`POSINT=u(strfirstof,%0,1),Page;th u(setq,adm,u(isadmin,%#));th u(setq,pages,ceil(fdiv(u(mysql,GET`PAGECOUNT[if(%q<adm>,ALL)],get(%#/D`ID)),30)));@pemit %#=u(header,Rec List);@pemit %#=ansi(u(color,%#,COLOR,COLUMN_NAMES),align(4 18 18 6 2 2 18 3,ID,From,About,Type,R,A,On,Sta));@pemit %#=u(separator);th mapsql(MAP`LIST,if(%q<adm>,u(SQL`FORMAT,GET`LISTALL,mul(30,sub(%q<value>,1))),u(SQL`FORMAT,GET`LIST,get(%#/D`ID),mul(30,sub(%q<value>,1)))));@pemit %#=u(footer,Page %q<value> of %q<pages>)
+
+&Q`GET`LISTALL [u(cobj,rec)]=SELECT rec_id,source_name,persona_name,rec_submit_date_secs,xp_name,rec_amount,rec_approve_amount,rec_status FROM volv_story_rec ORDER BY rec_id DESC LIMIT 30 OFFSET ?
+&Q`GET`PAGECOUNTALL [u(cobj,rec)]=SELECT count(rec_id) FROM vol_story_rec
+
+&Q`GET`LIST [u(cobj,rec)]=SELECT rec_id,source_name,persona_name,rec_submit_date_secs,xp_name,rec_amount,rec_approve_amount,rec_status FROM volv_story_rec WHERE source_id=? ORDER BY rec_id DESC LIMIT 30 OFFSET ?
+&Q`GET`PAGECOUNT [u(cobj,rec)]=SELECT count(rec_id) FROM vol_story_rec WHERE source_id=?
+
+&MAP`LIST [u(cobj,rec)]=nspemit(%#,align(4 18 18 6 2 2 18 3,u(pueblize,%1,+rec/read %1),%2,%3,%5,add(%6,0),add(%7,0),u(fancytime,%4,%#),switch(%8,0,ansi(r,Pen),1,ansi(g,App),2,ansi(hr,Dny),3,ansi(hg,Fin)))
+
+&INC`TARGET [u(cobj,rec)]=@attach %!/INC`VALID`POSINT=%0,Rec ID;@check words(u(setr,data,u(mysql3,LOAD`REC,%q<value>)),chr(177))=@attach %!/INC`MSG=ERROR: Rec '%q<value>' does not exist.;th iter(rec_id source_id source_objid source_name persona_id persona_objid persona_name xp_id xp_name rec_amount rec_reason rec_submit_date rec_status rec_approve_date rec_approve_amount admin_id admin_objid admin_name persona_xp_id,u(setr,%i0,elements(%q<data>,inum(0),chr(177))));@select/inline %2=1,{@check cor(u(isadmin,%#),eq(get(%#/D`ID),%q<src_id>))=@attach %!/INC`MSG=ERROR: Permission denied.}
+
+&Q`LOAD`REC [u(Cobj,rec)]=SELECT rec_id,source_id,source_objid,source_name,persona_id,persona_objid,persona_name,xp_id,xp_name,rec_amount,rec_reason,rec_submit_date_secs,rec_status,rec_approve_date_secs,rec_approve_amount,admin_id,admin_objid,admin_name,persona_xp_id FROM volv_story_rec WHERE rec_id=?
+
+&Q`GET`EXIST [u(cobj,rec)]=SELECT rec_id FROM vol_story_rec WHERE rec_id=?
+&Q`GET`CHECK [u(cobj,rec)]=SELECT rec_id FROM vol_story_rec WHERE source_id=? AND rec_id=?
+
+
+
+&INC`APPROVE [u(cobj,rec)]=@attach %!/INC`TARGET;@stop %q<persona_xp_id>=@attach %!/INC`MSG=ERROR: Cannot change the status of processed recs.;@attach %!/INC`VALID`POSNUM=u(strfirstof,before(%1,/),%q<rec_amount>),%q<xp_name> Amount;@attach %!/INC`MSG`CHAN=Rec %q<rec_id> approved for %q<value> %q<xp_name>.;@attach %!/INC`DOSQL=SET`APPROVE,get(%#/D`ID),%q<value>,%q<rec_id>;@attach %!/INC`MSG=Rec %q<rec_id> approved for %q<value> %q<type>.;
+
+&Q`SET`APPROVE [u(cobj,rec)]=UPDATE vol_story_rec SET rec_status=1,admin_id=?,rec_approve_amount=? WHERE rec_id=?
+
+&Q`SET`FINISH [u(Cobj,rec)]=UPDATE vol_story_rec SET rec_status=3,rec_approve_date=UTC_TIMESTAMP(),admin_id=? WHERE rec_id=?
+
+&INC`UNAPPROVE [u(cobj,rec)]=@attach %!/INC`TARGET;@stop %q<persona_xp_id>=@attach %!/INC`MSG=ERROR: Cannot change the status of processed recs.;@attach %!/INC`MSG`CHAN=Rec %q<rec_id> is now unapproved!;@attach %!/INC`DOSQL=SET`UNAPPROVE,%q<rec_id>;@attach %!/INC`MSG=Rec %q<rec_id> is now unapproved!
+
+&Q`SET`UNAPPROVE [u(cobj,rec)]=UPDATE vol_story_rec SET rec_status=0,rec_approve_amount=0 WHERE rec_id=?
+
+&INC`DENY [u(cobj,rec)]=@attach %!/INC`TARGET;@stop %q<persona_xp_id>=@attach %!/INC`MSG=ERROR: Cannot change the status of processed recs.;@attach %!/INC`MSG`CHAN=Rec %q<rec_id> is now denied!;@attach %!/INC`DOSQL=SET`DENY,%q<rec_id>;@attach %!/INC`MSG=Rec %q<rec_id> is now denied!
+
+&Q`SET`DENY [u(cobj,rec)]=UPDATE vol_story_rec SET rec_status=2,rec_approve_amount=0 WHERE rec_id=?
+
+&INC`DELETE [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,%q<rec_status>)=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@attach %!/INC`VERIFY=ansi(hr,WARNING:) This will delete Rec %q<rec_id>. It cannot be recovered. Enter the same command to verify.,DELETE REC %q<rec_id>;@attach %!/INC`DOSQL=DEL`REC,%q<rec_id>;@attach %!/INC`MSG`CHAN=Deleted Rec %q<rec_id>!;@attach %!/INC`MSG=Deleted Rec %q<rec_id>!
+
+&Q`DEL`REC [u(cobj,rec)]=DELETE FROM vol_story_rec WHERE rec_id=?
+
+&INC`AMOUNT [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,%q<rec_status>)=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No amount entered.;@attach %!/INC`VALID`POSINT=%1,%q<xp_name> Amount;@attach %!/INC`DOSQL=SET`AMOUNT,%q<value>,%q<rec_id>;@attach %!/INC`MSG`CHAN=Changed amount of [u(pueblize,Rec %q<rec_id>,+rec/read %q<rec_id>)] to %q<value>.;@attach %!/INC`MSG=Changed amount of [u(pueblize,Rec %q<rec_id>,+rec/read %q<rec_id>)] to %q<value>.
+
+&Q`SET`AMOUNT [u(Cobj,rec)]=UPDATE vol_story_rec SET rec_amount=? WHERE rec_id=?
+
+&INC`DESCRIBE [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,%q<rec_status>)=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No new reason entered!;@attach %!/INC`DOSQL=SET`REASON,%1,%q<rec_id>;@attach %!/INC`MSG`CHAN=Changed reason of [u(pueblize,Rec %q<rec_id>,+rec/read %q<rec_id>)].;@attach %!/INC`MSG=Changed reason of [u(pueblize,Rec %q<rec_id>,+rec/read %q<rec_id>)].
+
+&Q`SET`REASON [u(cobj,rec)]=UPDATE vol_story_rec set rec_reason=? WHERE rec_id=?
+
+&INC`TYPE [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@check match(0,%q<rec_status>)=@attach %!/INC`MSG=ERROR: Only pending recs can be altered.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No new type entered!;@attach %!/INC`PARTIAL=%1,XP|ARCANE,|,type,XP Type;th u(setq,type_id,switch(%q<type>,XP,1,ARCANE,2));@attach %!/INC`DOSQL=SET`TYPE,%q<type_id>,%q<rec_id>;@attach %!/INC`MSG`CHAN=Changed type of [u(pueblize,Rec %q<rec_id>,+rec/read %q<rec_id>)] to %q<type>.;@attach %!/INC`MSG=Changed type of [u(pueblize,Rec %q<rec_id>,+rec/read %q<rec_id>)] to %q<type>.
+
+&Q`SET`TYPE [u(cobj,rec)]=UPDATE vol_story_rec set xp_id=? WHERE rec_id=?
+
+&INC`READ [u(cobj,rec)]=@attach %!/INC`TARGET=%0,,1;@pemit %#=u(header,Rec %q<rec_id>);@pemit %#=align(36 36,u(FUN`DETAILS,Submitter~source_name|About~persona_name|Type~xp_name|Amount~rec_amount|Submitted~rec_submit_date_secs),u(FUN`DETAILS,Status~rec_status|Handler~admin_name|Handled~rec_approve_date_secs|Awarded~rec_approve_amount));@pemit %#=u(separator);@pemit %#=%q<rec_reason>;@pemit %#=u(footer)
+
+&FUN`DETAILS [u(cobj,rec)]=localize(iter(%0,align(15 20,rjust(ansi(g,before(%i0,~):),15),switch(u(setr,field,after(%i0,~)),*_secs,u(fancytime,r(%q<field>),%#),rec_status,switch(r(%q<field>),0,ansi(r,Pen),1,ansi(g,App),2,ansi(hr,Dny),3,ansi(hg,Fin)),r(%q<field>))),|,%R))
+
+&LASTPROCESS [u(cobj,rec)]=1532245582
+&ADMINOBJ [u(cobj,rec)]=#1057:1386575067
+
+&TRG`DOPROCESS [u(cobj,rec)]=@select/inline words(u(setr,list,u(filter,ISOBJID,u(mysql,GET`ACTIVE,v(LASTPROCESS)))))=0,{@attach %!/INC`MSG`CHAN=No active players to award XP to. Bummer.},>0,{@dolist/inline %q<list>={th u(call`5,volp_story_xp,0,get(%i0/D`ID),1,5,'Weekly Activity',get(v(ADMINOBJ)/D`ID));th u(call`5,volp_story_xp,0,get(%i0/D`ID),2,4,'Weekly Activity',get(v(ADMINOBJ)/D`ID))};@attach %!/INC`MSG`NOTICE=[ansi(h,u(getmoniker,v(ADMINOBJ)))] awarded you 5 XP and 4 Role XP for Weekly Activity.,%q<list>;@attach %!/INC`MSG`CHAN=[ansi(h,u(getmoniker,v(ADMINOBJ)))] awarded 5 Weekly XP and 4 Weekly Role XP to: [iter(%q<list>,u(getmoniker,%i0),%b,\,%b)]};&LASTPROCESS [u(cobj,rec)]=secs()
+
+&Q`GET`ACTIVE [u(cobj,rec)]=SELECT DISTINCT character_objid FROM volv_action WHERE action_date_created>=FROM_UNIXTIME(?) AND action_is_deleted=0
+
+&TRG`DOREC [u(cobj,rec)]=@dolist/inline/delimit [chr(176)] [u(mysql3,GET`RECXP)]={th u(setr,persona_xp_id,u(call`5,volp_story_xp,0,elements(%i0,1,chr(177)),elements(%i0,3,chr(177)),elements(%i0,4,chr(177)),'Approved Recs: [u(setr,recs,iter(elements(%i0,5,chr(177)),%i0,%b,\,%b))]',get(v(ADMINOBJ)/D`ID)));@attach %!/INC`DOSQL=SET`PERSONA_XP,%q<persona_xp_id>,u(SQL`IN`NUMBER,elements(%i0,5,chr(177)));@attach %!/INC`MSG`NOTICE=[ansi(h,u(getmoniker,v(ADMINOBJ)))] awarded you [u(setr,msg,[elements(%i0,4,chr(177))] [elements(%i0,6,chr(177))] for Recs: %q<recs>)],elements(%i0,2,chr(177));@attach %!/INC`MSG`CHAN=[ansi(h,u(getmoniker,v(ADMINOBJ)))] awarded [u(getmoniker,elements(%i0,2,chr(177)))] %q<msg>}
+
+&Q`GET`RECXP [u(cobj,rec)]=SELECT persona_id,persona_objid,xp_id,SUM(rec_approve_amount) AS total_xp,GROUP_CONCAT(rec_id ORDER BY rec_id SEPARATOR ' '),xp_name AS rec_ids FROM volv_story_rec WHERE rec_status=1 AND persona_xp_id IS NULL GROUP BY persona_id,xp_id
+
+&Q`SET`PERSONA_XP [u(cobj,rec)]=UPDATE vol_story_rec SET persona_xp_id=?,rec_status=3 WHERE rec_id IN (!)
+
+&HLP`+REC [u(cobj,rec)]=The Rec system allows Players to recommend each other \(sometimes even themselves\) for XP rewards. Recommendations are then reviewed by admin.%R%R[ansi(hc,Concepts)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,XP Type)] - Your choices are XP \(default\)\ and ARCANE.%R[ansi(h,Status)] - Recs begin as PENDING\, and from there can be either APPROVED or DENIED. Recs that have had XP awarded shift to FINISHED.%R[ansi(h,Reason)] - When recommending a character you must include a reason. This will probably be the pose that was worth awarding\, maybe a scene log URL.)]%R%R[ansi(hc,Managing Recs)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+rec <character>=<reason>)] - Recommends someone else receive 0.2 XP \(A Beat\). This is the easy\, default recommendation mode.%R[ansi(h,+rec <character>/<type>/<amount>=<reason>)] - Recommends someone receive a specific type of XP in certain amounts. For instance\, +rec %n/Arcane/2=<reason>. <amount> defaults to 0.2 \(A Beat\) if not provided.%R[ansi(h,+rec/list <page>)] - Displays the recs you have made and their current status. <page> defaults to 1 if not provided.%R[ansi(h,+rec/read <id>)] - View details about a recommendation.%R[ansi(h,+rec/amount <id>=<value>)] - Change the amount recommended on a PENDING rec.%R[ansi(h,+rec/type <id>=<type>)] - Change the XP Type a Pending Rec is offering.%R[ansi(h,+rec/describe <id>=<reason>)] - Change the Reason a rec was made.%R[ansi(h,+rec/delete <id>)] - Delete a pending rec you made.)]
++help/add Roleplaying/+rec=[u(cobj,rec)]/HLP`+REC
+
+
+&SHLP`+REC [u(cobj,rec)]=Staff are able to use all of the player commands on all recs. They also see every rec and not just their own%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+rec/approve <id>=<amount>)] - Approve a Rec. Provide an <amount> to specify an alternate quantity to award. For instance\, if Rec 5 was giving away 2 XP\, you could +rec/approve 5=1 to make it actually give 1 instead.%R[ansi(h,+rec/deny <id>)] - Deny a recommendation.%R[ansi(h,+rec/unapprove <id>)] - Return a rec to pending status from Approved or Denied status. Does not work on Finished.)]
++shelp/add Character/+rec=[u(cobj,rec)]/SHLP`+REC

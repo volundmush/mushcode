@@ -924,13 +924,15 @@ DROP PROCEDURE IF EXISTS volp_help_file;
 DELIMITER $$
 CREATE PROCEDURE volp_help_file(IN in_help_category_id MEDIUMINT UNSIGNED,IN in_help_file_name VARCHAR(255))
 	BEGIN
+	DECLARE category_type_id TINYINT UNSIGNED;
 	DECLARE found_file_id MEDIUMINT UNSIGNED;
-	SELECT help_file_id INTO found_file_id FROM volv_help_file WHERE help_category_id=in_help_category_id AND help_file_name=in_help_file_name;
+	SELECT help_category_type INTO category_type_id FROM vol_help_category WHERE help_category_id=in_help_category_id;
+	SELECT help_file_id INTO found_file_id FROM volv_help_file WHERE help_category_type=category_type_id AND help_file_name=in_help_file_name;
 	IF found_file_id IS NULL THEN
 		INSERT INTO vol_help_file(help_category_id,help_file_name,help_file_date_created,help_file_date_modified) VALUES (in_help_category_id,in_help_file_name,UTC_TIMESTAMP(),UTC_TIMESTAMP());
 		SET found_file_id=LAST_INSERT_ID();
 	ELSE
-		UPDATE vol_help_file SET help_file_name=in_help_file_name,help_file_date_modified=UTC_TIMESTAMP() WHERE help_file_id=found_file_id;
+		UPDATE vol_help_file SET help_file_name=in_help_file_name,help_category_id=in_help_category_id,help_file_date_modified=UTC_TIMESTAMP() WHERE help_file_id=found_file_id;
 	END IF;
 	SELECT found_file_id;
 	END $$
@@ -1044,6 +1046,7 @@ CREATE TABLE IF NOT EXISTS vol_actor (
 	character_id INT UNSIGNED NOT NULL,
 	actor_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	actor_status TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	action_count INT UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY(actor_id),
 	UNIQUE(scene_id,character_id),
 	INDEX(scene_id,character_id,actor_type),
@@ -1066,7 +1069,7 @@ CREATE PROCEDURE volp_actor(IN in_character_id INT UNSIGNED,IN in_scene_id INT U
 DELIMITER ;
 
 CREATE OR REPLACE VIEW volv_actor AS
-	SELECT a.scene_id,a.actor_id,c.character_id,c.character_name,c.character_objid,a.actor_type,a.actor_status FROM vol_actor AS a LEFT JOIN volv_character AS c ON c.character_id=a.character_id;
+	SELECT a.scene_id,a.actor_id,c.character_id,c.character_name,c.character_objid,a.actor_type,a.actor_status,a.action_count FROM vol_actor AS a LEFT JOIN volv_character AS c ON c.character_id=a.character_id;
 
 CREATE OR REPLACE VIEW volv_scene AS
 	SELECT s.scene_id,s.scene_title,s.scene_pitch,s.scene_outcome,s.post_id,s.scene_date_created,UNIX_TIMESTAMP(s.scene_date_created) AS scene_date_created_secs,s.scene_date_scheduled,UNIX_TIMESTAMP(s.scene_date_scheduled) AS scene_date_scheduled_secs,s.scene_date_started,UNIX_TIMESTAMP(s.scene_date_started) AS scene_date_started_secs,s.scene_date_finished,UNIX_TIMESTAMP(s.scene_date_finished) AS scene_date_finished_secs,s.scene_status,s.scene_log_ooc,a.character_id AS runner_id,a.character_name AS runner_name,a.character_objid AS runner_objid,s.scene_max_tags as scene_max_tags
@@ -1189,10 +1192,12 @@ CREATE TABLE IF NOT EXISTS vol_centity (
 	centity_date_created DATETIME,
 	centity_version TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	centity_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	centity_is_deleted BOOL NOT NULL DEFAULT FALSE,
+	centity_owner INT UNSIGNED NULL,
+	centity_claim_lock VARCHAR(255) NOT NULL DEFAULT '#FALSE',
 	PRIMARY KEY(centity_id),
 	FOREIGN KEY(centity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	INDEX(centity_version,centity_type,centity_is_deleted)
+	FOREIGN KEY(centity_owner) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(centity_version,centity_type,centity_owner)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS vol_ctrait (
@@ -1208,19 +1213,24 @@ CREATE TABLE IF NOT EXISTS vol_ctrait (
 
 CREATE TABLE IF NOT EXISTS vol_clink (
 	clink_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	clink_display_num MEDIUMINT UNSIGNED NOT NULL,
 	character_id INT UNSIGNED NOT NULL,
 	centity_id INT UNSIGNED NOT NULL,
+	clink_slot TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	clink_approved BOOL NOT NULL DEFAULT FALSE,
-	clink_parent MEDIUMINT UNSIGNED NULL,
-	clink_loan_lock VARCHAR(255) NOT NULL DEFAULT '#FALSE',
+	clink_loan_from INT UNSIGNED NULL,
 	clink_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	clink_locked TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	consequences_source INT UNSIGNED NULL,
+	consequences_date_gained DATETIME NULL,
+	consequences_date_timeout DATETIME NULL,
+	consequences_tier TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	consequences_scenes VARCHAR(255) NULL,
 	PRIMARY KEY(clink_id),
+	UNIQUE(character_id,centity_id),
 	FOREIGN KEY(centity_id) REFERENCES vol_centity(centity_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(clink_parent) REFERENCES vol_clink(clink_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(clink_loan_from) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(character_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	INDEX(character_id,clink_display_num,centity_id)
+	FOREIGN KEY(consequences_source) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS vol_clink_trait (
@@ -1233,6 +1243,12 @@ CREATE TABLE IF NOT EXISTS vol_clink_trait (
 	FOREIGN KEY(clink_id) REFERENCES vol_clink(clink_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	UNIQUE(clink_id,trait_type,trait_id)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS vol_clink_consequences (
+	
+	FOREIGN KEY(clink_id) REFERENCES vol_clink(clink_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	
+)	
 
 CREATE TABLE IF NOT EXISTS vol_carmory (
 	carmory_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,

@@ -97,19 +97,21 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &CTIME [u(cobj,ccp)]=ctime(%0)
 
-&FANCYTIME [u(cobj,ccp)]=timefmt($b $d $I:$M$p $Z,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
+&FANCYBASE [u(cobj,ccp)]=if(%0,timefmt(%2,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#))),<invalid date>)
 
-&FANCYTIME2 [u(cobj,ccp)]=timefmt($a $b $d $I:$M$p $Z,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
+&FANCYTIME [u(cobj,ccp)]=u(fancybase,%0,%1,$b $d $I:$M$p $Z)
 
-&FANCYTIME3 [u(cobj,ccp)]=timefmt($b $d $I:$M$p $Y $Z,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
+&FANCYTIME2 [u(cobj,ccp)]=u(fancybase,%0,%1,$a $b $d $I:$M$p $Z)
 
-&FANCYDAY [u(cobj,ccp)]=timefmt($b $d $Y,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
+&FANCYTIME3 [u(cobj,ccp)]=u(fancybase,%0,%1,$b $d $I:$M$p $Y $Z)
 
-&FANCYDATE [u(cobj,ccp)]=timefmt($m/$d/$Y,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#)))
+&FANCYDAY [u(cobj,ccp)]=u(fancybase,%0,%1,$b $d $Y)
+
+&FANCYDATE [u(cobj,ccp)]=u(fancybase,%0,%1,$m/$d/$Y)
+
+&DATE [u(cobj,ccp)]=u(fancybase,%0,%1,$x)
 
 &PLAYER_NAME_LEN [u(cobj,ccp)]=config(player_name_len)
-
-&DATE [u(cobj,ccp)]=timefmt($x,%0,strfirstof(u(gettz,%1),u(gettz,%#)))
 
 &CHANCOLOR [u(cobj,ccp)]=localize(if(isdbref(setr(mog,cmogrifier(stripansi(%0)))),u(channelcolor,%@,%q<mog>)))
 
@@ -335,7 +337,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &SQL`IN`NUMBER [u(cobj,ccp)]=iter(%0,%i0,%1,\,%b)
 &SQL`IN`STRING [u(cobj,ccp)]=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
 
-&SQL`FORMAT [u(cobj,ccp)]=localize(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,'[sqlescape(%q<set>)]'))))
+&SQL`FORMAT [u(cobj,ccp)]=localize(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,[if(strmatch(%q<set>,NULL),NULL,'[sqlescape(%q<set>)]')]))))
 
 &INC`DOSQL [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),sql(SELECT last_insert_id\(\))))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck> - QUERY: %q<sqlformat>}
 
@@ -579,7 +581,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &OPOTHER [u(cobj,ccp)]=strfirstof(get(%0/OPTION`%1`%2`CUSTOM),v(OPTION`%2`DEFAULT))
 &MY_OPTIONS [u(cobj,ccp)]=u(opother,%@,%0,%1)
 
-&OPTION`OPTIONS [u(cobj,ccp)]=TIMEZONE|IDLE|MAIL
+&OPTION`OPTIONS [u(cobj,ccp)]=TIMEZONE|IDLE|MAIL|SCREEN_READER
 @set [u(cobj,ccp)]/OPTION`OPTIONS=no_inherit
 
 &OPTION`TIMEZONE [u(cobj,ccp)]=Timezone used for all displays. See help timezones2 for a list. Is case-sensitive.
@@ -595,6 +597,10 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &OPTION`MAIL [u(cobj,ccp)]=Show unread mail breakdown on login?
 &OPTION`MAIL`DEFAULT [u(cobj,ccp)]=1
 &OPTION`MAIL`VALID [u(cobj,ccp)]=BOOL
+
+&OPTION`SCREEN_READER [u(Cobj,ccp)]=Strip excess formatting from headers/separators.
+&OPTION`SCREEN_READER`DEFAULT [u(Cobj,ccp)]=0
+&OPTION`SCREEN_READER`VALID [u(cobj,ccp)]=BOOL
 
 @@ COMMON CODE SNIPPETS
 
@@ -672,20 +678,20 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &REG`ENCODETIME [u(cobj,ccp)]=\^\^\^(?P<time>\d+)\^\^\^
 
-&MSGHEAD [u(cobj,ccp)]=localize(ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
-&MSGROOM [u(cobj,ccp)]=localize(ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
+&MSGHEAD [u(cobj,ccp)]=localize(if(u(opother,u(firstof,%1,%#),SYSTEM,SCREEN_READER),ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0)):,ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)]))
+&MSGROOM [u(cobj,ccp)]=localize(if(u(opother,u(firstof,%1,%#),SYSTEM,SCREEN_READER),ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0)):,ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)]))
 
-&HEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),HEADER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][setr(borderstar,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&HEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),HEADER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][setr(borderstar,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,HEADER,%0)])
 
-&SUBHEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&SUBHEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,SUBHEADER,%0)])
 
-&SEPARATOR [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&SEPARATOR [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,SEPARATOR,%0)])
 
-&FOOTER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),FOOTER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+&FOOTER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),FOOTER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,FOOTER,%0)])
 
 &HEADER`PREP [u(cobj,ccp)]=setq(target,owner(u(strfirstof,%0,%#)))[setq(bordercolor,u(color,%q<target>,v(SYSTEM`COLORS),BORDER))][setq(bordermode,%1)][setq(width,sub(strfirstof(%3,u(width,%q<target>)),2))][setq(fill,u(conf,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,setq(start,ansi(%q<bordercolor>,/))[setq(end,ansi(%q<bordercolor>,chr(92)))],FOOTER,setq(start,ansi(%q<bordercolor>,chr(92)))[setq(end,ansi(%q<bordercolor>,/))]),1,setq(start,setr(end,ansi(%q<bordercolor>,+))),setq(start,setr(end,ansi(%q<bordercolor>,%q<fill>))))]
 
-&HEADER`RENDER [u(cobj,ccp)]=%q<start>[u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>
+&HEADER`RENDER [u(cobj,ccp)]=if(u(opother,%q<target>,SYSTEM,SCREEN_READER),%0[if(strlen(%1),: %1)],%q<start>[u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>)
 
 @@ HEADER family args: %0 - Title. %1 - Viewer dbref. %2 - True: Do not color title. %3 - Border mode bool. %4 - Width.
 

@@ -1,0 +1,6 @@
+&CMD`+XP`PENNMUSH [u(cobj,xp)]=$^(?s)(?\:\+)?(xp|arcxp)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:/(.*))?$:@attach %!/CMD`+XP`MAIN
+@set [u(cobj,xp)]/CMD`+XP`PENNMUSH=regexp
+&CMD`+XP`RHOSTMUSH [u(cobj,xp)]=$^(?s)(?\:\+)?(xp|arcxp)(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:/(.*))?$:@attach %!/CMD`+XP`MAIN
+@set [u(cobj,xp)]/CMD`+XP`RHOSTMUSH=regexp
+
+&INIT`ARCXP [u(cobj,xp)]=th u(setq,xp_id,2);th u(setq,root,ARCANE XP);th u(setq,type,ARCANE XP);th u(setq,comm,+arcxp);th u(setq,earn,0);th u(setq,use,0)

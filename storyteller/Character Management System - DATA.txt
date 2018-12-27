@@ -28,7 +28,7 @@ th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERI
 &CHAR`SET`TEMPLATE [u(cobj,data)]=@attach %!/DO`SET`TEMPLATE;@attach %!/DO`ANNOUNCE=%0,{[ansi(h,name(%0))]'s [u(setr,msg,Template is now set to: [ansi(h,u(capnames,%q<find>))])]},{Your %q<msg>},{[ansi(h,name(%0))]'s %q<msg>}
 
 &DO`VAL`TEMPLATE [u(cobj,data)]=@check strlen(%2)=@attach %!/INC`MSG=ERROR: No Template name entered.;th u(setq,temps,u(mysql3,LIST`TEMPLATE));@attach %!/INC`PARTIAL=%2,iter(%q<temps>,before(%i0,chr(177)),chr(176),|),|,find,sphere;th u(setq,temp_id,after(grab(%q<temps>,%q<find>[chr(177)]*,chr(176)),chr(177)));
-&DO`SET`TEMPLATE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`TEMPLATE;@attach [u(cobj,data)]/INC`DOSQL=SET`TEMPLATE,%q<temp_id>,get(%0/D`ID);@trigger [u(cobj,persona)]/REBUILD`V=%0
+&DO`SET`TEMPLATE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`TEMPLATE;@attach [u(cobj,data)]/INC`DOSQL=SET`TEMPLATE,%q<temp_id>,get(%0/D`ID);@trigger [u(cobj,persona)]/REBUILD`V=%0;@attach [u(cobj,data)]/DO`SET`TEMPLATE`EXTRA
 
 &Q`LIST`TEMPLATE [u(cobj,data)]=SELECT template_name,template_id FROM vol_story_templates WHERE template_playable=1
 &Q`SET`TEMPLATE [u(cobj,data)]=UPDATE vol_story_personas SET template_id=?,x_splat_id=NULL,y_splat_id=NULL,z_splat_id=NULL WHERE persona_id=?

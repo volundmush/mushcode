@@ -49,7 +49,7 @@
 
 &DO`ADD`CHARM [u(cobj,data)]=@attach %!/DO`VAL`CHARM;@attach %!/DO`ADD`WORDPOWER=%0,%q<template>/%1,%2,Charm
 &DO`REM`CHARM [u(Cobj,data)]=@attach %!/DO`VAL`CHARM;@attach %!/DO`REM`WORDPOWER=%0,%q<template>/%1,%2,Charm
-&
+
 
 &DO`ADD`SORCERY [u(cobj,data)]=@attach %!/DO`ADD`WORDPOWER=%0,Sorcery/%1,%2,Spell;
 &DO`REM`SORCERY [u(Cobj,data)]=@attach %!/DO`REM`WORDPOWER=%0,Sorcery/%1,%2,Spell;

@@ -12,10 +12,11 @@ th u(NEWCOBJ,STORYTELLER: Persona Management System <PERSONA>,persona,,,,WIZARD 
 &SWITCHES`PLAYER [u(cobj,persona)]=ASSUME|RETURN
 &SWITCHES`ADMIN [u(cobj,persona)]=CREATE|DELETE|ASSIGN|REMOVE|ALL|MAKEMAIN
 
-&PLAYER`CREATE [u(cobj,persona)]=@select/inline cand(not(get(%0/D`PERSONA)),u(setr,pers,get(%0/D`ID)))=1,{@attach %!/INC`DOSQL=PERSONA`CREATE,%q<pers>;@attach %!/INC`DOSQL=PERSONA`STAT_INIT,%q<pers>;@attach %!/REBUILD`V=%0};
+&PLAYER`CONNECT [u(cobj,persona)]=@attach %!/PLAYER`CREATE
+&PLAYER`CREATE [u(cobj,persona)]=@select/inline cand(not(get(%0/D`PERSONA)),u(setr,pers,get(%0/D`ID)))=1,{@attach %!/INC`DOSQL=PERSONA`CREATE,%q<pers>;@attach %!/INC`DOSQL=PERSONA`STAT_INIT,%q<pers>;@attach %!/PERSONA`INIT;@attach %!/REBUILD`V=%0};
 
 &Q`PERSONA`CREATE [u(Cobj,persona)]=INSERT IGNORE INTO vol_story_personas (persona_id) VALUES (?)
-&Q`PERSONA`STAT_INIT [u(cobj,persona)]=INSERT IGNORE INTO vol_story_persona_stats (persona_id,stat_id) SELECT ?,stat_id from vol_story_stats
+&Q`PERSONA`STAT_INIT [u(cobj,persona)]=INSERT IGNORE INTO vol_story_persona_stats (persona_id,stat_id,stat_value) SELECT ?,stat_id,stat_start from vol_story_stats WHERE stat_default>0
 
 &REBUILD`V [u(cobj,persona)]=@attach %!/WIPE=%0,V`PERSONA;@dolist/inline/delimit [chr(176)] [u(mysql3,SELECT`STAT_VAL,get(%0/D`ID))]={th u(vattrib_set,%0,V`PERSONA`STAT`[elements(##,1,chr(177))],elements(##,2,chr(177)))};th u(setq,temp,u(mysql3,SELECT`TEMPLATE_DATA,get(%0/D`ID)));@dolist/inline TEMPLATE X Y Z={th u(vattrib_set,%0,V`PERSONA`##,elements(%q<temp>,inum(0),chr(177)))}
 

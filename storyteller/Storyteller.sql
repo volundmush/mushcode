@@ -1,207 +1,146 @@
 CREATE TABLE IF NOT EXISTS vol_story_templates (
 	template_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	template_name VARCHAR(30) NOT NULL,
-	template_x_name VARCHAR(30) NULL,
-	template_y_name VARCHAR(30) NULL,
-	template_z_name VARCHAR(30) NULL,
-	template_playable TINYINT UNSIGNED NOT NULL DEFAULT 1,
-	template_sort TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	template_name VARCHAR(50) NOT NULL UNIQUE,
+	template_playable BOOL NOT NULL DEFAULT 1,
+	template_power_stat_name NULL,
 	PRIMARY KEY(template_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS vol_story_template_sub (
+	template_sub_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	template_id TINYINT UNSIGNED NOT NULL,
+	template_sub_name VARCHAR(80) NOT NULL,
+	template_sub_slot TINYINT UNSIGNED NULL,
+	PRIMARY KEY(template_sub_id),
+	FOREIGN KEY(template_id) REFERENCES vol_story_templates(template_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(template_id,template_sub_name),
+	UNIQUE(template_id,template_sub_slot)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE OR REPLACE VIEW volv_story_template_sub AS
+	SELECT t.template_id AS template_id,t.template_name AS template_name,t.template_playable AS template_playable,s.template_sub_id AS template_sub_id,s.template_sub_name AS template_sub_name,s.template_sub_slot AS template_sub_slot FROM vol_story_template_sub AS s LEFT JOIN vol_story_templates AS t ON s.template_id=t.template_id ORDER BY t.template_name DESC,s.template_sub_name DESC;
+
+CREATE TABLE IF NOT EXISTS vol_story_template_sub_choices (
+	template_sub_choice_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	template_sub_id INT UNSIGNED NOT NULL,
+	template_sub_choice_name VARCHAR(80) NOT NULL,
+	PRIMARY KEY(template_sub_choice_id),
+	FOREIGN KEY(template_sub_id) REFERENCES vol_story_template_sub(template_sub_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(template_sub_id,template_sub_choice_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE OR REPLACE VIEW volv_story_template_sub_choices AS
+	SELECT t.template_id AS template_id,t.template_name AS template_name,t.template_playable AS template_playable,t.template_sub_id AS template_sub_id,t.template_sub_name AS template_sub_name,t.template_sub_slot AS template_sub_slot,c.template_sub_choice_id AS template_sub_choice_id,c.template_sub_choice_name AS template_sub_choice_name FROM vol_story_template_sub_choices AS c LEFT JOIN volv_story_template_sub AS t ON c.template_sub_id=t.template_sub_id ORDER BY t.template_name DESC,t.template_sub_name DESC,c.template_sub_choice_name DESC;
+
 /*
+Template ID 0 reserved for 'universal' logic. Do not create one.
 Template Ids over 100 are reserved for System use. They aren't Playable Templates.
 */
 
-CREATE TABLE IF NOT EXISTS vol_story_x_splats (
-	x_splat_id INT UNSIGNED NOT NULL,
-	template_id TINYINT UNSIGNED NOT NULL,
-	x_splat_name VARCHAR(30),
-	PRIMARY KEY(x_splat_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
-
-CREATE TABLE IF NOT EXISTS vol_story_y_splats (
-	y_splat_id INT UNSIGNED NOT NULL,
-	template_id TINYINT UNSIGNED NOT NULL,
-	y_splat_name VARCHAR(30),
-	PRIMARY KEY(y_splat_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
-
-CREATE TABLE IF NOT EXISTS vol_story_z_splats (
-	z_splat_id TINYINT UNSIGNED NOT NULL,
-	template_id TINYINT UNSIGNED NOT NULL,
-	z_splat_name VARCHAR(30),
-	PRIMARY KEY(z_splat_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS vol_story_personas (
-	persona_id INT UNSIGNED NOT NULL,
+	persona_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	owner_id INT UNSIGNED NOT NULL,
+	persona_name VARCHAR(40) NOT NULL,
 	template_id TINYINT UNSIGNED NOT NULL DEFAULT 1,
 	persona_parent INT UNSIGNED NULL,
-	x_splat_id TINYINT UNSIGNED NULL,
-	y_splat_id TINYINT UNSIGNED NULL,
-	z_splat_id TINYINT UNSIGNED NULL,
+	power_stat_value TINYINT UNSIGNED NOT NULL DEFAULT 1,
 	PRIMARY KEY(persona_id),
-	FOREIGN KEY(persona_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(template_id) REFERENCES vol_story_templates(template_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(owner_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(template_id) REFERENCES vol_story_templates(template_id) ON UPDATE CASCADE ON DELETE SET DEFAULT,
 	FOREIGN KEY(persona_parent) REFERENCES vol_story_personas(persona_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
-CREATE OR REPLACE VIEW volv_story_personas AS
-	SELECT p.persona_id,e.character_name as persona_name,e.character_objid as persona_objid,p.persona_parent,p.template_id,t.template_name,t.template_x_name,p.x_splat_id,x.x_splat_name,t.template_y_name,p.y_splat_id,y.y_splat_name,t.template_z_name,p.z_splat_id,z.z_splat_name,t.template_sort,e.character_is_deleted,e.character_is_approved,e.character_date_approved,e.character_date_approved_secs FROM vol_story_personas AS p LEFT JOIN volv_character AS e ON e.character_id=p.persona_id LEFT JOIN vol_story_templates AS t ON p.template_id=t.template_id LEFT JOIN vol_story_x_splats AS x ON p.x_splat_id=x.x_splat_id LEFT JOIN vol_story_y_splats AS y ON p.y_splat_id=y.y_splat_id LEFT JOIN vol_story_z_splats AS z ON p.z_splat_id=z.z_splat_id;
+CREATE TABLE IF NOT EXISTS vol_story_persona_sub_choices (
+	persona_id INT UNSIGNED NOT NULL,
+	template_sub_choice_id INT UNSIGNED NOT NULL,
+	FOREIGN KEY(persona_id) REFERENCES vol_story_personas(persona_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(template_sub_choice_id) REFERENCES vol_story_template_sub_choices(template_sub_choice_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(persona_id,template_sub_choice_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
-CREATE OR REPLACE VIEW volv_story_personas_template_census AS
-	SELECT template_id,template_name,template_sort,GROUP_CONCAT(persona_name ORDER BY persona_name SEPARATOR '|') AS persona_names,GROUP_CONCAT(persona_id ORDER BY persona_name SEPARATOR '|') AS persona_ids,GROUP_CONCAT(CONCAT_WS('/',persona_id,persona_name) ORDER BY persona_name SEPARATOR '|') AS persona_combo FROM volv_story_personas WHERE character_is_approved=1 AND character_is_deleted=0 GROUP BY template_id ORDER BY template_sort;
-
-CREATE OR REPLACE VIEW volv_story_personas_template_census_x AS
-	SELECT template_id,template_name,template_sort,template_x_name,x_splat_id,x_splat_name,GROUP_CONCAT(persona_name ORDER BY persona_name SEPARATOR '|') AS persona_names,GROUP_CONCAT(persona_id ORDER BY persona_name SEPARATOR '|') AS persona_ids,GROUP_CONCAT(CONCAT_WS('/',persona_id,persona_name) ORDER BY persona_name SEPARATOR '|') AS persona_combo FROM volv_story_personas WHERE character_is_approved=1 AND character_is_deleted=0 GROUP BY template_id,x_splat_id ORDER BY template_sort,x_splat_id;
 
 CREATE TABLE IF NOT EXISTS vol_story_fields (
-	field_id TINYINT UNSIGNED NOT NULL,
-	template_id TINYINT UNSIGNED NOT NULL,
+	field_id INT UNSIGNED NOT NULL,
 	field_name VARCHAR(20) NOT NULL UNIQUE,
 	PRIMARY KEY(field_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS vol_story_template_fields (
+	tlink_id INT UNSIGNED NOT NULL,
+	field_id INT UNSIGNED NOT NULL,
+	template_id TINYINT UNSIGNED NOT NULL,
+	PRIMARY KEY(tlink_id),
+	FOREIGN KEY(field_id) REFERENCES vol_story_fields(field_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(template_id) REFERENCES vol_story_templates(template_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(template_id,field_id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE OR REPLACE VIEW volv_story_template_fields AS
+	SELECT tf.tlink_id AS tlink_id,tf.template_id AS template_id,t.template_name AS template_name,tf.field_id AS field_id,f.field_name AS field_name FROM vol_story_template_fields AS tf LEFT JOIN vol_story_templates AS t ON t.template_id=tf.template_id LEFT JOIN vol_story_fields AS f ON tf.field_id=f.field_id ORDER BY t.template_sort,f.field_id;
+	
 CREATE TABLE IF NOT EXISTS vol_story_persona_field (
 	persona_id INT UNSIGNED NOT NULL,
 	field_id TINYINT UNSIGNED NOT NULL,
 	field_answer VARCHAR(40),
 	FOREIGN KEY(persona_id) REFERENCES vol_story_personas(persona_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(field_id) REFERENCES vol_story_fields(field_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(persona_id,field_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_story_persona_field AS
-	SELECT p.persona_id,p.field_id,f.field_name,p.field_answer FROM vol_story_persona_field AS p LEFT JOIN vol_story_fields AS f ON p.field_id=f.field_id;
+	SELECT p.persona_id as persona_id,f.field_id as field_id,f.field_name as field_name,p.field_answer as field_answer FROM vol_story_persona_field AS p LEFT JOIN vol_story_fields AS f ON p.field_id=f.field_id;
 
-CREATE TABLE IF NOT EXISTS vol_story_stats_categories (
-	stat_category_id TINYINT UNSIGNED NOT NULL,
-	stat_category_name VARCHAR(20) UNIQUE,
-	stat_category_custom TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	stat_category_specialties TINYINT UNSIGNED NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS vol_story_stats (
-	stat_category_id TINYINT UNSIGNED NOT NULL,
 	stat_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	stat_sort INT UNSIGNED NOT NULL DEFAULT 0,
-	stat_default INT SIGNED NOT NULL DEFAULT 0,
-	stat_name VARCHAR(40) UNIQUE,
-	PRIMARY KEY(stat_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1000000;
+	template_id TINYINT UNSIGNED NOT NULL, /* Use 0 for UNIVERSAL. Do not Foreign key this field. */
+	stat_name VARCHAR(80),
+	stat_plural VARCHAR(80),
+	stat_custom TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	stat_specialties TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	stat_allows_zero TINYINT UNSIGNED NOT NULL DEFAULT 0,
+	stat_rank TINYINT UNSIGNED NULL,
+	stat_parent INT UNSIGNED NULL,
+	stat_require_context TINYINT UNSIGNED NOT NULL DEFAULT 0, 
+	stat_can_set TINYINT UNSIGNED NOT NULL DEFAULT 1, /* This is 0 for category-containers */
+	PRIMARY KEY(stat_category_id),
+	UNIQUE(template_id,stat_parent,stat_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
-CREATE OR REPLACE VIEW volv_story_stats AS
-	SELECT s.stat_id,s.stat_name,s.stat_sort,s.stat_default,s.stat_category_id,c.stat_category_name,c.stat_category_custom,c.stat_category_specialties FROM vol_story_stats AS s LEFT JOIN vol_story_stats_categories AS c ON s.stat_category_id=c.stat_category_id;
+CREATE TABLE IF NOT EXISTS vol_story_stat_defaults (
+	template_id TINYINT UNSIGNED NOT NULL,
+	stat_id INT UNSIGNED NOT NULL,
+	stat_value TINYINT SIGNED NOT NULL DEFAULT 0,
+	UNIQUE(template_id,stat_id),
+	FOREIGN KEY(stat_id) REFERENCES vol_story_stats(stat_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1000000;
 
 CREATE TABLE IF NOT EXISTS vol_story_persona_stats (
 	persona_stat_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	persona_id INT UNSIGNED NOT NULL,
-	stat_id INT UNSIGNED NOT NULL,
+	stat_id INT UNSIGNED NULL,
+	persona_stat_name VARCHAR(80) NOT NULL DEFAULT '',
 	stat_value TINYINT SIGNED NOT NULL DEFAULT 0,
 	stat_flags_1 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	stat_flags_2 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY(persona_stat_id),
 	FOREIGN KEY(persona_id) REFERENCES vol_story_personas(persona_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	UNIQUE(persona_id,stat_id)
+	FOREIGN KEY(stat_id) REFERENCES vol_story_stats(stat_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(persona_id,stat_id,stat_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
-CREATE OR REPLACE VIEW volv_story_persona_stats AS
-	SELECT p.persona_stat_id,p.persona_id,s.*,IF(p.stat_value IS NULL,s.stat_default,p.stat_value) as stat_value,p.stat_flags_1,p.stat_flags_2 FROM vol_story_persona_stats AS p LEFT JOIN volv_story_stats AS s ON p.stat_id=s.stat_id;
-
-CREATE TABLE IF NOT EXISTS vol_story_persona_stats_specialties (
-	persona_specialty_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	persona_id INT UNSIGNED NOT NULL,
-	stat_id INT UNSIGNED NOT NULL,
-	specialty_name VARCHAR(80),
-	specialty_value TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	PRIMARY KEY(persona_specialty_id),
-	FOREIGN KEY(persona_id) REFERENCES vol_story_personas(persona_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	UNIQUE(persona_id,stat_id,specialty_name)
+CREATE TABLE IF NOT EXISTS vol_story_persona_stats_extra (
+	persona_stat_id INT UNSIGNED NOT NULL,
+	persona_stat_extra_type TINYINT UNSIGNED NOT NULL,
+	persona_stat_extra_name VARCHAR(80) NOT NULL DEFAULT '',
+	persona_stat_extra_description TEXT NULL,
+	persona_stat_extra_notes TEXT NULL,
+	FOREIGN KEY(persona_stat_id) REFERENCES vol_story_persona_stats(persona_stat_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE(persona_stat_id,persona_stat_extra_type,persona_stat_extra_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
-CREATE OR REPLACE VIEW volv_story_persona_stats_specialties AS
-	SELECT sp.specialty_name,sp.specialty_value,sp.persona_id,sp.persona_specialty_id,s.* FROM vol_story_persona_stats_specialties AS sp LEFT JOIN volv_story_stats AS s ON sp.stat_id=s.stat_id;
 
-CREATE TABLE IF NOT EXISTS vol_story_merit_categories (
-	merit_category_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	merit_category_name VARCHAR(80) UNIQUE,
-	merit_category_custom INT UNSIGNED NOT NULL DEFAULT 0,
-	PRIMARY KEY(merit_category_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
-
-CREATE TABLE IF NOT EXISTS vol_story_merits (
-	merit_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	merit_category_id INT UNSIGNED NOT NULL,
-	merit_name VARCHAR(80),
-	merit_require_context TINYINT UNSIGNED NOT NULL DEFAULT 1,
-	PRIMARY KEY(merit_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1000000;
-
-CREATE OR REPLACE VIEW volv_story_merits AS
-	SELECT m.merit_category_id,c.merit_category_name,c.merit_category_custom,m.merit_id,m.merit_name FROM vol_story_merits AS m LEFT JOIN vol_story_merit_categories AS c ON m.merit_category_id=c.merit_category_id;
-
-CREATE TABLE IF NOT EXISTS vol_story_persona_merits (
-	persona_merit_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	persona_id INT UNSIGNED NOT NULL,
-	merit_id INT UNSIGNED NOT NULL,
-	merit_context VARCHAR(255) NULL,
-	merit_description TEXT NULL,
-	merit_notes TEXT NULL,
-	merit_value TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	PRIMARY KEY(persona_merit_id),
-	FOREIGN KEY(persona_id) REFERENCES vol_story_personas(persona_id) ON DELETE CASCADE ON UPDATE CASCADE,
-	UNIQUE(persona_id,merit_id,merit_context)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
-
-CREATE OR REPLACE VIEW volv_story_persona_merits AS
-	SELECT p.persona_merit_id,p.persona_id,m.*,p.merit_context,p.merit_description,p.merit_notes,p.merit_value FROM vol_story_persona_merits AS p LEFT JOIN volv_story_merits AS m ON p.merit_id=m.merit_id;
-
-CREATE TABLE IF NOT EXISTS vol_story_persona_merits_wordpowers (
-	persona_merit_wordpower_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	persona_merit_id INT UNSIGNED NOT NULL,
-	merit_wordpower_name VARCHAR(255) NOT NULL,
-	merit_wordpower_purchases TINYINT UNSIGNED NOT NULL DEFAULT 1,
-	merit_wordpower_flags_1 TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	PRIMARY KEY(persona_merit_wordpower_id),
-	UNIQUE(persona_merit_id,merit_wordpower_name)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
-	
-CREATE OR REPLACE VIEW volv_story_persona_merits_wordpowers AS
-	SELECT p.persona_merit_wordpower_id,m.*,p.merit_wordpower_name,p.merit_wordpower_purchases,p.merit_wordpower_flags_1 FROM vol_story_persona_merits_wordpowers AS p LEFT JOIN volv_story_persona_merits AS m ON p.persona_merit_id=m.persona_merit_id;
-
-CREATE OR REPLACE VIEW volv_story_persona_merits_wordpowers_categories AS
-	SELECT DISTINCT persona_id,persona_merit_id,merit_name,merit_context FROM volv_story_persona_merits_wordpowers;
-
-CREATE TABLE IF NOT EXISTS vol_story_wordpower (
-	wordpower_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	template_id TINYINT UNSIGNED NOT NULL,
-	stat_id INT UNSIGNED NOT NULL,
-	wordpower_name VARCHAR(80) NOT NULL,
-	PRIMARY KEY(wordpower_id),
-	UNIQUE(template_id,stat_id,wordpower_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
-
-CREATE OR REPLACE VIEW volv_story_wordpower AS
-	SELECT w.wordpower_id,w.wordpower_name,w.template_id,t.template_name,t.template_sort,w.stat_id,s.stat_name FROM vol_story_wordpower AS w LEFT JOIN vol_story_templates AS t ON w.template_id=t.template_id LEFT JOIN vol_story_stats AS s ON w.stat_id=s.stat_id;
-
-CREATE TABLE IF NOT EXISTS vol_story_persona_wordpower (
-	persona_id INT UNSIGNED NOT NULL,
-	wordpower_id INT UNSIGNED NOT NULL,
-	wordpower_purchases TINYINT UNSIGNED NOT NULL DEFAULT 1,
-	wordpower_flags_1 TINYINT UNSIGNED NOT NULL DEFAULT 0,
-	FOREIGN KEY(persona_id) REFERENCES vol_story_personas(persona_id) ON DELETE CASCADE ON UPDATE CASCADE,
-	UNIQUE(persona_id,wordpower_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
-
-CREATE OR REPLACE VIEW volv_story_persona_wordpower AS
-	SELECT p.persona_id,w.*,p.wordpower_purchases,p.wordpower_flags_1 FROM vol_story_persona_wordpower AS p LEFT JOIN volv_story_wordpower AS w ON p.wordpower_id=w.wordpower_id;
-
-CREATE OR REPLACE VIEW volv_story_persona_wordpower_templates AS
-	SELECT DISTINCT persona_id,template_id,template_name FROM volv_story_persona_wordpower;
-	
-CREATE OR REPLACE VIEW volv_story_persona_wordpower_stats AS
-	SELECT DISTINCT persona_id,template_id,template_name,stat_id,stat_name FROM volv_story_persona_wordpower;
-	
 CREATE TABLE IF NOT EXISTS vol_story_pools_categories (
 	pool_category_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	pool_category_name VARCHAR(20) NOT NULL UNIQUE,
@@ -233,9 +172,6 @@ CREATE TABLE IF NOT EXISTS vol_story_persona_pools (
 	FOREIGN KEY(persona_id) REFERENCES vol_story_personas(persona_id) ON UPDATE CASCADE ON DELETE CASCADE
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 	
-CREATE OR REPLACE VIEW volv_story_persona_pools AS
-	SELECT p.persona_pool_id,p.persona_id,po.*,p.pool_current,p.pool_maximum FROM vol_story_persona_pools AS p LEFT JOIN volv_story_pools AS po ON p.pool_id=po.pool_id ORDER BY po.pool_sort;
-	
 CREATE TABLE IF NOT EXISTS vol_story_persona_pools_commits (
 	persona_commit_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	persona_pool_id INT UNSIGNED NOT NULL,
@@ -246,9 +182,6 @@ CREATE TABLE IF NOT EXISTS vol_story_persona_pools_commits (
 	FOREIGN KEY(persona_pool_id) REFERENCES vol_story_persona_pools(persona_pool_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
-CREATE OR REPLACE VIEW volv_story_persona_pools_commits AS
-	SELECT c.persona_commit_id,p.*,c.commit_name,c.commit_amount FROM vol_story_persona_pools_commits AS c LEFT JOIN volv_story_persona_pools AS p ON c.persona_pool_id=p.persona_pool_id;
-	
 CREATE TABLE IF NOT EXISTS vol_story_xp (
 	xp_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	xp_name VARCHAR(30) UNIQUE,

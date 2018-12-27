@@ -27,7 +27,7 @@
 &POOL`WILLPOWER`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT
 
 &POOL`LIMIT [u(cobj,pool)]=Track
-&POOL`WILLPOWER`ID [u(cobj,pool)]=1
+&POOL`LIMIT`ID [u(cobj,pool)]=4
 &POOL`LIMIT`UNITNAME [u(cobj,pool)]=Points
 &POOL`LIMIT`UNITTYPE [u(cobj,pool)]=Limit
 &POOL`LIMIT`MAX [u(cobj,pool)]=10

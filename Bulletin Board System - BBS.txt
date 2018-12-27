@@ -214,6 +214,11 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &Q`DELETE`POST [u(cobj,bbs)]=DELETE FROM vol_bbpost WHERE post_id=?
 
+&MOVE`MAIN [u(cobj,bbs)]=@attach %!/INC`FINDBB=%0,POST;@attach %!/INC`FINDPOST=%1,EDIT;@attach %!/INC`FINDBB=%2,POST,2;th u(setq,new_post_num,u(mysql,GET`NEXT_POST_NUM,%q<bbid2>));@attach %!/INC`DOSQL=MOVE`POST,%q<bbid2>,%q<new_post_num>,%q<pid>;@attach %!/INC`MSG=Moved Post %q<pnum>: %q<ptitle> to: %q<bbname2>!
+
+&Q`GET`NEXT_POST_NUM [u(cobj,bbs)]=SELECT MAX(post_display_num)+1 FROM vol_bbpost WHERE board_id=?
+&Q`MOVE`POST [u(cobj,bbs)]=UPDATE vol_bbpost SET board_id=?,post_display_num=? WHERE post_id=?
+
 @@ READ Section
 
 &READ`MAIN [u(cobj,bbs)]=@select/inline t(strlen(%0))[t(strlen(%1))]=00,{@attach %!/READ`LISTBOARDS},10,{@attach %!/READ`LISTMESS},11,{@attach %!/READ`CHECKPOST},01,{@attach %!/INC`MSG=ERROR: What trickery is this? You must enter a board name!}

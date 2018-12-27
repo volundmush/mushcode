@@ -1,0 +1,13 @@
+&CMD`+MERITS`PENNMUSH [u(cobj,merit)]=$^(?s)(?\:\+)?(merits|flaws|styles)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
+@set [u(cobj,merit)]/CMD`+MERITS`PENNMUSH=regexp
+&CMD`+MERITS`RHOSTMUSH [u(cobj,merit)]=$^(?s)(?\:\+)?(merits|flaws|styles)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+MERITS`MAIN
+@set [u(cobj,merit)]/CMD`+MERITS`RHOSTMUSH=regexp
+&CMD`+MERITS`MAIN [u(cobj,merit)]=@attach %!/INIT`%1;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`[strfirstof(%q<switch>,MAIN)]=squish(trim(%3)),trim(%4)
+@set [u(cobj,merit)]/CMD`+MERITS`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+
+&INIT`MERITS [u(cobj,merit)]=th u(setq,sysname,MERITS);th u(setq,mcatid,1);th u(setq,type,Merit)
+&INIT`FLAWS [u(cobj,merit)]=th u(setq,sysname,FLAWS);th u(setq,mcatid,2);th u(setq,type,Flaw)
+&INIT`STYLES [u(cobj,merit)]=th u(setq,sysname,STYLES);th u(setq,mcatid,3);th u(setq,type,Style)
+
+&HLP`MERITS`GAME [u(cobj,merit)]=[ansi(hc,Types)]%R+merits can also be used as the following commands:%R[ansi(h,+flaws)] - For Flaws. Set them to 0 points.

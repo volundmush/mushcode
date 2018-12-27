@@ -1,0 +1,105 @@
+
+&DO`SET`TEMPLATE`EXTRA [u(cobj,data)]=@attach %!/INC`DOSQL=RESET`SPLAT,get(%0/D`ID);@select/inline t(u(setr,powerstat_id,u(mysql,GET`POWERSTAT,%q<temp_id>)))=1,{@attach %!/INC`DOSQL=DELETE`MULTISTAT,get(%0/D`ID),u(SQL`IN`NUMBER,get(u(cobj,data)/POWERSTAT`IDS));@attach %!/INC`DOSQL=SET`STAT,%q<powerstat_id>,get(%0/D`ID),1}
+
+&Q`RESET`SPLAT [u(cobj,data)]=UPDATE vol_story_personas SET x_splat_id=NULL,y_splat_id=NULL,z_splat_id=NULL WHERE persona_id=?
+&Q`GET`POWERSTAT [u(cobj,data)]=SELECT template_power_stat FROM vol_story_templates WHERE template_id=?
+&Q`DELETE`MULTISTAT [u(cobj,data)]=DELETE FROM vol_story_persona_stats WHERE persona_id=? AND stat_id IN (!)
+
+&POWERSTAT`IDS [u(cobj,data)]=1000 1001 1002 1003
+
+&DO`SET`POWERSTAT [u(Cobj,data)]=@attach %!/DO`SET`STAT=%0,%1,%2,Powerstat,1
+&DO`SET`ATTRIBUTE [u(cobj,data)]=@attach %!/DO`SET`STAT=%0,%1,%2,Attribute,2
+&DO`SET`SKILL [u(cobj,data)]=@attach %!/DO`SET`STAT=%0,%1,%2,Skill,3
+
+@@ Specialties
+&CHAR`SET`SPECIALTY [u(cobj,data)]=@attach %!/DO`SET`SPECIALTY=%0,%1,%2;@attach %!/INC`MSG=u(setr,msg,[ansi(h,name(%0))]'s [ansi(h,%q<stat_name>/%q<specialty_name>)] Specialty is now: [ansi(h,if(%q<value>,%q<value>,DELETED))]);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&INC`VALID`SPECIALTY_NAME [u(cobj,data)]=@check strlen(u(setr,specialty_name,u(capnames,trim(squish(%0)))))=@attach %!/INC`MSG=ERROR: No specialty name entered!;@check regmatchi(%q<specialty_name>,^\(\\w+|%b\)+$)=@attach %!/INC`MSG=ERROR: Specialty names must be comprised purely of alphanumeric characters and spaces.
+
+&DO`VAL`SPECIALTY [u(cobj,data)]=@attach %!/DO`VAL`STAT=%0,before(%1,/),%2,Skill,3;@attach %!/INC`VALID`SPECIALTY_NAME=after(%1,/);
+&DO`SET`SPECIALTY [u(Cobj,data)]=@attach %!/DO`VAL`SPECIALTY;@attach %!/DO`VAL`VALUE;@select/inline %q<value>=0,{@check u(setr,p_spec_id,u(mysql,EXIST`SPECIALTY,%q<pers>,%q<stat_id>,%q<specialty_name>))=@attach %!/INC`MSG=ERROR: [name(%0)] does not have this Specialty.;@attach %!/INC`DOSQL=DELETE`SPECIALTY,%q<p_spec_id>;@attach %!/INC`MSG=You no longer have the [ansi(h,%q<stat_name>/%q<specialty_name>)] Specialty,%0},{@attach %!/INC`DOSQL=SET`SPECIALTY,%q<pers>,%q<stat_id>,%q<specialty_name>,%q<value>;@attach %!/INC`MSG=You now have the [ansi(h,%q<stat_name>/%q<specialty_name>)] Specialty rated at [ansi(h,%q<value>)],%0}
+
+&Q`EXIST`PERSONA_STAT [u(cobj,data)]=SELECT persona_stat_id FROM vol_story_persona_stats WHERE persona_id=? AND stat_id=?
+
+
+&CHAR`SET`SKILL [u(cobj,data)]=@attach %!/DO`SET`SKILL=%0,%1,%2,%3;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+&CHAR`SET`ATTRIBUTE [u(cobj,data)]=@attach %!/DO`SET`ATTRIBUTE=%0,%1,%2,%3;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&CHAR`SET`POWERSTAT [u(cobj,data)]=@attach %!/DO`SET`POWERSTAT=%0,%1,%2,%3;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&CHAR`SET`XSPLAT [u(cobj,data)]=@attach %!/DO`SET`X_SPLAT=%0,%1,%2,%3,X-Splat;@attach [u(cobj,data)]/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0))'s [u(setr,have,X-Splat is now: [ansi(h,%q<find>)])])]},{Your %q<have>},{%q<msg>}
+
+&CHAR`SET`YSPLAT [u(cobj,data)]=@attach %!/DO`SET`Y_SPLAT=%0,%1,%2,%3,Y-Splat;@attach [u(cobj,data)]/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0))'s [u(setr,have,Y-Splat is now: [ansi(h,%q<find>)])])]},{Your %q<have>},{%q<msg>}
+
+&CHAR`SET`ZSPLAT [u(cobj,data)]=@attach %!/DO`SET`Z_SPLAT=%0,%1,%2,%3,Z-Splat;@attach [u(cobj,data)]/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0))'s [u(setr,have,Z-Splat is now: [ansi(h,%q<find>)])])]},{Your %q<have>},{%q<msg>}
+
+@@ SHELP - Characters
+&SHLP`CHARACTERS [u(cobj,data)]=+editchar is used to modify all parts of a character's +sheet! Note that many choices that draw from the database (such as Skill names) will partial match. [ansi(hw,+editchar/s <name>|Sk|Com=3)] is valid shorthand for [ansi(hw,+editchar/set <name>|Skill|Computer=3)].%R%R[ansi(hc,Standard Storyteller)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+editchar/set <name>|Template=<Template>)] - Set a character's Template. (Mortal\, Vampire\, etc.) BEWARE: This will CLEAR their X-Y-Z Splat entries and Power Stat.%R[ansi(hw,+editchar/set <name>|Field|<field>=<entry>)] - <field> is for anything in sheet header that's not covered by something else. Example: Virtue and Vice. <entry> can be arbitrary text.%R[ansi(hw,+editchar/set <name>|Attribute|<attribute>=<value>)] - Set Attributes like Strength and Composure. <value>: 0 or greater.%R[ansi(hw,+editchar/set <name>|Skill|<skill>=<value>)] - Set Skills like Persuasion and Computer. <value>: 0 or greater.%R[ansi(hw,+editchar/set <name>|Specialty|<Skill>/<specialty>=<value>)] - Set specialties. Take notice of the / instead of |. Keep specialty names simple. \(Single words are best. Spaces are OK. Special symbols are not.\) <value> is 0 or greater. Set to 0 to clear it.)]%R%R[ansi(hc,Merits\, Flaws and Styles)]%RMerits are largely handled with the +merits system. See: [ansi(hw,+help +merits)] and [ansi(hw,+shelp +merits)] for full commands. Simple stuff:%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+merits/add <name>/<meritname>=<value>)] - Some merits require a 'context' in which case they're entered as <meritname>: <context>. Example: Sanctum: Restaurant Basement or Artifact: Oak Wand. <value> can be 0.)]%R%R[ansi(hc,Apply Template)]%RSpecific templates are covered in sub-help files listed below. For instance\, [ansi(hw,+shelp +editchar/vampire)] and [ansi(hw,+shelp +editchar/Mage)]
++shelp/add Characters/+editchar=[u(cobj,data)]/SHLP`CHARACTERS
+
+
+@@ Vampire
+&DO`SET`DISCIPLINE [u(cobj,data)]=@attach %!/DO`SET`STAT=%0,%1,%2,Discipline,4
+&CHAR`SET`DISCIPLINE [u(cobj,data)]=@attach %!/DO`SET`DISCIPLINE=%0,%1,%2,%3;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&CHAR`ADD`CRUACRITE [u(cobj,data)]=@attach %!/DO`ADD`WORDPOWER=%0,Vampire/Cruac Rites,%2,Cruac Rite;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+&CHAR`REM`CRUACRITE [u(cobj,data)]=@attach %!/DO`REM`WORDPOWER=%0,Vampire/Cruac Rites,%2,Cruac Rite;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&CHAR`ADD`DEVOTION [u(cobj,data)]=@attach %!/DO`ADD`WORDPOWER=%0,Vampire/Devotion,%2,Devotion;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+&CHAR`REM`DEVOTION [u(cobj,data)]=@attach %!/DO`REM`WORDPOWER=%0,Vampire/Devotion,%2,Devotion;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&SHLP`VAMPIRE [u(cobj,data)]=[ansi(hc,Vampire Template)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+editchar/set <name>|powerstat|Blood Potency=<value>)] - Set the Vampire's Blood Potency.%R[ansi(hw,+editchar/set <name>|Xsplat=<clan>)] - Set Vampire's Clan.%R[ansi(hw,+editchar/set <name>|Ysplat=<covenant>)] - Set Vampire's Covenant.%R[ansi(hw,+editchar/set <name>|Zsplat=<bloodline>)] - Set Vampire's Bloodline.R%R[ansi(hw,+editchar/set <name>|Discipline|<discipline>=<value>)] - Set a Vampire's Discipline ranks. <value> is 0 or greater.%R%R[ansi(hw,+editchar/add <name>|Craucrite=<rite>)] - Grant a Vampire a Cruac Rite.%R[ansi(hw,+editchar/rem <name>|Craucrite=<rite>)] - Remove a Vampire's Cruac Rite.%R%R[ansi(hw,+editchar/add <name>|Devotion=<rite>)] - Grant a Vampire a Devotion.%R[ansi(hw,+editchar/rem <name>|Devotion=<rite>)] - Remove a Vampire's Devotion.)]
++shelp/addsub +editchar/Vampire=[u(cobj,data)]/SHLP`VAMPIRE
+
+@@ Werewolf
+
+&DO`SET`MOONGIFT [u(cobj,data)]=@attach %!/DO`SET`STAT=%0,%1,%2,Moon Gift,5
+&CHAR`SET`MOONGIFT [u(cobj,data)]=@attach %!/DO`SET`MOONGIFT=%0,%1,%2,%3;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&CHAR`ADD`SHADOWGIFT [u(cobj,data)]=@attach %!/DO`ADD`WORDPOWER=%0,Werewolf/Shadow Gifts,%2,Shadow Gift;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+&CHAR`REM`SHADOWGIFT [u(cobj,data)]=@attach %!/DO`REM`WORDPOWER=%0,Werewolf/Shadow Gifts,%2,Shadow Gift;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&CHAR`ADD`WolfGIFT [u(cobj,data)]=@attach %!/DO`ADD`WORDPOWER=%0,Werewolf/Wolf Gifts,%2,Wolf Gift;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+&CHAR`REM`WolfGIFT [u(cobj,data)]=@attach %!/DO`REM`WORDPOWER=%0,Werewolf/Wolf Gifts,%2,Wolf Gift;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&CHAR`ADD`RITE [u(cobj,data)]=@attach %!/DO`ADD`WORDPOWER=%0,Werewolf/Rites,%2,Rite;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+&CHAR`REM`RITE [u(cobj,data)]=@attach %!/DO`REM`WORDPOWER=%0,Werewolf/Rites,%2,Rite;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&SHLP`WEREWOLF [u(cobj,data)]=[ansi(hc,Werewolf Template)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+editchar/set <name>|powerstat|Primal Urge=<value>)] - Set the Werewolf's Primal Urge.%R[ansi(hw,+editchar/set <name>|Xsplat=<auspice>)] - Set Werewolf's Auspice.%R[ansi(hw,+editchar/set <name>|Ysplat=<tribe>)] - Set Werewolf's Tribe.%R[ansi(hw,+editchar/set <name>|Zsplat=<lodge>)] - Set Werewolf's Lodge.%R%R[ansi(hw,+editchar/set <name>|Moongift|<gift>=<value>)] - Set a Werewolf's Moon Gift ranks. <value> is 0 or greater.%R%R[ansi(hw,+editchar/add <name>|Shadowgift=<gift>)] - Grant a Werewolf a Shadow Gift.%R[ansi(hw,+editchar/rem <name>|Shadowgift=<rite>)] - Remove a Werewolf's Shadow Gift.%R%R[ansi(hw,+editchar/add <name>|Wolfgift=<gift>)] - Grant a Werewolf a Wolf Gift.%R[ansi(hw,+editchar/rem <name>|Wolfgift=<rite>)] - Remove a Werewolf's Wolf Gift.)]
++shelp/addsub +editchar/Werewolf=[u(cobj,data)]/SHLP`WEREWOLF
+
+
+@@ Mages
+&DO`SET`ARCANA [u(cobj,data)]=@attach %!/DO`SET`STAT=%0,%1,%2,Arcana,6
+&CHAR`SET`ARCANA [u(cobj,data)]=@attach %!/DO`SET`ARCANA=%0,%1,%2,%3;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&CHAR`ADD`ROTE [u(cobj,data)]=@attach %!/DO`ADD`WORDPOWER=%0,Mage/%1,%2,Rote;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+&CHAR`REM`ROTE [u(cobj,data)]=@attach %!/DO`REM`WORDPOWER=%0,Mage/%1,%2,Rote;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&SHLP`MAGE [u(cobj,data)]=[ansi(hc,Mage Template)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+editchar/set <name>|powerstat|Gnosis=<value>)] - Set the Mage's Gnosis.%R[ansi(hw,+editchar/set <name>|Xsplat=<path>)] - Set Mage's Path.%R[ansi(hw,+editchar/set <name>|Ysplat=<order>)] - Set Mage's Order.%R[ansi(hw,+editchar/set <name>|Zsplat=<legacy>)] - Set Mage's Legacy.%R%R[ansi(hw,+editchar/set <name>|Arcana|<arcana>=<value>)] - Set a Mage's Arcana ranks. <value> is 0 or greater.%R%R[ansi(hw,+editchar/add <name>|Rote|<arcana>=<rote>)] - Grant a Mage a Rote. Note that the Arcana must be specified too!%R[ansi(hw,+editchar/rem <name>|Rote|<arcana>=<rote>)] - Remove a Mage's Rote.)]
++shelp/addsub +editchar/Mage=[u(cobj,data)]/SHLP`MAGE
+
+@@ Changeling
+
+&CHAR`ADD`CommonContract [u(cobj,data)]=@attach %!/DO`ADD`WORDPOWER=%0,Changeling/Common Contracts,%2,Common Contract;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+&CHAR`REM`CommonContract [u(cobj,data)]=@attach %!/DO`REM`WORDPOWER=%0,Changeling/Common Contracts,%2,Common Contract;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&CHAR`ADD`RoyalContract [u(cobj,data)]=@attach %!/DO`ADD`WORDPOWER=%0,Changeling/Royal Contracts,%2,Royal Contract;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+&CHAR`REM`RoyalContract [u(cobj,data)]=@attach %!/DO`REM`WORDPOWER=%0,Changeling/Royal Contracts,%2,Royal Contract;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&CHAR`ADD`GoblinContract [u(cobj,data)]=@attach %!/DO`ADD`WORDPOWER=%0,Changeling/Goblin Contracts,%2,Goblin Contract;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+&CHAR`REM`GoblinContract [u(cobj,data)]=@attach %!/DO`REM`WORDPOWER=%0,Changeling/Goblin Contracts,%2,Goblin Contract;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
+
+&SHLP`CHANGELING [u(cobj,data)]=[ansi(hc,Changeling Template)]%R[align(5 [sub(u(width,%#),6)],,[ansi(hw,+editchar/set <name>|powerstat|Wyrd=<value>)] - Set the Changeling's Wyrd.%R[ansi(hw,+editchar/set <name>|Xsplat=<Seeming>)] - Set Changeling's Seeming.%R[ansi(hw,+editchar/set <name>|Ysplat=<kith>)] - Set Changeling's Kith.%R[ansi(hw,+editchar/set <name>|Zsplat=<court>)] - Set Changeling's Court.%R%R[ansi(hw,+editchar/add <name>|Commoncontract=<gift>)] - Grant a Changeling a Common Contract.%R[ansi(hw,+editchar/rem <name>|Commoncontract=<rite>)] - Remove a Changeling's Common Contract.%R%R[ansi(hw,+editchar/add <name>|Royalcontract=<gift>)] - Grant a Changeling a Royal Contract.%R[ansi(hw,+editchar/rem <name>|Royalcontract=<rite>)] - Remove a Changeling's Royal Contract.%R%R[ansi(hw,+editchar/add <name>|Goblincontract=<gift>)] - Grant a Changeling a Goblin Contract.%R[ansi(hw,+editchar/rem <name>|Goblincontract=<rite>)] - Remove a Changeling's Goblin Contract.)]
++shelp/addsub +editchar/Changeling=[u(cobj,data)]/SHLP`CHANGELING
+
+@@ Advantages
+
+&INTEGRITY`VAMPIRE [u(cobj,data)]=Humanity
+&INTEGRITY`SIN-EATER [u(cobj,data)]=Synergy
+&INTEGRITY`WEREWOLF [u(cobj,data)]=Harmony
+&INTEGRITY`MAGE [u(cobj,data)]=Wisdom
+&INTEGRITY`PROMETHEAN [u(cobj,data)]=Humanity
+&INTEGRITY`CHANGELING [u(cobj,data)]=Clarity
+&INTEGRITY`DEMON [u(cobj,data)]=Cover
+&INTEGRITY`BEAST [u(cobj,data)]=Satiety

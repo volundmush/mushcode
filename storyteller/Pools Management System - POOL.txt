@@ -1,5 +1,7 @@
 @@ DEPENDENCIES - CORE
 
+th u(NEWCOBJ,STORYTELLER: Pool Management System <Pool>,pool,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
 &CMD`+POOL [u(cobj,pool)]=$^\+(spend|burn|gain|refresh|commit|uncommit|pools|fill|drain)(?\: +(.+?))?(?\:=(.*))?$:@check u(setr,persona_id,get(%#/D`ID))=@attach %!/INC`MSG=ERROR: You lack a Persona!;@attach %!/INC`%1=%2,%3
 @set [u(cobj,pool)]/CMD`+POOL=regexp
 
@@ -12,6 +14,10 @@
 &INC`FINDPOOL [u(cobj,pool)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: What resource? Your choices are: [u(itemize,u(FUN`LISTPOOLS,%1),|,and,\,)];@attach %!/INC`PARTIAL=%0,u(filter,OPTIONS,u(FUN`LISTPOOLS,%1),|,|,%2,%3),|,choice,pool
 
 &FUN`POOLDETAIL [u(cobj,pool)]=v(POOL`%0`UNITNAME) of [u(capnames,v(POOL`%0`UNITTYPE))]
+
+&SORTPOOLS [u(cobj,pool)]=u(SORTPOOLS`%va,%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+&SORTPOOLS`PENNMUSH [u(cobj,pool)]=sortkey(#lambda/default(%!/POOL`\%0`ORDER,99),%0,n,%1,%2)
+&SORTPOOLS`RHOSTMUSH [u(cobj,pool)]=sortby(#lambda/[lit([ncomp(default(%!/POOL`%0`ORDER,99),default(%!/POOL`%1`ORDER,99))])],%0,%1,%2)
 
 &FUN`LISTPOOLS [u(cobj,pool)]=localize(u(sortpools,u(filter,HASPOOL,u(FUN`ALLPOOLS),|,|,%0,u(setr,template,u(gettemplate,%0)),if(strlen(%1),%1,*),v(TEMPLATE`%q<template>)),|,|))
 
