@@ -347,6 +347,18 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &INC`DOCALL`2 [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(call`2,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
 
+&INC`SEARCHSQL [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No %1 name entered!;@select/inline words(u(setr,tempresults,u(strfirstof,u(setr,searchexact,u(mysql3,FIND`%2`EXACT[if(isint(%0),`ID)],%0,%4,%5,%6,%7,%8,%9)),if(not(strlen(%q<searchexact>)),u(mysql3,FIND`%2`WILD,sqlescape(%0),%4,%5,%6,%7,%8,%9)))),chr(176))=>1,{@stop 1=@attach %!/INC`MSG=ERROR: Results are Ambiguous. That matches: [iter(%q<tempresults>,elements(%i0,2,chr(177)),chr(176),\,%b)]},0,{@stop 1=@attach %!/INC`MSG=ERROR: Could not find %1 '%0'. Choices are: [iter(u(mysql3,FIND`%2`LIST,%4,%5,%6,%7,%8,%9),%i0,chr(176),\,%b)]},1,{@attach %!/INC`LOADSQL=%2,elements(%q<tempresults>,1,chr(177)),%3;th unsetq(tempresults searchexact)}
+@@ Searches database for id,name pairs and attempts partial matching and etc.
+@@ %0 - Text or ID to search for. %1 - name to display it as. %2 - QUERY CATEGORY to search. What kind of OBJECT is this? %3 - What slot # to load data into? %4+ - Additional parameters needed by SQL queries.
+
+&INC`LOADSQL [u(cobj,ccp)]=@check strlen(u(setr,datarow,u(mysql3,LOAD`[u(strfirstof,%0,%3)],%1)))=@attach %!/INC`MSG=ERROR: %0 data not found.;@attach %!/INC`REGOBJ=capstr(lcstr(%0)),v(FIELD`%0),%2,%q<datarow>;th unsetq(datarow)
+@@ Retrieves FIELD`%0 names and loads them into structured named registers.
+@@ %0 - The TYPE OF OBJECT this is going to be. This must match the queries. Q`LOAD`%0 will be called. %1 - The ID of the object to load. %2 - The # that this will be loaded into. %3 - Alternate SQL LOAD name to use.
+
+&INC`REGOBJ [u(cobj,ccp)]=@dolist/inline %1={th u(setq,%0%2.%i0,elements(%3,inum(0),chr(177)))}
+@@ Takes arbitrary data (usually from SQL) and loads it into named registers following pattern of <thing>#.<parameter>.
+@@ %0 - the Thing name. %1 - space-delimited list of parameters. %2 - The # for this object. %3 - The data, presented in mysql fashion (delimiter is character 177)
+
 @@ The CONFIG Subsystem.
 &CMD`+GAMECONFIG`PENNMUSH [u(cobj,ccp)]=$^\+gameconfig(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GAMECONFIG`MAIN
 @set [u(cobj,ccp)]/CMD`+GAMECONFIG`PENNMUSH=regexp no_inherit
@@ -654,6 +666,9 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &INC`VALID`RADIO [u(Cobj,ccp)]=@check isdbref(u(setr,value,objid(u(u(cobj,radio)/FUN`FINDFREQ,%0,%:))))=@attach %!/INC`MSG=ERROR: Radio '%0' not found.;th u(setq,valueformat,u(getmoniker,%q<value>))
 
 &INC`VALID`RADIOLIST [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No RadioList entered!;@dolist/inline/delimit | %0={@attach %!/INC`VALID`RADIO=before(u(choosegame,%i0,%d0),/);th u(setq,finalvalue,squish(cat(%q<finalvalue>,%q<value>)))};th u(setq,value,%q<finalvalue>);th u(setq,valueformat,iter(%q<value>,u(getmoniker,%i0),%b,\,%b))
+
+&INC`VALID`ENAME [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Must enter a name!;@attach %!/INC`VALID`WORD=%0;@stop isnum(%q<value>)=@attach %!/INC`MSG=ERROR: %1 names cannot be numbers alone!;@stop u(charsearch,%q<value>,/ [iter(u(setr,badchars,47 36 176 177 96 34 94 124),chr(%i0))])=@attach %!/INC`MSG=ERROR: %1 names cannot contain characters: [iter(%q<badchars>,chr(%i0))]
+@@ Used to make sure that entered value is a good name for a database entity.
 
 @@ MOVEMENT SECTION
 &INC`CANRELOCATE [u(cobj,ccp)]=@select/inline cor(u(isadmin,%#),u(isadmin,%0))=0,{@check elock(loc(%0)/leave,%0)=@attach %!/INC`MSG=LEAVE @lock Failure.;@check elock(%1/Enter,%0)=@attach %!/INC`MSG=ENTER @lock failure.;@check elock(%1/Teleport,%0)=@attach %!/INC`MSG=TELEPORT @lock failure.}

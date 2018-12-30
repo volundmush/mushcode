@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS vol_story_templates (
 	template_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	template_name VARCHAR(50) NOT NULL UNIQUE,
-	template_playable BOOL NOT NULL DEFAULT 1,
-	template_power_stat_name NULL,
+	template_name VARCHAR(18) NOT NULL UNIQUE,
+	template_playable TINYINT UNSIGNED NOT NULL DEFAULT 1,
+	template_power_stat_name VARCHAR(15) NULL,
 	PRIMARY KEY(template_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
@@ -33,23 +33,42 @@ CREATE OR REPLACE VIEW volv_story_template_sub_choices AS
 	SELECT t.template_id AS template_id,t.template_name AS template_name,t.template_playable AS template_playable,t.template_sub_id AS template_sub_id,t.template_sub_name AS template_sub_name,t.template_sub_slot AS template_sub_slot,c.template_sub_choice_id AS template_sub_choice_id,c.template_sub_choice_name AS template_sub_choice_name FROM vol_story_template_sub_choices AS c LEFT JOIN volv_story_template_sub AS t ON c.template_sub_id=t.template_sub_id ORDER BY t.template_name DESC,t.template_sub_name DESC,c.template_sub_choice_name DESC;
 
 /*
-Template ID 0 reserved for 'universal' logic. Do not create one.
-Template Ids over 100 are reserved for System use. They aren't Playable Templates.
+Template ID 0 reserved for universal logic.
+Template Ids over 100 are reserved for System use. They arent Playable Templates.
 */
-
 
 CREATE TABLE IF NOT EXISTS vol_story_personas (
 	persona_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	owner_id INT UNSIGNED NOT NULL,
-	persona_name VARCHAR(40) NOT NULL,
+	persona_name VARCHAR(80) NOT NULL,
 	template_id TINYINT UNSIGNED NOT NULL DEFAULT 1,
 	persona_parent INT UNSIGNED NULL,
 	power_stat_value TINYINT UNSIGNED NOT NULL DEFAULT 1,
+	persona_date_created DATETIME NOT NULL,
+	approval_id INT UNSIGNED NULL,
 	PRIMARY KEY(persona_id),
 	FOREIGN KEY(owner_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	FOREIGN KEY(template_id) REFERENCES vol_story_templates(template_id) ON UPDATE CASCADE ON DELETE SET DEFAULT,
+	FOREIGN KEY(template_id) REFERENCES vol_story_templates(template_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(persona_parent) REFERENCES vol_story_personas(persona_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE TABLE IF NOT EXISTS vol_story_personas_approval (
+    approval_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    persona_id INT UNSIGNED NOT NULL,
+    admin_id INT UNSIGNED NOT NULL,
+    approval_state TINYINT UNSIGNED NOT NULL,
+    approval_date DATETIME NOT NULL,
+    approval_notes TEXT NULL,
+    PRIMARY KEY(approval_id),
+    FOREIGN KEY(persona_id) REFERENCES vol_story_personas(persona_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(admin_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE OR REPLACE VIEW volv_story_personas_approval AS
+    SELECT a.approval_id AS approval_id,a.persona_id AS persona_id,a.admin_id AS admin_id,e.entity_name AS admin_name,a.approval_state AS approval_state,a.approval_date AS approval_date,UNIX_TIMESTAMP(a.approval_date) AS approval_date_secs,a.approval_notes AS approval_notes FROM vol_story_personas_approval AS a LEFT JOIN vol_entity AS e ON a.admin_id=e.entity_id;
+
+CREATE OR REPLACE VIEW volv_story_personas AS
+    SELECT p.persona_id AS persona_id,p.owner_id AS owner_id,e.entity_name AS owner_name,p.template_id AS template_id,t.template_name AS template_name,p.persona_name AS persona_name,p.persona_parent AS persona_parent,p2.persona_name AS persona_parent_name,t.template_power_stat_name AS template_power_stat_name,p.power_stat_value AS power_stat_value,p.persona_date_created AS persona_date_created,UNIX_TIMESTAMP(p.persona_date_created) AS persona_date_created_secs,p.approval_id AS approval_id,a.admin_id AS admin_id,a.admin_name AS admin_name,a.approval_state AS approval_state,a.approval_date AS approval_date,a.approval_date_secs AS approval_date_secs FROM vol_story_personas AS p LEFT JOIN vol_story_templates AS t ON p.template_id=t.template_id LEFT JOIN vol_entity AS e ON p.owner_id=e.entity_id LEFT JOIN vol_story_personas AS p2 ON p.persona_parent=p2.persona_id LEFT JOIN volv_story_personas_approval AS a ON p.approval_id=a.approval_id;
 
 CREATE TABLE IF NOT EXISTS vol_story_persona_sub_choices (
 	persona_id INT UNSIGNED NOT NULL,
@@ -74,14 +93,14 @@ CREATE TABLE IF NOT EXISTS vol_story_template_fields (
 	FOREIGN KEY(field_id) REFERENCES vol_story_fields(field_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(template_id) REFERENCES vol_story_templates(template_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(template_id,field_id)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_story_template_fields AS
-	SELECT tf.tlink_id AS tlink_id,tf.template_id AS template_id,t.template_name AS template_name,tf.field_id AS field_id,f.field_name AS field_name FROM vol_story_template_fields AS tf LEFT JOIN vol_story_templates AS t ON t.template_id=tf.template_id LEFT JOIN vol_story_fields AS f ON tf.field_id=f.field_id ORDER BY t.template_sort,f.field_id;
+	SELECT tf.tlink_id AS tlink_id,tf.template_id AS template_id,t.template_name AS template_name,tf.field_id AS field_id,f.field_name AS field_name FROM vol_story_template_fields AS tf LEFT JOIN vol_story_templates AS t ON t.template_id=tf.template_id LEFT JOIN vol_story_fields AS f ON tf.field_id=f.field_id ORDER BY f.field_id;
 	
 CREATE TABLE IF NOT EXISTS vol_story_persona_field (
 	persona_id INT UNSIGNED NOT NULL,
-	field_id TINYINT UNSIGNED NOT NULL,
+	field_id INT UNSIGNED NOT NULL,
 	field_answer VARCHAR(40),
 	FOREIGN KEY(persona_id) REFERENCES vol_story_personas(persona_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(field_id) REFERENCES vol_story_fields(field_id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -90,7 +109,6 @@ CREATE TABLE IF NOT EXISTS vol_story_persona_field (
 
 CREATE OR REPLACE VIEW volv_story_persona_field AS
 	SELECT p.persona_id as persona_id,f.field_id as field_id,f.field_name as field_name,p.field_answer as field_answer FROM vol_story_persona_field AS p LEFT JOIN vol_story_fields AS f ON p.field_id=f.field_id;
-
 
 CREATE TABLE IF NOT EXISTS vol_story_stats (
 	stat_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -103,8 +121,11 @@ CREATE TABLE IF NOT EXISTS vol_story_stats (
 	stat_rank TINYINT UNSIGNED NULL,
 	stat_parent INT UNSIGNED NULL,
 	stat_require_context TINYINT UNSIGNED NOT NULL DEFAULT 0, 
-	stat_can_set TINYINT UNSIGNED NOT NULL DEFAULT 1, /* This is 0 for category-containers */
-	PRIMARY KEY(stat_category_id),
+	stat_can_set TINYINT UNSIGNED NOT NULL DEFAULT 1, /* This is 0 for category-containers */,
+	stat_minimum TINYINT NOT NULL DEFAULT 0,
+	stat_maximum TINYINT NOT NULL DEFAULT 127,
+	PRIMARY KEY(stat_id),
+	FOREIGN KEY(template_id) REFERENCES vol_story_templates(template_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(template_id,stat_parent,stat_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
@@ -114,20 +135,21 @@ CREATE TABLE IF NOT EXISTS vol_story_stat_defaults (
 	stat_value TINYINT SIGNED NOT NULL DEFAULT 0,
 	UNIQUE(template_id,stat_id),
 	FOREIGN KEY(stat_id) REFERENCES vol_story_stats(stat_id) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1000000;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS vol_story_persona_stats (
 	persona_stat_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	persona_id INT UNSIGNED NOT NULL,
+	persona_stat_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	stat_id INT UNSIGNED NULL,
 	persona_stat_name VARCHAR(80) NOT NULL DEFAULT '',
-	stat_value TINYINT SIGNED NOT NULL DEFAULT 0,
+	stat_value TINYINT NOT NULL DEFAULT 0,
 	stat_flags_1 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	stat_flags_2 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY(persona_stat_id),
 	FOREIGN KEY(persona_id) REFERENCES vol_story_personas(persona_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(stat_id) REFERENCES vol_story_stats(stat_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	UNIQUE(persona_id,stat_id,stat_name)
+	UNIQUE(persona_id,persona_stat_type,stat_id,persona_stat_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS vol_story_persona_stats_extra (

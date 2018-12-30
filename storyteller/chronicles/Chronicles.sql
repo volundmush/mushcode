@@ -7,195 +7,8 @@ ON DUPLICATE KEY UPDATE template_name=VALUES(template_name);
 INSERT INTO vol_story_templates
 	(template_id,template_name,template_power_stat_name)
 VALUES
-	(1,"Mortal",NULL),
-	(6,"Promethean","Azoth"),
-	(7,"Hunter",NULL),
-	(8,"Sin-Eater","Psyche"),
-	(9,"Mummy","Sekhem"),
-	(10,"Demon","Primum"),
-	(11,"Beast","Lair")
-	ON DUPLICATE KEY UPDATE template_name=VALUES(template_name);
-
-INSERT INTO vol_story_template_sub
-	(template_sub_id,template_id,template_sub_name,template_sub_slot)
-VALUES
-	
-	/* Promethean */
-	(13,6,"Lineage",0),
-	(14,6,"Refinement",1),
-	(15,6,"Athanor",2),
-	
-	/* Hunter */
-	(16,7,"Compact",0),
-	
-	/* Sin-Eater */
-	(19,8,"Threshold",0),
-	(20,8,"Archetype",1),
-	
-	/* Mummy */
-	(22,9,"Decree",0),
-	(23,9,"Guild",1),
-	
-	/* Demon */
-	(25,10,"Incarnation",0),
-	(26,10,"Agenda",1),
-	
-	/* Beast */
-	(28,11,"Family",0),
-	(29,11,"Hunger",1)
-	ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),template_sub_name=VALUES(template_sub_name),template_sub_slot=VALUES(template_sub_slot);
-
-INSERT INTO vol_story_template_sub_choices
-	(template_sub_choice_id,template_sub_id,template_sub_choice_name)
-VALUES	
-	/* Promethean X Splats - Lineages */
-	(4000,13,"Tammuz"),
-	(4001,13,"Osiran"),
-	(4002,13,"Ulgan"),
-	(4003,13,"Galateid"),
-	(4004,13,"Frankenstein"),
-	(4005,13,"Zeka"),
-	
-		/* Promethean Y Splats - Refinements */
-	(4006,14,"Aurum"),
-	(4007,14,"Cuprum"),
-	(4008,14,"Ferrum"),
-	(4009,14,"Mercurius"),
-	(4010,14,"Stannum"),
-	(4011,14,"Aes"),
-	(4012,14,"Argentum"),
-	(4013,14,"Cobalus"),
-	(4014,14,"Phosphorum"),
-	(4015,14,"Plumbum"),
-	(4016,14,"Centimani"),
-	
-	/* Hunter X Splats - Compacts-Conspiracies */
-	(5000,16,"Ahl al-Jabal"),
-	(5001,16,"Ashwood Abbey"),
-	(5002,16,"The Bear Lodge"),
-	(5003,16,"Barrett Commission"),
-	(5004,16,"Division Six"),
-	(5005,16,"Habibti Ma"),
-	(5006,16,"The Hunt Club"),
-	(5007,16,"The Illuminated Brotherhood"),
-	(5008,16,"Keepers of the Source"),
-	(5009,16,"Long Night"),
-	(5010,16,"Loyalists of Thule"),
-	(5011,16,"Maiden's Blood Sisterhood"),
-	(5012,16,"Network Zero"),
-	(5013,16,"Night Watch"),
-	(5014,16,"Null Mysteriis"),
-	(5015,16,"The Promethean Brotherhood"),
-	(5016,16,"Talbot Group"),
-	(5017,16,"The Union"),
-	(5018,16,"Utopia Now"),
-	(1509,16,"Aegis Kai Doru"),
-	(5010,16,"Ascending Ones"),
-	(5011,16,"The Cainite Heresy"),
-	(5012,16,"The Cheiron Group"),
-	(5013,16,"The Faithful of Shulpae"),
-	(5014,16,"Knights of Saint Adrian"),
-	(5015,16,"The Knights of Saint George"),
-	(5016,16,"Les Mysteres"),
-	(5017,16,"Lucifuge"),
-	(5018,16,"Malleus Maleficarum"),
-	(5019,16,"Task Force: VALKYRIE"),
-	(5020,16,"Vanguard Serial Crimes Unit"),
-	
-	/* Sin-Eater X Splats - Thresholds */
-	(6000,19,"Torn"),
-	(6001,19,"Silent"),
-	(6002,19,"Prey"),
-	(6003,19,"Stricken"),
-	(6004,19,"Forgotten"),
-	
-	/* Sin-Eater Y Splats - Archetype */
-	(6005,20,"Bonepicker"),
-	(6006,20,"Celebrant"),
-	(6008,20,"Gatekeeper"),
-	(6009,20,"Mourner"),
-	(6010,20,"Advocate"),
-	(6011,20,"Reaper"),
-	(6012,20,"Necromancer"),
-	(6013,20,"Pilgrim"),
-	
-	/* Mummy X Splats - Decrees */
-	(7000,22,"Heart"),
-	(7001,22,"Spirit"),
-	(7002,22,"Essence"),
-	(7003,22,"Name"),
-	(7004,22,"Shadow"),
-	
-	/* Mummy Y Splats - Guilds */
-	(7005,23,"Maa-Kep"),
-	(7006,23,"Mesen-Nebu"),
-	(7007,23,"Sesha-Hebsu"),
-	(7008,23,"Su-Menent"),
-	(7009,23,"Tef-Aabhi"),
-	
-	/* Demon X Splats - Incarnations */
-	(8000,25,"Destroyer"),
-	(8001,25,"Guardian"),
-	(8002,25,"Messenger"),
-	(8003,25,"Psychopomp"),
-	(8004,25,"Analyst"),
-	
-	/* Demon Y Splats - Agendas */
-	(8005,26,"Inquisitor"),
-	(8006,26,"Integrator"),
-	(8007,26,"Saboteur"),
-	(8008,26,"Tempter"),
-	(8009,26,"Uncalled"),
-	
-	/* Beast X Splats - Family */
-	(9000,28,"Anakim"),
-	(9001,28,"Eshmaki"),
-	(9002,28,"Makara"),
-	(9003,28,"Namtaru"),
-	(9004,28,"Ugallu"),
-	(9005,28,"Inguma"),
-	(9006,28,"Talassii")
-	
-	/* Beast Y Splats - Hungers */
-	(9007,29,"Predator"),
-	(9008,29,"Tyrant"),
-	(9009,29,"Nemesis"),
-	(9010,29,"Ravager"),
-	(9011,29,"Collector"),
-	(9012,29,"Whisper"),
-	(9013,29,"Enabler")
-	
-ON DUPLICATE KEY UPDATE template_sub_id=VALUES(template_sub_id),template_sub_choice_name=VALUES(template_sub_choice_name);
-
-/*
-INSERT INTO vol_story_z_splats 
-	(z_splat_id,template_id,z_splat_name)
-VALUES
-	 Vampire Z Splats - Bloodlines 
-	(20,2,"Amara Havana"),
-	(21,2,"Anvari"),
-	(22,2,"The Ansam"),
-	(23,2,"The Carnival"),
-	(24,2,"Ordo Dracul"),
-
-	 Werewolf Z Splats - Lodges 
-	(30,3,"Einherjar"),
-	(31,3,"Hundred Dogs"),
-	(32,3,"Hook Hand"),
-	(33,3,"Shield"),
-	(34,3,"Roman Ritual"),
-	(35,3,"Eaters of the Dead"),
-	(36,3,"Chronicle"),
-	(37,3,"Gargoyles"),
-	
-	 Changeling Z Splats - Courts 
-	(50,5,"Spring"),
-	(51,5,"Summer"),
-	(52,5,"Autumn"),
-	(53,5,"Winter")
-	
-	ON DUPLICATE KEY UPDATE z_splat_name=VALUES(z_splat_name);
-*/
+	(1,"Mortal",NULL)
+ON DUPLICATE KEY UPDATE template_name=VALUES(template_name);
 
 INSERT INTO vol_story_fields
 	(field_id,field_name)
@@ -209,22 +22,23 @@ ON DUPLICATE KEY UPDATE field_name=VALUES(field_name);
 INSERT INTO vol_story_template_fields
 	(tlink_id,field_id,template_id)
 VALUES
-	
 	/* Mortal - Virtue and Vice */
-	(1,0,1),
-	(2,1,1)
+	(0,0,1),
+	(1,1,1)
 ON DUPLICATE KEY UPDATE field_id=VALUES(field_id),template_id=VALUES(template_id);
-	
 
 INSERT INTO vol_story_stats
-	(stat_id,template_id,stat_name,stat_name_plural,stat_can_set)
+	(stat_id,template_id,stat_name,stat_plural,stat_can_set)
 VALUES
 	/* Universal - Template ID 0 */
 	(1,0,"Attribute","Attributes",0),
 	(2,0,"Skill","Skills",0),
 	(3,0,"Merit","Merits",0),
-	(4,0,"Flaw","Flaws",0)	
-ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_name_plural=VALUES(stat_name_plural),stat_can_set=VALUES(stat_can_set);
+	(4,0,"Flaw","Flaws",0),
+	(5,0,"Style","Styles",0),
+	(6,0,"Supernatural Merit","Supernatural Merits",0),
+	(7,0,"Supernatural Flaw","Supernatural Flaws",0)
+ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_plural=VALUES(stat_plural),stat_can_set=VALUES(stat_can_set);
 
 /* UNIVERSAL Data - IDs up to 9,999 */
 /* Universal Data - Attributes */
@@ -247,35 +61,34 @@ INSERT INTO vol_story_stats
 	(stat_parent,stat_id,template_id,stat_name,stat_can_set,stat_allows_zero,stat_specialties)
 VALUES
 	/* Skills - Mental */
-	(2,29,3,"Academics",1,0,1),
-	(2,30,3,"Computer",1,0,1),
-	(2,31,3,"Crafts",1,0,1),
-	(2,32,3,"Investigation",1,0,1),
-	(2,33,3,"Medicine",1,0,1),
-	(2,34,3,"Occult",1,0,1),
-	(2,35,3,"Politics",1,0,1),
-	(2,36,3,"Science",1,0,1),
+	(2,29,0,"Academics",1,0,1),
+	(2,30,0,"Computer",1,0,1),
+	(2,31,0,"Crafts",1,0,1),
+	(2,32,0,"Investigation",1,0,1),
+	(2,33,0,"Medicine",1,0,1),
+	(2,34,0,"Occult",1,0,1),
+	(2,35,0,"Politics",1,0,1),
+	(2,36,0,"Science",1,0,1),
 	
 	/* Skills - Physical */
-	(2,37,3,"Athletics",1,0,1),
-	(2,38,3,"Brawl",1,0,1),
-	(2,39,3,"Drive",1,0,1),
-	(2,40,3,"Firearms",1,0,1),
-	(2,41,3,"Larceny",1,0,1),
-	(2,42,3,"Stealth",1,0,1),
-	(2,43,3,"Survival",1,0,1),
-	(2,44,3,"Weaponry",1,0,1),
+	(2,37,0,"Athletics",1,0,1),
+	(2,38,0,"Brawl",1,0,1),
+	(2,39,0,"Drive",1,0,1),
+	(2,40,0,"Firearms",1,0,1),
+	(2,41,0,"Larceny",1,0,1),
+	(2,42,0,"Stealth",1,0,1),
+	(2,43,0,"Survival",1,0,1),
+	(2,44,0,"Weaponry",1,0,1),
 	
 	/* Skills - Social */
-	(2,45,3,"Animal Ken",1,0,1),
-	(2,46,3,"Empathy",1,0,1),
-	(2,47,3,"Expression",1,0,1),
-	(2,48,3,"Intimidation",1,0,1),
-	(2,49,3,"Persuasion",1,0,1),
-	(2,50,3,"Socialize",1,0,1),
-	(2,51,3,"Streetwise",1,0,1),
-	(2,52,3,"Subterfuge",1,0,1)
-	
+	(2,45,0,"Animal Ken",1,0,1),
+	(2,46,0,"Empathy",1,0,1),
+	(2,47,0,"Expression",1,0,1),
+	(2,48,0,"Intimidation",1,0,1),
+	(2,49,0,"Persuasion",1,0,1),
+	(2,50,0,"Socialize",1,0,1),
+	(2,51,0,"Streetwise",1,0,1),
+	(2,52,0,"Subterfuge",1,0,1)
 ON DUPLICATE KEY UPDATE stat_parent=VALUES(stat_parent),template_id=VALUES(template_id),stat_name=VALUES(stat_name);
 	
 INSERT INTO vol_story_stat_defaults
@@ -327,8 +140,7 @@ INSERT INTO vol_story_pools_categories
 VALUES
 	(1,"Pool"),
 	(2,"Morality")
-	
-	ON DUPLICATE KEY UPDATE pool_category_name=VALUES(pool_category_name);
+ON DUPLICATE KEY UPDATE pool_category_name=VALUES(pool_category_name);
 
 INSERT INTO vol_story_pools
 	(pool_id,pool_category_id,pool_name,pool_unit_name,pool_single_name,pool_plural_name,pool_sort)
@@ -382,3 +194,304 @@ VALUES
 	(1,"XP",0),
 	(2,"Arcane XP",1)
 ON DUPLICATE KEY UPDATE xp_name=VALUES(xp_name),xp_sort=VALUES(xp_sort);
+
+/*
+(3,0,201,"Acute Senses",0)
+(3,0,202,"Advanced Library",1)
+(3,0,203,"Air of Menace",0)
+(3,0,204,"Allies",1)
+(3,0,205,"Alternate Identity",1)
+(3,0,206,"Ambidextrous",0)
+(3,0,207,"Anchored",1)
+(3,0,208,"Animal Possession",0)
+(3,0,209,"Animal Speech",1)
+(3,0,210,"Anonymity",0)
+(3,0,211,"Apportation",0)
+(3,0,212,"Arcadian Metabolism",0)
+(3,0,213,"Area of Expertise",0)
+(3,0,214,"Armed Restraint",0)
+(3,0,215,"Assertive Implement",1)
+(3,0,216,"Astral Adept",1)
+(3,0,217,"Aura Reading",0)
+(3,0,218,"Automatic Writing",0)
+(3,0,219,"Automotive Genius",0)
+(3,0,220,"Banner-Bearer",1)
+(3,0,221,"Barfly",0)
+(3,0,222,"Beast Whispers",0)
+(3,0,223,"Beloved",1)
+(3,0,224,"Biokinesis",0)
+(3,0,225,"Biomimicry",0)
+(3,0,226,"Bless Amulet",0)
+(3,0,227,"Blood or Bone Affinity",1)
+(3,0,228,"Body as Weapon",0)
+(3,0,229,"Boot Party",0)
+(3,0,230,"Brownie's Boon",0)
+(3,0,231,"Burrow",1)
+(3,0,232,"Call Out",0)
+(3,0,233,"Camera Obscura",0)
+(3,0,234,"Cheap Shot",0)
+(3,0,235,"Choke Hold",0)
+(3,0,236,"Citywalker",0)
+(3,0,237,"Clairvoyance",1)
+(3,0,238,"Clear-Sighted",0)
+(3,0,239,"Clinch Strike",0)
+(3,0,240,"Cloak of LEaves",0)
+(3,0,241,"Closed Book",0)
+(3,0,242,"Code of Honor",1)
+(3,0,243,"Cohesive Unit",0)
+(3,0,244,"Cold Hearted",0)
+(3,0,245,"Common Sense",0)
+(3,0,246,"Communal Sleeper",0)
+(3,0,247,"Consecrate Weapon",0)
+(3,0,248,"Contacts",1)
+(3,0,249,"Controlled Burn",0)
+(3,0,250,"Court Goodwill",1)
+(3,0,251,"Covert Operative",0)
+(3,0,252,"Crack Driver",0)
+(3,0,253,"Creative Tactician",0)
+(3,0,254,"Crescent Moon's Birth",0)
+(3,0,255,"Curse Effigy",0)
+(3,0,256,"Cursed",1)
+(3,0,257,"Danger Sense",0)
+(3,0,258,"Dark Passenger",1)
+(3,0,259,"Deadpan",0)
+(3,0,260,"Dedicated Locus",1)
+(3,0,261,"Defender",0)
+(3,0,262,"Defensive Combat",1)
+(3,0,263,"Defensive Dreamscaping",0)
+(3,0,264,"Demesne",1)
+(3,0,265,"Demolisher",0)
+(3,0,266,"Den",1)
+(3,0,267,"Detail Oriented",0)
+(3,0,268,"Directed Rage",0)
+(3,0,269,"Direction Sense",0)
+(3,0,270,"Diviner",0)
+(3,0,271,"Doppleganger",0)
+(3,0,272,"Double Jointed",0)
+(3,0,273,"Dream Shaper",0)
+(3,0,274,"Dream Warrior",1)
+(3,0,275,"Dreamweaver",0)
+(3,0,276,"Dull Beacon",0)
+(3,0,277,"Efficient Killer",0)
+(3,0,278,"Eidetic Memory",0)
+(3,0,279,"Embodiment of the Firstborn",1)
+(3,0,280,"Empath",0)
+(3,0,281,"Empowered to Speak",1)
+(3,0,282,"Encyclopedic Knowledge",0)
+(3,0,283,"Esoteric Armory",1)
+(3,0,284,"Evil Eye",0)
+(3,0,285,"Eye for the Strange",0)
+(3,0,286,"Fading",0)
+(3,0,287,"Fae Mount",1)
+(3,0,288,"Faerie Favor",1)
+(3,0,289,"Fair Harvest",1)
+(3,0,290,"Fame",1)
+(3,0,291,"Family Ties",1)
+(3,0,292,"Fast Reflexes",0)
+(3,0,293,"Fenris-Ur's Blood",0)
+(3,0,294,"Fetishism",1)
+(3,0,295,"Fighting Finesse",1)
+(3,0,296,"Find the Oathbreaker",0)
+(3,0,297,"Firebrand",0)
+(3,0,298,"Fitful Slumber",0)
+(3,0,299,"Fixer",0)
+(3,0,300,"Flanking",0)
+(3,0,301,"Fleet of Foot",0)
+(3,0,302,"Fortified Form",1)
+(3,0,303,"Full Moon's Birth",0)
+(3,0,304,"Gentrified Bearing",0)
+(3,0,305,"Ghost Child",0)
+(3,0,306,"Giant",0)
+(3,0,307,"Gibbous Moon's Birth",0)
+(3,0,308,"Glamour Fasting",0)
+(3,0,309,"Goblin Bounty",1)
+(3,0,310,"Good Time Management",0)
+(3,0,311,"Greyhound",0)
+(3,0,312,"Ground and Pound",0)
+(3,0,313,"Ground Fighter",0)
+(3,0,314,"Grounded",0)
+(3,0,315,"Half-Moon's Birth",0)
+(3,0,316,"Hallow",1)
+(3,0,317,"Hardened Exorcist",0)
+(3,0,318,"Hardy",0)
+(3,0,319,"Haven",1)
+(3,0,320,"Headbutt",0)
+(3,0,321,"Hearing Whispers",0)
+(3,0,322,"Hedge Brawler",0)
+(3,0,323,"Hedge Delver",0)
+(3,0,324,"Hedge Sense",0)
+(3,0,325,"Hikaon-Ur's Blood",0)
+(3,0,326,"Hob Kin",0)
+(3,0,327,"Hobbyist Clique",1)
+(3,0,328,"Holistic Awareness",0)
+(3,0,329,"Hollow",1)
+(3,0,330,"Impartial Mediator",0)
+(3,0,331,"Incite Ecosystem",0)
+(3,0,332,"Indomitable",0)
+(3,0,333,"Inherited",0)
+(3,0,334,"Insomniac",0)
+(3,0,335,"Inspiring",0)
+(3,0,336,"Instinctive Defense",0)
+(3,0,337,"Interdisciplinary Specialty",1)
+(3,0,338,"Investigative Aide",1)
+(3,0,339,"Investigative Prodigy",0)
+(3,0,340,"Invoke Spirit",1)
+(3,0,341,"Iron Chin",0)
+(3,0,342,"Iron Skin",0)
+(3,0,343,"Iron Stamina",0)
+(3,0,344,"Iron Will",0)
+(3,0,345,"Kamduis-Ur's Blood",0)
+(3,0,346,"Killer Instinct",0)
+(3,0,347,"Language",1)
+(3,0,348,"Laying on Hands",0)
+(3,0,349,"Lethal Mien",0)
+(3,0,350,"Liar",0)
+(3,0,351,"Library",1)
+(3,0,352,"Living Weapon",1)
+(3,0,353,"Lodge Armory",1)
+(3,0,354,"Lodge Connections",1)
+(3,0,355,"Lodge Lorehouse",1)
+(3,0,356,"Lodge Sorcery",1)
+(3,0,357,"Lodge Stronghold",1)
+(3,0,358,"Loved",1)
+(3,0,359,"Lucid Dreamer",0)
+(3,0,360,"Lurch",1)
+(3,0,361,"Magnanimous Totem",1)
+(3,0,362,"Mandragora Garden",1)
+(3,0,363,"Mantle",1)
+(3,0,364,"Manymask",0)
+(3,0,365,"Market Sense",0)
+(3,0,366,"Meditative Mind",0)
+(3,0,367,"Medium",1)
+(3,0,368,"Mentor",1)
+(3,0,369,"Mind Control",0)
+(3,0,370,"Mind of a Madman",0)
+(3,0,371,"Moon's Grace",0)
+(3,0,372,"Moon-Kissed",1)
+(3,0,373,"Multilingual",1)
+(3,0,374,"Nest Guardian",1)
+(3,0,375,"No Moon's Birth",0)
+(3,0,376,"Noblesse Oblige",1)
+(3,0,377,"Nowhere to Run",0)
+(3,0,378,"Numbing Touch",0)
+(3,0,379,"Oathkeeper",0)
+(3,0,380,"Omen Sensitivity",0)
+(3,0,381,"Pack Bond",1)
+(3,0,382,"Pack Dynamics",0)
+(3,0,383,"Pandemoniacal",0)
+(3,0,384,"Parallel Lives",1)
+(3,0,385,"Patient",0)
+(3,0,386,"Peacemaker",0)
+(3,0,387,"Phalanx Fighter",0)
+(3,0,388,"Phantasmagoria",0)
+(3,0,389,"Producer",0)
+(3,0,390,"Promise of Debt",1)
+(3,0,391,"Promise of Love",1)
+(3,0,392,"Promise of Loyalty",1)
+(3,0,393,"Promise of Protection",1)
+(3,0,394,"Promise to Provide",1)
+(3,0,395,"Promise to Serve",1)
+(3,0,396,"Protected",1)
+(3,0,397,"Proxy Voice",1)
+(3,0,398,"Psychic Concealment",0)
+(3,0,399,"Psychic Onslaught",0)
+(3,0,400,"Psychic Poltergeist",0)
+(3,0,401,"Psychokinesis",1)
+(3,0,402,"Psychokinetic Resistance",0)
+(3,0,403,"Psychometry",0)
+(3,0,404,"Punch Drunk",0)
+(3,0,405,"Punish the Oathbreaker",0)
+(3,0,406,"Pusher",0)
+(3,0,407,"Quick Draw",1)
+(3,0,408,"Raised by Wolves",0)
+(3,0,409,"Relentless",0)
+(3,0,410,"Relic Attuned",0)
+(3,0,411,"Residential Area",1)
+(3,0,412,"Resonance Shaper",1)
+(3,0,413,"Resources",1)
+(3,0,414,"Retain Weapon",0)
+(3,0,415,"Retainer",1)
+(3,0,416,"Rigid Mask",0)
+(3,0,417,"Ritual Savvy",0)
+(3,0,418,"Ritual Sorcerer",1)
+(3,0,419,"Roadkill",0)
+(3,0,420,"Rune Caster",1)
+(3,0,421,"Sacrificial Offering",0)
+(3,0,422,"Safe Place",1)
+(3,0,423,"Safehouse Cache",1)
+(3,0,424,"Safehouse Secrecy",1)
+(3,0,425,"Sagrim-Ur's Blood",0)
+(3,0,426,"Sanctum",1)
+(3,0,427,"Scarred",0)
+(3,0,428,"Seizing the Edge",0)
+(3,0,429,"Self-Control",0)
+(3,0,430,"Sense Vows",0)
+(3,0,431,"Sexualized",0)
+(3,0,432,"Shiv",0)
+(3,0,433,"Skolis-Ur's Blood",0)
+(3,0,434,"Sleepwalker",0)
+(3,0,435,"Sleight of Hand",0)
+(3,0,436,"Slippery",0)
+(3,0,437,"Small Unit Tactics",0)
+(3,0,438,"Small-Framed",0)
+(3,0,439,"Sojourner",0)
+(3,0,440,"Song in Your Heart",0)
+(3,0,441,"Sorcerous Knowledge",1)
+(3,0,442,"Sounds of the City",0)
+(3,0,443,"Source Sympathy",1)
+(3,0,444,"Spin Doctor",0)
+(3,0,445,"Spiritual Blockage",0)
+(3,0,446,"Stable Trod",1)
+(3,0,447,"Staff",1)
+(3,0,448,"Status",1)
+(3,0,449,"Stigmata",0)
+(3,0,450,"Strained",0)
+(3,0,451,"Striking Looks",0)
+(3,0,452,"Strings of the Heart",0)
+(3,0,453,"Subduing Strikes",0)
+(3,0,454,"Supernatural Resistance",0)
+(3,0,455,"Support Network",1)
+(3,0,456,"Survivalist",0)
+(3,0,457,"Svikiro",0)
+(3,0,458,"Svikiro Channel",0)
+(3,0,459,"Svikiro Nganga",0)
+(3,0,460,"Svikiro Ridden",0)
+(3,0,461,"Sympathetic",0)
+(3,0,462,"Table Turner",0)
+(3,0,463,"Takes One to Know One",0)
+(3,0,464,"Taste",1)
+(3,0,465,"Taste of Fear",1)
+(3,0,466,"Taste of Gold",1)
+(3,0,467,"Taste of Shadow",1)
+(3,0,468,"Taste of the Serpent",1)
+(3,0,469,"Taste of the Wild",1)
+(3,0,470,"Technopathy",0)
+(3,0,471,"Telekinesis",0)
+(3,0,472,"Telekinetic Evasion",0)
+(3,0,473,"Telepathy",0)
+(3,0,474,"Tell",1)
+(3,0,475,"Temple of Damnation",1)
+(3,0,476,"Territorial Advantage",1)
+(3,0,477,"Thief of Fate",0)
+(3,0,478,"Token",1)
+(3,0,479,"Tolerance for Biology",0)
+(3,0,480,"Totem",1)
+(3,0,481,"Touchstone",1)
+(3,0,482,"Trained Observer",0)
+(3,0,483,"Transfer Maneuver",0)
+(3,0,484,"True Friend",1)
+(3,0,485,"Trunk Squeeze",0)
+(3,0,486,"Unobtrusive",1)
+(3,0,487,"Unseen Sense",1)
+(3,0,488,"Untouchable",0)
+(3,0,489,"Vengeful Soul",1)
+(3,0,490,"Vice-Ridden",1)
+(3,0,491,"Virtuous",1)
+(3,0,492,"Vitae Hound",1)
+(3,0,493,"Warcry",0)
+(3,0,494,"Warded Dreams",0)
+(3,0,495,"Watch Dog",1)
+(3,0,496,"Weakened Bond",1)
+(3,0,497,"Weakest Link",0)
+(3,0,498,"Workshop",1)
+*/

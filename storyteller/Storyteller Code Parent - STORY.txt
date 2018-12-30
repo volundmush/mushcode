@@ -1,0 +1,53 @@
+@@ This object stores code that's shared between multiple Storyteller systems. Largely for SQL queries and Valids.
+
+th u(NEWCOBJ,STORYTELLER: Storyteller Code Parent,story,u(cobj,ccp),,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&INC`VALID`TEMPLATE [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Template,TEMPLATE,%1
+
+&Q`FIND`TEMPLATE`LIST [u(cobj,story)]=SELECT template_name FROM vol_story_templates
+&Q`FIND`TEMPLATE`EXACT [u(cobj,story)]=SELECT template_id,template_name FROM vol_story_templates WHERE template_name=? LIMIT 1
+&Q`FIND`TEMPLATE`EXACT`ID [u(cobj,story)]=SELECT template_id,template_name FROM vol_story_templates WHERE template_id=? LIMIT 1
+&Q`FIND`TEMPLATE`WILD [u(cobj,story)]=SELECT template_id,template_name FROM vol_story_templates WHERE template_name LIKE '!%'
+&Q`LOAD`TEMPLATE [u(cobj,story)]=SELECT template_id,template_name,template_playable,template_power_stat_name FROM vol_story_templates WHERE template_id=?
+&FIELD`TEMPLATE [u(Cobj,story)]=id name playable powername
+
+&INC`VALID`PERSONA [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Persona,PERSONA,%1,%2
+
+&Q`FIND`PERSONA`LIST [u(cobj,story)]=SELECT persona_name FROM vol_story_personas WHERE owner_id=?
+&Q`FIND`PERSONA`LIST`ID [u(cobj,story)]=SELECT persona_id FROM vol_story_personas WHERE owner_id=? ORDER BY persona_name
+&Q`FIND`PERSONA`EXACT [u(Cobj,story)]=SELECT persona_id,persona_name FROM vol_story_personas WHERE persona_name=? AND owner_id=?
+&Q`FIND`PERSONA`EXACT`ID [u(Cobj,story)]=SELECT persona_id,persona_name FROM vol_story_personas WHERE persona_id=? AND owner_id=?
+&Q`FIND`PERSONA`WILD [u(Cobj,story)]=SELECT persona_id,persona_name FROm vol_story_personas WHERE persona_name LIKE '!%' AND owner_id=?
+
+&Q`EXIST`PERSONA [u(cobj,story)]=SELECT persona_id FROM vol_story_persona WHERE persona_id=?
+&Q`LOAD`PERSONA [u(cobj,story)]=SELECT persona_id,owner_id,owner_name,template_id,template_name,persona_name,persona_parent,persona_parent_name,template_power_stat_name,power_stat_value,persona_date_created_secs,approval_id,admin_id,admin_name,approval_state,approval_date_secs FROM volv_story_personas WHERE persona_id=?
+&FIELD`PERSONA [u(cobj,story)]=id owner ownername templateid templatename name parent parentname powerstatname powerstat createdate approveid approveadminid approveadminname approve approvedate
+
+&Q`FIND`PERSONA`PRIMARY [u(cobj,story)]=SELECT persona_id FROM vol_story_personas WHERE owner_id=? AND persona_parent IS NULL LIMIT 1
+
+&Q`FIND`CATEGORY`LIST [u(Cobj,story)]=SELECT stat_name FROM vol_story_stats WHERE stat_parent IS NULL AND template_id IN (0,?)
+&Q`FIND`CATEGORY`LIST`ID [u(Cobj,story)]=SELECT stat_id FROM vol_story_stats WHERE stat_parent IS NULL AND template_id IN (0,?)
+&Q`FIND`CATEGORY`EXACT [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_name=? AND stat_parent=? AND template_id IN (0,?)
+&Q`FIND`CATEGORY`EXACT`ID [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_id=? AND stat_parent IS NULL AND template_id IN (0,?)
+&Q`FIND`CATEGORY`WILD [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_name LIKE '!%' AND stat_parent IS NULL AND template_id IN (0,?)
+
+&Q`LOAD`CATEGORY [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_id=?
+&FIELD`CATEGORY [u(Cobj,story)]=id name
+
+&Q`FIND`STAT`LIST [u(cobj,story)]=SELECT stat_name FROM vol_story_stats WHERE stat_parent=?
+&Q`FIND`STAT`LIST`ID [u(Cobj,story)]=SELECT stat_id FROM vol_story_stats WHERE stat_parent=?
+&Q`FIND`STAT`EXACT [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_name=? AND stat_parent=?
+&Q`FIND`STAT`EXACT`ID [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_id=? AND stat_parent=?
+&Q`FIND`STAT`WILD [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_name LIKE '!%' AND stat_parent=?
+&Q`LOAD`STAT [u(cobj,story)]=SELECT stat_id,stat_name,template_id,stat_plural,stat_custom,stat_specialties,stat_allows_zero,stat_rank,stat_parent,stat_require_context,stat_can_set,stat_minimum,stat_maximum FROM vol_story_stats WHERE stat_id=?
+&FIELD`STAT [u(cobj,story)]=id name templateid pluralname custom specialties allowzero rank parentid requirecontext canset minimum maximum
+
+@@ Section for passing on the Event Hooks.
+&PLAYER`CONNECT [u(cobj,story)]=@dolist/inline/nobreak lattr(%!/PLAYER`CONNECT`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger/spoof ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,story)]/PLAYER`CONNECT=no_inherit
+
+&PLAYER`CREATE [u(cobj,story)]=@dolist/inline/nobreak lattr(%!/PLAYER`CREATE`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CREATE)={@trigger/spoof ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,story)]/PLAYER`CREATE=no_inherit
+
+&OBJECT`RENAME [u(cobj,story)]=@dolist/inline/nobreak lattr(%!/OBJECT`RENAME`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`RENAME)={@trigger/spoof ##/OBJECT`RENAME=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set [u(cobj,story)]/OBJECT`RENAME=no_inherit

@@ -2,7 +2,7 @@ INSERT INTO vol_story_templates
 	(template_id,template_name,template_power_stat_name)
 VALUES
 	(3,"Werewolf","Primal Urge")
-	ON DUPLICATE KEY UPDATE template_name=VALUES(template_name);
+ON DUPLICATE KEY UPDATE template_name=VALUES(template_name);
 
 /* Splat Data */
 INSERT INTO vol_story_template_sub
@@ -16,8 +16,7 @@ ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),template_sub_name=VALUES
 	
 INSERT INTO vol_story_template_sub_choices
 	(template_sub_choice_id,template_sub_id,template_sub_choice_name)
-VALUES 
-
+VALUES
 	/* Werewolf X Splats - Auspices */
 	(30000,30000,"Cahalith"),
 	(30001,30000,"Elodoth"),
@@ -26,14 +25,29 @@ VALUES
 	(30004,30000,"Rahu"),
 	
 	/* Werewolf Y Splats - Tribes */
-	(1005,30001,"Blood Talons"),
-	(1006,30001,"Bone Shadows"),
-	(1007,30001,"Hunters in Darkness"),
-	(1008,30001,"Iron Masters"),
-	(1009,30001,"Storm Lords"),
-	(1010,30001,"Ghost Wolves")
-
+	(30005,30001,"Blood Talons"),
+	(30006,30001,"Bone Shadows"),
+	(30007,30001,"Hunters in Darkness"),
+	(30008,30001,"Iron Masters"),
+	(30009,30001,"Storm Lords"),
+	(30010,30001,"Ghost Wolves")
 ON DUPLICATE KEY UPDATE template_sub_id=VALUES(template_sub_id),template_sub_choice_name=VALUES(template_sub_choice_name);
+
+/*
+INSERT INTO vol_story_z_splats
+	(z_splat_id,template_id,z_splat_name)
+VALUES
+	 Werewolf Z Splats - Lodges
+	(30,3,"Einherjar"),
+	(31,3,"Hundred Dogs"),
+	(32,3,"Hook Hand"),
+	(33,3,"Shield"),
+	(34,3,"Roman Ritual"),
+	(35,3,"Eaters of the Dead"),
+	(36,3,"Chronicle"),
+	(37,3,"Gargoyles")
+ON DUPLICATE KEY UPDATE z_splat_name=VALUES(z_splat_name);
+*/
 
 /* Fields data */
 INSERT INTO vol_story_fields
@@ -52,13 +66,17 @@ ON DUPLICATE KEY UPDATE field_id=VALUES(field_id),template_id=VALUES(template_id
 
 /* ADVANTAGES */
 INSERT INTO vol_story_stats
-	(stat_id,template_id,stat_name,stat_name_plural,stat_can_set)
+	(stat_id,template_id,stat_name,stat_plural,stat_can_set)
 VALUES
 	(30000,3,"Moon Gift","Moon Gifts",0),
 	(30001,3,"Shadow Gift","Shadow Gifts",0),
 	(30002,3,"Wolf Gift","Wolf Gifts",0),
-	(30003,3,"Rite","Rites",0)
-ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_name_plural=VALUES(stat_name_plural),stat_can_set=VALUES(stat_can_set);
+	(30003,3,"Rite","Rites",0),
+
+	(30008,3,"Werewolf Merit","Werewolf Merits",0),
+	(30009,3,"Werewolf Flaw","Werewolf Flaws",0),
+	(30010,3,"Werewolf Style","Werewolf Styles",0)
+ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_plural=VALUES(stat_plural),stat_can_set=VALUES(stat_can_set);
 
 /* Werewolf - Moon Gifts */
 INSERT INTO vol_story_stats

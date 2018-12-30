@@ -1,7 +1,7 @@
 INSERT INTO vol_story_templates
 	(template_id,template_name,template_power_stat_name)
 VALUES
-	(2,"Vampire","Blood Potency"),
+	(2,"Vampire","Blood Potency")
 ON DUPLICATE KEY UPDATE template_name=VALUES(template_name);
 
 
@@ -14,6 +14,7 @@ VALUES
 	(20002,2,"Bloodline",2)
 ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),template_sub_name=VALUES(template_sub_name),template_sub_slot=VALUES(template_sub_slot);
 
+/* Splat Data */
 INSERT INTO vol_story_template_sub_choices
 	(template_sub_choice_id,template_sub_id,template_sub_choice_name)
 VALUES 
@@ -33,6 +34,19 @@ VALUES
 	(20104,20001,"Ordo Dracul")
 ON DUPLICATE KEY UPDATE template_sub_id=VALUES(template_sub_id),template_sub_choice_name=VALUES(template_sub_choice_name);
 
+/*
+INSERT INTO vol_story_z_splats
+	(z_splat_id,template_id,z_splat_name)
+VALUES
+	 Vampire Z Splats - Bloodlines
+	(20,2,"Amara Havana"),
+	(21,2,"Anvari"),
+	(22,2,"The Ansam"),
+	(23,2,"The Carnival"),
+	(24,2,"Ordo Dracul")
+ON DUPLICATE KEY UPDATE z_splat_name=VALUES(z_splat_name);
+*/
+
 /* Vampire Fields - Mask and Dirge */
 INSERT INTO vol_story_fields
 	(field_id,field_name)
@@ -50,12 +64,16 @@ ON DUPLICATE KEY UPDATE field_id=VALUES(field_id),template_id=VALUES(template_id
 
 /* Vampire Advantages */
 INSERT INTO vol_story_stats
-	(stat_id,template_id,stat_name,stat_name_plural,stat_can_set)
+	(stat_id,template_id,stat_name,stat_plural,stat_can_set)
 VALUES
 	(20000,2,"Discipline","Disciplines",0),
 	(20001,2,"Devotion","Devotions",0),
-	(20002,2,"Cruac Rite","Cruac Rites",0)
-ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_name_plural=VALUES(stat_name_plural),stat_can_set=VALUES(stat_can_set);
+	(20002,2,"Cruac Rite","Cruac Rites",0),
+	
+	(20008,2,"Vampire Merit","Vampire Merits",0),
+    (20009,2,"Vampire Flaw","Vampire Flaws",0),
+    (20010,2,"Vampire Style","Vampire Styles",0)
+ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_plural=VALUES(stat_plural),stat_can_set=VALUES(stat_can_set);
 
 /* Vampire - Disciplines IDs 20100 to 20199 */
 INSERT INTO vol_story_stats
@@ -63,18 +81,17 @@ INSERT INTO vol_story_stats
 VALUES
 	
 	/* Vampire - Disciplines */
-	(20000,2,20100,"Animalism"),
-	(20000,2,20101,"Auspex"),
-	(20000,2,20102,"Celerity"),
-	(20000,2,20103,"Dominate"),
-	(20000,2,20104,"Majesty"),
-	(20000,2,20105,"Nightmare"),
-	(20000,2,20106,"Obfuscate"),
-	(20000,2,20107,"Protean"),
-	(20000,2,20108,"Resilience"),
-	(20000,2,20109,"Vigor"),
-	(20000,2,20110,"Cruac")
-	
+	(20000,2,20200,"Animalism"),
+	(20000,2,20201,"Auspex"),
+	(20000,2,20202,"Celerity"),
+	(20000,2,20203,"Dominate"),
+	(20000,2,20204,"Majesty"),
+	(20000,2,20205,"Nightmare"),
+	(20000,2,20206,"Obfuscate"),
+	(20000,2,20207,"Protean"),
+	(20000,2,20208,"Resilience"),
+	(20000,2,20209,"Vigor"),
+	(20000,2,20210,"Cruac")
 ON DUPLICATE KEY UPDATE stat_name=VALUES(stat_name);
 
 /* Vampire - Devotions Ids 20200 to 20299 */
@@ -82,48 +99,47 @@ INSERT INTO vol_story_stats
 	(stat_parent,template_id,stat_id,stat_name)
 VALUES
 	
-	(20001,2,100001,"Body of Will"),
-	(20001,2,100001,"Chain of Command"),
-	(20001,2,100001,"Cloak of the Gathering"),
-	(20001,2,100001,"Conditioning Cross-Contamination"),
-	(20001,2,100001,"Cult of Personality"),
-	(20001,2,100001,"Enchantment"),
-	(20001,2,100001,"Enfeebling Aura"),
-	(20001,2,100001,"Foul Grave"),
-	(20001,2,100001,"Force of Nature"),
-	(20001,2,100001,"Gargoyle's Vigilance"),
-	(20001,2,100001,"Hint of Fear"),
-	(20001,2,100001,"Juggernaut's Gait"),
-	(20001,2,100001,"Quicken Sight"),
-	(20001,2,100001,"Reason's Salon"),
-	(20001,2,100001,"Riot"),
-	(20001,2,100001,"Shared Sight"),
-	(20001,2,100001,"Shatter the Shroud"),
-	(20001,2,100001,"Stalwart Servant"),
-	(20001,2,100001,"Subsude the Lesser Beast"),
-	(20001,2,100001,"Summoning"),
-	(20001,2,100001,"Sun's Brutal Dreamscape"),
-	(20001,2,100001,"Touch of Deprivation"),
-	(20001,2,100001,"Undying Familiar"),
-	(20001,2,100001,"Wet Dream"),
-	(20001,2,100001,"The Wish"),
-	(20001,2,100001,"Vermin Flood"),
-	(20001,2,100001,"Wraith's Presence")
+	(20001,2,20400,"Body of Will"),
+	(20001,2,20401,"Chain of Command"),
+	(20001,2,20402,"Cloak of the Gathering"),
+	(20001,2,20403,"Conditioning Cross-Contamination"),
+	(20001,2,20404,"Cult of Personality"),
+	(20001,2,20405,"Enchantment"),
+	(20001,2,20406,"Enfeebling Aura"),
+	(20001,2,20407,"Foul Grave"),
+	(20001,2,20408,"Force of Nature"),
+	(20001,2,20409,"Gargoyle's Vigilance"),
+	(20001,2,20410,"Hint of Fear"),
+	(20001,2,20411,"Juggernaut's Gait"),
+	(20001,2,20412,"Quicken Sight"),
+	(20001,2,20413,"Reason's Salon"),
+	(20001,2,20414,"Riot"),
+	(20001,2,20415,"Shared Sight"),
+	(20001,2,20416,"Shatter the Shroud"),
+	(20001,2,20417,"Stalwart Servant"),
+	(20001,2,20418,"Subsude the Lesser Beast"),
+	(20001,2,20419,"Summoning"),
+	(20001,2,20420,"Sun's Brutal Dreamscape"),
+	(20001,2,20421,"Touch of Deprivation"),
+	(20001,2,20422,"Undying Familiar"),
+	(20001,2,20423,"Wet Dream"),
+	(20001,2,20424,"The Wish"),
+	(20001,2,20425,"Vermin Flood"),
+	(20001,2,20426,"Wraith's Presence")
 ON DUPLICATE KEY UPDATE stat_name=VALUES(stat_name);
 	
 /* Vampire - Cruac Rites IDs 20300 to 20399*/
 INSERT INTO vol_story_stats
 	(stat_parent,template_id,stat_id,stat_name)
 VALUES
-
-	(1,2,20300,"Pangs of Proserpina"),
-	(2,2,20301,"Rigor Mortis"),
-	(3,2,20302,"Cheval"),
-	(4,2,20303,"The Hydra's Vitae"),
-	(5,2,20304,"Deflection of Wooden Doom"),
-	(6,2,20305,"Touch of the Morrigan"),
-	(7,2,20306,"Blood Price"),
-	(8,2,20307,"Willful Vitae"),
-	(9,2,20308,"Blood Blight"),
-	(10,2,20309,"Feeding the Crone")
+	(20002,2,20600,"Pangs of Proserpina"),
+	(20002,2,20601,"Rigor Mortis"),
+	(20002,2,20602,"Cheval"),
+	(20002,2,20603,"The Hydra's Vitae"),
+	(20002,2,20604,"Deflection of Wooden Doom"),
+	(20002,2,20605,"Touch of the Morrigan"),
+	(20002,2,20606,"Blood Price"),
+	(20002,2,20607,"Willful Vitae"),
+	(20002,2,20608,"Blood Blight"),
+	(20002,2,20609,"Feeding the Crone")
 ON DUPLICATE KEY UPDATE stat_name=VALUES(stat_name);
