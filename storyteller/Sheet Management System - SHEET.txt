@@ -1,11 +1,11 @@
 @@ DEPENDENCIES - CORE
-th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,story,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
 &CMD`+SHEET`PENNMUSH [u(cobj,sheet)]=$^\+sheet(?\:/(\S+))?(?\: +(.*))?$:@attach %!/CMD`+SHEET`MAIN
 @set [u(cobj,sheet)]/CMD`+SHEET`PENNMUSH=regexp
 &CMD`+SHEET`RHOSTMUSH [u(cobj,sheet)]=$^\+sheet(?\:/(\\S+))?(?\: +(.*))?$:@attach %!/CMD`+SHEET`MAIN
 @set [u(cobj,sheet)]/CMD`+SHEET`RHOSTMUSH=regexp
-&CMD`+SHEET`MAIN [u(cobj,sheet)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`CHECKPC=u(strfirstof,%2,%#),1;@select/inline cor(strmatch(%q<t1>,%#),u(isadmin,%#),1,match(u(alts,%#),%q<t1>),1)=0,{@break 1=@attach %!/INC`MSG=ERROR: Permission denied.};@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%q<t1>,u(u(cobj,data)/mysql,GET`TEMPLATE_NAME,%q<t1id>),%q<t1id>
+&CMD`+SHEET`MAIN [u(cobj,sheet)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`CHECKPC=u(strfirstof,before(%2,/),%#),1;@select/inline cor(strmatch(%q<t1>,%#),u(isadmin,%#),1,match(u(alts,%#),%q<t1>),1)=0,{@break 1=@attach %!/INC`MSG=ERROR: Permission denied.};@attach %!/INC`VALID`PERSONA=u(strfirstof,after(%2,/),get(%q<t1>/D`PERSONA)),1,%q<t1id>;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%q<t1>,%q<persona1.templatename>,%q<persona1.id>
 @set [u(cobj,sheet)]/CMD`+SHEET`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,sheet)]=EXTRA|OPTIONS
@@ -37,13 +37,13 @@ th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,,,WIZARD SAFE !
 &FUN`INFOCOLUMN`SEX [u(cobj,sheet)]=u(getproperty,%0,SEX)
 
 &FUN`INFOCOLUMN`STAT [u(cobj,sheet)]=u(mysql,GET`PERSONA_STAT_VALUE,%2,%3)
-&Q`GET`PERSONA_STAT_VALUE [u(cobj,sheet)]=SELECT stat_value FROM vol_story_persona_stats WHERE persona_id=? AND stat_id=?
+&Q`GET`PERSONA_STAT_VALUE [u(cobj,sheet)]=SELECT stat_value FROM volv_story_persona_stats WHERE persona_id=? AND stat_id=?
 
 &FUN`INFOCOLUMN`FIELD [u(cobj,sheet)]=u(mysql,GET`PERSONA_FIELD_ANSWER,%2,%3)
 &Q`GET`PERSONA_FIELD_ANSWER [u(cobj,sheet)]=SELECT field_answer FROM vol_story_persona_field WHERE persona_id=? AND field_id=?
 
-&FUN`INFOCOLUMN`SPLAT [u(Cobj,sheet)]=u(mysql,GET`PERSONA_SPLAT_NAME,lcstr(%3),%2)
-&Q`GET`PERSONA_SPLAT_NAME [u(Cobj,sheet)]=SELECT !_splat_name FROM volv_story_personas WHERE persona_id=?
+&FUN`INFOCOLUMN`SUB [u(cobj,sheet)]=u(mysql,GET`PERSONA_SUB_ANSWER,%2,%3)
+&Q`GET`PERSONA_SUB_ANSWER [u(cobj,sheet)]=SELECT template_sub_choice_name FROM volv_story_persona_sub_choices WHERE persona_id=? AND template_sub_id=? LIMIT 1
 
 &FUN`BORDER [u(cobj,sheet)]=align(1. [sub(u(width,%#),4)] 1.,u(FUN`COLOR,%1,BORDER,|),%2,u(FUN`COLOR,%1,BORDER,|)%R)
 
@@ -59,9 +59,9 @@ th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,,,WIZARD SAFE !
 
 &FUN`3HEADER [u(cobj,sheet)]=[u(FUN`COLOR,%1,BORDER,\})][center(iter(%2,center(u(FUN`COLOR,%1,SLASH,/)[u(FUN`COLOR,%1,3COLUMNNAME,%i0)][u(FUN`COLOR,%1,SLASH,/)],div(sub(u(width,%#),2),3),u(FUN`COLOR,%1,BORDER,-)),|,),sub(u(width,%#),2),u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,\{)]
 
-&FUN`ATTRCASCADE [u(cobj,sheet)]=iter(u(mysql3,GET`PERSONA_STATS_IN_IDS,%2,u(SQL`IN`NUMBER,v(ATTRIBUTES`%3))),u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%4),chr(176),%R)
+&FUN`ATTRCASCADE [u(cobj,sheet)]=iter(u(mysql3,GET`PERSONA_STATS_IN_IDS,%2,u(SQL`IN`NUMBER,u(ATTRIBUTES`%3)),0),u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%4),chr(176),%R)
 
-&Q`GET`PERSONA_STATS_IN_IDS [u(cobj,sheet)]=SELECT stat_name,stat_value,stat_flags_1,stat_flags_2 FROM volv_story_persona_stats WHERE persona_id=? AND stat_id IN (!) ORDER BY stat_sort
+&Q`GET`PERSONA_STATS_IN_IDS [u(cobj,sheet)]=SELECT stat_name,stat_value,stat_flags_1,stat_flags_2 FROM volv_story_persona_stats WHERE persona_id=? AND stat_id IN (!) AND persona_stat_type=? ORDER BY stat_id
 
 &FUN`SPECIALTIES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,SPECIALTIES,36,Specialties,D`SPECIALTIES,sort(u(u(cobj,data)/FUN`RET`SPECIALTIES,%0),i,|,|))
 
@@ -84,7 +84,7 @@ th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,,,WIZARD SAFE !
 
 &FUN`MERFORMAT`3 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,trimpenn(iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(pueblize,elements(%i0,1,chr(177)),%4 [name(%0)]/[elements(%i0,1,chr(177))]),sub(u(width,%#),4),elements(%i0,2,chr(177)),,1,1),chr(176),%R),%R))
 
-&FUN`STATFORMAT`STAT [u(cobj,sheet)]=localize([u(setq,namedisp,if(%9,left(elements(%3,1,chr(177)),%9),elements(%3,1,chr(177))))][u(setq,val,u(strfirstof,%5,elements(%3,2,chr(177))))][u(setq,bon,u(strfirstof,%6,elements(%3,5,chr(177))))][u(setq,totval,add(%q<val>,if(%7,%q<bon>)))][if(%7,u(setq,valdisp,if(%7,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<val>)))),[u(setq,astlen,if(lte(%q<bon>,-1),bound(add(%q<val>,%q<bon>),0),%q<val>))][u(setq,minlen,if(lte(%q<bon>,-1),abs(%q<bon>)))][u(setq,pluslen,if(gte(%q<bon>,1),%q<bon>))][u(setq,valdisp,[if(%q<astlen>,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<astlen>)))][if(%q<minlen>,u(FUN`COLOR,%1,STATDOT,repeat(-,%q<minlen>)))][if(%q<pluslen>,u(FUN`COLOR,%1,STATDOT,repeat(+,%q<pluslen>)))])])][if(%8,,u(setq,fav,elements(%3,3,chr(177))))][u(setq,statlen,strlen(%q<namedisp>))][if(lte(sub(%4,1,%q<statlen>,strlen(%q<valdisp>)),0),u(setq,valdisp,%q<totval>,dotlen,strlen(%q<totval>)),u(setq,dotlen,strlen(%q<valdisp>)))][u(setq,linelen,sub(%4,1,%q<dotlen>,%q<statlen>))][switch(%q<fav>,3,u(FUN`COLOR,%1,SUPMARK,+),2,u(FUN`COLOR,%1,CASTEMARK,+),1,u(FUN`COLOR,%1,FAVMARK,+),%b)][u(FUN`COLOR,%1,STATNAME,if(%5,%q<namedisp>,u(capnames,%q<namedisp>)))][if(gt(%q<linelen>,0),repeat(u(FUN`COLOR,%1,STATFILL,.),%q<linelen>))]%q<valdisp>)
+&FUN`STATFORMAT`STAT [u(cobj,sheet)]=localize([u(setq,namedisp,if(%9,left(elements(%3,1,chr(177)),%9),elements(%3,1,chr(177))))][u(setq,val,u(strfirstof,u(strfirstof,%5,elements(%3,2,chr(177))),0))][u(setq,bon,u(strfirstof,%6,elements(%3,5,chr(177))))][u(setq,totval,add(%q<val>,if(%7,%q<bon>)))][if(%7,u(setq,valdisp,if(%7,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<val>)))),[u(setq,astlen,if(lte(%q<bon>,-1),bound(add(%q<val>,%q<bon>),0),%q<val>))][u(setq,minlen,if(lte(%q<bon>,-1),abs(%q<bon>)))][u(setq,pluslen,if(gte(%q<bon>,1),%q<bon>))][u(setq,valdisp,[if(%q<astlen>,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<astlen>)))][if(%q<minlen>,u(FUN`COLOR,%1,STATDOT,repeat(-,%q<minlen>)))][if(%q<pluslen>,u(FUN`COLOR,%1,STATDOT,repeat(+,%q<pluslen>)))])])][if(%8,,u(setq,fav,elements(%3,3,chr(177))))][u(setq,statlen,strlen(%q<namedisp>))][if(cor(lte(sub(%4,1,%q<statlen>,strlen(%q<valdisp>)),0),v(10)),u(setq,valdisp,%q<totval>)[u(setq,dotlen,strlen(%q<totval>))],u(setq,dotlen,strlen(%q<valdisp>)))][u(setq,linelen,sub(%4,1,%q<dotlen>,%q<statlen>))][switch(%q<fav>,3,u(FUN`COLOR,%1,SUPMARK,+),2,u(FUN`COLOR,%1,CASTEMARK,+),1,u(FUN`COLOR,%1,FAVMARK,+),%b)][u(FUN`COLOR,%1,STATNAME,if(%5,%q<namedisp>,u(capnames,%q<namedisp>)))][if(gt(%q<linelen>,0),repeat(u(FUN`COLOR,%1,STATFILL,.),%q<linelen>))]%q<valdisp>)
 @@ %0 = Player. %1 = Splat. %2 = pers_id. %3 = Entry. %4 = Length. %5 = manual value. %6 = Manual bonus. %7 = Don't show bonus. %8 = No favoreds. %9 = Truncate.
 
 

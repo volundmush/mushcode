@@ -1,0 +1,25 @@
+@@ Sheet data
+&FUN`CLASSINFO`WEREWOLF [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex|FIELD_5~Blood~N/A|FIELD_6~Bone~N/A,STAT_1001~Primal Urge~1|SPLAT_X~Auspice~N/A|SPLAT_Y~Tribe~N/A|SPLAT_Z~Lodge~N/A)
+
+&INC`ADVANTAGES`WEREWOLF [u(cobj,sheet)]=@pemit %#=u(FUN`CHARMHEADER,%0,%1,Werewolf Advantages);@attach %!/INC`ADVANTAGES`STATPOWER=%0,%1,%2,5;@attach %!/INC`ADVANTAGES`WORDPOWER=%0,%1,%2,3
+
+@@ Pools data
+&POOL`ESSENCE [u(cobj,pool)]=Pool
+&POOL`ESSENCE`ID [u(cobj,pool)]=5
+&POOL`ESSENCE`UNITNAME [u(cobj,pool)]=Points
+&POOL`ESSENCE`UNITTYPE [u(cobj,pool)]=Essence
+&POOL`ESSENCE`MAX [u(cobj,pool)]=switch(default(%0/V`PERSONA`STAT`1001,0),1,10,2,11,3,12,4,13,5,15,6,20,7,25,8,30,9,50,10,75)
+&POOL`ESSENCE`INIT [u(cobj,pool)]=u(POOL`ESSENCE`MAX,%0)
+&POOL`ESSENCE`ORDER [u(cobj,pool)]=5
+&POOL`ESSENCE`OPTIONS [u(cobj,pool)]=SPEND GAIN
+
+&POOL`HARMONY [u(cobj,pool)]=Morality
+&POOL`HARMONY`ID [u(cobj,pool)]=6
+&POOL`HARMONY`UNITNAME [u(cobj,pool)]=Dots
+&POOL`HARMONY`UNITTYPE [u(cobj,pool)]=Harmony
+&POOL`HARMONY`MAX [u(cobj,pool)]=10
+&POOL`HARMONY`ORDER [u(cobj,pool)]=100
+&POOL`HARMONY`INIT [u(cobj,pool)]=7
+&POOL`HARMONY`OPTIONS [u(cobj,pool)]=SPEND GAIN
+
+&TEMPLATE`WEREWOLF [u(cobj,pool)]=WILLPOWER HARMONY ESSENCE

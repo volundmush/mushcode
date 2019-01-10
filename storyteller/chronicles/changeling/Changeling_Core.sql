@@ -69,10 +69,18 @@ VALUES
 	(50001,5,"Royal Contract","Royal Contracts",0),
 	(50002,5,"Goblin Contract","Goblin Contracts",0),
 
-	(50008,5,"Changeling Merit","Changeling Merits",0),
-	(50009,5,"Changeling Flaw","Changeling Flaws",0),
-	(50010,5,"Changeling Style","Changeling Styles",0)
+	(50007,5,"Changeling Merit","Changeling Merits",0),
+	(50008,5,"Changeling Flaw","Changeling Flaws",0),
+	(50009,5,"Changeling Style","Changeling Styles",0)
 ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_plural=VALUES(stat_plural),stat_can_set=VALUES(stat_can_set);
+
+INSERT INTO vol_story_stats_ids
+    (stat_id,stat_id_minimum,stat_id_maximum)
+VALUES
+    (50007,57000,57999),
+    (50008,58000,58999),
+    (50009,59000,59999)
+ON DUPLICATE KEY UPDATE stat_id_minimum=VALUES(stat_id_minimum),stat_id_maximum=VALUES(stat_id_maximum);
 
 INSERT INTO vol_story_stats
 	(stat_parent,template_id,stat_id,stat_name)

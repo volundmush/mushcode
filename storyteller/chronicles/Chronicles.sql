@@ -4,28 +4,6 @@ VALUES
 	(0,"Universal",0)
 ON DUPLICATE KEY UPDATE template_name=VALUES(template_name);
 
-INSERT INTO vol_story_templates
-	(template_id,template_name,template_power_stat_name)
-VALUES
-	(1,"Mortal",NULL)
-ON DUPLICATE KEY UPDATE template_name=VALUES(template_name);
-
-INSERT INTO vol_story_fields
-	(field_id,field_name)
-VALUES
-
-	/* Mortal Fields */
-	(0,"Virtue"),
-	(1,"Vice")
-ON DUPLICATE KEY UPDATE field_name=VALUES(field_name);
-
-INSERT INTO vol_story_template_fields
-	(tlink_id,field_id,template_id)
-VALUES
-	/* Mortal - Virtue and Vice */
-	(0,0,1),
-	(1,1,1)
-ON DUPLICATE KEY UPDATE field_id=VALUES(field_id),template_id=VALUES(template_id);
 
 INSERT INTO vol_story_stats
 	(stat_id,template_id,stat_name,stat_plural,stat_can_set)
@@ -35,10 +13,16 @@ VALUES
 	(2,0,"Skill","Skills",0),
 	(3,0,"Merit","Merits",0),
 	(4,0,"Flaw","Flaws",0),
-	(5,0,"Style","Styles",0),
-	(6,0,"Supernatural Merit","Supernatural Merits",0),
-	(7,0,"Supernatural Flaw","Supernatural Flaws",0)
+	(5,0,"Style","Styles",0)
 ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_plural=VALUES(stat_plural),stat_can_set=VALUES(stat_can_set);
+
+INSERT INTO vol_story_stats_ids
+    (stat_id,stat_id_minimum,stat_id_maximum)
+VALUES
+    (3,3000,3999),
+    (4,4000,4999),
+    (5,5000,5999)
+ON DUPLICATE KEY UPDATE stat_id_minimum=VALUES(stat_id_minimum),stat_id_maximum=VALUES(stat_id_maximum);
 
 /* UNIVERSAL Data - IDs up to 9,999 */
 /* Universal Data - Attributes */
@@ -50,10 +34,10 @@ VALUES
 	(1,22,0,"Resolve",1,0),
 	(1,23,0,"Strength",1,0),
 	(1,24,0,"Dexterity",1,0),
-	(1,25,2,"Stamina",1,0),
-	(1,26,2,"Presence",1,0),
-	(1,27,2,"Manipulation",1,0),
-	(1,28,2,"Composure",1,0)
+	(1,25,0,"Stamina",1,0),
+	(1,26,0,"Presence",1,0),
+	(1,27,0,"Manipulation",1,0),
+	(1,28,0,"Composure",1,0)
 ON DUPLICATE KEY UPDATE stat_parent=VALUES(stat_parent),template_id=VALUES(template_id),stat_name=VALUES(stat_name);
 
 /* Universal Data - Skills */
@@ -130,10 +114,6 @@ VALUES
 	(0,51,0),
 	(0,52,0)
 ON DUPLICATE KEY UPDATE stat_value=VALUES(stat_value);
-
-/* MORTAL Data - IDs 10,000 to 19,999 */
-
-
 
 INSERT INTO vol_story_pools_categories
 	(pool_category_id,pool_category_name)

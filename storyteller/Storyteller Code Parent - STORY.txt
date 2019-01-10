@@ -30,7 +30,6 @@ th u(NEWCOBJ,STORYTELLER: Storyteller Code Parent,story,u(cobj,ccp),,,WIZARD SAF
 &Q`FIND`CATEGORY`EXACT [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_name=? AND stat_parent=? AND template_id IN (0,?)
 &Q`FIND`CATEGORY`EXACT`ID [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_id=? AND stat_parent IS NULL AND template_id IN (0,?)
 &Q`FIND`CATEGORY`WILD [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_name LIKE '!%' AND stat_parent IS NULL AND template_id IN (0,?)
-
 &Q`LOAD`CATEGORY [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_id=?
 &FIELD`CATEGORY [u(Cobj,story)]=id name
 
@@ -41,6 +40,46 @@ th u(NEWCOBJ,STORYTELLER: Storyteller Code Parent,story,u(cobj,ccp),,,WIZARD SAF
 &Q`FIND`STAT`WILD [u(cobj,story)]=SELECT stat_id,stat_name FROM vol_story_stats WHERE stat_name LIKE '!%' AND stat_parent=?
 &Q`LOAD`STAT [u(cobj,story)]=SELECT stat_id,stat_name,template_id,stat_plural,stat_custom,stat_specialties,stat_allows_zero,stat_rank,stat_parent,stat_require_context,stat_can_set,stat_minimum,stat_maximum FROM vol_story_stats WHERE stat_id=?
 &FIELD`STAT [u(cobj,story)]=id name templateid pluralname custom specialties allowzero rank parentid requirecontext canset minimum maximum
+
+@@ Splats
+&INC`VALID`SUBTYPE [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Splat,SUBTYPE,%1,%2
+&Q`FIND`SUBTYPE`LIST [u(cobj,story)]=SELECT template_sub_name FROM vol_story_template_sub WHERE template_id=?
+&Q`FIND`SUBTYPE`LIST`ID [u(Cobj,story)]=SELECT template_sub_id FROM vol_story_template_sub WHERE template_id=?
+&Q`FIND`SUBTYPE`EXACT [u(cobj,story)]=SELECT template_sub_id,template_sub_name FROM vol_story_template_sub WHERE template_sub_name=? AND template_id=?
+&Q`FIND`SUBTYPE`EXACT`ID [u(cobj,story)]=SELECT template_sub_id,template_sub_name FROM vol_story_template_sub WHERE template_sub_id=? AND template_id=?
+&Q`FIND`SUBTYPE`WILD [u(cobj,story)]=SELECT template_sub_id,template_sub_name FROM vol_story_template_sub WHERE template_sub_name LIKE '!%' AND template_id=?
+&Q`LOAD`SUBTYPE [u(cobj,story)]=SELECT template_sub_id,template_id,template_sub_name,template_sub_slot FROM vol_story_template_sub WHERE template_sub_id=?
+&FIELD`SUBTYPE [u(cobj,story)]=id template name subslot
+
+&INC`VALID`SUBCHOICE [u(Cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Splat Choice,SUBCHOICE,%1,%2
+&Q`FIND`SUBCHOICE`LIST [u(cobj,story)]=SELECT template_sub_choice_name FROM vol_story_template_sub_choices WHERE template_sub_id=?
+&Q`FIND`SUBCHOICE`LIST`ID [u(Cobj,story)]=SELECT template_sub_choice_id FROM vol_story_template_sub_choices WHERE template_sub_id=?
+&Q`FIND`SUBCHOICE`EXACT [u(cobj,story)]=SELECT template_sub_choice_id,template_sub_choice_name FROM vol_story_template_sub_choices WHERE template_sub_choice_name=? AND template_sub_id=?
+&Q`FIND`SUBCHOICE`EXACT`ID [u(cobj,story)]=SELECT template_sub_choice_id,template_sub_name FROM vol_story_template_sub_choices WHERE template_sub_id=? AND template_sub_id=?
+&Q`FIND`SUBCHOICE`WILD [u(cobj,story)]=SELECT template_sub_choice_id,template_sub_choice_name FROM vol_story_template_sub_choices WHERE template_sub_choice_name LIKE '!%' AND template_sub_id=?
+&Q`LOAD`SUBCHOICE [u(cobj,story)]=SELECT template_sub_choice_id,template_sub_choice_name,template_sub_id FROM volv_story_template_sub_choices WHERE template_sub_choice_id=?
+&FIELD`SUBCHOICE [u(cobj,story)]=id name subid
+
+@@ Fields
+&INC`VALID`FIELD [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Field,FIELD,%1,%2
+&Q`FIND`FIELD`LIST [u(cobj,story)]=SELECT field_name FROM volv_story_template_fields WHERE template_id=?
+&Q`FIND`FIELD`LIST`ID [u(Cobj,story)]=SELECT field_id FROM volv_story_template_fields WHERE template_id=?
+&Q`FIND`FIELD`EXACT [u(cobj,story)]=SELECT field_id,field_name FROM volv_story_template_fields WHERE field_name=? AND template_id=?
+&Q`FIND`FIELD`EXACT`ID [u(cobj,story)]=SELECT field_id,field_name FROM volv_story_template_fields WHERE field_id=? AND template_id=?
+&Q`FIND`FIELD`WILD [u(cobj,story)]=SELECT field_id,field_name FROM volv_story_template_fields WHERE field_name LIKE '!%' AND template_id=?
+&Q`LOAD`FIELD [u(cobj,story)]=SELECT field_id,field_name FROM vol_story_fields WHERE field_id=?
+&FIELD`FIELD [u(cobj,story)]=id name
+
+@@ Createable
+&INC`VALID`CREATESTAT [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Merit-Like,CREATESTAT,%1,%2
+&Q`FIND`CREATESTAT`LIST [u(cobj,story)]=SELECT stat_name FROM volv_story_stats_ids
+&Q`FIND`CREATESTAT`LIST`ID [u(Cobj,story)]=SELECT stat_id FROM volv_story_stats_ids
+&Q`FIND`CREATESTAT`EXACT [u(cobj,story)]=SELECT stat_id,stat_id FROM volv_story_stats_ids WHERE stat_name=?
+&Q`FIND`CREATESTAT`EXACT`ID [u(cobj,story)]=SELECT stat_id,stat_id FROM volv_story_stats_ids WHERE stat_id=?
+&Q`FIND`CREATESTAT`WILD [u(cobj,story)]=SELECT stat_id,stat_name FROM volv_story_stats_ids WHERE stat_name LIKE '!%' AND stat_id=?
+&Q`LOAD`CREATESTAT [u(cobj,story)]=SELECT stat_id,stat_name,stat_id_minimum,stat_id_maximum FROM volv_story_stats_ids WHERE stat_id=?
+&FIELD`CREATESTAT [u(cobj,story)]=id name minimum maximum
+
 
 @@ Section for passing on the Event Hooks.
 &PLAYER`CONNECT [u(cobj,story)]=@dolist/inline/nobreak lattr(%!/PLAYER`CONNECT`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger/spoof ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}

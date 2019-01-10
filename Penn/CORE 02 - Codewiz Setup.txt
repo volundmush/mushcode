@@ -2,7 +2,7 @@
 
 @force me=@parent %#=[locate(config(master_room),Core Code Parent <CCP>,TXxi)]
 
-&STARTUP %#=@command/restrict @command=#TRUE;@command/alias @include=@attach;@command/alias @break=@stop;@command/alias @assert=@check;@config/save event_handler=u(cobj,ccp);@dolist/inline/nobreak room exit thing player={@config/save ancestor_%i0=u(cobj,ancestor_%i0)};@include %!/STARTUP`EXTRA
+&STARTUP %#=@command/restrict @command=#TRUE;@command/alias @include=@attach;@command/alias @break=@stop;@command/alias @assert=@check;@config/save event_handler=u(cobj,ccp);@config/save http_handler=u(cobj,http);@dolist/inline/nobreak room exit thing player={@config/save ancestor_%i0=u(cobj,ancestor_%i0)};@include %!/STARTUP`EXTRA
 
 @trigger %#/STARTUP
 @trigger [u(cobj,ccp)]/STARTUP

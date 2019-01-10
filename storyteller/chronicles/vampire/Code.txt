@@ -1,0 +1,29 @@
+
+
+@@ Sheet data
+&FUN`CLASSINFO`VAMPIRE [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex|FIELD_20000~Mask~N/A|FIELD_20001~Dirge~N/A,POWER~Blood Potency~1|SUB_20000~Clan~N/A|SUB_20001~Covenant~N/A|SUB_20002~Bloodline~N/A)
+
+
+&INC`ADVANTAGES`VAMPIRE [u(cobj,sheet)]=@pemit %#=u(FUN`CHARMHEADER,%0,%1,Vampire Advantages);@attach %!/INC`ADVANTAGES`STATPOWER=%0,%1,%2,4;@attach %!/INC`ADVANTAGES`WORDPOWER=%0,%1,%2,2
+
+
+@@ Pools data
+&POOL`VITAE [u(cobj,pool)]=Pool
+&POOL`VITAE`ID [u(cobj,pool)]=3
+&POOL`VITAE`UNITNAME [u(cobj,pool)]=Points
+&POOL`VITAE`UNITTYPE [u(cobj,pool)]=Vitae
+&POOL`VITAE`MAX [u(cobj,pool)]=switch(default(%0/V`PERSONA`STAT`1000,0),0,default(%0/V`PERSONA`STAT`2005,1),1,10,2,11,3,12,4,13,5,15,6,20,7,25,8,30,9,50,10,75)
+&POOL`VITAE`INIT [u(cobj,pool)]=u(POOL`VITAE`MAX,%0)
+&POOL`VITAE`ORDER [u(cobj,pool)]=5
+&POOL`VITAE`OPTIONS [u(cobj,pool)]=SPEND GAIN
+
+&POOL`HUMANITY [u(cobj,pool)]=Morality
+&POOL`HUMANITY`ID [u(cobj,pool)]=4
+&POOL`HUMANITY`UNITNAME [u(cobj,pool)]=Dots
+&POOL`HUMANITY`UNITTYPE [u(cobj,pool)]=Humanity
+&POOL`HUMANITY`MAX [u(cobj,pool)]=10
+&POOL`HUMANITY`ORDER [u(cobj,pool)]=100
+&POOL`HUMANITY`INIT [u(cobj,pool)]=7
+&POOL`HUMANITY`OPTIONS [u(cobj,pool)]=SPEND GAIN
+
+&TEMPLATE`VAMPIRE [u(cobj,pool)]=WILLPOWER HUMANITY VITAE

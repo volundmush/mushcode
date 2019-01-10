@@ -337,7 +337,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &SQL`IN`NUMBER [u(cobj,ccp)]=iter(%0,%i0,%1,\,%b)
 &SQL`IN`STRING [u(cobj,ccp)]=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
 
-&SQL`FORMAT [u(cobj,ccp)]=localize(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,[if(strmatch(%q<set>,NULL),NULL,'[sqlescape(%q<set>)]')]))))
+&SQL`FORMAT [u(cobj,ccp)]=localize(edit(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,[if(strmatch(%q<set>,NULL),NULL,'[sqlescape(%q<set>)]')]))),=NULL,IS NULL))
 
 &INC`DOSQL [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),sql(SELECT last_insert_id\(\))))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck> - QUERY: %q<sqlformat>}
 

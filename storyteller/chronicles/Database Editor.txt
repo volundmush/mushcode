@@ -1,13 +1,20 @@
-th u(NEWCOBJ,STORYTELLER: Database Management System,schema,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,STORYTELLER: Database Management System,schema,,story,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 @lock/use [u(cobj,schema)]=V`ADMIN:>0
 
 &SYSTEM`NAME [u(Cobj,schema)]=DATABASE
 
-&CMD`EDIT [u(cobj,schema)]=$^\!(template|xsplat|ysplat|zsplat|attribute|discipline|moongift|arcana|skill|merit|flaw|style|rote)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@select/inline strlen(%2)=>0,{@attach %!/INC`PARTIAL=%2,iter(u(lattr,%!/%1`*,|),last(%i0,`),|,|),|,switch;@attach %!/%1`%q<switch>=%3,%4},0,{@attach %!/%1=%3,%4}
+&CMD`EDIT [u(cobj,schema)]=$^\!(template|sub|field|stat|pool|xp)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@select/inline strlen(%2)=>0,{@attach %!/INC`PARTIAL=%2,iter(u(lattr,%!/%1`*,|),last(%i0,`),|,|),|,switch;@attach %!/%1`%q<switch>=%3,%4},0,{@attach %!/%1=%3,%4}
 @set [u(cobj,schema)]/CMD`EDIT=regexp
 
 &TEMPLATE_MAP [u(Cobj,schema)]=@pemit %#=align(3 11 12 12 12 23,%1,%2,%3,%4,%5,%6-%7)
 &TEMPLATE [u(cobj,schema)]=@pemit %#=u(header,DATABASE: Templates);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(3 11 12 12 12 23,ID,Name,Xsplat,Ysplat,Zsplat,PowerStat));@pemit %#=u(separator);@mapsql/spoof %!/TEMPLATE_MAP=SELECT template_id,template_name,template_x_name,template_y_name,template_z_name,template_power_stat,template_power_stat_name FROM volv_story_templates ORDER BY template_name
+
+&STAT`CREATE [u(cobj,schema)]=@attach %!/INC`VALID`CREATESTAT=before(%0,/),1;@attach %!/INC`VALID`ENAME=after(%0,/),%q<createstat1.name>;@select/inline t(u(setr,exist,u(setr,stat_id,u(mysql,STAT`EXIST,u(setr,newname,%q<value>),%q<createstat1.id>))))=0,{@stop gte(u(setr,stat_id,bound(u(mysql,STAT`NEXTID,%q<createstat1.id>),%q<createstat1.minimum>)),%q<createstat1.maximum>)=@attach %!/INC`MSG=ERROR: Ran out of IDs for %q<createstat1.name>s!;th u(setq,stat_id,inc(%q<stat_id>))};@attach %!/INC`VALID`BOOL=%1;@attach %!/INC`DOSQL=STAT`CREATE,%q<stat_id>,%q<newname>,%q<createstat1.id>,%q<value>;;@attach %!/INC`MSG=%q<createstat1.name> Created/Updated: '%q<newname>' (ID: %q<stat_id>) (Require_context: %q<value>);@attach %!/INC`MSG`CHAN=%q<createstat1.name> Created/Updated: '%q<newname>' (ID: %q<stat_id>) (Require_context: %q<value>)
+
+&Q`STAT`NEXTID [u(cobj,schema)]=SELECT max(stat_id) FROM vol_story_stats WHERE stat_parent=?
+&Q`STAT`EXIST [u(cobj,schema)]=SELECT stat_id FROM vol_story_stats WHERE stat_name=? AND stat_parent=?
+
+&Q`STAT`CREATE [u(cobj,schema)]=INSERT INTO vol_story_stats (stat_id,stat_name,stat_parent,stat_require_context,stat_allows_zero) VALUES (?,?,?,?,1) ON DUPLICATE KEY UPDATE stat_name=VALUES(stat_name),stat_require_context=VALUES(stat_require_context),stat_allows_zero=VALUES(stat_allows_zero)
 
 &MLIKE`VIEW`MAP [u(cobj,schema)]=@pemit %#=align(5 3 50,%1,%2,%3)
 &MLIKE`VIEW [u(cobj,schema)]=@pemit %#=u(header,DATABASE: %2s);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(5 3 50,ID,Req,%2 Name));@pemit %#=u(separator);@mapsql/spoof %!/MLIKE`VIEW`MAP=SELECT merit_id,merit_require_context,merit_name FROM vol_story_merits WHERE merit_category_id=%3 ORDER BY merit_name
@@ -20,9 +27,9 @@ th u(NEWCOBJ,STORYTELLER: Database Management System,schema,,,,WIZARD SAFE !NO_C
 &STYLE`CREATE [u(cobj,schema)]=@attach %!/MLIKE`CREATE=%0,%1,Style,3
 &FLAW`CREATE [u(cobj,schema)]=@attach %!/MLIKE`CREATE=%0,%1,Flaw,2
 
-&MLIKE`CREATE [u(cobj,schema)]=@check strlen(u(setr,mername,trim(%0)))=@attach %!/INC`MSG=ERROR: No %2 Name entered!;@attach %!/INC`VALID`BOOL=%1;@attach %!/INC`DOSQL=MERIT`CREATE/merit_id,%3,%q<mername>,%q<value>;@attach %!/INC`MSG=%2 Created/Updated: '%q<mername>' (ID: %q<merit_id>) (Require_context: %q<value>);@attach %!/INC`MSG`CHAN=%2 Created/Updated: '%q<mername>' (ID: %q<merit_id>) (Require_context: %q<value>)
+&MLIKE`CREATE [u(cobj,schema)]=@check strlen(u(setr,mername,trim(%0)))=@attach %!/INC`MSG=ERROR: No %2 Name entered!;@attach %!/INC`VALID`BOOL=%1;@attach %!/INC`DOSQL=MERIT`CREATE/merit_id,%3,%q<mername>,%q<value>
 
-&Q`MERIT`CREATE [u(cobj,schema)]=INSERT INTO vol_story_merits (merit_category_id,merit_name,merit_require_context) VALUES (?,?,?) ON DUPLICATE KEY UPDATE merit_name=VALUES(merit_name),merit_require_context=VALUES(merit_require_context)
+
 
 &SPLATLIKE_MAP [u(cobj,schema)]=@pemit %#=align(4 30 3 20,%1,%2,%3,%4)
 &SPLATLIKE [u(cobj,schema)]=@pemit %#=u(header,DATABASE: %2 Splats);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(4 30 3 20,ID,Name,TID,Template Name));@pemit %#=u(separator);@mapsql/spoof %!/SPLATLIKE_MAP=SELECT %3_splat_id,%3_splat_name,template_id,template_name FROM volv_story_%3_splats

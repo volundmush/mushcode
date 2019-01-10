@@ -70,10 +70,18 @@ VALUES
 	(20001,2,"Devotion","Devotions",0),
 	(20002,2,"Cruac Rite","Cruac Rites",0),
 	
-	(20008,2,"Vampire Merit","Vampire Merits",0),
-    (20009,2,"Vampire Flaw","Vampire Flaws",0),
-    (20010,2,"Vampire Style","Vampire Styles",0)
+	(20007,2,"Vampire Merit","Vampire Merits",0),
+    (20008,2,"Vampire Flaw","Vampire Flaws",0),
+    (20009,2,"Vampire Style","Vampire Styles",0)
 ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_plural=VALUES(stat_plural),stat_can_set=VALUES(stat_can_set);
+
+INSERT INTO vol_story_stats_ids
+    (stat_id,stat_id_minimum,stat_id_maximum)
+VALUES
+    (20007,27000,27999),
+    (20008,28000,28999),
+    (20009,29000,29999)
+ON DUPLICATE KEY UPDATE stat_id_minimum=VALUES(stat_id_minimum),stat_id_maximum=VALUES(stat_id_maximum);
 
 /* Vampire - Disciplines IDs 20100 to 20199 */
 INSERT INTO vol_story_stats

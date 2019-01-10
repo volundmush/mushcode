@@ -22,7 +22,7 @@ th u(NEWCOBJ,STORYTELLER: Persona Management System <PERSONA>,persona,,story,,WI
 &Q`CREATE`PERSONA [u(Cobj,persona)]=INSERT INTO vol_story_personas (owner_id,persona_name,persona_parent,persona_date_created) VALUES (?,?,?,UTC_TIMESTAMP())
 
 &OBJECT`RENAME [u(cobj,persona)]=@select/inline type(%0)=PLAYER,{@check get(%0/D`PERSONA`PRIMARY);@attach %!/INC`DOSQL=AUTORENAME`PERSONA,%1,get(%0/D`PERSONA`PRIMARY)}
-&Q`AUTORENAME`PERSONA [u(cobj,persona)]=UPDATE vol_story_persona SET persona_name=? WHERE persona_id=?
+&Q`AUTORENAME`PERSONA [u(cobj,persona)]=UPDATE vol_story_personas SET persona_name=? WHERE persona_id=?
 
 &TEMPLATE_CHANGE [u(cobj,persona)]=@attach %!/INC`DOSQL=CLEAR`OLD_STATS,%0,%1;@attach %!/INC`DOSQL=CHANGE`TEMPLATE,%1,%0;@attach %!/INC`DOSQL=CLEAR`OLD_FIELDS,%0,%1;@attach %!/INC`DOSQL=INIT`DEFAULT_STATS,%0,%1,%0
 
@@ -78,3 +78,13 @@ th u(NEWCOBJ,STORYTELLER: Persona Management System <PERSONA>,persona,,story,,WI
 &SET`POWER [u(cobj,persona)]=@check strlen(%q<Persona1.powerstatname>)=@attach %!/INC`MSG=ERROR: %q<Persona1.templatename>'s don't have Power Stats!;@attach %!/INC`VALID`POSINT=%1;@attach %!/INC`DOSQL=SET`POWER,%q<value>,%q<Persona1.id>;@attach %!/INC`MSG=%q<t1name>'s [u(setr,msg,[if(strmatch(%q<t1name>,%q<Persona1.name>),Primary,'%q<Persona1.name>')] Persona's %q<Persona1.powerstatname> is now: %q<value>)];@attach %!/INC`MSG`NOTICE=Your %q<msg>.;@attach %!/INC`MSG`CHAN=%q<t1name>'s %q<msg>
 
 &Q`SET`POWER [u(Cobj,persona)]=UPDATE vol_story_personas SET power_stat_value=? WHERE persona_id=?
+
+&SET`SPLAT [u(cobj,persona)]=@attach %!/INC`VALID`SUBTYPE=after(%0,/),1,%q<Persona1.templateid>;@select/inline strlen(%1)=0,{@attach %!/INC`DOSQL=CLEAR`SUBCHOICE,%q<Persona1.id>,%q<SubType1.id>;@attach %!/INC`MSG=%q<t1name>'s  [u(setr,msg,[if(strmatch(%q<t1name>,%q<Persona1.name>),Primary,'%q<Persona1.name>')] Persona's %q<subtype1.name> is now: empty!)]},{@attach %!/INC`VALID`SUBCHOICE=%1,1,%q<SubType1.id>;@attach %!/INC`DOSQL=CLEAR`SUBCHOICE,%q<Persona1.id>,%q<SubType1.id>;@attach %!/INC`DOSQL=SET`SUBCHOICE,%q<Persona1.id>,%q<subchoice1.id>;@attach %!/INC`MSG=%q<t1name>'s [u(setr,msg,[if(strmatch(%q<t1name>,%q<Persona1.name>),Primary,'%q<Persona1.name>')] Persona's %q<subtype1.name> is now: %q<subchoice1.name>)]};@attach %!/INC`MSG`NOTICE=Your %q<msg>,%q<t1>;@attach %!/INC`MSG`CHAN=%q<msg>
+
+&Q`CLEAR`SUBCHOICE [u(cobj,persona)]=DELETE p FROM vol_story_persona_sub_choices AS p LEFT JOIN volv_story_template_sub_choices AS c ON p.template_sub_choice_id=c.template_sub_choice_id WHERE p.persona_id=? AND c.template_sub_id=?
+
+&Q`SET`SUBCHOICE [u(cobj,persona)]=INSERT INTO vol_story_persona_sub_choices (persona_id,template_sub_choice_id) VALUES (?,?)
+
+&SET`FIELD [u(Cobj,persona)]=@attach %!/INC`VALID`FIELD=after(%0,/),1,%q<Persona1.templateid>;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Must enter %q<field1.name> contents!;@attach %!/INC`DOSQL=SET`FIELD,%q<field1.id>,%q<persona1.id>,%1;@attach %!/INC`MSG==%q<t1name>'s [u(setr,msg,[if(strmatch(%q<t1name>,%q<Persona1.name>),Primary,'%q<Persona1.name>')] Persona's %q<field1.name> is now: %1)];@attach %!/INC`MSG`NOTICE=Your %q<msg>,%q<t1>;@attach %!/INC`MSG`CHAN=%q<msg>
+
+&Q`SET`FIELD [u(cobj,persona)]=INSERT INTO vol_story_persona_field (field_id,persona_id,field_answer) VALUES (?,?,?) ON DUPLICATE KEY UPDATE field_answer=VALUES(field_answer)

@@ -1,0 +1,26 @@
+
+@@ Sheet data
+&FUN`CLASSINFO`CHANGELING [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex|FIELD_50000~Needle~N/A|FIELD_50001~Thread~N/A,POWER~Wyrd~1|SUB_50000~Seeming~N/A|SUB_50001~Kith~N/A|SUB_50002~Court~N/A)
+
+&INC`ADVANTAGES`CHANGELING [u(cobj,sheet)]=@pemit %#=u(FUN`CHARMHEADER,%0,%1,Changeling Advantages);@@ @attach %!/INC`ADVANTAGES`STATPOWER=%0,%1,%2,6;@attach %!/INC`ADVANTAGES`WORDPOWER=%0,%1,%2,5
+
+@@ Pools data
+&POOL`GLAMOUR [u(cobj,pool)]=Pool
+&POOL`GLAMOUR`ID [u(cobj,pool)]=7
+&POOL`GLAMOUR`UNITNAME [u(cobj,pool)]=Points
+&POOL`GLAMOUR`UNITTYPE [u(cobj,pool)]=Glamour
+&POOL`GLAMOUR`MAX [u(cobj,pool)]=switch(default(%0/V`PERSONA`STAT`1003,0),1,10,2,11,3,12,4,13,5,15,6,20,7,25,8,30,9,50,10,75)
+&POOL`GLAMOUR`INIT [u(cobj,pool)]=u(POOL`GLAMOUR`MAX,%0)
+&POOL`GLAMOUR`ORDER [u(cobj,pool)]=5
+&POOL`GLAMOUR`OPTIONS [u(cobj,pool)]=SPEND GAIN
+
+&POOL`CLARITY [u(cobj,pool)]=Morality
+&POOL`CLARITY`ID [u(cobj,pool)]=8
+&POOL`CLARITY`UNITNAME [u(cobj,pool)]=Dots
+&POOL`CLARITY`UNITTYPE [u(cobj,pool)]=Clarity
+&POOL`CLARITY`MAX [u(cobj,pool)]=10
+&POOL`CLARITY`ORDER [u(cobj,pool)]=100
+&POOL`CLARITY`INIT [u(cobj,pool)]=7
+&POOL`CLARITY`OPTIONS [u(cobj,pool)]=SPEND GAIN DAMAGE
+
+&TEMPLATE`CHANGELING [u(cobj,pool)]=WILLPOWER CLARITY GLAMOUR

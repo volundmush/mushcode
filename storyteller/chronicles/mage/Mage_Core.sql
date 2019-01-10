@@ -3,7 +3,7 @@ INSERT INTO vol_story_templates
 VALUES
 	(4,"Mage","Gnosis")
 ON DUPLICATE KEY UPDATE template_name=VALUES(template_name);
-	
+
 /* Splat Data */
 INSERT INTO vol_story_template_sub
 	(template_sub_id,template_id,template_sub_name,template_sub_slot)
@@ -49,10 +49,18 @@ VALUES
 	(40000,4,"Arcana","Arcana",0),
 	(40001,4,"Rote","Rotes",0),
 
-	(40008,4,"Mage Merit","Mage Merits",0),
-	(40009,4,"Mage Flaw","Mage Flaws",0),
-	(40010,4,"Mage Style","Mage Styles",0)
+	(40007,4,"Mage Merit","Mage Merits",0),
+	(40008,4,"Mage Flaw","Mage Flaws",0),
+	(40009,4,"Mage Style","Mage Styles",0)
 ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_plural=VALUES(stat_plural),stat_can_set=VALUES(stat_can_set);
+
+INSERT INTO vol_story_stats_ids
+    (stat_id,stat_id_minimum,stat_id_maximum)
+VALUES
+    (40007,47000,47999),
+    (40008,48000,48999),
+    (40009,49000,49999)
+ON DUPLICATE KEY UPDATE stat_id_minimum=VALUES(stat_id_minimum),stat_id_maximum=VALUES(stat_id_maximum);
 
 INSERT INTO vol_story_stats
 	(stat_parent,template_id,stat_id,stat_name,stat_can_set)
@@ -78,12 +86,12 @@ VALUES
 	(40001,4,40026,"Prime",0),
 	(40001,4,40027,"Space",0),
 	(40001,4,40028,"Spirit",0),
-	(40001,4,40029,"Time",0),
+	(40001,4,40029,"Time",0)
 	
 ON DUPLICATE KEY UPDATE stat_name=VALUES(stat_name);
 
 INSERT INTO vol_story_stats
-	(stat_parent,template_id,stat_id,stat_name,stat_can_set,stat_rank)
+	(stat_parent,template_id,stat_id,stat_name,stat_rank)
 VALUES
     /* Mage - Arcana - Death */
 	(40020,4,40100,"Ectoplasmic Shaping",1),

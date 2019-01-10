@@ -1,0 +1,1 @@
+&INC`ADVANTAGES`HUNTER [u(cobj,sheet)]=@@ Hunter stuff here;@attach %!/INC`ADVANTAGES`MORTAL

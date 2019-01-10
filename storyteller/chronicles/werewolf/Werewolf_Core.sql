@@ -73,10 +73,18 @@ VALUES
 	(30002,3,"Wolf Gift","Wolf Gifts",0),
 	(30003,3,"Rite","Rites",0),
 
-	(30008,3,"Werewolf Merit","Werewolf Merits",0),
-	(30009,3,"Werewolf Flaw","Werewolf Flaws",0),
-	(30010,3,"Werewolf Style","Werewolf Styles",0)
+	(30007,3,"Werewolf Merit","Werewolf Merits",0),
+	(30008,3,"Werewolf Flaw","Werewolf Flaws",0),
+	(30009,3,"Werewolf Style","Werewolf Styles",0)
 ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_name),stat_plural=VALUES(stat_plural),stat_can_set=VALUES(stat_can_set);
+
+INSERT INTO vol_story_stats_ids
+    (stat_id,stat_id_minimum,stat_id_maximum)
+VALUES
+    (30007,37000,37999),
+    (30008,38000,38999),
+    (30009,39000,39999)
+ON DUPLICATE KEY UPDATE stat_id_minimum=VALUES(stat_id_minimum),stat_id_maximum=VALUES(stat_id_maximum);
 
 /* Werewolf - Moon Gifts */
 INSERT INTO vol_story_stats

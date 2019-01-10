@@ -1,0 +1,25 @@
+@@ THIS MUST BE RUN AS #1 in order to confer Wizard powers.
+
+@select/inline isobjid(u(cobj,http))=0,{@select/inline isdbref(u(setr,http,pmatch(HTTPHandler)))=1,{th u(attrib_set,u(Cobj,ccp),COBJ`HTTP,objid(%q<http>))},0,{th u(attrib_set,u(cobj,ccp),COBJ`HTTP,objid(pcreate(HTTPHandler,scramble(digest(md5,secs())))))};@set u(cobj,http)=WIZARD}
+
+@select/inline isobjid(u(cobj,httpg))=0,{@select/inline isdbref(u(setr,httpg,pmatch(HTTPGuest)))=1,{th u(attrib_set,u(Cobj,ccp),COBJ`HTTPG,objid(%q<httpg>))},0,{th u(attrib_set,u(cobj,ccp),COBJ`HTTPG,objid(pcreate(HTTPGuest,scramble(digest(md5,secs())))))}}
+
+&LOGIN [u(cobj,http)]=@select/inline strlen(formdecode(%2,username))=>0,{@check isobjid(u(CHECK_LOGIN,%2))=@respond 401 Authentication Failed.},0,{th u(setq,loginplayer,%q<httpguest>);th u(setq,httpguest,1)}
+
+&CHECK_LOGIN [u(cobj,http)]=if(strlen(u(setr,username,formdecode(%0,username))),if(strlen(u(setr,password,formdecode(%0,password))),if(isobjid(u(setr,loginplayer,objid(pmatch(%q<username>)))),if(checkpass(%q<loginplayer>,%q<password>),%q<loginplayer>,0),0)))
+
+&GET [u(cobj,http)]=@attach %!/LOGIN=after(before(%0,?),/),%1,after(%0,?);@select/inline before(%0,?)=/,{@attach %!/GET`_ROOT},/?*,{@check hasattrval(%!/GET`[after(before(%0,?),/)])=@respond 404 Path not found;@attach %!/GET`[after(before(%0,?),/)]=after(after(before(%0,?),/),/),%1,after(%0,?)}
+
+&GET`_ROOT [u(Cobj,http)]=@respond 404 Nothing to see here!
+
+&GET`TEST [u(cobj,http)]=@pemit me=I HAVE STUFF! You are logged in as: %q<loginplayer>
+
+&JSON`WHO`PLAYER [u(cobj,http)]=json(object,id,json(number,get(%0/D`ID)),name,json(string,name(%0)),objid,json(string,%0),idle,json(number,idle(%0)),conn,json(number,conn(%0)))
+
+&J`INSERT`JSON [u(cobj,http)]=json_mod(%0,insert,$\[[json_query(%0,size)]\],%1)
+
+&JSON`WHO`PLAYERS [u(cobj,http)]=fold(J`INSERT`JSON,iter(u(lwhoid,%0),u(JSON`WHO`PLAYER,%i0),%b,chr(176)),\[\],chr(176))
+
+&FOLD`INSERT`ARRAY [u(Cobj,http)]=json_mod(%0,insert,$\[[json_query(%0,size)]\],%1)
+
+&GET`WHO [u(Cobj,http)]=@respond/type application/json;@pemit me=u(JSON`WHO`PLAYERS,%q<loginplayer>)

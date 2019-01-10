@@ -293,7 +293,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &Q`LOAD`SCENE_LOCATIONS [u(cobj,scene)]=SELECT s.source_objid,s.source_name FROM vol_action_source as s WHERE s.scene_id=? AND s.source_type=0 ORDER BY s.source_name
 
 &INC`LOADSCENE`ACTORS [u(cobj,scene)]=th u(setq,actors,u(mysql3,LOAD`SCENE_ACTORS,%q<scene>))
-&Q`LOAD`SCENE_ACTORS [u(cobj,scene)]=SELECT character_id,character_objid,character_name,actor_type,actor_status,action_count FROM volv_actor_agg WHERE scene_id=? AND (actor_type>0 OR actor_status>0 OR action_count>0) ORDER BY actor_type DESC,actor_status DESC,character_name ASC
+&Q`LOAD`SCENE_ACTORS [u(cobj,scene)]=SELECT character_id,character_objid,character_name,actor_type,actor_status,action_count FROM volv_actor WHERE scene_id=? AND (actor_type>0 OR actor_status>0 OR action_count>0) ORDER BY actor_type DESC,actor_status DESC,character_name ASC
 
 &INC`LOADSCENE`REPORTS [u(cobj,scene)]=th u(setq,reports,u(mysql3,LOAD`SCENE_REPORTS,%q<scene>));
 &Q`LOAD`SCENE_REPORTS [u(cobj,scene)]=
@@ -302,9 +302,9 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`LOG`DETAILS`HEADER [u(cobj,scene)]=@pemit %#=u(SUBHEADER,Details);@pemit %#=ansi(h,Pitch:)%B%q<pitch>;@pemit %#=ansi(h,Started:) [if(%q<started>,u(fancytime,%q<started>,%#),N/A)]%R[ansi(h,Outcome:)] %q<outcome>%R[ansi(h,Status:)] [switch(%q<status>,0,Active,1,Paused,2,Scheduled,3,Finished)];@select/inline strlen(%q<locs>)=>0,{@pemit %#=[ansi(h,Locations:)]%B[iter(%q<locs>,if(isobjid(elements(%i0,2,chr(177))),u(getmoniker,elements(%i0,2,chr(177))),ansi(hx,elements(%i0,2,chr(177)))),chr(176),\,%b)]};@select/inline %q<scheduled>=>0,{@pemit %#=ansi(h,Scheduled:)%B[u(fancytime2,%q<scheduled>,%#)] \([u(fancytime2,%q<scheduled>,UTC)]\)}
 
-&INC`LOG`DETAILS`ACTORS [u(cobj,scene)]=@select/inline if(cand(eq(2,%q<status>),not(u(conf,TAGGER_VISIBLE))),cor(u(isadmin,%#),match(%q<ownobjid>,%:)),1)=1,{@pemit %#=u(SUBHEADER,Players);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(30 30 15,ansi(h,Name),ansi(h,Status),ansi(h,Poses)));@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] %q<actors>={@pemit %#=align(30 30 15,if(isobjid(elements(%i0,2,chr(177))),if(%q<bannertags>,u(getproperty,elements(%i0,2,chr(177)),banner),u(getmoniker,elements(%i0,2,chr(177)))),ansi(hx,elements(%i0,3,chr(177)))),if(eq(elements(%i0,4,chr(177)),2),Creator,switch(elements(%i0,5,chr(177)),0,Untagged,1,Tagged)),elements(%i0,7,chr(177)))};@select/inline gt(u(setr,total,u(mysql,get`sceneposecount,%q<scene>)),0)=1,{@pemit %#=align(30 >30 15,,Total:,%q<total>)}}
+&INC`LOG`DETAILS`ACTORS [u(cobj,scene)]=@select/inline if(cand(eq(2,%q<status>),not(u(conf,TAGGER_VISIBLE))),cor(u(isadmin,%#),match(%q<ownobjid>,%:)),1)=1,{@pemit %#=u(SUBHEADER,Players);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(30 30 15,ansi(h,Name),ansi(h,Status),ansi(h,Poses)));@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] %q<actors>={@pemit %#=align(30 30 15,if(isobjid(elements(%i0,2,chr(177))),if(%q<bannertags>,u(getproperty,elements(%i0,2,chr(177)),banner),u(getmoniker,elements(%i0,2,chr(177)))),ansi(hx,elements(%i0,3,chr(177)))),if(eq(elements(%i0,4,chr(177)),2),Creator,switch(elements(%i0,5,chr(177)),0,Untagged,1,Tagged)),elements(%i0,6,chr(177)))};@select/inline gt(u(setr,total,u(mysql,get`sceneposecount,%q<scene>)),0)=1,{@pemit %#=align(30 >30 15,,Total:,%q<total>)}}
 
-&Q`GET`SCENEPOSECOUNT [u(cobj,scene)]=SELECT SUM(action_count) FROM vol_actor_agg WHERE scene_id=?
+&Q`GET`SCENEPOSECOUNT [u(cobj,scene)]=SELECT SUM(action_count) FROM vol_actor WHERE scene_id=?
 
 
 &INC`LOG`DETAILS`URL [u(cobj,scene)]=@pemit %#=u(SUBHEADER,Url);@pemit %#=ansi(h,URL:) [u(weblink,[u(conf,URL)][u(conf,PATH)]%q<scene>)];

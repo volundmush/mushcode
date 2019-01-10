@@ -1,0 +1,26 @@
+@@ Sheet data
+&FUN`CLASSINFO`MAGE [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex|FIELD_0~Virtue~N/A|FIELD_1~Vice~N/A,POWER~Gnosis~1|SUB_40000~Path~N/A|SUB_40001~Order~N/A|SUB_40002~Legacy~N/A)
+
+&INC`ADVANTAGES`MAGE [u(cobj,sheet)]=@pemit %#=u(FUN`CHARMHEADER,%0,%1,Mage Advantages);@attach %!/INC`ADVANTAGES`STATPOWER=%0,%1,%2,6;@attach %!/INC`ADVANTAGES`WORDPOWER=%0,%1,%2,4
+
+
+@@ Pools data
+&POOL`MANA [u(cobj,pool)]=Pool
+&POOL`MANA`ID [u(cobj,pool)]=9
+&POOL`MANA`UNITNAME [u(cobj,pool)]=Points
+&POOL`MANA`UNITTYPE [u(cobj,pool)]=Mana
+&POOL`MANA`MAX [u(cobj,pool)]=switch(default(%0/D`PERSONA`POWER,0),0,0,1,10,2,11,3,12,4,13,5,15,6,20,7,25,8,30,9,50,10,75)
+&POOL`MANA`INIT [u(cobj,pool)]=u(POOL`MANA`MAX,%0)
+&POOL`MANA`ORDER [u(cobj,pool)]=5
+&POOL`MANA`OPTIONS [u(cobj,pool)]=SPEND GAIN
+
+&POOL`WISDOM [u(cobj,pool)]=Morality
+&POOL`WISDOM`ID [u(cobj,pool)]=6
+&POOL`WISDOM`UNITNAME [u(cobj,pool)]=Dots
+&POOL`WISDOM`UNITTYPE [u(cobj,pool)]=Wisdom
+&POOL`WISDOM`MAX [u(cobj,pool)]=10
+&POOL`WISDOM`ORDER [u(cobj,pool)]=100
+&POOL`WISDOM`INIT [u(cobj,pool)]=7
+&POOL`WISDOM`OPTIONS [u(cobj,pool)]=SPEND GAIN
+
+&TEMPLATE`MAGE [u(cobj,pool)]=WILLPOWER WISDOM MANA

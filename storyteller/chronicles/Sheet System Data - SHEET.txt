@@ -1,24 +1,16 @@
 @@ DEPENDENCIES - CORE
 
 &Q`COUNT`PERSONA_STAT_CATEGORY [u(Cobj,sheet)]=SELECT count(persona_stat_id) FROM volv_story_persona_stats WHERE stat_category_id=? AND persona_id=? AND (stat_value>0 OR stat_flags_1 OR stat_flags_2)
-&Q`COUNT`SPECIALTIES [u(cobj,sheet)]=SELECT count(specialty_name) FROM volv_story_persona_stats_specialties WHERE persona_id=?
+&Q`COUNT`SPECIALTIES [u(cobj,sheet)]=SELECT count(persona_stat_id) FROM volv_story_persona_stats WHERE persona_id=? AND persona_stat_type=0 AND stat_parent=2
 &Q`COUNT`MERITS [u(cobj,sheet)]=SELECT count(persona_merit_id) FROM volv_story_persona_merits WHERE merit_category_id=? AND persona_id=?
 
 &INC`MAIN [u(cobj,sheet)]=@pemit %#=u(FUN`SHEETHEADER,%0,%1,%2);@pemit %#=u(FUN`ATTRIBUTES,%0,%1,%2);@pemit %#=u(FUN`SKILLS,%0,%1,%2);@select/inline t(u(mysql,COUNT`SPECIALTIES,%2))=1,{@pemit %#=u(FUN`SPECIALTIES,%0,%1,%2)};@select/inline t(u(mysql,COUNT`MERITS,1,%2))=1,{@pemit %#=u(FUN`MERITS,%0,%1,%2)};@select/inline t(u(mysql,COUNT`MERITS,3,%2))=1,{@pemit %#=u(FUN`STYLES,%0,%1,%2)};@select/inline t(u(mysql,COUNT`MERITS,2,%2))=1,{@pemit %#=u(FUN`FLAWS,%0,%1,%2)};@attach %!/INC`ADVANTAGES;@attach %!/INC`FOOTER
 
 &FUN`CLASSINFO`MORTAL [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex,FIELD_1~Virtue~N/A|FIELD_2~Vice~N/A)
 
-&FUN`CLASSINFO`VAMPIRE [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex|FIELD_3~Mask~N/A|FIELD_4~Dirge~N/A,STAT_1000~Blood Potency~1|SPLAT_X~Clan~N/A|SPLAT_Y~Covenant~N/A|SPLAT_Z~Bloodline~N/A)
-
-&FUN`CLASSINFO`MAGE [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex|FIELD_1~Virtue~N/A|FIELD_2~Vice~N/A,STAT_1002~Gnosis~1|SPLAT_X~Path~N/A|SPLAY_Y~Order~N/A|SPLAT_Z~Legacy~N/A)
-
-&FUN`CLASSINFO`WEREWOLF [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex|FIELD_5~Blood~N/A|FIELD_6~Bone~N/A,STAT_1001~Primal Urge~1|SPLAT_X~Auspice~N/A|SPLAT_Y~Tribe~N/A|SPLAT_Z~Lodge~N/A)
-
-&FUN`CLASSINFO`CHANGELING [u(cobj,sheet)]=u(FUN`CLASSINFO`MAIN,%0,%1,%2,NAME~Name|SEX~Sex|FIELD_7~Needle~N/A|FIELD_8~Thread~N/A,STAT_1003~Wyrd~1|SPLAT_X~Seeming~N/A|SPLAT_Y~Kith~N/A|SPLAT_Z~Court~N/A)
-
-&ATTRIBUTES`MENTAL [u(cobj,sheet)]=2000 2001 2002
-&ATTRIBUTES`PHYSICAL [u(cobj,sheet)]=2003 2004 2005
-&ATTRIBUTES`SOCIAL [u(cobj,sheet)]=2006 2007 2008
+&ATTRIBUTES`MENTAL [u(cobj,sheet)]=20 21 22
+&ATTRIBUTES`PHYSICAL [u(cobj,sheet)]=23 24 25
+&ATTRIBUTES`SOCIAL [u(cobj,sheet)]=26 27 28
 
 @@ u(FUN`COLOR,%1,BORDER,\}[repeat(-,8)])[u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,PSM,Physical)][u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,15))][u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,PSM,Social)][u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,16))][u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,PSM,Mental)][u(FUN`COLOR,%1,SLASH,/)][u(FUN`COLOR,%1,BORDER,repeat(-,11)\{)]%R
 
@@ -32,23 +24,23 @@
 
 &FUN`SKILLS [u(cobj,sheet)]=localize(u(FUN`3HEADER,%0,%1,Physical Skills|Social Skills|Mental Skills)%R[align(1. [u(setr,c1,floor(u(setr,c0,fdiv(sub(u(width,%#),4),3))))] 1. [u(setr,c2,ceil(%q<c0>))] 1. [u(setr,c3,sub(u(width,%#),4,%q<c1>,%q<c2>))] 1.,u(FUN`COLOR,%1,BORDER,|),u(FUN`SKLCASCADE,%0,%1,%2,PHYSICAL,%q<c1>),u(FUN`COLOR,%1,BORDER,|),u(FUN`SKLCASCADE,%0,%1,%2,SOCIAL,%q<c2>),u(FUN`COLOR,%1,BORDER,|),u(FUN`SKLCASCADE,%0,%1,%2,MENTAL,%q<c3>),u(FUN`COLOR,%1,BORDER,|),,,%R)])
 
-&SKILLS`MENTAL [u(cobj,sheet)]=lnum(3000,3007)
-&SKILLS`PHYSICAL [u(cobj,sheet)]=lnum(3008,3015)
-&SKILLS`SOCIAL [u(cobj,sheet)]=lnum(3016,3023)
+&SKILLS`MENTAL [u(cobj,sheet)]=lnum(29,36)
+&SKILLS`PHYSICAL [u(cobj,sheet)]=lnum(37,44)
+&SKILLS`SOCIAL [u(cobj,sheet)]=lnum(45,52)
 
-&FUN`SKLCASCADE [u(cobj,sheet)]=iter(u(mysql3,GET`PERSONA_STATS_IN_IDS,%2,u(SQL`IN`NUMBER,u(SKILLS`%3))),u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%4),chr(176),%R)
+&FUN`SKLCASCADE [u(cobj,sheet)]=iter(u(mysql3,GET`PERSONA_STATS_IN_IDS,%2,u(SQL`IN`NUMBER,u(SKILLS`%3)),0),u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%4),chr(176),%R)
 
 &Q`LIST`PERSONA_STAT_CATEGORY [u(Cobj,sheet)]=SELECT stat_name,stat_value,stat_flags_1,stat_flags_2 FROM volv_story_persona_stats WHERE stat_category_id=? AND persona_id=? AND (stat_value>0 OR stat_flags_1>0 OR stat_flags_2>0) ORDER BY stat_name
 
-&Q`LIST`PERSONA_SPECIALTIES [u(cobj,sheet)]=SELECT CONCAT_WS('/',stat_name,specialty_name),specialty_value,0,0 FROM volv_story_persona_stats_specialties WHERE persona_id=?
+&Q`LIST`PERSONA_SPECIALTIES [u(cobj,sheet)]=SELECT CONCAT_WS('/',stat_name,persona_stat_name),stat_value,0,0 FROM volv_story_persona_stats WHERE persona_id=? AND stat_parent=2 AND persona_stat_type=1
 
 &FUN`SPECIALTIES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,%2,,36,Specialties,,u(mysql3,LIST`PERSONA_SPECIALTIES,%2))
 
-&FUN`MERITS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,%2,u(mysql3,LIST`PERSONA_MERITS,1,%2),MERITS,+merits)
-&FUN`FLAWS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,%2,u(mysql3,LIST`PERSONA_MERITS,2,%2),FLAWS,+flaws)
-&FUN`STYLES [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,%2,u(mysql3,LIST`PERSONA_MERITS,3,%2),STYLES,+styles)
+&FUN`MERITS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,%2,u(mysql3,LIST`PERSONA_MERITS,3,%2),MERITS,+merits)
+&FUN`FLAWS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,%2,u(mysql3,LIST`PERSONA_MERITS,4,%2),FLAWS,+flaws)
+&FUN`STYLES [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,%2,u(mysql3,LIST`PERSONA_MERITS,5,%2),STYLES,+styles)
 
-&Q`LIST`PERSONA_MERITS [u(Cobj,sheet)]=SELECT CONCAT_WS(': ',merit_name,merit_context),merit_value FROM volv_story_persona_merits WHERE merit_category_id=? AND persona_id=? ORDER BY merit_name,merit_context
+&Q`LIST`PERSONA_MERITS [u(Cobj,sheet)]=SELECT CONCAT_WS(': ',stat_name,persona_stat_name),stat_value FROM volv_story_persona_stats WHERE stat_parent=? AND persona_id=? ORDER BY stat_name,persona_stat_name
 
 &Q`GET`ADVANTAGES_TEMPLATES [u(cobj,sheet)]=SELECT DISTINCT template_id,template_name FROM volv_story_persona_wordpower WHERE persona_id=? ORDER BY template_sort
 
@@ -68,15 +60,7 @@
 
 &INC`ADVANTAGES`MORTAL [u(cobj,sheet)]=@select/inline t(u(ISGHOUL,%0))=1,{@attach %!/INC`ADVANTAGES`VAMPIRE}
 
-&INC`ADVANTAGES`HUNTER [u(cobj,sheet)]=@@ Hunter stuff here;@attach %!/INC`ADVANTAGES`MORTAL
 
-&INC`ADVANTAGES`VAMPIRE [u(cobj,sheet)]=@pemit %#=u(FUN`CHARMHEADER,%0,%1,Vampire Advantages);@attach %!/INC`ADVANTAGES`STATPOWER=%0,%1,%2,4;@attach %!/INC`ADVANTAGES`WORDPOWER=%0,%1,%2,2
-
-&INC`ADVANTAGES`WEREWOLF [u(cobj,sheet)]=@pemit %#=u(FUN`CHARMHEADER,%0,%1,Werewolf Advantages);@attach %!/INC`ADVANTAGES`STATPOWER=%0,%1,%2,5;@attach %!/INC`ADVANTAGES`WORDPOWER=%0,%1,%2,3
-
-&INC`ADVANTAGES`MAGE [u(cobj,sheet)]=@pemit %#=u(FUN`CHARMHEADER,%0,%1,Mage Advantages);@attach %!/INC`ADVANTAGES`STATPOWER=%0,%1,%2,6;@attach %!/INC`ADVANTAGES`WORDPOWER=%0,%1,%2,4
-
-&INC`ADVANTAGES`CHANGELING [u(cobj,sheet)]=@pemit %#=u(FUN`CHARMHEADER,%0,%1,Changeling Advantages);@@ @attach %!/INC`ADVANTAGES`STATPOWER=%0,%1,%2,6;@attach %!/INC`ADVANTAGES`WORDPOWER=%0,%1,%2,5
 
 &INC`FOOTER [u(cobj,sheet)]=@attach %!/INC`HEALTH;@attach %!/INC`POOLS;@pemit %#=u(FUN`FOOTER,%0,%1)
 
