@@ -1049,7 +1049,7 @@ CREATE TABLE IF NOT EXISTS vol_scene (
 	FOREIGN KEY(post_id) REFERENCES vol_bbpost(post_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	INDEX(scene_date_scheduled,scene_status),
 	INDEX(scene_id,scene_title,scene_status),
-	INDEX(scene_title),
+	INDEX(scene_title)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 	
 CREATE TABLE IF NOT EXISTS vol_actor (
