@@ -112,7 +112,7 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 &INC`REMFROMACCOUNT [u(cobj,account)]=@parent %1;@dolist/inline D`ALTS D`ACCOUNT={@attach %!/WIPE=%1,##};@attach %!/INC`DOSQL=CLEAN`LOGIN_LOGS,get(%1/D`ID);@attach %!/INC`DOSQL=CLEAN`ACCOUNT_ID,get(%1/D`ID);th u(attrib_set,%0,CHARACTERS,u(filter,ISOBJID,setdiff(get(%0/CHARACTERS),objid(%1))));@attach %!/INC`REMFROMACCOUNT`EXTRA
 
 &Q`CLEAN`LOGIN_LOGS [u(cobj,account)]=DELETE FROM vol_login WHERE character_id=?
-&Q`CLEAN`ACCOUNT_ID [u(cobj,account)]=UPDATE vol_character SET account_id=NULL WHERE character_id=?
+&Q`CLEAN`ACCOUNT_ID [u(cobj,account)]=UPDATE vol_character SET account_id=SET_NULL WHERE character_id=?
 
 &INC`UNBIND [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,1;@check u(setr,accid,%q<t1acc>)=@attach %!/INC`MSG={ERROR: %q<t1name> is not a member of any accounts.};@attach %!/INC`REMFROMACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG={You have removed %q<t1name> from Account [name(%q<accid>)]};@attach %!/INC`MSG`NOTICE={You were removed from Account '[name(%q<accid>)]'},%q<t1>;@attach %!/INC`MSG`CHAN={Removed %q<t1name> from [name(%q<accid>)]}
 

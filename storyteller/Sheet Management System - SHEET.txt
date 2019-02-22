@@ -1,5 +1,5 @@
 @@ DEPENDENCIES - CORE
-th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,story,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
 &CMD`+SHEET`PENNMUSH [u(cobj,sheet)]=$^\+sheet(?\:/(\S+))?(?\: +(.*))?$:@attach %!/CMD`+SHEET`MAIN
 @set [u(cobj,sheet)]/CMD`+SHEET`PENNMUSH=regexp
@@ -44,6 +44,9 @@ th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,story,,WIZARD S
 
 &FUN`INFOCOLUMN`SUB [u(cobj,sheet)]=u(mysql,GET`PERSONA_SUB_ANSWER,%2,%3)
 &Q`GET`PERSONA_SUB_ANSWER [u(cobj,sheet)]=SELECT template_sub_choice_name FROM volv_story_persona_sub_choices WHERE persona_id=? AND template_sub_id=? LIMIT 1
+
+&FUN`INFOCOLUMN`POWER [u(Cobj,sheet)]=u(mysql,GET`PERSONA_POWER,%2,%3)
+&Q`GET`PERSONA_POWER [u(Cobj,sheet)]=SELECT power_stat_value FROM vol_story_personas WHERE persona_id=?
 
 &FUN`BORDER [u(cobj,sheet)]=align(1. [sub(u(width,%#),4)] 1.,u(FUN`COLOR,%1,BORDER,|),%2,u(FUN`COLOR,%1,BORDER,|)%R)
 

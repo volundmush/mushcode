@@ -1,0 +1,136 @@
+@@ DEPENDENCIES - CORE
+
+th u(NEWCOBJ,Rumor Management System <RUMOR>,rumor,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+RUMOR`PENNMUSH [u(cobj,rumor)]=$^(?s)(?\:\+)?(?\:rumor|rumour)(?\:/(\S+))?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+RUMOR`MAIN
+@set [u(cobj,rumor)]/CMD`+RUMOR`PENNMUSH=regexp
+&CMD`+RUMOR`RHOSTMUSH [u(cobj,rumor)]=$^(?s)(?\:\+)?(?\:rumor|rumour)(?\:/(\\S+))?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+RUMOR`MAIN
+@set [u(cobj,rumor)]/CMD`+RUMOR`RHOSTMUSH=regexp
+&CMD`+RUMOR`MAIN [u(cobj,rumor)]=th u(setq,sysname,%1);@attach %!/INC`GETSWITCH=%1;@attach %!/INIT;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%2),trim(%3),trim(%4)
+@set [u(cobj,rumor)]/CMD`+RUMOR`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SWITCHES`ADMIN [u(cobj,rumor)]=MAKECIRCLE|DELCIRCLE|RENCIRCLE|LOCKCIRCLE|UNLOCKCIRCLE|DESCCIRCLE|REMRUMOR|RAWLOCKCIRCLE
+&SWITCHES`PLAYER [u(cobj,rumor)]=NEW|QUASH|PROMOTE|CIRCLES
+&SYSTEM`NAME [u(cobj,rumor)]=RUMOR
+
+&INIT [u(cobj,rumor)]=@attach %!/INC`CHECKPC=%#,0;th u(setq,canpost,iter(filterbool(#lambda/testlock(elements(\%0,3,chr(177)),%#),u(mysql3,CIRCLE`POST_LOCK),chr(176),chr(176)),elements(%i0,1 2,chr(177),chr(177)),chr(176),chr(176)));th u(setq,canread,iter(filterbool(#lambda/testlock(elements(\%0,3,chr(177)),%#),u(mysql3,CIRCLE`READ_LOCK),chr(176),chr(176)),elements(%i0,1 2,chr(177),chr(177)),chr(176),chr(176)))
+
+&Q`CIRCLE`POST_LOCK [u(cobj,rumor)]=SELECT circle_id,circle_name,circle_post_lock FROM vol_rumor_circle ORDER BY circle_name
+&Q`CIRCLE`READ_LOCK [u(cobj,rumor)]=SELECT circle_id,circle_name,circle_read_lock FROM vol_rumor_circle ORDER BY circle_name
+
+&INC`VALID`CIRCLE [u(cobj,rumor)]=@attach %!/INC`SEARCHSQL=%0,Rumor Circle,CIRCLE,%1,%2
+&Q`FIND`CIRCLE`LIST [u(cobj,rumor)]=SELECT circle_name FROM vol_rumor_circle ORDER BY circle_name
+&Q`FIND`CIRCLE`LIST`ID [u(Cobj,rumor)]=SELECT circle_id FROM vol_rumor_circle ORDER BY circle_name
+&Q`FIND`CIRCLE`EXACT [u(cobj,rumor)]=SELECT circle_id,circle_name FROM vol_rumor_circle WHERE circle_name=?
+&Q`FIND`CIRCLE`EXACT`ID [u(cobj,rumor)]=SELECT circle_id,circle_name FROM vol_rumor_circle WHERE circle_id=?
+&Q`FIND`CIRCLE`WILD [u(cobj,rumor)]=SELECT circle_id,circle_name FROM vol_rumor_circle WHERE circle_name LIKE '!%' ORDER BY CHAR_LENGTH(circle_name)
+&Q`LOAD`CIRCLE [u(cobj,rumor)]=SELECT circle_id,circle_name,UNIX_TIMESTAMP(circle_date_created),circle_read_lock,circle_post_lock,circle_admin_lock,circle_description FROM vol_rumor_circle WHERE circle_id=?
+&FIELD`CIRCLE [u(cobj,rumor)]=id name created readlock postlock adminlock description
+
+&INC`VALID`CIRCLENAME [u(cobj,rumor)]=@attach %!/INC`VALID`ENAME=%0,Rumor Circle;@check lte(strlen(%q<value>),14)=@attach %!/INC`MSG=ERROR: Rumor Circle names must be 14 characters or less!;@stop cand(strlen(u(setq,foundname,u(mysql3,FIND`CIRCLE`EXACT,%q<value>))),neq(%2,before(%q<foundname>,chr(177))))=@attach %!/INC`MSG=ERROR: A Rumor Circle of that name already exists!
+
+&INC`MAKECIRCLE [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`VALID`CIRCLENAME=%0;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No Rumor Circle Description provided!;@attach %!/INC`DOSQL=CREATE`CIRCLE/circle_id,%q<value>,%2;@attach %!/INC`MSG=Circle '%q<value>' created! Make sure to use +rumor/lockcircle to restrict it!;@attach %!/INC`MSG`CHAN=Circle '%q<value>' created!
+
+&Q`CREATE`CIRCLE [u(cobj,rumor)]=INSERT INTO vol_rumor_circle (circle_name,circle_date_created,circle_description) VALUES (?,UTC_TIMESTAMP(),?)
+
+&INC`DELCIRCLE [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`VALID`CIRCLE=%0,1;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will delete Rumor Circle '%q<circle1.name>'. All associated Rumors will be deleted too. Are you sure you want to do this? Enter the same command again within ten seconds to verify!},DELETE %q<circle1.id>;@attach %!/INC`MSG=Circle '%q<circle1.name>' Deleted!;@attach %!/INC`MSG`CHAN={Deleted Rumor Circle '%q<circle1.name>'!};@attach %!/INC`DOSQL=DELETE`CIRCLE,%q<circle1.id>
+
+&Q`DELETE`CIRCLE [u(cobj,rumor)]=DELETE FROM vol_rumor_circle WHERE circle_id=?
+
+&INC`DESCCIRCLE [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`VALID`CIRCLE=%0,1;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No description entered!;@attach %!/INC`MSG=Desc set.;@attach %!/INC`DOSQL=UPDATE`DESCRIPTION,%2,%q<circle1.id>
+
+&Q`UPDATE`DESCRIPTION [u(cobj,rumor)]=UPDATE vol_rumor_circle SET circle_description=? WHERE circle_id=?
+
+&INC`CIRCLES [u(cobj,rumor)]=@pemit %#=u(HEADER,Rumor Circles);@pemit %#=ansi(u(color,%#,RUMOR,COLUMN_NAMES),align(18 9 49,Name,Access,Description));@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] %q<canpost>={@attach %!/INC`LOADSQL=CIRCLE,before(%i0,chr(177)),,cir;@pemit %#=align(18 9 49,%q<cir.name>,[if(testlock(%q<cir.readlock>,%#),R,-)]-[if(testlock(%q<cir.postlock>,%#),P,-)]-[if(testlock(%q<cir.adminlock>,%#),A,-)],%q<cir.description>)};@pemit %#=u(FOOTER)
+
+&INC`FINDCIRCLE [u(cobj,rumor)]=@check strlen(%0)=@attach %!/INC`MSG=No Circle name entered!;@check words(u(setr,cats,if(strlen(%1),r(can%1),u(FUN`LISTCIRCLES))),chr(176))=@attach %!/INC`MSG=There are no Circles.;@check words(u(setr,results,u(strfirstof,grab(%q<cats>,*[chr(177)]%0,chr(176),chr(176)),graball(%q<cats>,*[chr(177)]%0*,chr(176),chr(176)))),chr(176))=@attach %!/INC`MSG=ERROR: Nothing found matching '%0'!;@stop gt(words(%q<results>,chr(176)),1)=@attach %!/INC`MSG=ERROR; Results ambiguous! That matches: [iter(%q<results>,elements(%i0,2,chr(177)),chr(176),\,%b)];@attach %!/INC`LOADSQL=CIRCLE,before(%q<results>,chr(177)),%2;th unsetq(results cats)
+
+&FUN`LISTCIRCLES [u(cobj,rumor)]=u(mysql3,LIST`CIRCLES)
+&Q`LIST`CIRCLES [u(cobj,rumor)]=SELECT circle_id,circle_name FROm vol_rumor_circle ORDER BY circle_name;
+
+&INC`RENCIRCLE [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`VALID`CIRCLE=%0,1;@attach %!/INC`VALID`CIRCLENAME=%2,%q<circle1.id>;@attach %!/INC`DOSQL=RENAME`CIRCLE,%q<value>,%q<circle1.id>;@attach %!/INC`MSG`CHAN=Renamed Rumor Circle %q<circle1.name> to %2.;@attach %!/INC`MSG=Rename successful.
+
+&Q`RENAME`CIRCLE [u(cobj,rumor)]=UPDATE vol_rumor_circle SET circle_name=? WHERE circle_id=?
+
+&INC`RAWLOCKCIRCLE [u(cobj,rumor)]=@attach %!/INC`LOCK;@attach %!/INC`VALID`LOCK=%2;@attach %!/INC`DOSQL=CIRCLELOCK`%q<lock>_LOCK,%q<value>,%q<circle1.id>;@attach %!/INC`MSG=You set Circle '%q<circle1.name>' %q<lock> Lock to: %q<value> (%q<valueformat>);@attach %!/INC`MSG`CHAN=Set Circle '%q<circle1.name>' %q<lock> Lock to: %q<value> (%q<valueformat>);
+&INC`LOCKCIRCLE [u(cobj,rumor)]=@attach %!/INC`LOCK;@attach %!/INC`VALID`GROUPLOCK=%2;@attach %!/INC`DOSQL=CIRCLELOCK`%q<lock>_LOCK,%q<value>,%q<circle1.id>;@attach %!/INC`MSG=You set Circle '%q<circle1.name>' %q<lock> Lock to: %q<value> (%q<valueformat>);@attach %!/INC`MSG`CHAN=Set Circle '%q<circle1.name>' %q<lock> Lock to: %q<value> (%q<valueformat>);
+&INC`UNLOCKCIRCLE [u(cobj,rumor)]=@attach %!/INC`LOCK;@attach %!/INC`DOSQL=CIRCLELOCK`%q<lock>_LOCK,#TRUE,%q<circle1.id>;@attach %!/INC`MSG=You release the %q<lock> lock on %q<catname>;@attach %!/INC`MSG`CHAN={Released the %q<lock> Lock on Rumor Circle %q<catname>}
+
+&Q`CIRCLELOCK`READ_LOCK [u(cobj,rumor)]=UPDATE vol_rumor_circle SET circle_read_lock=? WHERE circle_id=?
+&Q`CIRCLELOCK`POST_LOCK [u(cobj,rumor)]=UPDATE vol_rumor_circle SET circle_post_lock=? WHERE circle_id=?
+&Q`CIRCLELOCK`ADMIN_LOCK [u(cobj,rumor)]=UPDATE vol_rumor_circle SET circle_admin_lock=? WHERE circle_id=?
+
+&INC`LOCK [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission Denied. This command is Wizard-only.;@attach %!/INC`VALID`CIRCLE=%0,1;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Lock Type field empty.;@attach %!/INC`PARTIAL=%1,READ|POST|ADMIN,|,lock
+
+&INC`NEW [u(cobj,rumor)]=@check u(isapproved,%#)=@attach %!/INC`MSG=ERROR: Approved only.;@attach %!/INC`FINDCIRCLE=%0,POST;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Must enter a rumor subject!;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Rumor text field is empty.;@attach %!/INC`DOSQL=CREATE`RUMOR/rumor_id,%q<circle1.id>,%q<t0id>,%1,add(secs(),u(conf,TIMEOUT));@attach %!/INC`DOSQL=CREATE`RUMOR`COMMENT,%q<rumor_id>,%q<t0id>,0,%2;@attach %!/INC`MSG`CHAN={Posted new %q<circle1.name> Rumor: [u(pueblize,+rumor %q<rumor_id>,+rumor %q<rumor_id>)]};@attach %!/INC`MSG=Rumor posted!;@attach %!/INC`MSG`ROOM={New %q<circle1.name> Rumor Posted: [u(pueblize,+rumor %q<rumor_id>,+rumor %q<rumor_id>)]},lockfilter(%q<circle1.readlock>,u(lwhoid));@attach %!/INC`MSG`CHAN={New %q<circle1.name> Rumor Posted: [u(pueblize,+rumor %q<rumor_id>,+rumor %q<rumor_id>)]}
+
+&Q`CREATE`RUMOR [u(Cobj,rumor)]=INSERT INTO vol_rumor (circle_id,character_id,rumor_subject,rumor_date_created,rumor_date_modified,rumor_date_timeout) VALUES (?,?,?,UTC_TIMESTAMP(),UTC_TIMESTAMP(),FROM_UNIXTIME(?))
+&Q`CREATE`RUMOR`COMMENT [u(cobj,rumor)]=INSERT INTO vol_rumor_comment (rumor_id,character_id,comment_type,comment_text) VALUES (?,?,?,?)
+&Q`UPDATE`READ_DATE [u(cobj,rumor)]=INSERT INTO vol_rumor_read (rumor_id,character_id,rumor_date_read) VALUES (?,?,UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE rumor_date_read=VALUES(rumor_date_read)
+
+&CONFIG`OPTIONS [u(cobj,rumor)]=TIMEOUT|FINALCOUNTDOWN|PROMOTE|QUASH
+
+&CONFIG`TIMEOUT [u(cobj,rumor)]=Timeout for a rumor?
+&CONFIG`TIMEOUT`DEFAULT [u(cobj,rumor)]=604800
+&CONFIG`TIMEOUT`VALID [u(cobj,rumor)]=DURATION
+
+&CONFIG`FINALCOUNTDOWN [u(cobj,rumor)]=How long does the final countdown last?
+&CONFIG`FINALCOUNTDOWN`DEFAULT [u(cobj,rumor)]=259200
+&CONFIG`FINALCOUNTDOWN`VALID [u(cobj,rumor)]=DURATION
+
+&CONFIG`PROMOTE [u(cobj,rumor)]=How much a Promote extends a rumor?
+&CONFIG`PROMOTE`DEFAULT [u(cobj,rumor)]=86400
+&CONFIG`PROMOTE`VALID [u(cobj,rumor)]=DURATION
+
+&CONFIG`QUASH [u(cobj,rumor)]=How much a Quash shortens a rumor?
+&CONFIG`QUASH`DEFAULT [u(cobj,rumor)]=86400
+&CONFIG`QUASH`VALID [u(cobj,rumor)]=DURATION
+
+&INC`FINDRUMOR [u(cobj,rumor)]=@attach %!/INC`VALID`POSINT=%0;@check before(u(mysaql3,FIND`RUMOR`EXACT`ID,%q<value>,if(%2,u(SQL`IN`NUMBER,0 1),0)),chr(177))=@attach %!/INC`MSG=ERROR: Rumor '%0' not found.;@attach %!/INC`LOADSQL=RUMOR,%q<value>,%1;
+
+&Q`FIND`RUMOR`EXACT`ID [u(cobj,rumor)]=SELECT rumor_id,rumor_subject FROM volv_rumor WHERE rumor_id=? AND rumor_deleted IN (!)
+&Q`LOAD`RUMOR [u(cobj,rumor)]=SELECT rumor_id,rumor_subject,rumor_date_created_secs,rumor_date_modified_secs,rumor_date_timeout_secs,rumor_final_countdown,rumor_deleted,circle_id,circle_name,circle_read_lock,circle_post_lock,circle_admin_lock,character_id,character_name,character_objid,oldest_comment,rumor_rating FROM volv_rumor_agg WHERE rumor_id=?
+&FIELD`RUMOR [u(cobj,rumor)]=id subject created modified timeout final deleted circle circlename readlock postlock adminlock char charname charobjid oldest rating
+
+&INC`QUASH [u(cobj,rumor)]=@attach %!/INC`COMMENT=%0,%1,%2,-
+&INC`PROMOTE [u(cobj,rumor)]=@attach %!/INC`COMMENT=%0,%1,%2,+
+
+&INC`COMMENT [u(cobj,rumor)]=@check u(isapproved,%#)=@attach %!/INC`MSG=ERROR: Approved only.;@attach %!/INC`FINDRUMOR=%0,1;@check testlock(%q<rumor1.postlock>,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@stop words(u(mysql,SELECT`COMMENT_ACCOUNT,%q<t0accid>,%q<rumor1.id>))=You have already influenced this rumor. One per account!;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Nothing entered to [switch(%3,-,quash,promote)] with.;@attach %!/INC`DOSQL=CREATE`RUMOR`COMMENT/comment_id,%q<rumor1.id>,%q<t0id>,switch(%3,+,1,-,-1),%2;@attach %!/INC`DOSQL=UPDATE`READ_DATE,%q<rumor1.id>,%q<t0id>;@attach %!/INC`MSG`CHAN={switch(%3,+,Promoted,-,Quashed) [u(pueblize,%q<rumor1.circlename> Rumor %q<rumor1.id>,+rumor %q<rumor1.id>)]};th u(setq,cat,objid(get(u(cobj,rumordb)/%q<rumattr>`CIRCLE)));@attach %!/INC`MSG`ROOM={[u(pueblize,%q<rumor1.circlename> Rumor %q<rumor1.id>,+rumor %q<rumor1.id>)] has been [switch(%3,+,promoted,-,quashed)].},lockfilter(%q<rumor1.readlock>,u(lwhoid))
+
+&Q`SELECT`COMMENT_CHARACTER [u(cobj,rumor)]=SELECT comment_id FROm vol_rumor_comment WHERE character_id=? AND rumor_id=?
+&Q`SELECT`COMMENT_ACCOUNT [u(cobj,rumor)]=SELECT comment_id FROM volv_rumor_comment WHERE account_id=? AND rumor_id=?
+
+&INC`REMRUMOR [u(cobj,rumor)]=@attach %!/INC`FINDRUMOR=%0,1;@check testlock(%q<rumor1.adminlock>,%#)=@attach %!/INC`MSG=Permission denied.;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will delete Rumor %q<rumor1.id>. Are you sure? Enter the command again to verify.},DELETE RUMOR %q<rumor1.id>;@attach %!/INC`DOSQL=DELETE`RUMOR,%q<rumor1.id>;@attach %!/INC`MSG=Rumor Deleted!
+
+&Q`DELETE`RUMOR [u(Cobj,rumor)]=DELETE FROM vol_rumor WHERE rumor_id=?
+
+&INC`MAIN [u(cobj,rumor)]=@select/inline t(strlen(%0))=1,{@attach %!/INC`SHOWRUMOR},0,{@attach %!/INC`RUMORLIST}
+
+&INC`SHOWRUMOR [u(cobj,rumor)]=@attach %!/INC`FINDRUMOR=%0,1;th u(setq,admin,testlock(%q<rumor1.adminlock>,%#));@pemit %#=u(HEADER,Rumor %q<rumor1.id>);@dolist/inline u(mysql,SELECT`COMMENT_IDS,%q<rumor1.id>)={@attach %!/INC`LOADSQL=COMMENT,%i0,,cm;@pemit %#=u(separator,[switch(%q<cm.type>,0,Opened,1,Promoted,-1,Quashed)] by [if(%q<admin>,%q<cm.charname>,Anonymous)] on [u(fancytime,%q<cm.created>,%#)]);@pemit %#=%q<cm.text>};@attach %!/INC`DOSQL=UPDATE`READ_DATE,%q<rumor1.id>,%q<t0id>
+
+&Q`LOAD`COMMENT [u(cobj,rumor)]=SELECT comment_id,rumor_id,comment_date_created_secs,comment_type,comment_text,character_id,character_name,character_objid FROM volv_rumor_comment WHERE comment_id=?
+&FIELD`COMMENT [u(cobj,rumor)]=id rumor created type text char charname charobjid
+
+&Q`SELECT`COMMENT_IDS [u(cobj,rumor)]=SELECT comment_id FROM vol_rumor_comment WHERE rumor_id=? ORDER BY comment_date_created
+
+&INC`RUMORLIST [u(cobj,rumor)]=@pemit %#=u(HEADER,Rumors);@pemit %#=ansi(u(color,%#,RUMOR,COLUMN_NAMES),align(5 14 20 14 10,ID,Circle,Subject,Rating,Remain));@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,SELECT`RUMOR_IDS,u(SQL`IN`NUMBER,iter(%q<canread>,before(%i0,chr(177)),chr(176),%b)))={@attach %!/INC`LOADSQL=RUMOR,%i0,,rum;th u(setq,readdate,u(mysql,SELECT`READ_DATE,%q<rum.id>,%q<t0id>));@pemit %#=align(5 14 20 14 10,if(gte(%q<readdate>,%q<rum.modified>),%B,ansi(hr,*))[u(pueblize,%q<rum.id>,+rumor %q<rum.id>)],%q<rum.circlename>,%q<rum.subject>,%q<rum.rating>,u(etime,sub(%q<rum.timeout>,secs())))};@pemit %#=u(FOOTER)
+
+&Q`SELECT`RUMOR_IDS [u(cobj,rumor)]=SELECT rumor_id FROM vol_rumor WHERE circle_id IN (!) AND rumor_deleted=0 ORDER BY rumor_date_created
+&Q`SELECT`READ_DATE [u(Cobj,rumor)]=SELECT UNIX_TIMESTAMP(rumor_date_read) FROM vol_rumor_read WHERE rumor_id=? AND character_id=?
+
+&INC`TIMEOUT [u(cobj,rumor)]=@attach %!/INC`FINDRUMOR=%0,1,1;@check testlock(%q<rumor1.adminlock>,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`FUTURE=%2;@attach %!/INC`DOSQL=UPDATE`TIMEOUT,%q<value>,%q<rumor1.id>;@attach %!/INC`MSG=Rumor renewed to %q<valueformat>!;@attach %!/INC`MSG`CHAN=Renewed %q<rumor1.circlename> Rumor %q<rumor1.id>: '%q<rumor1.subject>' til %q<valueformat>
+
+&Q`UPDATE`TIMEOUT [u(Cobj,rumor)]=UPDATE vol_rumor SET rumor_date_timeout=FROM_UNIXTIME(?),rumor_final_countdown=0,rumor_deleted=0 WHERE rumor_id=?
+
+&INC`CLEAR [u(cobj,rumor)]=@attach %!/INC`VERIFY=[ansi(hr,WARNING:)] This will clear ALL rumors whose timeouts have passed. Are you SURE? Enter this command to verify.,CLEAR RUMOR;@attach %!/INC`DOSQL=CLEAR`RUMORS;@attach %!/INC`MSG=Rumors purged!;@attach %!/INC`MSG`CHAN=Rumors Purged of timed out entries.
+
+&Q`CLEAR`RUMORS [u(Cobj,rumor)]=UPDATE vol_rumor SET rumor_deleted=1 WHERE rumor_deleted=0 AND rumor_date_timeout < UTC_TIMESTAMP()
+
+@@ RUMOR SYSTEM
+
+&HLP`+RUMOR [u(cobj,rumor)]=The Rumor system is designed to represent in-character rumors spreading around town - or various social circles. Rumor posters remain anonymous to all but staff members, and rumors can be anonymously promoted or quashed by players - only one or the other per each rumor PER ACCOUNT, so choose wisely. Over time they are removed, but more pervasively supported rumors take longer to time out.%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+rumor)] - Show the list of rumors.%R[ansi(h,+rumor <id>)] - Show a specific rumor's details.%R[ansi(h,+rumor/circles)] - Shows circles available to you and what permissions you hold.%R[ansi(h,+rumor/new <circle>/<subject>=<text>)] - Create a new rumor.%R[ansi(h,+rumor/promote <id>=<text>)] - Adds a promotional anonymous comment to a Rumor. Example would be more details\, related events\, etc. This keeps the Rumor around longer.%R[ansi(h,+rumor/quash <id>=<text>)] - Like /promote\, but is negative. Makes Rumors time out quicker.)]%R%RA NOTE on Rumor timeouts: Rumors are only removed the list when admins purge them.
++help/add Communications/+rumor=[u(cobj,rumor)]/HLP`+RUMOR
+
+
+&SHLP`+RUMOR [u(cobj,rumor)]=[ansi(hc,Wizard Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+rumor/makecircle <name>)] - Create a new Circle. They're locked READ:<everyone>\, POST:<everyone>\, ADMIN:<staff> by default. Name must be something simple and short\, like a race name or a topic.%R[ansi(h,+rumor/lockcircle <circle>/<type>=<lockstring>)] - See +help +lockgen. Lock a category. use /rawlock to use a basic MUSH Lock key. <type> must be READ\, POST\, or ADMIN. READ: who can see the circle's rumors. POST: Who can post. (Very rarely would you want READ: Yes and POST: No. Remember to set both!).%R[ansi(h,+rumor/unlockcircle <circle>/<type>)] - Clears the lock.%R[ansi(h,+rumor/rencircle <circle>=<newname>)] - Renames a Circle.%R[ansi(h,+rumor/delcircle <circle>)] - Deletes a Circle. WARNING: DANGEROUS COMMAND.%R[ansi(h,+rumor/desccircle <circle>=<description>)] - Describe a circle for the /circles display.%R[ansi(h,+rumor/delrumor <id>)] - Deletes a rumor. Dangerous!%R[ansi(h,+rumor/timeout <id>=<future date>)] - Undeletes a /clear'd rumor and/or extends its timeout regardless of promotes.%R[ansi(h,+rumor/clear)] - Initialize a purge. Soft-deletes all rumors whose timeout has passed.%R%RStaff can use /quash and /promote without limit for plot flexibility.
++shelp/add Communications/+rumor=[u(cobj,rumor)]/SHLP`+RUMOR

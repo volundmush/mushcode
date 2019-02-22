@@ -1,4 +1,4 @@
-th u(NEWCOBJ,STORYTELLER: Persona Management System <PERSONA>,persona,,story,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,STORYTELLER: Persona Management System <PERSONA>,persona,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
 &CMD`+PERSONA`PENNMUSH [u(cobj,persona)]=$^(?s)(?\:\+)?(?\:persona|cover)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+PERSONA`MAIN
 @set [u(cobj,persona)]/CMD`+PERSONA`PENNMUSH=regexp
@@ -55,7 +55,7 @@ th u(NEWCOBJ,STORYTELLER: Persona Management System <PERSONA>,persona,,story,,WI
 
 &SETTABLE [u(cobj,persona)]=Template|Power|Splat|Field|[if(strlen(u(setr,res,u(mysql3,FIND`CATEGORY`LIST,%0))),|[iter(%q<res>,%i0,chr(176),|)])]
 
-&HIERARCHY [u(Cobj,persona)]=@attach %!/INC`SEARCHSQL=%0,Category,CATEGORY,1,%1;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Nothing else entered to enter! Must enter a Subcategory or Stat to set!;th setq(subs,words(%2,/));@attach %!/INC`LOADSQL=STAT,u(setr,curparent,%q<Category1.id>),0;@dolist/inline/delimit / %2={@stop gt(add(strmatch(%i0,*|*),strmatch(%i0,*:*),strmatch(%i0,*_*)),1)=@attach %!/INC`MSG=Can only use one mode for CONTEXT\, SPECIALTY\, or CUSTOM! Cannot combine!;@attach %!/INC`SEARCHSQL=before(before(before(%i0,:),_),|),Stat or Sub-Category,STAT,inum(0),%q<curparent>;th u(setq,curparent,r(Stat[inum(0)].id));@attach %!/INC`LOADSQL=STAT,%q<curparent>,Final;th u(setq,context,trim(after(%i0,:)));th u(setq,custom,trim(after(%i0,|)));th u(setq,special,trim(after(%i0,_)))};@attach %!/INC`LOADSQL=STAT,%q<StatFinal.parentid>,Parent
+&HIERARCHY [u(Cobj,persona)]=@attach %!/INC`SEARCHSQL=%0,Category,CATEGORY,1,%1;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Nothing else entered to enter! Must enter a Subcategory or Stat to set!;th setq(subs,words(%2,/));@attach %!/INC`LOADSQL=STAT,u(setr,curparent,%q<Category1.id>),0;@dolist/inline/delimit / %2={@stop gt(add(strmatch(%i0,*>*),strmatch(%i0,*:*),strmatch(%i0,*_*)),1)=@attach %!/INC`MSG=Can only use one mode for CONTEXT\, SPECIALTY\, or CUSTOM! Cannot combine!;@attach %!/INC`SEARCHSQL=before(before(before(%i0,:),_),>),Stat or Sub-Category,STAT,inum(0),%q<curparent>;th u(setq,curparent,r(Stat[inum(0)].id));@attach %!/INC`LOADSQL=STAT,%q<curparent>,Final;th u(setq,context,trim(after(%i0,:)));th u(setq,custom,trim(after(%i0,>)));th u(setq,special,trim(after(%i0,_)))};@attach %!/INC`LOADSQL=STAT,%q<StatFinal.parentid>,Parent
 
 &HIERNAME [u(cobj,persona)]=%q<category1.name>/[iter(lnum(1,%q<subs>),r(Stat%i0.name),%b,/)]
 

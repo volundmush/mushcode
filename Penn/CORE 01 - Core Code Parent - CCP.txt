@@ -49,6 +49,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &FIL`ISINT [u(cobj,ccp)]=isint(%0)
 &FIL`LISTENRHOST [u(cobj,ccp)]=orflags(%0,pc)
 &FIL`HASATTR [u(cobj,ccp)]=hasattr(%0/%1)
+&FIL`TESTLOCK [u(cobj,ccp)]=testlock(%1,%0)
 
 @@ LOCK MANAGER
 &INC`VALID`GROUPLOCK [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No lock entered!;@check u(lmin,iter(%0,cand(isdbref(u(setr,fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%#))),cor(not(strlen(after(%i0,/))),if(isint(after(%i0,/)),gte(after(%i0,/),0),match(u(u(cobj,group)/FUN`PERMS,%q<fgrp>,1),after(%i0,/),|)))),|,%B))=@attach %!/INC`MSG=ERROR: One or more group entries did not validate. Group names must be typed correctly and the /specification must be a Rank integer or a full Permission - sorry\, no partial match.;th setq(value,setr(lockstr,u(GROUP_LOCK,%0))[if(%1,|V`ADMIN:>0|FLAG^ROYALTY|FLAG^WIZARD)]);th u(setq,valueformat,iter(%0,[setq(fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%#))][if(get(%q<fgrp>/SET`PRIVATE),*PRIVATE*,u(%q<fgrp>/GET`NAME))]%B\([if(not(strlen(after(%i0,/))),Member,if(isint(setr(parm,after(%i0,/))),Rank %q<parm>+,ucstr(%q<parm>) Permission))]\),|,%BOR%B))
@@ -337,7 +338,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &SQL`IN`NUMBER [u(cobj,ccp)]=iter(%0,%i0,%1,\,%b)
 &SQL`IN`STRING [u(cobj,ccp)]=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
 
-&SQL`FORMAT [u(cobj,ccp)]=localize(edit(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,[if(strmatch(%q<set>,NULL),NULL,'[sqlescape(%q<set>)]')]))),=NULL,IS NULL))
+&SQL`FORMAT [u(cobj,ccp)]=localize(edit(edit(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,[switch(%q<set>,NULL,NULL,SET_NULL,SET_NULL,'[sqlescape(%q<set>)]')]))),=NULL,%BIS NULL),=SET_NULL,=NULL))
 
 &INC`DOSQL [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),sql(SELECT last_insert_id\(\))))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck> - QUERY: %q<sqlformat>}
 
@@ -351,7 +352,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 @@ Searches database for id,name pairs and attempts partial matching and etc.
 @@ %0 - Text or ID to search for. %1 - name to display it as. %2 - QUERY CATEGORY to search. What kind of OBJECT is this? %3 - What slot # to load data into? %4+ - Additional parameters needed by SQL queries.
 
-&INC`LOADSQL [u(cobj,ccp)]=@check strlen(u(setr,datarow,u(mysql3,LOAD`[u(strfirstof,%0,%3)],%1)))=@attach %!/INC`MSG=ERROR: %0 data not found.;@attach %!/INC`REGOBJ=capstr(lcstr(%0)),v(FIELD`%0),%2,%q<datarow>;th unsetq(datarow)
+&INC`LOADSQL [u(cobj,ccp)]=@check strlen(u(setr,datarow,u(mysql3,LOAD`%0,%1)))=@attach %!/INC`MSG=ERROR: %0 data not found.;@attach %!/INC`REGOBJ=capstr(lcstr(u(strfirstof,%3,%0))),v(FIELD`%0),%2,%q<datarow>;th unsetq(datarow)
 @@ Retrieves FIELD`%0 names and loads them into structured named registers.
 @@ %0 - The TYPE OF OBJECT this is going to be. This must match the queries. Q`LOAD`%0 will be called. %1 - The ID of the object to load. %2 - The # that this will be loaded into. %3 - Alternate SQL LOAD name to use.
 
@@ -618,7 +619,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &SYSTEM`NAME [u(cobj,ccp)]=SYSTEM
 
-&INC`CHECKPC [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(setr(t%1objid,objid(setr(t%1,pmatch(%0)))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th setq(t%1name,name(r(t%1)));th setq(t%1id,get(r(t%1)/D`ID));@select/inline isdbref(u(cobj,account))=1,{th setq(t%1acc,get(r(t%1)/D`ACCOUNT));th setq(t%1accid,get(r(t%1)/D`ACCOUNT`ID));th setq(t%1idfallback,strfirstof(get(r(t%1)/D`ACCOUNT`ID),get(r(t%1)/D`ID)));},0,{th setq(t%1acc,r(t%1objid));th setq(t%1accid,r(t%1id))};th setq(t%1tz,get(r(t%1)/TIMEZONE))
+&INC`CHECKPC [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(setr(t%1objid,objid(setr(t%1,pmatch(%0)))))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th setq(t%1name,name(r(t%1)));th setq(t%1id,get(r(t%1)/D`ID));@select/inline isdbref(u(cobj,account))=1,{th setq(t%1acc,get(r(t%1)/D`ACCOUNT));th setq(t%1accid,get(r(t%1)/D`ACCOUNT`ID));th setq(t%1idfallback,strfirstof(get(r(t%1)/D`ACCOUNT`ID),get(r(t%1)/D`ID)));th setq(t%1accdb,num(r(t%1acc)))},0,{th setq(t%1acc,r(t%1objid));th setq(t%1accid,r(t%1id))};th setq(t%1tz,get(r(t%1)/TIMEZONE))
 @@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into.
 
 &INC`VERIFY [u(cobj,ccp)]=@select/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th u(attrib_set,%#,VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@stop 1={@attach %!/INC`MSG=%0,,,%2}},1,{@wipe %#/VERIFY_OK}
@@ -693,7 +694,8 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &REG`ENCODETIME [u(cobj,ccp)]=\^\^\^(?P<time>\d+)\^\^\^
 
-&MSGHEAD [u(cobj,ccp)]=localize(if(u(opother,u(firstof,%1,%#),SYSTEM,SCREEN_READER),ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0)):,ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)]))
+&MSGHEAD [u(cobj,ccp)]=localize(udefault(%!/MSGHEAD`CUSTOM,if(u(opother,u(firstof,%1,%#),SYSTEM,SCREEN_READER),ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0)):,ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)]),%0,%1,%2,%3,%4,%5,%6,%7,%8,%9))
+
 &MSGROOM [u(cobj,ccp)]=localize(if(u(opother,u(firstof,%1,%#),SYSTEM,SCREEN_READER),ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0)):,ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)]))
 
 &HEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),HEADER,%4)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][setr(borderstar,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,v(SYSTEM`COLORS),HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,HEADER,%0)])
@@ -798,3 +800,11 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &START`SQL [u(cobj,ccp)]=@check sql(SELECT DATABASE());@trigger %!/LOOP`SQL;@trigger %!/LOOP`REINDEX
 &LOOP`SQL [u(cobj,ccp)]=@sql SELECT DATABASE();@wait 60=@trigger %!/LOOP`SQL
 &LOOP`REINDEX [u(cobj,ccp)]=@dolist sql(SHOW TABLES)=@sql ANALYZE TABLE %i0;@wait mul(60,60,24)=@trigger %!/LOOP`REINDEX
+
+
+@@ Json Section
+&J`INSERT`ARRAY [u(cobj,ccp)]=json_mod(%0,insert,$\[[json_query(%0,size)]\],%1)
+&J`CREATE`ARRAY [u(cobj,ccp)]=fold(J`INSERT`ARRAY,iter(%0,u(J`%1,%i0,%2,%3,%4,%5,%6,%7,%8,%9),chr(176),chr(176)),\[\],chr(176))
+&J`NUMBER [u(cobj,ccp)]=json(number,%0)
+&J`BOOLEAN [u(cobj,ccp)]=json(boolean,%0)
+&J`STRING [u(Cobj,ccp)]=json(string,%0)

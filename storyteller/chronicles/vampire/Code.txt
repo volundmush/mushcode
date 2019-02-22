@@ -12,7 +12,7 @@
 &POOL`VITAE`ID [u(cobj,pool)]=3
 &POOL`VITAE`UNITNAME [u(cobj,pool)]=Points
 &POOL`VITAE`UNITTYPE [u(cobj,pool)]=Vitae
-&POOL`VITAE`MAX [u(cobj,pool)]=switch(default(%0/V`PERSONA`STAT`1000,0),0,default(%0/V`PERSONA`STAT`2005,1),1,10,2,11,3,12,4,13,5,15,6,20,7,25,8,30,9,50,10,75)
+&POOL`VITAE`MAX [u(cobj,pool)]=switch(u(gettemplate,%0),MORTAL,u(statval,%0,25),VAMPIRE,switch(u(powerstat,%0),1,10,2,11,3,12,4,13,5,15,6,20,7,25,8,30,9,50,10,75))
 &POOL`VITAE`INIT [u(cobj,pool)]=u(POOL`VITAE`MAX,%0)
 &POOL`VITAE`ORDER [u(cobj,pool)]=5
 &POOL`VITAE`OPTIONS [u(cobj,pool)]=SPEND GAIN

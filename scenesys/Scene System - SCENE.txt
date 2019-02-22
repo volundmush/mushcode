@@ -355,7 +355,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &Q`GET`TAGOBJIDS [u(cobj,scene)]=SELECT character_objid FROM volv_actor WHERE scene_id=? AND actor_status=1
 
 &INC`LOG`RESCHEDULE [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),strmatch(%:,%q<ownobjid>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`FUTURE=%1;@attach %!/INC`DOSQL=SET`SCHEDULEDATE,%q<value>,%q<scene>;@attach %!/INC`MSGSCENE=%q<scene>,u(getmoniker,%#) rescheduled the Scene!;@attach %!/INC`UPDATEBB
-&Q`SET`SCHEDULEDATE [u(cobj,scene)]=UPDATE vol_scene SET scene_date_scheduled=FROM_UNIXTIME(?),scene_status=2,scene_date_started=NULL WHERE scene_id=?
+&Q`SET`SCHEDULEDATE [u(cobj,scene)]=UPDATE vol_scene SET scene_date_scheduled=FROM_UNIXTIME(?),scene_status=2,scene_date_started=SET_NULL WHERE scene_id=?
 
 &INC`LOG`MAIL [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),strmatch(%:,%q<ownobjid>))=@attach %!/INC`MSG=ERROR: Permission denied.;@check words(u(setr,tagged,u(mysql,GET`TAGOBJIDS,%q<scene>)))=@attach %!/INC`MSG=ERROR: Nobody has tagged the scene!;@attach %!/INC`MSG=The OBJID list of recipients to use for a @mail is: %q<tagged>
 
@@ -416,7 +416,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &Q`SET`PLOTSTART [u(cobj,scene)]=UPDATE vol_plot SET plot_date_start=FROM_UNIXTIME(?) WHERE plot_id=?
 &Q`SET`PLOTEND [u(cobj,scene)]=UPDATE vol_plot SET plot_date_end=FROM_UNIXTIME(?) WHERE plot_id=?
-&Q`SET`PLOTNOEND [u(cobj,scene)]=UPDATE vol_plot SET plot_date_end=NULL WHERE plot_id=?
+&Q`SET`PLOTNOEND [u(cobj,scene)]=UPDATE vol_plot SET plot_date_end=SET_NULL WHERE plot_id=?
 
 &INC`PLOT`ADDRUNNER [u(cobj,scene)]=@attach %!/INC`FINDPLOT=%0;@attach %!/INC`CHECKPC=%1,1;@stop match(%q<pl1runnerobjids>,%q<t1objid>)=@attach %!/INC`MSG=ERROR: %q<t1name> is already a Runner!;@attach %!/INC`DOSQL=SET`PLOTRUNNER,%q<t1id>,%q<pl1id>,2;@attach %!/INC`MSG=%q<t1name> is now a Runner for %q<pl1title>!;@attach %!/INC`MSG`NOTICE=You are now a Runner for Plot %q<pl1id>: '%q<pl1title>',%q<t1>;
 &Q`SET`PLOTRUNNER [u(cobj,scene)]=INSERT INTO vol_runner (character_id,plot_id,runner_type) VALUES (?,?,?) ON DUPLICATE KEY UPDATE runner_type=VALUES(runner_type)

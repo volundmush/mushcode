@@ -32,3 +32,12 @@ VALUES
 	(6012,20,"Necromancer"),
 	(6013,20,"Pilgrim")
 ON DUPLICATE KEY UPDATE template_sub_id=VALUES(template_sub_id),template_sub_choice_name=VALUES(template_sub_choice_name);
+
+INSERT INTO vol_story_pools
+	(pool_id,pool_category_id,pool_name,pool_unit_name,pool_single_name,pool_plural_name,pool_sort)
+VALUES
+	/* Sin-Eater */
+	(15,1,"Plasm","Plasm","Point","Points",2),
+	(16,2,"Synergy","Synergy","Dot","Dots",1)
+
+ON DUPLICATE KEY UPDATE pool_category_id=VALUES(pool_category_id),pool_name=VALUES(pool_name),pool_single_name=VALUES(pool_single_name),pool_plural_name=VALUES(pool_plural_name),pool_sort=VALUES(pool_sort);

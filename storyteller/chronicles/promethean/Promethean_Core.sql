@@ -37,3 +37,13 @@ VALUES
 	(4015,14,"Plumbum"),
 	(4016,14,"Centimani")
 ON DUPLICATE KEY UPDATE template_sub_id=VALUES(template_sub_id),template_sub_choice_name=VALUES(template_sub_choice_name);
+
+INSERT INTO vol_story_pools
+	(pool_id,pool_category_id,pool_name,pool_unit_name,pool_single_name,pool_plural_name,pool_sort)
+VALUES
+
+	/* Promethean */
+	(13,1,"Pyros","Pyros","Point","Points",2)
+	/* Prometheans use Vampire Humanity */
+
+ON DUPLICATE KEY UPDATE pool_category_id=VALUES(pool_category_id),pool_name=VALUES(pool_name),pool_single_name=VALUES(pool_single_name),pool_plural_name=VALUES(pool_plural_name),pool_sort=VALUES(pool_sort);

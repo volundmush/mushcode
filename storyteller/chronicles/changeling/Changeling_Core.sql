@@ -201,3 +201,13 @@ VALUES
 	(50002,5,50508,"Uncanny"),
 	(50002,5,50509,"Wayward Guide")
 ON DUPLICATE KEY UPDATE stat_name=VALUES(stat_name);
+
+INSERT INTO vol_story_pools
+	(pool_id,pool_category_id,pool_name,pool_unit_name,pool_single_name,pool_plural_name,pool_sort)
+VALUES
+
+	/* Changeling */
+	(7,1,"Glamour","Glamour","Point","Points",2),
+	(8,2,"Clarity","Clarity","Dot","Dots",1)
+
+ON DUPLICATE KEY UPDATE pool_category_id=VALUES(pool_category_id),pool_name=VALUES(pool_name),pool_single_name=VALUES(pool_single_name),pool_plural_name=VALUES(pool_plural_name),pool_sort=VALUES(pool_sort);

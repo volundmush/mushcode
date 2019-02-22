@@ -19,9 +19,9 @@ th u(NEWCOBJ,Navigation System <NAVI>,navi,,,,WIZARD SAFE !NO_COMMAND,INHERIT SI
 &FUN`FINDTHINGS`RHOSTMUSH [u(cobj,navi)]=search(ETHING=\[get(##/PORT)\])
 &FUN`LISTALLDISTS [u(cobj,navi)]=u(choosegame,lsearch(all,type,thing,elock,D`DISTRICT:>0),search(ETHING=\[get(##/D`DISTRICT)\]))
 
-&CMD`+NAVI`PENNMUSH [u(cobj,navi)]=$^(?\:\+)?(ic|ooc|roomlist|port)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+NAVI`MAIN
+&CMD`+NAVI`PENNMUSH [u(cobj,navi)]=$^(?\:\+)(go|roomlist|port)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+NAVI`MAIN
 @set [u(cobj,navi)]/CMD`+NAVI`PENNMUSH=regexp
-&CMD`+NAVI`RHOSTMUSH [u(cobj,navi)]=$^(?\:\+)?(ic|ooc|roomlist|port)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+NAVI`MAIN
+&CMD`+NAVI`RHOSTMUSH [u(cobj,navi)]=$^(?\:\+)(go|roomlist|port)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+NAVI`MAIN
 @set [u(cobj,navi)]/CMD`+NAVI`RHOSTMUSH=regexp
 &CMD`+NAVI`MAIN [u(cobj,navi)]=@attach %!/INC`GETSWITCH=%2;@select/inline %q<switch>=CONFIG,{@attach %!/INC`CONFIG=%3,%4},{@attach %!/%1`[u(strfirstof,%q<switch>,MAIN)]=%3,%4}
 @set [u(cobj,navi)]/CMD`+NAVI`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
@@ -48,9 +48,11 @@ th u(NEWCOBJ,Navigation System <NAVI>,navi,,,,WIZARD SAFE !NO_COMMAND,INHERIT SI
 
 &FUN`ROOMLIST [u(cobj,navi)]=pemit(%#,u(table,iter(lnum(0,sub(%+,1)),ljust(ansi(c,u(pueblize,v(%i0),+port [v(%i0)])),6) [ansi(hx,u(pueblize,name(v(%i0)),+port [v(%i0)]))],%b,|),38,u(width,%#),|))
 
-&IC`MAIN [u(cobj,navi)]=@stop strlen(%0);@check isdbref(u(setr,dest,u(conf,IC_NEXUS)))=@attach %!/INC`MSG=ERROR: The IC Nexus is not configured.;@attach %!/PORT`MAIN=%q<dest>
+&GO`MAIN [u(cobj,navi)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Will you go OOC or IC?;@attach %!/INC`PARTIAL=%0,IC|OOC,|,choice;@attach %!/%q<choice>`MAIN
 
-&OOC`MAIN [u(cobj,navi)]=@stop strlen(%0);@check isdbref(u(setr,dest,u(conf,OOC_NEXUS)))=@attach %!/INC`MSG=ERROR: The OOC Nexus is not configured.;@attach %!/PORT`MAIN=%q<dest>
+&IC`MAIN [u(cobj,navi)]=@check isdbref(u(setr,dest,u(conf,IC_NEXUS)))=@attach %!/INC`MSG=ERROR: The IC Nexus is not configured.;@attach %!/PORT`MAIN=%q<dest>
+
+&OOC`MAIN [u(cobj,navi)]=@check isdbref(u(setr,dest,u(conf,OOC_NEXUS)))=@attach %!/INC`MSG=ERROR: The OOC Nexus is not configured.;@attach %!/PORT`MAIN=%q<dest>
 
 &ROOMLIST`CONFIG [u(cobj,navi)]=@attach %!/INC`CONFIG
 &PORT`CONFIG [u(cobj,navi)]=@attach %!/INC`CONFIG

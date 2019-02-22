@@ -1,0 +1,35 @@
+th u(newcobj,STORYTELLER: Clarity Damage System <CLARITY>,clarity,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&SYSTEM`NAME [u(cobj,clarity)]=CLARITY
+
+&CMD`CLARITY [u(cobj,clarity)]=$^c(damage|cheal)(?\: +(.+?))?(?\: +(.*))?$:@attach %!/INC`VALID`PERSONA=get(%#/D`PERSONA),1,get(%#/D`ID);@check match(5,%q<persona1.templateid>)=@attach %!/INC`MSG=ERROR: Only Changelings may use this system!;@attach %!/INC`%1=%2,%3
+@set [u(cobj,clarity)]/CMD`CLARITY=regexp
+
+&INC`CDAMAGE [u(cobj,clarity)]=@check strlen(%0)=@attach %!/INC`MSG=What kind of damage will you take?;@attach %!/INC`TYPE=%0;@check strlen(%1)=@attach %!/INC`MSG=How much damage will you take?;@check valnum(%1)=@attach %!/INC`MSG=Damage must be whole, positive numbers!;th iter(lnum(1,%1),u(FUN`INC`%q<find>,%#));@attach %!/INC`MSG`ROOM=[ansi(h,%n)] takes %1 %q<find> Clarity Damage! [switch(%q<find>|[t(%q<bashcount>)]|[t(%q<lethcount>)]|[t(%q<aggcount>)],BASHING|1|0|0,,BASHING|*|1|0,%q<lethcount> Upgraded to Lethal!%B,BASHING|*|1|1,%q<lethcount> Upgraded to Lethal then %q<aggcount> to Aggravated!%B,LETHAL|0|1|0,,LETHAL|0|*|1,%q<aggcount> Upgraded to Aggravated!%B)][capstr(%p)] %q<find> Total is: [u(FUN`GET`BASHING,%#)]. Total Overall Clarity Damage is: [rjust(u(FUN`CURDAMAGE,%#),strlen(u(setr,maxhealth,u(FUN`MAX`HEALTH,%#))),0)]/%q<maxhealth>
+
+&INC`HEAL [u(cobj,clarity)]=@check strlen(%0)=@attach %!/INC`MSG=What kind of damage will you heal?;@attach %!/INC`TYPE=%0;@check strlen(%1)=@attach %!/INC`MSG=How much damage will you heal?;@check valnum(%1)=@attach %!/INC`MSG=Healing amount must be whole, positive numbers!;th u(setq,healed,min(u(setr,damage,u(FUN`GET`%q<find>,%#)),%1));@check %q<healed>=@attach %!/INC`MSG=You don't have any %q<find> Damage to Heal.;th u(setstat,%#,D`CLARITY,%q<find>,bound(sub(%q<damage>,%q<healed>),0));@nsremit %l=roomannounce(HEALTH) [ansi(h,%n)] heals %q<healed> %q<find> Clarity Damage. [capstr(%p)] %q<find> Total is: [u(FUN`GET`BASHING,%#)]. Total Overall Clartity Damage is: [rjust(u(FUN`CURDAMAGE,%#),strlen(u(setr,maxhealth,u(FUN`MAX`HEALTH,%#))),0)]/%q<maxhealth>
+
+&INC`TYPE [u(cobj,clarity)]=@attach %!/INC`PARTIAL=%0,v(VAR`TYPES),|,find,Damage Track
+
+&FUN`INC`BASHING [u(cobj,clarity)]=switch(1,gt(u(FUN`GET`EMPTY,%0),0),u(setstat,%0,D`CLARITY,Bashing,add(u(FUN`GET`BASHING,%0),1))[u(setq,bashcount,add(1,%q<bashcount>))],u(FUN`INC`LETHAL,%#))
+
+&FUN`INC`LETHAL [u(cobj,clarity)]=switch(1,gt(or(u(FUN`GET`EMPTY,%0),u(FUN`GET`BASHING,%0)),0),u(setstat,%0,D`CLARITY,Lethal,add(u(FUN`GET`Lethal,%0),1))[u(setq,lethcount,add(1,%q<lethcount>))],u(FUN`INC`AGGRAVATED,%#))
+
+&FUN`INC`AGGRAVATED [u(cobj,clarity)]=u(setstat,%0,D`CLARITY,Aggravated,add(u(FUN`GET`Aggravated,%0),1))[u(setq,aggcount,add(1,%q<aggcount>))]
+
+&VAR`TYPES [u(cobj,clarity)]=LETHAL|BASHING
+
+&FUN`HEALTHBOXES [u(cobj,clarity)]=elements(cat(iter(lnum(add(u(getstat,%0,D`CLARITY,Aggravated),%3)),A),iter(lnum(add(u(getstat,%0,D`CLARITY,Lethal),%2)),L),iter(lnum(add(u(getstat,%0,D`CLARITY,Bashing),%1)),B),iter(lnum(30),E)),lnum(1,u(FUN`MAX`HEALTH,%0)))
+
+&FUN`FORMATHEALTH [u(cobj,clarity)]=[iter(u(FUN`HEALTHBOXES,%0),\[[ansi(switch(sub(u(FUN`MAX`HEALTH,%0),inum(0)),2,hy,1,+orange,0,hr,n),switch(%i0,A,*,L,X,B,/,E,%B))]\])]
+
+&FUN`CURDAMAGE [u(cobj,clarity)]=bound(add(u(getstat,%0,D`CLARITY,Bashing),u(getstat,%0,D`CLARITY,Lethal),u(getstat,%0,D`CLARITY,Aggravated)),0,u(FUN`MAX`HEALTH,%0))
+
+&FUN`GET`BASHING [u(cobj,clarity)]=words(u(filter,HEALTH,u(FUN`HEALTHBOXES,%0),%b,%b,B))
+&FUN`GET`LETHAL [u(cobj,clarity)]=words(u(filter,HEALTH,u(FUN`HEALTHBOXES,%0),%b,%b,L))
+&FUN`GET`AGGRAVATED [u(cobj,clarity)]=words(u(Filter,HEALTH,u(FUN`HEALTHBOXES,%0),%b,%b,A))
+&FUN`GET`EMPTY [u(cobj,clarity)]=words(u(filter,HEALTh,u(FUN`HEALTHBOXES,%0),%b,%b,E))
+
+&FIL`HEALTH [u(cobj,clarity)]=strmatch(%1,%0)
+
+&FUN`MAX`HEALTH [u(cobj,clarity)]=add(u(u(cobj,persona)/mysql,STAT`VALUE,get(%0/D`PERSONA),21),u(u(cobj,persona)/mysql,STAT`VALUE,get(%0/D`PERSONA),28))

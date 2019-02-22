@@ -21,7 +21,7 @@ th u(newcobj,STORYTELLER: Damage Management System <DAMAGE>,damage,,,,WIZARD SAF
 
 &FUN`HEALTHBOXES [u(cobj,damage)]=elements(cat(iter(lnum(add(u(getstat,%0,D`DAMAGE,Aggravated),%3)),A),iter(lnum(add(u(getstat,%0,D`DAMAGE,Lethal),%2)),L),iter(lnum(add(u(getstat,%0,D`DAMAGE,Bashing),%1)),B),iter(lnum(30),E)),lnum(1,u(FUN`MAX`HEALTH,%0)))
 
-&FUN`FORMATHEALTH [u(cobj,damage)]=\[[iter(u(FUN`HEALTHBOXES,%0),ansi(switch(sub(u(FUN`MAX`HEALTH,%0),inum(0)),2,hy,1,+orange,0,hr,n),switch(%i0,A,*,L,X,B,/,E,%B)),%B,\])]\]
+&FUN`FORMATHEALTH [u(cobj,damage)]=[iter(u(FUN`HEALTHBOXES,%0),\[[ansi(switch(sub(u(FUN`MAX`HEALTH,%0),inum(0)),2,hy,1,+orange,0,hr,n),switch(%i0,A,*,L,X,B,/,E,%B))]\])]
 
 &FUN`CURDAMAGE [u(cobj,damage)]=bound(add(u(getstat,%0,D`DAMAGE,Bashing),u(getstat,%0,D`DAMAGE,Lethal),u(getstat,%0,D`DAMAGE,Aggravated)),0,u(FUN`MAX`HEALTH,%0))
 
@@ -32,4 +32,4 @@ th u(newcobj,STORYTELLER: Damage Management System <DAMAGE>,damage,,,,WIZARD SAF
 
 &FIL`HEALTH [u(cobj,damage)]=strmatch(%1,%0)
 
-&FUN`MAX`HEALTH [u(cobj,damage)]=add(firstof(u(getstat,%0,D`INFO,Size),5),getbonus(%0,Size),u(getstat,%0,D`ATTRIBUTES,Stamina),getbonus(%0,Stamina))
+&FUN`MAX`HEALTH [u(cobj,damage)]=add(u(u(cobj,persona)/size,%0,get(%0/D`PERSONA)),u(u(cobj,persona)/mysql,STAT`VALUE,get(%0/D`PERSONA),25))

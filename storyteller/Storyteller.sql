@@ -68,7 +68,7 @@ CREATE OR REPLACE VIEW volv_story_personas_approval AS
     SELECT a.approval_id AS approval_id,a.persona_id AS persona_id,a.admin_id AS admin_id,e.entity_name AS admin_name,a.approval_state AS approval_state,a.approval_date AS approval_date,UNIX_TIMESTAMP(a.approval_date) AS approval_date_secs,a.approval_notes AS approval_notes FROM vol_story_personas_approval AS a LEFT JOIN vol_entity AS e ON a.admin_id=e.entity_id;
 
 CREATE OR REPLACE VIEW volv_story_personas AS
-    SELECT p.persona_id AS persona_id,p.owner_id AS owner_id,e.entity_name AS owner_name,p.template_id AS template_id,t.template_name AS template_name,p.persona_name AS persona_name,p.persona_parent AS persona_parent,p2.persona_name AS persona_parent_name,t.template_power_stat_name AS template_power_stat_name,p.power_stat_value AS power_stat_value,p.persona_date_created AS persona_date_created,UNIX_TIMESTAMP(p.persona_date_created) AS persona_date_created_secs,p.approval_id AS approval_id,a.admin_id AS admin_id,a.admin_name AS admin_name,a.approval_state AS approval_state,a.approval_date AS approval_date,a.approval_date_secs AS approval_date_secs FROM vol_story_personas AS p LEFT JOIN vol_story_templates AS t ON p.template_id=t.template_id LEFT JOIN vol_entity AS e ON p.owner_id=e.entity_id LEFT JOIN vol_story_personas AS p2 ON p.persona_parent=p2.persona_id LEFT JOIN volv_story_personas_approval AS a ON p.approval_id=a.approval_id;
+    SELECT p.persona_id AS persona_id,p.owner_id AS owner_id,e.entity_name AS owner_name,e.entity_objid AS owner_objid,p.template_id AS template_id,t.template_name AS template_name,p.persona_name AS persona_name,p.persona_parent AS persona_parent,p2.persona_name AS persona_parent_name,t.template_power_stat_name AS template_power_stat_name,p.power_stat_value AS power_stat_value,p.persona_date_created AS persona_date_created,UNIX_TIMESTAMP(p.persona_date_created) AS persona_date_created_secs,p.approval_id AS approval_id,a.admin_id AS admin_id,a.admin_name AS admin_name,a.approval_state AS approval_state,a.approval_date AS approval_date,a.approval_date_secs AS approval_date_secs FROM vol_story_personas AS p LEFT JOIN vol_story_templates AS t ON p.template_id=t.template_id LEFT JOIN vol_entity AS e ON p.owner_id=e.entity_id LEFT JOIN vol_story_personas AS p2 ON p.persona_parent=p2.persona_id LEFT JOIN volv_story_personas_approval AS a ON p.approval_id=a.approval_id;
 
 CREATE TABLE IF NOT EXISTS vol_story_persona_sub_choices (
 	persona_id INT UNSIGNED NOT NULL,
@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS vol_story_persona_stats (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_story_persona_stats AS
-    SELECT p.persona_stat_id as persona_stat_id,p.persona_id AS persona_id,p.persona_stat_type AS persona_stat_type,p.persona_stat_name AS persona_stat_name,p.stat_value AS stat_value,p.stat_flags_1 AS stat_flags_1,p.stat_flags_2 AS stat_flags_2,s.* FROM vol_story_persona_stats AS p LEFT JOIN volv_story_stats AS s ON p.stat_id=s.stat_id;
+    SELECT p.persona_stat_id as persona_stat_id,p.persona_id AS persona_id,p.persona_stat_type AS persona_stat_type,p.persona_stat_name AS persona_stat_name,p.stat_value AS stat_value,p.stat_flags_1 AS stat_flags_1,p.stat_flags_2 AS stat_flags_2,IF(CHAR_LENGTH(p.persona_stat_name),IF(s.stat_specialties,CONCAT_WS('_',s.stat_name,p.persona_stat_name),IF(s.stat_custom,CONCAT_WS('>',s.stat_name,p.persona_stat_name),IF(s.stat_require_context,CONCAT_WS(': ',s.stat_name,p.persona_stat_name),s.stat_name))),s.stat_name) AS display_roll_name,s.* FROM vol_story_persona_stats AS p LEFT JOIN volv_story_stats AS s ON p.stat_id=s.stat_id;
 
 CREATE TABLE IF NOT EXISTS vol_story_persona_stats_extra (
 	persona_stat_id INT UNSIGNED NOT NULL,
@@ -224,6 +224,9 @@ CREATE TABLE IF NOT EXISTS vol_story_persona_pools_commits (
 	FOREIGN KEY(persona_pool_id) REFERENCES vol_story_persona_pools(persona_pool_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
+CREATE OR REPLACE VIEW volv_story_persona_pools_commits AS
+    SELECT po.*,p.persona_commit_id,p.commit_name,p.commit_amount FROM vol_story_persona_pools_commits AS p LEFT JOIN vol_story_persona_pools AS po ON po.persona_pool_id=p.persona_pool_id;
+
 CREATE TABLE IF NOT EXISTS vol_story_xp (
 	xp_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	xp_name VARCHAR(30) UNIQUE,
@@ -247,10 +250,10 @@ CREATE TABLE IF NOT EXISTS vol_story_persona_xp (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_story_persona_xp AS
-	SELECT px.*,UNIX_TIMESTAMP(px.xp_date) AS xp_date_secs,p.persona_name,p.persona_objid,x.xp_name,x.xp_sort,e.entity_name AS admin_name,e.entity_objid AS admin_objid FROM vol_story_persona_xp AS px LEFT JOIN vol_story_xp AS x ON px.xp_id=x.xp_id LEFT JOIN volv_story_personas AS p ON px.persona_id=p.persona_id LEFT JOIN vol_entity AS e ON px.admin_id=e.entity_id ORDER BY x.xp_sort;
+	SELECT px.*,UNIX_TIMESTAMP(px.xp_date) AS xp_date_secs,p.persona_name,p.owner_name,p.owner_objid,x.xp_name,x.xp_sort,e.entity_name AS admin_name,e.entity_objid AS admin_objid FROM vol_story_persona_xp AS px LEFT JOIN vol_story_xp AS x ON px.xp_id=x.xp_id LEFT JOIN volv_story_personas AS p ON px.persona_id=p.persona_id LEFT JOIN vol_entity AS e ON px.admin_id=e.entity_id ORDER BY x.xp_sort;
 
 CREATE OR REPLACE VIEW volv_story_persona_xp_totals AS
-  SELECT x.xp_id,x.xp_name,x.xp_sort,x.persona_id,x.persona_objid,x.persona_name,MAX(IF(x.xp_display_num,x.xp_display_num,1))+1 AS next_display_num,SUM(IF(x.xp_amount>0,x.xp_amount,0)) AS xp_gained,ABS(SUM(IF(x.xp_amount<0,x.xp_amount,0))) AS xp_spent,SUM(x.xp_amount) AS xp_current
+  SELECT x.xp_id,x.xp_name,x.xp_sort,x.persona_id,x.persona_name,x.owner_name,x.owner_objid,MAX(IF(x.xp_display_num,x.xp_display_num,1))+1 AS next_display_num,SUM(IF(x.xp_amount>0,x.xp_amount,0)) AS xp_gained,ABS(SUM(IF(x.xp_amount<0,x.xp_amount,0))) AS xp_spent,SUM(x.xp_amount) AS xp_current
   FROM volv_story_persona_xp AS x
   GROUP BY x.xp_id,x.persona_id ORDER BY x.persona_name,x.xp_sort;
   

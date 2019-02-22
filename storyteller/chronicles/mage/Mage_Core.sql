@@ -407,3 +407,12 @@ VALUES
 	(40029,4,41922,"Corridors of Time",5),
 	(40029,4,41923,"Temporal Pocket",5)
 ON DUPLICATE KEY UPDATE stat_name=VALUES(stat_name);
+
+INSERT INTO vol_story_pools
+	(pool_id,pool_category_id,pool_name,pool_unit_name,pool_single_name,pool_plural_name,pool_sort)
+VALUES
+	/* Mage */
+	(9,1,"Mana","Mana","Point","Points",2),
+	(10,2,"Wisdom","Wisdom","Dot","Dots",1)
+
+ON DUPLICATE KEY UPDATE pool_category_id=VALUES(pool_category_id),pool_name=VALUES(pool_name),pool_single_name=VALUES(pool_single_name),pool_plural_name=VALUES(pool_plural_name),pool_sort=VALUES(pool_sort);

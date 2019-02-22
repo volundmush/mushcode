@@ -226,3 +226,12 @@ VALUES
 	(30003,3,30521,"Expel"),
 	(30003,3,30522,"Great Hunt")
 ON DUPLICATE KEY UPDATE stat_name=VALUES(stat_name);
+
+INSERT INTO vol_story_pools
+	(pool_id,pool_category_id,pool_name,pool_unit_name,pool_single_name,pool_plural_name,pool_sort)
+VALUES
+	/* Werewolf */
+	(5,1,"Essence","Essence","Point","Points",2),
+	(6,2,"Harmony","Harmony","Dot","Dots",1)
+
+ON DUPLICATE KEY UPDATE pool_category_id=VALUES(pool_category_id),pool_name=VALUES(pool_name),pool_single_name=VALUES(pool_single_name),pool_plural_name=VALUES(pool_plural_name),pool_sort=VALUES(pool_sort);

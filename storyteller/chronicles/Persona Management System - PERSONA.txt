@@ -1,0 +1,6 @@
+&SIZE [u(cobj,persona)]=add(5,u(ladd,iter(lattr(%!/SIZE`*),u(%i0,%0,%1))))
+
+&Q`STAT`VALUE [u(cobj,persona)]=SELECT stat_value FROM volv_story_persona_stats WHERE persona_id=? AND stat_id=?
+
+&SIZE`GIANT [u(Cobj,persona)]=if(u(mysql,STAT`VALUE,%1,3034),1,0)
+&SIZE`SMALLFRAMED [u(Cobj,persona)]=if(u(mysql,STAT`VALUE,%1,3044),-1,0)

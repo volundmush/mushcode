@@ -1,15 +1,13 @@
 @@ DEPENDENCIES - CORE
 
-th u(NEWCOBJ,STORYTELLER: Pool Management System <Pool>,pool,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(NEWCOBJ,STORYTELLER: Pool Management System <Pool>,pool,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
-&CMD`+POOL [u(cobj,pool)]=$^\+(spend|burn|gain|refresh|commit|uncommit|pools|fill|drain)(?\: +(.+?))?(?\:=(.*))?$:@check u(setr,persona_id,get(%#/D`ID))=@attach %!/INC`MSG=ERROR: You lack a Persona!;@attach %!/INC`%1=%2,%3
+&CMD`+POOL [u(cobj,pool)]=$^\+(spend|burn|gain|refresh|commit|uncommit|pools|fill|drain)(?\: +(.+?))?(?\:=(.*))?$:@attach %!/INC`VALID`PERSONA=get(%#/D`PERSONA),1,get(%#/D`ID);@attach %!/INC`%1=%2,%3
 @set [u(cobj,pool)]/CMD`+POOL=regexp
 
 &SYSTEM`NAME [u(cobj,pool)]=POOLS
 &SWITCHES`PLAYER [u(cobj,pool)]=
 &SWITCHES`ADMIN [u(cobj,pool)]=
-
-&GETTEMPLATE [u(Cobj,pool)]=default(%0/V`PERSONA`TEMPLATE,Mortal)
 
 &INC`FINDPOOL [u(cobj,pool)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: What resource? Your choices are: [u(itemize,u(FUN`LISTPOOLS,%1),|,and,\,)];@attach %!/INC`PARTIAL=%0,u(filter,OPTIONS,u(FUN`LISTPOOLS,%1),|,|,%2,%3),|,choice,pool
 
@@ -19,31 +17,32 @@ th u(NEWCOBJ,STORYTELLER: Pool Management System <Pool>,pool,,,,WIZARD SAFE !NO_
 &SORTPOOLS`PENNMUSH [u(cobj,pool)]=sortkey(#lambda/default(%!/POOL`\%0`ORDER,99),%0,n,%1,%2)
 &SORTPOOLS`RHOSTMUSH [u(cobj,pool)]=sortby(#lambda/[lit([ncomp(default(%!/POOL`%0`ORDER,99),default(%!/POOL`%1`ORDER,99))])],%0,%1,%2)
 
-&FUN`LISTPOOLS [u(cobj,pool)]=localize(u(sortpools,u(filter,HASPOOL,u(FUN`ALLPOOLS),|,|,%0,u(setr,template,u(gettemplate,%0)),if(strlen(%1),%1,*),v(TEMPLATE`%q<template>)),|,|))
+&FUN`LISTPOOLS [u(cobj,pool)]=localize(u(sortpools,u(filter,HASPOOL,u(FUN`ALLPOOLS),|,|,%0,u(setr,template,u(gettemplate,%0)),if(strlen(%1),%1,*),u(TEMPLATE`%q<template>)),|,|))
 
 &FUN`ALLPOOLS [u(cobj,pool)]=edit(u(lattr,%!/POOL`*,|),POOL`,)
 
-&FIL`HASPOOL [u(cobj,pool)]=cand(strmatch(v(POOL`%0),%3),cor(match(%4,%0),u(POOL`%0`HAVE,%1),u(getstat,%1,D`HASPOOL,%0)))
+&FIL`HASPOOL [u(cobj,pool)]=cand(strmatch(v(POOL`%0),%3),cor(match(%4,%0),u(POOL`%0`HAVE,%1)))
 
-&INC`ADMIN [u(cobj,pool)]=@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=before(%0,/),1;@check u(setr,persona_id,%q<t1id>)=@attach %!/INC`MSG=ERROR: %q<t1name> lacks a Persona!;@attach %!/INC`FINDPOOL=after(%0,/),%q<t1>,switch(%2,FILL,GAIN,DRAIN,SPEND);@attach %!/INC`VALID`POSINT=before(%1,/),switch(%2,FILL,Gain,DRAIN,Spend);th u(setq,reason,after(%1,/))
+&INC`ADMIN [u(cobj,pool)]=@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=before(%0,/),1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA),1,%q<t1id>;@attach %!/INC`FINDPOOL=after(%0,/),%q<persona1.id>,switch(%2,FILL,GAIN,DRAIN,SPEND);@attach %!/INC`VALID`POSINT=before(%1,/),switch(%2,FILL,Gain,DRAIN,Spend);th u(setq,reason,after(%1,/))
 
-&INC`DRAIN [u(cobj,pool)]=@attach %!/INC`ADMIN=%0,%1,DRAIN,1;@stop lt(u(FUN`CUR,%q<t1>,%q<choice>),%q<value>)=@attach %!/INC`MSG=There aren't enough [u(FUN`POOLDETAIl,%q<choice>)] in %q<t1name>'s [v(POOL`%q<choice>)]!;@attach %!/INC`MSG`ROOM=u(setr,msg,Drained %q<value> [u(FUN`POOLDETAIL,%q<choice>)] from %q<t1name> for: [u(strfirstof,%q<reason>,No reason given!)]),lcon(loc(%q<t1>));@attach %!/INC`MSG`CHAN=%q<msg>;&D`POOLS`%q<choice>`CUR %q<t1>=sub(get(%q<t1>/D`POOLS`%q<choice>`CUR),%q<value>);@attach %!/INC`DOSQL=SET`POOL,%q<persona_id>,v(POOL`%q<choice>`ID),u(FUN`CUR,%q<t1>,%q<choice>),u(FUN`MAX,%q<t1>,%q<choice>)
+&INC`DRAIN [u(cobj,pool)]=@attach %!/INC`ADMIN=%0,%1,DRAIN,1;@stop lt(u(FUN`CUR,%q<t1>,%q<choice>),%q<value>)=@attach %!/INC`MSG=There aren't enough [u(FUN`POOLDETAIl,%q<choice>)] in %q<t1name>'s [v(POOL`%q<choice>)]!;@attach %!/INC`MSG`ROOM=u(setr,msg,Drained %q<value> [u(FUN`POOLDETAIL,%q<choice>)] from %q<t1name> for: [u(strfirstof,%q<reason>,No reason given!)]),lcon(loc(%q<t1>));@attach %!/INC`MSG`CHAN=%q<msg>;&D`POOLS`%q<choice>`CUR %q<t1>=sub(get(%q<t1>/D`POOLS`%q<choice>`CUR),%q<value>);@attach %!/INC`DOSQL=SET`POOL,%q<persona1.id>,v(POOL`%q<choice>`ID),u(FUN`CUR,%q<t1>,%q<choice>),u(FUN`MAX,%q<t1>,%q<choice>)
 
 &INC`BURN [u(cobj,pool)]=@attach %!/INC`SPEND
-&INC`SPEND [u(cobj,pool)]=@attach %!/INC`FINDPOOL=%0,%#,SPEND;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Burn Value empty.;@attach %!/INC`VALID`POSINT=before(%1,/),Spend;@stop lt(u(FUN`CUR,%#,%q<choice>),%1)=@attach %!/INC`MSG=There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(POOL`%q<choice>)]!;@attach %!/INC`MSG`ROOM=spent %q<value> [u(FUN`POOLDETAIL,%q<choice>)][if(strlen(after(%1,/)),%bfor%b[after(%1,/)])]!;@attach %!/INC`MSG`CHAN=Spent %q<value> [u(FUN`POOLDETAIL,%q<choice>)] on: [u(strfirstof,after(%1,/),NO REASON GIVEN!)];&D`POOLS`%q<choice>`CUR %#=sub(get(%#/D`POOLS`%q<choice>`CUR),%q<value>);@attach %!/INC`DOSQL=SET`POOL,%q<persona_id>,v(POOL`%q<choice>`ID),u(FUN`CUR,%#,%q<choice>),u(FUN`MAX,%#,%q<choice>)
+&INC`SPEND [u(cobj,pool)]=@attach %!/INC`FINDPOOL=%0,%q<persona1.id>,SPEND;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Burn Value empty.;@attach %!/INC`VALID`POSINT=before(%1,/),Spend;@stop lt(u(FUN`CUR,%#,%q<choice>),%1)=@attach %!/INC`MSG=There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(POOL`%q<choice>)]!;@attach %!/INC`MSG`ROOM=spent %q<value> [u(FUN`POOLDETAIL,%q<choice>)][if(strlen(after(%1,/)),%bfor%b[after(%1,/)])]!;@attach %!/INC`MSG`CHAN=Spent %q<value> [u(FUN`POOLDETAIL,%q<choice>)] on: [u(strfirstof,after(%1,/),NO REASON GIVEN!)];&D`POOLS`%q<choice>`CUR %#=sub(get(%#/D`POOLS`%q<choice>`CUR),%q<value>);@attach %!/INC`DOSQL=SET`POOL,%q<persona1.id>,v(POOL`%q<choice>`ID),u(FUN`CUR,%#,%q<choice>),u(FUN`MAX,%#,%q<choice>)
 
-&INC`FILL [u(cobj,pool)]=@attach %!/INC`ADMIN=%0,%1,FILL,1;@attach %!/INC`MSG`ROOM=u(setr,msg,Gave %q<t1name> %q<value> [u(FUN`POOLDETAIL,%q<choice>)] for: [u(strfirstof,%q<reason>,No reason given!)]),lcon(loc(%q<t1>));@attach %!/INC`MSG`CHAN=%q<msg>;&D`POOLS`%q<choice>`CUR %q<t1>=bound(add(get(%q<t1>/D`POOLS`%q<choice>`CUR),%q<value>),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)));@attach %!/INC`DOSQL=SET`POOL,%q<persona_id>,v(POOL`%q<choice>`ID),u(FUN`CUR,%q<t1>,%q<choice>),u(FUN`MAX,%q<t1>,%q<choice>)
+&INC`FILL [u(cobj,pool)]=@attach %!/INC`ADMIN=%0,%1,FILL,1;@attach %!/INC`MSG`ROOM=u(setr,msg,Gave %q<t1name> %q<value> [u(FUN`POOLDETAIL,%q<choice>)] for: [u(strfirstof,%q<reason>,No reason given!)]),lcon(loc(%q<t1>));@attach %!/INC`MSG`CHAN=%q<msg>;&D`POOLS`%q<choice>`CUR %q<t1>=bound(add(get(%q<t1>/D`POOLS`%q<choice>`CUR),%q<value>),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)));@attach %!/INC`DOSQL=SET`POOL,%q<persona1.id>,v(POOL`%q<choice>`ID),u(FUN`CUR,%q<t1>,%q<choice>),u(FUN`MAX,%q<t1>,%q<choice>)
 
-&INC`GAIN [u(cobj,pool)]=@check cor(u(isadmin,%#),u(conf,PLAYER_GAIN))=@attach %!/INC`MSG=ERROR: Permission denied. Players must rely on Storytellers or 'hunts' to re-fill their resources.;@attach %!/INC`FINDPOOL=%0,%#,GAIN;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Regain Value empty.;@attach %!/INC`VALID`POSINT=before(%1,/),Gain;@attach %!/INC`MSG`ROOM=Gained %q<value> [u(FUN`POOLDETAIL,%q<choice>)][if(strlen(after(%1,/)),%bfor%b[after(%1,/)])]!;@attach %!/INC`MSG`CHAN=Gained %q<value> [u(FUN`POOLDETAIL,%q<choice>)] for: [u(strfirstof,after(%1,/),NO REASON GIVEN!)];&D`POOLS`%q<choice>`CUR %#=bound(add(get(%#/D`POOLS`%q<choice>`CUR),%q<value>),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)));@attach %!/INC`DOSQL=SET`POOL,%q<persona_id>,v(POOL`%q<choice>`ID),u(FUN`CUR,%#,%q<choice>),u(FUN`MAX,%#,%q<choice>)
+&INC`GAIN [u(cobj,pool)]=@check cor(u(isadmin,%#),u(conf,PLAYER_GAIN))=@attach %!/INC`MSG=ERROR: Permission denied. Players must rely on Storytellers or 'hunts' to re-fill their resources.;@attach %!/INC`FINDPOOL=%0,%q<persona1.id>,GAIN;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Regain Value empty.;@attach %!/INC`VALID`POSINT=before(%1,/),Gain;@attach %!/INC`MSG`ROOM=Gained %q<value> [u(FUN`POOLDETAIL,%q<choice>)][if(strlen(after(%1,/)),%bfor%b[after(%1,/)])]!;@attach %!/INC`MSG`CHAN=Gained %q<value> [u(FUN`POOLDETAIL,%q<choice>)] for: [u(strfirstof,after(%1,/),NO REASON GIVEN!)];&D`POOLS`%q<choice>`CUR %#=bound(add(get(%#/D`POOLS`%q<choice>`CUR),%q<value>),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)));@attach %!/INC`DOSQL=SET`POOL,%q<persona1.id>,v(POOL`%q<choice>`ID),u(FUN`CUR,%#,%q<choice>),u(FUN`MAX,%#,%q<choice>)
 
 &Q`SET`POOL [u(cobj,pool)]=INSERT INTO vol_story_persona_pools (persona_id,pool_id,pool_current,pool_maximum) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE pool_current=VALUES(pool_current),pool_maximum=VALUES(pool_maximum)
 
-&FUN`TOTALCOMMIT [u(cobj,pool)]=u(mysql,TOTAL`COMMIT,get(%0/D`ID),v(POOL`%1`ID))
+&FUN`TOTALCOMMIT [u(cobj,pool)]=u(mysql,TOTAL`COMMIT,%0,v(POOL`%1`ID))
 
 &Q`TOTAL`COMMIT [u(Cobj,pool)]=SELECT SUM(commit_amount) FROM volv_story_persona_pools_commits WHERE persona_id=? AND pool_id=?
 
-&FUN`CUR [u(cobj,pool)]=bound(get(%0/D`POOLS`%1`CUR),0,sub(u(FUN`MAX,%0,%1),u(FUN`TOTALCOMMIT,%0,%1)))
-&FUN`MAX [u(cobj,pool)]=add(u(POOL`%1`MAX,%0),u(getstat,%0,D`POOLBONUS,%1))
+&FUN`CUR [u(cobj,pool)]=bound(u(mysql,CUR`POOL,%0,v(POOL`%1`ID)),0,sub(u(FUN`MAX,%0,%1),u(FUN`TOTALCOMMIT,%0,%1)))
+&FUN`MAX [u(cobj,pool)]=u(POOL`%1`MAX,%0)
+&Q`CUR`POOL [u(cobj,pool)]=SELECT pool_current FROM vol_story_persona_pools WHERE persona_id=? AND pool_id=? LIMIT 1
 
 &CONFIG`OPTIONS [u(cobj,pool)]=PLAYER_GAIN
 
@@ -51,7 +50,7 @@ th u(NEWCOBJ,STORYTELLER: Pool Management System <Pool>,pool,,,,WIZARD SAFE !NO_
 &CONFIG`PLAYER_GAIN`DEFAULT [u(cobj,pool)]=1
 &CONFIG`PLAYER_GAIN`VALID [u(Cobj,pool)]=BOOL
 
-&INC`REFRESH [u(cobj,pool)]=@check cor(u(isadmin,%#),u(conf,PLAYER_GAIN))=@attach %!/INC`MSG=ERROR: Permission denied. Players must rely on Storytellers or 'hunts' to re-fill their resources.;@dolist/inline/delimit | [u(filter,OPTIONS,u(FUN`LISTPOOLS,%#),|,|,REFRESH)]={&D`POOLS`##`CUR %#=bound(u(strfirstof,u(POOL`##`INIT,%#),0),0,sub(u(FUN`MAX,%#,##),u(FUN`TOTALCOMMIT,%#,##)));@attach %!/INC`DOSQL=SET`POOL,%q<persona_id>,v(POOL`##`ID),u(FUN`CUR,%#,##),u(FUN`MAX,%#,##)};@attach %!/INC`MSG`ROOM=Refreshed %p resources!;@attach %!/INC`MSG`CHAN=Refresh %p resources!
+&INC`REFRESH [u(cobj,pool)]=@check cor(u(isadmin,%#),u(conf,PLAYER_GAIN))=@attach %!/INC`MSG=ERROR: Permission denied. Players must rely on Storytellers or 'hunts' to re-fill their resources.;@dolist/inline/delimit | [u(filter,OPTIONS,u(FUN`LISTPOOLS,%q<persona1.id>),|,|,REFRESH)]={@attach %!/INC`DOSQL=SET`POOL,%q<persona1.id>,v(POOL`##`ID),bound(u(strfirstof,u(POOL`##`INIT,%q<persona1.id>),0),0,sub(u(setr,poolmax,u(FUN`MAX,%q<persona1.id>,##)),u(FUN`TOTALCOMMIT,%q<persona1.id>,##))),%q<poolmax>};@attach %!/INC`MSG`ROOM=Refreshed %p resources!;@attach %!/INC`MSG`CHAN=Refresh %p resources!
 
 &FIL`OPTIONS [u(cobj,pool)]=cor(%2,t(match(v(POOL`%0`OPTIONS),%1)))
 
@@ -64,13 +63,13 @@ th u(NEWCOBJ,STORYTELLER: Pool Management System <Pool>,pool,,,,WIZARD SAFE !NO_
 &Q`FIND`COMMIT`EXACT [u(cobj,pool)]=SELECT commit_name,persona_commit_id,commit_amount FROM volv_story_persona_pools_commits WHERE persona_id=? AND pool_id=? AND commit_name=?
 &Q`FIND`COMMIT`WILD [u(cobj,pool)]=SELECT commit_name,persona_commit_id,commit_amount FROM volv_story_persona_pools_commits WHERE persona_id=? AND pool_id=? AND commit_name LIKE "!%%"
 
-&INC`COMMIT [u(cobj,pool)]=@attach %!/INC`FINDPOOL=before(%0,/),%#,COMMIT;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Commit Value empty.;@attach %!/INC`VALID`POSINT=after(%0,/),Commit Values;@stop lt(u(FUN`CUR,%#,%q<choice>),%q<value>)=@attach %!/INC`MSG=There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(VAR`POOL`%q<choice>`TYPE)]!;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No reason entered for this Commitment!;@stop u(mysql,EXIST`COMMIT,%q<persona_id>,v(POOL`%q<choice>`ID),%1)=@attach %!/INC`MSG=ERROR: Commitment reasons must be unique.;@check u(setr,persona_pool_id,u(mysql,SELECT`PERSONA_POOL_ID,%q<persona_id>,v(POOL`%q<choice>`ID)))=@attach %!/INC`MSG=ERROR: No Persona Pool ID to commit to! Use +refresh to fix your data.;@attach %!/INC`DOSQL=SET`COMMIT,%q<persona_pool_id>,%1,%q<value>;&D`POOLS`%q<choice>`CUR %#=bound(sub(get(%#/D`POOLS`%q<choice>`CUR),%q<value>),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)));@attach %!/INC`DOSQL=SET`POOL,%q<persona_id>,v(POOL`%q<choice>`ID),u(FUN`CUR,%#,%q<choice>),u(FUN`MAX,%#,%q<choice>);@attach %!/INC`MSG`ROOM=just Committed [after(%0,/)] [u(FUN`POOLDETAIL,%q<choice>)] to: %1;@attach %!/INC`MSG`CHAN=just Committed [after(%0,/)] [u(FUN`POOLDETAIL,%q<choice>)] to: %1
+&INC`COMMIT [u(cobj,pool)]=@attach %!/INC`FINDPOOL=before(%0,/),%q<persona1.id>,COMMIT;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Commit Value empty.;@attach %!/INC`VALID`POSINT=after(%0,/),Commit Values;@stop lt(u(FUN`CUR,%#,%q<choice>),%q<value>)=@attach %!/INC`MSG=There aren't enough [u(FUN`POOLDETAIL,%q<choice>)] in that [v(VAR`POOL`%q<choice>`TYPE)]!;@check strlen(%1)=@attach %!/INC`MSG=ERROR: No reason entered for this Commitment!;@stop u(mysql,EXIST`COMMIT,%q<persona1.id>,v(POOL`%q<choice>`ID),%1)=@attach %!/INC`MSG=ERROR: Commitment reasons must be unique.;@check u(setr,persona_pool_id,u(mysql,SELECT`PERSONA_POOL_ID,%q<persona1.id>,v(POOL`%q<choice>`ID)))=@attach %!/INC`MSG=ERROR: No Persona Pool ID to commit to! Use +refresh to fix your data.;@attach %!/INC`DOSQL=SET`COMMIT,%q<persona_pool_id>,%1,%q<value>;&D`POOLS`%q<choice>`CUR %#=bound(sub(get(%#/D`POOLS`%q<choice>`CUR),%q<value>),0,sub(u(FUN`MAX,%#,%q<choice>),u(FUN`TOTALCOMMIT,%#,%q<choice>)));@attach %!/INC`DOSQL=SET`POOL,%q<persona1.id>,v(POOL`%q<choice>`ID),u(FUN`CUR,%#,%q<choice>),u(FUN`MAX,%#,%q<choice>);@attach %!/INC`MSG`ROOM=just Committed [after(%0,/)] [u(FUN`POOLDETAIL,%q<choice>)] to: %1;@attach %!/INC`MSG`CHAN=just Committed [after(%0,/)] [u(FUN`POOLDETAIL,%q<choice>)] to: %1
 
-&INC`UNCOMMIT [u(cobj,pool)]=@attach %!/INC`FINDPOOL=%0,%#,COMMIT;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Uncommit target empty.;@check u(setr,persona_commit_id,elements(u(setr,commit,u(strfirstof,u(mysql3,FIND`COMMIT`EXACT,%q<persona_id>,v(POOL`%q<choice>`ID),%1),u(mysql3,FIND`COMMIT`WILD,%q<persona_id>,v(POOL`%q<choice>`ID),sqlescape(%1)))),2,chr(177)));th u(setq,commit_name,elements(%q<commit>,1,chr(177)));th u(setq,commit_amount,elements(%q<commit>,3,chr(177)));@attach %!/INC`MSG`ROOM=just released %q<commit_amount> [u(FUN`POOLDETAIL,%q<choice>)] from: %q<commit_name>;@attach %!/INC`MSG`CHAN=just released %q<commit_amount> [u(FUN`POOLDETAIL,%q<choice>)] from: %q<commit_name>;@attach %!/INC`DOSQL=DELETE`COMMIT,%q<persona_commit_id>
+&INC`UNCOMMIT [u(cobj,pool)]=@attach %!/INC`FINDPOOL=%0,%q<persona1.id>,COMMIT;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Uncommit target empty.;@check u(setr,persona_commit_id,elements(u(setr,commit,u(strfirstof,u(mysql3,FIND`COMMIT`EXACT,%q<persona1.id>,v(POOL`%q<choice>`ID),%1),u(mysql3,FIND`COMMIT`WILD,%q<persona1.id>,v(POOL`%q<choice>`ID),sqlescape(%1)))),2,chr(177)));th u(setq,commit_name,elements(%q<commit>,1,chr(177)));th u(setq,commit_amount,elements(%q<commit>,3,chr(177)));@attach %!/INC`MSG`ROOM=just released %q<commit_amount> [u(FUN`POOLDETAIL,%q<choice>)] from: %q<commit_name>;@attach %!/INC`MSG`CHAN=just released %q<commit_amount> [u(FUN`POOLDETAIL,%q<choice>)] from: %q<commit_name>;@attach %!/INC`DOSQL=DELETE`COMMIT,%q<persona_commit_id>
 
 &Q`DELETE`COMMIT [u(cobj,pool)]=DELETE FROM vol_story_persona_pools_commits WHERE persona_commit_id=?
 
-&INC`POOLS [u(cobj,pool)]=@select/inline cand(u(isadmin,%#),strlen(%0))=1,{@attach %!/INC`CHECKPC=%0,1},0,{th u(setq,t1,%#)};@pemit %#=u(header,name(%q<t1>)'s Pools);@dolist/inline/delimit | [u(FUN`LISTPOOLS,%q<t1>)]={@pemit %#=rjust(u(capnames,##),10): [rjust(u(FUN`CUR,%q<t1>,##),3,0)]/[rjust(u(FUN`MAX,%q<t1>,##),3,0)][if(words(u(setr,commits,u(mysql3,LIST`COMMITS,%q<persona_id>,v(POOL`##`ID))),chr(176)),%R[iter(%q<commits>,%T[rjust(elements(%i0,2,chr(177)),3)] for [elements(%i0,1,chr(177))],chr(176),%R)])]};@pemit %#=u(footer)
+&INC`POOLS [u(cobj,pool)]=@select/inline cand(u(isadmin,%#),strlen(%0))=1,{@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA),1,%q<t1id>},0,{th u(setq,t1,%#)};@pemit %#=u(header,name(%q<t1>)'s Pools);@dolist/inline/delimit | [u(FUN`LISTPOOLS,%q<persona1.id>)]={@pemit %#=rjust(u(capnames,##),10): [rjust(u(FUN`CUR,%q<t1>,##),3,0)]/[rjust(u(FUN`MAX,%q<t1>,##),3,0)][if(words(u(setr,commits,u(mysql3,LIST`COMMITS,%q<persona1.id>,v(POOL`##`ID))),chr(176)),%R[iter(%q<commits>,%T[rjust(elements(%i0,2,chr(177)),3)] for [elements(%i0,1,chr(177))],chr(176),%R)])]};@pemit %#=u(footer)
 
 &Q`LIST`COMMITS [u(cobj,pool)]=SELECT commit_name,commit_amount FROM volv_story_persona_pools_commits WHERE persona_id=? AND pool_id=? ORDER BY commit_amount,commit_name
 

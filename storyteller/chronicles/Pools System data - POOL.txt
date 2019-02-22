@@ -2,7 +2,7 @@
 &POOL`WILLPOWER`ID [u(cobj,pool)]=1
 &POOL`WILLPOWER`UNITNAME [u(cobj,pool)]=Points
 &POOL`WILLPOWER`UNITTYPE [u(cobj,pool)]=Willpower
-&POOL`WILLPOWER`MAX [u(cobj,pool)]=add(get(%0/V`PERSONA`STAT`2002),get(%0/V`PERSONA`STAT`2008))
+&POOL`WILLPOWER`MAX [u(cobj,pool)]=add(u(statval,%0,22),u(statval,%0,28))
 &POOL`WILLPOWER`INIT [u(cobj,pool)]=u(POOL`WILLPOWER`MAX,%0)
 &POOL`WILLPOWER`ORDER [u(cobj,pool)]=15
 &POOL`WILLPOWER`OPTIONS [u(cobj,pool)]=SPEND GAIN

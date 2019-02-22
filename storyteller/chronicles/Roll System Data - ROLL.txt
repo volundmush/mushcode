@@ -21,3 +21,11 @@
 &ROLL`DYNAMICSTATS`PYROS [u(cobj,roll)]=getpower(%0)
 &ROLL`DYNAMICSTATS`MORALITY [u(cobj,roll)]=u(getstat,%0,D`INFO,Morality)
 &ROLL`DYNAMICSTATS`ENDOWMENT [u(cobj,roll)]=u(lmax,iter(u(filter,ISINTSTAT,get(%0/D`ENDOWMENTS),|,|),last(%i0,~),|))
+
+
+&ROLL_PARENT`1 [u(cobj,roll)]=1
+&ROLL_PARENT`2 [u(cobj,roll)]=2
+&ROLL_PARENT`3 [u(cobj,roll)]=3
+&ROLL_PARENT`5 [u(cobj,roll)]=5
+
+

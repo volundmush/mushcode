@@ -27,6 +27,7 @@ INSERT INTO vol_story_stats
 	(stat_id,template_id,stat_name,stat_plural,stat_can_set)
 VALUES
 	/* Mortal - Template ID 1 */
+	(10004,1,"Supernatural Style","Supernatural Styles",0),
 	(10005,1,"Supernatural Merit","Supernatural Merits",0),
 	(10006,1,"Supernatural Flaw","Supernatural Flaws",0),
 	(10007,1,"Mortal Merit","Mortal Merits",0),
@@ -37,9 +38,19 @@ ON DUPLICATE KEY UPDATE template_id=VALUES(template_id),stat_name=VALUES(stat_na
 INSERT INTO vol_story_stats_ids
     (stat_id,stat_id_minimum,stat_id_maximum)
 VALUES
+    (10004,14000,14999),
     (10005,15000,15999),
     (10006,16000,16999),
     (10007,17000,17999),
     (10008,18000,18999),
     (10009,19000,19999)
 ON DUPLICATE KEY UPDATE stat_id_minimum=VALUES(stat_id_minimum),stat_id_maximum=VALUES(stat_id_maximum);
+
+INSERT INTO vol_story_pools
+	(pool_id,pool_category_id,pool_name,pool_unit_name,pool_single_name,pool_plural_name,pool_sort)
+VALUES
+
+	/* Mortal and Hunter */
+	(2,2,"Integrity","Integrity","Dot","Dots",1)
+
+ON DUPLICATE KEY UPDATE pool_category_id=VALUES(pool_category_id),pool_name=VALUES(pool_name),pool_single_name=VALUES(pool_single_name),pool_plural_name=VALUES(pool_plural_name),pool_sort=VALUES(pool_sort);

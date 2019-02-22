@@ -1,7 +1,7 @@
 
 &DO`SET`TEMPLATE`EXTRA [u(cobj,data)]=@attach %!/INC`DOSQL=RESET`SPLAT,get(%0/D`ID);@select/inline t(u(setr,powerstat_id,u(mysql,GET`POWERSTAT,%q<temp_id>)))=1,{@attach %!/INC`DOSQL=DELETE`MULTISTAT,get(%0/D`ID),u(SQL`IN`NUMBER,get(u(cobj,data)/POWERSTAT`IDS));@attach %!/INC`DOSQL=SET`STAT,%q<powerstat_id>,get(%0/D`ID),1}
 
-&Q`RESET`SPLAT [u(cobj,data)]=UPDATE vol_story_personas SET x_splat_id=NULL,y_splat_id=NULL,z_splat_id=NULL WHERE persona_id=?
+&Q`RESET`SPLAT [u(cobj,data)]=UPDATE vol_story_personas SET x_splat_id=SET_NULL,y_splat_id=SET_NULL,z_splat_id=SET_NULL WHERE persona_id=?
 &Q`GET`POWERSTAT [u(cobj,data)]=SELECT template_power_stat FROM vol_story_templates WHERE template_id=?
 &Q`DELETE`MULTISTAT [u(cobj,data)]=DELETE FROM vol_story_persona_stats WHERE persona_id=? AND stat_id IN (!)
 

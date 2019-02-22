@@ -31,7 +31,7 @@ th u(newcobj,Character Data Editor <DATA>,data,,,,WIZARD SAFE !NO_COMMAND,INHERI
 &DO`SET`TEMPLATE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`TEMPLATE;@attach [u(cobj,data)]/INC`DOSQL=SET`TEMPLATE,%q<temp_id>,get(%0/D`ID);@trigger [u(cobj,persona)]/REBUILD`V=%0;@attach [u(cobj,data)]/DO`SET`TEMPLATE`EXTRA
 
 &Q`LIST`TEMPLATE [u(cobj,data)]=SELECT template_name,template_id FROM vol_story_templates WHERE template_playable=1
-&Q`SET`TEMPLATE [u(cobj,data)]=UPDATE vol_story_personas SET template_id=?,x_splat_id=NULL,y_splat_id=NULL,z_splat_id=NULL WHERE persona_id=?
+&Q`SET`TEMPLATE [u(cobj,data)]=UPDATE vol_story_personas SET template_id=?,x_splat_id=SET_NULL,y_splat_id=SET_NULL,z_splat_id=SET_NULL WHERE persona_id=?
 
 &Q`GET`TEMPLATE [u(cobj,data)]=SELECT template_id FROM vol_story_personas WHERE persona_id=?
 &Q`GET`TEMPLATE_NAME [u(Cobj,data)]=SELECT template_name FROM volv_story_personas WHERE persona_id=?

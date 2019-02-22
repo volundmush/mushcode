@@ -151,3 +151,12 @@ VALUES
 	(20002,2,20608,"Blood Blight"),
 	(20002,2,20609,"Feeding the Crone")
 ON DUPLICATE KEY UPDATE stat_name=VALUES(stat_name);
+
+INSERT INTO vol_story_pools
+	(pool_id,pool_category_id,pool_name,pool_unit_name,pool_single_name,pool_plural_name,pool_sort)
+VALUES
+	/* Vampire */
+	(3,1,"Vitae","Vitae","Point","Points",2),
+	(4,2,"Humanity","Humanity","Dot","Dots",1)
+
+ON DUPLICATE KEY UPDATE pool_category_id=VALUES(pool_category_id),pool_name=VALUES(pool_name),pool_single_name=VALUES(pool_single_name),pool_plural_name=VALUES(pool_plural_name),pool_sort=VALUES(pool_sort);

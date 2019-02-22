@@ -44,7 +44,7 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_
 
 &INC`VALID`SLOTNAME [u(cobj,radio)]=@check strlen(u(setr,value,stripansi(trim(%0))))=@attach %!/INC`MSG=ERROR: No Name Entered for the new Slot!;@stop gt(words(%0),1)=@attach %!/INC`MSG=ERROR: Radio names must not contain spaces.;@check valid(attrname,D`RADIO`%0)=@attach %!/INC`MSG=ERROR: '%0' cannot be used as an attribute name.;@stop u(charsearch,%0,u(badchars) / `)=@attach %!/INC`MSG=ERROR: Radio names must not contain: [v(badchars)] / `;@stop cand(hasattr(%1/D`RADIO`%q<value>),not(strmatch(D`RADIO`%q<value>,%2)))
 
-&INC`FINDFREQ [u(cobj,radio)]=@attach %!/INC`VALID`NAME=%0;@select/inline isdbref(u(setr,freq,u(FUN`FINDFREQ,%0,%#)))=0,{@stop gt(words(u(setr,freq,namegraball(u(filter,CANSEE,children(u(cobj,freq)),%b,%b,%:),%0))),1)=@attach %!/INC`MSG=ERROR: That matched [u(itemize,iter(%q<freq>,name(%i0),%b,|),|,and,\,)]. Please be more specific.;@check words(%q<freq>)=@attach %!/INC`MSG=ERROR: Radio channel '%0' not found.};th u(setq,freq,objid(%q<freq>));th u(setq,freqname,name(%q<freq>))
+&INC`FINDFREQ [u(cobj,radio)]=@attach %!/INC`VALID`RADIONAME=%0;@select/inline isdbref(u(setr,freq,u(FUN`FINDFREQ,%0,%#)))=0,{@stop gt(words(u(setr,freq,namegraball(u(filter,CANSEE,children(u(cobj,freq)),%b,%b,%:),%0))),1)=@attach %!/INC`MSG=ERROR: That matched [u(itemize,iter(%q<freq>,name(%i0),%b,|),|,and,\,)]. Please be more specific.;@check words(%q<freq>)=@attach %!/INC`MSG=ERROR: Radio channel '%0' not found.};th u(setq,freq,objid(%q<freq>));th u(setq,freqname,name(%q<freq>))
 
 &FIL`PUBLIC [u(Cobj,radio)]=strmatch(#TRUE,get(%0/SEE_LOCK))
 &FIL`PRIVATE [u(cobj,radio)]=not(u(FIL`PUBLIC,%0))

@@ -1,0 +1,46 @@
+@@ DEPENDENCIES: Core
+
+th u(NEWCOBJ,Simple Message System <SMS>,sms,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+TXT`PENNMUSH [u(cobj,sms)]=$^(?s)(?\:\+)?(s)?(?\:sms|txt)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+TXT`MAIN
+@set [u(cobj,sms)]/CMD`+TXT`PENNMUSH=regexp
+&CMD`+TXT`RHOSTMUSH [u(cobj,sms)]=$^(?s)\(?\:\+)?(s)?(?\:sms|txt)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+TXT`MAIN
+@set [u(cobj,sms)]/CMD`+TXT`RHOSTMUSH=regexp
+&CMD`+TXT`MAIN [u(cobj,sms)]=@attach %!/INC`CHECKPC=%#,0;@attach %!/INC`GETSWITCH=%2;@attach %!/INC`CHECKPC=%#,1;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%3),trim(%5),if(u(isadmin,%#),t(strlen(%1)),0),trim(%4)
+@set [u(cobj,sms)]/CMD`+TXT`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SWITCHES`PLAYER [u(cobj,sms)]=ALL|NEW|SEARCH|NAME|REPLY|DELETE
+&SYSTEM`NAME [u(Cobj,sms)]=TXT
+
+&INC`MAIN [u(cobj,sms)]=@select/inline strlen(%0)=>0,{@select/inline isint(%0)=1,{@attach %!/INC`SHOWMSG},0,{@attach %!/INC`SENDMSG}},0,{@attach %!/INC`LISTMSG}
+
+&INC`SENDMSG [u(cobj,sms)]=@check u(isapproved,%q<t0>)=@attach %!/INC`MSG=ERROR: Cannot send messages while unapproved!;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Nothing entered to send!;@stop gt(strlen(%1),350)=@attach %!/INC`MSG=ERROR: Messages are limited to 350 characters or less.;@dolist/inline/delimit \, %0={@attach %!/INC`CHECKPC=%i0,inum(0);@stop strmatch(%#,r(t[inum(0)]))=@attach %!/INC`MSG=ERROR: Cannot list yourself as a recipient!;@check u(isapproved,r(t[inum(0)]))=@attach %!/INC`MSG=ERROR: [r(t[inum(0)]name)] is not approved!;th u(setq,recip_ids,setunion(%q<recip_ids>,r(t[inum(0)]id)));th u(setq,recip_objids,setunion(%q<recip_objids>,r(t[inum(0)]objid)))};@attach %!/INC`DOSQL=CREATE`MSG/msg_id,%1;@attach %!/INC`DOSQL=CREATE`MSG_LINK/mylink_id,%q<msg_id>,%q<t0id>,if(%2,%3,NULL),1;@attach %!/INC`DOSQL`UPDATE`MSG_READ=%q<mylink_id>;@dolist/inline %q<recip_ids>={@attach %!/INC`DOSQL=CREATE`MSG_LINK,%q<msg_id>,%i0,NULL,0};@attach %!/INC`MSG=You received a new SMS message from [if(%2,%3,%q<t0name>)]: %1,%q<recip_objids>;@attach %!/INC`MSG=Message sent to [iter(%q<recip_objids>,u(getmoniker,%i0),%b,\,%b)]: %1
+
+&Q`CREATE`MSG [u(cobj,sms)]=INSERT INTO vol_sms_msg (msg_date_created,msg_text) VALUES (UTC_TIMESTAMP(),?)
+
+&Q`CREATE`MSG_LINK [u(cobj,sms)]=INSERT INTO vol_sms_msg_link (msg_id,character_id,msg_sender_spoofname,msg_link_type) VALUES (?,?,?,?)
+
+&Q`UPDATE`MSG_READ [u(cobj,sms)]=UPDATE vol_sms_msg_link SET msg_date_read=UTC_TIMESTAMP() WHERE msg_link_id=?
+
+&INC`REPLY [u(cobj,sms)]=@attach %!/INC`FINDMSG=%0,1;@check words(u(setr,recobjs,u(filter,ISOBJID,setdiff(u(mysql,SELECT`MSG_LINK_OBJIDS,%q<msg1.id>),%q<t0objid>))))=@attach %!/INC`MSG=ERROR: Nobody remains to receive that message.;@attach %!/INC`SENDMSG=edit(%q<recobjs>,%b,\,),%1,%2,%3,%4,%5,%6
+
+&Q`SELECT`MSG_LINK_OBJIDS [u(cobj,sms)]=SELECT c.character_objid FROM volv_sms_msg_link AS l LEFT JOIN volv_character AS c ON l.character_id=c.character_id WHERE msg_id=?
+
+&INC`LISTMSG [u(cobj,sms)]=@pemit %#=u(header,Text Messages);@pemit %#=ansi(u(color,%#,TXT,COLUMN_NAMES),align(5 10 15 15 25,*#,Date,From,To,Preview));@pemit %#=u(separator);@dolist/inline u(mysql,SELECT`MSG_LINK_IDS,%q<t0id>)={@attach %!/INC`LOADSQL=MSGLINK,%i0,,msg;@pemit %#=align(5 10 15 15 25,if(%q<msg.unread>,*,%b)[u(pueblize,[inum(0)],+txt [inum(0)])],u(fancydate,%q<msg.created>,%#),%q<msg.sender_display>,%q<msg.recipient_names>,left(%q<msg.text>,25));th unsetq(msg.*)};@pemit %#=u(footer)
+
+&Q`SELECT`MSG_LINK_IDS [u(cobj,sms)]=SELECT l.msg_link_id FROM vol_sms_msg_link AS l LEFT JOIN vol_sms_msg AS m on l.msg_id=m.msg_id WHERE l.character_id=? AND l.msg_link_display=1
+
+&INC`SHOWMSG [u(cobj,sms)]=@attach %!/INC`FINDMSG=%0,1;@pemit %#=u(header,Txt Message %q<value>);@pemit %#=ansi(hw,From:)%b%q<msg1.sender_display>%R[ansi(hw,To:)] %q<msg1.recipient_names>;@pemit %#=u(separator,Contents);@pemit %#=%q<msg1.text>;@select/inline cor(1,eq(%q<t0id>,%q<msg1.sender_id>))=1,{@pemit %#=u(separator,Recipient Read Status);@pemit %#=iter(u(mysql3,SELECT`HAS_READ,%q<msg1.id>),before(%i0,chr(177))%b\([if(after(%i0,chr(177)),ansi(hr,N),ansi(hg,Y))]\),chr(176),\,%b)};@pemit %#=u(footer);@attach %!/INC`DOSQL=UPDATE`MSG_READ,%q<msg1.linkid>
+
+&Q`SELECT`HAS_READ [u(cobj,sms)]=SELECT c.character_name,l.msg_is_unread FROM volv_sms_msg_link AS l LEFT JOIN volv_character AS c ON l.character_id=c.character_id WHERE msg_id=? AND msg_link_type=0
+
+&INC`FINDMSG [u(cobj,sms)]=@attach %!/INC`VALID`POSINT=%0,TXT ID;@check u(setr,msg_link_id,elements(u(mysql,SELECT`MSG_LINK_IDS,%q<t0id>,sub(%q<value>,1)),%q<value>))=@attach %!/INC`MSG=ERROR: You don't have a Txt msg ID %q<value>!;@attach %!/INC`LOADSQL=MSGLINK,%q<msg_link_id>,%1,msg;
+
+&Q`EXIST`MSG_LINK_ID [u(cobj,sms)]=SELECT l.msg_link_id FROM vol_sms_msg_link AS l LEFT JOIN vol_sms_msg AS m on l.msg_id=m.msg_id WHERE l.character_id=? AND l.msg_link_display=1 LIMIT 1 OFFSET ?
+
+&Q`LOAD`MSGLINK [u(cobj,sms)]=SELECT msg_link_id,msg_id,character_id,msg_date_created_secs,msg_text,sender_id,sender_name,sender_display_name,recipient_names,recipient_ids,msg_link_type,msg_link_display,msg_date_read_secs,msg_is_unread FROM volv_sms_msg_link WHERE msg_link_id=?
+&FIELD`MSGLINK [u(cobj,sms)]=linkid id character_id created text sender_id sender_name sender_display recipient_names recipient_ids linktype display read unread
+
+&INC`DELETE [u(cobj,sms)]=@attach %!/INC`FINDMSG=%0,1;@attach %!/INC`DOSQL=UPDATE`LINK_DISPLAY,%q<msg1.linkid>;@attach %!/INC`MSG=Deleted SMS Message %0!
+
+&Q`UPDATE`LINK_DISPLAY [u(cobj,sms)]=UPDATE vol_sms_msg_link SET msg_link_display=0 WHERE msg_link_id=?

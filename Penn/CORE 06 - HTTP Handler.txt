@@ -14,12 +14,8 @@
 
 &GET`TEST [u(cobj,http)]=@pemit me=I HAVE STUFF! You are logged in as: %q<loginplayer>
 
-&JSON`WHO`PLAYER [u(cobj,http)]=json(object,id,json(number,get(%0/D`ID)),name,json(string,name(%0)),objid,json(string,%0),idle,json(number,idle(%0)),conn,json(number,conn(%0)))
 
-&J`INSERT`JSON [u(cobj,http)]=json_mod(%0,insert,$\[[json_query(%0,size)]\],%1)
 
-&JSON`WHO`PLAYERS [u(cobj,http)]=fold(J`INSERT`JSON,iter(u(lwhoid,%0),u(JSON`WHO`PLAYER,%i0),%b,chr(176)),\[\],chr(176))
 
-&FOLD`INSERT`ARRAY [u(Cobj,http)]=json_mod(%0,insert,$\[[json_query(%0,size)]\],%1)
 
 &GET`WHO [u(Cobj,http)]=@respond/type application/json;@pemit me=u(JSON`WHO`PLAYERS,%q<loginplayer>)

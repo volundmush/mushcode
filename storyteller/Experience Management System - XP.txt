@@ -1,6 +1,6 @@
-@@ DEPENDENCIES: Core, SQL
+@@ DEPENDENCIES: Core, SQL, Storyteller
 
-th u(newcobj,STORYTELLER: Experience Management System <XP>,xp,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+th u(newcobj,STORYTELLER: Experience Management System <XP>,xp,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
 
 &CMD`+XP`PENNMUSH [u(cobj,xp)]=$^(?s)(?\:\+)?(xp)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.+?))?(?\:/(.*))?$:@attach %!/CMD`+XP`MAIN
 @set [u(cobj,xp)]/CMD`+XP`PENNMUSH=regexp
@@ -32,7 +32,7 @@ th u(newcobj,STORYTELLER: Experience Management System <XP>,xp,,,,WIZARD SAFE !N
 
 &INC`AWARD [u(cobj,xp)]=@attach %!/INC`MARKXP=%0,%1,%2,AWARD
 &INC`SPEND [u(cobj,xp)]=@attach %!/INC`MARKXP=%0,%1,%2,SPEND
-&INC`MARKXP [u(cobj,xp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No targets entered!;@stop words(u(filter,NAMELIST,u(setr,list,u(namelist,%0,#lambda/pemit(%#,ERROR: Target Not Found or Ambiguous: \%0)))))=@attach %!/INC`MSG=ERROR: One or more entered names did not resolve. Please check your entry and try again.;@check cand(isnum(%1),gt(%1,0))=@attach %!/INC`MSG=ERROR: %q<type> amounts must be positive numbers!;th u(setq,msg,switch(%3,AWARD,Gained,Lost) [ansi(h,%1)] %q<type> for: [u(strfirstof,%2,No given reason.)])[u(setq,recplist,u(itemize,iter(%q<list>,ansi(h,u(getmoniker,%i0)),%b,|),|,and,\,))];@dolist/inline %q<list>={th u(call`5,volp_story_xp,0,get(##/D`ID),%q<xp_id>,switch(%3,AWARD,%1,SPEND,mul(%1,-1)),'[sqlescape(%2)]',get(%#/D`ID))};@attach %!/DO`ANNOUNCE=%q<list>,{%q<recplist> %q<msg>},{You %q<msg>},{%q<recplist> %q<msg>}
+&INC`MARKXP [u(cobj,xp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No targets entered!;@stop words(u(filter,NAMELIST,u(setr,list,u(namelist,%0,#lambda/pemit(%#,ERROR: Target Not Found or Ambiguous: \%0)))))=@attach %!/INC`MSG=ERROR: One or more entered names did not resolve. Please check your entry and try again.;@check cand(isnum(%1),gt(%1,0))=@attach %!/INC`MSG=ERROR: %q<type> amounts must be positive numbers!;th u(setq,msg,switch(%3,AWARD,Gained,Lost) [ansi(h,%1)] %q<type> for: [u(strfirstof,%2,No given reason.)])[u(setq,recplist,u(itemize,iter(%q<list>,ansi(h,u(getmoniker,%i0)),%b,|),|,and,\,))];@dolist/inline %q<list>={th u(call`5,volp_story_xp,0,get(##/D`PERSONA),%q<xp_id>,switch(%3,AWARD,%1,SPEND,mul(%1,-1)),'[sqlescape(%2)]',get(%#/D`PERSONA))};@attach %!/DO`ANNOUNCE=%q<list>,{%q<recplist> %q<msg>},{You %q<msg>},{%q<recplist> %q<msg>}
 
 &FIL`NAMELIST [u(cobj,xp)]=strmatch(%0,#-*)
 
