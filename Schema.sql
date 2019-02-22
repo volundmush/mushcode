@@ -1124,7 +1124,7 @@ CREATE OR REPLACE VIEW volv_action_agg AS
 	SELECT actor_id,MAX(action_date_created) AS action_latest FROM volv_action WHERE action_is_deleted=0 GROUP BY actor_id;
 
 CREATE OR REPLACE VIEW volv_actor_agg AS
-	SELECT a.*,ag.action_count,ag.action_latest,UNIX_TIMESTAMP(ag.action_latest) AS action_latest_secs from volv_actor AS a LEFT JOIN volv_action_agg AS ag ON a.actor_id=ag.actor_id;
+	SELECT a.*,ag.action_latest,UNIX_TIMESTAMP(ag.action_latest) AS action_latest_secs from volv_actor AS a LEFT JOIN volv_action_agg AS ag ON a.actor_id=ag.actor_id;
 	
 CREATE OR REPLACE VIEW volv_scene_stats AS
 	SELECT scene_id,SUM(action_count) AS action_count,MAX(action_latest) AS action_latest,UNIX_TIMESTAMP(MAX(action_latest)) AS action_latest_secs FROM volv_actor_agg GROUP BY scene_id;
