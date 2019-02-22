@@ -1360,12 +1360,6 @@ CREATE TABLE IF NOT EXISTS vol_clink_trait (
 	UNIQUE(clink_id,trait_type,trait_id)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
-CREATE TABLE IF NOT EXISTS vol_clink_consequences (
-	
-	FOREIGN KEY(clink_id) REFERENCES vol_clink(clink_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	
-)	
-
 CREATE TABLE IF NOT EXISTS vol_carmory (
 	carmory_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	centity_id INT UNSIGNED NULL,
