@@ -1035,6 +1035,7 @@ CREATE OR REPLACE VIEW volv_plot_agg AS
 CREATE TABLE IF NOT EXISTS vol_scene (
 	scene_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	scene_title VARCHAR(255),
+	scene_title_ansi VARCHAR(255) NULL DEFAULT NULL,
 	scene_pitch TEXT NULL,
 	scene_outcome TEXT NULL,
 	post_id INT UNSIGNED NULL,

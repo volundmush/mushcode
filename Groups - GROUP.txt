@@ -247,7 +247,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &GRP`GADMIN`DISBAND [u(cobj,group)]=@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Sorry! Wizard only.;@attach %!/INC`FINDGROUP=%0,1;@check strmatch(%1,%q<g1name>)=@attach %!/INC`MSG=ERROR: Must enter the group's full name as the second argument to verify.;@attach %!/INC`VERIFY=[ansi(hr,WARNING:)] This will DELETE Group '%q<g1name>'. This is not recommended for well-established groups. If you're sure\, enter the command again in ten seconds to verify.,DELETE GROUP %q<g1>;@attach %!/INC`CODE`CHAT={[ansi(hw,ALERT:)] %n has Disbanded the Group!},OOC,1;@attach %!/INC`MSG`CHAN=DISBANDED Group '%q<g1name>';@attach %!/GRP`GADMIn`DISBAND`DO=%q<g1>
 
-&GRP`GADMIN`DISBAND`DO [u(cobj,group)]=@attach %!/INC`DOSQL=DELETE`GROUP,get(%0/D`ID);@dolist/inline get(%0/MEMBERS)={@trigger %!/GRP`CACHE`CHARACTER=##};@attach %!/INC`DOSQL=DELETE`GROUPCHAT,objid(%0);@attach %!/DELETE=%0
+&GRP`GADMIN`DISBAND`DO [u(cobj,group)]=@attach %!/INC`DOSQL=DELETE`GROUP,get(%0/D`ID);@dolist/inline get(%0/MEMBERS)={@trigger %!/GRP`CACHE`CHARACTER=##;@trigger %!/GRP`CACHE`TIERS=##};@attach %!/INC`DOSQL=DELETE`GROUPCHAT,objid(%0);@attach %!/DELETE=%0
 
 &Q`DELETE`GROUP [u(cobj,group)]=DELETE FROM vol_entity WHERE entity_id=?
 &Q`DELETE`GROUPCHAT [u(cobj,group)]=DELETE from vol_messages WHERE source_objid=?
