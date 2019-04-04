@@ -43,7 +43,10 @@ CREATE TABLE IF NOT EXISTS vol_inv_item_category (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_inv_item_category_agg AS
-    SELECT i.item_id,GROUP_CONCAT(c.category_id ORDER BY c.category_name) AS category_ids,GROUP_CONCAT(c.category_name ORDER BY c.category_name SEPARATOR '|') AS category_names FROM vol_inv_item_category AS i LEFT JOIN vol_inv_category ON i.category_id=c.category_id GROUP BY i.item_id;
+    SELECT i.item_id,GROUP_CONCAT(c.category_id ORDER BY c.category_name) AS category_ids,GROUP_CONCAT(c.category_name ORDER BY c.category_name SEPARATOR '|') AS category_names FROM vol_inv_item_category AS i LEFT JOIN vol_inv_category AS c ON i.category_id=c.category_id GROUP BY i.item_id;
+
+CREATE OR REPLACE VIEW volv_inv_item_categories AS
+    SELECT i.*,c.* FROM vol_inv_item_category AS ic LEFT JOIN vol_inv_category AS c ON ic.category_id=c.category_id LEFT JOIN vol_inv_item AS i ON i.item_id=ic.item_id ORDER BY c.category_name,i.item_name;
 
 CREATE TABLE IF NOT EXISTS vol_inv_persona (
     inv_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -65,5 +68,5 @@ CREATE TABLE IF NOT EXISTS volv_inv_persona_mods (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_inv_persona AS
-    SELECT i.inv_id AS inv_id,i.persona_id AS persona_id,i.item_id AS item_id,i.inv_quantity AS inv_quantity,i.inv_alias AS inv_alias,i2.item_name AS item_name,i2.item_value AS item_value,i2.item_weight AS item_weight,c.category_ids,c.category_names FROM vol_inv_persona AS i LEFT JOIN vol_inv_item AS i2 ON i.item_id=i2.item_id LEFT JOIN volv_inv_item_category_agg ON i.item_id=c.item_id
+    SELECT i.inv_id AS inv_id,i.persona_id AS persona_id,i.item_id AS item_id,i.inv_quantity AS inv_quantity,i.inv_alias AS inv_alias,i2.item_name AS item_name,IF(CHAR_LENGTH(i.inv_alias),i.inv_alias,i2.item_name) AS display_name,i2.item_value AS item_value,i2.item_weight AS item_weight,i2.item_strength_req AS item_strength_req,i2.item_stackable AS item_stackable,i2.category_id,i2.category_name FROM vol_inv_persona AS i LEFT JOIN volv_inv_item_categories AS i2 ON i.item_id=i2.item_id;
 

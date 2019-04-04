@@ -61,7 +61,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &NEWCOBJ [u(cobj,ccp)]=localize(if(not(isobjid(u(cobj,%1))),setr(newobj,objid(create(%0)))[if(not(%4),parent(%q<newobj>,u(firstof,%3,u(cobj,ccp))))][tel(%q<newobj>,u(firstof,%2,u(MASTER_ROOM)))][u(attrib_set,u(cobj,ccp),COBJ`%1,%q<newobj>)][set(%q<newobj>,%5)]))
 @@ %0 - @name. %1 - alias. %2 - location to store. %3 - parent, defaults to MCO. %4 - No parent. %5 - PennMUSH flags. %6 - RhostMUSH flags.
 
-&CANHEAR [u(cobj,ccp)]=lockfilter(FLAG^CONNECTED|FLAG^PUPPET,%0)
+&CANHEAR [u(cobj,ccp)]=lockfilter(FLAG^CONNECTED|FLAG^PUPPET|FLAG^MONITOR,%0)
 
 &FIND_IN [u(cobj,ccp)]=locate(%0,%1,TXxi)
 

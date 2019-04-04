@@ -1346,9 +1346,7 @@ CREATE TABLE IF NOT EXISTS vol_clink (
 	INDEX(consequences_tier,consequences_date_timeout)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
-CREATE OR REPLACE VIEW volv_centity AS SELECT c.centity_id AS centity_id,e.entity_name AS centity_name,c.centity_type as centity_type,c.centity_version AS centity_version,c.centity_owner AS centity_owner,e2.entity_name AS centity_owner_name,e2.entity_type AS centity_owner_type,e2.entity_objid AS centity_owner_objid,c.centity_date_created AS centity_date_created,UNIX_TIMESTAMP(c.centity_date_created) AS centity_date_created_secs,c.centity_claim_lock AS centity_claim_lock,c.centity_approved AS centity_approved FROM vol_centity AS c LEFT JOIN vol_entity AS e ON c.centity_id=e.entity_id LEFT JOIN vol_entity AS e2 ON c.centity_owner=e2.entity_id;
 
-CREATE OR REPLACE VIEW volv_clink AS SELECT cl.clink_id AS clink_id,cl.character_id AS character_id,e.entity_name AS character_name,e.entity_objid AS character_objid,cl.clink_approved AS clink_approved,cl.clink_loan_from AS clink_loan_from,e2.entity_name AS loan_from_name,e2.entity_objid AS loan_from_objid,cl.clink_type AS clink_type,cl.clink_locked AS clink_locked,cl.consequences_date_gained AS consequences_date_gained,UNIX_TIMESTAMP(cl.consequences_date_gained) AS consequences_date_gained_secs,cl.consequences_date_timeout AS consequences_date_timeout,UNIX_TIMESTAMP(cl.consequences_date_timeout) AS consequences_date_timeout_secs,cl.consequences_scenes AS consequences_scenes,cen.* FROM vol_clink AS cl LEFT JOIN volv_centity AS cen ON cen.centity_id=cl.centity_id LEFT JOIN vol_entity AS e ON cl.character_id=e.entity_id LEFT JOIN vol_entity AS e2 ON cl.clink_loan_from=e2.entity_id;
 
 CREATE TABLE IF NOT EXISTS vol_clink_trait (
 	clink_id MEDIUMINT UNSIGNED NOT NULL,

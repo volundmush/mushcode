@@ -1,0 +1,104 @@
+@@ Dependencies: Core, Storyteller
+
+th u(NEWCOBJ,Inventory System <INV>,inv,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+ITEM`PENNMUSH [u(cobj,inv)]=$^(?s)(?\:\+)?item(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+ITEM`MAIN
+@set [u(cobj,inv)]/CMD`+ITEM`PENNMUSH=regexp
+&CMD`+ITEM`RHOSTMUSH [u(cobj,inv)]=$^(?s)(?\:\+)?item(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+ITEM`MAIN
+@set [u(cobj,inv)]/CMD`+ITEM`RHOSTMUSH=regexp
+&CMD`+ITEM`MAIN [u(cobj,inv)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`CHECKPC=%#,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,inv)]/CMD`+ITEM`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,inv)]=ITEM
+
+&SWITCHES`PLAYER [u(cobj,inv)]=BUY|USE|PROVE|EXAMINE|DETAILS|MOD|UNMOD|GIVE|ALIAS|SELL
+&SWITCHES`ADMIN [u(cobj,inv)]=TAKE|SPAWN
+
+&INC`VALID`ITEMCAT [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Item Category,ITEMCAT,%1
+
+&Q`FIND`ITEMCAT`LIST [u(cobj,story)]=SELECT category_name FROM vol_inv_category WHERE category_id=?
+&Q`FIND`ITEMCAT`LIST`ID [u(cobj,story)]=SELECT category_id FROM vol_inv_category WHERE category_id=?
+&Q`FIND`ITEMCAT`EXACT [u(Cobj,story)]=SELECT category_id,category_name FROM vol_inv_category WHERE category_name=?
+&Q`FIND`ITEMCAT`EXACT`ID [u(Cobj,story)]=SELECT category_id,category_name FROM vol_inv_category WHERE category_id=?
+&Q`FIND`ITEMCAT`WILD [u(Cobj,story)]=SELECT category_id,category_name FROm vol_inv_category WHERE category_name LIKE '!%'
+
+&Q`EXIST`ITEMCAT [u(cobj,story)]=SELECT category_id FROM vol_inv_category WHERE category_id=?
+&Q`LOAD`ITEMCAT [u(cobj,story)]=SELECT category_id,category_name FROM vol_inv_category WHERE category_id=?
+&FIELD`ITEMCAT [u(cobj,story)]=id name
+
+&INC`VALID`ITEM [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Item,ITEM,%1,%2
+
+&Q`FIND`ITEM`LIST [u(cobj,story)]=SELECT item_name FROM volv_inv_item_categories WHERE item_id=? AND category_id=?
+&Q`FIND`ITEM`LIST`ID [u(cobj,story)]=SELECT item_id FROM volv_inv_item_categories WHERE item_id=? AND category_id=?
+&Q`FIND`ITEM`EXACT [u(Cobj,story)]=SELECT item_id,item_name FROM volv_inv_item_categories WHERE item_name=? AND category_id=?
+&Q`FIND`ITEM`EXACT`ID [u(Cobj,story)]=SELECT item_id,item_name FROM volv_inv_item_categories WHERE item_id=? AND category_id=?
+&Q`FIND`ITEM`WILD [u(Cobj,story)]=SELECT item_id,item_name FROm volv_inv_item_categories WHERE item_name LIKE '!%' AND category_id=?
+
+&Q`EXIST`ITEM [u(cobj,story)]=SELECT item_id FROM volv_inv_item_categories WHERE item_id=?
+&Q`LOAD`ITEM [u(cobj,story)]=SELECT item_id,item_name,item_stackable,item_value,item_weight,item_strength_req FROM volv_inv_item_categories WHERE item_id=?
+&FIELD`ITEM [u(cobj,story)]=id name stackable value weight strength
+
+
+&INC`VALID`ITEMPERS [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Personal Item,ITEMPERS,%1,%2
+
+&Q`FIND`ITEMPERS`LIST [u(cobj,story)]=SELECT inv_id FROM volv_inv_persona WHERE inv_id=? AND category_id=? AND persona_id=?
+&Q`FIND`ITEMPERS`LIST`ID [u(cobj,story)]=SELECT inv_id FROM volv_inv_persona WHERE inv_id=? AND category_id=? AND persona_id=?
+&Q`FIND`ITEMPERS`EXACT [u(Cobj,story)]=SELECT inv_id,display_name FROM volv_inv_persona WHERE item_name=? AND category_id=? AND persona_id=?
+&Q`FIND`ITEMPERS`EXACT`ID [u(Cobj,story)]=SELECT inv_id,display_name FROM volv_inv_persona WHERE inv_id=? AND category_id=? AND persona_id=?
+&Q`FIND`ITEMPERS`WILD [u(Cobj,story)]=SELECT inv_id,display_name FROm volv_inv_persona WHERE display_name LIKE '!%' AND category_id=? AND persona_id=?
+
+&Q`EXIST`ITEMPERS [u(cobj,story)]=SELECT inv_id FROM volv_inv_persona WHERE inv_id=?
+&Q`LOAD`ITEMPERS [u(cobj,story)]=SELECT inv_id,item_id,item_name,inv_alias,display_name,inv_quantity,item_stackable,item_value,item_weight,item_strength_req,category_name FROM volv_inv_persona WHERE inv_id=?
+&FIELD`ITEMPERS [u(cobj,story)]=id itemid name alias display quantity stackable value weight strength category
+
+&INC`FINDITEM [u(cobj,inv)]=@check strlen(before(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item Category to sort by!;@attach %!/INC`VALID`ITEMCAT=before(%0,/),%1;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item to search for!;@attach %!/INC`VALID`ITEM=after(%0,/),%1,%q<itemcat1.id>
+
+&INC`FINDITEMPERS [u(cobj,inv)]=@check strlen(before(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item Category to sort by!;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item name or Alias to search for!;@attach %!/INC`VALID`ITEMCAT=before(%0,/),%1;@attach %!/INC`VALID`ITEMPERS=after(%0,/),%1,%2;
+
+&INC`MAIN [u(cobj,inv)]=@select/inline cand(strlen(%1),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%1,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>};@select/inline strlen(%0)=>0,{@attach %!/INC`VALID`ITEMCAT=%0,1};@pemit %#=u(header,%q<persona1.name>'s [if(%q<itemcat1.id>,%q<itemcat1.name>%b)]Inventory);@pemit %#=ansi(u(color,%#,ITEM,COLUMN_NAMES),align(5 20 10 9 9 8,Inv#,Item Name,Quantity,StrReq,Value,Category));@pemit %#=u(separator);@dolist/inline u(mysql,LIST`ITEMS[if(%q<itemcat1.id>,_CAT)],%q<persona1.id>,%q<itemcat1.id>)={@attach %!/INC`LOADSQL=ITEMPERS,%i0,,i;@pemit %#=align(5 20 10 9 9 8,%q<i.id>,%q<i.name>[if(strlen(%q<i.alias>),%b\(%q<i.alias>\))],%q<i.quantity>,%q<i.strength>,%q<i.value>,%q<i.category>)};@pemit %#=u(footer)
+
+&Q`LIST`ITEMS [u(cobj,inv)]=SELECT inv_id FROM volv_inv_persona WHERE persona_id=?
+&Q`LIST`ITEMS_CAT [u(cobj,inv)]=SELECT inv_id FROM volv_inv_persona WHERE persona_id=? AND category_id=?
+
+&INC`BUY [u(cobj,inv)]=@attach %!/INC`FINDITEM=%0,1;@attach %!/INC`VALID`POSINT=%1,Item Quantity;@select/inline %q<item1.value>=0,{@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: You can't buy this! Gonna need to find another way to get it...};@check cor(u(isadmin,%#),gte(get(%#/D`MONEY),mul(%q<item1.value>,%q<value>)))=@attach %!/INC`MSG=ERROR: You can't afford that!;@attach %!/INC`SPAWNITEM=%q<persona1.id>,%q<item1.id>,%q<item1.stackable>,%q<value>
+
+&INC`SPAWNITEM [u(Cobj,inv)]=@select/inline t(%2)=1,{@select/inline t(u(setr,exist_inv,u(mysql,EXIST`STACKABLE_ITEM,%1,%0)))=1,{@attach %!/INC`DOSQL=INCREASE`STACKABLE_ITEM,%3,%q<exist_inv>},0,{@attach %!/INC`DOSQL=SPAWN`ITEM,%0,%1,%3}},0,{@dolist/inline lnum(%3)={@attach %!/INC`DOSQL=SPAWN`ITEM,%0,%1,%3}}
+@@ %0 - Persona to spawn it in. %1 - Item ID to spawn. %2 - Stackable mode. %3 - Quantity to Spawn.
+
+&Q`EXIST`STACKABLE_ITEM [u(cobj,inv)]=SELECT inv_id FROM volv_inv_persona WHERE item_id=? AND item_stackable=1 AND persona_id=?
+&Q`INCREASE`STACKABLE_ITEM [u(cobj,inv)]=UPDATE inv_id SET inv_quantity=inv_quantity+? WHERE inv_id=?
+&Q`SPAWN`ITEM [u(cobj,inv)]=INSERT INTO vol_inv_persona (persona_id,item_id,inv_quantity) VALUES (?,?,?)
+
+&INC`USE [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@attach %!/INC`VALID`POSINT=%1,Item Quantity;@check %q<itempers1.stackable>=@attach %!/INC`MSG=ERROR: That item is not Stackable!;@check gt(%q<value>,%q<itempers1.quantity>)=@attach %!/INC`MSG=ERROR: You don't have that many %q<itempers1.name>! You only have %q<itempers1.quantity>!;@select/inline eq(%q<value>,%q<itempers1.quantity>)=1,{@attach %!/INC`DOSQL=DELETE`ITEM,%q<itempers1.id},0,{@attach %!/INC`DOSQL=DECREASE`ITEM,%q<value>,%q<itempers1.id>}
+
+&Q`DELETE`ITEM [u(cobj,inv)]=DELETE FROM vol_inv_persona WHERE inv_id=?
+&Q`DECREASE`ITEM [u(cobj,inv)]=UPDATE vol_inv_persona SET inv_quantity=inv_quantity-? WHERE inv_id=?
+
+&INC`PROVE [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@attach %!/INC`MSG`ROOM=[ansi(h,%n)] shows off an item! [if(%q<itempers1.stackable>,%q<itempers1.quantity>x %q<itempers1.category>: %q<itempers1.name>,a %q<itempers1.category>: %q<itempers1.name>[if(strlen(%q<itempers1.alias>) known as '%q<itempers1.alias')])]
+
+&INC`RETURN [u(Cobj,inv)]=@stop cand(u(isapproved,%#),not(isadmin,%#))=@attach %!/INC`MSG=ERROR: You are approved!;@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@select/inline cand(strlen(%1),%q<itempers1.stackable>)=>0,{@attach %!/INC`VALID`POSINT=%1,Item Stack;@stop gt(%q<value>,%q<itempers1.quantity>)=@attach %!/INC`MSG=ERROR: You do not have that many!},0,{th u(setq,value,1)};@select/inline %q<itempers1.stackable>=1,{@select/inline eq(%q<value>,%q<itempers1.quantity>)=1,{@attach %!/INC`DOSQL=DELETE`ITEM,%q<itempers1.id>},0,{@attach %!/INC`DOSQL=DECREASE`ITEM,%q<value>,%q<itempers1.id>}},0,{@attach %!/INC`DOSQL=DELETE`ITEM,%q<itempers1.id>};th u(attrib_set,%#,D`MONEY,add(get(%#/D`MONEY),u(setr,money,mul(%q<itempers1.value>,%q<quantity>))));@attach %!/INC`MSG=Item returned for %q<money> caps!
+
+&INC`EXAMINE [u(cobj,inv)]=@select/inline cand(strlen(%1),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%1,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>};@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;
+
+&INC`DETAILS [u(cobj,inv)]=@attach %!/INC`FINDITEM=%0,1;
+
+&INC`MOD [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@stop %q<itempers1.stackable>=@attach %!/INC`MSG=ERROR: What is there to say about this item?;
+
+&INC`UNMOD [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@stop %q<itempers1.stackable>=@attach %!/INC`MSG=ERROR: What is there to say about this item?;
+
+&INC`ALIAS [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@stop %q<itempers1.stackable>=@attach %!/INC`MSG=ERROR: What is there to say about this item?;@attach %!/INC`VALID`ENAME=%1,Item Alias;@attach %!/INC`DOSQL=ALIAS`ITEM,%q<value>,%q<itempers1.id>;@attach %!/INC`MSG=You dub it: %q<valueformat>
+
+&Q`ALIAS`ITEM [u(cobj,inv)]=UPDATE vol_inv_persona SET inv_alias=? WHERE inv_id=?
+
+&INC`GIVE [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=elements(%0,1 2,/,/),1,%q<persona1.id>;@select/inline %q<itempers1.stackable>=1,{@select/inline strlen(elements(%0,3,/)=>0,{@attach %!/INC`VALID`POSINT=elements(%0,3,/),Item Quantity},0,{})},0,{th u(setq,value,1)};@stop gt(%q<value>,%q<itempers1.quantity>)=@attach %!/INC`MSG=ERROR: You don't have that many!;@attach %!/INC`CHECKPC=%0,2@attach %!/INC`VALID`PERSONA=get(%q<t2>/D`PERSONA`PRIMARY),2,%q<t2id>;@attach %!/INC`TRANSFER=%q<persona1.id>,%q<itempers1.id>,%q<persona2.id>,%q<itempers1.stackable>,%q<itempers1.quantity>,%q<value>,%q<itempers1.itemid>;@attach %!/INC`MSG=You give a [u(setr,itemname,if(%q<itempers1.stackable>,%q<itempers1.quantity>x %q<itempers1.category>: %q<itempers1.name>,a %q<itempers1.category>: %q<itempers1.name>[if(strlen(%q<itempers1.alias>) known as '%q<itempers1.alias')]))] to %q<t2name>!;@attach %!/INC`MSG=%n gives you: %q<itemname>,%q<t2>;@attach %!/INC`MSG`CHAN=%n gives %q<t2name>: %q<itemname>
+
+&INC`TRANSFER [u(Cobj,inv)]=@select/inline t(%3)=1,{@select/inline gte(%5,%4)=1,{@attach %!/INC`DOSQL=TRANSFER`ITEM=%2,%0},0,{@attach %!/INC`DOSQL=DECREASE`ITEM,%5,%1;@attach %!/INC`SPAWNITEM=%2,%6,%3,if(%4,%4,1)}},0,{@attach %!/INC`DOSQL=TRANSFER`ITEM,%2,%0}
+@@ %0 - Persona to transfer from. %1 - Inv ID. %2 - Destination Persona ID. %3 - Stackable mode. %4 - Quantity exists. %5 - Quantity to transfer. %6 - Item ID.
+
+@@ %0 - Persona to spawn it in. %1 - Item ID to spawn. %2 - Stackable mode. %3 - Quantity to Spawn.
+
+
+
+&INC`TAKE [u(cobj,inv)]=@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>;@attach %!/INC`FINDITEMPERS=before(%1,/),1,,%q<persona1.id>;@attach %!/INC`VALID`POSINT=after(%1,/),Item Quantity;
+
+&INC`SPAWN [u(cobj,inv)]=@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>;@attach %!/INC`FINDITEM=elements(%1,1 2,/,/),1;@attach %!/INC`VALID`POSINT=u(strfirstof,elements(%1,3,/),1),Item Quantity;@attach %!/INC`SPAWNITEM=%q<persona1.id>,%q<item1.id>,%q<item1.stackable>,%q<value>
