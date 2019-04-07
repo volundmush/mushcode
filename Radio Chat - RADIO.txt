@@ -50,7 +50,7 @@ th u(NEWCOBJ,Radio Frequency Parent <FREQ>,freq,u(cobj,radio),,,WIZARD SAFE !NO_
 &FIL`PRIVATE [u(cobj,radio)]=not(u(FIL`PUBLIC,%0))
 &FIL`CANSEE [u(Cobj,radio)]=u(FUN`PERMISSION,%0,SEE,%1)
 
-&INC`RADIO`JOIN [u(cobj,radio)]=@attach %!/INC`FINDFREQ=trim(before(%0,/));@attach %!/INC`JOIN`DO=%:,%q<freq>,after(%0,/);
+&INC`RADIO`JOIN [u(cobj,radio)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Permission denied for guests.;@attach %!/INC`FINDFREQ=trim(before(%0,/));@attach %!/INC`JOIN`DO=%:,%q<freq>,after(%0,/);
 
 @@ This is split off, because of the group system.
 &INC`JOIN`DO [u(cobj,radio)]=@check isdbref(%1)=@attach %!/INC`MSG=ERROR: Could not find frequency %1!,%0;th u(setq,slotname,u(strfirstof,%2,name(%1)));@check u(FUN`PERMISSION,u(setr,freq,%1),JOIN,%0)=@attach %!/INC`MSG=ERROR: Permission denied.,%0;@stop hasattr(%0/D`RADIO`%q<slotname>)=@attach %!/INC`MSG=ERROR: That SlotName '%q<slotname>' is already in use. You must choose an alias that is not yet used.,%0;th u(attrib_set,%0,u(setr,slot,D`RADIO`%q<slotname>),objid(%1));&%q<slot>`NAME %#=%q<slotname>;@attach %!/INC`MSG=Slot '%q<slotname>' initialized and tuned to Radio Channel '[u(getmoniker,%1)]'.,%0;th u(setq,mem,match(get(%1/MEMBERS),objid(%0)));@attach %!/INC`CONNECT=objid(%0),%1;@attach %!/INC`UPDATESLOTS=%0,%1;@select/inline nor(u(isadmin,%0),%q<mem>)=1,{@attach %!/INC`SYSRADIO=[ansi(hw,name(%0))] has joined the Radio Channel.,num(%0)}

@@ -11,7 +11,7 @@ th u(NEWCOBJ,Inventory System <INV>,inv,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 
 &SYSTEM`NAME [u(cobj,inv)]=ITEM
 
-&SWITCHES`PLAYER [u(cobj,inv)]=BUY|USE|PROVE|EXAMINE|DETAILS|MOD|UNMOD|GIVE|ALIAS|SELL
+&SWITCHES`PLAYER [u(cobj,inv)]=BUY|USE|PROVE|EXAMINE|DETAILS|MOD|UNMOD|GIVE|ALIAS|SELL|RETURN
 &SWITCHES`ADMIN [u(cobj,inv)]=TAKE|SPAWN
 
 &INC`VALID`ITEMCAT [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Item Category,ITEMCAT,%1
@@ -39,7 +39,7 @@ th u(NEWCOBJ,Inventory System <INV>,inv,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 &FIELD`ITEM [u(cobj,story)]=id name stackable value weight strength
 
 
-&INC`VALID`ITEMPERS [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Personal Item,ITEMPERS,%1,%2
+&INC`VALID`ITEMPERS [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Personal Item,ITEMPERS,%1,%2,%3
 
 &Q`FIND`ITEMPERS`LIST [u(cobj,story)]=SELECT inv_id FROM volv_inv_persona WHERE inv_id=? AND category_id=? AND persona_id=?
 &Q`FIND`ITEMPERS`LIST`ID [u(cobj,story)]=SELECT inv_id FROM volv_inv_persona WHERE inv_id=? AND category_id=? AND persona_id=?
@@ -53,7 +53,7 @@ th u(NEWCOBJ,Inventory System <INV>,inv,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 
 &INC`FINDITEM [u(cobj,inv)]=@check strlen(before(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item Category to sort by!;@attach %!/INC`VALID`ITEMCAT=before(%0,/),%1;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item to search for!;@attach %!/INC`VALID`ITEM=after(%0,/),%1,%q<itemcat1.id>
 
-&INC`FINDITEMPERS [u(cobj,inv)]=@check strlen(before(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item Category to sort by!;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item name or Alias to search for!;@attach %!/INC`VALID`ITEMCAT=before(%0,/),%1;@attach %!/INC`VALID`ITEMPERS=after(%0,/),%1,%2;
+&INC`FINDITEMPERS [u(cobj,inv)]=@check strlen(before(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item Category to sort by!;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item name or Alias to search for!;@attach %!/INC`VALID`ITEMCAT=before(%0,/),%1;@attach %!/INC`VALID`ITEMPERS=after(%0,/),%1,%q<itemcat1.id>,%2;
 
 &INC`MAIN [u(cobj,inv)]=@select/inline cand(strlen(%1),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%1,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>};@select/inline strlen(%0)=>0,{@attach %!/INC`VALID`ITEMCAT=%0,1};@pemit %#=u(header,%q<persona1.name>'s [if(%q<itemcat1.id>,%q<itemcat1.name>%b)]Inventory);@pemit %#=ansi(u(color,%#,ITEM,COLUMN_NAMES),align(5 20 10 9 9 8,Inv#,Item Name,Quantity,StrReq,Value,Category));@pemit %#=u(separator);@dolist/inline u(mysql,LIST`ITEMS[if(%q<itemcat1.id>,_CAT)],%q<persona1.id>,%q<itemcat1.id>)={@attach %!/INC`LOADSQL=ITEMPERS,%i0,,i;@pemit %#=align(5 20 10 9 9 8,%q<i.id>,%q<i.name>[if(strlen(%q<i.alias>),%b\(%q<i.alias>\))],%q<i.quantity>,%q<i.strength>,%q<i.value>,%q<i.category>)};@pemit %#=u(footer)
 
@@ -82,9 +82,13 @@ th u(NEWCOBJ,Inventory System <INV>,inv,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 
 &INC`DETAILS [u(cobj,inv)]=@attach %!/INC`FINDITEM=%0,1;
 
-&INC`MOD [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@stop %q<itempers1.stackable>=@attach %!/INC`MSG=ERROR: What is there to say about this item?;
+&INC`MOD [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@stop %q<itempers1.stackable>=@attach %!/INC`MSG=ERROR: What is there to say about this item?;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Nothing entered to say!;@attach %!/INC`DOSQL=INSERT`MOD,%q<itempers1.id>,%1;@attach %!/INC`MSG=Mod note attached!
 
-&INC`UNMOD [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@stop %q<itempers1.stackable>=@attach %!/INC`MSG=ERROR: What is there to say about this item?;
+&Q`INSERT`MOD [u(cobj,inv)]=INSERT INTO vol_inv_persona_mods (inv_id,mod_text) VALUES (?,?)
+
+&INC`UNMOD [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@stop %q<itempers1.stackable>=@attach %!/INC`MSG=ERROR: What is there to say about this item?;@attach %!/INC`VALID`INT=%1,Mod ID;@check u(mysql,EXIST`MOD,%q<itempers1.id>,%q<value>)=@attach %!/INC`MSG=ERROR: Item Mod number %q<value> not found.;@attach %!/INC`DOSQL=DELETE`MOD,%q<itempers1.id>,%q<value>;@attach %!/INC`MSG=Mod note deleted!
+
+&Q`DELETE`MOD [u(cobj,inv)]=DELETE FROM vol_inv_persona_mods WHERE inv_id=? AND mod_id=?
 
 &INC`ALIAS [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@stop %q<itempers1.stackable>=@attach %!/INC`MSG=ERROR: What is there to say about this item?;@attach %!/INC`VALID`ENAME=%1,Item Alias;@attach %!/INC`DOSQL=ALIAS`ITEM,%q<value>,%q<itempers1.id>;@attach %!/INC`MSG=You dub it: %q<valueformat>
 
@@ -101,4 +105,4 @@ th u(NEWCOBJ,Inventory System <INV>,inv,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 
 &INC`TAKE [u(cobj,inv)]=@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>;@attach %!/INC`FINDITEMPERS=before(%1,/),1,,%q<persona1.id>;@attach %!/INC`VALID`POSINT=after(%1,/),Item Quantity;
 
-&INC`SPAWN [u(cobj,inv)]=@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>;@attach %!/INC`FINDITEM=elements(%1,1 2,/,/),1;@attach %!/INC`VALID`POSINT=u(strfirstof,elements(%1,3,/),1),Item Quantity;@attach %!/INC`SPAWNITEM=%q<persona1.id>,%q<item1.id>,%q<item1.stackable>,%q<value>
+&INC`SPAWN [u(cobj,inv)]=@attach %!/INC`CHECKPC=%0,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>;@attach %!/INC`FINDITEM=elements(%1,1 2,/,/),1;@attach %!/INC`VALID`POSINT=u(strfirstof,elements(%1,3,/),1),Item Quantity;@attach %!/INC`SPAWNITEM=%q<persona1.id>,%q<item1.id>,%q<item1.stackable>,%q<value>;@attach %!/INC`MSG=You spawned %q<value> %q<item1.category>: %q<item1.name> for %q<t1name>!;@attach %!/INC`MSG`NOTICE=You have gained %q<value> %q<item1.category>: %q<item1.name>!,%q<t1>;@attach %!/INC`MSG`CHAN=Spawned %q<value> %q<item1.category>: %q<item1.name> for %q<t1name>

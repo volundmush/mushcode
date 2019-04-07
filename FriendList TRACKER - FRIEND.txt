@@ -47,7 +47,7 @@ th u(NEWCOBJ,FriendList Tracker <FRIEND>,friend,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &INC`HIDE [u(cobj,friend)]=th setq(choose,if(t(get(%#/D`WATCH`HIDE)),0,1));@attach %!/INC`MSG=Your connects and disconnects will [if(%q<choose>,now,no longer)] alert anyone who has you on their friends list.;&D`WATCH`HIDE %#=%q<choose>
 
-&INC`MUTE [u(cobj,friend)]=th setq(choose,if(t(get(%#/D`WATCH`MUTE)),1,0));@attach %!/INC`MSG=You will [if(%q<choose>,now,no longer)] be alerted when your friends connect or disconnect.;&D`WATCH`MUTE %#=%q<choose>
+&INC`MUTE [u(cobj,friend)]=th setq(choose,not(default(%#/D`WATCH`MUTE,0)));@attach %!/INC`MSG=You will [if(%q<choose>,now,no longer)] be alerted when your friends connect or disconnect.;&D`WATCH`MUTE %#=%q<choose>
 
 &PLAYER`CONNECT [u(cobj,friend)]=@stop cor(u(ishidden,%0),get(%0/D`WATCH`HIDE),gt(%1,1));th u(setq,lwhoid,u(lwhoid));@check words(u(setr,watchers,u(mysql,SELECT`WATCHERS,get(%0/D`ID))));@check words(u(setr,final,u(filter,NOTMUTE,setinter(iter(%q<watchers>,switch(type(%i0),PLAYER,%i0,THING,get(%i0/CHARACTERS))),%q<lwhoid>))));@attach %!/INC`MSG=[u(getmoniker,%0)] has connected.,%q<final>,WATCH
 

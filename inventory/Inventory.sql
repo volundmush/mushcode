@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS vol_inv_persona (
     FOREIGN KEY(item_id) REFERENCES vol_inv_item(item_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
-CREATE TABLE IF NOT EXISTS volv_inv_persona_mods (
+CREATE TABLE IF NOT EXISTS vol_inv_persona_mods (
     mod_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     inv_id INT UNSIGNED NOT NULL,
     mod_text TEXT NOT NULL,
