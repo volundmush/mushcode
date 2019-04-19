@@ -70,3 +70,12 @@ CREATE TABLE IF NOT EXISTS vol_inv_persona_mods (
 CREATE OR REPLACE VIEW volv_inv_persona AS
     SELECT i.inv_id AS inv_id,i.persona_id AS persona_id,i.item_id AS item_id,i.inv_quantity AS inv_quantity,i.inv_alias AS inv_alias,i2.item_name AS item_name,IF(CHAR_LENGTH(i.inv_alias),i.inv_alias,i2.item_name) AS display_name,i2.item_value AS item_value,i2.item_weight AS item_weight,i2.item_strength_req AS item_strength_req,i2.item_stackable AS item_stackable,i2.category_id,i2.category_name FROM vol_inv_persona AS i LEFT JOIN volv_inv_item_categories AS i2 ON i.item_id=i2.item_id;
 
+CREATE TABLE IF NOT EXISTS vol_inv_money_log (
+    money_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    character_id INT UNSIGNED NOT NULL,
+    date_created DATETIME NOT NULL,
+    money_amount INT NOT NULL,
+    money_reason VARCHAR(100),
+    PRIMARY KEY(money_id),
+    FOREIGN KEY(character_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;

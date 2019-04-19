@@ -1,0 +1,52 @@
+@@ Dependencies: Core, SToryteller
+
+th u(NEWCOBJ,Money System <MONEY>,money,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&CMD`+MONEY`PENNMUSH [u(cobj,money)]=$^(?s)(?\:\+)?(?\:money)(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+MONEY`MAIN
+@set [u(cobj,money)]/CMD`+MONEY`PENNMUSH=regexp
+&CMD`+MONEY`RHOSTMUSH [u(cobj,money)]=$^(?s)(?\:\+)?(?\:money)(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+MONEY`MAIN
+@set [u(cobj,money)]/CMD`+MONEY`RHOSTMUSH=regexp
+&CMD`+MONEY`MAIN [u(cobj,money)]=@attach %!/INC`GETSWITCH=%1;@attach %!/INC`CHECKPC=%#,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>;@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+@set [u(cobj,money)]/CMD`+MONEY`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&SYSTEM`NAME [u(cobj,money)]=MONEY
+&SWITCHES`PLAYER [u(cobj,money)]=PAY|LOG
+&SWITCHES`ADMIN [u(cobj,money)]=FINE|AWARD
+
+&CONFIG`OPTIONS [u(cobj,money)]=Singular|Plural|Starting
+
+&CONFIG`SINGULAR [u(cobj,money)]=The name of this currency's singular unit. IE: Penny, Dollar.
+&CONFIG`SINGULAR`DEFAULT [u(cobj,money)]=Coin
+&CONFIG`SINGULAR`VALID [u(cobj,money)]=WORD
+
+&CONFIG`PLURAL [u(cobj,money)]=The name of this currency's plural unit. IE: Pennies, Dollars.
+&CONFIG`PLURAL`DEFAULT [u(cobj,money)]=Coins
+&CONFIG`PLURAL`VALID [u(cobj,money)]=WORD
+
+&CONFIG`STARTING [u(cobj,money)]=How much money do players start with?
+&CONFIG`STARTING`DEFAULT [u(cobj,money)]=
+&CONFIG`STARTING`VALID [u(cobj,money)]=INT
+
+&INC`MAIN [u(cobj,money)]=@select/inline cand(strlen(%0),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%0,2;@attach %!/INC`MSG=%q<t2name> possesses [u(cash,get(%q<t2>/D`MONEY))]},0,{@attach %!/INC`MSG=You possess [u(cash,get(%#/D`MONEY))]}
+
+&CASH [u(cobj,money)]=%0 [switch(%0,>1,u(conf,PLURAL),u(conf,SINGULAR))]
+
+&INC`LOG [u(cobj,money)]=@select/inline cand(strlen(%0),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%0,1};@pemit %#=u(header,Transaction Log: %q<t1name>);@pemit %#=ansi(u(color,%#,MONEY,COLUMN_NAMES),align(10 15 45,Amount,Date,Reason));@pemit %#=u(separator);@dolist/inline u(mysql,LIST`TRANSACTIONS,%q<t1.id>)={th u(setq,data,u(mysql3,SELECT`TRANSACTION,%i0));@pemit %#=align(10 15 45,u(commafy,elements(%q<data>,1,chr(177))),u(fancytime,elements(%q<data>,2,chr(177)),%#),elements(%q<data>,3,chr(177)))};@pemit %#=u(footer)
+
+&Q`LIST`TRANSACTIONS [u(cobj,money)]=SELECT money_id FROM vol_inv_money_log WHERE character_id=? ORDER BY date_created
+&Q`SELECT`TRANSACTION [u(cobj,money)]=SELECT money_amount,UNIX_TIMESTAMP(money_amount),money_reason FROM vol_inv_money_log WHERE money_id=?
+
+&INC`PAY [u(cobj,money)]=@attach %!/INC`CHECKPC=%0,2;@attach %!/INC`VALID`POSINT=%1,Currency Penalty;@stop gte(%q<value>,u(setr,money,get(%#/D`MONEY)))=@attach %!/INC`MSG=ERROR: You only have [u(cash,%q<money>)]!;th u(attrib_set,%#,D`MONEY,sub(%q<money>,%q<value>));@attach %!/INC`DOSQL=INSERT`TRANSACTION,%q<t1.id>,mul(%q<value>,-1),Payment to %q<t2name>;@attach %!/INC`MSG=You gift %q<t2name> [u(cash,%q<money>)]!;@attach %!/INC`MSG=You have been paid [u(cash,%q<money>)] by %q<t1name>!,%q<t2>;@attach %!/INC`DOSQL=INSERT`TRANSACTION,%q<t2.id>,%q<value>,Payment from %q<t1name>;th u(attrib_set,%q<t2>,D`MONEY,add(get(%q<t2>/D`MONEY),%q<value>));@attach %!/INC`MSG`CHAN=Paid %q<t2name> [u(cash,%q<money>)];&CASH [u(cobj,money)]=%0 [if(gt(%0,1),u(conf,PLURAL),u(conf,SINGULAR))]
+
+&INC`FINE [u(cobj,money)]=@attach %!/INC`CHECKPC=%0,2;@attach %!/INC`VALID`POSINT=%1,Currency Penalty;@stop gte(%q<value>,u(setr,money,get(%q<t2>/D`MONEY)))=@attach %!/INC`MSG=ERROR: %q<t2name> only has [u(cash,%q<money>)]!;th u(attrib_set,%q<t2>,D`MONEY,sub(%q<money>,%q<value>));@attach %!/INC`DOSQL=INSERT`TRANSACTION,%q<t2.id>,mul(%q<value>,-1),Admin Fine from %q<t1name>;@attach %!/INC`MSG=You fine %q<t2name> [u(cash,%q<money>)]!;@attach %!/INC`MSG`NOTICE=You have been fined [u(cash,%q<money>)]!,%q<t2>;@attach %!/INC`MSG`CHAN=Fined %q<t2name> [u(cash,%q<money>)]
+
+&INC`AWARD [u(cobj,money)]=@attach %!/INC`CHECKPC=%0,2;@attach %!/INC`VALID`POSINT=%1,Currency Award;@@ @stop gte(%q<value>,u(setr,money,get(%q<t2>/D`MONEY)))=@attach %!/INC`MSG=ERROR: %q<t2name> only has [u(cash,%q<money>)]!;th u(attrib_set,%q<t2>,D`MONEY,add(%q<money>,%q<value>));@attach %!/INC`DOSQL=INSERT`TRANSACTION,%q<t2.id>,%q<value>,Admin Fine from %q<t1name>;@attach %!/INC`MSG=You award %q<t2name> [u(cash,%q<money>)]!;@attach %!/INC`MSG`NOTICE=You have been awarded [u(cash,%q<money>)]!,%q<t2>;@attach %!/INC`MSG`CHAN=Awarded %q<t2name> [u(cash,%q<money>)]
+
+
+&Q`INSERT`TRANSACTION [u(cobj,money)]=INSERT INTO vol_inv_money_log (character_id,date_created,amount,reason) VALUES (?,UTC_TIMESTAMP(),?,?)
+
+&PLAYER`CREATE [u(cobj,money)]=th u(attrib_set,%0,D`MONEY,u(conf,STARTING));@attach %!/INC`DOSQL=INSERT`TRANSACTION,get(%0/D`ID),u(conf,STARTING),Starting Cash
+
+&HLP`+MONEY [u(cobj,money)]=The Money system keeps track of your wallet. 'nuff said, right?%R%R[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+money)] - Check your wallet.%R[ansi(h,+money/log)] - Check your Transaction log.%R[ansi(h,+money/pay <character>=<amount>)] - Pay someone some money.)]
+
+&SHLP`+MONEY [u(cobj,money)]=Staff have the power of the purse!%R%R[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+money <character>)] - Check a character's wallet.%R[ansi(h,+money/log <character>)] - Check a character's Transaction log.%R[ansi(h,+money/fine <character>=<amount>)] - Remove money from a character.%R[ansi(h,+money/award <character>=<amount>)] - Spawn Money for someone. Yes this is creating money from nothing.)]

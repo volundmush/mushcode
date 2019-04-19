@@ -152,7 +152,9 @@ th u(NEWCOBJ,Volund's Board System <BBS>,bbs,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &LOGIN`MAIN [u(cobj,bbs)]=@select/inline u(op,BBS,AUTOSCAN)=1,{@attach %!/SCAN`MAIN};@select/inline u(op,BBS,AUTOBRIEF)=1,{@attach %!/BRIEF`MAIN}
 
-&ADMIN`SQUISH [u(cobj,bbs)]=@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VERIFY=[ansi(hr,WARNING:)] This is a major operation that may hang the game or corrupt data. Do a backup beforehand! To continue enter the command again.,BBSQUISH;@attach %!/INC`MSG`CHAN=Initiated a BBS ID Squish! Hang on to your butts.;@attach %!/INC`DOSQL=BBS`SQUASH1;@dolist/inline u(mysql,BBS`BOARD_ID)={@attach %!/INC`DOSQL=BBS`SQUASH2;@attach %!/INC`DOSQL=BBS`SQUASH3,##};
+&ADMIN`SQUISH [u(cobj,bbs)]=@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VERIFY=[ansi(hr,WARNING:)] This is a major operation that may hang the game or corrupt data. Do a backup beforehand! To continue enter the command again.,BBSQUISH;@attach %!/INC`MSG`CHAN=Initiated a BBS ID Squish! Hang on to your butts.;@attach %!/INC`DOSQL=BBS`SQUASH1;@dolist/inline u(mysql,BBS`BOARD_ID)={@attach %!/ADMIN`SQUISH`DO=##};
+
+&ADMIN`SQUISH`DO [u(cobj,bbs)]=@attach %!/INC`DOSQL=BBS`SQUASH2;@attach %!/INC`DOSQL=BBS`SQUASH3,%0
 
 &Q`BBS`SQUASH1 [u(cobj,bbs)]=UPDATE vol_bbpost SET post_display_num=post_display_num+1000;
 &Q`BBS`SQUASH2 [u(Cobj,bbs)]=SET @order = 0;
