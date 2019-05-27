@@ -3,7 +3,31 @@ CREATE TABLE IF NOT EXISTS vol_story_templates (
 	template_name VARCHAR(18) NOT NULL UNIQUE,
 	template_playable TINYINT UNSIGNED NOT NULL DEFAULT 1,
 	template_power_stat_name VARCHAR(15) NULL,
+	template_desc text NULL DEFAULT NULL,
 	PRIMARY KEY(template_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS vol_story_templates_statlimits (
+    limit_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    template_id INT UNSIGNED NOT NULL,
+    stat_id INT UNSIGNED NOT NULL,
+    limit_mode TINYINT UNSIGNED NOT NULL,
+    limit_value TINYINT UNSIGNED NOT NULL,
+    limit_pip TINYINT UNSIGNED NOT NULL,
+    PRIMARY KEY(limit_id),
+    FOREIGN KEY(template_id) REFERENCES vol_story_templates(template_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(stat_id) REFERENCES vol_story_stats(stat_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    UNIQUE(template_id,stat_id,limit_mode)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+CREATE TABLE IF NOT EXISTS vol_story_templates_info (
+    info_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    template_id INT UNSIGNED NOT NULL,
+    info_name VARCHAR(255) NOT NULL,
+    info_desc TEXT NOT NULL,
+    PRIMARY KEY(info_id),
+    FOREIGN KEY(template_id) REFERENCES vol_story_templates(template_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    UNIQUE(template_id,info_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_story_template_sub (

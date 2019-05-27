@@ -10,7 +10,7 @@ th u(NEWCOBJ,Login Tracker <LOGIN>,login,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDE
 &SYSTEM`NAME [u(cobj,login)]=LOGIN
 
 &SWITCHES`PLAYER [u(cobj,login)]=
-&SWITCHES`ADMIN [u(cobj,login)]=IP|GUESTS|CLEAR
+&SWITCHES`ADMIN [u(cobj,login)]=IP|CLEAR
 
 &INC`MAIN [u(cobj,login)]=@stop u(isguest,%#)=@attach %!/INC`MSG=ERROR: Guests cannot use +ip.;@select/inline u(isadmin,%#)=0,{@attach %!/INC`CHECKPC=%#,1,1;@attach %!/INC`IPSHOW=%q<t1>,0},{@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1,1;@@ @stop u(isguest,%q<t1>)=@attach %!/INC`MSG=ERROR: To match Guests\, please use +ip/guests;@attach %!/INC`IPSHOW=%q<t1>}
 

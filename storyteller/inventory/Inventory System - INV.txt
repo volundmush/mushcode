@@ -11,13 +11,13 @@ th u(NEWCOBJ,Inventory System <INV>,inv,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 
 &SYSTEM`NAME [u(cobj,inv)]=ITEM
 
-&SWITCHES`PLAYER [u(cobj,inv)]=BUY|USE|PROVE|EXAMINE|DETAILS|MOD|UNMOD|GIVE|ALIAS|SELL|RETURN
+&SWITCHES`PLAYER [u(cobj,inv)]=BUY|USE|PROVE|EXAMINE|DETAILS|MOD|UNMOD|GIVE|ALIAS|SELL|RETURN|LIST
 &SWITCHES`ADMIN [u(cobj,inv)]=TAKE|SPAWN
 
 &INC`VALID`ITEMCAT [u(cobj,story)]=@attach %!/INC`SEARCHSQL=%0,Item Category,ITEMCAT,%1
 
-&Q`FIND`ITEMCAT`LIST [u(cobj,story)]=SELECT category_name FROM vol_inv_category WHERE category_id=?
-&Q`FIND`ITEMCAT`LIST`ID [u(cobj,story)]=SELECT category_id FROM vol_inv_category WHERE category_id=?
+&Q`FIND`ITEMCAT`LIST [u(cobj,story)]=SELECT category_name FROM vol_inv_category
+&Q`FIND`ITEMCAT`LIST`ID [u(cobj,story)]=SELECT category_id FROM vol_inv_category
 &Q`FIND`ITEMCAT`EXACT [u(Cobj,story)]=SELECT category_id,category_name FROM vol_inv_category WHERE category_name=?
 &Q`FIND`ITEMCAT`EXACT`ID [u(Cobj,story)]=SELECT category_id,category_name FROM vol_inv_category WHERE category_id=?
 &Q`FIND`ITEMCAT`WILD [u(Cobj,story)]=SELECT category_id,category_name FROm vol_inv_category WHERE category_name LIKE '!%'
@@ -53,20 +53,24 @@ th u(NEWCOBJ,Inventory System <INV>,inv,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 
 &INC`FINDITEM [u(cobj,inv)]=@check strlen(before(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item Category to sort by!;@attach %!/INC`VALID`ITEMCAT=before(%0,/),%1;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item to search for!;@attach %!/INC`VALID`ITEM=after(%0,/),%1,%q<itemcat1.id>
 
-&INC`FINDITEMPERS [u(cobj,inv)]=@check strlen(before(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item Category to sort by!;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item name or Alias to search for!;@attach %!/INC`VALID`ITEMCAT=before(%0,/),%1;@attach %!/INC`VALID`ITEMPERS=after(%0,/),%1,%q<itemcat1.id>,%2;
+&INC`FINDITEMPERS [u(cobj,inv)]=@check strlen(before(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item Category to sort by!;@check strlen(after(%0,/))=@attach %!/INC`MSG=ERROR: Must enter an Item name or Alias to search for! Example: Melee/Blah;@attach %!/INC`VALID`ITEMCAT=before(%0,/),%1;@attach %!/INC`VALID`ITEMPERS=after(%0,/),%1,%q<itemcat1.id>,%2;
 
 &INC`MAIN [u(cobj,inv)]=@select/inline cand(strlen(%1),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%1,1;@attach %!/INC`VALID`PERSONA=get(%q<t1>/D`PERSONA`PRIMARY),1,%q<t1id>};@select/inline strlen(%0)=>0,{@attach %!/INC`VALID`ITEMCAT=%0,1};@pemit %#=u(header,%q<persona1.name>'s [if(%q<itemcat1.id>,%q<itemcat1.name>%b)]Inventory);@pemit %#=ansi(u(color,%#,ITEM,COLUMN_NAMES),align(5 20 10 9 9 8,Inv#,Item Name,Quantity,StrReq,Value,Category));@pemit %#=u(separator);@dolist/inline u(mysql,LIST`ITEMS[if(%q<itemcat1.id>,_CAT)],%q<persona1.id>,%q<itemcat1.id>)={@attach %!/INC`LOADSQL=ITEMPERS,%i0,,i;@pemit %#=align(5 20 10 9 9 8,%q<i.id>,%q<i.name>[if(strlen(%q<i.alias>),%b\(%q<i.alias>\))],%q<i.quantity>,%q<i.strength>,%q<i.value>,%q<i.category>)};@pemit %#=u(footer)
 
 &Q`LIST`ITEMS [u(cobj,inv)]=SELECT inv_id FROM volv_inv_persona WHERE persona_id=?
 &Q`LIST`ITEMS_CAT [u(cobj,inv)]=SELECT inv_id FROM volv_inv_persona WHERE persona_id=? AND category_id=?
 
-&INC`BUY [u(cobj,inv)]=@attach %!/INC`FINDITEM=%0,1;@attach %!/INC`VALID`POSINT=%1,Item Quantity;@select/inline %q<item1.value>=0,{@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: You can't buy this! Gonna need to find another way to get it...};@check cor(u(isadmin,%#),gte(get(%#/D`MONEY),mul(%q<item1.value>,%q<value>)))=@attach %!/INC`MSG=ERROR: You can't afford that!;@attach %!/INC`SPAWNITEM=%q<persona1.id>,%q<item1.id>,%q<item1.stackable>,%q<value>
+&Q`LIST`ITEM_CATEGORY [u(cobj,inv)]=SELECT DISTINCT item_id FROM volv_inv_item_categories WHERE category_id=? ORDER BY item_name
+
+&INC`LIST [u(cobj,inv)]=@attach %!/INC`VALID`ITEMCAT=%0,1;@pemit %#=u(header,%q<itemcat1.name> Items);@pemit %#=ansi(u(color,%#,ITEM,COLUMN_NAMES),align(5 20 10 9 9 8,Inv#,Item Name,Stackable,StrReq,Value,Category));@pemit %#=u(separator);@dolist/inline u(mysql,LIST`ITEM_CATEGORY,%q<itemcat1.id>)={@attach %!/INC`LOADSQL=ITEM,%i0,,i;@pemit %#=align(5 20 10 9 9 8,%q<i.id>,%q<i.name>,%q<i.stackable>,%q<i.strength>,%q<i.value>,%q<itemcat1.name>)};@pemit %#=u(footer)
+
+&INC`BUY [u(cobj,inv)]=@attach %!/INC`FINDITEM=%0,1;@attach %!/INC`VALID`POSINT=%1,Item Quantity;@select/inline %q<item1.value>=0,{@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: You can't buy this! Gonna need to find another way to get it...};@check or(u(isadmin,%#),gte(get(%#/D`MONEY),u(setr,cost,mul(%q<item1.value>,%q<value>))))=@attach %!/INC`MSG=ERROR: You can't afford that!;@attach %!/INC`SPAWNITEM=%q<persona1.id>,%q<item1.id>,%q<item1.stackable>,%q<value>;@attach %!/INC`MSG=You bought: %q<itemcat1.name>: %q<item1.name>[if(gt(%q<value>,1),%B\(%q<value>\))] for [u(u(cobj,money)/cash,%q<cost>)]!;@select/inline u(isapproved,%#)=1,{@attach %!/INC`MSG`CHAN=Bought: %q<itemcat1.name>: %q<item1.name>[if(gt(%q<value>,1),%B\(%q<value>\))] for [u(u(cobj,money)/cash,%q<cost>)]!};@select/inline u(isadmin,%#)=0,{th u(attrib_set,%#,D`MONEY,sub(get(%#/D`MONEY),%q<cost>))}
 
 &INC`SPAWNITEM [u(Cobj,inv)]=@select/inline t(%2)=1,{@select/inline t(u(setr,exist_inv,u(mysql,EXIST`STACKABLE_ITEM,%1,%0)))=1,{@attach %!/INC`DOSQL=INCREASE`STACKABLE_ITEM,%3,%q<exist_inv>},0,{@attach %!/INC`DOSQL=SPAWN`ITEM,%0,%1,%3}},0,{@dolist/inline lnum(%3)={@attach %!/INC`DOSQL=SPAWN`ITEM,%0,%1,%3}}
 @@ %0 - Persona to spawn it in. %1 - Item ID to spawn. %2 - Stackable mode. %3 - Quantity to Spawn.
 
 &Q`EXIST`STACKABLE_ITEM [u(cobj,inv)]=SELECT inv_id FROM volv_inv_persona WHERE item_id=? AND item_stackable=1 AND persona_id=?
-&Q`INCREASE`STACKABLE_ITEM [u(cobj,inv)]=UPDATE inv_id SET inv_quantity=inv_quantity+? WHERE inv_id=?
+&Q`INCREASE`STACKABLE_ITEM [u(cobj,inv)]=UPDATE vol_inv_persona SET inv_quantity=inv_quantity+? WHERE inv_id=?
 &Q`SPAWN`ITEM [u(cobj,inv)]=INSERT INTO vol_inv_persona (persona_id,item_id,inv_quantity) VALUES (?,?,?)
 
 &INC`USE [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@attach %!/INC`VALID`POSINT=%1,Item Quantity;@check %q<itempers1.stackable>=@attach %!/INC`MSG=ERROR: That item is not Stackable!;@check gt(%q<value>,%q<itempers1.quantity>)=@attach %!/INC`MSG=ERROR: You don't have that many %q<itempers1.name>! You only have %q<itempers1.quantity>!;@select/inline eq(%q<value>,%q<itempers1.quantity>)=1,{@attach %!/INC`DOSQL=DELETE`ITEM,%q<itempers1.id},0,{@attach %!/INC`DOSQL=DECREASE`ITEM,%q<value>,%q<itempers1.id>}
@@ -74,7 +78,7 @@ th u(NEWCOBJ,Inventory System <INV>,inv,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 &Q`DELETE`ITEM [u(cobj,inv)]=DELETE FROM vol_inv_persona WHERE inv_id=?
 &Q`DECREASE`ITEM [u(cobj,inv)]=UPDATE vol_inv_persona SET inv_quantity=inv_quantity-? WHERE inv_id=?
 
-&INC`PROVE [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@attach %!/INC`MSG`ROOM=[ansi(h,%n)] shows off an item! [if(%q<itempers1.stackable>,%q<itempers1.quantity>x %q<itempers1.category>: %q<itempers1.name>,a %q<itempers1.category>: %q<itempers1.name>[if(strlen(%q<itempers1.alias>) known as '%q<itempers1.alias')])]
+&INC`PROVE [u(cobj,inv)]=@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@attach %!/INC`MSG`ROOM=[ansi(h,%n)] shows off an item! [if(%q<itempers1.stackable>,%q<itempers1.quantity>x %q<itempers1.category>: %q<itempers1.name>,a %q<itempers1.category>: %q<itempers1.name>[if(strlen(%q<itempers1.alias>),%bknown as '%q<itempers1.alias')])]
 
 &INC`RETURN [u(Cobj,inv)]=@stop cand(u(isapproved,%#),not(isadmin,%#))=@attach %!/INC`MSG=ERROR: You are approved!;@attach %!/INC`FINDITEMPERS=%0,1,%q<persona1.id>;@select/inline cand(strlen(%1),%q<itempers1.stackable>)=>0,{@attach %!/INC`VALID`POSINT=%1,Item Stack;@stop gt(%q<value>,%q<itempers1.quantity>)=@attach %!/INC`MSG=ERROR: You do not have that many!},0,{th u(setq,value,1)};@select/inline %q<itempers1.stackable>=1,{@select/inline eq(%q<value>,%q<itempers1.quantity>)=1,{@attach %!/INC`DOSQL=DELETE`ITEM,%q<itempers1.id>},0,{@attach %!/INC`DOSQL=DECREASE`ITEM,%q<value>,%q<itempers1.id>}},0,{@attach %!/INC`DOSQL=DELETE`ITEM,%q<itempers1.id>};th u(attrib_set,%#,D`MONEY,add(get(%#/D`MONEY),u(setr,money,mul(%q<itempers1.value>,%q<quantity>))));@attach %!/INC`MSG=Item returned for %q<money> caps!
 

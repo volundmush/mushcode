@@ -11,7 +11,7 @@ th u(NEWCOBJ,Money System <MONEY>,money,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 
 &SYSTEM`NAME [u(cobj,money)]=MONEY
 &SWITCHES`PLAYER [u(cobj,money)]=PAY|LOG
-&SWITCHES`ADMIN [u(cobj,money)]=FINE|AWARD
+&SWITCHES`ADMIN [u(cobj,money)]=FINE|AWARD|CONFIG
 
 &CONFIG`OPTIONS [u(cobj,money)]=Singular|Plural|Starting
 
@@ -38,12 +38,12 @@ th u(NEWCOBJ,Money System <MONEY>,money,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 
 &INC`PAY [u(cobj,money)]=@attach %!/INC`CHECKPC=%0,2;@attach %!/INC`VALID`POSINT=%1,Currency Penalty;@stop gte(%q<value>,u(setr,money,get(%#/D`MONEY)))=@attach %!/INC`MSG=ERROR: You only have [u(cash,%q<money>)]!;th u(attrib_set,%#,D`MONEY,sub(%q<money>,%q<value>));@attach %!/INC`DOSQL=INSERT`TRANSACTION,%q<t1.id>,mul(%q<value>,-1),Payment to %q<t2name>;@attach %!/INC`MSG=You gift %q<t2name> [u(cash,%q<money>)]!;@attach %!/INC`MSG=You have been paid [u(cash,%q<money>)] by %q<t1name>!,%q<t2>;@attach %!/INC`DOSQL=INSERT`TRANSACTION,%q<t2.id>,%q<value>,Payment from %q<t1name>;th u(attrib_set,%q<t2>,D`MONEY,add(get(%q<t2>/D`MONEY),%q<value>));@attach %!/INC`MSG`CHAN=Paid %q<t2name> [u(cash,%q<money>)];&CASH [u(cobj,money)]=%0 [if(gt(%0,1),u(conf,PLURAL),u(conf,SINGULAR))]
 
-&INC`FINE [u(cobj,money)]=@attach %!/INC`CHECKPC=%0,2;@attach %!/INC`VALID`POSINT=%1,Currency Penalty;@stop gte(%q<value>,u(setr,money,get(%q<t2>/D`MONEY)))=@attach %!/INC`MSG=ERROR: %q<t2name> only has [u(cash,%q<money>)]!;th u(attrib_set,%q<t2>,D`MONEY,sub(%q<money>,%q<value>));@attach %!/INC`DOSQL=INSERT`TRANSACTION,%q<t2.id>,mul(%q<value>,-1),Admin Fine from %q<t1name>;@attach %!/INC`MSG=You fine %q<t2name> [u(cash,%q<money>)]!;@attach %!/INC`MSG`NOTICE=You have been fined [u(cash,%q<money>)]!,%q<t2>;@attach %!/INC`MSG`CHAN=Fined %q<t2name> [u(cash,%q<money>)]
+&INC`FINE [u(cobj,money)]=@attach %!/INC`CHECKPC=%0,2;@attach %!/INC`VALID`POSINT=%1,Currency Penalty;@stop gte(%q<value>,u(setr,money,get(%q<t2>/D`MONEY)))=@attach %!/INC`MSG=ERROR: %q<t2name> only has [u(cash,%q<money>)]!;th u(attrib_set,%q<t2>,D`MONEY,sub(%q<money>,%q<value>));@attach %!/INC`DOSQL=INSERT`TRANSACTION,%q<t2id>,mul(%q<value>,-1),Admin Fine from %q<t1name>;@attach %!/INC`MSG=You fine %q<t2name> [u(cash,%q<money>)]!;@attach %!/INC`MSG`NOTICE=You have been fined [u(cash,%q<money>)]!,%q<t2>;@attach %!/INC`MSG`CHAN=Fined %q<t2name> [u(cash,%q<money>)]
 
-&INC`AWARD [u(cobj,money)]=@attach %!/INC`CHECKPC=%0,2;@attach %!/INC`VALID`POSINT=%1,Currency Award;@@ @stop gte(%q<value>,u(setr,money,get(%q<t2>/D`MONEY)))=@attach %!/INC`MSG=ERROR: %q<t2name> only has [u(cash,%q<money>)]!;th u(attrib_set,%q<t2>,D`MONEY,add(%q<money>,%q<value>));@attach %!/INC`DOSQL=INSERT`TRANSACTION,%q<t2.id>,%q<value>,Admin Fine from %q<t1name>;@attach %!/INC`MSG=You award %q<t2name> [u(cash,%q<money>)]!;@attach %!/INC`MSG`NOTICE=You have been awarded [u(cash,%q<money>)]!,%q<t2>;@attach %!/INC`MSG`CHAN=Awarded %q<t2name> [u(cash,%q<money>)]
+&INC`AWARD [u(cobj,money)]=@attach %!/INC`CHECKPC=%0,2;@attach %!/INC`VALID`POSINT=%1,Currency Award;@@ @stop gte(%q<value>,u(setr,money,get(%q<t2>/D`MONEY)))=@attach %!/INC`MSG=ERROR: %q<t2name> only has [u(cash,%q<money>)]!;th u(attrib_set,%q<t2>,D`MONEY,add(%q<money>,%q<value>));@attach %!/INC`DOSQL=INSERT`TRANSACTION,%q<t2id>,%q<value>,Admin Award from %q<t1name>;@attach %!/INC`MSG=You award %q<t2name> [u(cash,%q<money>)]!;@attach %!/INC`MSG`NOTICE=You have been awarded [u(cash,%q<money>)]!,%q<t2>;@attach %!/INC`MSG`CHAN=Awarded %q<t2name> [u(cash,%q<money>)]
 
 
-&Q`INSERT`TRANSACTION [u(cobj,money)]=INSERT INTO vol_inv_money_log (character_id,date_created,amount,reason) VALUES (?,UTC_TIMESTAMP(),?,?)
+&Q`INSERT`TRANSACTION [u(cobj,money)]=INSERT INTO vol_inv_money_log (character_id,date_created,money_amount,money_reason) VALUES (?,UTC_TIMESTAMP(),?,?)
 
 &PLAYER`CREATE [u(cobj,money)]=th u(attrib_set,%0,D`MONEY,u(conf,STARTING));@attach %!/INC`DOSQL=INSERT`TRANSACTION,get(%0/D`ID),u(conf,STARTING),Starting Cash
 

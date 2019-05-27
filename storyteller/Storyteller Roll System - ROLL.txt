@@ -34,7 +34,7 @@ th u(newcobj,STORYTELLER: Roll Management System <ROLL>,ROLL,,u(cobj,story),,WIZ
 @set [u(cobj,roll)]/CMD`+ROLL`PENNMUSH=regexp
 &CMD`+ROLL`RHOSTMUSH [u(cobj,roll)]=$^(?\:\+)?(st)?(d)?(?\:j(\\d+))?(p)?roll(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+ROLL`MAIN
 @set [u(cobj,roll)]/CMD`+ROLL`RHOSTMUSH=regexp
-&CMD`+ROLL`MAIN [u(cobj,roll)]=th u(setq,private,t(%4));@select/inline ucstr(%1)=ST,{@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.};@select/inline cand(u(isadmin,%#),strlen(%1))=1,{@attach %!/INC`CHECKPC=%6,1;th u(setq,rollstring,%7)},0,{@attach %!/INC`CHECKPC=%#,1;th u(setq,rollstring,%6)};@attach %!/INC`LOADSQL=PERSONA,get(%q<t1>/D`PERSONA),1;@select/inline t(%3)=1,{@attach %!/INC`JOBINIT};@check strlen(%q<rollstring>)=@attach %!/INC`MSG=ERROR: Must enter something to roll! Example: Dexterity + 3;@check u(setq,rollres,u(ROLL,%q<persona1.id>,%q<rollstring>,iter(setunion(%5,if(%2,dbl:11),/,/),%i0,/,|))=@attach %!/INC`MSG=ERROR: %q<rollres>;@attach %!/INC`ROLL
+&CMD`+ROLL`MAIN [u(cobj,roll)]=th u(setq,private,t(%4));@select/inline ucstr(%1)=ST,{@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.};@select/inline cand(u(isadmin,%#),strlen(%1))=1,{@attach %!/INC`CHECKPC=%6,1;th u(setq,rollstring,%7)},0,{@attach %!/INC`CHECKPC=%#,1;th u(setq,rollstring,%6)};@attach %!/INC`LOADSQL=PERSONA,get(%q<t1>/D`PERSONA),1;@select/inline t(%3)=1,{@attach %!/INC`JOBINIT};@check strlen(%q<rollstring>)=@attach %!/INC`MSG=ERROR: Must enter something to roll! Example: Dexterity + 3;@check u(setr,rollres,u(ROLL,%q<persona1.id>,%q<rollstring>,iter(setunion(%5,if(%2,dbl:11),/,/),%i0,/,|)))=@attach %!/INC`MSG=ERROR: %q<rollres>;@attach %!/INC`ROLL
 @set [u(cobj,roll)]/CMD`+ROLL`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(cobj,roll)]=DICE
@@ -56,7 +56,7 @@ th u(newcobj,STORYTELLER: Roll Management System <ROLL>,ROLL,,u(cobj,story),,WIZ
 
 &ROLL`ERROR [u(cobj,roll)]=u(setq,errcheck,setunion(%q<errcheck>,%0,|,|))
 
-&ROLL`READYSTATS [u(cobj,roll)]=localize(strcat(u(mysql3,SELECT`READYSTATS,u(SQL`IN`NUMBER,edit(u(lattr,%!/ROLL_PARENT`*),ROLL_PARENT`,)),%0),switch(strlen(elements(u(setr,powerstat,u(mysql3,SELECT`POWERSTAT,%0)),2,chr(177))),>0,chr(176)[elements(%q<powerstat>,2 3,chr(177),chr(177))])))
+&ROLL`READYSTATS [u(cobj,roll)]=localize(strcat(u(mysql3,SELECT`ROLLSTATS,u(SQL`IN`NUMBER,edit(u(lattr,%!/ROLL_PARENT`*),ROLL_PARENT`,)),%0),switch(if(strlen(v(SELECT`POWERSTAT)),strlen(elements(u(setr,powerstat,u(mysql3,SELECT`POWERSTAT,%0)),2,chr(177)))),>0,chr(176)[elements(%q<powerstat>,2 3,chr(177),chr(177))])))
 
 &Q`SELECT`ROLLSTATS [u(cobj,roll)]=SELECT display_roll_name,stat_value FROM volv_story_persona_stats WHERE stat_parent IN (!) AND stat_value>0 AND persona_id=? ORDER BY display_roll_name
 &Q`SELECT`POWERSTAT [u(cobj,roll)]=SELECT template_id,template_power_stat_name,power_stat_value FROM volv_story_personas WHERE persona_id=?
