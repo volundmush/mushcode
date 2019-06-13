@@ -11,6 +11,8 @@
 
 &CONFORMAT [u(cobj,ancestor_room)]=[u(CONFORMAT`EXTRA)][if(words(lvplayers(%!)),udefault(PLAYERS`[u(SETTINGS`ROOM_PLAYERS)],u(PLAYERS`DEFAULT)))][if(words(lvthings(%!)),%R[udefault(THINGS`[switch(num(vol_masterroom()),num(%!),MASTER_ROOM,u(SETTINGS`ROOM_THINGS))],u(THINGS`DEFAULT))])][switch(type(%!),THING,%R[u(SUBHEADER)])]
 
+@@ @DESCFORMAT [u(cobj,ancestor_room)]=if(vol_opother(%#,system,SCREEN_READER),trim(squish(%0,%R),%R),%0)
+
 &PLAYERS`DEFAULT [u(cobj,ancestor_room)]=u(SEPARATOR,Players)%R[ansi(vol_color(%#,COLUMN_NAMES),align(19,Name))]%R[iter(vol_sortname(lvplayers(%!)),align(19,vol_mxpmenu(vol_getmoniker(%i0),look [name(%i0)])),%b,%R)]
 
 &THINGS`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Things)]%R[ansi(vol_color(%#,COLUMN_NAMES),align(40 28 8,Name,Owner,if(isadmin(%#),DBref,Enter)))]%R[iter(vol_sortname(lvthings(%!)),align(40 28 8,vol_pueblize(moniker(%i0),look [name(%i0)]),vol_pueblize(name(owner(%i0)),+finger [name(owner(%i0))]),switch(vol_isadmin(%#)[hasflag(%i0,ENTER_OK)],11,vol_pueblize(ansi(hg,%i0),enter %i0),1*,ansi(hr,%i0),01,vol_pueblize(ansi(hg,enter_ok),enter %i0),ansi(hr,can't))),%b,%R)]

@@ -834,12 +834,13 @@ CREATE PROCEDURE volp_bbcomment(IN in_author_id INT UNSIGNED,IN in_post_id INT U
 	BEGIN
 		DECLARE new_comment_timestamp DATETIME DEFAULT UTC_TIMESTAMP();
 		DECLARE new_comment_id,new_comment_number INT UNSIGNED;
-    SELECT MAX(comment_display_num)+1 INTO new_comment_number FROM vol_bbcomment WHERE post_id=in_post_id;
-    IF new_comment_number IS NULL THEN
-        SET new_comment_number=1;
-    END IF;
+        SELECT MAX(comment_display_num)+1 INTO new_comment_number FROM vol_bbcomment WHERE post_id=in_post_id;
+        IF new_comment_number IS NULL THEN
+            SET new_comment_number=1;
+        END IF;
 		INSERT INTO vol_bbcomment (post_id,comment_display_num,entity_id,comment_date_created,comment_date_modified,comment_text,comment_anonymous) VALUES (in_post_id,new_comment_number,in_author_id,new_comment_timestamp,new_comment_timestamp,in_comment_text,in_comment_anonymous);
 		SET new_comment_id=LAST_INSERT_ID();
+		DELETE FROM vol_bbread WHERE post_id=in_post_id;
 		INSERT INTO vol_bbread (post_id,entity_id,bbread_date_checked) VALUES (in_post_id,in_account_id,new_comment_timestamp) ON DUPLICATE KEY UPDATE bbread_date_checked=VALUES(bbread_date_checked);
 		SELECT new_comment_id,new_comment_number;
 	END $$
