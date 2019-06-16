@@ -248,6 +248,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &GETPROPERTY`HIDECONN [u(cobj,ccp)]=u(hideconn,%0)
 &GETPROPERTY`LASTIDLE [u(cobj,ccp)]=u(lastidle,%0)
 &GETPROPERTY`LASTIDLE2 [u(cobj,ccp)]=u(lastidle2,%0)
+&GETPROPERTY`LASTIDLE3 [u(cobj,ccp)]=u(lastidle3,%0)
 &GETPROPERTY`LOCATION [u(cobj,ccp)]=if(findable(%#,%0),if(cand(elock(loc(%0)/Teleport,%#),%1),u(pueblize,u(getmoniker,loc(%0)),+port [loc(%0)]),u(getmoniker,loc(%0))),*UNFINDABLE*)
 &GETPROPERTY`TIMEZONE [u(cobj,ccp)]=u(gettz,%0)
 &GETPROPERTY`UMAIL [u(cobj,ccp)]=u(umail,%0)
@@ -740,6 +741,8 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &LASTIDLE [u(cobj,ccp)]=switch(objeval(%#,conn(%0)),-1,ansi(hx,elements(get(%0/last),2 3)),u(hideidle,%0))
 
 &LASTIDLE2 [u(cobj,ccp)]=switch(objeval(%#,conn(%0)),-1,ansi(hx,elements(get(%0/last),2 3 5)),u(hideidle,%0))
+
+&LASTIDLE3 [u(cobj,ccp)]=switch(objeval(%#,conn(%0)),-1,ansi(hx,{[elements(get(%0/lastlogout),2 3 5)] \([etime(sub(secs(),convtime(get(%0/lastlogout))),5)]\)}),u(hideidle,%0))
 
 &HIDECONN [u(cobj,ccp)]=switch(objeval(%#,conn(%0)),-1,ansi(hx,Off),ansi(if(u(ishidden,%0),hx,hg),u(smalltime,conn(%0),3)))
 
