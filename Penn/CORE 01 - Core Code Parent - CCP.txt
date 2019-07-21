@@ -253,6 +253,10 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &GETPROPERTY`UMAIL [u(cobj,ccp)]=u(umail,%0)
 &GETPROPERTY`ALTS [u(cobj,ccp)]=if(isdbref(u(cobj,alts)),u(u(cobj,alts)/FUN`ALTS`LIST,%0))
 
+&GETPROPERTY`OOCEMAIL [u(cobj,ccp)]=u(setq,em,get(%0/D`OOCFINGER`EMAIL))[switch(%q<em>,!*,if(u(isadmin,%#),ansi(hx,after(%q<em>,!)),*HIDDEN*),%q<em>)]
+
+&GETPROPERTY`UMAIL2 [u(cobj,ccp)]=localize(u(setr,unrd,u(umail,%0)) [switch(%q<unrd>,1,Unread Message,Unread Messages)])
+
 &GETPROPERTY`URL [u(cobj,ccp)]=u(weblink,get(%0/V`PROPERTY`%1))
 
 &GETPROPERTY`THEME [u(cobj,ccp)]=localize(if(strlen(u(setr,themes,get(%0/V`THEME))),u(pueblize,setr(theme,first(elements(%q<themes>,3,chr(177)),chr(176))),+theme %q<theme>))
@@ -799,7 +803,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &SQL`DISCONNECT [u(cobj,ccp)]=@attach %!/INC`MSG`SYSCHAN={SQL server disconnect: %0}
 &START`SQL [u(cobj,ccp)]=@check sql(SELECT DATABASE());@trigger %!/LOOP`SQL;@trigger %!/LOOP`REINDEX
 &LOOP`SQL [u(cobj,ccp)]=@sql SELECT DATABASE();@wait 60=@trigger %!/LOOP`SQL
-&LOOP`REINDEX [u(cobj,ccp)]=@dolist sql(SHOW TABLES)=@sql ANALYZE TABLE %i0;@wait mul(60,60,24)=@trigger %!/LOOP`REINDEX
+&LOOP`REINDEX [u(cobj,ccp)]=@dolist/inline sql(SHOW TABLES)=@sql ANALYZE TABLE %i0;@wait mul(60,60,24)=@trigger %!/LOOP`REINDEX
 
 
 @@ Json Section
@@ -808,3 +812,8 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &J`NUMBER [u(cobj,ccp)]=json(number,%0)
 &J`BOOLEAN [u(cobj,ccp)]=json(boolean,%0)
 &J`STRING [u(Cobj,ccp)]=json(string,%0)
+
+&OBJECT`RENAME`LOG_CHARACTER [u(cobj,ccp)]=@select/inline type(%0)=PLAYER,{@select/inline t(get(%0/D`ID))=1,{@attach %!/INC`DOSQL=INSERT`RENAME_LOG/renlog_id,get(%0/D`ID),default(%#/D`ID,SET_NULL),%2,%1},0,{}}
+@set [u(cobj,ccp)]/OBJECT`RENAME`LOG_CHARACTER=no_inherit
+
+&Q`INSERT`RENAME_LOG [u(cobj,ccp)]=INSERT INTO vol_entity_namelog (entity_id,enactor_id,old_name,new_name,date_named) VALUES (?,?,?,?,UTC_TIMESTAMP())

@@ -1,6 +1,5 @@
 <?php 
 	require 'libraries/base.php';
-	$num = ($_REQUEST['id']  ? $_REQUEST['id'] : $num );
 	
 	if (!$scenedb->count('volv_scene', ['scene_id'=>$num]))
 	{
@@ -17,9 +16,16 @@
 		$scene_time = $truetime[0].":".$truetime[1];
 		
 		$schedule = ['player_name'=>$schedule_data['runner_name'],'date'=>$truetime[0],'id'=>$num,'title'=>$schedule_data['scene_title'],'desc'=>$schedule_data['scene_pitch'],'time'=>$scene_time];
-		
-		$smarty->assign('schedule',$schedule);
-		$smarty->display('templates/schedule.tpl');
+
+	    if($json)
+	    {
+	        echo json_encode($schedule);
+	    }
+	    else
+	    {
+            $smarty->assign('schedule',$schedule);
+            $smarty->display('templates/schedule.tpl');
+        }
 	}
 	
 ?>

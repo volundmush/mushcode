@@ -10,8 +10,14 @@ th u(NEWCOBJ,Info Management System <INFO>,info,,,,WIZARD SAFE !NO_COMMAND,INHER
 @set [u(cobj,info)]/CMD`+INFO`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,info)]=GET|RENAME|DELETE
-&SWITCHES`ADMIN [u(cobj,info)]=LOCK|UNLOCK|LSET
+&SWITCHES`ADMIN [u(cobj,info)]=LOCK|UNLOCK|LSET|CONFIG
 &SYSTEM`NAME [u(cobj,info)]=u(strfirstof,%q<sysname>,INFO)
+
+&CONFIG`OPTIONS [u(cobj,info)]=MAX_FILE_LENGTH
+
+&CONFIG`MAX_FILE_LENGTH [u(cobj,info)]=How many characters can an +info file be?
+&CONFIG`MAX_FILE_LENGTH`DEFAULT [u(cobj,info)]=18
+&CONFIG`MAX_FILE_LENGTH`VALID [u(cobj,info)]=POSINT
 
 &INIT`INFO [u(cobj,info)]=th u(setq,sysname,INFO);th u(setq,root,1);th u(setq,private,0);th u(setq,comm,+info)
 &INIT`PINFO [u(cobj,info)]=th u(setq,sysname,PINFO);th u(setq,root,2);th u(setq,private,1);th u(setq,comm,+pinfo)
@@ -42,11 +48,11 @@ th u(NEWCOBJ,Info Management System <INFO>,info,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &INC`VIEW [u(cobj,info)]=@attach %!/INC`TARGET;@select/inline %q<private>=1,{@check cor(strmatch(%#,%q<target>),u(isadmin,%#))=@attach %!/INC`MSG=ERROR: %q<sysname> files are private.};@select/inline gt(strlen(%q<filename>),0)=1,{@attach %!/INC`VIEW`CONTENTS},0,{@attach %!/INC`VIEW`FILES}
 
-&INC`VIEW`FILES [u(cobj,info)]=@pemit %#=u(HEADER,%q<t1name>'s [u(capnames,%q<sysname>)] Files);@pemit %#=u(table,iter(u(mysql3,VIEW`NAMES,get(%q<target>/D`ID),%q<root>),u(mxpmenu,left(u(setr,fname,elements(%i0,1,chr(177))),18),%q<comm> [u(setr,get,%q<t1name>/%q<fname>)]|%q<comm>/get %q<get>,View|Decompile)[if(elements(%i0,2,chr(177)),\([ansi(hw,+)]\))],chr(176),chr(176)),24,u(width,%#),chr(176));@pemit %#=u(FOOTER,Legend: + - Locked)
+&INC`VIEW`FILES [u(cobj,info)]=@pemit %#=u(HEADER,%q<t1name>'s [u(capnames,%q<sysname>)] Files);@pemit %#=u(table,iter(u(mysql3,VIEW`NAMES,get(%q<target>/D`ID),%q<root>),u(mxpmenu,left(u(setr,fname,elements(%i0,1,chr(177))),u(conf,MAX_FILE_LENGTH)),%q<comm> [u(setr,get,%q<t1name>/%q<fname>)]|%q<comm>/get %q<get>,View|Decompile)[if(elements(%i0,2,chr(177)),\([ansi(hw,+)]\))],chr(176),chr(176)),add(u(conf,MAX_FILE_LENGTH),2),u(width,%#),chr(176));@pemit %#=u(FOOTER,Legend: + - Locked)
 
 &Q`VIEW`NAMES [u(cobj,info)]=SELECT info_name,locker_id FROM volv_infofile WHERE owner_id=? AND info_type=? ORDER BY info_name
 
-&INC`VIEW`CONTENTS [u(cobj,info)]=@dolist/inline/nobreak/delimit | %q<filename>={@attach %!/INC`FINDFILE=##;@pemit %#=u(HEADER,%q<t1name>'s %q<iname> +[lcstr(%q<sysname>)]);@pemit %#=u(mysql,VIEW`FILE,%q<i1>);@select/inline u(isadmin,%#)=1,{@pemit %#=u(separator,Admin Info);@pemit %#=[ansi(h,Last set by:)] %q<iauthorname> [ansi(h,On:)] [u(fancytime,%q<imodified>)][if(%q<ilockerid>,%R[ansi(h,Locked by:)] %q<ilockername> [ansi(h,On:)] [u(fancytime,%q<ilockdate>)])]};@pemit %#=u(SUBHEADER,if(%q<ilockerid>,Admin Locked File))}
+&INC`VIEW`CONTENTS [u(cobj,info)]=@dolist/inline/nobreak/delimit | %q<filename>={@attach %!/INC`FINDFILE=u(choosegame,%i0,%d0);@pemit %#=u(HEADER,%q<t1name>'s %q<iname> +[lcstr(%q<sysname>)]);@pemit %#=u(mysql,VIEW`FILE,%q<i1>);@select/inline u(isadmin,%#)=1,{@pemit %#=u(separator,Admin Info);@pemit %#=[ansi(h,Last set by:)] %q<iauthorname> [ansi(h,On:)] [u(fancytime,%q<imodified>)][if(%q<ilockerid>,%R[ansi(h,Locked by:)] %q<ilockername> [ansi(h,On:)] [u(fancytime,%q<ilockdate>)])]};@pemit %#=u(SUBHEADER,if(%q<ilockerid>,Admin Locked File))}
 
 &Q`VIEW`FILE [u(cobj,info)]=SELECT field_text FROM vol_field WHERE field_id=?
 
@@ -54,7 +60,7 @@ th u(NEWCOBJ,Info Management System <INFO>,info,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &Q`FIND`EXACT [u(cobj,info)]=SELECT info_id FROM volv_infofile WHERE owner_id=? AND info_type=? AND info_name=? ORDER BY info_name LIMIT 1
 
-&INC`VALID`FILENAME [u(cobj,info)]=@check strlen(u(setr,filename,trim(stripansi(%0))))=@attach %!/INC`MSG=Filename field empty!;@stop gt(strlen(%q<filename>),18)=@attach %!/INC`MSG=ERROR: %q<sysname> files are limited to 18 characters.;@stop u(charsearch,%q<filename>,u(badchars) /)=@attach %!/INC`MSG=ERROR: Filenames may not contain: [v(badchars)] /;@stop cand(u(setr,found_file,u(mysql,FIND`EXACT,get(%q<target>/D`ID),%q<root>,%q<filename>)),not(eq(%q<found_file>,%1)))=@attach %!/INC`MSG=ERROR: File name is already in use.
+&INC`VALID`FILENAME [u(cobj,info)]=@check strlen(u(setr,filename,trim(stripansi(%0))))=@attach %!/INC`MSG=Filename field empty!;@stop gt(strlen(%q<filename>),u(conf,MAX_FILE_LENGTH))=@attach %!/INC`MSG=ERROR: %q<sysname> files are limited to [u(conf,MAX_FILE_LENGTH)] characters.;@stop u(charsearch,%q<filename>,u(badchars) /)=@attach %!/INC`MSG=ERROR: Filenames may not contain: [v(badchars)] /;@stop cand(u(setr,found_file,u(mysql,FIND`EXACT,get(%q<target>/D`ID),%q<root>,%q<filename>)),not(eq(%q<found_file>,%1)))=@attach %!/INC`MSG=ERROR: File name is already in use.
 
 &INC`SET [u(cobj,info)]=@attach %!/INC`TARGET;@stop cand(isdbref(pmatch(%0)),not(strlen(%1)))=@attach %!/INC`MSG=ERROR: '%0' matches player [name(%q<target>)]. Use <name>/<filename> format to be more explicit.;@check strlen(%q<filename>)=@attach %!/INC`MSG=ERROR: File name empty.;@select/inline u(setr,field_id,u(mysql,FIND`EXACT,get(%q<target>/D`ID),%q<root>,%q<filename>))=>0,{@check cor(strmatch(%#,%q<target>),u(isadmin,%#))=@attach %!/INC`MSG=ERROR: You may not change another's [u(capnames,%q<sysname>)] files.;@attach %!/INC`LOADFILE=%q<field_id>;@select/inline cor(%q<ilockerid>,cand(%q<lockapprove>,u(approved,%q<target>)))=1,{@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: That File may not be changed by you.}},{@stop cand(%q<lockapprove>,u(approved,%q<target>),not(u(isadmin,%#)))=@attach %!/INC`MSG=ERROR: Cannot create files post-approval.};@attach %!/INC`VALID`FILENAME=%q<filename>,%q<field_id>;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Text field empty. To delete a file use %q<comm>/delete.;@check u(setr,results,u(call`5,volp_field,0,get(%q<target>/D`ID),%q<root>,'[sqlescape(%q<filename>)]','[sqlescape(%2)]',get(%#/D`ID)))=@attach %!/INC`MSG=ERROR: Could not set %q<sysname>. Reason: %q<results>;@attach %!/INC`DOSQL=RENDER`FILE,u(RENDER,%2),%q<results>;@select/inline %3=1,{@attach %!/INC`DOSQL=LOCK`FILE,%q<results>,get(%#/D`ID)};@select/inline %q<target>=%#,{@attach %!/INC`MSG=You [if(%3,lock-)]set your %q<filename> [u(capnames,%q<sysname>)] File},{@attach %!/INC`MSG=You [if(%3,lock-)]set %q<t1name>'s [u(capnames,%q<sysname>)] File %q<filename>!;@attach %!/INC`MSG`NOTICE=Your [u(capnames,%q<sysname>)] File %q<filename> was [if(%3,lock-)]set.,%q<target>}
 

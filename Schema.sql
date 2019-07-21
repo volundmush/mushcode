@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS vol_entity (
 	PRIMARY KEY(entity_id),
 	UNIQUE(entity_objid),
 	INDEX(entity_name, entity_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 /*
 entity_type enumeration:
@@ -26,12 +26,24 @@ entity_type enumeration:
 100+ - Game-specific implementations.
 */
 
+CREATE TABLE if not exists vol_entity_namelog (
+    namelog_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    entity_id INT UNSIGNED NOT NULL,
+    enactor_id INT UNSIGNED NULL,
+    old_name VARCHAR(255) NULL,
+    new_name VARCHAR(255) NOT NULL,
+    date_named DATETIME NOT NULL,
+    PRIMARY KEY(namelog_id),
+    FOREIGN KEY(enactor_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(entity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 CREATE TABLE IF NOT EXISTS vol_lockname (
 	lock_id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	lock_name VARCHAR(50) NOT NULL,
 	PRIMARY KEY(lock_id),
 	INDEX(lock_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_lock (
 	entity_id INT UNSIGNED NOT NULL,
@@ -80,13 +92,26 @@ CREATE OR REPLACE VIEW volv_account AS
 	FROM vol_account AS a LEFT JOIN vol_entity AS e ON a.account_id=e.entity_id
 	ORDER BY account_date_created;
 
+CREATE TABLE IF NOT EXISTS vol_account_bindlog (
+    bindlog_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    from_account_id INT UNSIGNED NULL,
+    to_account_id INT UNSIGNED NULL,
+    character_id INT UNSIGNED NOT NULL,
+    bindlog_date_created DATETIME NOT NULL,
+    bindlog_notes TEXT,
+    PRIMARY KEY(bindlog_id),
+    FOREIGN KEY(from_account_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(to_account_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY(character_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
 CREATE TABLE IF NOT EXISTS vol_theme (
 	theme_id INT UNSIGNED NOT NULL,
 	theme_description TEXT NULL,
 	theme_description_render TEXT NULL DEFAULT NULL,
 	PRIMARY KEY(theme_id),
 	FOREIGN KEY(theme_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_theme AS
 	SELECT t.theme_id,e.entity_name AS theme_name,t.theme_description
@@ -129,7 +154,7 @@ CREATE TABLE IF NOT EXISTS vol_character (
 	INDEX(account_id,character_alt),
 	INDEX(character_is_guest),
 	INDEX(character_is_approved)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_character AS
 	SELECT c.character_id,e.entity_name AS character_name,e.entity_objid AS character_objid,c.character_is_deleted,c.account_id,c.character_alt,c.character_date_created,UNIX_TIMESTAMP(c.character_date_created) AS character_date_created_secs,c.character_date_activity,UNIX_TIMESTAMP(c.character_date_activity) AS character_date_activity_secs,c.character_is_approved,c.character_date_approved,UNIX_TIMESTAMP(c.character_date_approved) AS character_date_approved_secs,c.character_status,c.character_is_guest
@@ -141,30 +166,35 @@ CREATE OR REPLACE VIEW volv_account_characters AS
 	GROUP BY a.account_id,c.character_is_deleted
 	ORDER BY a.account_date_activity;
 
+CREATE OR REPLACE VIEW volv_account_bindlog AS
+    SELECT b.bindlog_id,b.from_account_id,a1.account_name AS from_account_name,a1.account_objid AS from_account_objid,b.to_account_id,a2.account_name AS to_account_name,a2.account_objid AS to_account_objid,b.bindlog_date_created,UNIX_TIMESTAMP(b.bindlog_date_created) AS bindlog_date_created_secs,b.bindlog_notes,c.character_id,c.character_name FROM vol_account_bindlog AS b LEFT JOIN volv_account AS a1 ON b.from_account_id=a1.account_id LEFT JOIN volv_account AS a2 ON b.to_account_id=a2.account_id LEFT JOIN volv_character AS c ON b.character_id=c.character_id;
+
 CREATE TABLE IF NOT EXISTS vol_approve (
 	approve_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	character_id INT UNSIGNED NOT NULL,
+	account_id INT UNSIGNED NULL,
 	approver_id INT UNSIGNED NOT NULL,
 	approve_action BOOLEAN NOT NULL,
 	approve_date DATETIME NOT NULL,
 	approve_text TEXT NULL DEFAULT NULL,
 	PRIMARY KEY(approve_id),
 	FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY(account_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(approver_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	INDEX(character_id,approve_action),
 	INDEX(approver_id,approve_action)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_approve AS
-	SELECT a.approve_id,c.*,a.approver_id,c1.character_objid AS approver_objid,c1.character_name AS approver_name,a.approve_action,a.approve_date,UNIX_TIMESTAMP(a.approve_date) AS approve_date_secs,a.approve_text
-	FROM vol_approve AS a LEFT JOIN volv_character AS c ON a.character_id=c.character_id LEFT JOIN volv_character AS c1 ON c1.character_id=a.approver_id
+	SELECT a.approve_id,c.character_id,c.character_name,a.account_id,a2.account_name,a.approver_id,c1.character_objid AS approver_objid,c1.character_name AS approver_name,a.approve_action,a.approve_date,UNIX_TIMESTAMP(a.approve_date) AS approve_date_secs,a.approve_text
+	FROM vol_approve AS a LEFT JOIN volv_character AS c ON a.character_id=c.character_id LEFT JOIN volv_character AS c1 ON c1.character_id=a.approver_id LEFT JOIN volv_account AS a2 ON a.account_id=a2.account_id
 	ORDER BY a.approve_id;
 
 DROP PROCEDURE IF EXISTS volp_approve;
 DELIMITER $$
-CREATE PROCEDURE volp_approve(IN in_character_id INT UNSIGNED,IN in_approver_id INT UNSIGNED,IN in_approve_action BOOLEAN,IN in_approve_text TEXT)
+CREATE PROCEDURE volp_approve(IN in_character_id INT UNSIGNED,IN in_account_id INT UNSIGNED,IN in_approver_id INT UNSIGNED,IN in_approve_action BOOLEAN,IN in_approve_text TEXT)
 	BEGIN
-		INSERT INTO vol_approve (character_id,approver_id,approve_action,approve_date,approve_text) VALUES (in_character_id,in_approver_id,in_approve_action,UTC_TIMESTAMP(),in_approve_text);
+		INSERT INTO vol_approve (character_id,account_id,approver_id,approve_action,approve_date,approve_text) VALUES (in_character_id,in_account_id,in_approver_id,in_approve_action,UTC_TIMESTAMP(),in_approve_text);
 		UPDATE vol_character SET character_is_approved=in_approve_action WHERE character_id=in_character_id;
 		SELECT LAST_INSERT_ID();
 	END$$
@@ -183,7 +213,7 @@ CREATE TABLE IF NOT EXISTS vol_field (
 	FOREIGN KEY(entity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(author_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(entity_id,field_type,field_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_field_lock (
 	field_id MEDIUMINT UNSIGNED NOT NULL,
@@ -192,7 +222,7 @@ CREATE TABLE IF NOT EXISTS vol_field_lock (
 	PRIMARY KEY(field_id),
 	FOREIGN KEY(field_id) REFERENCES vol_field(field_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(locker_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 DROP PROCEDURE IF EXISTS volp_field;
 DELIMITER $$
@@ -237,7 +267,7 @@ CREATE TABLE IF NOT EXISTS vol_tag (
 	tag_description TEXT,
 	PRIMARY KEY(tag_id),
 	UNIQUE(tag_type,tag_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 /*
 tag_type enumeration:
@@ -316,7 +346,7 @@ CREATE TABLE IF NOT EXISTS vol_ip (
 	ip_address VARCHAR(39) NOT NULL,
 	PRIMARY KEY(ip_id),
 	UNIQUE(ip_address)	
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 	
 CREATE TABLE IF NOT EXISTS vol_login (
 	login_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -426,7 +456,7 @@ CREATE TABLE IF NOT EXISTS vol_job (
 	INDEX(job_date_created),
 	INDEX(job_date_player_activity),
 	INDEX(job_date_admin_activity)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 	
 CREATE TABLE IF NOT EXISTS vol_jlink (
 	jlink_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -439,7 +469,7 @@ CREATE TABLE IF NOT EXISTS vol_jlink (
 	INDEX(job_id,jlink_type),
 	FOREIGN KEY(job_id) REFERENCES vol_job(job_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_jcomment (
 	jcomment_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -452,7 +482,7 @@ CREATE TABLE IF NOT EXISTS vol_jcomment (
 	PRIMARY KEY(jcomment_id),
 	INDEX(jcomment_is_visible),
 	FOREIGN KEY(jlink_id) REFERENCES vol_jlink(jlink_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_jlink AS
 	SELECT jl.jlink_id,jl.job_id,jl.jlink_type,jl.jlink_date_check,c.* FROM vol_jlink AS jl LEFT JOIN volv_character AS c ON c.character_id=jl.character_id;
@@ -563,7 +593,7 @@ CREATE TABLE IF NOT EXISTS vol_group_tier (
 	tier_name VARCHAR(255) NOT NULL,
 	PRIMARY KEY(group_tier,group_is_private),
 	UNIQUE(group_is_private,tier_name)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_group (
 	group_id INT UNSIGNED NOT NULL,
@@ -738,7 +768,7 @@ CREATE TABLE IF NOT EXISTS vol_bbpost (
 	FOREIGN KEY(entity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(board_id,post_display_num),
 	INDEX(post_date_created)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_bbcomment (
 	comment_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -754,7 +784,7 @@ CREATE TABLE IF NOT EXISTS vol_bbcomment (
 	FOREIGN KEY(post_id) REFERENCES vol_bbpost(post_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(entity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(post_id,comment_display_num)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 	
 CREATE TABLE IF NOT EXISTS vol_bbread (
 	post_id INT UNSIGNED NOT NULL,
@@ -763,7 +793,7 @@ CREATE TABLE IF NOT EXISTS vol_bbread (
 	FOREIGN KEY(post_id) REFERENCES vol_bbpost(post_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(entity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(entity_id,post_id)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- Simple view bridging BB post data.
 CREATE OR REPLACE VIEW volv_board AS
@@ -863,7 +893,7 @@ CREATE TABLE IF NOT EXISTS vol_help_category (
 	help_category_name VARCHAR(255) NOT NULL,
 	PRIMARY KEY(help_category_id),
 	UNIQUE(help_category_type,help_category_name)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_help_file (
 	help_file_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -880,7 +910,7 @@ CREATE TABLE IF NOT EXISTS vol_help_file (
 	PRIMARY KEY(help_file_id),
 	FOREIGN KEY(help_category_id) REFERENCES vol_help_category(help_category_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(help_category_id,help_file_name,help_file_parent_id)
- ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
  
 CREATE TABLE IF NOT EXISTS vol_help_read (
 	help_file_id MEDIUMINT UNSIGNED NOT NULL,
@@ -889,7 +919,7 @@ CREATE TABLE IF NOT EXISTS vol_help_read (
 	FOREIGN KEY(help_file_id) REFERENCES vol_help_file(help_file_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(help_file_id,character_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_sub_files AS
 	SELECT help_file_parent_id AS help_file_id,COUNT(help_file_id) AS sub_file_count
@@ -989,7 +1019,7 @@ CREATE TABLE IF NOT EXISTS vol_messages (
 	message_summary_render TEXT NULL,
 	PRIMARY KEY(message_id),
 	INDEX(source_objid,message_type,message_date_created)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
 -- SQL SCHEMA FOR THE SCENE SYSTEM
@@ -1005,7 +1035,7 @@ CREATE TABLE IF NOT EXISTS vol_plot (
 	INDEX(plot_date_start, plot_date_end),
 	INDEX(plot_title),
 	PRIMARY KEY(plot_id)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_runner (
 	runner_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1016,7 +1046,7 @@ CREATE TABLE IF NOT EXISTS vol_runner (
 	UNIQUE(character_id,plot_id),
 	FOREIGN KEY(plot_id) REFERENCES vol_plot(plot_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_runner AS
 	SELECT r.runner_id,r.plot_id,r.runner_type,c.* FROM vol_runner as r LEFT JOIN volv_character AS c ON c.character_id=r.character_id;
@@ -1052,7 +1082,7 @@ CREATE TABLE IF NOT EXISTS vol_scene (
 	INDEX(scene_date_scheduled,scene_status),
 	INDEX(scene_id,scene_title,scene_status),
 	INDEX(scene_title)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 	
 CREATE TABLE IF NOT EXISTS vol_actor (
 	actor_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1066,7 +1096,7 @@ CREATE TABLE IF NOT EXISTS vol_actor (
 	INDEX(scene_id,character_id,actor_type),
 	FOREIGN KEY(scene_id) REFERENCES vol_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 DROP PROCEDURE IF EXISTS volp_actor;
 DELIMITER $$
@@ -1100,7 +1130,7 @@ CREATE TABLE IF NOT EXISTS vol_action_source (
 	PRIMARY KEY(source_id),
 	FOREIGN KEY(scene_id) REFERENCES vol_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(scene_id, source_objid, source_vr, source_type)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_action (
 	action_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1115,7 +1145,7 @@ CREATE TABLE IF NOT EXISTS vol_action (
 	INDEX(actor_id, action_is_deleted),
 	FOREIGN KEY(actor_id) REFERENCES vol_actor(actor_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(source_id) REFERENCES vol_action_source(source_id) ON UPDATE CASCADE ON DELETE CASCADE
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_action AS
 	SELECT a.action_id,ac.actor_id,ac.scene_id,ac.character_id,ac.character_name,ac.character_objid,ac.actor_type,a.source_id,sc.source_objid,sc.source_vr,sc.source_name,sc.source_type,a.action_type,a.action_date_created,UNIX_TIMESTAMP(a.action_date_created) AS action_date_created_secs,a.action_is_deleted,a.action_text
@@ -1151,7 +1181,7 @@ CREATE TABLE IF NOT EXISTS vol_scene_partner (
   FOREIGN KEY(scene_id) REFERENCES vol_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE,
   FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
   UNIQUE(scene_id,character_id)
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_scene_partner AS
   SELECT p.scene_id,p.partner_slot,c.character_id,c.character_name,c.character_objid FROM vol_scene_partner AS p LEFT JOIN volv_character AS c ON c.character_id=p.character_id ORDER BY p.scene_id,p.partner_slot;
@@ -1173,7 +1203,7 @@ CREATE TABLE IF NOT EXISTS vol_experience (
   FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
   FOREIGN KEY(admin_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE,
   UNIQUE(character_id,xp_type,xp_display_num)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_experience AS
   SELECT c.*,x.xp_id,x.xp_type,x.xp_display_num,x.xp_amount,x.xp_reason,x.xp_date,UNIX_TIMESTAMP(x.xp_date) AS xp_date_secs,x.admin_id,c1.character_objid AS admin_objid,c1.character_name AS admin_name
@@ -1208,7 +1238,7 @@ CREATE TABLE IF NOT EXISTS vol_sms_msg (
     msg_text text NOT NULL,
     PRIMARY KEY(msg_id),
     INDEX(msg_date_created)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 -- Table that links messages to characters.
 CREATE TABLE IF NOT EXISTS vol_sms_msg_link (
@@ -1225,7 +1255,7 @@ CREATE TABLE IF NOT EXISTS vol_sms_msg_link (
     UNIQUE(msg_id,character_id),
     INDEX(msg_link_type),
     INDEX(msg_id,msg_link_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_sms_msg_link_agg AS
     SELECT l.msg_id,l.msg_link_type,GROUP_CONCAT(c.character_name ORDER BY c.character_name SEPARATOR '|') AS character_names,GROUP_CONCAT(l.character_id ORDER BY c.character_name SEPARATOR ' ') AS character_ids FROM vol_sms_msg_link AS l LEFT JOIN volv_character AS c ON l.character_id=c.character_id GROUP BY msg_id,msg_link_type;
@@ -1246,7 +1276,7 @@ CREATE TABLE IF NOT EXISTS vol_rumor_circle (
     circle_admin_lock VARCHAR(255) NOT NULL DEFAULT 'V`ADMIN:>0',
     circle_description TEXT,
     PRIMARY KEY(circle_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_rumor (
     rumor_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1263,7 +1293,7 @@ CREATE TABLE IF NOT EXISTS vol_rumor (
     FOREIGN KEY(character_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
     INDEX(rumor_date_created),
     INDEX(rumor_date_modified, rumor_deleted)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_rumor AS
     SELECT r.rumor_id AS rumor_id,r.rumor_subject AS rumor_subject,r.rumor_date_created AS rumor_date_created,UNIX_TIMESTAMP(r.rumor_date_created) AS rumor_date_created_secs,r.rumor_date_modified AS rumor_date_modified,UNIX_TIMESTAMP(r.rumor_date_modified) AS rumor_date_modified_secs,r.rumor_date_timeout AS rumor_date_timeout,UNIX_TIMESTAMP(r.rumor_date_timeout) AS rumor_date_timeout_secs,r.rumor_final_countdown AS rumor_final_countdown,r.rumor_deleted,r.character_id AS character_id,c.character_name AS character_name,c.character_objid AS character_objid,c.account_id AS character_account,cir.* FROM vol_rumor AS r LEFT JOIn volv_character AS c ON r.character_id=c.character_id LEFT JOIN vol_rumor_circle AS cir ON r.circle_id=cir.circle_id;
@@ -1275,7 +1305,7 @@ CREATE TABLE IF NOT EXISTS vol_rumor_read (
     FOREIGN KEY(rumor_id) REFERENCES vol_rumor(rumor_id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(character_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
     UNIQUE(rumor_id, character_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_rumor_comment (
     comment_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1288,7 +1318,7 @@ CREATE TABLE IF NOT EXISTS vol_rumor_comment (
     FOREIGN KEY(rumor_id) REFERENCES vol_rumor(rumor_id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY(character_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
     INDEX(rumor_id, comment_date_created)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_rumor_comment AS
     SELECT comment_id,rumor_id,comment_date_created,UNIX_TIMESTAMP(comment_date_created) AS comment_date_created_secs,comment_type,comment_text,cn.character_id,cn.character_name,cn.character_objid,cn.account_id AS character_account FROM vol_rumor_comment AS c LEFT JOIN volv_character AS cn ON c.character_id=cn.character_id;
@@ -1312,7 +1342,7 @@ CREATE TABLE IF NOT EXISTS vol_centity (
 	FOREIGN KEY(centity_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(centity_owner) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	INDEX(centity_version,centity_type,centity_owner)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_ctrait (
 	centity_id INT UNSIGNED NOT NULL,
@@ -1323,7 +1353,7 @@ CREATE TABLE IF NOT EXISTS vol_ctrait (
 	trait_flags_2 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	FOREIGN KEY(centity_id) REFERENCES vol_centity(centity_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	UNIQUE(centity_id,trait_type,trait_id)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_clink (
 	clink_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1345,7 +1375,7 @@ CREATE TABLE IF NOT EXISTS vol_clink (
 	FOREIGN KEY(character_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(consequences_source) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	INDEX(consequences_tier,consequences_date_timeout)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 
 
@@ -1358,7 +1388,7 @@ CREATE TABLE IF NOT EXISTS vol_clink_trait (
 	trait_flags_2 TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	FOREIGN KEY(clink_id) REFERENCES vol_clink(clink_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	UNIQUE(clink_id,trait_type,trait_id)
-	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_carmory (
 	carmory_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1367,7 +1397,7 @@ CREATE TABLE IF NOT EXISTS vol_carmory (
 	PRIMARY KEY(carmory_id),
 	FOREIGN KEY(centity_id) REFERENCES vol_centity(centity_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	FOREIGN KEY(clink_id) REFERENCES vol_clink(clink_id) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_cattack (
 	cattack_id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1376,7 +1406,7 @@ CREATE TABLE IF NOT EXISTS vol_cattack (
 	PRIMARY KEY(cattack_id),
 	FOREIGN KEY(carmory_id) REFERENCES vol_carmory(carmory_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	UNIQUE(carmory_id,cattack_name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_cattack_parameter (
 	cattack_id MEDIUMINT UNSIGNED NOT NULL,
@@ -1384,7 +1414,7 @@ CREATE TABLE IF NOT EXISTS vol_cattack_parameter (
 	cparameter_id TINYINT UNSIGNED NOT NULL,
 	cparameter_value SMALLINT SIGNED NOT NULL DEFAULT 0,
 	UNIQUE(cattack_id,cparameter_type,cparameter_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE IF NOT EXISTS vol_clog (
   clog_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1394,7 +1424,7 @@ CREATE TABLE IF NOT EXISTS vol_clog (
   clog_text TEXT NOT NULL,
   PRIMARY KEY(clog_id),
   FOREIGN KEY(character_id) REFERENCES vol_character(character_id) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE OR REPLACE VIEW volv_clog AS
   SELECT cl.clog_id,cl.clog_date_created,UNIX_TIMESTAMP(cl.clog_date_created) AS clog_date_created_secs,cl.clog_type,cl.clog_text,ch.* FROM vol_clog AS cl LEFT JOIN volv_character AS ch ON ch.character_id=cl.character_id;

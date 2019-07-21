@@ -49,19 +49,27 @@
 	  endfor;
 	  return $calendar;
 	}
-	
-	$months = $scenedb->query("SELECT DISTINCT MONTH(scene_date_scheduled) AS mn,YEAR(scene_date_scheduled) AS yr FROM vol_scene where scene_date_scheduled>NOW() ORDER BY yr asc,mn asc")->fetchAll();
-	
-	$draw_months = array();
-	
-	foreach($months as $scenemonths) {
-		$monthdata = DateTime::createFromFormat('!m', $scenemonths['mn']);
-		$draw_months[] = ['header'=>[$monthdata->format('F'), $scenemonths['yr']], 'data'=>draw_calendar($scenemonths['mn'],$scenemonths['yr'])];
-	}	
-		
-	$header = ['1'=>date('F, Y',mktime(0, 0, 0, date("m")+1, date("d"),   date("Y"))), '2'=>date('F, Y',mktime(0, 0, 0, date("m")+1, date("d"),   date("Y")))];
-	
-	$smarty->assign('header',$header);
-	$smarty->assign('calendar',$draw_months);
-	$smarty->display('templates/calendar.tpl');
+
+	if($json)
+	{
+
+	}
+
+	else
+	{
+        $months = $scenedb->query("SELECT DISTINCT MONTH(scene_date_scheduled) AS mn,YEAR(scene_date_scheduled) AS yr FROM vol_scene where scene_date_scheduled>NOW() ORDER BY yr asc,mn asc")->fetchAll();
+
+        $draw_months = array();
+
+        foreach($months as $scenemonths) {
+            $monthdata = DateTime::createFromFormat('!m', $scenemonths['mn']);
+            $draw_months[] = ['header'=>[$monthdata->format('F'), $scenemonths['yr']], 'data'=>draw_calendar($scenemonths['mn'],$scenemonths['yr'])];
+        }
+
+        $header = ['1'=>date('F, Y',mktime(0, 0, 0, date("m")+1, date("d"),   date("Y"))), '2'=>date('F, Y',mktime(0, 0, 0, date("m")+1, date("d"),   date("Y")))];
+
+        $smarty->assign('header',$header);
+        $smarty->assign('calendar',$draw_months);
+        $smarty->display('templates/calendar.tpl');
+	}
 ?>

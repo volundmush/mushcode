@@ -65,7 +65,7 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 @set [u(cobj,account)]/CMD`+ACCOUNT`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SWITCHES`PLAYER [u(cobj,account)]=EMAIL|OPTIONS|OPTION
-&SWITCHES`ADMIN [u(cobj,account)]=BIND|UNBIND|UNBOUND|CREATE|LIST|RENAME|INACTIVE|CONFIG
+&SWITCHES`ADMIN [u(cobj,account)]=BIND|UNBIND|UNBOUND|CREATE|LIST|RENAME|INACTIVE|CONFIG|HISTORY|CHARACTER
 &SWITCHES`WIZARD [u(cobj,account)]=ENABLE|DISABLE
 &SWITCHES`OPEN_CREATION [u(cobj,account)]=REQUEST|ACCEPT|NEW|RENAME
 
@@ -103,7 +103,11 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 
 &INC`ACCEPT [u(cobj,account)]=@check isdbref(u(setr,accid,u(accid,%#,1)))=@attach %!/INC`MSG=ERROR: You do not have an account!;@attach %!/INC`CHECKPC=%0,1;@stop u(setr,reqacc,u(accid,%q<t1>,1))=@attach %!/INC`MSG=ERROR: %q<t1name> already has an account!;@check match(get(%q<accid>/REQUESTS),%q<t1objid>)=@attach %!/INC`MSG=ERROR: No request pending from %q<t1name>.;th u(attrib_set,%q<accid>,REQUESTS,setdiff(get(%q<accid>/REQUESTS),%q<t1objid>));@attach %!/INC`MSG=%q<t2name> has been added to [name(%q<accid>)],u(alts,%#);@attach %!/INC`MSG`CHAN=Account request for %q<t1name> to [name(%q<accid>)] confirmed.;@attach %!/INC`ADDTOACCOUNT=%q<accid>,%q<t1objid>
 
-&INC`BIND [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,2;@stop strmatch(%q<t2>,#1)=@attach %!/INC`MSG=ERROR: #1 cannot be bound to an Account.;@select/inline %1=NEW,{@attach %!/INC`CREATE=%q<t2name>},{@attach %!/INC`TARGET=%1};@select/inline isdbref(%q<t2acc>)=1,{@attach %!/INC`REMFROMACCOUNT=%q<t2acc>,%q<t2objid>};@attach %!/INC`ADDTOACCOUNT=%q<accid>,%q<t2objid>;@attach %!/INC`MSG`NOTICE=You have been Account-Bound to [u(pueblize,%q<accname>,+account)].,%q<t2>;@attach %!/INC`MSG=You have Bound %q<t2name> to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])];@attach %!/INC`MSG`CHAN=Account-Bound %q<t2name> to [u(pueblize,%q<accname>,+account #%q<accname>)]
+&INC`BIND [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,2;@stop strmatch(%q<t2>,#1)=@attach %!/INC`MSG=ERROR: #1 cannot be bound to an Account.;@select/inline before(%1,/)=NEW,{@attach %!/INC`CREATE=%q<t2name>},{@attach %!/INC`TARGET=before(%1,/)};@select/inline isdbref(%q<t2acc>)=1,{@attach %!/INC`REMFROMACCOUNT=%q<t2acc>,%q<t2objid>};@attach %!/INC`ADDTOACCOUNT=%q<accid>,%q<t2objid>;@attach %!/INC`LOGACCOUNT=%q<t2id>,get(%q<accid>/D`ACCOUNT`ID),%q<t2accid>,after(%1,/);@attach %!/INC`MSG`NOTICE=You have been Account-Bound to [u(pueblize,%q<accname>,+account)].,%q<t2>;@attach %!/INC`MSG=You have Bound %q<t2name> to [u(pueblize,name(%q<accid>),+account [last(name(%q<accid>))])];@attach %!/INC`MSG`CHAN=Account-Bound %q<t2name> to [u(pueblize,%q<accname>,+account #%q<accname>)][if(strlen(after(%1,/)),.%bMemo: [after(%1,/)])]
+
+&INC`LOGACCOUNT [u(cobj,account)]=@attach %!/INC`DOSQL=INSERT`BINDLOG,u(strfirstof,%2,NULL),u(strfirstof,%1,NULL),%0,%3
+
+&Q`INSERT`BINDLOG [u(cobj,account)]=INSERT INTO vol_account_bindlog (from_account_id,to_account_id,character_id,bindlog_date_created,bindlog_notes) VALUES (?,?,?,UTC_TIMESTAMP(),?)
 
 &INC`ADDTOACCOUNT [u(cobj,account)]=@parent %1=%0;@attach %!/INC`DOSQL=SET`ACCOUNT_ID,get(%1/D`ACCOUNT`ID),get(%1/D`ID);th u(attrib_set,%0,CHARACTERS,u(filter,ISOBJID,setunion(get(%0/CHARACTERS),objid(%1))))
 
@@ -114,7 +118,7 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 &Q`CLEAN`LOGIN_LOGS [u(cobj,account)]=DELETE FROM vol_login WHERE character_id=?
 &Q`CLEAN`ACCOUNT_ID [u(cobj,account)]=UPDATE vol_character SET account_id=SET_NULL WHERE character_id=?
 
-&INC`UNBIND [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,1;@check u(setr,accid,%q<t1acc>)=@attach %!/INC`MSG={ERROR: %q<t1name> is not a member of any accounts.};@attach %!/INC`REMFROMACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`MSG={You have removed %q<t1name> from Account [name(%q<accid>)]};@attach %!/INC`MSG`NOTICE={You were removed from Account '[name(%q<accid>)]'},%q<t1>;@attach %!/INC`MSG`CHAN={Removed %q<t1name> from [name(%q<accid>)]}
+&INC`UNBIND [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,1;@check u(setr,accid,%q<t1acc>)=@attach %!/INC`MSG={ERROR: %q<t1name> is not a member of any accounts.};@attach %!/INC`REMFROMACCOUNT=%q<accid>,%q<t1objid>;@attach %!/INC`LOGACCOUNT=%q<t1id>,NULL,%q<t1accid>,%1;@attach %!/INC`MSG={You have removed %q<t1name> from Account [name(%q<accid>)]};@attach %!/INC`MSG`NOTICE={You were removed from Account '[name(%q<accid>)]'},%q<t1>;@attach %!/INC`MSG`CHAN={Removed %q<t1name> from [name(%q<accid>)]}[if(%1,. Memo: %1)]
 
 &INC`UNBOUND [u(cobj,account)]=@check words(u(setr,unbound,switch(%va,PennMUSH,lsearch(all,type,player,elock,!D`ACCOUNT:?*),search(eplayer=!hasattr(##,D`ACCOUNT)))))=@attach %!/INC`MSG={There are no accountless PCs in the Database. Hooray!};@pemit %#=u(HEADER,Unbound Characters);@pemit %#=align(-6 3 3 27 25 9,Dbref,Sta,Alt,Name,IP,Last On);@pemit %#=u(SEPARATOR);@dolist/inline %q<unbound>={@pemit %#=u(FUN`ACCOUNT`CHARLINE,##)};@pemit %#=u(FOOTER)
 
@@ -125,6 +129,17 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 &Q`ACCOUNT`TOGGLE [u(cobj,account)]=UPDATE vol_account SET account_disabled=? WHERE account_id=?
 
 &INC`ENABLE [u(cobj,account)]=@check strlen(%0)=@attach %!/INC`MSG={ERROR: Account ID empty.};@attach %!/INC`FIND=%0;@attach %!/INC`MSG={[name(%q<accid>)] enabled!};@attach %!/INC`MSG`NOTICE={Your account was enabled.},u(setr,chars,get(%q<accid>/CHARACTERS));@attach %!/INC`MSG`CHAN={[name(%q<accid>)] enabled!};@attach %!/INC`DOSQL=ACCOUNT`TOGGLE,1,%q<accid>;@attach %!/WIPE=%q<accid>,D`DISABLED
+
+&Q`LOAD`BINDLOG [u(cobj,account)]=SELECT bindlog_id,from_account_id,from_account_name,from_account_objid,to_account_id,to_account_name,to_account_objid,bindlog_date_created,bindlog_date_created_secs,bindlog_notes,character_id,character_name FROM volv_account_bindlog WHERE bindlog_id=?
+&FIELD`BINDLOG [u(Cobj,account)]=id fromid fromname fromobjid toid toname toobjid date datesecs notes charid charname
+
+&INC`HISTORY [u(cobj,account)]=@attach %!/INC`TARGET=%0;@pemit %#=u(header,%q<accname> Account History);@pemit %#=ansi(u(color,%#,ACCOUNT,COLUMN_NAMES),align(15 15 15 15 15,Character,From,To,Date,Memo));@pemit %#=u(separator);@dolist/inline u(mysql,LIST`BINDLOG,get(%q<accid>/D`ACCOUNT`ID),get(%q<accid>/D`ACCOUNT`ID))={@attach %!/INC`LOADSQL=BINDLOG,u(choosegame,%i0,%d0),,bl;@pemit %#=align(15 15 15 15 15,%q<bl.charname>,%q<bl.fromname>,%q<bl.toname>,u(fancytime,%q<bl.datesecs>,%#),%q<bl.notes>)};@pemit %#=u(footer)
+
+&INC`CHARACTER [u(cobj,account)]=@attach %!/INC`CHECKPC=%0,1;@pemit %#=u(header,%q<t1name> Account History);@pemit %#=ansi(u(color,%#,ACCOUNT,COLUMN_NAMES),align(20 20 20 15,From,To,Date,Memo));@pemit %#=u(separator);@dolist/inline u(mysql,LIST`BINDLOG`CHARACTER,%q<t1id>)={@attach %!/INC`LOADSQL=BINDLOG,u(choosegame,%i0,%d0),,bl;@pemit %#=align(20 20 20 15,%q<bl.fromname>,%q<bl.toname>,u(fancytime,%q<bl.datesecs>,%#),%q<bl.notes>)};@pemit %#=u(footer)
+
+&Q`LIST`BINDLOG [u(cobj,account)]=SELECT bindlog_id FROM vol_account_bindlog WHERE (from_account_id=? OR to_account_id=?) ORDER BY bindlog_date_created
+
+&Q`LIST`BINDLOG`CHARACTER [u(cobj,account)]=SELECT bindlog_id FROM vol_account_bindlog WHERE character_id=? ORDER BY bindlog_date_created
 
 &PLAYER`CONNECT [u(cobj,account)]=@dolist/inline u(lattr,%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 &PLAYER`CREATE [u(cobj,account)]=@dolist/inline u(lattr,%!/PLAYER`CREATE`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
@@ -161,5 +176,5 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 &HLP`+ACCOUNT [u(cobj,account)]=The account system tracks players (and their alts) and their current status in the game (unapproved, approved, builder, admin, etc.).%R%R[ansi(hc,Player Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+account)] - Shows your account if you have one.%R[ansi(h,+account/new <name>)] - For new players. Enter this to start a new account on our game. You should preferably use your email address!%R[if(u(conf,OPEN_CREATION),[ansi(h,+account/rename <newname>)] - Renames your account.%R)][ansi(h,@password <old>=<new>)] - Change your password. If you forget your password\, staff will send a new one to your <email> on request - or if your Guest IP matches your previous logins.)]
 +help/add Character/+account=[u(cobj,account)]/HLP`+ACCOUNT
 
-&SHLP`+ACCOUNT [u(cobj,account)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+account/list)] - Shows all accounts in the system.%R[ansi(h,+account/inactive)] - List inactive accounts.%R[ansi(h,+account <account>)] - Shows a specific account. Target can be a player\, OR an account name preceded by # such as #MushDude.%R[ansi(h,+account/create <name>)] - Create a new account.%R[ansi(h,+account/rename <account>=<newname>)] - Target as with +account. Renames account to <newname>.%R[ansi(h,+account/bind <player>=<account>)] - Binds <player> to an account\, removing them from any other account they're in. <account> can be the name of an character \(if they have an account\)\, the word NEW \(makes a new account using the character's name\)\, or the name of an account preceded by # - such as #MushDude.%R[ansi(h,+account/unbind <player>)] - Removes a player from any account they're in.%R[ansi(h,+account/unbound)] - Displays all unbound characters. Some are best left that way.%R[ansi(h,@newpass *<name>=<newpassword>)] - Set a new password for <name>. Note the asterisk\, this is necessary! This command is WIZARD only.)]
+&SHLP`+ACCOUNT [u(cobj,account)]=[ansi(hc,Staff Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+account/list)] - Shows all accounts in the system.%R[ansi(h,+account/inactive)] - List inactive accounts.%R[ansi(h,+account <account>)] - Shows a specific account. Target can be a player\, OR an account name preceded by # such as #MushDude.%R[ansi(h,+account/create <name>)] - Create a new account.%R[ansi(h,+account/rename <account>=<newname>)] - Target as with +account. Renames account to <newname>.%R[ansi(h,+account/bind <player>=<account>\[/<memo>\])] - Binds <player> to an account\, removing them from any other account they're in. <account> can be the name of an character \(if they have an account\)\, the word NEW \(makes a new account using the character's name\)\, or the name of an account preceded by # - such as #MushDude.%R[ansi(h,+account/unbind <player>\[=<memo>\])] - Removes a player from any account they're in.%R[ansi(h,+account/history <account>)] - Display an Account's character bind/unbind history.%R[ansi(h,+account/character <character>)] - Display a character's account bind/unbind history.%R[ansi(h,+account/unbound)] - Displays all unbound characters. Some are best left that way.%R[ansi(h,@newpass *<name>=<newpassword>)] - Set a new password for <name>. Note the asterisk\, this is necessary! This command is WIZARD only.)]
 +shelp/add Character/+account=[u(cobj,account)]/SHLP`+ACCOUNT
