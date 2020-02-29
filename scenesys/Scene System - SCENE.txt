@@ -12,7 +12,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &SYSTEM`SWITCHES [u(cobj,scene)]=setunion(u(SWITCHES`%q<mode>`PLAYER),if(u(isadmin,%#),u(SWITCHES`%q<mode>`ADMIN)),|,|)
 
-&SWITCHES`LOG`PLAYER [u(cobj,scene)]=ID|CREATE|LOUDCREATE|START|LOUDSTART|SCHEDULE|RESCHEDULE|JOIN|LEAVE|TITLE|OUTCOME|PITCH|RECALL|FINISH|PAUSE|CONTINUE|START|UNDO|REDO|EDIT|SPOOF|PLOT|OLD|WHO|WITH|EXCLUDE|TAG|UNTAG|MAIL|UPCOMING|MINE|DELETE|OPTIONS|COLORS|SLOTS[if(u(cobj,meetme),|INVITE)]
+&SWITCHES`LOG`PLAYER [u(cobj,scene)]=ID|CREATE|LOUDCREATE|START|LOUDSTART|SCHEDULE|RESCHEDULE|JOIN|LEAVE|TITLE|OUTCOME|PITCH|RECALL|FINISH|PAUSE|CONTINUE|START|UNDO|REDO|EDIT|SPOOF|PLOT|OLD|WHO|WITH|EXCLUDE|TAG|UNTAG|MAIL|UPCOMING|MINE|DELETE|OPTIONS|COLORS|SLOTS|TOGGLETAG[if(u(cobj,meetme),|INVITE)]
 &SWITCHES`LOG`ADMIN [u(cobj,scene)]=MERGE|CONFIG
 
 &SWITCHES`POT`PLAYER [u(cobj,scene)]=LAST|MAX|LIST|BRIEF|MODE|SUMMARY|TOGGLE
@@ -68,9 +68,9 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &OPTION`BORDERS`DEFAULT [u(Cobj,scene)]=1
 &OPTION`BORDERS`VALID [u(Cobj,scene)]=BOOL
 
-&OPTION`UPCOMING [u(cobj,scene)]=Run the +upcoming command at login?
+&OPTION`UPCOMING [u(cobj,scene)]=Run the +upcoming command at login? 0 disabled. 1 brief. 2 full +scenes
 &OPTION`UPCOMING`DEFAULT [u(Cobj,scene)]=1
-&OPTION`UPCOMING`VALID [u(Cobj,scene)]=BOOL
+&OPTION`UPCOMING`VALID [u(Cobj,scene)]=INT
 
 &OPTION`QUOTES [u(Cobj,scene)]=Color the quotations of speech with this. "Blah"
 &OPTION`QUOTES`DEFAULT [u(Cobj,scene)]=
@@ -86,9 +86,11 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`LOG`COLORS [u(Cobj,scene)]=@attach %!/INC`COLOR=%0,%1
 
-@aconnect [u(Cobj,scene)]=@select/inline u(op,SCENESYS,UPCOMING)=1,{@attach %!/CMD`SCENES_UPCOMING}
+@aconnect [u(Cobj,scene)]=@select/inline u(op,SCENESYS,UPCOMING)=1,{@attach %!/CMD`SCENES_UPCOMING},2,{@attach %!/CMD`SCENES_FULL=1}
 
 &CMD`SCENES_UPCOMING [u(cobj,scene)]=$+upcoming:@select/inline t(u(setr,scenes,u(mysql3,GET`UPCOMING`SCENES)))=1,{@attach %!/INC`MSG=Scenes happening within 24 hours: [iter(%q<scenes>,u(pueblize,elements(%i0,1,chr(177)): '[elements(%i0,2,chr(177))]' \([u(fancytime,elements(%i0,3,chr(177)),%#)]\),+log [elements(%i0,1,chr(177))]),chr(176),\,%b)],%0},0,{@attach %!/INC`MSG=No scenes are happening in the next 24 hours. Bummer!,%0}
+
+&CMD`SCENES_FULL [u(cobj,scene)]=$+fullscene:@attach %!/CMD`+SCENE`MAIN=+scenes,scenes,,,,,,,,%0;
 
 &Q`GET`UPCOMING`SCENES [u(cobj,scene)]=SELECT scene_id,scene_title,scene_date_scheduled_secs FROM volv_scene WHERE scene_date_scheduled >= NOW() AND scene_date_scheduled <= NOW() + INTERVAL 24 HOUR ORDER BY scene_date_scheduled
 
@@ -336,6 +338,8 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`LOG`UNTAG [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@check u(mysql,GET`tagcheck,%q<scene>,%q<t1id>)=@attach %!/INC`MSG=You are not signed up for that scene.;@attach %!/INC`LOADSCENE;@attach %!/INC`DOSQL=SET`ACTOR_STATUS,0,%q<scene>,%q<t1id>;@attach %!/INC`MSG=You have untagged Scene %0!;@attach %!/INC`MSG=[u(getproperty,%#,banner)] just un-Tagged Scene %q<scene>: '%q<title>',%q<ownobjid>
 
+&INC`LOG`TOGGLETAG [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@attach %!/INC`LOADSCENE;@select/inline t(u(mysql,GET`tagcheck,%q<scene>,%q<t1id>))=1,{@attach %!/INC`LOG`UNTAG},0,{@attach %!/INC`LOG`TAG}
+
 &INC`LOG`SLOTS [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),strmatch(%:,%q<ownobjid>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`INT=%1;@attach %!/INC`DOSQL=SET`SLOTS,%q<value>,%q<scene>;@attach %!/INC`MSG=Scene 1: %q<title> now allows [if(%q<value>,%q<value>,unlimited)] taggers!,setunion(%: %q<ownobjid>,)
 
 &Q`SET`SLOTS [u(cobj,scene)]=UPDATE vol_scene SET scene_max_tags=? WHERE scene_id=?
@@ -346,7 +350,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`LOG`MINE [u(cobj,scene)]=@attach %!/INC`LOG`UPCOMING=,,1
 
-&INC`LOG`UPCOMING [u(cobj,scene)]=@select/inline strlen(%0)=>0,{@attach %!/INC`LOG`DETAILS},{th u(setq,banner,u(conf,BANNER));@pemit %#=u(HEADER,if(%2,Your%b)Upcoming Scenes - [u(choosegame,timefmt($Z,,u(gettz,%#)),ptimefmt($Z,,u(gettz,%#)))]);th u(setq,alts,iter(u(alts,%#),objid(%i0)));@pemit %#=u(header,u(setr,last,u(choosegame,timefmt($a $b $d $Y $Z,secs(),u(gettz,%#)),ptimefmt($a $b $d $Y $Z,secs(),u(gettz,%#)))));@dolist/inline/nobreak/delimit [chr(176)] [u(mysql3,if(%2,GET`MINE,GET`UPCOMING),if(%2,u(SQL`IN`STRING,%q<alts>),%q<t1id>),%q<t1id>)]={th u(setq,data,u(choosegame,%i0,%di0));th u(setq,tagged,u(mysql,GET`TAGOBJIDS,elements(%q<data>,1,chr(177))));@stop cand(%2,not(cor(match(%q<alts>,elements(%q<data>,4,chr(177))),words(setinter(%q<alts>,%q<tagged>)))));th u(setq,time,elements(%q<data>,3,chr(177)));@select/inline not(strmatch(%q<last>,u(setr,last,u(choosegame,timefmt($a $b $d $Y $Z,%q<time>,u(gettz,%#)),ptimefmt($a $b $d $Y $Z,%q<time>,u(gettz,%#))))))=1,{@pemit %#=u(HEADER,%q<last>)};@pemit %#=align(6 5 36 20 7,if(strmatch(%:,u(setr,ownobjid,elements(%q<data>,4,chr(177)))),ansi(hg,*),if(match(%q<alts>,elements(%q<data>,4,chr(177))),ansi(g,*),if(match(%q<tagged>,%:),ansi(hr,*),if(words(setinter(%q<tagged>,%q<alts>)),ansi(g,*),%b))))[rjust(words(%q<tagged>),2,0)]/[rjust(if(elements(%q<data>,6,chr(177)),elements(%q<data>,6,chr(177)),--),2,0)],u(pueblize,u(setr,scene,elements(%q<data>,1,chr(177))),+log %q<scene>),elements(%q<data>,2,chr(177)),if(isobjid(%q<ownobjid>),u(pueblize,if(%q<banner>,u(getproperty,%q<ownobjid>,Banner),u(getmoniker,%q<ownobjid>)),+finger [name(%q<ownobjid>)]),ansi(hx,elements(%q<data>,5,chr(177)))),elements(u(fancytime,%q<time>,%#),3))};@pemit %#=u(FOOTER)}
+&INC`LOG`UPCOMING [u(cobj,scene)]=@select/inline strlen(%0)=>0,{@attach %!/INC`LOG`DETAILS},{th u(setq,banner,u(conf,BANNER));@pemit %#=u(HEADER,if(%2,Your%b)Upcoming Scenes - [u(choosegame,timefmt($Z,,u(gettz,%#)),ptimefmt($Z,,u(gettz,%#)))]);th u(setq,alts,iter(u(alts,%#),objid(%i0)));@pemit %#=u(header,u(setr,last,u(choosegame,timefmt($a $b $d $Y $Z,secs(),u(gettz,%#)),ptimefmt($a $b $d $Y $Z,secs(),u(gettz,%#)))));@dolist/inline/nobreak/delimit [chr(176)] [u(mysql3,if(%2,GET`MINE,GET`UPCOMING),if(%2,u(SQL`IN`STRING,%q<alts>),%q<t1id>),%q<t1id>)]={th u(setq,data,u(choosegame,%i0,%di0));th u(setq,tagged,u(mysql,GET`TAGOBJIDS,elements(%q<data>,1,chr(177))));@stop cand(%2,not(cor(match(%q<alts>,elements(%q<data>,4,chr(177))),words(setinter(%q<alts>,%q<tagged>)))));th u(setq,time,elements(%q<data>,3,chr(177)));@select/inline not(strmatch(%q<last>,u(setr,last,u(choosegame,timefmt($a $b $d $Y $Z,%q<time>,u(gettz,%#)),ptimefmt($a $b $d $Y $Z,%q<time>,u(gettz,%#))))))=1,{@pemit %#=u(HEADER,%q<last>)};@pemit %#=align(6 5 36 20 7,if(strmatch(%:,u(setr,ownobjid,elements(%q<data>,4,chr(177)))),ansi(hg,*),if(match(%q<alts>,elements(%q<data>,4,chr(177))),ansi(g,*),if(match(%q<tagged>,%:),ansi(hr,*),if(words(setinter(%q<tagged>,%q<alts>)),ansi(g,*),%b))))[rjust(words(%q<tagged>),2,0)]/[rjust(if(elements(%q<data>,6,chr(177)),elements(%q<data>,6,chr(177)),--),2,0)],u(pueblize,u(setr,scene,elements(%q<data>,1,chr(177))),+log %q<scene>),elements(%q<data>,2,chr(177)),if(isobjid(%q<ownobjid>),u(pueblize,if(%q<banner>,u(getproperty,%q<ownobjid>,Banner),u(getmoniker,%q<ownobjid>)),+finger [name(%q<ownobjid>)]),ansi(hx,elements(%q<data>,5,chr(177)))),u(pueblize,elements(u(fancytime,%q<time>,%#),3),+log/toggletag %q<scene>))};@pemit %#=u(FOOTER)};@select/inline t(%9)=0,{th u(vattrib_set,%#,V`SCENESCHECK,add(get(%#/V`SCENESCHECK),1))}
 
 &Q`GET`UPCOMING [u(cobj,scene)]=SELECT scene_id,scene_title_ansi,scene_date_scheduled_secs,runner_objid,runner_name,scene_max_tags FROM volv_scene WHERE scene_date_scheduled >= UTC_TIMESTAMP() - INTERVAL 10 HOUR ORDER by scene_date_scheduled
 

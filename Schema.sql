@@ -939,7 +939,7 @@ CREATE PROCEDURE volp_help_file(IN in_help_category_id MEDIUMINT UNSIGNED,IN in_
 	DECLARE category_type_id TINYINT UNSIGNED;
 	DECLARE found_file_id MEDIUMINT UNSIGNED;
 	SELECT help_category_type INTO category_type_id FROM vol_help_category WHERE help_category_id=in_help_category_id;
-	SELECT help_file_id INTO found_file_id FROM volv_help_file WHERE help_category_type=category_type_id AND help_file_name=in_help_file_name;
+	SELECT help_file_id INTO found_file_id FROM volv_help_file WHERE help_category_type=category_type_id AND help_file_name=in_help_file_name AND help_file_parent_id IS NULL;
 	IF found_file_id IS NULL THEN
 		INSERT INTO vol_help_file(help_category_id,help_file_name,help_file_date_created,help_file_date_modified) VALUES (in_help_category_id,in_help_file_name,UTC_TIMESTAMP(),UTC_TIMESTAMP());
 		SET found_file_id=LAST_INSERT_ID();

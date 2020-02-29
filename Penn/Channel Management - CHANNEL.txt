@@ -186,7 +186,7 @@ th u(NEWCOBJ,Muzzle Database <MUZZLE>,muzzle,u(cobj,channel),,,WIZARD SAFE !NO_C
 &MOGUSE`MESSAGE [u(cobj,mop)]=markup
 
 &MOGRIFY`PLAYERNAME [u(cobj,mop)]=null(iter(v(MOGUSE`PLAYERNAME),u(setr,playname,u(FUN`PLAYERNAME`%i0,strfirstof(%q<playname>,%0),%1,%2,%3,%4,%5))))[strfirstof(%q<playname>,%0)]
-&MOGORDER`PLAYERNAME [u(cobj,mop)]=
+&MOGORDER`PLAYERNAME [u(cobj,mop)]=codename
 &MOGUSE`PLAYERNAME [u(cobj,mop)]=
 
 &MOGRIFY`TITLE [u(cobj,mop)]=null(iter(v(MOGUSE`TITLE),u(setr,title,u(FUN`TITLE`%i0,strfirstof(%q<title>,%0),%1,%2,%3,%4,%5))))[strfirstof(%q<title>,%0)]

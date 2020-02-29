@@ -3,9 +3,9 @@
 @@ ANCESTOR ROOM
 @select/inline isdbref(u(oldcobj,ancestor_room))=1,{&COBJ`ANCESTOR_ROOM [u(cobj,ccp)]=[objid([u(oldcobj,ancestor_room)])]},0,{@select/inline isdbref(u(cobj,ancestor_room))=0,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_ROOM,objid(dig(Ancestor Room)))}}
 
-&HEADER [u(cobj,ancestor_room)]=vol_header(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
-&SEPARATOR [u(cobj,ancestor_room)]=vol_separator(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
-&SUBHEADER [u(cobj,ancestor_room)]=vol_subheader(%0,,%1,,v(COLOR`BORDER),v(COLOR`HEADER_STAR),v(COLOR`HEADER_TEXT))
+&HEADER [u(cobj,ancestor_room)]=vol_header(%0,,%1,,,v(DISTCOLOR`BORDER),v(DISTCOLOR`HEADER_STAR),v(DISTCOLOR`HEADER_TEXT))
+&SEPARATOR [u(cobj,ancestor_room)]=vol_separator(%0,,%1,,,v(DISTCOLOR`BORDER),v(DISTCOLOR`HEADER_STAR),v(DISTCOLOR`HEADER_TEXT))
+&SUBHEADER [u(cobj,ancestor_room)]=vol_subheader(%0,,%1,,,v(DISTCOLOR`BORDER),v(DISTCOLOR`HEADER_STAR),v(DISTCOLOR`HEADER_TEXT))
 
 &NAMEFORMAT [u(cobj,ancestor_room)]=[vol_choosegame(endtag(a),)][u(HEADER,moniker(%!)[if(cor(controls(%#,%!),vol_isadmin(%#)),%(%!%))],1)]
 
@@ -26,7 +26,9 @@
 
 &EXITFORMAT [u(cobj,ancestor_room)]=[if(words(lvexits(%!)),udefault(EXITFORMAT`[u(SETTINGS`ROOM_EXITS)],u(EXITFORMAT`DEFAULT)),u(SUBHEADER,u(FOOTER_TEXT)))]
 
-&EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[table(iter(vol_sortorder(vol_sortname(lvexits(%!))),ljust(if(strlen(alias(%i0)),<[ansi(vol_color(%#,ROOM,EXIT_ALIAS),vol_pueblize(ucstr(alias(%i0)),name(%i0)))]>),6)[ansi(vol_color(%#,ROOM,EXIT_NAME),vol_pueblize(moniker(%i0),name(%i0)))] to [ansi(vol_color(%#,ROOM,EXITDEST),left(name(loc(%i0)),sub(37,6,4,strlen(name(%i0)))))],%b,|),37,width(%#),|)]%R[u(SUBHEADER,u(FOOTER_TEXT))]
+&EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[null(if(u(setr,lvexits,lvexits(%!)),iter(exitalias exitname exitwrap exitdest,u(setq,col%i0,u(strfirstof,v(DISTCOLOR`%i0),vol_color(%#,ROOM,%i0))))))][table(iter(vol_sortorder(vol_sortname(%q<lvexits>)),u(RENDER_EXIT,%i0,37),%b,|),37,width(%#),|)]%R[u(SUBHEADER)]
+
+&RENDER_EXIT [u(cobj,ancestor_room)]=ljust(if(strlen(alias(%0)),[ansi(%q<colexitwrap>,<)][ansi(%q<colexitalias>,vol_pueblize(ucstr(alias(%0)),name(%0)))][ansi(%q<colexitwrap>,>)]),6)[ansi(%q<colexitname>,vol_pueblize(moniker(%0),name(%0)))] to [ansi(%q<colexitdest>,left(name(loc(%0)),sub(%1,6,4,strlen(name(%0)))))]
 
 &FIL`VISIBLE [u(cobj,ancestor_room)]=not(u(FIL`DARK,%0))
 &FIL`DARK [u(cobj,ancestor_room)]=hasflag(%0,DARK)
