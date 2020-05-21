@@ -1,0 +1,5 @@
+* MAJOR WISHES
+- Please provide a SEARCH CLASS that works just like NAME but only matches on EXACT NAME (case insensitive). Maybe EXNAME ? REASON: Combine this with TOTEM and I'll have Customizable Namespaces that needs no complex softcode to manage / index. Yes this COULD be softcoded. It'd be really messy on debug output though.
+
+* ZANY IDEAS:
+- Customizable SEARCH CLASSES? Maybe some special search_class_obj with SEARCH_THING... again, could be softcoded, but...

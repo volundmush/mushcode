@@ -1,0 +1,42 @@
+@if !tag(vol_sql)={@tel setr(0,create(Codesuite SQL Library))=globalroom();@parent %#=%q0;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_sql=%q0}
+@DESCRIBE #vol_sql=This is Code Wizard territory. No touching!
+
+
+&REG`SQL`ENTRY #VOL_SQL=\?|\!
+
+@@ SQL WRAPPER
+
+&MYSQL #VOL_SQL=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-1 SQL QUERY DATA NOT FOUND)
+&MYSQL2 #VOL_SQL=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),|,^),#-1 SQL QUERY DATA NOT FOUND)
+&MYSQL3 #VOL_SQL=if(hasattrp(%!/Q`%0),sql(u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9),chr(176),chr(177)),#-1 SQL QUERY DATA NOT FOUND)
+
+&CALL`0 #VOL_SQL=sql(CALL %0(),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`1 #VOL_SQL=sql(CALL %0(%2),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`2 #VOL_SQL=sql(CALL %0(%2,%3),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`3 #VOL_SQL=sql(CALL %0(%2,%3,%4),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`4 #VOL_SQL=sql(CALL %0(%2,%3,%4,%5),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`5 #VOL_SQL=sql(CALL %0(%2,%3,%4,%5,%6),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`6 #VOL_SQL=sql(CALL %0(%2,%3,%4,%5,%6,%7),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`7 #VOL_SQL=sql(CALL %0(%2,%3,%4,%5,%6,%7,%8),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&CALL`8 #VOL_SQL=sql(CALL %0(%2,%3,%4,%5,%6,%7,%8,%9),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+
+&SQL`IN`NUMBER #VOL_SQL=iter(%0,%i0,%1,\,%b)
+&SQL`IN`STRING #VOL_SQL=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
+
+&SQL`FORMAT #VOL_SQL=localize(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(u(setr,set,v(u(setr,num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,'[sqlescape(%q<set>)]'))))
+
+&INC`DOSQL #VOL_SQL=@stop strmatch(u(setr,errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq,after(%0,/),sql(SELECT last_insert_id\(\))))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+
+&INC`DOCALL`0 #VOL_SQL=@stop strmatch(u(setr,errcheck,u(call`0,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq,after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+
+&INC`DOCALL`1 #VOL_SQL=@stop strmatch(u(setr,errcheck,u(call`1,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq,after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
+
+&INC`DOCALL`2 #VOL_SQL=@stop strmatch(u(setr,errcheck,u(call`2,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),u(setq,after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}

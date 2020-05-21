@@ -1,0 +1,18 @@
+@@ CREATES THE OBJECT
+@if !tag(vol_gfun)={@tel setr(0,create(Codesuite Global Functions))=globalroom();@parent %#=%q0;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_gfun=%q0}
+@DESCRIBE #vol_gfun=This is Code Wizard territory. No touching!
+
+&STARTUP #vol_gfun=@dolist/inline lattr(%!/GFUN_*)={@function/privilege vol_[after(%d0,_)]=%!/%d0}
+
+&GFUN_STRINGSECS #VOL_GFUN=ladd(iter(secure(regeditall(%0,(h|m|s),$1%b)),switch(%i0,*ML,mul(%i0,31536000000),*y,mul(%i0,31471200),*C,mul(%i0,3153600000),*Mo,mul(%i0,2628000),*w,mul(%i0,604800),*d,mul(%i0,86400),*h,mul(%i0,3600),*m,mul(%i0,60),*s,add(%i0,0))) 0)
+
+&GFUN_NAMEGRAB #VOL_GFUN=first(trim(squish(iter(%0,if(cor(strmatch(name(%i0),*%1*),strmatch(%i0,%1),strmatch(u(getalias,%i0),%i0)),%i0)))))
+
+&GFUN_NAMEGRABALL #VOL_GFUN=trim(squish(iter(%0,if(cor(strmatch(name(%i0),*%1*),strmatch(%i0,%1),strmatch(u(getalias,%i0),%i0)),%i0))))
+
+&GFUN_NUMTH #VOL_GFUN=%0[switch(%0,11,th,12,th,13,th,switch(right(%0,1),1,st,2,nd,3,rd,th))]
+
+&GFUN_ALIASGRAB #VOL_CCP=if(match(%0,%1),%1,first(filter(#vol_fil/aliasmatch,u(sortalias,%0),%b,%b,%1)))
+
+&GFUN_ALIASGRABALL #VOL_CCP=if(match(%0,%1),%1,filter(#vol_fil/aliasmatch,u(sortalias,%0),%b,%b,%1))
+

@@ -16,7 +16,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &ATTRIB_SET [u(cobj,ccp)]=if(u(IS_ANCESTOR,%0),,attrib_set(%0/%1,%2))
 &VATTRIB_SET [u(cobj,ccp)]=u(attrib_set,%0,%1,%2)[set(%0/%1,visual)]
 
-&LATTR [u(cobj,ccp)]=lattr(%0,%1)
+&LATTR [u(cobj,ccp)]=lattr(%0,%1
 &LATTRP [u(cobj,ccp)]=lattrp(%0,%1)
 &REGLATTR [u(cobj,ccp)]=reglattr(%0,%1)
 &STRINGSECS [u(cobj,ccp)]=stringsecs(%0)

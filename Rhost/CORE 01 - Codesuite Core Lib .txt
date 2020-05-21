@@ -1,0 +1,514 @@
+@@ COMMENTS WILL GO HERE
+
+@@ RUN THIS ON CODE WIZARD OBJECT!
+@set me=sidefx !wanderer
+@admin command_quota_max=10000
+@admin command_quota_increment=100
+
+@@ CREATES THE OBJECT
+@if !tag(vol_lib)={@tel setr(0,create(Codesuite Core Lib))=globalroom();@parent %#=%q0;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_lib=%q0}
+@DESCRIBE #VOL_LIB=This is Code Wizard territory. No touching!
+
+@@ FILTER SECTION
+
+&FIL_ISDBREF #VOL_CCP=isdbref(%0)
+&FIL_ISOBJID #VOL_CCP=isobjid(%0)
+&FIL_ISADMIN #VOL_CCP=u(isadmin,%0)
+&FIL_OLDOBJID #VOL_CCP=!isobjid(before(%0,~))
+&FIL_ISSLOT #VOL_CCP=isint(last(%0,`))
+&FIL_ALIASMATCH #VOL_CCP=strmatch(alias(%0),%1*)
+&FIL_NOTGUEST #VOL_CCP=!u(isguest,%0)
+&FIL_FINDACCOUNT #VOL_CCP=match(get(%0/CHARACTERS),%q<finddb>)
+&FIL_STRLEN #VOL_CCP=t(strlen(%0))
+&FIL_ISINT #VOL_CCP=isint(%0)
+&FIL_LISTENRHOST #VOL_CCP=orflags(%0,pc)
+&FIL_HASATTR #VOL_CCP=hasattr(%0/%1)
+
+@@ LOCK MANAGER
+&INC`GROUPLOCK #VOL_CCP=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No lock entered!;@check u(lmin,iter(%0,cand(isdbref(u(FUN`FINDGROUP,before(%i0,/),%#)),cor(!strlen(after(%i0,/)),cand(isint(%i0,/),gte(after(%i0,/),0)))),|,%B))=@attach %!/INC`MSG=ERROR: One or more group entries did not validate. Group names must be typed correctly and the /rank must be an integer.;th u(setq,lockstr,u(GROUP_LOCK,%0))
+
+&GROUP_LOCK #VOL_CCP=localize(iter(%0,V`GROUP`[get(u(u(cobj,gms)/FUN`FINDGROUP,before(%i0,/),%1)/D`ID)]:<=[u(strfirstof,after(%i0,/),9001)],|,|))
+
+@@ U-FUNCTION SECTION
+
+
+
+&NEWCOBJ #VOL_CCP=localize(if(!isobjid(u(cobj,%1)),u(setr,newobj,objid(create(%0)))[if(!%4,parent(%q<newobj>,u(firstof,%3,u(cobj,mco))))][tel(%q<newobj>,u(firstof,%2,u(MASTER_ROOM)))][u(attrib_set,u(cobj,mco),COBJ`%1,%q<newobj>)][set(%q<newobj>,u(choosegame,%5,%6))]))
+@@ %0 - @name. %1 - alias. %2 - location to store. %3 - parent, defaults to MCO. %4 - No parent. %5 - PennMUSH flags. %6 - RhostMUSH flags.
+
+&CANHEAR #VOL_CCP=u(filter,LISTENRHOST,%0)
+
+
+&FIND_IN #VOL_CCP=u(firstof,locate(%0,%1,Tia),locate(%0,%1,Ti))
+
+&ACCID #VOL_CCP=default(%0/D`ACCOUNT,if(%1,,%0))
+
+&ALTS #VOL_CCP=u(filter,ISOBJID,u(strfirstof,get(u(accid,%0)/CHARACTERS),objid(%0)))
+&PALTS #VOL_CCP=alts(%@)
+
+&ISIC #VOL_CCP=default(room(%0)/D`IC,0)
+
+&OPEN_CREATION #VOL_CCP=!member(config(register_host),*)
+
+&CSECS #VOL_CCP=convtime(createtime(%0))
+
+&CTIME #VOL_CCP=createtime(%0)
+
+&FANCYTIME #VOL_CCP=timefmt($b $D $02H:$02T$P $i,u(strfirstof,%0,secs()),u(strfirstof,%2,u(gettz,%1),u(gettz,%#)))
+
+&FANCYDAY #VOL_CCP=timefmt($b $D $Y,u(strfirstof,%0,secs()),u(gettz,u(strfirstof,%1,%#)))
+
+&PLAYER_NAME_LEN #VOL_CCP=22
+
+&DATE #VOL_CCP=timefmt($M/$D/$Y,u(strfirstof,%0,secs()),u(gettz,u(strfirstof,%1,%#)))
+
+&CHANCOLOR #VOL_CCP=localize(if(isdbref(setr(mog,cmogrifier(stripansi(%0)))),u(color,%@,CHANNEL,%q<mog>,,1)))
+
+&GETTZ #VOL_CCP=u(pconf,%0,TIMEZONE)
+
+&CHARSEARCH #VOL_CCP=u(lmax,iter(%1,strmatch(%0,*%i0*)))
+
+&NEWCONF #VOL_CCP=[u(attrib_set,u(cobj,%0),CATEGORIES,setunion(get(u(cobj,%0)/CATEGORIES),%1,|,|))][u(attrib_set,u(cobj,%0),CATEGORIES`%1,setunion(get(u(cobj,%0)/CATEGORIES`%1),%2,|,|))][u(attrib_set,u(cobj,%0),DEFAULT`%1`%2,%3)][u(attrib_set,u(cobj,%0),DESC`%1`%2,%4)][u(attrib_set,u(cobj,%0),TYPE`%1`%2,%5)]
+
+&REMCONF #VOL_CCP=@attach %!/WIPE=u(cobj,%0),*`%1`%2;&CATEGORIES`%1 [u(cobj,%0)]=setdiff(get(u(cobj,%0)/CATEGORIES`%1),%2,|,|);@select/inline words(get(u(cobj,%0)/CATEGORIES`%1),|)=0,{&CATEGORIES [u(cobj,%0)]=setdiff(get(u(cobj,%0)/CATEGORIES),%1,|,|)}
+
+&ETIME #VOL_CCP=[trim(timefmt($!mML $!2UC $!2uy $!2EMo $!2ww $!2dd $!2Xh $!2Fm $!2Gs,%0))][ifelse(!t(%0),0s)]
+
+&COMMAFY #VOL_CCP=squish(flip(foreach(#lambda/if(mod([lit(%1)],3),[lit(%0)],\\,[lit(%0)]),flip(%0))),\,)
+
+@@ Maybe universal?
+@@ [switch(flip(foreach(#lambda/[lit([if(mod(%1,3),%0,%,%0)])],flip(%0))),%,)]
+
+&TIMESTAMP #VOL_CCP=ptimefmt($Y-$m-$d $H:$M:$S,u(firstof,%0,secs()))
+
+&RYG #VOL_CCP=<[if(gt(%0,50),255,round(mul(255,fdiv(mul(%0,2),100)),0))] [if(gte(%0,50),sub(mul(255,2),round(mul(255,fdiv(mul(%0,2),100)),0)),255)] 0>
+
+
+&RANDWORD #VOL_CCP=randextract(%0,1,%1)
+
+&STRFIRSTOF #VOL_CCP=ofparse(5,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
+
+&FIRSTOF #VOL_CCP=ofparse(1,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)
+
+&ITEMIZE #VOL_CCP=elist(%0,%2,%1,%4,%3)
+
+&TABLE #VOL_CCP=columns(%0,switch([gt(words(%1),0)][gt(words(%2),0)],11,min(%1,%2),01,max(10,%2),*,10),switch([gt(words(%1),0)][gt(words(%2),0)],11,max(1,div(%2,%1)),10,max(1,div(78,%1)),01,max(1,div(%2,10)),*,7),L,0,1,,ifelse(strlen(%4),%4,%b),,1,%3)
+
+@@ Rhost Functions
+&ALIGN #VOL_CCP=[printf([iter(%0,$[case(mid(%i0,0,1),<,-[delete(%i0,0,1)],>,[delete(%i0,0,1)],_,_[delete(%i0,0,1)],-,^[delete(%i0,0,1)],=,_[delete(%i0,0,1)],-%i0)]|"s)],%1,%2,%3,%4,%5,%6,%7,%8,%9)]
+&SORTKEY #VOL_CCP=munge(#lambda/%[sort%(%%0%,%2%,%3%)%],iter(%1,edit(u(%0,itext(0)),%b,),ifelse(!$v(3),%b,%3),ifelse(!$v(3),%b,%3)),%1,ifelse(!$v(3),%b,%3),ifelse(!$v(4),ifelse(!$v(3),%b,%3),%4))
+&LALIGN #VOL_CCP=[strfunc(printf,[iter(%0,$[case(mid(%i0,0,1),<,-[delete(%i0,0,1)],>,[delete(%i0,0,1)],_,_[delete(%i0,0,1)],-,^[delete(%i0,0,1)],=,_[delete(%i0,0,1)],-%i0)]|"s)]%2%1,%2)]
+
+&BASECONV #VOL_CCP=pack(unpack(%0,%1),%2)
+
+&WIDTH #VOL_CCP=78
+
+&CENTER #VOL_CCP=printf($^[u(strfirstof,%1,78)]:%2:s,%0)
+
+&HASATTRVAL #VOL_CCP=!!$get(%0)
+
+&NAMELIST #VOL_CCP=iter(%0,ifelse(!match(setr(0,pmatch(##)),#-1*),%q0,#-1[objeval(%#,u(%1,##,#-1))]))
+
+&LWHOID #VOL_CCP=lwho(0,%0,1)
+
+&LWHO #VOL_CCP=lwho(0,%0)
+
+&GETALIAS #VOL_CCP=switch(type(%0),EXIT,elements(fullname(%0),2,;),get(%0/ALIAS))
+
+&PUEBLO #VOL_CCP=0
+
+&DECOMPOSE #VOL_CCP=translate(%0,p)
+
+&LVPLAYERS #VOL_CCP=lcon(%0/CONNECT)
+
+&LPLAYERS #VOL_CCP=lcon(%0/PLAYER)
+
+&LTHINGS #VOL_CCP=lcon(%0/OBJECT)
+
+&LVTHINGS #VOL_CCP=lcon(%0/OBJECT)
+
+&LVEXITS #VOL_CCP=lexits(%0)
+
+&TRIMLINES #VOL_CCP=trim(%0,b,%R)
+
+&TRIMTABS #VOL_CCP=trim(%0,b,%T)
+
+&TRIMCASH #VOL_CCP=trim(%0,b,$)
+
+&WILDGREPI #VOL_CCP=u(filter,WILDGREPI,u(lattr,%0/%1),%b,%b,%0,%2)
+&FIL_WILDGREPI #VOL_CCP=strmatch(get(%1/%0),%2)
+
+&UMAIL #VOL_CCP=elements(mailquick(%0,,1),2)
+
+&FULLALIAS #VOL_CCP=get(%0/ALIAS)
+
+@@ PROPERTY SECTION
+&GETPROPERTY #VOL_CCP=localize(if(isdbref(%0),u(GETPROPERTY`%1,%0,%2,%3,%4)))
+
+&GETPROPERTY`SEX #VOL_CCP=get(%0/SEX)
+&GETPROPERTY`NAME #VOL_CCP=name(%0)
+&GETPROPERTY`FULLALIAS #VOL_CCP=u(fullalias,%0)
+&GETPROPERTY`MONIKER #VOL_CCP=u(getmoniker,%0)
+&GETPROPERTY`ALIASNAME #VOL_CCP=name(%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`ALIASMONIKER #VOL_CCP=u(getmoniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))]
+&GETPROPERTY`ALIASMONIKERAPPROVED #VOL_CCP=u(getmoniker,%0)[if(strlen(u(getalias,%0)),%B\([u(getalias,%0)]\))][if(not(u(approved,%0)),%b- [ansi(hr,UNAPPROVED)])]
+&GETPROPERTY`NAMELINK #VOL_CCP=u(namelink,%0)
+&GETPROPERTY`HIDEIDLE #VOL_CCP=u(hideidle,%0)
+&GETPROPERTY`HIDECONN #VOL_CCP=u(hideconn,%0)
+&GETPROPERTY`SEXLETTER #VOL_CCP=left(get(%0/SEX),1)
+&GETPROPERTY`LOCATION #VOL_CCP=if(findable(%#,%0),u(getmoniker,loc(%0)),*UNFINDABLE*)
+&GETPROPERTY`JOINLOCATION #VOL_CCP=if(findable(%#,%0),if(elock(loc(%0)/Teleport,%#),u(pueblize,u(getmoniker,loc(%0)),+port [loc(%0)]),u(getmoniker,loc(%0))),*UNFINDABLE*)
+&GETPROPERTY`TIMEZONE #VOL_CCP=u(gettz,%0)
+
+&GETPROPERTY`PICTURE #VOL_CCP=u(weblink,get(%0/D`FINGER`PICTURE))
+&GETPROPERTY`WIKI #VOL_CCP=u(weblink,get(%0/D`FINGER`WIKI))
+&GETPROPERTY`GROUPNAMES2 #VOL_CCP=u(getproperty`groupnames,%0,1)
+&GETPROPERTY`FACTION2 #VOL_CCP=u(getproperty`faction,%0,1)
+&GETPROPERTY`MAIL #VOL_CCP=u(umail,%0) Unread Messages
+&GETPROPERTY`ALIAS #VOL_CCP=u(getalias,%0)
+&GETPROPERTY`LAST #VOL_CCP=u(lastidle,%0)
+&GETPROPERTY`EMAIL #VOL_CCP=if(strmatch(u(setr,email,get(%0/D`OOCFINGER`EMAIL)),!*),if(u(isadmin,%#),ansi(hx,after(%q<email>,!)),*HIDDEN*),%q<email>)
+&GETPROPERTY`ACCEMAIL #VOL_CCP=if(isdbref(u(accid,%0)),get(u(accid,%0)/EMAIL))
+&GETPROPERTY`ACCALTS #VOL_CCP=if(isdbref(u(cobj,ams)),u(u(cobj,ams)/FUN`ALTS`LIST,%0))
+&GETPROPERTY`THEME #VOL_CCP=if(u(setr,theme,first(get(%0/D`THEME))),u(pueblize,u(setr,mon,u(getmoniker,%q<theme>)),+fclist %q<mon>))
+&GETPROPERTY`TYPE #VOL_CCP=default(%0/D`FINGER`TYPE,??)
+&GETPROPERTY`EMAILSET #VOL_CCP=if(not(u(setr,acc,u(accid,%0,1))),pemit(%0,You do not have an Account!)0,if(not(get(%q<acc>/EMAIL)),pemit(%0,You have no account email set! Use +account/email <email> to correct this.)0,1))
+&GETPROPERTY`OBSERVER #VOL_CCP=default(%0/D`OBSERVER,0)
+&GETPROPERTY`CURSCENE #VOL_CCP=if(u(getproperty`observer,%0),ansi(hw,OBS),default(%0/D`SCENE,???))
+
+&GETPROPERTY`BANNER #VOL_CCP=localize(if(cand(isdbref(u(setr,maj,u(getproperty`majordb,%0))),strlen(u(setr,col,u(getproperty`groupcolor,%q<maj>)))),ansi(%q<col>,name(%0)),u(getmoniker,%0)))
+
+&GETPROPERTY`GROUPS #VOL_CCP=localize(default(%0/D`CACHE`GROUPS,u(setr,cache,u(sortgroups,u(sortname,u(filter,NOTLURK,setinter(get(%0/D`GROUPS),u(u(cobj,gms)/FUN`LISTGROUPS)),%b,%b,%0))))[u(attrib_set,%0,D`CACHE`GROUPS,%q<cache>)]))
+
+&FIL_NOTLURK #VOL_CCP=not(strmatch(get(%1/D`GROUP`%0`RANK),LURK))
+
+&GETPROPERTY`MAJORDBS #VOL_CCP=localize(default(%0/D`CACHE`MAJORDBS,u(setr,cache,u(sortgroups,u(sortname,u(filter,MAJOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set,%0,D`CACHE`MAJORDBS,%q<cache>)]))
+&GETPROPERTY`MAJORDB #VOL_CCP=first(u(GETPROPERTY`MAJORDBS,%0))
+&GETPROPERTY`MINORDBS #VOL_CCP=localize(default(%0/D`CACHE`MINORDBS,u(setr,cache,u(sortgroups,u(sortname,u(filter,MINOR,u(GETPROPERTY`GROUPS,%0)))))[u(attrib_set,%0,D`CACHE`MINORDBS,%q<cache>)]))
+&GETPROPERTY`MINORDB #VOL_CCP=first(u(GETPROPERTY`MINORDBS,%0))
+&GETPROPERTY`FIRSTDB #VOL_CCP=u(strfirstof,u(GETPROPERTY`MAJORDB,%0),u(GETPROPERTY`MINORDB,%0))
+
+
+&GETPROPERTY`GROUPNAMES #VOL_CCP=iter(u(sortgroups,u(sortname,setdiff(u(getproperty`groups,%0),u(getproperty,%0,MAJORDB)))),u(getproperty,%i0,GROUPNAME,1),%b,if(%1,\,%B,|))
+
+&GETPROPERTY`GROUPNAME #VOL_CCP=localize(u(setq,gname,ansi(u(GETPROPERTY`GROUPCOLOR,%0),u(getmoniker,%0)))[if(%1,u(pueblize,%q<gname>,+group [name(%0)]),%q<gname>)])
+&GETPROPERTY`GROUPCOLOR #VOL_CCP=u(strfirstof,u(color,%#,GROUP,%0,,1),get(%0/SET`COLOR),n)
+&GETPROPERTY`GROUPABBR #VOL_CCP=ansi(u(GETPROPERTY`GROUPCOLOR,%0),default(%0/SET`ABBREVIATION,left(name(%0),3)))
+&GETPROPERTY`GROUPLETTER #VOL_CCP=ansi(u(GETPROPERTY`GROUPCOLOR,%0),default(%0/SET`LETTER,u(strfirstof,left(get(%0/SET`ABBREVIATION),1),left(name(%0),1))))
+
+&GETPROPERTY`RANK #VOL_CCP=localize(u(setr,rank,get(%0/D`GROUP`%1`RANK))-[u(strfirstof,get(%0/D`GROUP`%1`TITLE),get(%1/RANK`%q<rank>`NAME))])
+
+&GETPROPERTY`MAJORNAME #VOL_CCP=localize(if(isdbref(u(setr,fac,u(GETPROPERTY`MAJORDB,%0))),u(GETPROPERTY`GROUPNAME,%q<fac>,%1)))
+&GETPROPERTY`MAJORNAMECLICK #VOL_CCP=u(GETPROPERTY`MAJORNAME,%0,1)
+&GETPROPERTY`MAJORABBR #VOL_CCP=localize(switch(1,u(iswizard,%0),ansi(u(game_config,SYSTEM,WIZTAG),WIZ),u(isadmin,%0),ansi(u(game_config,SYSTEM,ROYTAG),ROY),if(isdbref(u(setr,fac,u(GETPROPERTY`MAJORDB,%0))),u(GETPROPERTY`GROUPABBR,%q<fac>))))
+&GETPROPERTY`MAJORLETTER #VOL_CCP=localize(switch(1,u(iswizard,%0),ansi(u(game_config,SYSTEm,WIZTAG),W),u(isadmin,%0),ansi(u(game_config,SYSTEM,ROYTAG),R),if(isdbref(u(setr,fac,u(GETPROPERTY`MAJORDB,%0))),u(GETPROPERTY`GROUPLETTER,%q<fac>))))
+&GETPROPERTY`MAJORRANK #VOL_CCP=localize(if(isdbref(u(setr,fac,u(GETPROPERTY`MAJORDB,%0))),u(GETPROPERTY`RANK,%0,%q<fac>)))
+&GETPROPERTY`MAJORNAMELIST #VOL_CCP=localize(if(words(u(setr,facs,u(GETPROPERTY`MAJORDBS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`GROUPNAME,%i0,%1),%b,beep()),beep(),if(%2,%R,\,%b))))
+&GETPROPERTY`MAJORNAMELISTLINE #VOL_CCP=u(GETPROPERTY`MAJORNAMELIST,%0,0,1)
+&GETPROPERTY`MAJORNAMELISTCLICK #VOL_CCP=u(GETPROPERTY`MAJORNAMELIST,%0,1,0)
+&GETPROPERTY`MAJORNAMELISTLINECLICK #VOL_CCP=u(GETPROPERTY`MAJORNAMELIST,%0,1,1)
+&GETPROPERTY`MAJORRANKLIST #VOL_CCP=localize(if(words(u(setr,facs,u(GETPROPERTY`MAJORDBS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`RANK,%0,%i0),%b,beep()),beep(),if(%1,%R,\,%b))))
+&GETPROPERTY`MAJORRANKLISTLINE #VOL_CCP=u(GETPROPERTY`MAJORRANKLIST,%0,1)
+
+&GETPROPERTY`MINORNAME #VOL_CCP=localize(if(isdbref(u(setr,fac,u(GETPROPERTY`MINORDB,%0))),u(GETPROPERTY`GROUPNAME,%q<fac>,%1)))
+&GETPROPERTY`MINORNAMECLICK #VOL_CCP=u(GETPROPERTY`MINORNAME,%0,1)
+&GETPROPERTY`MINORABBR #VOL_CCP=localize(switch(1,u(iswizard,%0),ansi(u(game_config,SYSTEM,WIZTAG),WIZ),u(isadmin,%0),ansi(u(game_config,SYSTEM,ROYTAG),ROY),if(isdbref(u(setr,fac,u(GETPROPERTY`MINORDB,%0))),u(GETPROPERTY`GROUPABBR,%q<fac>))))
+&GETPROPERTY`MINORLETTER #VOL_CCP=localize(switch(1,u(iswizard,%0),ansi(u(game_config,SYSTEm,WIZTAG),W),u(isadmin,%0),ansi(u(game_config,SYSTEM,ROYTAG),R),if(isdbref(u(setr,fac,u(GETPROPERTY`MINORDB,%0))),u(GETPROPERTY`GROUPLETTER,%q<fac>))))
+&GETPROPERTY`MINORRANK #VOL_CCP=localize(if(isdbref(u(setr,fac,u(GETPROPERTY`MINORDB,%0))),u(GETPROPERTY`RANK,%0,%q<fac>)))
+&GETPROPERTY`MINORNAMELIST #VOL_CCP=localize(if(words(u(setr,facs,u(GETPROPERTY`MINORDBS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`GROUPNAME,%i0,%1),%b,beep()),beep(),if(%2,%R,\,%b))))
+&GETPROPERTY`MINORNAMELISTLINE #VOL_CCP=u(GETPROPERTY`MINORNAMELIST,%0,0,1)
+&GETPROPERTY`MINORNAMELISTCLICK #VOL_CCP=u(GETPROPERTY`MINORNAMELIST,%0,1,0)
+&GETPROPERTY`MINORNAMELISTLINECLICK #VOL_CCP=u(GETPROPERTY`MINORNAMELIST,%0,1,1)
+&GETPROPERTY`MINORRANKLIST #VOL_CCP=localize(if(words(u(setr,facs,u(GETPROPERTY`MINORDBS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`RANK,%0,%i0),%b,beep()),beep(),if(%1,%R,\,%b))))
+&GETPROPERTY`MINORRANKLISTLINE #VOL_CCP=u(GETPROPERTY`MINORRANKLIST,%0,1)
+
+&GETPROPERTY`FIRSTNAME #VOL_CCP=localize(if(isdbref(u(setr,fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`GROUPNAME,%q<fac>,%1)))
+&GETPROPERTY`FIRSTNAMECLICK #VOL_CCP=u(GETPROPERTY`FIRSTNAME,%0,1)
+&GETPROPERTY`FIRSTABBR #VOL_CCP=localize(switch(1,u(iswizard,%0),ansi(u(game_config,SYSTEM,WIZTAG),WIZ),u(isadmin,%0),ansi(u(game_config,SYSTEM,ROYTAG),ROY),if(isdbref(u(setr,fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`GROUPABBR,%q<fac>))))
+&GETPROPERTY`FIRSTLETTER #VOL_CCP=localize(switch(1,u(iswizard,%0),ansi(u(game_config,SYSTEm,WIZTAG),W),u(isadmin,%0),ansi(u(game_config,SYSTEM,ROYTAG),R),if(isdbref(u(setr,fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`GROUPLETTER,%q<fac>))))
+&GETPROPERTY`FIRSTRANK #VOL_CCP=localize(if(isdbref(u(setr,fac,u(GETPROPERTY`FIRSTDB,%0))),u(GETPROPERTY`RANK,%0,%q<fac>)))
+&GETPROPERTY`FIRSTNAMELIST #VOL_CCP=localize(if(words(u(setr,facs,u(GETPROPERTY`FIRSTDBS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`GROUPNAME,%i0,%1),%b,beep()),beep(),if(%2,%R,\,%b))))
+&GETPROPERTY`FIRSTNAMELISTLINE #VOL_CCP=u(GETPROPERTY`FIRSTNAMELIST,%0,0,1)
+&GETPROPERTY`FIRSTNAMELISTCLICK #VOL_CCP=u(GETPROPERTY`FIRSTNAMELIST,%0,1,0)
+&GETPROPERTY`FIRSTNAMELISTLINECLICK #VOL_CCP=u(GETPROPERTY`FIRSTNAMELIST,%0,1,1)
+&GETPROPERTY`FIRSTRANKLIST #VOL_CCP=localize(if(words(u(setr,facs,u(GETPROPERTY`FIRSTDBS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`RANK,%0,%i0),%b,beep()),beep(),if(%1,%R,\,%b))))
+&GETPROPERTY`FIRSTRANKLISTLINE #VOL_CCP=u(GETPROPERTY`FIRSTRANKLIST,%0,1)
+
+&GETPROPERTY`ALLNAMELIST #VOL_CCP=localize(if(words(u(setr,facs,u(GETPROPERTY`GROUPS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`GROUPNAME,%i0,%1),%b,beep()),beep(),if(%2,%R,\,%b))))
+&GETPROPERTY`ALLNAMELISTLINE #VOL_CCP=u(GETPROPERTY`ALLNAMELIST,%0,0,1)
+&GETPROPERTY`ALLNAMELISTCLICK #VOL_CCP=u(GETPROPERTY`ALLNAMELIST,%0,1,0)
+&GETPROPERTY`ALLNAMELISTLINECLICK #VOL_CCP=u(GETPROPERTY`ALLNAMELIST,%0,1,1)
+&GETPROPERTY`ALLRANKLIST #VOL_CCP=localize(if(words(u(setr,facs,u(GETPROPERTY`GROUPS,%0))),edit(iter(%q<facs>,u(GETPROPERTY`RANK,%0,%i0),%b,beep()),beep(),if(%1,%R,\,%b))))
+&GETPROPERTY`ALLRANKLISTLINE #VOL_CCP=u(GETPROPERTY`ALLRANKLIST,%0,1)
+
+&GETPROPERTY`MAJORDIV #VOL_CCP=if(isdbref(u(setr,mdb,u(GETPROPERTY`MAJORDB,%0))),if(u(nattr,%0/D`GROUP`%q<mdb>`DIVISION`*`RANK),if(u(setr,div,localize([u(setq,gid1,%q<mdb>)][last(first(u(filter,INDIV,u(u(cobj,gms)/SORTDIV,u(lattr,%q<mdb>/DIVISION`*)),%b,%b,%q<gid1>,objid(%0))),`)])),%q<div>)))
+&GETPROPERTY`MAJORDIVNAME #VOL_CCP=if(u(getproperty`majordiv,%0),get(%q<mdb>/DIVISION`%q<div>))
+&GETPROPERTY`MAJORDIVRANK #VOL_CCP=if(u(getproperty`majordiv,%0),get(%q<mdb>/DIVISION`%q<div>`RANK`[get(%0/D`GROUP`%q<mdb>`DIVISION`%q<div>`RANK)]))
+&GETPROPERTY`MAJORDIVRANKNUM #VOL_CCP=if(u(getproperty`majordiv,%0),get(%0/D`GROUP`%q<mdb>`DIVISION`%q<div>`RANK))
+
+&SORTGROUPS #VOL_CCP=localize(sortby(#lambda/[lit([ncomp(default(%0/SET`SORT,99),default(%1/SET`SORT,99))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B)))
+
+&FIL_MAJOR #VOL_CCP=t(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR))
+&FIL_MINOR #VOL_CCP=not(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR))
+
+&FIL_INDIV #VOL_CCP=hasattr(%2/D`GROUP`%1`%0`RANK)
+
+@@ cand(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR),strmatch(FACTION,u(u(cobj,gms)/FUN`GETSET,%0,TYPE)))
+&FIL_MAJORGROUPS #VOL_CCP=u(u(cobj,gms)/FUN`GETSET,%0,MAJOR)
+&FIL_MINORGROUPS #VOL_CCP=eq(u(u(cobj,gms)/FUN`GETSET,%0,MAJOR),0)
+
+&ISGROUPMEMBER #VOL_CCP=if(isdbref(u(cobj,gms)),elock(if(isdbref(%1),%1,u(u(cobj,gms)/FUN`FINDGROUP,%1)),%0))
+
+&chan_title_len #VOL_CCP=u(choosegame,config(chan_title_len),20)
+
+&CODENAME #VOL_CCP=if(match(get(%0/MOGUSE`PLAYERNAME),codename),get(%0/CODENAME`%#))
+
+@@ REGEX STORAGE
+&REG`CAPNAMES #VOL_CCP=(?:^|(?<=[_\/\-\|\s()\+]))([a-z]+)
+&REG`CAPNAMES2 #VOL_CCP=(^|(?<=[(]))(of|the|a|and)
+&REG`CAPNAMES3 #VOL_CCP=\b(of|the|a|and)\b
+
+
+@@ The CONFIG Subsystem.
+&CMD`+GAMECONFIG`RHOSTMUSH #VOL_CCP=$^\+gameconfig(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GAMECONFIG`MAIN
+@set #VOL_CCP/CMD`+GAMECONFIG`RHOSTMUSH=regexp no_inherit
+&CMD`+GAMECONFIG`MAIN #VOL_CCP=@attach %!/INC`CONFIG=%2,%3
+
+&INC`CONFIG #VOL_CCP=@select/inline strlen(%0)=0,{@attach %!/INC`CONFIG`DISPLAY},{@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Changing Config requires Wizard permissions.;@attach %!/INC`CONFIG`CHANGE}
+&INC`CONFIG`DISPLAY #VOL_CCP=@pemit %#=u(header,u(SYSTEM`NAME) Configuration);@dolist/inline/delimit | [v(CONFIG`OPTIONS)]={@pemit %#=u(separator,##);@pemit %#=align(10 10 12 40,rjust(ansi(hw,TYPE:),10)%R[rjust(ansi(hw,DEFAULT:),10)],v(CONFIG`##`VALID)%R[v(CONFIG`##`DEFAULT)],ansi(hw,DESCRIPTION:),v(CONFIG`##));@pemit %#=[rjust(ansi(hw,CURRENT:),10)]%b[u(conf,##)]};@pemit %#=u(footer)
+&INC`CONFIG`CHANGE #VOL_CCP=@attach %!/INC`PARTIAL=%0,v(CONFIG`OPTIONS),|,op,Option;@select/inline strlen(%1)=>0,{@attach %!/INC`CONFIG`SET},{@attach %!/INC`CONFIG`CLEAR}
+&INC`CONFIG`SET #VOL_CCP=@attach %!/INC`VALID`[v(CONFIG`%q<op>`VALID)]=%1;th u(attrib_set,%!,CONFIG`%q<op>`CUSTOM,%q<value>);@attach %!/INC`MSG=You set Config Option '%q<op>' to: %q<value>;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' set to: %q<value>;@attach %!/CONFIG`%q<op>`FINISH
+&INC`CONFIG`CLEAR #VOL_CCP=@attach %!/WIPE=%!,CONFIG`%q<op>`CUSTOM;@attach %!/INC`MSG=You set Config Option '%q<op>' to its Default.;@attach %!/INC`MSG`CHAN=Config Option '%q<op>' reset to Default.;@attach %!/CONFIG`%q<op>`FINISH
+
+&CONFIG`OPTIONS #VOL_CCP=WIZTAG|ROYTAG|ANONYMOUS_NOTICES|PUBLIC_EMAIL|STAFF_ALERTS|HEADER_FILL|SUBHEADER_FILL|SEPARATOR_FILL|FOOTER_FILL|BORDER_MODE|COLUMN_NAMES|HEADER_TEXT|HEADER_STAR|BORDER|MSG|MSGTEXT|STAFF_GROUP
+@set #VOL_CCP/CONFIG`OPTIONS=no_inherit
+
+&CONFIG`WIZTAG #VOL_CCP=Color of WIZ tag in systems.
+&CONFIG`WIZTAG`DEFAULT #VOL_CCP=hr
+&CONFIG`WIZTAG`VALID #VOL_CCP=COLOR
+
+&CONFIG`ROYTAG #VOL_CCP=Color of ROY tag in systems.
+&CONFIG`ROYTAG`DEFAULT #VOL_CCP=hr
+&CONFIG`ROYTAG`VALID #VOL_CCP=COLOR
+
+&CONFIG`STAFF_GROUP #VOL_CCP=Staff Group for use with wizlist, +admin, etc. Recommend usage of a Private Group called _Admin
+&CONFIG`STAFF_GROUP`DEFAULT #VOL_CCP=
+&CONFIG`STAFF_GROUP`VALID #VOL_CCP=GROUP
+
+&CONFIG`ANONYMOUS_NOTICES #VOL_CCP=Anonymize administrative actions in messages to players?
+&CONFIG`ANONYMOUS_NOTICES`DEFAULT #VOL_CCP=0
+&CONFIG`ANONYMOUS_NOTICES`VALID #VOL_CCP=BOOL
+
+&CONFIG`PUBLIC_EMAIL #VOL_CCP=Game's public email for purpose of various messages.
+&CONFIG`PUBLIC_EMAIL`DEFAULT #VOL_CCP=
+&CONFIG`PUBLIC_EMAIL`VALID #VOL_CCP=WORD
+
+&CONFIG`STAFF_ALERTS #VOL_CCP=Channel(s) to send important staff-only reports to.
+&CONFIG`STAFF_ALERTS`DEFAULT #VOL_CCP=
+&CONFIG`STAFF_ALERTS`VALID #VOL_CCP=LIST
+
+&CONFIG`HEADER_FILL #VOL_CCP=Symbol to use for Header lines.
+&CONFIG`HEADER_FILL`DEFAULT #VOL_CCP==
+&CONFIG`HEADER_FILL`VALID #VOL_CCP=WORD
+
+&CONFIG`SUBHEADER_FILL #VOL_CCP=Symbol to use for Sub-Header lines.
+&CONFIG`SUBHEADER_FILL`DEFAULT #VOL_CCP==
+&CONFIG`SUBHEADER_FILL`VALID #VOL_CCP=WORD
+
+&CONFIG`SEPARATOR_FILL #VOL_CCP=Symbol to use for Separator lines.
+&CONFIG`SEPARATOR_FILL`DEFAULT #VOL_CCP==
+&CONFIG`SEPARATOR_FILL`VALID #VOL_CCP=WORD
+
+&CONFIG`FOOTER_FILL #VOL_CCP=Symbol to use for Footer lines.
+&CONFIG`FOOTER_FILL`DEFAULT #VOL_CCP=-
+&CONFIG`FOOTER_FILL`VALID #VOL_CCP=WORD
+
+&CONFIG`BORDER_MODE #VOL_CCP=Alters style of headers/footers. 0 = No edges. 1 = + edges. 2 = slash-edges
+&CONFIG`BORDER_MODE`DEFAULT #VOL_CCP=0
+&CONFIG`BORDER_MODE`VALID #VOL_CCP=WORD
+
+&CONFIG`COLUMN_NAMES #VOL_CCP=Color for table column names.
+&CONFIG`COLUMN_NAMES`DEFAULT #VOL_CCP=g
+&CONFIG`COLUMN_NAMES`VALID #VOL_CCP=COLOR
+
+&CONFIG`HEADER_TEXT #VOL_CCP=Color for text in System Header/Subheaders.
+&CONFIG`HEADER_TEXT`DEFAULT #VOL_CCP=hw
+&CONFIG`HEADER_TEXT`VALID #VOL_CCP=COLOR
+
+&CONFIG`HEADER_STAR #VOL_CCP=Color for * in System Headers.
+&CONFIG`HEADER_STAR`DEFAULT #VOL_CCP=hm
+&CONFIG`HEADER_STAR`VALID #VOL_CCP=COLOR
+
+&CONFIG`BORDER #VOL_CCP=Color for borders in enclosed tables.
+&CONFIG`BORDER`DEFAULT #VOL_CCP=m
+&CONFIG`BORDER`VALID #VOL_CCP=COLOR
+
+&CONFIG`MSG #VOL_CCP=Color for the -=<>=- part of System Messages.
+&CONFIG`MSG`DEFAULT #VOL_CCP=hm
+&CONFIG`MSG`VALID #VOL_CCP=COLOR
+
+&CONFIG`MSGTEXT #VOL_CCP=Color for the System Name in System Messages.
+&CONFIG`MSGTEXT`DEFAULT #VOL_CCP=hw
+&CONFIG`MSGTEXT`VALID #VOL_CCP=COLOR
+
+@@ th u(NEWCONF,config,ROOM,PLAYERS_MODE,DEFAULT,Changes room format for PLAYERS.,WORD)
+@@ th u(NEWCONF,config,ROOM,THINGS_MODE,DEFAULT,Changes room format for THINGS.,WORD)
+@@ th u(NEWCONF,config,ROOM,EXITS_MODE,DEFAULT,Changes room format for EXITS.,WORD)
+
+@@ th u(NEWCONF,config,COLOR,ROOM_COLUMNS,,For column names in room formats,COLOR)
+@@ th u(NEWCONF,config,COLOR,EXITNAME,,Color of exit names.,COLOR)
+@@ th u(NEWCONF,config,COLOR,EXITALIAS,,Color of exit names.,COLOR)
+
+@@ th u(NEWCONF,pconf,ROOM,ROOM_COLUMNS,,For column names in room formats,COLOR)
+@@ th u(NEWCONF,pconf,ROOM,EXITNAME,,Color of exit names.,COLOR)
+@@ th u(NEWCONF,pconf,ROOM,EXITALIAS,,Color of exit names.,COLOR)
+
+
+&CONF #VOL_CCP=u(strfirstof,get(%!/CONFIG`%0`CUSTOM),get(%!/CONFIG`%0`DEFAULT))
+&PCONF #VOL_CCP=u(color,%@,%1)
+
+&COLOR #VOL_CCP=u(firstof,get(%0/V`CONFIG`%1),u(conf,%1))
+
+@@ COMMON CODE SNIPPETS
+
+&SYSTEM`NAME #VOL_CCP=SYSTEM
+
+&INC`CHECKPC #VOL_CCP=@check strlen(%0)=@attach %!/INC`MSG=ERROR: You must enter a player name!;@check strlen(%1);@check isdbref(u(setr,t%1,pmatch(%0)))=@attach %!/INC`MSG=ERROR: %0 [if(strmatch(%q<t%1>,#-2*),matches multiple players!,does not match a player!)];th u(setq,t%1objid,objid(r(t%1)));th u(setq,t%1name,name(r(t%1)));th u(setq,t%1acc,u(accid,r(t%1),1));th u(setq,t%1id,get(r(t%1)/D`ID));th u(setq,t1accid,get(r(t%1acc)/D`ID));
+@@ CHECK PC Arguments: %0 = player being checked, %1 = register number to load their data into.
+
+&INC`VERIFY #VOL_CCP=@select/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th u(attrib_set,%#,VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@stop 1={@attach %!/INC`MSG=%0,,,%2}},1,{@wipe %#/VERIFY_OK}
+@@ VERIFY Arguments: %0 = message to display, %1 = code to set for verification.
+
+&INC`CPTREE #VOL_CCP=@cpattr %0/%1=%2/%3;@dolist/inline u(lattr,%0/%1`**)={@cpattr %0/##=%2/%3`[elements(##,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)]}
+
+&AGFN`CPTREE #VOL_CCP=null(attrib_set(%2/%3,get(%0/%1))[iter(lattr(%0/%1`**),attrib_set(%2/%3`[elements(%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)],get(%0/%i0)))])
+
+@@ CPTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
+
+&INC`MVTREE #VOL_CCP=@cpattr %0/%1=%2/%3;@dolist/inline u(lattr,%0/%1`**)={@cpattr %0/##=%2/%3`[elements(##,lnum(add(1,words(%1,`)),add(words(%1,`),11)),`,`)]};@attach %!/WIPE=%0,%1
+@@ MVTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
+
+&INC`GETSWITCH #VOL_CCP=@attach %!/INC`PARTIAL=%0,u(SYSTEM`SWITCHES),|,switch,switch
+
+&SYSTEM`SWITCHES #VOL_CCP=setunion(setunion(u(SWITCHES`PLAYER),u(SWITCHES`PLAYER`EXTRA),|,|),if(u(isadmin,%#),setunion(u(SWITCHES`ADMIN),u(SWITCHES`ADMIN`EXTRA),|,|)),|,|)
+
+&INC`PARTIAL #VOL_CCP=@select/inline or(not(strlen(%0)),u(setr,matched,match(%1,u(setr,u(strfirstof,%3,choice),%0),u(strfirstof,%2,%b))))=0,{@check words(u(setr,u(strfirstof,%3,choice),graball(%1,%0*,u(strfirstof,%2,%b),u(strfirstof,%2,%b))))=@attach %!/INC`MSG={ERROR: Invalid %4! Valid choices are: [u(itemize,%1,u(strfirstof,%2,%b),and,\,)]};@stop gt(words(r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b)),1)=@attach %!/INC`MSG={ERROR: %0 matched [u(itemize,r(u(strfirstof,%3,choice)),u(strfirstof,%2,%b),and,\,)]. Please be more specific.}},1,{@select/inline cand(t(strlen(%0)),t(%q<matched>))=1,{th u(setq,u(strfirstof,%3,choice),elements(%1,%q<matched>,u(strfirstof,%2,%b)))}}
+@@ PARTIAL %0 = entry, %1 = choices, %2 = delimiter, %3 = register name, %4 = topic name
+
+&WIPE #VOL_CCP=@select/inline %va=PennMUSH,{@select/inline hasflag(%0,SAFE)=1,{@set %0=!SAFE;@wipe %0/%1;@set %0=SAFE},0,{@wipe %0/%1}},RhostMUSH,{@select/inline hasflag(%0,SAFE)=1,{@set %0=!SAFE;@wipe/regexp %0/^%1(`.+)?$;@set %0=SAFE},0,{@wipe/regexp %0/^%1(`.+)?$}}
+
+&DELETE #VOL_CCP=@select/inline %va=PennMUSH,{@set %0=!SAFE;@nuke %0;@nuke %0},RhostMUSH,{@destroy/override %0}
+
+
+@@ MESSAGING SECTION
+&INC`MSG #VOL_CCP=@pemit/list u(strfirstof,%1,%#)=udefault(%!/MSG,%0,##,%0,%1,u(SYSTEM`NAME))
+@@ %0 - Message. %1 - Recipients. %2 - Format obj/attr.
+
+&INC`MSG`ROOM #VOL_CCP=@pemit/list u(strfirstof,%1,lcon(%l))=udefault(%!/RMSG,%0,##,%0,%1,u(SYSTEM`NAME),u(strfirstof,%4,%#))
+
+&INC`MSG`NOTICE #VOL_CCP=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(conf,ANONYMOUS_NOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
+
+&INC`MSG`CHAN #VOL_CCP=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(getmoniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof,%1,u(conf,STAFF_ALERTS))]={@cemit %d0=%q<chanmsg>}
+@@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
+
+&INC`MSG`SYSCHAN #VOL_CCP=th u(setq,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit %d0=%q<chanmsg>}
+
+&MSG #VOL_CCP=u(msghead,%3,%0) %1
+&RMSG #VOL_CCP=u(msgroom,%3,%0) \[[ansi(h,u(getmoniker,%4))]\] %1
+
+&MSGHEAD #VOL_CCP=localize(ansi(u(setr,msgcolor,u(color,u(firstof,%1,%#),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)])
+&MSGROOM #VOL_CCP=localize(ansi(u(setr,msgcolor,u(color,u(firstof,%1,%#),MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)])
+
+
+
+&MARKUP #VOL_CCP=localize(regeditalli(%0,\\b\([iter(%1,name(%i0),%b,|)]\)\\b,if(neq(ord(left(setr(found,$0),1)),ord(lcstr(left($0,1)))),^^^[pmatch(%q<found>)]:%q<found>^^^,%q<found>)))
+@@ %0 - Text to search. %1 - Dbrefs to check.
+
+&COLORMARKUP #VOL_CCP=localize(if(%3,regeditalli(%1,v(REG`MARKUP),$2),regeditalli(%1,v(REG`MARKUP),if(strlen(setr(a,if(strlen(setr(b,u(color,%0,NAMES,$1,,1))),%qb,if(strlen(setr(c,switch($1,%0,u(color,%0,NAMES,MINE,,1),%2,u(color,%0,NAMES,SPEAKER,,1),u(color,%0,NAMES,OTHER,,1)))),%qc,)))),ansi(%qa,$2),$2))))
+
+&CHANHASH #VOL_CCP=default(cmogrifier(%0)/HASH`[digest(md5,%1)],%1)
+
+@@ %0 - Viewer. %1 - Text to search. %2 - Speaker. %3 - Bool for 'just demarkup'
+
+&REG`MARKUP #VOL_CCP=\^\^\^(#\d+)\:([^^]+)\^\^\^
+
+@@ &SPEECH`PENNMUSH #VOL_CCP=regeditalli(speakpenn(&[if(strlen(%3),%3,u(getmoniker,%0))],u(colornames,%2,%1,%4,%5,%0)),v(REG`URL),u(weblink,$0,$0),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>)
+
+&SPEECH #VOL_CCP=localize(regeditalli(parsestr(u(colornames,%2,escape(%1),%4,%5,%0),%0,",",,&[if(strlen(%3),%3,u(getmoniker,%0))]),v(REG`SPEECH),u(setr,quote,ansi(u(player_config,%2,%4,QUOTES),"))[ansi(u(player_config,%2,%4,SPEECH),$1)]%q<quote>))
+@@ %0 - Speaker. %1 - Message. %2 - Viewer. %3 - Name display override. %4 - Color display mode. %5 - Dbref list for colored-names lookup. %6 - Banner override bool.
+
+&REG`SPEECH #VOL_CCP=(?s)"([^ "][^"]*[^ "])"
+&REG`URL #VOL_CCP=\w+\://\S+[^"]
+
+&COLORNAMES #VOL_CCP=localize(u(setq,colstring,iter(%3,lit(%\b)[name(%i0)][lit(%\b)][beep()][switch(%i0,%0,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,MINE,,1),u(color,%0,NAMES,%i0,,1)))),ansi(%q<colfound>,name(%i0)),u(getmoniker,%i0)),%4,if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,SPEAKER,,1)))),ansi(%q<colfound>,name(%i0)),u(getmoniker,%i0)),if(strlen(u(setr,colfound,u(strfirstof,u(color,%0,NAMES,%i0,,1),u(color,%0,NAMES,OTHER,,1)))),ansi(%q<colfound>,name(%i0)),u(getmoniker,%i0)))],%b,beep()))[strfunc(regeditalli,%1[beep()]%q<colstring>,beep())])
+
+@@ %0 - Viewer. %1 - Text to search. %2 - Display mode. %3 - Dbrefs to check. %4 - Speaker.
+
+@@ Visibility and Connections
+&LASTIDLE #VOL_CCP=switch(objeval(%#,conn(%0)),-1,ansi(hx,elements(get(%0/last),2 3)),u(hideidle,%0))
+
+&HIDECONN #VOL_CCP=switch(objeval(%#,conn(%0)),-1,ansi(hx,Off),ansi(if(u(ishidden,%0),hx,hg),u(smalltime,conn(%0),3)))
+
+&HIDEIDLE #VOL_CCP=switch(objeval(%#,idle(%0)),-1,ansi(hx,Off),ansi(if(u(ishidden,%0),hx,u(ryg,round(mul(fdiv(bound(idle(%0),0,3600),3600),100),0))),u(smalltime,idle(%0),3)))
+
+&LASTCONN #VOL_CCP=switch(objeval(%#,conn(%0)),-1,ansi(hx,elements(get(%0/last),2 3)),u(hideconn,%0))
+
+@@ Color and Configuration
+
+&MY_NAMES #VOL_CCP=u(get_names,%@)
+&GET_NAMES #VOL_CCP=localize(u(filter,ISDBREF,edit(u(lattr,u(setr,accid,u(firstof,u(accid,%0),%0))/D`CONFIG`NAMES`#*),D`CONFIG`NAMES`,)))
+
+&PLAYER_CONFIG #VOL_CCP=localize(u(strfirstof,if(isdbref(u(setr,accid,u(accid,%0))),get(%q<accid>/D`CONFIG`%1`%2)),get(%0/D`CONFIG`%1`%2),get(u(cobj,pconf)/DEFAULT`%1`%2)))
+
+&APPROVED #VOL_CCP=u(isapproved,%0)
+&APPROVED2 #VOL_CCP=u(isapproved,%#)
+
+&ISAPPROVED #VOL_CCP=cor(u(isadmin,%0),if(u(game_config,SYSTEM,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1))
+
+@@ EVENT HANDLING - PENN
+&PLAYER`CONNECT #VOL_CCP=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set #VOL_CCP/PLAYER`CONNECT=no_inherit
+
+@@ Player-Approve is a pseudo-event triggered by the Account Management System.
+&PLAYER`APPROVE #VOL_CCP=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`APPROVE)={@trigger ##/PLAYER`APPROVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set #VOL_CCP/PLAYER`APPROVE=no_inherit
+
+&PLAYER`CREATE #VOL_CCP=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CREATE)={@trigger ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set #VOL_CCP/PLAYER`CREATE=no_inherit
+
+&PLAYER`DISCONNECT #VOL_CCP=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`DISCONNECT)={@trigger ##/PLAYER`DISCONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set #VOL_CCP/PLAYER`DISCONNECT=no_inherit
+
+&SOCKET`LOGINFAIL #VOL_CCP=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`LOGINFAIL)={@trigger ##/SOCKET`LOGINFAIL=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set #VOL_CCP/SOCKET`LOGINFAIL=no_inherit
+
+&SOCKET`CONNECT #VOL_CCP=@check setr(banid,first(u(u(cao)/FUN`CHECKLOGINS,%1)));@select/inline gt(secs(),get(u(bandb)/%q<banid>`UNTIL))=1,{@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) EXPIRED Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) has connected.}},0,{@pemit/port %0=setr(message,strfirstof(get(u(bandb)/%q<banid>`MESSAGE),u(u(cao)/VAR`BANLIST`MESSAGE)));@boot/port %0;@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) attempted to connect. Message sent to them: '%q<message>'}}
+@set #VOL_CCP/SOCKET`CONNECT=no_inherit
+
+&OBJECT`RENAME #VOL_CCP=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`RENAME)={@trigger ##/OBJECT`RENAME=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set #VOL_CCP/OBJECT`RENAME=no_inherit
+
+&OBJECT`DESTROY #VOL_CCP=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`DESTROY)={@trigger ##/OBJECT`DESTROY=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set #VOL_CCP/OBJECT`DESTROY=no_inherit
+
+&OBJECT`CREATE #VOL_CCP=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`CREATE)={@trigger ##/OBJECT`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set #VOL_CCP/OBJECT`CREATE=no_inherit
+
+&OBJECT`MOVE #VOL_CCP=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`MOVE)={@trigger ##/OBJECT`MOVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@set #VOL_CCP/OBJECT`MOVE=no_inherit
+
+&SQL`CONNECT #VOL_CCP=@sql SET time_zone = '+00:00';@nscemit/noisy u(cmo`staffrep)=SQL server connect: %0
+&SQL`CONNECTFAIL #VOL_CCP=@attach %!/INC`MSG`SYSCHAN={SQL server connect fail: %0}
+&SQL`DISCONNECT #VOL_CCP=@attach %!/INC`MSG`SYSCHAN={SQL server disconnect: %0}
+&STARTUP`SQL #VOL_CCP=@check sql(SELECT DATABASE());@trigger %!/LOOP`SQL;@trigger %!/LOOP`REINDEX
+&LOOP`SQL #VOL_CCP=@sql SELECT DATABASE();@wait 60=@trigger %!/LOOP`SQL
+&LOOP`REINDEX #VOL_CCP=@dolist sql(SHOW TABLES)=@sql ANALYZE TABLE %i0;@wait mul(60,60,24)=@trigger %!/LOOP`REINDEX
+
+@@ EVENT HANDLING - RHOST
+
+@ACONNECT #VOL_CCP=@check strmatch(%va,RhostMUSH);@select/inline and(eq(totcmds(%#),0),lt(sub(secs(),ctime(%#)),10))=1,{@attach/nobreak %!/PLAYER`CREATE=%#,words(ports(%#)),first(ports(%#))};@attach/nobreak %!/PLAYER`CONNECT=%#,words(ports(%#)),first(ports(%#))
+@set #VOL_CCP/ACONNECT=no_inherit
+@ADISCONNECT #VOL_CCP=@check strmatch(%va,RhostMUSH);@attach/nobreak %!/PLAYER`DISCONNECT=%#,words(ports(%#)),ishidden(%#)
+@set #VOL_CCP/ADISCONNECT=no_inherit
+
+&STARTUP`RHOSTEVENT #VOL_CCP=@trigger %!/LOOP`RHOSTMUSH`EVENTHANDLER

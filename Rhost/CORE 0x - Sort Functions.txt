@@ -1,0 +1,16 @@
+@if !tag(vol_sort)={@tel setr(0,create(Codesuite Sort Functions))=globalroom();@parent %#=%q0;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_sort=%q0}
+@DESCRIBE #vol_sort=This is Code Wizard territory. No touching!
+
+&SRT_ATTR #VOL_CCP=sortby(#lambda/[lit([ncomp(last(%0,`),last(%1,`))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+
+&SRT_IDLE #VOL_CCP=sortby(#lambda/[lit([ncomp(idle(%0),idle(%1))])],%0,if(strlen(%1),%1,%B),%2)
+
+&SRT_NAME #VOL_CCP=sortby(#lambda/[lit([comp(lcstr(name(%0)),lcstr(name(%1)))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+
+&SRT_ALIAS #VOL_CCP=sortby(#lambda/[lit([comp(lcstr(u(alias,%0)),lcstr(u(alias,%1)))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+
+&SRT_OLDID #VOL_CCP=sortby(#lambda/[lit([ncomp(after(%0,~),after(%1,~))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+
+&SRT_PRIORITY #VOL_CCP=sortby(#lambda/[lit([ncomp(default(%0/D`ALTS`PRIORITY,0),default(%1/D`ALTS`PRIORITY,0))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
+
+&SRT_ORDER #VOL_CCP=sortby(#lambda/[lit([ncomp(default(%0/ORDER,99),default(%1/ORDER,99))])],%0,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))

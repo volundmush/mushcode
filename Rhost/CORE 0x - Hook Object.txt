@@ -1,0 +1,29 @@
+@if !tag(vol_hook_obj)={@tel setr(0,create(Codesuite Hook Object))=globalroom();@parent %#=%q0;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_hook_obj=%q0}
+@DESCRIBE #vol_hook_obj=This is Code Wizard territory. No touching!
+
+&B_@NUKE #VOL_HOOK_OBJ=u(RHOST`DELETE`BEFORE)
+&A_@NUKE #VOL_HOOK_OBJ=u(RHOST`DELETE`AFTER)
+&B_@TOAD #VOL_HOOK_OBJ=u(RHOST`DELETE`BEFORE)
+&A_@TOAD #VOL_HOOK_OBJ=u(RHOST`DELETE`AFTER)
+&B_@TURTLE #VOL_HOOK_OBJ=u(RHOST`DELETE`BEFORE)
+&A_@TURTLE #VOL_HOOK_OBJ=u(RHOST`DELETE`AFTER)
+&B_@NAME #VOL_HOOK_OBJ=u(RHOST`NAME`BEFORE)
+&A_@NAME #VOL_HOOK_OBJ=u(RHOST`NAME`AFTER)
+&SUB_058 #VOL_HOOK_OBJ=%#
+&I_@EMIT #VOL_HOOK_OBJ=not(isdbref(u(cobj,scene)))
+&I_SAY #VOL_HOOK_OBJ=not(isdbref(u(cobj,scene)))
+&I_POSE #VOL_HOOK_OBJ=not(isdbref(u(cobj,scene)))
+&I_P #VOL_HOOK_OBJ=not(isdbref(u(cobj,scene)))
+&I_S #VOL_HOOK_OBJ=not(isdbref(u(cobj,scene)))
+
+&RHOST`DELETE`BEFORE #VOL_HOOK_OBJ=if(u(setr,nuketarget,pmatch(before(rest(%m),=))),u(setq,nuketype,type(%q<nuketarget>))[u(setq,nukename,name(%q<nuketarget>))])
+&RHOST`DELETE`AFTER #VOL_HOOK_OBJ=if(cand(%q<nuketarget>,strmatch(%q<nuketype>,PLAYER)),if(cor(hasflag(%q<nuketarget>,RECOVERY),not(hastype(%q<target>,PLAYER))),u(attrib_set,u(cobj,mco),DELETE`QUEUE`[u(nextslot,u(cobj,mco),DELETE`QUEUE)],%q<nuketarget>|%q<nukename>|%q<nuketype>)))
+
+&RHOST`NAME`BEFORE #VOL_HOOK_OBJ=u(setq,namename,name(u(setr,nametarget,pmatch(before(rest(%m),=)))))
+&RHOST`NAME`AFTER #VOL_HOOK_OBJ=if(%q<nametarget>,if(strmatch(u(setr,newname,name(%q<nametarget>)),after(%m,=)),u(attrib_set,u(cobj,mco),NAME`QUEUE`[u(nextslot,u(cobj,mco),NAME`QUEUE)],%q<nametarget>|%q<newname>|%q<namename>)))
+
+&LOOP`RHOSTMUSH`EVENTHANDLER #VOL_HOOK_OBJ=@check strmatch(%va,RhostMUSH);@dolist/inline [u(lattr,%!/TRG`RHOSTMUSH`*)]={@trigger %!/%d0};@wait 60={@trigger me/LOOP`RHOSTMUSH`EVENTHANDLER}
+
+&TRG`RHOSTMUSH`OBJECT`DELETE #VOL_HOOK_OBJ=@dolist/inline u(lattr,u(cobj,mco)/DELETE`QUEUE`*)={@trigger u(cobj,mco)/OBJECT`DESTROY`RHOSTMUSH=elements(get(u(cobj,mco)/%d0),1,|),elements(get(u(cobj,mco)/%d0),2,|),elements(get(u(cobj,mco)/%d0),3,|);@attach %!/WIPE=u(cobj,mco),%d0}
+
+&TRG`RHOSTMUSH`OBJECT`RENAME #VOL_HOOK_OBJ=@dolist/inline u(lattr,u(cobj,mco)/NAME`QUEUE`*)={@trigger u(cobj,mco)/OBJECT`RENAME`RHOSTMUSH=elements(get(u(cobj,mco)/%d0),1,|),elements(get(u(cobj,mco)/%d0),2,|),elements(get(u(cobj,mco)/%d0),3,|);@attach %!/WIPE=u(cobj,mco),%d0}

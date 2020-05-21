@@ -1,0 +1,20 @@
+@if !tag(vol_valid)={@tel setr(0,create(Codesuite Validator Library))=globalroom();@parent %#=%q0;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_valid=%q0}
+@DESCRIBE #vol_valid=This is Code Wizard territory. No touching!
+
+
+
+
+&INC`VALID`EMAIL #VOL_CCP=th u(setq,value,trim(%0));@check strlen(%q<value>)=@attach %!/INC`MSG=ERROR: Nothing entered!;@check lte(strlen(%q<value>),255)=@attach %!/INC`MSG=ERROR: Emails must be 255 characters or less.;@stop strmatch(%q<value>,* *)=@attach %!/INC`MSG=ERROR: Email addresses may not contain spaces.;@check strmatch(%q<value>,*@*.*)=@attach %!/INC`MSG=ERROR: An Email must be in the format: *@*.* (example@game.com).
+&INC`VALID`COLOR #VOL_CCP=@stop strmatch(ansi(u(setr,value,%0),Test),#-*)=@attach %!/INC`MSG=ERROR: '%0' is not a valid color.
+&INC`VALID`WORD #VOL_CCP=th u(setq,value,trim(%0))
+&INC`VALID`LIST #VOL_CCP=th u(setq,value,trim(%0))
+&INC`VALID`BOOL #VOL_CCP=@check match(0 1,u(setr,value,%0))=@attach %!/INC`MSG={ERROR: BOOL options can only be 0 (false) or 1 (true).}
+&INC`VALID`DBREF #VOL_CCP=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th u(setq,value,objid(%0))
+&INC`VALID`TZ #VOL_CCP=@check valid(timezone,u(setr,value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone}
+&INC`VALID`DURATION #VOL_CCP=@check u(setr,value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()}
+&INC`VALID`POSINT #VOL_CCP=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[u(strfirstof,%1,%0)]' must be a whole number 1 or greater.};th u(setq,value,%0)
+&INC`VALID`INT #VOL_CCP=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th u(setq,value,%0)
+&INC`VALID`LOCK #VOL_CCP=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th u(setq,value,%0)
+&INC`VALID`TIME #VOL_CCP=@check strlen(%0)=@attach %!/INC`MSG=You didn't enter a date!;@check gt(u(setr,time,convtime(%0,u(gettz,%#))),0)=@attach %!/INC`MSG=The entered date was not recognized. Did you typo? Dates should be in abbreviated 24-hour <month> <day> <hour>:<minute> format using YOUR timezone\, such as Jun 26 7:00 or Oct 31 13:00.;
+&INC`VALID`FUTURE #VOL_CCP=@attach %!/INC`VALID`TIME;@check gt(%q<time>,secs())=@attach %!/INC`MSG=That would be in the past!
+&INC`VALID`GROUP #VOL_CCP=
