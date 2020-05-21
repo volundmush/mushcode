@@ -92,8 +92,8 @@ th u(NEWCOBJ,Job Tracker <JOB>,job,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAF
 &FUN`MSGLIST [u(cobj,job)]=setunion(setunion(setunion(%:,%q<jhelobjids> %q<jhanobjids> %q<jownobjids>),lockfilter(%q<badminlock>,u(lwhoid))),%0)
 &FUN`AMSGLIST [u(cobj,job)]=setunion(setunion(%: %q<jhanobjids>,lockfilter(%q<badminlock>,u(lwhoid))),%0)
 
-&FUN`MAILLIST [u(cobj,job)]=setunion(%: %q<jhelobjids> %q<jhanobjids> %q<jownobjids>,%0)
-&FUN`AMAILLIST [u(cobj,job)]=setunion(%: %q<jhanobjids>,%0)
+&FUN`MAILLIST [u(cobj,job)]=u(filter,ISOBJID,setunion(%: %q<jhelobjids> %q<jhanobjids> %q<jownobjids>,%0))
+&FUN`AMAILLIST [u(cobj,job)]=u(filter,ISOBJID,setunion(%: %q<jhanobjids>,%0))
 
 @@ %0 - category being checked. %1 - mode. %2 - checker.
 &Q`GET`ANYOBJIDS [u(cobj,job)]=SELECT character_objid FROM volv_jlink WHERE job_id=?
