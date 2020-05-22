@@ -1,0 +1,88 @@
+@if !tag(vol_acl)={@tel setr(0,create(Codesuite ACL System))=globalroom();@set %q0=INHERIT SIDEFX SAFE;@tag/add vol_acl=%q0}
+@DESCRIBE #vol_acl=This is Code Wizard territory. No touching!
+
+@@ Function called when an AccessingObject wants access to a Resource/Permission of the object this function is on (ResourceObject).
+@@ %0 ResourceObj: objid, %1 AccesingObj: objid, %2 Permission: str, %3 DisableControlCheck: bool, Return: bool
+&GFUN_CHECK_ACL #vol_acl=localize(cor(if(%3,0,controls(%1,%0)),if(u(tag(setr(0,vol_acl_[get(%0/_ACL_TYPE)]))/VFUN_CHECK_ACL_PERM,%0,%1,ALL,1),0,if(u(%q0/VFUN_CHECK_ACL_PERM,%0,%1,%2,1),0,if(u(%q0/VFUN_CHECK_ACL_PERM,%0,%1,ALL),1,if(u(%q0/VFUN_CHECK_ACL_PERM,%0,%1,%2),1,0))))))
+
+&STARTUP #vol_acl=@dolist/inline lattr(%!/GFUN_*)={@function/privilege vol_[after(%d0,_)]=%!/%d0}
+
+@@ Given an existing formatted ACL string (can be empty) and a new player input, return new ACL entry string. Input is |-delimited entries of <+/->[!]<type>:<name>[:<mode>]
+@@ %0 AllowStr: str, %1 DenyStr, %2 InputString
+@@ Return: AllowStr^DenyStr
+&VFUN_PROCESS_ACL_MOD #vol_acl=setq(0,ucstr(iter(%1,if(setr(1,ulocal(VFUN_VALIDATE_ACL_SECTION,%i0)),%q1,setq(2,%q1)[ibreak(0)]),|,|)))[if(strlen(%q2),%q2,[setq(3,ucstr(%0))][setq(4,ucstr(%1))][null(iter(%q1,switch(elements(%i0,2,~),+,setq(3,set[switch(first(%i0,~),-,diff,+,union)](%q3,elements(%i0,4 5,~,~),|,|)),!,setq(4,set[switch(first(%i0,~),-,diff,+,union)](%q4,elements(%i0,4 5,~,~),|,|))),|,|))][ulocal(VFUN_FINALIZE_ACL,%q3)]^[ulocal(VFUN_FINALIZE_ACL,%q4)])]
+
+@@ Input is a String that looks like: <+/->[!]<type>:<name>[:<mode>]
+@@ Output is #-1 ERROR for bad match and <sign>~<deny>~<totem>~<objid>[~mode] for a good one.
+&VFUN_VALIDATE_ACL_SECTION #vol_acl=if(regmatchi(%0,v(REG_ACL_INPUT),0 1 2 3 4 5),if(setr(6,vol_identity_search(%3:%4)),setq(7,before(%q6,~))[setq(8,after(%q6,~))][if(setr(9,tag(vol_acl_%q7)),if(strlen(%q5),if(match(get(%q9/ACL_MODES),%q5),%q1~[if(strlen(%q2),!,+)]~%q7~%q8~%q5,#-1 INVALID ACL MODE %q8),%q1~[if(strlen(%q2),!,+)]~%q7~%q8),#-1 UNSUPPORTED TOTEM %q7)],%q6),#-1 INVALID ACL ENTRY FORMAT)
+&REG_ACL_INPUT #vol_acl=(?P<sign>[+-])(?P<deny>!?)?(?P<type>[^:]+):(?P<name>[^:]+)(?P<final>\:(?P<mode>\w+)?)?
+
+@@ Sanitize, Filter, and sort an unfinished ACL String.
+@@ %0 InputString: str, Return: ACLString: str
+@@ Inputstring and ACLString should be |-delimited sequence of <objid>[~<mode>]
+&VFUN_FINALIZE_ACL #vol_acl=sortby(SORT_ACL,filter(FIL_VALID_ACL,%0,|,|),|,|)
+
+&VFUN_ACL_OBJ #vol_acl=tag(vol_acl_[get(%0/_ACL_TYPE)])
+
+&FIL_VALID_ACL #vol_acl=cand(isobjid(before(%0,~)),u(FIL_VALID_MODE,before(%0,~),after(%0,~)))
+&FIL_VALID_MODE #vol_acl=if(!strlen(%1),if(get(u(VFUN_ACL_OBJ,%0)/ACL_MODES_BLANK),1,#-1 UNSUPPORTED BLANK MODE),if(match(get(/ACL_MODES),%1,|),1,#-1 UNSUPPORTED MODE %1))
+&SORT_ACL #vol_acl=comp(get(u(VFUN_ACL_OBJ,%0)/ACL_SORT),get(u(VFUN_ACL_OBJ,%1)/ACL_SORT))
+
+
+@@ Takes a TYPE:NAME and returns a TYPE~OBJID. Supports partial matches for both.
+@@ %0 Totem:Name: str, %1 DisableTotemPartialMatch: bool, %2 DisableNamePartialMatch: bool
+@@ Return: <TYPE>~<OBJID> or #-1 <ERROR>>
+&GFUN_IDENTITY_SEARCH #vol_acl=
+
+
+@@ ACL OBJECT - Attributes on this are inherited by ALL code objects that define ACL.
+@if !tag(vol_acl_object)={@tel setr(0,create(Codesuite ACL Base))=globalroom();@set %q0=INHERIT SIDEFX SAFE;@tag/add vol_acl_object=%q0}
+&ACL_SORT #vol_acl_object=0
+&ACL_MODES_BLANK #vol_acl_object=1
+
+@@ Called by VFUN_CHECK_ACL to process a specific permission list.
+@@ %0 ResourceObj, %1 AccessingObj: objid, %2 Permission: str, %3 Deny mode: bool, %4 TestString: str, Return: bool
+&VFUN_CHECK_ACL_PERM #VOL_GLOBAL_OBJECT=iter(if(%4,%4,get(%0/ACL[if(%3,D)]_%2)),if(if(isobjid(elements(%i0,2,~)),u(VFUN_CHECK_ACL_ENTRY,%0,%1,elements(%i0,1,~),elements(%i0,2,~),elements(%i0,3,~)),0),1[ibreak(0)]),|,null())
+
+@@ Called by VFUN_CHECK_ACL_PERM to see if ENTRY OBJID will answer for AccessingObj in this Mode.
+@@ %0 ResourceObj, %1 AccessingObj: objid, %2 Totem: str, %3 EntryObj: objid, %4 Mode: str
+&VFUN_CHECK_ACL_ENTRY #VOL_GLOBAL_OBJECT=udefault(VFUN_CHECK_ACL_ENTRY_MODE_[if(%2,%2,BLANK)],0,%0,%1)
+&VFUN_CHECK_ACL_ENTRY_MODE_BLANK #VOL_GLOBAL_OBJECT=strmatch(%0,objid(%!))
+
+@@ ACL SYSTEM - This provides the special SYSTEM Objects.
+@if !tag(vol_acl_system)={@tel setr(0,create(Codesuite ACL System))=#vol_acl_object;@set %q0=SAFE INHERIT SIDEFX;@tag/add vol_acl_system=%q0;@parent %q0=#vol_acl_object}
+&ACL_SORT #vol_acl_system=-100
+
+@@ The Everyone Object will always represent everyone. It implements both code and is the object that will be
+@@ stored on ACL's.
+@if !tag(vol_acl_everyone)={@tel setr(0,create(Everyone))=#vol_acl_system;@set %q0=SAFE INHERIT SIDEFX;@tag/add vol_acl_everyone=%q0;@parent %q0=#vol_acl_system}
+&_ACL_TYPE #vol_acl_everyone=everyone
+&VFUN_CHECK_ACL_ENTRY #vol_acl_everyone=1
+
+
+@@ ACL ROOM - This affects just ROOM objects.
+@if !tag(vol_acl_room)={@tel setr(0,create(Codesuite ACL Room))=#vol_acl_object;@set %q0=SAFE INHERIT SIDEFX;@tag/add vol_acl_room=%q0;@parent %q0=#vol_acl_object}
+
+
+
+@@ ACL PLAYER - ACL for ALL PLAYERS.
+@@ NOTE: For Codesuite, Players are sub-classed into ACCOUNT and CHARACTER (ROBOT). This affects BOTH.
+@@ It's more meant to be used as a second 'base' for more inheritance than directly referenced.
+@if !tag(vol_acl_player)={@tel setr(0,create(Codesuite ACL Player))=#vol_acl_object;@set %q0=SAFE INHERIT SIDEFX;@tag/add vol_global_player=%q0;;@parent %q0=#vol_acl_object}
+
+@@ ACL ACCOUNT - ACL for All ACCOUNTS.
+@if !tag(vol_acl_account)={@tel setr(0,create(Codesuite ACL Account))=#vol_acl_object;@set %q0=SAFE INHERIT SIDEFX;@tag/add vol_acl_account=%q0;;@parent %q0=#vol_acl_player}
+
+
+@@ ACL CHARACTER - ACL for All CHARACTERS.
+@if !tag(vol_acl_character)={@tel setr(0,create(Codesuite ACL Character))=#vol_acl_object;@set %q0=SAFE INHERIT SIDEFX;@tag/add vol_acl_character=%q0;;@parent %q0=#vol_acl_player}
+
+
+@@ ACL THING - This affects just THING objects.
+@if !tag(vol_acl_thing)={@tel setr(0,create(Codesuite ACL Thing))=#vol_acl_object;@set %q0=SAFE INHERIT SIDEFX;@tag/add vol_acl_thing=%q0;@parent %q0=#vol_acl_object}
+
+
+@@ ACL EXIT - This affects just EXIT objects.
+@if !tag(vol_acl_exit)={@tel setr(0,create(Codesuite ACL Exit))=#vol_acl_object;@set %q0=SAFE INHERIT SIDEFX;@tag/add vol_acl_exit=%q0;@parent %q0=#vol_acl_object}
+
+
