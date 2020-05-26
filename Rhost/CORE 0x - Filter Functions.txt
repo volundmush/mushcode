@@ -1,4 +1,0 @@
-@if !tag(vol_fil)={@tel setr(0,create(Codesuite Filter Functions))=globalroom();@parent %#=%q0;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_fil=%q0}
-@DESCRIBE #vol_fil=This is Code Wizard territory. No touching!
-
-atrperms VFUN_:6:0 ACL_:6:0 ACLD_:6:0 VDAT_:6:0

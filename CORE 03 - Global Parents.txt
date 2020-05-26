@@ -1,0 +1,44 @@
+@@ GLOBAL OBJECT - Attributes on this are inherited by EVERYTHING.
+@if !isdbref(tag(vol_global_object))={@tel setr(0,create(Global Object))=#vol_master_room;@set %q0=SAFE;@tag/add vol_global_object=%q0}
+@DESCRIBE #vol_global_object=This is Code Wizard territory. No touching!
+@set #vol_global_object/describe=no_inherit
+
+&_ACL_TYPE #vol_global_object=object
+
+
+@@ GLOBAL ROOM - This affects just ROOM objects.
+@if !isdbref(tag(vol_global_room))={@tel setr(0,create(Global Room))=#vol_global_object;@set %q0=SAFE;@tag/add vol_global_room=%q0}
+@DESCRIBE #vol_global_room=This is Code Wizard territory. No touching!
+@set #vol_global_room/describe=no_inherit
+
+&_ACL_TYPE #vol_global_room=room
+
+@@ Pseudo-Global ACCOUNT
+@if !isdbref(tag(vol_global_account))={@tel setr(0,create(Global Account))=#vol_global_object;@set %q0=SAFE;@tag/add vol_global_account=%q0;@parent %q0=#vol_global_object}
+@DESCRIBE #vol_global_account=This is Code Wizard territory. No touching!
+@set #vol_global_account/describe=no_inherit
+
+&_ACL_TYPE #vol_global_account=account
+
+
+@@ GLOBAL PLAYER - Attributes on this are inherited by ALL PLAYERS.
+@if !isdbref(tag(vol_global_player))={@tel setr(0,create(Global Player))=#vol_global_object;@set %q0=SAFE;@tag/add vol_global_player=%q0}
+@DESCRIBE #vol_global_player=This is Code Wizard territory. No touching!
+@set #vol_global_player/describe=no_inherit
+
+&_ACL_TYPE #vol_global_player=character
+
+
+@@ GLOBAL THING - This affects just THING objects.
+@if !isdbref(tag(vol_global_thing))={@tel setr(0,create(Global Thing))=#vol_global_object;@set %q0=SAFE;@tag/add vol_global_thing=%q0}
+@DESCRIBE #vol_global_thing=This is Code Wizard territory. No touching!
+@set #vol_global_thing/describe=no_inherit
+
+&_ACL_TYPE #vol_global_thing=thing
+
+@@ GLOBAL EXIT - This affects just EXIT objects.
+@if !isdbref(tag(vol_global_exit))={@tel setr(0,create(Global Exit))=#vol_global_object;@set %q0=SAFE;@tag/add vol_global_exit=%q0}
+@DESCRIBE #vol_global_exit=This is Code Wizard territory. No touching!
+@set #vol_global_exit/describe=no_inherit
+
+&_ACL_TYPE #vol_global_exit=exit

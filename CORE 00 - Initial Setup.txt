@@ -1,0 +1,165 @@
+@@ RUN THIS ON CODE WIZARD OBJECT!
+@set me=sidefx !wanderer
+@admin command_quota_max=10000
+@admin command_quota_increment=100
+
+@@ CREATES THE MASTER ROOM AND CODE STORAGE ROOMS
+@if !isdbref(tag(vol_code_storage))={@set setr(0,create(Codesuite Storage Room,,r))=SAFE;@tag/add vol_code_storage=%q0}
+@DESCRIBE #vol_code_storage=This is Code Wizard territory. No touching!
+
+@if !isdbref(tag(vol_master_room))={@set setr(0,create(Codesuite Master Room,,r))=SAFE;@tag/add vol_master_room=%q0}
+@DESCRIBE #vol_master_room=This is Code Wizard territory. No touching!
+
+@@ SETS UP ADMIN OBJECT
+@if !isdbref(tag(vol_admin_object))={@tel setr(0,create(Codesuite Admin Object))=#vol_code_storage;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_admin_object=%q0}
+@DESCRIBE #vol_admin_object=This is Code Wizard territory. No touching!
+
+&TAG_CHECK #vol_admin_object=if(isdbref(tag(%0)),edit(tag(%0),#,))
+
+&_OP_admin_object #vol_admin_object=edit(%!,#,)
+&_OP_master_room #vol_admin_object=u(tag_check,vol_master_room)
+&_OP_global_parent_obj #vol_admin_object=u(tag_check,vol_global_object)
+&_OP_global_parent_thing #vol_admin_object=u(tag_check,vol_global_thing)
+&_OP_global_parent_exit #vol_admin_object=u(tag_check,vol_global_exit)
+&_OP_global_parent_room #vol_admin_object=u(tag_check,vol_global_room)
+&_OP_global_parent_player #vol_admin_object=u(tag_check,vol_global_player)
+&_OP_hook_obj #vol_admin_object=u(tag_check,vol_hook_obj)
+
+&NEWENTRY #vol_admin_object=privatize(1,if(strlen(setr(z,u(%0))),set(%!,_LINE[v(NEXT)]:[lcstr(after(%0,_OP_))]%B%qz)[set(me,NEXT:[add(v(NEXT),1)])]))
+&NEXT #vol_admin_object=0
+&REGENERATE #vol_admin_object=@wipe me/_LINE*;&NEXT me=0;@dolist/inline lattr(me/_OP_*)={th u(newentry,%d0)};@admin/save
+
+@@ SORT SECTION
+@if !isdbref(tag(vol_sort))={@tel setr(0,create(Codesuite Sort Functions))=#vol_code_storage;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_sort=%q0}
+@DESCRIBE #vol_sort=This is Code Wizard territory. No touching!
+
+&SRT_IDLE #vol_sort=ncomp(idle(%0),idle(%1))
+&SRT_NAME #vol_sort=comp(name(%0),name(%1))
+&SRT_NAMEI #vol_sort=comp(lcstr(name(%0)),lcstr(name(%1)))
+&SRT_NAMELEN #vol_sort=ncomp(strlen(name(%0)),strlen(name(%1)))
+&SRT_STRLEN #vol_sort=ncomp(strlen(%0),strlen(%1))
+
+&STARTUP #vol_sort=@function/privilege vol_sortmode=%!/GFUN_SORTMODE
+&GFUN_SORTMODE #vol_sort=sortby(SRT_%1,%0,%2,%3)
+
+
+@@ FILTER CODE SECTION
+@if !isdbref(tag(vol_filter))={@tel setr(0,create(Codesuite Filter Functions))=#vol_code_storage;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_filter=%q0}
+@DESCRIBE #vol_filter=This is Code Wizard territory. No touching!
+
+&FIL_OBJID #vol_filter=isobjid(%0)
+
+&FIL_NAMEEXIST #vol_filter=strmatch(name(%0),%1)
+&FIL_NAMESTARTSWITH #vol_filter=strmatch(name(%0),%1*)
+&FIL_NAMECONTAINS #vol_filter=strmatch(name(%0),*%1*)
+
+&STARTUP #vol_filter=@function/privilege vol_filtermode=%!/GFUN_FILTERMODE
+&GFUN_FILTERMODE #vol_filter=filter(FIL_%1,%0,switch(%+,2,%b,%2),switch(%+,2,%b,3,%2,>3,%3),%4,%5,%6,%7,%8,%9)
+
+
+@@ FILE OBJECT
+@if !isdbref(tag(vol_file_object))={@tel setr(0,create(Codesuite File Object))=#vol_code_storage;@tag/add vol_file_object=%q0}
+
+@@ Section for CUSTOMIZED CONNECT. see wizhelp CUSTOMIZED CONNECT
+&FAKECOMMANDS #vol_file_object=CONNECT|CREATE|WHO|DOING
+
+&RUN_CONNECT #vol_file_object=
+&RUN_CREATE #vol_file_object=
+&RUN_WHO #vol_file_object=
+&RUN_DOING #vol_file_object=
+
+@@ HOOK OBJECT
+@if !isdbref(tag(vol_hook_object))={@tel setr(0,create(Codesuite Hook Object))=#vol_master_room;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_hook_object=%q0}
+@DESCRIBE #vol_hook_object=This is Code Wizard territory. No touching!
+
+&B_@NUKE #vol_hook_object=u(RHOST`DELETE`BEFORE)
+&A_@NUKE #vol_hook_object=u(RHOST`DELETE`AFTER)
+&B_@TOAD #vol_hook_object=u(RHOST`DELETE`BEFORE)
+&A_@TOAD #vol_hook_object=u(RHOST`DELETE`AFTER)
+&B_@TURTLE #vol_hook_object=u(RHOST`DELETE`BEFORE)
+&A_@TURTLE #vol_hook_object=u(RHOST`DELETE`AFTER)
+&B_@NAME #vol_hook_object=u(RHOST`NAME`BEFORE)
+&A_@NAME #vol_hook_object=u(RHOST`NAME`AFTER)
+&SUB_058 #vol_hook_object=%#
+&I_@EMIT #vol_hook_object=not(isdbref(u(cobj,scene)))
+&I_SAY #vol_hook_object=not(isdbref(u(cobj,scene)))
+&I_POSE #vol_hook_object=not(isdbref(u(cobj,scene)))
+&I_P #vol_hook_object=not(isdbref(u(cobj,scene)))
+&I_S #vol_hook_object=not(isdbref(u(cobj,scene)))
+
+&RHOST`DELETE`BEFORE #vol_hook_object=if(u(setr,nuketarget,pmatch(before(rest(%m),=))),u(setq,nuketype,type(%q<nuketarget>))[u(setq,nukename,name(%q<nuketarget>))])
+&RHOST`DELETE`AFTER #vol_hook_object=if(cand(%q<nuketarget>,strmatch(%q<nuketype>,PLAYER)),if(cor(hasflag(%q<nuketarget>,RECOVERY),not(hastype(%q<target>,PLAYER))),u(attrib_set,u(cobj,mco),DELETE`QUEUE`[u(nextslot,u(cobj,mco),DELETE`QUEUE)],%q<nuketarget>|%q<nukename>|%q<nuketype>)))
+
+&RHOST`NAME`BEFORE #vol_hook_object=u(setq,namename,name(u(setr,nametarget,pmatch(before(rest(%m),=)))))
+&RHOST`NAME`AFTER #vol_hook_object=if(%q<nametarget>,if(strmatch(u(setr,newname,name(%q<nametarget>)),after(%m,=)),u(attrib_set,u(cobj,mco),NAME`QUEUE`[u(nextslot,u(cobj,mco),NAME`QUEUE)],%q<nametarget>|%q<newname>|%q<namename>)))
+
+&LOOP`RHOSTMUSH`EVENTHANDLER #vol_hook_object=@check strmatch(%va,RhostMUSH);@dolist/inline [u(lattr,%!/TRG`RHOSTMUSH`*)]={@trigger %!/%d0};@wait 60={@trigger me/LOOP`RHOSTMUSH`EVENTHANDLER}
+
+&TRG`RHOSTMUSH`OBJECT`DELETE #vol_hook_object=@dolist/inline u(lattr,u(cobj,mco)/DELETE`QUEUE`*)={@trigger u(cobj,mco)/OBJECT`DESTROY`RHOSTMUSH=elements(get(u(cobj,mco)/%d0),1,|),elements(get(u(cobj,mco)/%d0),2,|),elements(get(u(cobj,mco)/%d0),3,|);@attach %!/WIPE=u(cobj,mco),%d0}
+
+&TRG`RHOSTMUSH`OBJECT`RENAME #vol_hook_object=@dolist/inline u(lattr,u(cobj,mco)/NAME`QUEUE`*)={@trigger u(cobj,mco)/OBJECT`RENAME`RHOSTMUSH=elements(get(u(cobj,mco)/%d0),1,|),elements(get(u(cobj,mco)/%d0),2,|),elements(get(u(cobj,mco)/%d0),3,|);@attach %!/WIPE=u(cobj,mco),%d0}
+
+@@ TOTEMS
+@if !match(listtotems(1),ACCOUNT)={@totem/add ACCOUNT=1 1;@totem/type ACCOUNT=THING WIZARD;@totem/letter ACCOUNT=1 A}
+@if !match(listtotems(1),CHARACTER)={@totem/add CHARACTER=1 2;@totem/type CHARACTER=PLAYER WIZARD;@totem/letter CHARACTER=1 C}
+@if !match(listtotems(1),FACTION)={@totem/add FACTION=1 4;@totem/type FACTION=THING WIZARD;@totem/letter FACTION=1 F}
+@if !match(listtotems(1),THEME)={@totem/add THEME=1 8;@totem/type THEME=THING WIZARD;@totem/letter THEME=1 T}
+@if !match(listtotems(1),BOARD)={@totem/add BOARD=1 16;@totem/type THEME=THING WIZARD}
+@if !match(listtotems(1),CHANNEL)={@totem/add CHANNEL=1 32;@totem/type CHANNEL=THING WIZARD}
+
+
+@@ Formatter
+@if !isdbref(tag(vol_formatting))={@tel setr(0,create(Codesuite Formatting Library))=#vol_code_storage;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_formatting=%q0}
+@DESCRIBE #vol_formatting=This is Code Wizard territory. No touching!
+
+&HEADER #vol_formatting=localize(u(HEADER`PREP,%1,u(strfirstof,%3,u(conf,BORDER_MODE)),HEADER,%4)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][u(setr,borderstar,ansi(u(color,%q<target>,HEADER_STAR),*))]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+
+&SUBHEADER #vol_formatting=localize(u(HEADER`PREP,%1,%3,SUBHEADER,%4)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+
+&SEPARATOR #vol_formatting=localize(u(HEADER`PREP,%1,%3,SEPARATOR,%4)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+
+&FOOTER #vol_formatting=localize(u(HEADER`PREP,%1,u(strfirstof,%3,u(conf,BORDER_MODE)),FOOTER,%4)[u(setq,headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)]%B[if(%2,%0,ansi(u(color,%q<target>,HEADER_TEXT),%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER)])
+
+&HEADER`PREP #vol_formatting=u(setq,target,owner(u(firstof,%0,%#)))[u(setq,bordercolor,u(color,%q<target>,BORDER))][u(setq,bordermode,%1)][u(setq,width,sub(u(strfirstof,%3,u(width,%q<target>)),2))][u(setq,fill,u(conf,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,u(setq,start,ansi(%q<bordercolor>,/))[u(setq,end,ansi(%q<bordercolor>,chr(92)))],FOOTER,u(setq,start,ansi(%q<bordercolor>,chr(92)))[u(setq,end,ansi(%q<bordercolor>,/))]),1,u(setq,start,u(setr,end,ansi(%q<bordercolor>,+))),u(setq,start,u(setr,end,ansi(%q<bordercolor>,%q<fill>))))]
+
+&HEADER`RENDER #vol_formatting=%q<start>[u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>
+@@ HEADER family args: %0 - Title. %1 - Viewer dbref. %2 - True: Do not color title. %3 - Border mode bool. %4 - Width.
+
+&FUN_STRINGSECS #vol_formatting=ladd(iter(secure(regeditall(%0,(h|m|s),$1%b)),switch(%i0,*ML,mul(%i0,31536000000),*y,mul(%i0,31471200),*C,mul(%i0,3153600000),*Mo,mul(%i0,2628000),*w,mul(%i0,604800),*d,mul(%i0,86400),*h,mul(%i0,3600),*m,mul(%i0,60),*s,add(%i0,0))) 0)
+
+&FUN_NUMTH #vol_formatting=%0[switch(%0,11,th,12,th,13,th,switch(right(%0,1),1,st,2,nd,3,rd,th))]
+
+@@ Command Parent - Contains Library of useful things for running commands.
+@if !isdbref(tag(vol_command_parent))={@tel setr(0,create(Codesuite Command Parent))=#vol_code_storage;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_command_parent=%q0}
+@DESCRIBE #vol_command_parent=This is Code Wizard territory. No touching!
+
+
+&FUN_PARTIAL_GRAB #vol_command_parent=privatize(1,if(strlen(setr(z,grab(%0,%1,|))),%qz,if(strlen(setr(z,grab(vol_sortmode(%0,strlen,|,|),%1*,|))),%qz,%2)))
+&CHECK_SWITCH #vol_command_parent=u(FUN_PARTIAL_GRAB,setr(5,udefault(CMD_%0_SWITCHES_FUNCTION,setunion(v(CMD_%0_SWITCHES_PLAYER),if(gte(bittype(%#),4),v(CMD_%0_SWITCHES_ADMIN)),|,|))),%1)
+
+&PARSE_COMMAND #vol_command_parent=@if strlen(%1)={th regmatchi(%1,v(REG_CMDPARSE),-1 0 1 2);th setq(0,after(%q0,/));th setq(1,after(%q1,:));th setq(3,before(%q2,=));th setq(4,after(%q2,=))};@include %!/CMD_%0_INITCMD;@if !strlen(%qa)={th setq(a,%0)};@if strlen(%q0)={@assert/inline strlen(setr(6,u(CHECK_SWITCH,%qa,%q0)))={@pemit %#=Invalid switch for %0! Your choices are: [iter(%q5,%i0,|,\,%b)]}},{th setq(6,NOSWITCH)};@include/override/clearregs %!/CMD_%qa_SWITCH_%q6=%0,%q6,%q1,%q3,%q4,%q2,%qb,%qc,%qd
+
+&REG_CMDPARSE #vol_command_parent=(?P<switch>\/[a-zA-Z0-9]+)?(?P<mode>\:[a-zA-Z0-9]+)?(?: +(?P<args>.*)?)?
+
+&VAL_EMAIL #vol_command_parent=th u(setq,value,trim(%0));@check strlen(%q<value>)=@attach %!/INC`MSG=ERROR: Nothing entered!;@check lte(strlen(%q<value>),255)=@attach %!/INC`MSG=ERROR: Emails must be 255 characters or less.;@stop strmatch(%q<value>,* *)=@attach %!/INC`MSG=ERROR: Email addresses may not contain spaces.;@check strmatch(%q<value>,*@*.*)=@attach %!/INC`MSG=ERROR: An Email must be in the format: *@*.* (example@game.com).
+&VAL_COLOR #vol_command_parent=@stop strmatch(ansi(u(setr,value,%0),Test),#-*)=@attach %!/INC`MSG=ERROR: '%0' is not a valid color.
+&VAL_WORD #vol_command_parent=th u(setq,value,trim(%0))
+&VAL_LIST #vol_command_parent=th u(setq,value,trim(%0))
+&VAL_BOOL #vol_command_parent=@check match(0 1,u(setr,value,%0))=@attach %!/INC`MSG={ERROR: BOOL options can only be 0 (false) or 1 (true).}
+&VAL_DBREF #vol_command_parent=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th u(setq,value,objid(%0))
+&VAL_TZ #vol_command_parent=@check valid(timezone,u(setr,value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone}
+&VAL_DURATION #vol_command_parent=@check u(setr,value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()}
+&VAL_POSINT #vol_command_parent=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[u(strfirstof,%1,%0)]' must be a whole number 1 or greater.};th u(setq,value,%0)
+&VAL_INT #vol_command_parent=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th u(setq,value,%0)
+&VAL_LOCK #vol_command_parent=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th u(setq,value,%0)
+&VAL_TIME #vol_command_parent=@check strlen(%0)=@attach %!/INC`MSG=You didn't enter a date!;@check gt(u(setr,time,convtime(%0,u(gettz,%#))),0)=@attach %!/INC`MSG=The entered date was not recognized. Did you typo? Dates should be in abbreviated 24-hour <month> <day> <hour>:<minute> format using YOUR timezone\, such as Jun 26 7:00 or Oct 31 13:00.;
+&IVAL_FUTURE #vol_command_parent=@attach %!/INC`VALID`TIME;@check gt(%q<time>,secs())=@attach %!/INC`MSG=That would be in the past!
+&VAL_FACTION #vol_command_parent=
+
+&CNF_DISPLAY #vol_command_parent=
+
+&CNF_SET #vol_command_parent=
+
+&PRF_DISPLAY #vol_command_parent=
+
+&PRF_SET #vol_command_parent=

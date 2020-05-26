@@ -1,21 +1,23 @@
-@@ DEPENDENCIES - CORE
+@if !isdbref(tag(vol_help_system))={@tel setr(0,create(Codesuite Help System))=#vol_master_room;@set %q0=INHERIT SAFE SIDEFX;@tag/add vol_help_system=%q0;@parent %q0=#vol_command_parent}
 
-th u(NEWCOBJ,Help Management System <HELP>,help,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+@if !isdbref(tag(vol_help_help))={@tel setr(0,create(Help))=#vol_help_system;@set %q0=SAFE;@tag/add vol_help_help=%q0}
 
-&CMD`+HELP`PENNMUSH [u(cobj,help)]=$^(?s)(?\:\+)?(help|shelp|news)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:/(.+?))?(?\:=(.+?))?$:@attach %!/CMD`+HELP`MAIN
-@set [u(cobj,help)]/CMD`+HELP`PENNMUSH=regexp
-&CMD`+HELP`RHOSTMUSH [u(cobj,help)]=$^(?s)(?\:\+)?(help|shelp|news)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:/(.+?))?(?\:=(.+?))?$:@attach %!/CMD`+HELP`MAIN
-@set [u(cobj,help)]/CMD`+HELP`RHOSTMUSH=regexp
-&CMD`+HELP`MAIN [u(cobj,help)]=@attach %!/INC`GETSWITCH=%2;@attach %!/INC`INIT`%1;th u(setq,accid,u(strfirstof,u(accid,%#),%#));@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=trim(%3),trim(%4),trim(%5),trim(%6),%1
-@set [u(cobj,help)]/CMD`+HELP`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+&CMD_HELP #vol_help_system=$^\+rawr(\[\:\/ \]+?.*)?$:@include %!/PARSE_COMMAND=HELP,%1
+@set #vol_help_system/CMD_HELP=regexp
 
-&INC`INIT`HELP [u(cobj,help)]=th [u(setq,disp,mudname() Help Files)][u(setq,comm,+help)][u(setq,db,0)][u(setq,sysname,HELP)]
-&INC`INIT`SHELP [u(cobj,help)]=th [u(setq,disp,mudname() Staff Help Files)][u(setq,comm,+shelp)][u(setq,db,1)][u(setq,sysname,SHELP)];@check u(isadmin,%#)=@attach %!/INC`MSG=Permission Denied.
-&INC`INIT`NEWS [u(cobj,help)]=th [u(setq,disp,mudname() News Files)][u(setq,comm,+news)][u(setq,db,2)][u(setq,sysname,NEWS)]
+&CMD_SHELP #vol_help_system=$+shelp*:@include %!/PARSE_COMMAND=SHELP,%0
+&CMD_NEWS #vol_help_system=$+news*:@include %!/PARSE_COMMAND=NEWS,%0
 
-&SYSTEM`NAME [u(cobj,help)]=u(strfirstof,%q<sysname>,HELP)
-&SWITCHES`PLAYER [u(cobj,help)]=
-&SWITCHES`ADMIN [u(cobj,help)]=HELP|NEWCATEGORY|DELETECATEGORY|RENAMECATEGORY|CATEGORY|ADD|RENAME|DELETE|GET|ADDSUB|RENAMESUB|DELETESUB|VIEWCODE
+&CMD_HELP_INITCMD #vol_help_system=th setq(a,BASEHELP);th setq(b,tag(vol_help_help))
+&CMD_SHELP_INITCMD #vol_help_system=th setq(a,BASEHELP);th setq(b,tag(vol_help_shelp))
+&CMD_NEWS_INITCMD #vol_help_system=th setq(a,BASEHELP);th setq(b,tag(vol_help_news))
+
+&CMD_BASEHELP_SWITCHES_ADMIN #vol_help_system=HELP|CREATECATEGORY|DELETECATEGORY|RENAMECATEGORY|CATEGORY|ADD|RENAME|DELETE|GET|ADDSUB|RENAMESUB|DELETESUB|VIEWCODE
+
+&CMD_BASEHELP_SWITCH_NOSWITCH #vol_help_system=@pemit %#=[ansi(hr,HOORAY PARSING WORKS!)]: %0 - %1 - %2 - %3 - %4 - %5 - %6 - %7 -%8 - %9
+
+&CMD_BASEHELP_SWITCH_CREATECATEGORY #vol_help_system=@assert/inline gte(bittype(%#),5)={@pemit %#=Permission Denied.};@assert/inline isobjid(setr(z,u(#vol_object_management/CREATE_HELPCATEGORY,%3,%6)))={@pemit %#=An error Occured: %qz}
+
 
 &INC`NEWCATEGORY [u(cobj,help)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Must enter a Category name.;@check u(setr,cat_id,u(call`2,volp_help_category,0,%q<db>,'[sqlescape(%0)]'))=@attach %!/INC`MSG=ERROR: %q<cat_id>;@attach %!/INC`MSG`CHAN=New Category: %0
 

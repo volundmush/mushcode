@@ -1,0 +1,105 @@
+@if !isdbref(tag(vol_object_management))={@tel setr(0,create(Codesuite Object Management))=#vol_code_storage;@set %q0=INHERIT SIDEFX SAFE;@tag/add vol_object_management=%q0}
+@DESCRIBE #vol_object_management=This is Code Wizard territory. No touching!
+
+&VFUN_SETOBJID #vol_object_management=set(%0,%1:[vol_sortmode(vol_filtermode(setunion(get(%0/%1),%2),objid),namei)])
+
+&VALIDATE_BASIC_NAME #vol_object_management=if(!strlen(%0),v(ERR_NONAME),if(!valid(name,%0),v(ERR_INVALIDTHINGNAME),if(!regmatchi(%0,v(REG_SIMPLENAME)),u(ERR_NAMECANNOTCONTAIN,%1),if(isobjid(vol_namegrabexact(%2,%0)),u(ERR_NAMEINUSE,%1),1))))
+
+&REG_SIMPLENAME #vol_object_management=^(?P<name>[\w .\-]+)$
+
+&FUN_NAMEGRABEXACT #vol_object_management=privatize(1,[null(iter(vol_filtermode(%0,objid),if(strmatch(name(%i0),%1),setr(z,%i0)[ibreak(0)])))][if(isobjid(%qz),%qz,v(ERR_NAMENOTFOUND))])
+
+&FUN_NAMEGRABSTARTS #vol_object_management=privatize(1,if(words(setr(y,vol_filtermode(vol_sortmode(vol_filtermode(%0,objid),namelen),namestartswith,%b,%b,%1))),%qy,v(ERR_NAMENOTFOUND)))
+
+&FUN_NAMEGRABCONTAINS #vol_object_management=privatize(1,if(words(setr(y,vol_filtermode(vol_sortmode(vol_filtermode(%0,objid),namelen),namecontains,%b,%b,%1))),%qy,v(ERR_NAMENOTFOUND)))
+
+&FUN_NAMEGRABEXACTFIRST #vol_object_management=privatize(1,[null(iter(setr(y,vol_filtermode(%0,objid)),if(strmatch(name(%i0),%1),setr(z,%i0)[ibreak(0)])))][if(isobjid(%qz),%qz,[null(iter(vol_sortmode(%qy,namelen),if(strmatch(name(%i0),%1*),setr(z,%i0)[ibreak(0)])))][if(isobjid(%qz),%qz,v(ERR_NAMENOTFOUND))])])
+
+&ERR_NONAME #vol_object_management=#-1 NO NAME PROVIDED
+&ERR_NAMEINUSE #vol_object_management=#-1 %0 NAME ALREADY IN USE
+&ERR_INVALIDTHINGNAME #vol_object_management=#-1 INVALID NAME FOR A THING OBJECT
+&ERR_NAMENOTFOUND #vol_object_management=#-1 NAME NOT FOUND
+&ERR_NAMECANNOTCONTAIN #vol_object_management=#-1 %0 NAMES ALLOW ONLY ALPHANUMERIC AND _ . -
+
+&STARTUP #vol_object_management=@dolist/inline lattr(%!/FUN_*)={@function/privilege vol_[after(%d0,_)]=%!/%d0}
+
+@@ ACCOUNT Section
+
+@if !isdbref(tag(vol_account_owner))={@tel setr(0,create(Account Owner,boogaloo,p))=#vol_object_management;@set %q0=SAFE FREE NO_CONNECT !WANDERER SIDEFX;@power %q0=FREE_QUOTA;@quota %q0=1000;@tag/add vol_account_owner=%q0}
+@DESCRIBE #vol_account_owner=This is Code Wizard territory. No touching!
+
+@@ This should contain the steps needed to create an Account.
+&CREATE_ACCOUNT #vol_object_management=if(!setr(z,u(CREATE_ACCOUNT_VALIDATE,%0,%1)),%qz,u(CREATE_ACCOUNT_PROCEDURE,%0,%1))
+
+&CREATE_ACCOUNT_VALIDATE #vol_object_management=if(!setr(z,u(CREATE_ACCOUNT_VAL_NAME,%0)),%qz,if(!setr(z,u(CREATE_ACCOUNT_VAL_PASSWORD,%1)),%qz,1))
+
+if(isobjid(vol_namegrabexact,get(#vol_account_owner/ACCOUNTS),%0),#-1 ACCOUNT NAME ALREADY IN USE,1)
+
+&CREATE_ACCOUNT_VAL_NAME #vol_object_management=u(VALIDATE_BASIC_NAME,%0,ACCOUNT,get(#vol_account_owner/ACCOUNTS))
+&CREATE_ACCOUNT_VAL_PASSWORD #vol_object_management=if(!strlen(%0),#-1 MISSING PASSWORD FIELD,if(!valid(password,%0),#-1 PASSWORD CANNOT BE HASHED,1))
+
+@@ By the time this is called for, we should be fairly certain that it ain't gonna explode on us.
+&CREATE_ACCOUNT_PROCEDURE #vol_object_management=if(!isdbref(setr(z,objeval(#vol_account_owner,create(%0,,t)))),%qz,%qz[null(totemset(%az,ACCOUNT)[attrpass(%qz/_PASSWORD,%1,SET)][tel(%qz,#vol_account_owner)][parent(%qz,#vol_global_account)])][u(VFUN_SETOBJID,tag(vol_account_owner),ACCOUNTS,%qz)])
+
+
+
+@@ CHARACTER Section
+
+@@ %0 Character name: str, %1 Character account objid
+&CREATE_CHARACTER #vol_object_management=if(!isetr(z,u(CREATE_CHARACTER_VALIDATE,%0,%1)),%qz,u(CREATE_CHARACTER_PROCEDURE,%0,%1))
+
+&CREATE_CHARACTER_VALIDATE #vol_object_management=if(!setr(z,u(CREATE_CHARACTER_VAL_NAME,%0)),%qz,if(!setr(z,CREATE_CHARACTER_VAL_ACCOUNT,%1),%qz,1))
+
+&CREATE_CHARACTER_VAL_NAME #vol_object_management=if(!strlen(%0),#-1 MISSING NAME FIELD,if(valid(playername,%0),#-1 NOT A GOOD CHARACTER NAME OR NAME CONFLICT,1))
+
+&CREATE_CHARACTER_VAL_ACCOUNT #vol_object_management=if(!isobjid(%0),#-1 ACCOUNT DOES NOT EXIST,if(!hastotem(%0,ACCOUNT),#-1 PROVIDED OBJID IS NOT AN ACCOUNT),1)
+
+&CREATE_CHARACTER_PROCEDURE #vol_object_management=if(!isobjid(setr(z,create(%0,digest(md5,scramble(boogaloo[secs()]%1)),p))),%qz,setr(z,objid(%qz))[null(totemset(%az,CHARACTER)[set(%qz,_ACCOUNT:%1)][u(VFUN_SETOBJID,%1,CHARACTERS,%qz)])])
+
+
+@@ FACTION Section
+@if !isdbref(tag(vol_faction_holder))={@tel setr(0,create(Faction Holder))=#vol_object_management;@set %q0=SAFE;@tag/add vol_faction_holder=%q0}
+
+&CREATE_FACTION #vol_object_management=if(!setr(z,u(CREATE_FACTION_VALIDATE,%0)),%qz,u(CREATE_FACTION_PROCEDURE,%0))
+
+&CREATE_FACTION_VALIDATE #vol_object_management=if(!setr(z,u(CREATE_FACTION_VAL_NAME,%0)),%qz,1)
+
+&CREATE_FACTION_VAL_NAME #vol_object_management=u(VALIDATE_BASIC_NAME,%0,FACTION,get(#vol_faction_holder/FACTIONS))
+
+&CREATE_FACTION_PROCEDURE #vol_object_management=if(!isdbref(setr(z,create(%0))),%qz,setr(z,objid(%qz))[null(totemset(%az,FACTION)[parent(%qz,#vol_faction_parent)][tel(%qz,#vol_faction_holder)])][u(VFUN_SETOBJID,tag(vol_faction_holder),FACTIONS,%qz)])
+
+@@ THEME Section
+@if !isdbref(tag(vol_theme_holder))={@tel setr(0,create(Theme Holder))=#vol_object_management;@set %q0=SAFE;@tag/add vol_theme_holder=%q0}
+
+&CREATE_THEME #vol_object_management=if(!setr(z,u(CREATE_FACTION_VALIDATE,%0)),%qz,u(CREATE_FACTION_PROCEDURE,%0))
+
+&CREATE_THEME_VALIDATE #vol_object_management=if(!setr(z,u(CREATE_THEME_VAL_NAME,%0)),%qz,1)
+
+&CREATE_THEME_VAL_NAME #vol_object_management=u(VALIDATE_BASIC_NAME,%0,THEME,get(#vol_theme_holder/THEMES))
+
+&CREATE_THEME_PROCEDURE #vol_object_management=if(!isdbref(setr(z,create(%0))),%qz,setr(z,objid(%qz))[null(totemset(%az,THEME)[tel(%qz,#vol_theme_holder)])][u(VFUN_SETOBJID,tag(vol_theme_holder),THEMES,%qz)])
+
+@@ HELP SYSTEM
+&CREATE_HELPCATEGORY #vol_object_management=if(!setr(z,u(CREATE_HELPCATEGORY_VALIDATE,%0,%1)),%qz,u(CREATE_HELPCATEGORY_PROCEDURE,%0,%1))
+
+&CREATE_HELPCATEGORY_VALIDATE #vol_object_management=if(!setr(z,u(CREATE_HELPCATEGORY_VAL_NAME,%0,%1)),%qz,1)
+
+&CREATE_HELPCATEGORY_VAL_NAME #vol_object_management=u(VALIDATE_BASIC_NAME,%0,HELPCATEGORY,get(%1/CATEGORIES))
+
+&CREATE_HELPCATEGORY_PROCEDURE #vol_object_management=if(!isdbref(setr(z,create(%0))),%qz,setr(z,objid(%qz))[null([tel(%qz,%1)][u(VFUN_SETOBJID,%1,CATEGORIES,%qz)][set(%qz,ROOT:[objid(%1)])][set(%qz,DESCRIBE:This is code Wizard Territory. No Touching!)][set(%qz,HELPTYPE:0)])])
+
+&CREATE_HELPFILE #vol_object_management=if(!setr(z,u(CREATE_HELPFILE_VALIDATE,%0,%1)),%qz,u(CREATE_HELPFILE_PROCEDURE,%0,%1))
+
+&CREATE_HELPFILE_VALIDATE #vol_object_management=if(!setr(z,u(CREATE_HELPFILE_VAL_NAME,%0,%1)),%qz,1)
+
+&CREATE_HELPFILE_VAL_NAME #vol_object_management=u(VALIDATE_BASIC_NAME,%0,HELPFILE,get(get(%1/ROOT)/HELPFILES))
+
+&CREATE_HELPFILE_PROCEDURE #vol_object_management=if(!isdbref(setr(z,create(%0))),%qz,setr(z,objid(%qz))[null([tel(%qz,%1)][u(VFUN_SETOBJID,%1,HELPFILES,%qz)][u(VFUN_SETOBJID,get(%1/ROOT),HELPFILES,%qz)][u(VFUN_SETOBJID,get(%1/ROOT),ALLHELPFILES,%qz)][set(%qz,CATEGORY:[objid(%1)])][set(%qz,DESCRIBE:This is Code Wizard Territory. No Touching!)][set(%qz,HELPTYPE:1)][set(%qz,ROOT:[objid(get(%1/ROOT))])])])
+
+&CREATE_HELPSUBFILE #vol_object_management=if(!setr(z,u(CREATE_HELPSUBFILE_VALIDATE,%0,%1)),%qz,u(CREATE_HELPSUBFILE_PROCEDURE,%0,%1))
+
+&CREATE_HELPSUBFILE_VALIDATE #vol_object_management=if(!setr(z,u(CREATE_HELPSUBFILE_VAL_NAME,%0,%1)),%qz,1)
+
+&CREATE_HELPSUBFILE_VAL_NAME #vol_object_management=u(VALIDATE_BASIC_NAME,%0,HELPSUBFILE,get(%1/SUBFILES))
+
+&CREATE_HELPSUBFILE_PROCEDURE #vol_object_management=if(!isdbref(setr(z,create(%0))),%qz,setr(z,objid(%qz))[null([tel(%qz,%1)][u(VFUN_SETOBJID,%1,SUBFILES,%qz)][u(VFUN_SETOBJID,get(%1/ROOT),ALLHELPFILES,%qz)][set(%qz,CATEGORY:[get(%1/CATEGORY)])][set(%qz,DESCRIBE:This is Code Wizard Territory. No Touching!)][set(%qz,HELPTYPE:2)])])
