@@ -156,10 +156,16 @@
 &IVAL_FUTURE #vol_command_parent=@attach %!/INC`VALID`TIME;@check gt(%q<time>,secs())=@attach %!/INC`MSG=That would be in the past!
 &VAL_FACTION #vol_command_parent=
 
-&CNF_DISPLAY #vol_command_parent=
 
+&CNF_DISPLAY #vol_command_parent=
 &CNF_SET #vol_command_parent=
 
-&PRF_DISPLAY #vol_command_parent=
+@@ The following should contain a |-delimited list of options. No spaces allowed. Must be
+@@ valid attribute names.
+&CONFIG_OPTIONS #vol_command_parent=
 
+
+
+
+&PRF_DISPLAY #vol_command_parent=
 &PRF_SET #vol_command_parent=
