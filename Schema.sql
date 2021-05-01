@@ -635,7 +635,7 @@ CREATE OR REPLACE VIEW volv_group_rankgroups AS
 	ORDER BY group_name,group_rank_number;
 
 CREATE OR REPLACE VIEW volv_group_member_tiers AS
-	SELECT m.character_id,m.character_objid,m.character_name,m.group_tier,t.tier_name,GROUP_CONCAT(m.group_objid ORDER BY m.group_name ASC SEPARATOR ' ') AS group_objids,m.group_is_private AS group_is_private
+	SELECT m.character_id,m.character_objid,m.character_name,m.group_tier,MAX(t.tier_name) as tier_name,GROUP_CONCAT(m.group_objid ORDER BY m.group_name ASC SEPARATOR ' ') AS group_objids,m.group_is_private AS group_is_private
 	FROM volv_group_member AS m LEFT JOIN vol_group_tier AS t ON t.group_tier=m.group_tier
 	WHERE group_objid IS NOT NULL
 	GROUP BY m.character_id,m.group_tier,m.group_is_private
@@ -1086,7 +1086,7 @@ CREATE OR REPLACE VIEW volv_actor AS
 	SELECT a.scene_id,a.actor_id,c.character_id,c.character_name,c.character_objid,a.actor_type,a.actor_status,a.action_count FROM vol_actor AS a LEFT JOIN volv_character AS c ON c.character_id=a.character_id;
 
 CREATE OR REPLACE VIEW volv_scene AS
-	SELECT s.scene_id,s.scene_title,s.scene_pitch,s.scene_outcome,s.post_id,s.scene_date_created,UNIX_TIMESTAMP(s.scene_date_created) AS scene_date_created_secs,s.scene_date_scheduled,UNIX_TIMESTAMP(s.scene_date_scheduled) AS scene_date_scheduled_secs,s.scene_date_started,UNIX_TIMESTAMP(s.scene_date_started) AS scene_date_started_secs,s.scene_date_finished,UNIX_TIMESTAMP(s.scene_date_finished) AS scene_date_finished_secs,s.scene_status,s.scene_log_ooc,a.character_id AS runner_id,a.character_name AS runner_name,a.character_objid AS runner_objid,s.scene_max_tags as scene_max_tags
+	SELECT s.scene_id,s.scene_title,s.scene_title_ansi,s.scene_pitch,s.scene_outcome,s.post_id,s.scene_date_created,UNIX_TIMESTAMP(s.scene_date_created) AS scene_date_created_secs,s.scene_date_scheduled,UNIX_TIMESTAMP(s.scene_date_scheduled) AS scene_date_scheduled_secs,s.scene_date_started,UNIX_TIMESTAMP(s.scene_date_started) AS scene_date_started_secs,s.scene_date_finished,UNIX_TIMESTAMP(s.scene_date_finished) AS scene_date_finished_secs,s.scene_status,s.scene_log_ooc,a.character_id AS runner_id,a.character_name AS runner_name,a.character_objid AS runner_objid,s.scene_max_tags as scene_max_tags
 	FROM vol_scene AS s LEFT JOIN volv_actor AS a ON s.scene_id=a.scene_id AND a.actor_type=2
 	ORDER BY s.scene_id;
 	
@@ -1118,7 +1118,7 @@ CREATE TABLE IF NOT EXISTS vol_action (
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_action AS
-	SELECT a.action_id,ac.actor_id,ac.scene_id,ac.character_id,ac.character_name,ac.character_objid,ac.actor_type,a.source_id,sc.source_objid,sc.source_vr,sc.source_name,sc.source_type,a.action_type,a.action_date_created,UNIX_TIMESTAMP(a.action_date_created) AS action_date_created_secs,a.action_is_deleted,a.action_text
+	SELECT a.action_id,ac.actor_id,ac.scene_id,ac.character_id,ac.character_name,ac.character_objid,ac.actor_type,a.source_id,sc.source_objid,sc.source_vr,sc.source_name,sc.source_type,a.action_type,a.action_date_created,UNIX_TIMESTAMP(a.action_date_created) AS action_date_created_secs,a.action_is_deleted,a.action_text,a.action_text_render
 	FROM vol_action AS a LEFT JOIN volv_actor AS ac ON a.actor_id=ac.actor_id LEFT JOIN vol_action_source AS sc ON a.source_id=sc.source_id
 	ORDER BY ac.scene_id,a.action_date_created;
 

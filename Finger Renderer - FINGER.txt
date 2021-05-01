@@ -49,7 +49,7 @@ th u(NEWCOBJ,Finger <FINGER>,finger,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 &CONFIG`RIGHT_COLUMN`VALID [u(cobj,finger)]=LIST
 
 &CONFIG`BOTTOM_COLUMN [u(cobj,finger)]=Finger definition for vertical column. Below the right/left split. See +help dynamicdata.
-&CONFIG`BOTTOM_COLUMN`DEFAULT [u(cobj,finger)]=GROUPNAMES2~Groups|QUOTE~Quote|PROFILE~Profile|SKILLS~Skills|WIKI~Wiki
+&CONFIG`BOTTOM_COLUMN`DEFAULT [u(cobj,finger)]=GROUPNAMES~Groups|QUOTE~Quote|PROFILE~Profile|SKILLS~Skills|WIKI~Wiki
 &CONFIG`BOTTOM_COLUMN`VALID [u(cobj,finger)]=LIST
 
 &CONFIG`PLAYER_FIELDS [u(Cobj,finger)]=Fields settable by Players at any time.

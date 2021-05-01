@@ -278,7 +278,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &GRP`GADMIN`SET`IC [u(cobj,group)]=@attach %!/GRP`GADMIN`SET`OOC;
 &GRP`GADMIN`SET`CHANNELRANK [u(cobj,group)]=@attach %!/GRP`GADMIN`SET`OOC;
 &GRP`GADMIN`SET`NOREPORT [u(cobj,group)]=@attach %!/GRP`GADMIN`SET`OOC;
-&GRP`GADMIN`SET`PRIVATE [u(cobj,group)]=@attach %!/GRP`GADMIN`SET`OOC;@attach %!/INC`DOSQL=SET`PRIVATE,%q<value>,get(%q<g1>/D`ID);@dolist/inline get(%q<g1>/MEMBERS)={@attach %!/INC`CODE`REBUILDMEMBERCACHE=##}
+&GRP`GADMIN`SET`PRIVATE [u(cobj,group)]=@attach %!/GRP`GADMIN`SET`OOC;@attach %!/INC`DOSQL=SET`PRIVATE,%q<value>,get(%q<g1>/D`ID);@dolist/inline get(%q<g1>/MEMBERS)={@attach %!/GRP`CACHE`TIERS=##}
 &GRP`GADMIN`SET`OOC [u(cobj,group)]=@attach %!/INC`VALID`BOOL=%1,%q<option>;&SET`%q<option> %q<g1>=%q<value>
 
 &GRP`GADMIN`SET`COMMAND [u(cobj,group)]=@attach %!/INC`VALID`POSINT=%1,%q<option>;&SET`%q<option> %q<g1>=%q<value>;@attach %!/GRP`CACHE`MEMBERS=%q<g1>
@@ -294,7 +294,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &GRP`GADMIN`SET`LETTER [u(cobj,group)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: %q<option> must have content!;&SET`LETTER %q<g1>=u(setr,value,%1)
 &GRP`GADMIN`SET`CHANNELS [u(cobj,group)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: %q<option> must have content!;&SET`CHANNELS %q<g1>=u(setr,value,%1)
 
-&GRP`GADMIN`SET`TIER [u(cobj,group)]=@check cand(isint(u(setr,value,%1)),gte(%q<value>,0))=@attach %!/INC`MSG=ERROR: %q<option> must be a positive integer 0 or greater.;&SET`%q<option> %q<g1>=%q<value>;@attach %!/INC`DOSQL=SET`TIER,%q<value>,%q<g1id>;@dolist/inline get(%q<g1>/MEMBERS)={@attach %!/INC`CODE`REBUILDMEMBERCACHE=##}
+&GRP`GADMIN`SET`TIER [u(cobj,group)]=@check cand(isint(u(setr,value,%1)),gte(%q<value>,0))=@attach %!/INC`MSG=ERROR: %q<option> must be a positive integer 0 or greater.;&SET`%q<option> %q<g1>=%q<value>;@attach %!/INC`DOSQL=SET`TIER,%q<value>,%q<g1id>;@dolist/inline get(%q<g1>/MEMBERS)={@attach %!/GRP`CACHE`TIERS=##}
 
 &Q`SET`TIER [u(cobj,group)]=UPDATE vol_group SET group_tier=? WHERE group_id=?
 

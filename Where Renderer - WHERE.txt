@@ -6,14 +6,14 @@ th u(NEWCOBJ,Where Renderer <WHERE>,where,,,,WIZARD SAFE !NO_COMMAND,INHERIT SID
 @set [u(cobj,where)]/CMD`+WHERE`PENNMUSH=regexp
 &CMD`+WHERE`RHOSTMUSH [u(cobj,where)]=$^(?s)(?\:\+)?where(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+WHERE`MAIN
 @set [u(cobj,where)]/CMD`+WHERE`RHOSTMUSH=regexp
-&CMD`+WHERE`MAIN [u(cobj,where)]=@attach %!/INC`GETSWITCH=%1;th u(setq,portable,u(u(cobj,grid)/FUN`LISTROOMS));@attach %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
+&CMD`+WHERE`MAIN [u(cobj,where)]=@attach %!/INC`GETSWITCH=%1;th u(setq,portable,u(u(cobj,grid)/FUN`LISTROOMS));@attach %!/INC`[u(strfirstof,%q<switch>,u(conf,RENDERER))]=%2,%3
 @set [u(cobj,where)]/CMD`+WHERE`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &SYSTEM`NAME [u(Cobj,where)]=WHERE
 
 &SWITCHES`ADMIn [u(Cobj,where)]=CONFIG
 
-&CONFIG`OPTIONS [u(cobj,where)]=HEADER|COLUMNS
+&CONFIG`OPTIONS [u(cobj,where)]=HEADER|COLUMNS|RENDERER
 
 &CONFIG`HEADER [u(cobj,where)]=See +help DynamicData. Used for +where <player>
 &CONFIG`HEADER`DEFAULT [u(cobj,where)]=Name~20|Alias~11|Fac~3|Idle~4|Conn~4|G~1|Location~29
@@ -23,11 +23,17 @@ th u(NEWCOBJ,Where Renderer <WHERE>,where,,,,WIZARD SAFE !NO_COMMAND,INHERIT SID
 &CONFIG`COLUMNS`DEFAULT [u(cobj,where)]=NAMELINK~20|ALIAS~11|FACABBR~3|HIDEIDLE~>4|HIDECONN~>4|SEX/1~1|LOCATION/1~29
 &CONFIG`COLUMNS`VALID [u(cobj,where)]=GETTABLE
 
+&CONFIG`RENDERER [u(cobj,where)]=Use alternate rendering rules instead of INC`MAIN. This will call INC`THAT
+&CONFIG`RENDERER`DEFAULT [u(cobj,where)]=MAIN
+&CONFIG`RENDERER`VALID [u(cobj,where)]=WORD
+
 &INC`ROOMS [u(cobj,where)]=@attach %!/INC`MAIN=%0,1
 
 &INC`MAIN [u(cobj,where)]=@select/inline strlen(%0)=0,{@attach %!/INC`ALL},{@attach %!/INC`PLAYER}
 
-&INC`ALL [u(cobj,where)]=@pemit %#=u(HEADER,Where);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(25 1 [sub(u(width,%#),33)],Location,,Players));th u(setq,showic,0);th u(setq,showooc,0);th u(setq,ooc,u(filter,NOTIC,u(setr,where,u(sortname,setunion(iter(u(filter,FINDABLE,u(lwho,%#),%b,%b,%#),loc(%i0)),)))));th u(setq,ic,u(filter,IC,%q<where>));th u(setq,firstic,first(%q<ic>));th u(setq,firstooc,first(%q<ooc>));@dolist cat(%q<ooc>,%q<ic>)={@select/inline %i0=%q<firstic>,{@pemit %#=u(separator,IC)},%q<firstooc>,{@pemit %#=u(separator,OOC)};@select/inline gt(words(u(setr,show,u(filter,FINDABLE,u(lvplayers,##),%B,%B,%#))),0)=1,{@pemit %#=u(FUN`WHERELINE%1,##,%q<show>)};@select/inline eq(#@,words(%q<where>))=1,{@pemit %#=u(FOOTER)}}
+&INC`SORTIC [u(cobj,where)]=th u(setq,showic,0);th u(setq,showooc,0);th u(setq,ooc,u(filter,NOTIC,u(setr,where,u(sortname,setunion(iter(u(filter,FINDABLE,u(lwho,%#),%b,%b,%#),loc(%i0)),)))));th u(setq,ic,u(filter,IC,%q<where>));th u(setq,firstic,first(%q<ic>));th u(setq,firstooc,first(%q<ooc>))
+
+&INC`ALL [u(cobj,where)]=@pemit %#=u(HEADER,Where);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(25 1 [sub(u(width,%#),33)],Location,,Players));@attach %!/INC`SORTIC;@dolist cat(%q<ooc>,%q<ic>)={@select/inline %i0=%q<firstic>,{@pemit %#=u(separator,IC)},%q<firstooc>,{@pemit %#=u(separator,OOC)};@select/inline gt(words(u(setr,show,u(filter,FINDABLE,u(lvplayers,##),%B,%B,%#))),0)=1,{@pemit %#=u(FUN`WHERELINE%1,##,%q<show>)};@select/inline eq(#@,words(%q<where>))=1,{@pemit %#=u(FOOTER)}}
 
 &INC`PLAYER [u(cobj,where)]=@attach %!/INC`CHECKPC=%0,1;@check cand(conn(%q<t1>),not(u(ishidden,%q<t1>)))=@attach %!/INC`MSG=%q<t1name> is not online!;@check findable(%#,%q<t1>)=@attach %!/INC`MSG=%q<t1name> or their location is set UNFINDABLE.;@pemit %#=u(HEADER,%q<t1name> - Location: [if(match(%q<portable>,loc(%q<t1>)),u(pueblize,left(name(loc(%q<t1>)),sub(u(width,%#),49)),+port [loc(%q<t1>)]),left(name(loc(%q<t1>)),sub(u(width,%#),49)))]);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),u(columnline,u(conf,HEADER)));@pemit %#=u(separator);@dolist/inline u(filter,FINDABLE,u(sortname,setinter(u(lwho,%#),lcon(loc(%q<t1>)))),%B,%B,%#)={@pemit %#=u(playerline,##,u(conf,COLUMNS))};@pemit %#=u(subheader,if(not(strmatch(loc(%q<t1>),room(%q<t1>))),Room: [if(match(%q<portable>,room(%q<t1>)),u(pueblize,u(getmoniker,room(%q<t1>)),+port [room(%q<t1>)]),u(getmoniker,room(%q<t1>)))]))
 
@@ -45,6 +51,10 @@ th u(NEWCOBJ,Where Renderer <WHERE>,where,,,,WIZARD SAFE !NO_COMMAND,INHERIT SID
 @@ th u(newconf,CONFIG,WHERE,COLUMNS,NAMELINK~20|ALIAS~11|MAJORABBR~3|HIDEIDLE~>4|HIDECONN~>4|SEXLETTER~1|LOCATION~29,Check +shelp +who,LIST)
 
 &FUN`WHERELINE1 [u(cobj,where)]=align(30 1 [sub(u(width,%#),33)],if(match(%q<portable>,%0),pueblize(name(%0),+port %0),name(%0))[if(not(strmatch(%0,room(%0))),%R(IN [if(match(%q<portable>,room(%0)),u(pueblize,name(room(%0)),+port [room(%0)]),name(room(%0)))]))],ansi(u(color,%#,BORDER),-),u(itemize,iter(u(sortname,u(filter,FINDABLE,u(lvplayers,%0),%b,%b,%#)),u(pueblize,u(getmoniker,%i0),+finger [name(%i0)])[if(hasflag(%i0,UNFINDABLE),\(Unfindable\))],,|),|,and,\,))
+
+&INC`DISTRICTLINE [u(cobj,where)]=@pemit %#=u(separator,u(u(cobj,grid)/FUN`CHAIN,%0,2));@dolist/inline %1={@pemit %#=u(playerline,%i0,u(conf,COLUMNS))}
+
+&INC`DISTRICT [u(cobj,where)]=@pemit %#=u(HEADER,Where);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(25 1 [sub(u(width,%#),33)],Location,,Players));@attach %!/INC`SORTIC;@dolist cat(%q<ooc>,%q<ic>)={@select/inline %i0=%q<firstic>,{@pemit %#=u(subheader,IC)},%q<firstooc>,{@pemit %#=u(subheader,OOC)};@select/inline gt(words(u(setr,show,u(filter,FINDABLE,u(lvplayers,##),%B,%B,%#))),0)=1,{@attach %!/INC`DISTRICTLINE=##,%q<show>};@select/inline eq(#@,words(%q<where>))=1,{@pemit %#=u(FOOTER)}}
 
 
 &HLP`WHERE [u(cobj,where)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+where)] - Show all visible\, connected players by location.%R[ansi(h,+where <player>)] - See details about a specific player's location.)]

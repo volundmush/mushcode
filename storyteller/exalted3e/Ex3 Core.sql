@@ -1347,6 +1347,7 @@ VALUES
 	(407015,4,3007,"Thicker Than Stone"),
 	(407016,4,3007,"Unflagging Vengeance Meditation"),
 	(407017,4,3007,"The Mountain Still Stands"),
+	(407018,4,3007,"Moon-and-Earth Marriage"),
 	/* Dragon-Blooded Investigation */
 	(408000,4,3008,"Indisputable Physical Analysis Technique"),
 	(408001,4,3008,"Tampering-Detection Technique"),
