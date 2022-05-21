@@ -13,7 +13,6 @@
 
 &CHAR`SET`ESSENCE [u(cobj,data)]=@attach [u(cobj,data)]/DO`SET`ADVANTAGE=%0,Essence,%2;@attach %!/INC`MSG=u(setr,msg,ansi(hw,name(%0)) now has the %q<msg>);@attach %!/INC`MSG`CHAN=%q<msg>
 
-
 &CHAR`SET`CASTE [u(cobj,data)]=@attach %!/DO`SET`X_SPLAT=%0,%1,%2,%3,Caste;@attach [u(cobj,data)]/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0))'s [u(setr,have,Caste is now: [ansi(h,%q<find>)])])]},{Your %q<have>},{%q<msg>}
 
 &CHAR`SET`ASPECT [u(cobj,data)]=@attach %!/DO`SET`X_SPLAT=%0,%1,%2,%3,Aspect;@attach [u(cobj,data)]/DO`ANNOUNCE=%0,{[u(setr,msg,ansi(h,name(%0))'s [u(setr,have,Aspect is now: [ansi(h,%q<find>)])])]},{Your %q<have>},{%q<msg>}
@@ -35,7 +34,7 @@
 @@ Specialties
 &CHAR`SET`SPECIALTY [u(cobj,data)]=@attach %!/DO`SET`SPECIALTY=%0,%1,%2;@attach %!/INC`MSG=u(setr,msg,[ansi(h,name(%0))]'s [ansi(h,%q<stat_name>/%q<specialty_name>)] Specialty is now: [ansi(h,if(%q<value>,%q<value>,DELETED))]);@attach %!/INC`MSG`CHAN=%q<msg>
 
-&INC`VALID`SPECIALTY_NAME [u(cobj,data)]=@check strlen(u(setr,specialty_name,u(capnames,trim(squish(%0)))))=@attach %!/INC`MSG=ERROR: No specialty name entered!;@check regmatchi(%q<specialty_name>,^\(\\w+|%b\)+$)=@attach %!/INC`MSG=ERROR: Specialty names must be comprised purely of alphanumeric characters and spaces.;
+&INC`VALID`SPECIALTY_NAME [u(cobj,data)]=@check strlen(u(setr,specialty_name,u(capnames,squish(%0))))=@attach %!/INC`MSG=ERROR: No specialty name entered!;@check regmatchi(%q<specialty_name>,^\(\\w+|%b\)+$)=@attach %!/INC`MSG=ERROR: Specialty names must be comprised purely of alphanumeric characters and spaces.;
 
 &DO`VAL`SPECIALTY [u(cobj,data)]=@attach %!/DO`VAL`STAT=%0,before(%1,/),%2,Ability,3;@attach %!/INC`VALID`SPECIALTY_NAME=after(%1,/);
 &DO`SET`SPECIALTY [u(Cobj,data)]=@attach %!/DO`VAL`SPECIALTY;@attach %!/DO`VAL`VALUE;@select/inline %q<value>=0,{@check u(setr,p_spec_id,u(mysql,EXIST`SPECIALTY,%q<pers>,%q<stat_id>,%q<specialty_name>))=@attach %!/INC`MSG=ERROR: [name(%0)] does not have this Specialty.;@attach %!/INC`DOSQL=DELETE`SPECIALTY,%q<p_spec_id>;@attach %!/INC`MSG=You no longer have the [ansi(h,%q<stat_name>/%q<specialty_name>)] Specialty,%0},{@attach %!/INC`DOSQL=SET`SPECIALTY,%q<pers>,%q<stat_id>,%q<specialty_name>,%q<value>;@attach %!/INC`MSG=You now have the [ansi(h,%q<stat_name>/%q<specialty_name>)] Specialty rated at [ansi(h,%q<value>)],%0}

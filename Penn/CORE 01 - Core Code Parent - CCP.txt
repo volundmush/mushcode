@@ -174,7 +174,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &UNPRIV [u(cobj,ccp)]=localize(setq(unprivtext,%0)[objeval(u(cobj,ap),s(%q<unprivtext>))])
 
-&VALNUM [u(cobj,ccp)]=cand(isint(%0),gt(%0,0))
+&VALNUM [u(cobj,ccp)]=cand(isint(%0),gte(%0,%1))
 
 &WEBLINK [u(cobj,ccp)]=localize(if(strlen(%0),tagwrap(a,href="[render(setr(webfix,if(not(strmatch(%0,*://*)),http://%0,%0)),html)]",strfirstof(%1,%q<webfix>))))
 
@@ -338,7 +338,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &SQL`IN`NUMBER [u(cobj,ccp)]=iter(%0,%i0,%1,\,%b)
 &SQL`IN`STRING [u(cobj,ccp)]=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
 
-&SQL`FORMAT [u(cobj,ccp)]=localize(edit(edit(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,switch($0,!,%q<set>,[switch(%q<set>,NULL,NULL,SET_NULL,SET_NULL,'[sqlescape(%q<set>)]')]))),=NULL,%BIS NULL),=SET_NULL,=NULL))
+&SQL`FORMAT [u(cobj,ccp)]=localize(edit(edit(regeditalli(v(Q`%0),v(REG`SQL`ENTRY),if(isint(setr(set,v(setr(num,add(%q<num>,1))))),%q<set>,switch($0,!,if(isnum(%q<set>),%q<set>,sqlescape(%q<set>),[switch(%q<set>,NULL,NULL,SET_NULL,SET_NULL,'[sqlescape(%q<set>)]')]))),=NULL,%BIS NULL),=SET_NULL,=NULL))
 
 &INC`DOSQL [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(mysql,before(%0,/),%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),sql(SELECT last_insert_id\(\))))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck> - QUERY: %q<sqlformat>}
 
@@ -653,7 +653,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &INC`VALID`DBREF [u(cobj,ccp)]=@check isdbref(%0)=@attach %!/INC`MSG={ERROR: DBREF not found.};th setq(value,objid(%0));th u(setq,valueformat,name(%q<value>))
 &INC`VALID`TIMEZONE [u(cobj,ccp)]=@check valid(timezone,setr(value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone};th u(setq,valueformat,%q<value>)
 &INC`VALID`DURATION [u(cobj,ccp)]=@check setr(value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()};th u(setq,valueformat,etime(%q<value>))
-&INC`VALID`POSINT [u(cobj,ccp)]=@check u(valnum,%0)=@attach %!/INC`MSG={ERROR: '[strfirstof(%1,%0)]' must be a whole number 1 or greater.};th setq(value,%0);th u(setq,valueformat,%q<value>)
+&INC`VALID`POSINT [u(cobj,ccp)]=@check u(valnum,%0,%2)=@attach %!/INC`MSG={ERROR: '[strfirstof(%1,%0)]' must be a whole number %2 or greater.};th setq(value,%0);th u(setq,valueformat,%q<value>)
 &INC`VALID`POSNUM [u(cobj,ccp)]=@check gt(u(setr,value,%0),0)=@attach %!/INC`MSG=ERROR: '%0' must be a positive number.
 &INC`VALID`NUMBER [u(cobj,ccp)]=@check isnum(u(setr,value,%0))=@attach %!/INC`MSG=ERROR: '%0' must be a number.
 &INC`VALID`INT [u(cobj,ccp)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th setq(value,%0);th u(setq,valueformat,%q<value>)

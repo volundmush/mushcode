@@ -1046,7 +1046,7 @@ CREATE TABLE IF NOT EXISTS vol_scene (
 	scene_date_finished DATETIME NULL,
 	scene_status TINYINT DEFAULT 0,
 	scene_log_ooc BOOL NOT NULL DEFAULT FALSE,
-  scene_max_tags MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
+    scene_max_tags MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY(scene_id),
 	FOREIGN KEY(post_id) REFERENCES vol_bbpost(post_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	INDEX(scene_date_scheduled,scene_status),
