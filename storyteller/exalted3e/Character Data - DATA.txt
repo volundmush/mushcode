@@ -44,7 +44,7 @@
 
 
 @@ Native Charms
-&DO`VAL`CHARM [u(cobj,data)]=@check u(setr,persona_id,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No Persona available for [name(%0)]!;@check strlen(u(setr,template,u(mysql,GET`TEMPLATE_NAME,%q<persona_id>)))=@attach %!/INC`MSG=ERROR: Template code error. Contact coder.;@attach %!/DO`VAL`WORDPOWER=%0,%q<template>/%1,%2
+&DO`VAL`CHARM [u(cobj,data)]=@check u(setr,persona_id,get(%0/D`ID))=@attach %!/INC`MSG=ERROR: No Persona available for [name(%0)]!;@check strlen(u(setr,template,u(mysql,GET`TEMPLATE_NAME,%q<persona_id>)))=@attach %!/INC`MSG=ERROR: Template code error. Contact coder.;
 &DO`VAL`SORCERY [u(cobj,data)]=@attach %!/DO`VAL`WORDPOWER=%0,Sorcery/%1,%2
 
 &DO`ADD`CHARM [u(cobj,data)]=@attach %!/DO`VAL`CHARM;@attach %!/DO`ADD`WORDPOWER=%0,%q<template>/%1,%2,Charm

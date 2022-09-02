@@ -172,17 +172,28 @@ CREATE OR REPLACE VIEW volv_story_persona_merits_wordpowers AS
 CREATE OR REPLACE VIEW volv_story_persona_merits_wordpowers_categories AS
 	SELECT DISTINCT persona_id,persona_merit_id,merit_name,merit_context FROM volv_story_persona_merits_wordpowers;
 
+CREATE TABLE IF NOT EXISTS vol_story_wordpower_category (
+    wordpower_category_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    template_id TINYINT UNSIGNED NOT NULL,
+    stat_id INT UNSIGNED NOT NULL,
+    PRIMARY KEY(wordpower_category_id),
+    UNIQUE(template_id,stat_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
+
+CREATE OR REPLACE VIEW volv_story_wordpower_category AS
+    SELECT c.wordpower_category_id,t.template_id,t.template_name,t.template_sort,s.stat_id,s.stat_name FROM vol_story_wordpower_category AS c LEFT JOIN vol_story_templates AS t ON c.template_id=t.template_id LEFT JOIN vol_story_stats AS s ON c.stat_id=s.stat_id;
+
 CREATE TABLE IF NOT EXISTS vol_story_wordpower (
 	wordpower_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	template_id TINYINT UNSIGNED NOT NULL,
-	stat_id INT UNSIGNED NOT NULL,
+    wordpower_category_id INT UNSIGNED NOT NULL,
 	wordpower_name VARCHAR(80) NOT NULL,
+	creator_id INT UNSIGNED NULL,
 	PRIMARY KEY(wordpower_id),
 	UNIQUE(template_id,stat_id,wordpower_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci AUTO_INCREMENT=1;
 
 CREATE OR REPLACE VIEW volv_story_wordpower AS
-	SELECT w.wordpower_id,w.wordpower_name,w.template_id,t.template_name,t.template_sort,w.stat_id,s.stat_name FROM vol_story_wordpower AS w LEFT JOIN vol_story_templates AS t ON w.template_id=t.template_id LEFT JOIN vol_story_stats AS s ON w.stat_id=s.stat_id;
+	SELECT c.wordpower_category_id,w.wordpower_id,w.wordpower_name,c.template_id,c.template_name,c.template_sort,c.stat_id,c.stat_name FROM vol_story_wordpower AS w LEFT JOIN volv_story_wordpower_category AS c ON w.wordpower_category_id=c.wordpower_category_id;
 
 CREATE TABLE IF NOT EXISTS vol_story_persona_wordpower (
 	persona_id INT UNSIGNED NOT NULL,
