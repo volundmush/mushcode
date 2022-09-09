@@ -55,6 +55,7 @@ VALUES
 	(53,5,"Waning Moon"),
 	(54,5,"Waxing Moon"),
 	(55,5,"Half Moon"),
+	(56,5,"Casteless"),
 	
 	/* Sidereal X Splats */
 	(60,6,"Journeys"),
@@ -109,7 +110,10 @@ VALUES
 	(41,4,"House"),
 	
 	/* Full Moon Fields */
-	(50,5,"Totem")
+	(50,5,"Totem"),
+
+	/* Infernal Fields */
+	(90,9,"Shintai")
 ON DUPLICATE KEY UPDATE field_name=VALUES(field_name);
 	
 	
@@ -267,7 +271,8 @@ VALUES
 	(1,1,"Willpower","Temporary Willpower","Point","Points",0),
 	(2,1,"Personal","Personal Essence","Mote","Motes",5),
 	(3,1,"Peripheral","Peripheral Essence","Mote","Motes",10),
-	(4,2,"Limit","Limit","Point","Points",100);
+	(4,2,"Limit","Limit","Point","Points",100),
+	(5,2,"Resonance", "Resonance", "Point", "Points", 100);
 
 	
 INSERT INTO vol_story_xp

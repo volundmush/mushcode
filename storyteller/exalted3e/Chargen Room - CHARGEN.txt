@@ -40,7 +40,7 @@
 
 &CG`1`ABYSSAL [u(cobj,chargen)]=if(u(game_config,STORYTELLER,SHARDS_ABYSSALS),ansi(h,+doom <doom>) to set your Doom (Shards hack),ansi(h,+flawedvirtue <flaw>) to set your Flawed Virtue (MoEP: Abyssals))%R%R[ansi(h,+liege <name>)] to set your Liege (or Renegade)
 &CG`1`ALCHEMICAL [u(cobj,chargen)]=ansi(h,+nation <name>)] to set your Nation.
-&CG`1`INFERNAL [u(cobj,chargen)]=ansi(h,+yozi <name>) to set your Favored Yozi.%R%R[ansi(h,+urge <archetype>)] to set your Urge model.%R%R[ansi(h,+intimacy/urge <urge>)] to set its specifics.
+&CG`1`INFERNAL [u(cobj,chargen)]=ansi(h,+shintai <name>) to set your starting Shintai.
 
 &CG`1`RAKSHA [u(cobj,chargen)]=ansi(h,+lure <virtue and condition>)] to set your Lure.
 
@@ -55,7 +55,7 @@
 &Q`LIST`FIELDS [u(cobj,chargen)]=SELECT field_id FROM vol_story_fields WHERE template_id=?
 &Q`SET`PERSONA_FIELD [u(cobj,chargen)]=INSERT INTO vol_story_persona_field (persona_id,field_id,field_answer) VALUES (?,?,?) ON DUPLICATE KEY UPDATE field_answer=VALUES(field_answer)
 
-&CMD`INFOSET [u(cobj,chargen)]=$^\+(house|nation|totem)(?\: +(.+))?$:th u(setq,type,switch(%1,flawedvirtue,Flawed Virtue,virtueflaw,Virtue Flaw,doom,Doom,liege,Liege,lure,Lure,totem,Totem Animal,urge,Urge,house,House,yozi,Favored Yozi,nation,Nation));@check u(setr,persona_id,get(%#/D`ID))=@attach %!/INC`MSG=ERROR: No persona!;th u(setq,template_id,u(mysql,GET`TEMPLATE,%q<persona_id>));th u(setq,field_id,switch(%1,house,41,nation,40,totem,50));@check match(u(mysql,LIST`FIELDS,%q<template_id>),%q<field_id>)=@attach %!/INC`MSG=ERROR: Not a valid Field for your Template!;@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`DOSQL=SET`PERSONA_FIELD,%q<persona_id>,%q<field_id>,%2;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Template!
+&CMD`INFOSET [u(cobj,chargen)]=$^\+(house|nation|totem|shintai)(?\: +(.+))?$:th u(setq,type,switch(%1,flawedvirtue,Flawed Virtue,virtueflaw,Virtue Flaw,doom,Doom,liege,Liege,lure,Lure,totem,Totem Animal,urge,Urge,house,House,yozi,Favored Yozi,nation,Nation,Shintai,Shintai));@check u(setr,persona_id,get(%#/D`ID))=@attach %!/INC`MSG=ERROR: No persona!;th u(setq,template_id,u(mysql,GET`TEMPLATE,%q<persona_id>));th u(setq,field_id,switch(%1,house,41,nation,40,totem,50,shintai,90));@check match(u(mysql,LIST`FIELDS,%q<template_id>),%q<field_id>)=@attach %!/INC`MSG=ERROR: Not a valid Field for your Template!;@check strlen(%2)=@attach %!/INC`MSG=What will your %q<type> be?;@attach %!/INC`DOSQL=SET`PERSONA_FIELD,%q<persona_id>,%q<field_id>,%2;@attach %!/INC`MSG=Your %q<type> is now [ansi(h,%2)]. Make sure this is appropriate for your Template!
 @set [u(cobj,chargen)]/CMD`INFOSET=regexp
 
 &Q`LIST`STAT_NAMES [u(Cobj,chargen)]=SELECT stat_name FROM vol_story_stats WHERE stat_category_id=? ORDER BY stat_id
@@ -90,27 +90,34 @@
 @set [u(cobj,chargen)]/CMD`+FAVATTR=regexp
 
 
-&DAT`2`FAVORED`ADAMANT [u(cobj,chargen)]=Strength|Appearance|Perception
+
 &DAT`2`FAVORED`CHANGING MOON [u(cobj,chargen)]=Charisma|Manipulation|Appearance
-&DAT`2`FAVORED`FULL MOON [u(cobj,chargen)]=Strength|Dexterity|Stamina
-&DAT`2`FAVORED`HALF MOON [u(cobj,chargen)]=Charisma|Perception|Intelligence
+&DAT`2`FAVORED`FULL_MOON [u(cobj,chargen)]=Strength|Dexterity|Stamina
+&DAT`2`FAVORED`HALF_MOON [u(cobj,chargen)]=Charisma|Perception|Intelligence
+&DAT`2`FAVORED`NO_MOON [u(cobj,chargen)]=Perception|Intelligence|Wits
+&DAT`2`FAVORED`WANING_MOON [u(cobj,chargen)]=Dexterity|Manipulation|Wits
+&DAT`2`FAVORED`WAXING_MOON [u(cobj,chargen)]=Charisma|Manipulation|Appearance
+
+&DAT`2`FAVORED`ADAMANT [u(cobj,chargen)]=Strength|Appearance|Perception
 &DAT`2`FAVORED`JADE [u(cobj,chargen)]=Stamina|Charisma|Wits
 &DAT`2`FAVORED`MOONSILVER [u(cobj,chargen)]=Dexterity|Appearance|Wits
-&DAT`2`FAVORED`NO MOON [u(cobj,chargen)]=Perception|Intelligence|Wits
 &DAT`2`FAVORED`ORICHALCUM [u(cobj,chargen)]=Strength|Charisma|Intelligence
 &DAT`2`FAVORED`SOULSTEEL [u(cobj,chargen)]=Stamina|Manipulation|Perception
 &DAT`2`FAVORED`STARMETAL [u(cobj,chargen)]=Dexterity|Manipulation|Intelligence
-&DAT`2`FAVORED`WANING MOON [u(cobj,chargen)]=Dexterity|Manipulation|Wits
-&DAT`2`FAVORED`WAXING MOON [u(cobj,chargen)]=Charisma|Manipulation|Appearance
+
 
 &CG`3 [u(cobj,chargen)]=[u(SEPARATOR,Step 3: Abilities)]%R[if(and(strlen(%0),hasattr(me/CG`3`%0)),[u(CG`3`%0,%0,%1,%2)])]%R%RSetting any stat to 0 will remove it.
 
 &CG`3`MORTAL [u(cobj,chargen)]=Mortals receive 28 Ability points.%R%r[u(CG`3`ABILITY)]%R%r[u(CG`3`CRAFT)]%R%r[u(CG`3`STYLE)]
 &CG`3`SOLAR [u(cobj,chargen)]=Solars receive 5 Caste Abilities and 5 Favored Abilities.%RSolars may choose 1 Caste Ability as Supernal.%rSolars receive 28 ability points, minimum 10 among Caste and Favored Abilities, and receive 4 Specialty points.%R%R[u(CG`3`ABILITY)]%r%r[u(CG`3`CASTE)]%R%R[u(CG`3`FAVORED)]%R%r[u(CG`3`SUPERNAL)]%R%r[u(CG`3`CRAFT)]%R%r[u(CG`3`STYLE)]
 
-&CG`3`DRAGON-BLOODED [u(cobj,chargen)]=Dragon-Blooded receive 4 Aspect Abilities and 3 Favored Abilities.%Dragon-Blooded receive 28 ability points. Favored Abilities must have at least 1 dot. No ability may exceed 3 without spending Bonus Points. Choose 6 Specialties.%R%R[u(CG`3`ABILITY)]%R%R[u(CG`3`CASTE)]%R%R[u(CG`3`FAVORED)]%R%R[u(CG`3`CRAFT)]%R%R[u(CG`3`STYLE)]
+&CG`3`ABYSSAL [u(cobj,chargen)]=Abyssals note their 5 Caste Abilities, and choose 5 Favored Abilities.%r%tAbyssals receive 28 ability points, minimum 10 among caste and favored, and receive 4 Specialty points.%R%R[u(CG`3`ABILITY)]%r%r[u(CG`3`CASTE)]%R%R[u(CG`3`FAVORED)]%R%r[u(CG`3`CHTHONIC)]%R%r[u(CG`3`CRAFT)]%R%r[u(CG`3`STYLE)]
 
-&CG`3`LUNAR [u(cobj,chargen)]=Lunars always Favor Survival, and may choose one additional Favored Ability.%RLunars receive 28 ability points and 4 Specialties.%r%t%R%R[u(CG`3`ABILITY)]%R%R[u(CG`3`FAVORED)]%R%R[u(CG`3`CRAFT)]%R%R[u(CG`3`STYLE)]
+&CG`3`INFERNAL [u(cobj,chargen)]=Infernals receive their 5 Caste Abilities, and choose 5 Favored Abilities.%r%tInfernals receive 28 ability points, minimum 10 among caste and favored, and receive 4 Specialty points.%R%R[u(CG`3`ABILITY)]%r%r[u(CG`3`CASTE)]%R%R[u(CG`3`FAVORED)]%R%r[u(CG`3`CRAFT)]%R%r[u(CG`3`STYLE)]
+
+&CG`3`DRAGON-BLOODED [u(cobj,chargen)]=Dragon-Blooded receive 5 Aspect Abilities and 5 Favored Abilities.%RDragon-Blooded receive 28 ability points. Favored Abilities must have at least 1 dot. No ability may exceed 3 without spending Bonus Points. Choose 3 Specialties.%R%R[u(CG`3`ABILITY)]%R%R[u(CG`3`CASTE)]%R%R[u(CG`3`FAVORED)]%R%R[u(CG`3`CRAFT)]%R%R[u(CG`3`STYLE)]
+
+&CG`3`LUNAR [u(cobj,chargen)]=Lunars receive 28 ability points and 4 Specialties.%r%t%R%R[u(CG`3`ABILITY)]%R%R[u(CG`3`CRAFT)]%R%R[u(CG`3`STYLE)]
 
 &CG`3`ABILITY [u(cobj,chargen)]=%t[ansi(h,+abil <ability>=<value>)] to set an Ability (<Ability> may be a partial match, <value> must be a number 0 or higher.)%R%t[ansi(h,+spec <ability or attribute>/<specialization>=<points>)] to set a Specialty. (Set to 1, no higher.)%R%TYour Ability choices are: [u(itemize,u(mysql2,LIST`STAT_NAMES,3),|,and,\,)] \(Minus Martial Arts and Craft!\)
 
@@ -120,13 +127,11 @@
 
 &CG`3`SUPERNAL [u(cobj,chargen)]=%t[ansi(h,+supabil <Ability>)] to set an Ability as Supernal.%r%t[ansi(h,+unsupabil <ability>)] to unset a Supernal Ability.
 
+&CG`3`CHTHONIC [u(cobj,chargen)]=%t[ansi(h,+supabil <Ability>)] to set an Ability as Chthonic.%r%t[ansi(h,+unsupabil <ability>)] to unset a Chthonic Ability.
+
 &CG`3`STYLE [u(cobj,chargen)]=%T[ansi(h,+style <style>=<value>)] to set points in a Martial Arts style.%R%TYour Style choices are: [u(itemize,u(mysql2,LIST`STAT_NAMES,4),|,and,\,)]
 
 &CG`3`CRAFT [u(cobj,chargen)]=%T[ansi(h,+craft <field>=<value>)] to set points in various Crafts, such as Weaponry or Carpentry.%R%TYour Craft choices are: [u(itemize,u(mysql2,LIST`STAT_NAMES,5),|,and,\,)]%R%TIf you need to add a new one, use [ansi(h,+makecraft <new option>)] - it is wise to consult with admin before doing so. Typos are strongly frowned upon.
-
-&CG`3`ABYSSAL [u(cobj,chargen)]=Abyssals note their 5 Caste Abilities, and choose 5 Favored Abilities.%r%tAbyssals receive 28 ability points, minimum 10 among caste and favored, and receive 4 Specialty points.%r%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
-
-&CG`3`INFERNAL [u(cobj,chargen)]=Infernals receive their 5 Caste Abilities, and choose 5 Favored Abilities.%r%tInfernals receive 28 ability points, minimum 10 among caste and favored, and receive 4 Specialty points.%r%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
 
 &CG`3`ALCHEMICAL [u(cobj,chargen)]=Alchemicals receive 25 ability points and 4 Specialty points. In our House Rules they may also favor 3 Abilities.%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
 &CG`3`TERRESTRIAL [u(cobj,chargen)]=Terrestrial note their 5 Aspect Abilities, and choose 3 Favored Abilities.%r%tOutcastes receive 25 Ability Points, while Lookshy and Dynasts receive 35. All Terrestrial receive 4 Specialty points.%r%t[ansi(h,+heritage <Dynast/Lookshy/Outcaste>)] to set additional Ability info. A Dragon-Blood must have this many points in each heritage Ability.%r%r%t[ansi(h,+castefavored)] to set your Aspect Abilities.%r%t[ansi(h,+favabil <Ability>)] to set an Ability as Favored.%r%t[ansi(h,+unfavabil <ability>)] to unset a Favored Ability.
@@ -173,13 +178,18 @@
 &DAT`3`FAVORED`MOONSHADOW [u(cobj,chargen)]=BUREAUCRACY|LARCENY|LINGUISTICS|OCCULT|PRESENCE|RIDE|SAIL|SOCIALIZE
 
 &DAT`3`FAVORED`AIR [u(cobj,chargen)]=Linguistics|Lore|Occult|Stealth|Thrown
+&DAT`3`FAVORED`EARTH [u(cobj,chargen)]=Craft|Integrity|Resistance|War|Awareness
+&DAT`3`FAVORED`FIRE [u(cobj,chargen)]=Athletics|Dodge|Melee|Presence|Socialize
+&DAT`3`FAVORED`WATER [u(cobj,chargen)]=Bureaucracy|Investigation|Larceny|Martial Arts|Sail
+&DAT`3`FAVORED`WOOD [u(cobj,chargen)]=Archery|Medicine|Performance|Ride|Survival
+
 &DAT`3`FAVORED`ANKLOK [u(cobj,chargen)]=Resistance|Survival|War
 &DAT`3`FAVORED`BATTLES [u(cobj,chargen)]=Archery|Athletics|Melee|Presence|War
 &DAT`3`FAVORED`DEFILER [u(cobj,chargen)]=Craft|Investigation|Lore|Medicine|Occult
-&DAT`3`FAVORED`EARTH [u(cobj,chargen)]=Craft|Integrity|Resistance|War|Awareness
+
 &DAT`3`FAVORED`ENDINGS [u(cobj,chargen)]=Awareness|Bureaucracy|Integrity|Martial Arts|Medicine
 &DAT`3`FAVORED`FIEND [u(cobj,chargen)]=Bureaucracy|Linguistics|Ride|Sail|Socialize
-&DAT`3`FAVORED`FIRE [u(cobj,chargen)]=Athletics|Dodge|Melee|Presence|Socialize
+
 &DAT`3`FAVORED`JADE [u(cobj,chargen)]=Stamina|Charisma|Wits
 &DAT`3`FAVORED`JOURNEYS [u(cobj,chargen)]=Resistance|Ride|Sail|Survival|Thrown
 &DAT`3`FAVORED`MALEFACTOR [u(cobj,chargen)]=Integrity|Performance|Presence|Resistance|Survival
@@ -190,8 +200,7 @@
 &DAT`3`FAVORED`SECRETS [u(cobj,chargen)]=Investigation|Larceny|Lore|Occult|Stealth
 &DAT`3`FAVORED`SERENITY [u(cobj,chargen)]=Craft|Dodge|Linguistics|Performance|Socialize
 &DAT`3`FAVORED`SLAYER [u(cobj,chargen)]=Archery|Martial Arts|Melee|Thrown|War
-&DAT`3`FAVORED`WATER [u(cobj,chargen)]=Bureaucracy|Investigation|Larceny|Martial Arts|Sail
-&DAT`3`FAVORED`WOOD [u(cobj,chargen)]=Archery|Medicine|Performance|Ride|Survival
+
 
 &DAT`HERITAGE DYNAST [u(cobj,chargen)]=Archery~1|Lore~2|Martial Arts~1|Melee~1|Performance~1|Presence~1|Ride~1|Socialize~2|War~1
 &DAT`HERITAGE LOOKSHY [u(cobj,chargen)]=Archery~2|Linguistics~3|Lore~2|Martial Arts~2|Melee~2|Performance~1|Presence~1|Ride~1|Stealth~1|War~2
@@ -231,10 +240,11 @@
 
 &CG`5`MORTAL [u(cobj,chargen)]=Mortals cannot learn Charms\, but may learn Sorcery up to the Terrestrial Circle via a 5-dot Supernatural Merit 'Terrestrial Circle Sorcery'.[if(u(mysql,HAS_MERITS,%1,2015),%R%R[u(CG`5`SORCERY)])]
 &CG`5`SOLAR [u(cobj,chargen)]=Solars begin play with 15 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(strmatch(Eclipse,u(getstat,%#,D`INFO,Caste)),%R%R[u(CG`5`OTHERCHARMS)])][if(u(mysql,COUNT`STATS,%1,4),%R%R[u(CG`5`MACHARMS)])][if(u(mysql,HAS_MERITS,%1,1002),%R%R[u(CG`5`EVOCATIONS)])][if(u(mysql,HAS_WORDPOWERS,%1,215036),%R%R[u(CG`5`SORCERY)])]
+&CG`5`ABYSSAL [u(cobj,chargen)]=Abyssals begin play with 20 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(strmatch(Moonshadow,u(getstat,%#,D`INFO,Caste)),%R%R[u(CG`5`OTHERCHARMS)])][if(u(mysql,COUNT`STATS,%1,4),%R%R[u(CG`5`MACHARMS)])][if(u(mysql,HAS_MERITS,%1,1002),%R%R[u(CG`5`EVOCATIONS)])][if(u(mysql,HAS_WORDPOWERS,%1,215036),%R%R[u(CG`5`SORCERY)])]
 
-&CG`5`DRAGON-BLOODED [u(cobj,chargen)]=Terrestrials begin play with 15 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(u(mysql,COUNT`STATS,%1,4),%R%R[u(CG`5`MACHARMS)])][if(u(mysql,HAS_MERITS,%1,1002),%R%R[u(CG`5`EVOCATIONS)])][if(u(mysql,HAS_WORDPOWERS,%1,415020),%R%R[u(CG`5`SORCERY)])]
+&CG`5`DRAGON-BLOODED [u(cobj,chargen)]=Terrestrials begin play with 20 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(u(mysql,COUNT`STATS,%1,4),%R%R[u(CG`5`MACHARMS)])][if(u(mysql,HAS_MERITS,%1,1002),%R%R[u(CG`5`EVOCATIONS)])][if(u(mysql,HAS_WORDPOWERS,%1,415020),%R%R[u(CG`5`SORCERY)])]
 
-&CG`5`LUNAR [u(cobj,chargen)]=Lunars begin play with 15 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(strlen(get(%#/D`STYLES)),%R%R[u(CG`5`MACHARMS)])][if(words(u(wildgrepi,%#,D`MERITS`*,ARTIFACT)),%R%R[u(CG`5`EVOCATIONS)])][if(words(graball(get(%#/D`CHARMS`LUNAR`INTELLIGENCE),* CIRCLE SORCERY*,|,|),|),%R%R[u(CG`5`SORCERY)])]
+&CG`5`LUNAR [u(cobj,chargen)]=Lunars begin play with 20 Charms/Spells.%R%R[u(CG`5`NATIVECHARMS)][if(strlen(get(%#/D`STYLES)),%R%R[u(CG`5`MACHARMS)])][if(words(u(wildgrepi,%#,D`MERITS`*,ARTIFACT)),%R%R[u(CG`5`EVOCATIONS)])][if(words(graball(get(%#/D`CHARMS`LUNAR`INTELLIGENCE),* CIRCLE SORCERY*,|,|),|),%R%R[u(CG`5`SORCERY)])]
 
 &CG`5`NATIVECHARMS [u(cobj,chargen)]=[ansi(h,+addcharm <category>=<charm>) to add native Charms.]%R[ansi(h,+delcharm <category>=<charm>)] to delete native Charms.%RCategories for your character type's Native Charms: [u(itemize,u(mysql2,LIST`WORDPOWER_CATEGORIES,%q<template_id>),|,and,\,)]
 
@@ -304,6 +314,7 @@
 &CG`6`SOLAR [u(cobj,chargen)]=[u(CG`6`ESSENCE)]%RSolars begin with Essence 1.%R%R[u(CG`6`WILLPOWER)]%RSolars begin with 5 Willpower.%R%R[u(CG`6`INTIMACY)]%R%R[u(CG`6`HEALTH)]%R%R[ansi(h,+bg Trigger=<limit trigger>)] to set your Limit Trigger.%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`FINISH)]
 &CG`6`DRAGON-BLOODED [u(cobj,chargen)]=[u(CG`6`ESSENCE)]%Dragon-Blooded begin with Essence 2.%R%R[u(CG`6`WILLPOWER)]%Dragon-Blooded begin with 5 Willpower.%R%R[u(CG`6`INTIMACY)]%R%R[u(CG`6`HEALTH)]%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`FINISH)]
 &CG`6`LUNAR [u(cobj,chargen)]=[u(CG`6`ESSENCE)]%RLunars begin with Essence 1.%R%R[u(CG`6`WILLPOWER)]%RLunars begin with 5 Willpower.%R%R[u(CG`6`INTIMACY)]%R%R[u(CG`6`HEALTH)]%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`FINISH)]
+&CG`6`ABYSSAL [u(cobj,chargen)]=[u(CG`6`ESSENCE)]%Abyssals begin with Essence 1.%R%R[u(CG`6`WILLPOWER)]%Abyssals begin with 5 Willpower.%R%R[u(CG`6`INTIMACY)]%R%R[u(CG`6`HEALTH)]%R%R[u(CG`6`BGSTORY)]%R%R[u(CG`6`CHARGENXP)]%R%R[u(CG`6`FINISH)]
 
 &CG`6`INTIMACY [u(cobj,chargen)]=[ansi(h,+help +intimacy)] for instructions on setting your Intimacies.%RChoose at least 4 intimacies. At least one must be Defining, one must be Major, one must be positive, one must be negative.
 &CG`6`HEALTH [u(cobj,chargen)]=[ansi(h,+bonushealth <Health level list>)] to set any special health levels. The system auto-detects health based on your Template, Charms (Ox-Body Technique, etc), and Merits (like Giant), so only use this if you have OTHER sources. You can change this freely at any time later.

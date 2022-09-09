@@ -27,13 +27,22 @@
 &POOL`WILLPOWER`OPTIONS [u(cobj,pool)]=SPEND GAIN REFRESH COMMIT
 
 &POOL`LIMIT [u(cobj,pool)]=Track
-&POOL`WILLPOWER`ID [u(cobj,pool)]=1
+&POOL`LIMIT`ID [u(cobj,pool)]=4
 &POOL`LIMIT`UNITNAME [u(cobj,pool)]=Points
 &POOL`LIMIT`UNITTYPE [u(cobj,pool)]=Limit
 &POOL`LIMIT`MAX [u(cobj,pool)]=10
 &POOL`LIMIT`ORDER [u(cobj,pool)]=100
 &POOL`LIMIT`INIT [u(cobj,pool)]=0
 &POOL`LIMIT`OPTIONS [u(cobj,pool)]=SPEND GAIN COMMIT
+
+&POOL`RESONANCE [u(cobj,pool)]=Track
+&POOL`RESONANCE`ID [u(cobj,pool)]=5
+&POOL`RESONANCE`UNITNAME [u(cobj,pool)]=Points
+&POOL`RESONANCE`UNITTYPE [u(cobj,pool)]=Resonance
+&POOL`RESONANCE`MAX [u(cobj,pool)]=10
+&POOL`RESONANCE`ORDER [u(cobj,pool)]=100
+&POOL`RESONANCE`INIT [u(cobj,pool)]=0
+&POOL`RESONANCE`OPTIONS [u(cobj,pool)]=SPEND GAIN COMMIT
 
 @@ MORTAL
 &TEMPLATE`MORTAL [u(cobj,pool)]=WILLPOWER
@@ -63,8 +72,14 @@
 &POOL`PERIPHERAL`MAX`LIMINAL [u(cobj,pool)]=add(mul(4,default(%0/V`PERSONA`STAT`1000,1)),23)
 
 @@ ABYSSAL
+&TEMPLATE`ABYSSAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER RESONANCE
 &POOL`PERSONAL`MAX`ABYSSAL [u(cobj,pool)]=add(mul(3,default(%0/V`PERSONA`STAT`1000,1)),10)
 &POOL`PERIPHERAL`MAX`ABYSSAL [u(cobj,pool)]=add(mul(7,default(%0/V`PERSONA`STAT`1000,1)),26)
+
+@@ INFERNAL
+&TEMPLATE`INFERNAL [u(cobj,pool)]=PERSONAL PERIPHERAL WILLPOWER LIMIT
+&POOL`PERSONAL`MAX`INFERNAL [u(cobj,pool)]=add(mul(3,default(%0/V`PERSONA`STAT`1000,1)),10)
+&POOL`PERIPHERAL`MAX`INFERNAL [u(cobj,pool)]=add(mul(7,default(%0/V`PERSONA`STAT`1000,1)),26)
 
 &HLP`POOLS [u(cobj,pool)]=[ansi(h,+pools)]%RDisplays your current Pool information, including Commitments.%R%R[ansi(h,+burn <poolname>=<#>)]%RUses up some of a pool, aka subtracts from it. Used for spending Essence, clearing up Limit, etc.%R%R[ansi(h,+gain <poolname>=<#>)]%RRestores a Pool, aka adds to it. Used for refilling Essence, gaining Limit, etc.%R%R[ansi(h,+refresh)]%RRestores all Pools and Channels (willpower, virtues, etc) but leaves Tracks such as Limit alone.%R%R[ansi(h,+commit <poolname>/<#>=<reason>)]%RCommits a number of points for a given reason. Example: +commit Peripheral/5=Daiklave%RIf used on Tracks like Limit, Commits raise the minimum instead of lowering maximum- 2 points of Committed Limit mean you're always at least at 2/10, for instance.%R%R[ansi(h,+uncommit <pool>=<commit ID>)]%RRemoves a commitment. Use +pools to see which commitment slot to free up.%R%RNote: Pool names take partial matches!
 +help/add Roleplaying/+pools=[u(cobj,pool)]/HLP`POOLS

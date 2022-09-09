@@ -47,14 +47,16 @@ th u(newcobj,STORYTELLER: Damage Management System <DAMAGE>,damage,,,,WIZARD SAF
 &FUN`MAX`HEALTH [u(cobj,damage)]=words(u(FUN`GET`HEALTH,%0))
 
 &Q`SELECT`HEALTH_MERIT [u(Cobj,damage)]=SELECT merit_value FROM vol_story_persona_merits WHERE persona_id=? AND merit_id=?
-&Q`SELECT`WORD_POWER [u(cobj,damage)]=SELECT wordpower_purchases FROM vol_story_persona_wordpower WHERE persona_id=? AND wordpower_id=?
+&Q`SELECT`WORD_POWER [u(cobj,damage)]=SELECT wordpower_purchases FROM volv_story_persona_wordpower WHERE persona_id=? AND template_name=? AND stat_name=? AND wordpower_name=?
 
 &TEMPLATE`BASE [u(cobj,damage)]=cat(if(u(mysql,SELECT`HEALTH_MERIT,%1,1016),-0),-0 -1 -1 -2 -2 -4 I,get(%0/D`HEALTH))
 
 &TEMPLATE`MORTAL [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),)
-&TEMPLATE`SOLAR [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,218003)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-1 -2,2,-1 -2,3,-1 -2 -2,4,-1 -2 -2,5,-0 -1 -2)%B,%q<oxbody>)))
-&TEMPLATE`DRAGON-BLOODED [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,418000)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-2 -2,2,-2 -2,3,-1 -2,4,-1 -2,5,-1 -2 -2)%B,%q<oxbody>)))
-&TEMPLATE`LUNAR [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,0)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-2 -2 -2,2,-2 -2 -2,3,-2 -2 -2 -2,4,-2 -2 -2 -2,5,-2 -2 -2 -2 -4)%B,%q<oxbody>)))
+&TEMPLATE`SOLAR [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,Solar,Resistance,Ox-Body Technique)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-1 -2,2,-1 -2,3,-1 -2 -2,4,-1 -2 -2,5,-0 -1 -2)%B,%q<oxbody>)))
+&TEMPLATE`ABYSSAL [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,Abyssal,Resistance,Ox-Body Technique)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-1 -2,2,-1 -2,3,-1 -2 -2,4,-1 -2 -2,5,-0 -1 -2)%B,%q<oxbody>)))
+&TEMPLATE`INFERNAL [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,218003)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-1 -2,2,-1 -2,3,-1 -2 -2,4,-1 -2 -2,5,-0 -1 -2)%B,%q<oxbody>)))
+&TEMPLATE`DRAGON-BLOODED [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,Dragon-Blooded,Resistance,Ox-Body Technique)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-2 -2,2,-2 -2,3,-1 -2,4,-1 -2,5,-1 -2 -2)%B,%q<oxbody>)))
+&TEMPLATE`LUNAR [u(cobj,damage)]=cat(u(TEMPLATE`BASE,%0,%1),if(u(setr,oxbody,u(mysql,SELECT`WORD_POWER,%1,Lunar,Stamina,Ox-Body Technique)),repeat(switch(get(%0/V`PERSONA`STAT`2002),1,-2 -2 -2,2,-2 -2 -2,3,-2 -2 -2 -2,4,-2 -2 -2 -2,5,-2 -2 -2 -2 -4)%B,%q<oxbody>)))
 
 &FUN`GET`HEALTH [u(cobj,damage)]=u(sorthealth,localize(u(TEMPLATE`[get(%0/V`PERSONA`TEMPLATE)],%0,get(%0/D`ID))))
 
