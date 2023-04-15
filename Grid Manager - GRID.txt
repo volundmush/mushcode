@@ -59,7 +59,7 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 &INC`RENAME [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@attach %!/INC`VALID`DISTRICT=%1,parent(%q<dist>);@attach %!/INC`MSG=District Renamed!;@attach %!/INC`MSG`CHAN={Renamed District %q<dist> '%q<distname>' to '%q<value>'};@name %q<dist>=%q<value>
 
 &INC`DESCRIBE [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Nothing entered for the description!;@attach %!/INC`MSG=Description set.;@describe %q<dist>=%1;@attach %!/INC`MSG`CHAN={Changed Description for %q<dist> '%q<distname>'}
-dddddddddddd
+
 &INC`COLOR [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`PARTIAL=before(%1,\,),v(COLOROPTIONS),|,choice,Color Type;@attach %!/INC`VALID`COLOR=after(%1,\,);th u(attrib_set,%q<dist>,DISTCOLOR`%q<choice>,%q<value>);@attach %!/INC`MSG`CHAN={Changed Color/%q<choice> for %q<dist> to '%q<valueformat>'}
 
 &INC`IC [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`BOOL=%1;@attach %!/INC`MSG=IC value set.;&D`IC %q<dist>=%q<value>;@attach %!/INC`MSG`CHAN={Changed IC for %q<dist> to '%q<value>'}

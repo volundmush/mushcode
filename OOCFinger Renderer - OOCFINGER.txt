@@ -4,7 +4,7 @@ th u(NEWCOBJ,OOCFinger <OOCFINGER>,oocfinger,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &CMD`+OOCFINGER`PENNMUSH [u(cobj,oocfinger)]=$^(?s)(?\:\+)?oocfinger(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+OOCFINGER`MAIN
 @set [u(cobj,oocfinger)]/CMD`+OOCFINGER`PENNMUSH=regexp
-&CMD`+FINGER`RHOSTMUSH [u(cobj,oocfinger)]=$^(?s)(?\:\+)?oocfinger(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+OOCFINGER`MAIN
+&CMD`+OOCFINGER`RHOSTMUSH [u(cobj,oocfinger)]=$^(?s)(?\:\+)?oocfinger(?\:/(\\S+))?(?\: +(.+?))?(?\:=(.*?))?$:@attach %!/CMD`+OOCFINGER`MAIN
 @set [u(cobj,oocfinger)]/CMD`+OOCFINGER`RHOSTMUSH=regexp
 &CMD`+OOCFINGER`MAIN [u(cobj,oocfinger)]=@attach %!/INC`GETSWITCH=%1;@include %!/INC`[u(strfirstof,%q<switch>,MAIN)]=%2,%3
 @set [u(cobj,oocfinger)]/CMD`+OOCFINGER`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command

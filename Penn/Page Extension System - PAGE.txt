@@ -14,7 +14,7 @@ th u(NEWCOBJ,Page Extension System,page,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEF
 &OPTION`OPTIONS [u(cobj,page)]=NEWSTYLE|NAMELINK
 
 &OPTION`NEWSTYLE [u(cobj,page)]=Use New-style Page format? Example: PAGE: <name> says, "" | PAGE (<recipients>): <name> says, "". If this is false, the old style will be used.
-&OPTION`NEWSTYLE`DEFAULT [u(cobj,page)]=0
+&OPTION`NEWSTYLE`DEFAULT [u(cobj,page)]=1
 &OPTION`NEWSTYLE`VALID [u(cobj,page)]=BOOL
 
 &OPTION`NAMELINK [u(cobj,page)]=Turn on Namelink in new-style pages.

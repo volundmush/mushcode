@@ -14,8 +14,4 @@
 
 &GET`TEST [u(cobj,http)]=@pemit me=I HAVE STUFF! You are logged in as: %q<loginplayer>
 
-
-
-
-
 &GET`WHO [u(Cobj,http)]=@respond/type application/json;@pemit me=u(JSON`WHO`PLAYERS,%q<loginplayer>)

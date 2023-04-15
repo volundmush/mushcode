@@ -311,7 +311,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &STARTUP [u(Cobj,group)]=@trigger %!/LOOP`CLEANUPGROUPCHAT
 
-&LOOP`CLEANUPGROUPCHAT [u(Cobj,group)]=@dolist children(u(cobj,gop))={@attach %!/INC`DOSQL=CLEANUp`GROUPCHAT,1,objid(##),1,objid(##);@attach %!/INC`DOSQL=CLEANUp`GROUPCHAT,2,objid(##),2,objid(##)};@wait mul(60,60,2)=@trigger %!/LOOP`CLEANUPGROUPCHAT
+&LOOP`CLEANUPGROUPCHAT [u(Cobj,group)]=@dolist children(u(cobj,gop))={@attach %!/INC`DOSQL=CLEANUp`GROUPCHAT,1,objid(##),1,objid(##);@attach %!/INC`DOSQL=CLEANUP`GROUPCHAT,2,objid(##),2,objid(##)};@wait mul(60,60,2)=@trigger %!/LOOP`CLEANUPGROUPCHAT
 
 &Q`CLEANUP`GROUPCHAT [u(Cobj,group)]=DELETE m FROM vol_messages AS m LEFT JOIN (SELECT message_id FROM vol_messages as msg WHERE msg.message_type=? AND msg.source_objid=? ORDER BY msg.message_date_created DESC LIMIT 100) AS m2 ON m.message_id=m2.message_id WHERE m.message_type=? AND m.source_objid=? AND m2.message_id IS NULL
 
