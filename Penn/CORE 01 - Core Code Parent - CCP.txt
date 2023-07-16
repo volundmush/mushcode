@@ -23,6 +23,8 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &SETQ [u(cobj,ccp)]=setq(%0,%1)
 &SETR [u(cobj,ccp)]=setr(%0,%1)
 
+&ELEMENTS [u(cobj,ccp)]=elementsmux(%0,%1,%2)
+
 &STARTUP [u(cobj,ccp)]=@dolist/inline lattr(%!/START`*)={@include/nobreak %!/##}
 
 &START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_options opother my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink namecolor weblink codename getproperty hideidle lastidle chanhash getmoniker,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
@@ -68,7 +70,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &ACCID [u(cobj,ccp)]=default(%0/D`ACCOUNT,if(%1,,%0))
 &FALLBACK [u(cobj,ccp)]=u(strfirstof,get(%0/D`ACCOUNT`ID),get(%0/D`ID))
 
-&ALTS [u(cobj,ccp)]=u(filter,ISOBJID,strfirstof(get(u(accid,%0)/CHARACTERS),objid(%0)))
+&ALTS [u(cobj,ccp)]=u(filter,ISOBJID,strfirstof(if(hasattrp(%0/D`ACCOUNT),get(get(%0/D`ACCOUNT)/CHARACTERS)),objid(%0)))
 &PALTS [u(cobj,ccp)]=alts(%@)
 
 &ISGUEST [u(cobj,ccp)]=haspower(%0,GUEST)
@@ -120,7 +122,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &CHARSEARCH [u(cobj,ccp)]=lmath(max,iter(%1,strmatch(%0,*%i0*)))
 
-&BADCHARS [u(cobj,ccp)]=%r %t | ~ [chr(176)] [chr(177)] ^
+&BADCHARS [u(cobj,ccp)]=%r %t | ~ [u(rsep)] [u(fsep)] ^
 
 &NEWCONF [u(cobj,ccp)]=[u(attrib_set,u(cobj,%0),CATEGORIES,setunion(get(u(cobj,%0)/CATEGORIES),%1,|,|))][u(attrib_set,u(cobj,%0),CATEGORIES`%1,setunion(get(u(cobj,%0)/CATEGORIES`%1),%2,|,|))][u(attrib_set,u(cobj,%0),DEFAULT`%1`%2,%3)][u(attrib_set,u(cobj,%0),DESC`%1`%2,%4)][u(attrib_set,u(cobj,%0),TYPE`%1`%2,%5)]
 
@@ -148,6 +150,13 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &DELSTAT [u(cobj,ccp)]=u(attrib_set,%0,%1,setdiff(get(%0/%1),grab(get(%0/%1),%2~*,|),|))
 &GETSTAT [u(cobj,ccp)]=if(strlen(%3),add(rest(grab(get(%0/%1),%2~*,|),~),rest(grab(get(%0/D`%3),%2~*,|),~)),rest(grab(get(%0/%1),%2~*,|),~))
 &GRABSTAT [u(cobj,ccp)]=rest(grab(get(%0/%1),%2~*,|),~)
+
+&SLOTR [u(cobj,ccp)]=[u(setq,strfirstof(%2,u(slotreg)),setunion(r(strfirstof(%2,u(slotreg))),%0~%1,|))]%1
+&SLOTQ [u(cobj,ccp)]=u(setq,strfirstof(%2,u(slotreg)),setunion(r(strfirstof(%2,u(slotreg))),%0~%1,|))
+&UNSLOTQ [u(cobj,ccp)]=u(setq,strfirstof(%2,u(slotreg)),setdiff(r(strfirstof(%2,u(slotreg))),grab(r(strfirstof(%2,u(slotreg))),%0~*,|),|))
+&GSLOT [u(cobj,ccp)]=rest(grab(r(strfirstof(%1,u(slotreg))),%0~*,|),~)
+
+&SLOTREG [u(cobj,ccp)]=slotreq
 
 &LISTMAX [u(cobj,ccp)]=lmath(max,iter(%0,strlen(%i0),|,|),|)
 
@@ -255,8 +264,8 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &GETPROPERTY`URL [u(cobj,ccp)]=u(weblink,get(%0/V`PROPERTY`%1))
 
-&GETPROPERTY`THEME [u(cobj,ccp)]=localize(if(strlen(u(setr,themes,get(%0/V`THEME))),u(pueblize,setr(theme,first(elements(%q<themes>,3,chr(177)),chr(176))),+theme %q<theme>))
-&GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEME),2,chr(177)),chr(176))
+&GETPROPERTY`THEME [u(cobj,ccp)]=localize(if(strlen(u(setr,themes,get(%0/V`THEME))),u(pueblize,setr(theme,first(elements(%q<themes>,3,u(fsep)),u(rsep))),+theme %q<theme>))
+&GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEME),2,u(fsep)),u(rsep))
 
 &GETPROPERTY`SCENE [u(cobj,ccp)]=if(default(%0/D`OBSERVER,0),ansi(hw,OBS),default(%0/D`SCENE,???))
 
@@ -277,8 +286,8 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &GETPROPERTY`GROUPABBRS [u(cobj,ccp)]=iter(u(getproperty`groupdb,%0,%1),u(%i0/GET`ABBREVIATION),%b,if(%2,|,\,%b))
 &GETPROPERTY`TIERABBRS [u(cobj,ccp)]=iter(u(getproperty`tierdb,%0,%1,%2),u(%i0/GET`ABBREVIATION),%b,if(%3,|,\,%b))
 
-&COLUMNLINE [u(cobj,ccp)]=lalign(iter(u(setr,hdr,%0),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,chr(177)),chr(177))
-&PLAYERLINE [u(cobj,ccp)]=lalign(iter(u(setr,col,%1),after(%i0,~),|,%b),iter(%q<col>,u(getprop,%0,%i0),|,chr(177)),chr(177))
+&COLUMNLINE [u(cobj,ccp)]=lalign(iter(u(setr,hdr,%0),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,u(fsep)),u(fsep))
+&PLAYERLINE [u(cobj,ccp)]=lalign(iter(u(setr,col,%1),after(%i0,~),|,%b),iter(%q<col>,u(getprop,%0,%i0),|,u(fsep)),u(fsep))
 
 &GETPROP [u(cobj,ccp)]=u(strfirstof,u(getproperty,%0,setr(fget,elements(setr(get,before(%1,~)),1,/)),elements(%q<get>,2,/),elements(%q<get>,3,/),elements(%q<get>,4,/),elements(%q<get>,5,/)),if(strlen(%2),get(%0/%2`%q<fget>)))
 
@@ -301,6 +310,8 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &SORTORDER [u(cobj,ccp)]=sortkey(#lambda/default(\%0/ORDER,99),%0,n,if(strlen(%1),%1,%B),if(strlen(%2),%2,%B))
 
 &CHOOSEGAME [u(cobj,ccp)]=%0
+&CHOOSEQ [u(cobj,ccp)]=u(setq,%0,%1)
+&CHOOSER [u(cobj,ccp)]=u(setq,%0,%1)
 
 @@ REGEX STORAGE
 &REG`CAPNAMES [u(cobj,ccp)]=(?:^|(?<=[_\/\-\|\s()\+]))([a-z]+)
@@ -313,27 +324,32 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &RENDER [u(cobj,ccp)]=render(%0,ansi)
 
+&RSEP [u(cobj,ccp)]=u(rsep)
+&FSEP [u(cobj,ccp)]=u(fsep)
+
 &MYSQL [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(setr,sqlformat,u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9))),#-1 SQL QUERY DATA NOT FOUND)
 &MYSQL2 [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(setr,sqlformat,u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),|,^),#-1 SQL QUERY DATA NOT FOUND)
-&MYSQL3 [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(setr,sqlformat,u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),chr(176),chr(177)),#-1 SQL QUERY DATA NOT FOUND)
+&MYSQL3 [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(setr,sqlformat,u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),u(rsep),u(fsep)),#-1 SQL QUERY DATA NOT FOUND)
 
-&CALL`0 [u(cobj,ccp)]=sql(CALL %0(),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
 
-&CALL`1 [u(cobj,ccp)]=sql(CALL %0(%2),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
 
-&CALL`2 [u(cobj,ccp)]=sql(CALL %0(%2,%3),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+&CALL`0 [u(cobj,ccp)]=sql(CALL %0(),switch(%1,0,%b,2,|,3,u(rsep),%b),switch(%1,0,%b,2,^,3,u(fsep),%b))
 
-&CALL`3 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+&CALL`1 [u(cobj,ccp)]=sql(CALL %0(%2),switch(%1,0,%b,2,|,3,u(rsep),%b),switch(%1,0,%b,2,^,3,u(fsep),%b))
 
-&CALL`4 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+&CALL`2 [u(cobj,ccp)]=sql(CALL %0(%2,%3),switch(%1,0,%b,2,|,3,u(rsep),%b),switch(%1,0,%b,2,^,3,u(fsep),%b))
 
-&CALL`5 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+&CALL`3 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4),switch(%1,0,%b,2,|,3,u(rsep),%b),switch(%1,0,%b,2,^,3,u(fsep),%b))
 
-&CALL`6 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6,%7),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+&CALL`4 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5),switch(%1,0,%b,2,|,3,u(rsep),%b),switch(%1,0,%b,2,^,3,u(fsep),%b))
 
-&CALL`7 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6,%7,%8),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+&CALL`5 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6),switch(%1,0,%b,2,|,3,u(rsep),%b),switch(%1,0,%b,2,^,3,u(fsep),%b))
 
-&CALL`8 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6,%7,%8,%9),switch(%1,0,%b,2,|,3,chr(176),%b),switch(%1,0,%b,2,^,3,chr(177),%b))
+&CALL`6 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6,%7),switch(%1,0,%b,2,|,3,u(rsep),%b),switch(%1,0,%b,2,^,3,u(fsep),%b))
+
+&CALL`7 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6,%7,%8),switch(%1,0,%b,2,|,3,u(rsep),%b),switch(%1,0,%b,2,^,3,u(fsep),%b))
+
+&CALL`8 [u(cobj,ccp)]=sql(CALL %0(%2,%3,%4,%5,%6,%7,%8,%9),switch(%1,0,%b,2,|,3,u(rsep),%b),switch(%1,0,%b,2,^,3,u(fsep),%b))
 
 &SQL`IN`NUMBER [u(cobj,ccp)]=iter(%0,%i0,%1,\,%b)
 &SQL`IN`STRING [u(cobj,ccp)]=iter(%0,'[sqlescape(%i0)]',%1,\,%b)
@@ -348,7 +364,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &INC`DOCALL`2 [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(call`2,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
 
-&INC`SEARCHSQL [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No %1 name entered!;@select/inline words(u(setr,tempresults,u(strfirstof,u(setr,searchexact,u(mysql3,FIND`%2`EXACT[if(isint(%0),`ID)],%0,%4,%5,%6,%7,%8,%9)),if(not(strlen(%q<searchexact>)),u(mysql3,FIND`%2`WILD,sqlescape(%0),%4,%5,%6,%7,%8,%9)))),chr(176))=>1,{@stop 1=@attach %!/INC`MSG=ERROR: Results are Ambiguous. That matches: [iter(%q<tempresults>,elements(%i0,2,chr(177)),chr(176),\,%b)]},0,{@stop 1=@attach %!/INC`MSG=ERROR: Could not find %1 '%0'. Choices are: [iter(u(mysql3,FIND`%2`LIST,%4,%5,%6,%7,%8,%9),%i0,chr(176),\,%b)]},1,{@attach %!/INC`LOADSQL=%2,elements(%q<tempresults>,1,chr(177)),%3;th unsetq(tempresults searchexact)}
+&INC`SEARCHSQL [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No %1 name entered!;@select/inline words(u(setr,tempresults,u(strfirstof,u(setr,searchexact,u(mysql3,FIND`%2`EXACT[if(isint(%0),`ID)],%0,%4,%5,%6,%7,%8,%9)),if(not(strlen(%q<searchexact>)),u(mysql3,FIND`%2`WILD,sqlescape(%0),%4,%5,%6,%7,%8,%9)))),u(rsep))=>1,{@stop 1=@attach %!/INC`MSG=ERROR: Results are Ambiguous. That matches: [iter(%q<tempresults>,elements(%i0,2,u(fsep)),u(rsep),\,%b)]},0,{@stop 1=@attach %!/INC`MSG=ERROR: Could not find %1 '%0'. Choices are: [iter(u(mysql3,FIND`%2`LIST,%4,%5,%6,%7,%8,%9),%i0,u(rsep),\,%b)]},1,{@attach %!/INC`LOADSQL=%2,elements(%q<tempresults>,1,u(fsep)),%3;th unsetq(tempresults searchexact)}
 @@ Searches database for id,name pairs and attempts partial matching and etc.
 @@ %0 - Text or ID to search for. %1 - name to display it as. %2 - QUERY CATEGORY to search. What kind of OBJECT is this? %3 - What slot # to load data into? %4+ - Additional parameters needed by SQL queries.
 
@@ -356,7 +372,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 @@ Retrieves FIELD`%0 names and loads them into structured named registers.
 @@ %0 - The TYPE OF OBJECT this is going to be. This must match the queries. Q`LOAD`%0 will be called. %1 - The ID of the object to load. %2 - The # that this will be loaded into. %3 - Alternate SQL LOAD name to use.
 
-&INC`REGOBJ [u(cobj,ccp)]=@dolist/inline %1={th u(setq,%0%2.%i0,elements(%3,inum(0),chr(177)))}
+&INC`REGOBJ [u(cobj,ccp)]=@dolist/inline %1={th u(setq,%0%2.%i0,elements(%3,inum(0),u(fsep)))}
 @@ Takes arbitrary data (usually from SQL) and loads it into named registers following pattern of <thing>#.<parameter>.
 @@ %0 - the Thing name. %1 - space-delimited list of parameters. %2 - The # for this object. %3 - The data, presented in mysql fashion (delimiter is character 177)
 
@@ -654,8 +670,8 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &INC`VALID`TIMEZONE [u(cobj,ccp)]=@check valid(timezone,setr(value,%0))=@attach %!/INC`MSG={ERROR: That is not a valid timezone. Check help timezone};th u(setq,valueformat,%q<value>)
 &INC`VALID`DURATION [u(cobj,ccp)]=@check setr(value,u(stringsecs,%0))=@attach %!/INC`MSG={ERROR: '%0' did not resolve into a time. Check help stringsecs()};th u(setq,valueformat,etime(%q<value>))
 &INC`VALID`POSINT [u(cobj,ccp)]=@check u(valnum,%0,%2)=@attach %!/INC`MSG={ERROR: '[strfirstof(%1,%0)]' must be a whole number %2 or greater.};th setq(value,%0);th u(setq,valueformat,%q<value>)
-&INC`VALID`POSNUM [u(cobj,ccp)]=@check gt(u(setr,value,%0),0)=@attach %!/INC`MSG=ERROR: '%0' must be a positive number.
-&INC`VALID`NUMBER [u(cobj,ccp)]=@check isnum(u(setr,value,%0))=@attach %!/INC`MSG=ERROR: '%0' must be a number.
+&INC`VALID`POSNUM [u(cobj,ccp)]=@check gt(u(setr,value,%0),0)=@attach %!/INC`MSG=ERROR: '%0' must be a positive number.;th u(setq,valueformat,%q<value>)
+&INC`VALID`NUMBER [u(cobj,ccp)]=@check isnum(u(setr,value,%0))=@attach %!/INC`MSG=ERROR: '%0' must be a number.;th u(setq,valueformat,%q<value>)
 &INC`VALID`INT [u(cobj,ccp)]=@check isint(%0)=@attach %!/INC`MSG={ERROR: '%0' must be a whole number 0 or greater.};th setq(value,%0);th u(setq,valueformat,%q<value>)
 &INC`VALID`LOCK [u(cobj,ccp)]=@check valid(lockkey,%0)=@attach %!/INC`MSG={ERROR: '%0' was not accepted by the @lock system.};th setq(value,%0);th u(setq,valueformat,%q<value>)
 &INC`VALID`TIME [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=You didn't enter a date!;@check gt(setr(value,convtime(%0,u(gettz,%#))),0)=@attach %!/INC`MSG=The entered date was not recognized. Did you typo? Dates should be in abbreviated 24-hour <month> <day> <hour>:<minute> format using YOUR timezone\, such as Jun 26 7:00 or Oct 31 13:00.;th u(setq,valueformat,convsecs(%q<value>,UTC))
@@ -804,7 +820,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 @@ Json Section
 &J`INSERT`ARRAY [u(cobj,ccp)]=json_mod(%0,insert,$\[[json_query(%0,size)]\],%1)
-&J`CREATE`ARRAY [u(cobj,ccp)]=fold(J`INSERT`ARRAY,iter(%0,u(J`%1,%i0,%2,%3,%4,%5,%6,%7,%8,%9),chr(176),chr(176)),\[\],chr(176))
+&J`CREATE`ARRAY [u(cobj,ccp)]=fold(J`INSERT`ARRAY,iter(%0,u(J`%1,%i0,%2,%3,%4,%5,%6,%7,%8,%9),u(rsep),u(rsep)),\[\],u(rsep))
 &J`NUMBER [u(cobj,ccp)]=json(number,%0)
 &J`BOOLEAN [u(cobj,ccp)]=json(boolean,%0)
 &J`STRING [u(Cobj,ccp)]=json(string,%0)

@@ -86,7 +86,7 @@ th u(NEWCOBJ,STORYTELLER: Storyteller Code Parent,story,u(cobj,ccp),,,WIZARD SAF
 &STATVAL [u(Cobj,story)]=u(mysql,STATVAL,%0,%1)
 &Q`STATVAL [u(cobj,story)]=SELECT stat_value FROM vol_story_persona_stats WHERE persona_id=? AND stat_id=? LIMIT 1
 
-&GETTEMPLATE [u(Cobj,story)]=u(strfirstof,elements(u(mysql3,LOAD`PERSONA,%0),5,chr(177)),Mortal)
+&GETTEMPLATE [u(Cobj,story)]=u(strfirstof,elements(u(mysql3,LOAD`PERSONA,%0),5,u(fsep)),Mortal)
 
 @@ Section for passing on the Event Hooks.
 &PLAYER`CONNECT [u(cobj,story)]=@dolist/inline/nobreak lattr(%!/PLAYER`CONNECT`*)={@trigger/spoof %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger/spoof ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}

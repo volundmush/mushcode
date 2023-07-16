@@ -1,0 +1,35 @@
+th u(NEWCOBJ,Upgrade System <UPGRADE>,upgrade,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAFE)
+
+&TYPES [u(cobj,upgrade)]=ATTRIBUTE|SKILL|SPECIALIZATION
+
+&CMD`+SETSTAT [u(cobj,upgrade)]=$^(?\:\+)?setstat(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=elements(%2,1,/),1;@attach %!/INC`PARTIAL=elements(%2,2,/),u(setr,choices,v(TYPES)),|,type;@check hasattr(%!/SET`%q<type>)=@attach %!/INC`MSG=ERROR: That Type doesn't exist in code!;@attach %!/SET`%q<type>=%2,%3
+@set [u(cobj,upgrade)]/CMD`+SETSTAT=regexp
+
+&SET`ATTRIBUTE [u(cobj,upgrade)]=@attach %!/INC`PARTIAL=elements(%0,3,/),iter(u(#8/fn`List_attrs),%i0,%b,|),|,attrname;th u(setq,prevValue,get(%q<t1>/CG`%q<attrname>));@attach %!/INC`VALID`POSINT=%1,Attribute Rating;@set %q<t1>=CG`%q<attrname>:%q<value>;th u(setq,msgtext,Attribute '%q<attrname>' from %q<prevValue> to: %q<value>);@attach %!/INC`MSG=You set %q<t1name>'s %q<msgtext>.;@@ @attach %!/INC`MSG=%n set %q<msgtext>;@attach %!/INC`MSG`CHAN=%n set %q<msgtext>
+
+&SET`SKILL [u(cobj,upgrade)]=@attach %!/INC`PARTIAL=elements(%0,3,/),u(#8/fn`List_skills,,|,1),|,skillname;th u(setq,attr,lattr(#9/data`skills`*`[edit(%q<skillname>,%b,_)]));th u(setq,prevValue,get(%q<t1>/CG`[elements(%q<attr>,3 4,`,`)]));@attach %!/INC`VALID`POSINT=%1,Skill Rating;@set %q<t1>=CG`[elements(%q<attr>,3 4,`,`)]:%q<value>;th u(setq,msgtext,[elements(%q<attr>,3,`,%B)] Skill '[elements(%q<attr>,4,`)]' from %q<prevValue> to %q<value>.);@attach %!/INC`MSG=You set %q<t1name>'s %q<msgtext>.;@@ @attach %!/INC`MSG=%n set %q<msgtext>;@attach %!/INC`MSG`CHAN=%n set %q<msgtext>
+
+&SPEC [u(cobj,upgrade)]=edit(iter(lattr(#9/data`skills`*`*`*),elements(%i0,5,`),%b,|),_,%b)
+
+&SET`SPECIALIZATION [u(cobj,upgrade)]=@attach %!/INC`PARTIAL=elements(%0,3,/),u(spec),|,specname;th u(setq,attr,lattr(#9/data`skills`*`*`[edit(%q<specname>,%b,_)]));th u(setq,prevValue,get(%q<t1>/CG`[elements(%q<attr>,3 4 5,`,`)]));@attach %!/INC`VALID`POSINT=%1,Specialty Rating;@set %q<t1>=CG`[elements(%q<attr>,3 4 5,`,`)]:%q<value>;th u(setq,msgtext,[elements(%q<attr>,3,`,%B)] Skill '[elements(%q<attr>,4,`)]' Specialization '[elements(%q<attr>,5,`)]' from %q<prevValue> to %q<value>.);@attach %!/INC`MSG=You set %q<t1name>'s %q<msgtext>.;@@ @attach %!/INC`MSG=%n set %q<msgtext>;@attach %!/INC`MSG`CHAN=%n set %q<msgtext>
+
+&TRAITS [u(cobj,upgrade)]=edit(u(#8/FN`LIST_TRAITS,,|),_,%b)
+&LANGS [u(cobj,upgrade)]=edit(edit(lattr(#544/DATA`LANGS`*),DATA`LANGS`,),%b,|)
+
+&CMD`+ADDREMTRAIT [u(cobj,upgrade)]=$^(?\:\+)?(add|rem)(trait|lang)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=elements(%4,1,/),1;@attach %!/INC`PARTIAL=elements(%4,2,/),u(setr,choices,u(%2S)),|,switch(%2,trait,Trait,lang,Language);@check hasattr(%!/%1`%2)=@attach %!/INC`MSG=ERROR: That Type doesn't exist in code!;@attach %!/%1`%2=%4,%5
+@set [u(cobj,upgrade)]/CMD`+ADDREMTRAIT=regexp
+
+&ADD`TRAIT [u(cobj,upgrade)]=@stop hasattr(%q<t1>/CG`TRAITS`[edit(%q<trait>,%b,_)])=@attach %!/INC`MSG=%q<t1name> already has that trait!;@select/inline gt(words(u(setr,options,get(#9/DATA`TRAITS`[edit(%q<trait>,%b,_)]`OPTIONS)),|),0)=1,{@check strlen(%1)=@attach %!/INC`MSG=ERROR: Must enter an Option!;@attach %!/INC`PARTIAL=%1,%q<options>,|,Option},{th u(setq,option,%b)};@set %q<t1>=CG`TRAITS`[edit(%q<trait>,%b,_)]:%q<option>;th u(setq,msgtext,Trait '%q<trait>'[if(%q<option>,\(%q<option>\))]);@attach %!/INC`MSG=Added %q<msgtext> to %q<t1name>.;@attach %!/INC`MSG`CHAN=%n added %q<msgtext> to %q<t1name>.
+
+&REM`TRAIT [u(cobj,upgrade)]=@check hasattr(%q<t1>/CG`TRAITS`[edit(%q<trait>,%b,_)])=@attach %!/INC`MSG=%q<t1name> doesn't have that trait!;@wipe %q<t1>/CG`TRAITS`[edit(%q<trait>,%b,_)];th u(setq,msgtext,Trait '%q<trait>');@attach %!/INC`MSG=Removed %q<msgtext> from %q<t1name>.;@attach %!/INC`MSG`CHAN=%n removed %q<msgtext> from %q<t1name>.;
+
+&ADD`LANG [u(cobj,upgrade)]=@stop match(get(%q<t1>/LANG),%q<language>)=@attach %!/INC`MSG=%q<t1name> already knows %q<language>!;@set %q<t1>=LANG:[setunion(get(%q<t1>/LANG),%q<language>)];th u(setq,msgtext,Language '%q<language>');@attach %!/INC`MSG=Added %q<msgtext> to %q<t1name>.;@attach %!/INC`MSG`CHAN=%n added %q<msgtext> to %q<t1name>.
+
+&REM`LANG [u(cobj,upgrade)]=@check match(get(%q<t1>/LANG),%q<language>)=@attach %!/INC`MSG=%q<t1name> doesn't know %q<language>!;@set %q<t1>=LANG:[setdiff(get(%q<t1>/LANG),%q<language>)];th u(setq,msgtext,Language '%q<language>');@attach %!/INC`MSG=Removed %q<msgtext> from %q<t1name>.;@attach %!/INC`MSG`CHAN=%n removed %q<msgtext> from %q<t1name>.
+
+@@ @sql CREATE TABLE IF NOT EXISTS xp_spends (id INT PRIMARY KEY AUTO_INCREMENT,character_id INT UNSIGNED NOT NULL,admin_id INT UNSIGNED NOT NULL,value INT,date_created DATETIME NOT NULL,reason TEXT NULL,FOREIGN KEY(character_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE,FOREIGN KEY(admin_id) REFERENCES vol_entity(entity_id) ON UPDATE CASCADE ON DELETE CASCADE);
+
+&CMD`+SPEND [u(cobj,upgrade)]=$^(?\:\+)?spend(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@check u(isadmin,%#)=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`CHECKPC=%2,1;@attach %!/INC`VALID`POSINT=before(%3,/),XP;@check gt(u(setr,oldpoints,get(%q<t1>/D`AP)),%q<value>)=@attach %!/INC`MSG=%q<t1name> doesn't have enough points to spend!;@check strlen(after(%3,/))=@attach %!/INC`MSG=ERROR: Must include a reason!;@set %q<t1>=D`AP:[sub(%q<oldpoints>,%q<value>)];th u(setq,msgtext,%q<value> XP from %q<t1name>'s Total for: [after(%3,/)]);@attach %!/INC`MSG=You mark off %q<msgtext>;@attach %!/INC`MSG`CHAN=%n marked off %q<msgtext>;@attach %!/INC`DOSQL=RECORD`XP_SPEND,%q<t1id>,get(%#/D`ID),%q<value>,after(%3,/)
+@set [u(cobj,upgrade)]/CMD`+SPEND=regexp
+
+&Q`RECORD`XP_SPEND [u(cobj,upgrade)]=INSERT INTO xp_spends (character_id,admin_id,value,reason,date_created) VALUES (?,?,?,?,UTC_TIMESTAMP())

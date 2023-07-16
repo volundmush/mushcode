@@ -30,7 +30,7 @@ th u(NEWCOBJ,Simple Message System <SMS>,sms,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &Q`SELECT`MSG_LINK_IDS [u(cobj,sms)]=SELECT l.msg_link_id FROM vol_sms_msg_link AS l LEFT JOIN vol_sms_msg AS m on l.msg_id=m.msg_id WHERE l.character_id=? AND l.msg_link_display=1
 
-&INC`SHOWMSG [u(cobj,sms)]=@attach %!/INC`FINDMSG=%0,1;@pemit %#=u(header,Txt Message %q<value>);@pemit %#=ansi(hw,From:)%b%q<msg1.sender_display>%R[ansi(hw,To:)] %q<msg1.recipient_names>;@pemit %#=u(separator,Contents);@pemit %#=%q<msg1.text>;@select/inline cor(1,eq(%q<t0id>,%q<msg1.sender_id>))=1,{@pemit %#=u(separator,Recipient Read Status);@pemit %#=iter(u(mysql3,SELECT`HAS_READ,%q<msg1.id>),before(%i0,chr(177))%b\([if(after(%i0,chr(177)),ansi(hr,N),ansi(hg,Y))]\),chr(176),\,%b)};@pemit %#=u(footer);@attach %!/INC`DOSQL=UPDATE`MSG_READ,%q<msg1.linkid>
+&INC`SHOWMSG [u(cobj,sms)]=@attach %!/INC`FINDMSG=%0,1;@pemit %#=u(header,Txt Message %q<value>);@pemit %#=ansi(hw,From:)%b%q<msg1.sender_display>%R[ansi(hw,To:)] %q<msg1.recipient_names>;@pemit %#=u(separator,Contents);@pemit %#=%q<msg1.text>;@select/inline cor(1,eq(%q<t0id>,%q<msg1.sender_id>))=1,{@pemit %#=u(separator,Recipient Read Status);@pemit %#=iter(u(mysql3,SELECT`HAS_READ,%q<msg1.id>),before(%i0,u(fsep))%b\([if(after(%i0,u(fsep)),ansi(hr,N),ansi(hg,Y))]\),u(rsep),\,%b)};@pemit %#=u(footer);@attach %!/INC`DOSQL=UPDATE`MSG_READ,%q<msg1.linkid>
 
 &Q`SELECT`HAS_READ [u(cobj,sms)]=SELECT c.character_name,l.msg_is_unread FROM volv_sms_msg_link AS l LEFT JOIN volv_character AS c ON l.character_id=c.character_id WHERE msg_id=? AND msg_link_type=0
 

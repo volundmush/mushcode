@@ -1,27 +1,8 @@
 @@ RHOSTMUSH: RUN THIS ON AN IMMORTAL!
 
-@force me=@parent %#=[locate(globalroom(),Master Code Object <MCO>,Ti)]
+@force me=@parent %#=[locate(globalroom(),Core Code Parent <CCP>,Ti)]
 
-&STARTUP %#=@assert/inline strmatch(%va,RhostMUSH);@admin alias=@attach @include/override;@admin alias=@stop @break/inline;@admin alias=@check @assert/inline;@admin alias=@select @switch/first;@admin mux_child_compat=1;@admin cpuintervalchk=5;@admin cputimechk=5;@admin parentable_control_lock=1;@admin sub_include=:;@admin tree_character=`;@admin penn_switches=1;@admin atrperms=D`:5:5;@aflags/perm;@dolist/inline room thing player exit={@admin global_parent_##=[after(u(cobj,ancestor_%d0),#)]};@dolist/inline name contents exits=@admin format_##=1;@admin access=+help ignore;@admin access=+shelp ignore;@admin mux_lcon_compat=1;@admin hook_obj=[after(u(cobj,mco),#)];@include %!/STARTUP`EXTRA
+@STARTUP %#=@assert/inline strmatch(%va,RhostMUSH);@admin alias=@attach @include/override;@admin alias=@stop @break/inline;@admin alias=@check @assert/inline;@admin alias=@select @switch/first;@admin mux_child_compat=1;@admin cpuintervalchk=5;@admin cputimechk=5;@admin parentable_control_lock=1;@admin sub_include=:;@admin tree_character=`;@admin penn_switches=1;@admin atrperms=D`:5:5;@aflags/perm;@dolist/inline room thing player exit={@admin global_parent_##=[after(u(cobj,ancestor_%d0),#)]};@dolist/inline name contents exits=@admin format_##=1;@admin access=+help ignore;@admin access=+shelp ignore;@admin mux_lcon_compat=1;@admin hook_obj=[after(u(cobj,ccp),#)];@include %!/STARTUP`EXTRA
 
 @trigger %#/STARTUP
-@trigger [u(cobj,mco)]/STARTUP
-
-@admin cpuintervalchk=5;
-@admin cputimechk=5;
-@admin parentable_control_lock=1;
-@admin tree_character=`;
-@admin penn_switches=1;
-@admin atrperms=D`:5:5;
-
-@aflags/perm;
-
-@dolist/inline room thing player exit={@admin global_parent_##=[after(u(cobj,ancestor_%d0),#)]};
-
-@dolist/inline name contents exits=@admin format_##=1;
-
-@admin access=+help ignore;
-
-@admin access=+shelp ignore;
-
-@admin mux_lcon_compat=1;
+@trigger [u(cobj,ccp)]/STARTUP

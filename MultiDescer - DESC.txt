@@ -11,7 +11,7 @@ th u(NEWCOBJ,Desc Management System <DESC>,desc,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &SWITCHES`PLAYER [u(cobj,desc)]=SAVE|DELETE|NOISY|VIEW|RENAME
 
-&INC`FIND [u(cobj,desc)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Desc name field empty!;@check strlen(u(setr,desc,u(mysql3,LOAD`DESC[if(%4,`EXACT)],%q<t1id>,[sqlescape(%0)])))=@attach %!/INC`MSG=ERROR: Desc '%0' not found.[if(%4,%bThis mode uses exact-match.)];th u(setq,descname,elements(%q<desc>,2,chr(177)));th u(setq,descid,elements(%q<desc>,1,chr(177)));th u(setq,desctext,elements(%q<desc>,3,chr(177)));
+&INC`FIND [u(cobj,desc)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Desc name field empty!;@check strlen(u(setr,desc,u(mysql3,LOAD`DESC[if(%4,`EXACT)],%q<t1id>,[sqlescape(%0)])))=@attach %!/INC`MSG=ERROR: Desc '%0' not found.[if(%4,%bThis mode uses exact-match.)];th u(setq,descname,elements(%q<desc>,2,u(fsep)));th u(setq,descid,elements(%q<desc>,1,u(fsep)));th u(setq,desctext,elements(%q<desc>,3,u(fsep)));
 
 &Q`LOAD`DESC [u(cobj,desc)]=SELECT field_id,field_name,field_text FROM vol_field WHERE entity_id=? AND field_type=0 AND field_name LIKE '!%%' ORDER BY field_name LIMIT 1
 &Q`LOAD`DESC`EXACT [u(cobj,desc)]=SELECT field_id,field_name,field_text FROM vol_field WHERE entity_id=? AND field_type=0 AND field_name=!
@@ -23,7 +23,7 @@ th u(NEWCOBJ,Desc Management System <DESC>,desc,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &Q`DESC`LIST [u(cobj,desc)]=SELECT field_name FROM vol_field WHERE entity_id=? AND field_type=0 ORDER BY field_name
 
-&INC`LIST [u(cobj,desc)]=@pemit %#=u(header,Saved Descriptions);@pemit %#=u(table,iter(u(mysql3,DESC`LIST,%q<t1id>),u(mxpmenu,%i0,+desc %i0|+desc/noisy %i0|+desc/view %i0,Change|NoisyChange|View),chr(176),chr(176)),26,78,chr(176));@pemit %#=u(footer)
+&INC`LIST [u(cobj,desc)]=@pemit %#=u(header,Saved Descriptions);@pemit %#=u(table,iter(u(mysql3,DESC`LIST,%q<t1id>),u(mxpmenu,%i0,+desc %i0|+desc/noisy %i0|+desc/view %i0,Change|NoisyChange|View),u(rsep),u(rsep)),26,78,u(rsep));@pemit %#=u(footer)
 
 &Q`DESC`EXISTS [u(cobj,desc)]=SELECT field_id FROM vol_field WHERE entity_id=? AND field_type=0 AND field_name=? LIMIT 1
 

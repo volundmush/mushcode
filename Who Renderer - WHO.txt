@@ -51,7 +51,7 @@ th u(NEWCOBJ,Who Renderer <WHO>,who,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 @@ JSON
 &J`WHO`PLAYER [u(cobj,who)]=json(object,id,json(number,get(%0/D`ID)),name,json(string,name(%0)),objid,json(string,objid(%0)),idle,json(number,idle(%0)),conn,json(number,conn(%0)))
 
-&J`WHO`PLAYERS [u(cobj,who)]=u(J`CREATE`ARRAY,iter(%0,%i0,%b,chr(176)),WHO`PLAYER,%1)
+&J`WHO`PLAYERS [u(cobj,who)]=u(J`CREATE`ARRAY,iter(%0,%i0,%b,u(rsep)),WHO`PLAYER,%1)
 
 &J`WHO`PLAYERS`ALL [u(cobj,who)]=u(J`WHO`PLAYERS,u(lwhoid,%0))
 

@@ -13,7 +13,7 @@ th u(NEWCOBJ,Rumor Management System <RUMOR>,rumor,,,,WIZARD SAFE !NO_COMMAND,IN
 &SWITCHES`PLAYER [u(cobj,rumor)]=NEW|QUASH|PROMOTE|CIRCLES
 &SYSTEM`NAME [u(cobj,rumor)]=RUMOR
 
-&INIT [u(cobj,rumor)]=@attach %!/INC`CHECKPC=%#,0;th u(setq,canpost,iter(filterbool(#lambda/testlock(elements(\%0,3,chr(177)),%#),u(mysql3,CIRCLE`POST_LOCK),chr(176),chr(176)),elements(%i0,1 2,chr(177),chr(177)),chr(176),chr(176)));th u(setq,canread,iter(filterbool(#lambda/testlock(elements(\%0,3,chr(177)),%#),u(mysql3,CIRCLE`READ_LOCK),chr(176),chr(176)),elements(%i0,1 2,chr(177),chr(177)),chr(176),chr(176)))
+&INIT [u(cobj,rumor)]=@attach %!/INC`CHECKPC=%#,0;th u(setq,canpost,iter(filterbool(#lambda/testlock(elements(\%0,3,u(fsep)),%#),u(mysql3,CIRCLE`POST_LOCK),u(rsep),u(rsep)),elements(%i0,1 2,u(fsep),u(fsep)),u(rsep),u(rsep)));th u(setq,canread,iter(filterbool(#lambda/testlock(elements(\%0,3,u(fsep)),%#),u(mysql3,CIRCLE`READ_LOCK),u(rsep),u(rsep)),elements(%i0,1 2,u(fsep),u(fsep)),u(rsep),u(rsep)))
 
 &Q`CIRCLE`POST_LOCK [u(cobj,rumor)]=SELECT circle_id,circle_name,circle_post_lock FROM vol_rumor_circle ORDER BY circle_name
 &Q`CIRCLE`READ_LOCK [u(cobj,rumor)]=SELECT circle_id,circle_name,circle_read_lock FROM vol_rumor_circle ORDER BY circle_name
@@ -27,7 +27,7 @@ th u(NEWCOBJ,Rumor Management System <RUMOR>,rumor,,,,WIZARD SAFE !NO_COMMAND,IN
 &Q`LOAD`CIRCLE [u(cobj,rumor)]=SELECT circle_id,circle_name,UNIX_TIMESTAMP(circle_date_created),circle_read_lock,circle_post_lock,circle_admin_lock,circle_description FROM vol_rumor_circle WHERE circle_id=?
 &FIELD`CIRCLE [u(cobj,rumor)]=id name created readlock postlock adminlock description
 
-&INC`VALID`CIRCLENAME [u(cobj,rumor)]=@attach %!/INC`VALID`ENAME=%0,Rumor Circle;@check lte(strlen(%q<value>),14)=@attach %!/INC`MSG=ERROR: Rumor Circle names must be 14 characters or less!;@stop cand(strlen(u(setq,foundname,u(mysql3,FIND`CIRCLE`EXACT,%q<value>))),neq(%2,before(%q<foundname>,chr(177))))=@attach %!/INC`MSG=ERROR: A Rumor Circle of that name already exists!
+&INC`VALID`CIRCLENAME [u(cobj,rumor)]=@attach %!/INC`VALID`ENAME=%0,Rumor Circle;@check lte(strlen(%q<value>),14)=@attach %!/INC`MSG=ERROR: Rumor Circle names must be 14 characters or less!;@stop cand(strlen(u(setq,foundname,u(mysql3,FIND`CIRCLE`EXACT,%q<value>))),neq(%2,before(%q<foundname>,u(fsep))))=@attach %!/INC`MSG=ERROR: A Rumor Circle of that name already exists!
 
 &INC`MAKECIRCLE [u(cobj,rumor)]=@check u(iswizard,%#)=@attach %!/INC`MSG=Permission Denied: Wizard only.;@attach %!/INC`VALID`CIRCLENAME=%0;@check strlen(%2)=@attach %!/INC`MSG=ERROR: No Rumor Circle Description provided!;@attach %!/INC`DOSQL=CREATE`CIRCLE/circle_id,%q<value>,%2;@attach %!/INC`MSG=Circle '%q<value>' created! Make sure to use +rumor/lockcircle to restrict it!;@attach %!/INC`MSG`CHAN=Circle '%q<value>' created!
 
@@ -41,9 +41,9 @@ th u(NEWCOBJ,Rumor Management System <RUMOR>,rumor,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &Q`UPDATE`DESCRIPTION [u(cobj,rumor)]=UPDATE vol_rumor_circle SET circle_description=? WHERE circle_id=?
 
-&INC`CIRCLES [u(cobj,rumor)]=@pemit %#=u(HEADER,Rumor Circles);@pemit %#=ansi(u(color,%#,RUMOR,COLUMN_NAMES),align(18 9 49,Name,Access,Description));@pemit %#=u(SEPARATOR);@dolist/inline/delimit [chr(176)] %q<canpost>={@attach %!/INC`LOADSQL=CIRCLE,before(%i0,chr(177)),,cir;@pemit %#=align(18 9 49,%q<cir.name>,[if(testlock(%q<cir.readlock>,%#),R,-)]-[if(testlock(%q<cir.postlock>,%#),P,-)]-[if(testlock(%q<cir.adminlock>,%#),A,-)],%q<cir.description>)};@pemit %#=u(FOOTER)
+&INC`CIRCLES [u(cobj,rumor)]=@pemit %#=u(HEADER,Rumor Circles);@pemit %#=ansi(u(color,%#,RUMOR,COLUMN_NAMES),align(18 9 49,Name,Access,Description));@pemit %#=u(SEPARATOR);@dolist/inline/delimit [u(rsep)] %q<canpost>={@attach %!/INC`LOADSQL=CIRCLE,before(%i0,u(fsep)),,cir;@pemit %#=align(18 9 49,%q<cir.name>,[if(testlock(%q<cir.readlock>,%#),R,-)]-[if(testlock(%q<cir.postlock>,%#),P,-)]-[if(testlock(%q<cir.adminlock>,%#),A,-)],%q<cir.description>)};@pemit %#=u(FOOTER)
 
-&INC`FINDCIRCLE [u(cobj,rumor)]=@check strlen(%0)=@attach %!/INC`MSG=No Circle name entered!;@check words(u(setr,cats,if(strlen(%1),r(can%1),u(FUN`LISTCIRCLES))),chr(176))=@attach %!/INC`MSG=There are no Circles.;@check words(u(setr,results,u(strfirstof,grab(%q<cats>,*[chr(177)]%0,chr(176),chr(176)),graball(%q<cats>,*[chr(177)]%0*,chr(176),chr(176)))),chr(176))=@attach %!/INC`MSG=ERROR: Nothing found matching '%0'!;@stop gt(words(%q<results>,chr(176)),1)=@attach %!/INC`MSG=ERROR; Results ambiguous! That matches: [iter(%q<results>,elements(%i0,2,chr(177)),chr(176),\,%b)];@attach %!/INC`LOADSQL=CIRCLE,before(%q<results>,chr(177)),%2;th unsetq(results cats)
+&INC`FINDCIRCLE [u(cobj,rumor)]=@check strlen(%0)=@attach %!/INC`MSG=No Circle name entered!;@check words(u(setr,cats,if(strlen(%1),r(can%1),u(FUN`LISTCIRCLES))),u(rsep))=@attach %!/INC`MSG=There are no Circles.;@check words(u(setr,results,u(strfirstof,grab(%q<cats>,*[u(fsep)]%0,u(rsep),u(rsep)),graball(%q<cats>,*[u(fsep)]%0*,u(rsep),u(rsep)))),u(rsep))=@attach %!/INC`MSG=ERROR: Nothing found matching '%0'!;@stop gt(words(%q<results>,u(rsep)),1)=@attach %!/INC`MSG=ERROR; Results ambiguous! That matches: [iter(%q<results>,elements(%i0,2,u(fsep)),u(rsep),\,%b)];@attach %!/INC`LOADSQL=CIRCLE,before(%q<results>,u(fsep)),%2;th unsetq(results cats)
 
 &FUN`LISTCIRCLES [u(cobj,rumor)]=u(mysql3,LIST`CIRCLES)
 &Q`LIST`CIRCLES [u(cobj,rumor)]=SELECT circle_id,circle_name FROm vol_rumor_circle ORDER BY circle_name;
@@ -86,7 +86,7 @@ th u(NEWCOBJ,Rumor Management System <RUMOR>,rumor,,,,WIZARD SAFE !NO_COMMAND,IN
 &CONFIG`QUASH`DEFAULT [u(cobj,rumor)]=86400
 &CONFIG`QUASH`VALID [u(cobj,rumor)]=DURATION
 
-&INC`FINDRUMOR [u(cobj,rumor)]=@attach %!/INC`VALID`POSINT=%0;@check before(u(mysaql3,FIND`RUMOR`EXACT`ID,%q<value>,if(%2,u(SQL`IN`NUMBER,0 1),0)),chr(177))=@attach %!/INC`MSG=ERROR: Rumor '%0' not found.;@attach %!/INC`LOADSQL=RUMOR,%q<value>,%1;
+&INC`FINDRUMOR [u(cobj,rumor)]=@attach %!/INC`VALID`POSINT=%0;@check before(u(mysaql3,FIND`RUMOR`EXACT`ID,%q<value>,if(%2,u(SQL`IN`NUMBER,0 1),0)),u(fsep))=@attach %!/INC`MSG=ERROR: Rumor '%0' not found.;@attach %!/INC`LOADSQL=RUMOR,%q<value>,%1;
 
 &Q`FIND`RUMOR`EXACT`ID [u(cobj,rumor)]=SELECT rumor_id,rumor_subject FROM volv_rumor WHERE rumor_id=? AND rumor_deleted IN (!)
 &Q`LOAD`RUMOR [u(cobj,rumor)]=SELECT rumor_id,rumor_subject,rumor_date_created_secs,rumor_date_modified_secs,rumor_date_timeout_secs,rumor_final_countdown,rumor_deleted,circle_id,circle_name,circle_read_lock,circle_post_lock,circle_admin_lock,character_id,character_name,character_objid,oldest_comment,rumor_rating FROM volv_rumor_agg WHERE rumor_id=?
@@ -113,7 +113,7 @@ th u(NEWCOBJ,Rumor Management System <RUMOR>,rumor,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &Q`SELECT`COMMENT_IDS [u(cobj,rumor)]=SELECT comment_id FROM vol_rumor_comment WHERE rumor_id=? ORDER BY comment_date_created
 
-&INC`RUMORLIST [u(cobj,rumor)]=@pemit %#=u(HEADER,Rumors);@pemit %#=ansi(u(color,%#,RUMOR,COLUMN_NAMES),align(5 14 20 14 10,ID,Circle,Subject,Rating,Remain));@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,SELECT`RUMOR_IDS,u(SQL`IN`NUMBER,iter(%q<canread>,before(%i0,chr(177)),chr(176),%b)))={@attach %!/INC`LOADSQL=RUMOR,%i0,,rum;th u(setq,readdate,u(mysql,SELECT`READ_DATE,%q<rum.id>,%q<t0id>));@pemit %#=align(5 14 20 14 10,if(gte(%q<readdate>,%q<rum.modified>),%B,ansi(hr,*))[u(pueblize,%q<rum.id>,+rumor %q<rum.id>)],%q<rum.circlename>,%q<rum.subject>,%q<rum.rating>,u(etime,sub(%q<rum.timeout>,secs())))};@pemit %#=u(FOOTER)
+&INC`RUMORLIST [u(cobj,rumor)]=@pemit %#=u(HEADER,Rumors);@pemit %#=ansi(u(color,%#,RUMOR,COLUMN_NAMES),align(5 14 20 14 10,ID,Circle,Subject,Rating,Remain));@pemit %#=u(SEPARATOR);@dolist/inline u(mysql,SELECT`RUMOR_IDS,u(SQL`IN`NUMBER,iter(%q<canread>,before(%i0,u(fsep)),u(rsep),%b)))={@attach %!/INC`LOADSQL=RUMOR,%i0,,rum;th u(setq,readdate,u(mysql,SELECT`READ_DATE,%q<rum.id>,%q<t0id>));@pemit %#=align(5 14 20 14 10,if(gte(%q<readdate>,%q<rum.modified>),%B,ansi(hr,*))[u(pueblize,%q<rum.id>,+rumor %q<rum.id>)],%q<rum.circlename>,%q<rum.subject>,%q<rum.rating>,u(etime,sub(%q<rum.timeout>,secs())))};@pemit %#=u(FOOTER)
 
 &Q`SELECT`RUMOR_IDS [u(cobj,rumor)]=SELECT rumor_id FROM vol_rumor WHERE circle_id IN (!) AND rumor_deleted=0 ORDER BY rumor_date_created
 &Q`SELECT`READ_DATE [u(Cobj,rumor)]=SELECT UNIX_TIMESTAMP(rumor_date_read) FROM vol_rumor_read WHERE rumor_id=? AND character_id=?

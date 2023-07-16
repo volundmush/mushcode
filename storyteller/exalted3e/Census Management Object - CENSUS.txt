@@ -9,13 +9,13 @@ th u(newcobj,STORYTELLER: Census Management System <CENSUS>,census,,,,WIZARD SAF
 
 &Q`SELECT`CENSUS [u(cobj,census)]=SELECT template_name,persona_names FROM volv_story_personas_template_census
 
-&INC`MAIN [u(cobj,census)]=@select/inline strlen(%0)=>0,{@attach %!/INC`SUB},{@pemit %#=u(header,mudname() Census Data);@pemit %#=ansi(u(color,%#,CENSUS,COLUMN_NAMES),align(16 61,Category,Characters));@pemit %#=u(separator);@dolist/inline/delimit [chr(176)] [u(mysql3,SELECT`CENSUS)]={@pemit %#=align(16 61,u(pueblize,elements(%i0,1,chr(177)),+census [elements(%i0,1,chr(177))]),edit(elements(%i0,2,chr(177)),|,\,%b));@pemit %#=u(separator)};@pemit %#=u(footer)}
+&INC`MAIN [u(cobj,census)]=@select/inline strlen(%0)=>0,{@attach %!/INC`SUB},{@pemit %#=u(header,mudname() Census Data);@pemit %#=ansi(u(color,%#,CENSUS,COLUMN_NAMES),align(16 61,Category,Characters));@pemit %#=u(separator);@dolist/inline/delimit [u(rsep)] [u(mysql3,SELECT`CENSUS)]={@pemit %#=align(16 61,u(pueblize,elements(%i0,1,u(fsep)),+census [elements(%i0,1,u(fsep))]),edit(elements(%i0,2,u(fsep)),|,\,%b));@pemit %#=u(separator)};@pemit %#=u(footer)}
 
 &Q`SELECT`TEMPLATE_NAMES [u(cobj,census)]=SELECT template_name FROM volv_story_personas_template_census
 
 &Q`SELECT`X_DATA [u(Cobj,census)]=SELECT x_splat_name,persona_names FROM volv_story_personas_template_census_x WHERE template_name=?
 
-&INC`SUB [u(cobj,census)]=@attach %!/INC`PARTIAL=%0,u(mysql2,SELECT`TEMPLATE_NAMES),|,choice,Class;@pemit %#=u(header,Census - %q<choice>);@pemit %#=ansi(u(color,%#,CENSUS,COLUMN_NAMES),align(10 67,Category,Characters));@pemit %#=u(separator);@dolist/inline/delimit [chr(176)] [u(mysql3,SELECT`X_DATA,%q<choice>)]={@pemit %#=align(10 67,elements(%i0,1,chr(177)),edit(elements(%i0,2,chr(177)),|,\,%b));@pemit %#=u(separator)};@pemit %#=u(footer)
+&INC`SUB [u(cobj,census)]=@attach %!/INC`PARTIAL=%0,u(mysql2,SELECT`TEMPLATE_NAMES),|,choice,Class;@pemit %#=u(header,Census - %q<choice>);@pemit %#=ansi(u(color,%#,CENSUS,COLUMN_NAMES),align(10 67,Category,Characters));@pemit %#=u(separator);@dolist/inline/delimit [u(rsep)] [u(mysql3,SELECT`X_DATA,%q<choice>)]={@pemit %#=align(10 67,elements(%i0,1,u(fsep)),edit(elements(%i0,2,u(fsep)),|,\,%b));@pemit %#=u(separator)};@pemit %#=u(footer)
 
 @@ COMMUNITY - +CENSUS
 &HLP`CENSUS [u(cobj,census)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+census)] - Shows all approved players by Splat.%R[ansi(h,+census <splat>)] - Shows all players in a splat by Caste/Aspect/etc.)]

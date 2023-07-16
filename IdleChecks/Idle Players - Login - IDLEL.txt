@@ -18,4 +18,4 @@ th u(NEWCOBJ,Idle Players LOGIN <IDLEL>,idlel,,,,WIZARD SAFE !NO_COMMAND,INHERIT
 &SWITCHES`ADMIN [u(cobj,idlel)]=
 &SWITCHES`PLAYER [u(cobj,idlel)]=if(isdbref(u(cobj,theme)),u(u(cobj,theme)/conf,TYPES))
 
-&FIL`CHARTYPE [u(cobj,idlel)]=strmatch(elements(get(%0/V`THEME),2,chr(177)),%1)
+&FIL`CHARTYPE [u(cobj,idlel)]=strmatch(elements(get(%0/V`THEME),2,u(fsep)),%1)

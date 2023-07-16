@@ -62,7 +62,7 @@ th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,u(cobj,story),,
 
 &FUN`3HEADER [u(cobj,sheet)]=[u(FUN`COLOR,%1,BORDER,\})][center(iter(%2,center(u(FUN`COLOR,%1,SLASH,/)[u(FUN`COLOR,%1,3COLUMNNAME,%i0)][u(FUN`COLOR,%1,SLASH,/)],div(sub(u(width,%#),2),3),u(FUN`COLOR,%1,BORDER,-)),|,),sub(u(width,%#),2),u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,\{)]
 
-&FUN`ATTRCASCADE [u(cobj,sheet)]=iter(u(mysql3,GET`PERSONA_STATS_IN_IDS,%2,u(SQL`IN`NUMBER,u(ATTRIBUTES`%3)),0),u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%4),chr(176),%R)
+&FUN`ATTRCASCADE [u(cobj,sheet)]=iter(u(mysql3,GET`PERSONA_STATS_IN_IDS,%2,u(SQL`IN`NUMBER,u(ATTRIBUTES`%3)),0),u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%4),u(rsep),%R)
 
 &Q`GET`PERSONA_STATS_IN_IDS [u(cobj,sheet)]=SELECT stat_name,stat_value,stat_flags_1,stat_flags_2 FROM volv_story_persona_stats WHERE persona_id=? AND stat_id IN (!) AND persona_stat_type=? ORDER BY stat_id
 
@@ -71,29 +71,29 @@ th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,u(cobj,story),,
 &FUN`MERITS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,MERITS,+merits)
 &FUN`FLAWS [u(cobj,sheet)]=u(FUN`MERFORMAT,%0,%1,FLAWS,+flaws)
 
-&FUN`DOTFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,%5)%R[u(setq,sorted,%7)][if(%9,u(setq,first,u(filter,LTSTRLEN,%q<sorted>,chr(176),chr(176),%4))[u(setq,second,u(filter,GTESTRLEN,%q<sorted>,chr(176),chr(176),%4))],u(setq,first,%q<sorted>))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`STATFORMAT,%0,%1,%2,%4,%6,%q<first>)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`STATFORMAT2,%0,%1,%2,sub(u(width,%#),2),%6,%q<second>)))][if(strlen(%q<firstsec>),%q<firstsec>)][if(strlen(%q<secondsec>),if(strlen(%q<firstsec>),%R%q<secondsec>,%q<secondsec>))])
+&FUN`DOTFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,%5)%R[u(setq,sorted,%7)][if(%9,u(setq,first,u(filter,LTSTRLEN,%q<sorted>,u(rsep),u(rsep),%4))[u(setq,second,u(filter,GTESTRLEN,%q<sorted>,u(rsep),u(rsep),%4))],u(setq,first,%q<sorted>))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`STATFORMAT,%0,%1,%2,%4,%6,%q<first>)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`STATFORMAT2,%0,%1,%2,sub(u(width,%#),2),%6,%q<second>)))][if(strlen(%q<firstsec>),%q<firstsec>)][if(strlen(%q<secondsec>),if(strlen(%q<firstsec>),%R%q<secondsec>,%q<secondsec>))])
 
 &FIL`DOTMATCH [u(cobj,sheet)]=t(match(%1,%0,|))
-&FIL`LTSTRLEN [u(Cobj,sheet)]=lt(strlen(before(%0,chr(177))),sub(%1,10))
-&FIL`GTESTRLEN [u(cobj,sheet)]=gte(strlen(before(%0,chr(177))),%1)
-&FIL`LTESTRLEN [u(cobj,sheet)]=lte(strlen(before(%0,chr(177))),%1)
+&FIL`LTSTRLEN [u(Cobj,sheet)]=lt(strlen(before(%0,u(fsep))),sub(%1,10))
+&FIL`GTESTRLEN [u(cobj,sheet)]=gte(strlen(before(%0,u(fsep))),%1)
+&FIL`LTESTRLEN [u(cobj,sheet)]=lte(strlen(before(%0,u(fsep))),%1)
 
-&FUN`STATFORMAT [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,[u(setq,wid,floor(fdiv(mod(sub(u(width,%#),4),%3),floor(fdiv(sub(u(width,%#),4),%3)))))][u(table,iter(%5,u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%3),chr(176),chr(176)),add(%q<wid>,%3),sub(u(width,%#),4),chr(176))])
-&FUN`STATFORMAT2 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,trimpenn(iter(%5,u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%3),chr(176),%R),%R))
+&FUN`STATFORMAT [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,[u(setq,wid,floor(fdiv(mod(sub(u(width,%#),4),%3),floor(fdiv(sub(u(width,%#),4),%3)))))][u(table,iter(%5,u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%3),u(rsep),u(rsep)),add(%q<wid>,%3),sub(u(width,%#),4),u(rsep))])
+&FUN`STATFORMAT2 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,trimpenn(iter(%5,u(FUN`STATFORMAT`STAT,%0,%1,%2,%i0,%3),u(rsep),%R),%R))
 
-&FUN`MERFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,u(capnames,%4))%R[u(setq,first,filterbool(#lambda/lt(strlen(before(\%0,chr(177))),sub(36,10)),%3,chr(176),chr(176)))][u(setq,second,filterbool(#lambda/gte(strlen(before(\%0,chr(177))),sub(36,10)),%3,chr(176),chr(176)))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`MERFORMAT`2,%0,%1,%2,%q<first>,%5)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`MERFORMAT`3,%0,%1,%2,%q<second>,%5)))][if(strlen(%q<firstsec>),%q<firstsec>)][if(strlen(%q<secondsec>),if(strlen(%q<firstsec>),%R%q<secondsec>,%q<secondsec>))])
+&FUN`MERFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,u(capnames,%4))%R[u(setq,first,filterbool(#lambda/lt(strlen(before(\%0,u(fsep))),sub(36,10)),%3,u(rsep),u(rsep)))][u(setq,second,filterbool(#lambda/gte(strlen(before(\%0,u(fsep))),sub(36,10)),%3,u(rsep),u(rsep)))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`MERFORMAT`2,%0,%1,%2,%q<first>,%5)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`MERFORMAT`3,%0,%1,%2,%q<second>,%5)))][if(strlen(%q<firstsec>),%q<firstsec>)][if(strlen(%q<secondsec>),if(strlen(%q<firstsec>),%R%q<secondsec>,%q<secondsec>))])
 
-&FUN`MERFORMAT`2 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,u(table,iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(pueblize,elements(%i0,1,chr(177)),%4 [name(%0)]/[elements(%i0,1,chr(177))]),36,elements(%i0,2,chr(177)),,1,1),chr(176),chr(176)),36,sub(u(width,%#),4),chr(176)))
+&FUN`MERFORMAT`2 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,u(table,iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(pueblize,elements(%i0,1,u(fsep)),%4 [name(%0)]/[elements(%i0,1,u(fsep))]),36,elements(%i0,2,u(fsep)),,1,1),u(rsep),u(rsep)),36,sub(u(width,%#),4),u(rsep)))
 
-&FUN`MERFORMAT`3 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,trimpenn(iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(pueblize,elements(%i0,1,chr(177)),%4 [name(%0)]/[elements(%i0,1,chr(177))]),sub(u(width,%#),4),elements(%i0,2,chr(177)),,1,1),chr(176),%R),%R))
+&FUN`MERFORMAT`3 [u(cobj,sheet)]=u(FUN`BORDER,%0,%1,trimpenn(iter(%3,u(FUN`STATFORMAT`STAT,%0,%1,%2,u(pueblize,elements(%i0,1,u(fsep)),%4 [name(%0)]/[elements(%i0,1,u(fsep))]),sub(u(width,%#),4),elements(%i0,2,u(fsep)),,1,1),u(rsep),%R),%R))
 
-&FUN`STATFORMAT`STAT [u(cobj,sheet)]=localize([u(setq,namedisp,if(%9,left(elements(%3,1,chr(177)),%9),elements(%3,1,chr(177))))][u(setq,val,u(strfirstof,u(strfirstof,%5,elements(%3,2,chr(177))),0))][u(setq,bon,u(strfirstof,%6,elements(%3,5,chr(177))))][u(setq,totval,add(%q<val>,if(%7,%q<bon>)))][if(%7,u(setq,valdisp,if(%7,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<val>)))),[u(setq,astlen,if(lte(%q<bon>,-1),bound(add(%q<val>,%q<bon>),0),%q<val>))][u(setq,minlen,if(lte(%q<bon>,-1),abs(%q<bon>)))][u(setq,pluslen,if(gte(%q<bon>,1),%q<bon>))][u(setq,valdisp,[if(%q<astlen>,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<astlen>)))][if(%q<minlen>,u(FUN`COLOR,%1,STATDOT,repeat(-,%q<minlen>)))][if(%q<pluslen>,u(FUN`COLOR,%1,STATDOT,repeat(+,%q<pluslen>)))])])][if(%8,,u(setq,fav,elements(%3,3,chr(177))))][u(setq,statlen,strlen(%q<namedisp>))][if(cor(lte(sub(%4,1,%q<statlen>,strlen(%q<valdisp>)),0),v(10)),u(setq,valdisp,%q<totval>)[u(setq,dotlen,strlen(%q<totval>))],u(setq,dotlen,strlen(%q<valdisp>)))][u(setq,linelen,sub(%4,1,%q<dotlen>,%q<statlen>))][switch(%q<fav>,3,u(FUN`COLOR,%1,SUPMARK,+),2,u(FUN`COLOR,%1,CASTEMARK,+),1,u(FUN`COLOR,%1,FAVMARK,+),%b)][u(FUN`COLOR,%1,STATNAME,if(%5,%q<namedisp>,u(capnames,%q<namedisp>)))][if(gt(%q<linelen>,0),repeat(u(FUN`COLOR,%1,STATFILL,.),%q<linelen>))]%q<valdisp>)
+&FUN`STATFORMAT`STAT [u(cobj,sheet)]=localize([u(setq,namedisp,if(%9,left(elements(%3,1,u(fsep)),%9),elements(%3,1,u(fsep))))][u(setq,val,u(strfirstof,u(strfirstof,%5,elements(%3,2,u(fsep))),0))][u(setq,bon,u(strfirstof,%6,elements(%3,5,u(fsep))))][u(setq,totval,add(%q<val>,if(%7,%q<bon>)))][if(%7,u(setq,valdisp,if(%7,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<val>)))),[u(setq,astlen,if(lte(%q<bon>,-1),bound(add(%q<val>,%q<bon>),0),%q<val>))][u(setq,minlen,if(lte(%q<bon>,-1),abs(%q<bon>)))][u(setq,pluslen,if(gte(%q<bon>,1),%q<bon>))][u(setq,valdisp,[if(%q<astlen>,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<astlen>)))][if(%q<minlen>,u(FUN`COLOR,%1,STATDOT,repeat(-,%q<minlen>)))][if(%q<pluslen>,u(FUN`COLOR,%1,STATDOT,repeat(+,%q<pluslen>)))])])][if(%8,,u(setq,fav,elements(%3,3,u(fsep))))][u(setq,statlen,strlen(%q<namedisp>))][if(cor(lte(sub(%4,1,%q<statlen>,strlen(%q<valdisp>)),0),v(10)),u(setq,valdisp,%q<totval>)[u(setq,dotlen,strlen(%q<totval>))],u(setq,dotlen,strlen(%q<valdisp>)))][u(setq,linelen,sub(%4,1,%q<dotlen>,%q<statlen>))][switch(%q<fav>,3,u(FUN`COLOR,%1,SUPMARK,+),2,u(FUN`COLOR,%1,CASTEMARK,+),1,u(FUN`COLOR,%1,FAVMARK,+),%b)][u(FUN`COLOR,%1,STATNAME,if(%5,%q<namedisp>,u(capnames,%q<namedisp>)))][if(gt(%q<linelen>,0),repeat(u(FUN`COLOR,%1,STATFILL,.),%q<linelen>))]%q<valdisp>)
 @@ %0 = Player. %1 = Splat. %2 = pers_id. %3 = Entry. %4 = Length. %5 = manual value. %6 = Manual bonus. %7 = Don't show bonus. %8 = No favoreds. %9 = Truncate.
 
 
-&FUN`WORDLIST [u(cobj,sheet)]=if(strlen(u(setr,short,u(table,u(filter,LTESTRLEN,u(setr,capped,iter(%1,u(renderwords,%i0),chr(176),chr(176))),chr(176),chr(176),36),36,sub(u(width,%#),4),chr(176)))),%q<short>)[if(words(u(setr,toolong,u(filter,GTESTRLEN,%q<capped>,chr(176),chr(176),37)),chr(176)),if(strlen(%q<short>),%R)[iter(%q<toolong>,%i0,chr(176),%R)])]
+&FUN`WORDLIST [u(cobj,sheet)]=if(strlen(u(setr,short,u(table,u(filter,LTESTRLEN,u(setr,capped,iter(%1,u(renderwords,%i0),u(rsep),u(rsep))),u(rsep),u(rsep),36),36,sub(u(width,%#),4),u(rsep)))),%q<short>)[if(words(u(setr,toolong,u(filter,GTESTRLEN,%q<capped>,u(rsep),u(rsep),37)),u(rsep)),if(strlen(%q<short>),%R)[iter(%q<toolong>,%i0,u(rsep),%R)])]
 
-&RENDERWORDS [u(cobj,sheet)]=[if(elements(%0,3,chr(177)),ansi(hr,+))][before(%0,chr(177))][if(gt(elements(%0,2,chr(177)),1),%b\([elements(%0,2,chr(177))]\))]
+&RENDERWORDS [u(cobj,sheet)]=[if(elements(%0,3,u(fsep)),ansi(hr,+))][before(%0,u(fsep))][if(gt(elements(%0,2,u(fsep)),1),%b\([elements(%0,2,u(fsep))]\))]
 
 &FUN`FORMATPOOLS [u(cobj,sheet)]=iter(u(capnames,u(u(cobj,pool)/FUN`LISTPOOLS,%0,%1)),rjust(%i0: [rjust(add(u(u(cobj,pool)/FUN`CUR,%0,%i0),0),3)]/[u(u(cobj,pool)/FUN`MAX,%0,%i0)],switch(%1,Pool,21,Channel,19,Track,19,21)),|,%R)
 

@@ -43,9 +43,9 @@ th u(NEWCOBJ,Where Renderer <WHERE>,where,,,,WIZARD SAFE !NO_COMMAND,INHERIT SID
 
 &FUN`WHERELINE [u(cobj,where)]=align(25 1 [sub(u(width,%#),38)],if(match(%q<portable>,%0),u(pueblize,u(getmoniker,%0),+port %0),u(getmoniker,%0)),-,u(itemize,iter(u(sortname,u(filter,FINDABLE,u(lvplayers,%0),%b,%b,%#)),u(pueblize,u(getmoniker,%i0),+finger [name(%i0)])[if(hasflag(%i0,UNFINDABLE),\(Unfindable\))],,|),|,and,\,))
 
-&INC`HEADER`MAIN [u(cobj,where)]=@pemit %#=ansi(u(color,%#,COLUMN_NAMES),lalign(iter(u(setr,hdr,u(game_config,WHERE,HEADER)),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,chr(177)),chr(177)))
+&INC`HEADER`MAIN [u(cobj,where)]=@pemit %#=ansi(u(color,%#,COLUMN_NAMES),lalign(iter(u(setr,hdr,u(game_config,WHERE,HEADER)),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,u(fsep)),u(fsep)))
 
-&FUN`WHERELINE`PLAYER [u(cobj,where)]=lalign(iter(u(setr,col,u(game_config,WHERE,COLUMNS)),after(%i0,~),|,%b),iter(%q<col>,u(strfirstof,u(getproperty,%0,before(%i0,~)),get(%0/D`FINGER`[before(%i0,~)])),|,chr(177)),chr(177))
+&FUN`WHERELINE`PLAYER [u(cobj,where)]=lalign(iter(u(setr,col,u(game_config,WHERE,COLUMNS)),after(%i0,~),|,%b),iter(%q<col>,u(strfirstof,u(getproperty,%0,before(%i0,~)),get(%0/D`FINGER`[before(%i0,~)])),|,u(fsep)),u(fsep))
 
 @@ th u(newconf,CONFIG,WHERE,HEADER,Name~20|Alias~11|Fac~3|Idle~4|Conn~4|G~1|Location~29,check +shelp +who,LIST)
 @@ th u(newconf,CONFIG,WHERE,COLUMNS,NAMELINK~20|ALIAS~11|MAJORABBR~3|HIDEIDLE~>4|HIDECONN~>4|SEXLETTER~1|LOCATION~29,Check +shelp +who,LIST)

@@ -18,13 +18,13 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
 &INC`MAIN [u(cobj,theme)]=@select/inline strlen(%0)=>0,{@attach %!/INC`DISPLAY},0,{@attach %!/INC`LISTALL}
 
-&INC`LISTALL [u(cobj,theme)]=@check u(setr,count,u(mysql,SELECT`THEMECOUNT))=@attach %!/INC`MSG=No inhabited themes to display.;@pemit %#=u(HEADER,mudname() - All Themes);@dolist/inline lnum(1,u(setr,pages,add(1,div(%q<count>,30))))={@pemit %#=u(table,iter(u(mysql3,SELECT`THEME_NAMES,mul(30,sub(u(choosegame,%i0,%d0),1))),u(pueblize,%i0,+fclist %i0),chr(176),chr(176)),37,u(width,%#),chr(176))};@pemit %#=u(footer)
+&INC`LISTALL [u(cobj,theme)]=@check u(setr,count,u(mysql,SELECT`THEMECOUNT))=@attach %!/INC`MSG=No inhabited themes to display.;@pemit %#=u(HEADER,mudname() - All Themes);@dolist/inline lnum(1,u(setr,pages,add(1,div(%q<count>,30))))={@pemit %#=u(table,iter(u(mysql3,SELECT`THEME_NAMES,mul(30,sub(u(choosegame,%i0,%d0),1))),u(pueblize,%i0,+fclist %i0),u(rsep),u(rsep)),37,u(width,%#),u(rsep))};@pemit %#=u(footer)
 
 &Q`SELECT`THEME_NAMES [u(cobj,theme)]=SELECT theme_name FROM volv_theme ORDER BY theme_name LIMIT 30 OFFSET ?
 
 &Q`SELECT`THEMECOUNT [u(cobj,theme)]=SELECT count(theme_id) FROM vol_theme
 
-&INC`FINDTHEME [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@select/inline words(u(setr,theme,u(mysql3,FIND`THEME[if(%2,`EXACT)],if(not(%2),sqlescape(%0),%0),%0)))=0,{@stop 1=@attach %!/INC`MSG=ERROR: Theme '%0' not found!},1,{},>1,{@select/inline t(%2)=1,{},0,{th u(setq,theme,first(%q<theme>,chr(176)))}};th u(setq,themename,elements(%q<theme>,2,chr(177)));th u(setq,theme,elements(%q<theme>,1,chr(177)))
+&INC`FINDTHEME [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@select/inline words(u(setr,theme,u(mysql3,FIND`THEME[if(%2,`EXACT)],if(not(%2),sqlescape(%0),%0),%0)))=0,{@stop 1=@attach %!/INC`MSG=ERROR: Theme '%0' not found!},1,{},>1,{@select/inline t(%2)=1,{},0,{th u(setq,theme,first(%q<theme>,u(rsep)))}};th u(setq,themename,elements(%q<theme>,2,u(fsep)));th u(setq,theme,elements(%q<theme>,1,u(fsep)))
 
 &Q`FIND`THEME [u(cobj,theme)]=SELECT theme_id,theme_name FROM volv_theme WHERE theme_name LIKE '!%' OR theme_id=? ORDER BY theme_name LIMIT 1
 &Q`FIND`THEME`EXACT [u(cobj,theme)]=SELECT theme_id,theme_name FROM volv_theme WHERE theme_name=? OR theme_id=?
@@ -33,15 +33,15 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
 &Q`SELECT`DESCRIPTION [u(cobj,theme)]=SELECT theme_description FROM vol_theme WHERE theme_id=?
 
-&INC`CASTLIST [u(cobj,theme)]=@select/inline t(%1)=0,{@pemit %#=u(FUN`CASTCOLUMN);@pemit %#=u(separator)};@dolist/inline/delimit [chr(176)] [u(mysql3,SELECT`CAST,%0)]={@pemit %#=u(FUN`CASTROW,u(choosegame,%i0,%d0))}
+&INC`CASTLIST [u(cobj,theme)]=@select/inline t(%1)=0,{@pemit %#=u(FUN`CASTCOLUMN);@pemit %#=u(separator)};@dolist/inline/delimit [u(rsep)] [u(mysql3,SELECT`CAST,%0)]={@pemit %#=u(FUN`CASTROW,u(choosegame,%i0,%d0))}
 
 &Q`SELECT`CAST [u(cobj,theme)]=SELECT character_objid,tmember_type,character_status FROM volv_theme_member WHERE theme_id=? ORDER BY character_name
 
 &FUN`CASTCOLUMN [u(cobj,theme)]=ansi(u(color,%#,COLUMN_NAMES),align(26 24 8 8 10,Name,Faction,Last On,Type,Available))
 
-&FUN`CASTROW [u(cobj,theme)]=localize(align(26 24 8 8 10,u(namelink,u(setr,obj,elements(%0,1,chr(177)))),u(strfirstof,u(getproperty,%q<obj>,FACTION),Unaffiliated),u(lastidle,%q<obj>),u(strfirstof,elements(%0,2,chr(177))),u(strfirstof,elements(%0,3,chr(177)),Open)))
+&FUN`CASTROW [u(cobj,theme)]=localize(align(26 24 8 8 10,u(namelink,u(setr,obj,elements(%0,1,u(fsep)))),u(strfirstof,u(getproperty,%q<obj>,FACTION),Unaffiliated),u(lastidle,%q<obj>),u(strfirstof,elements(%0,2,u(fsep))),u(strfirstof,elements(%0,3,u(fsep)),Open)))
 
-&INC`SEARCH [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Nothing entered to search by!;@check strlen(u(setr,results,u(mysql3,SEARCH`CAST,%0)))=@attach %!/INC`MSG=Nothing found. Sorry!;@pemit %#=u(header,Cast for: %0);@pemit %#=u(FUN`CASTCOLUMN);@dolist/inline/delimit [chr(176)] %q<results>={@select/inline strmatch(%q<themename>,u(setr,themename,elements(u(choosegame,%i0,%d0),4,chr(177))))=0,{@pemit %#=u(separator,%q<themename>)};@pemit %#=u(FUN`CASTROW,u(choosegame,%i0,%d0))};@pemit %#=u(footer)
+&INC`SEARCH [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Nothing entered to search by!;@check strlen(u(setr,results,u(mysql3,SEARCH`CAST,%0)))=@attach %!/INC`MSG=Nothing found. Sorry!;@pemit %#=u(header,Cast for: %0);@pemit %#=u(FUN`CASTCOLUMN);@dolist/inline/delimit [u(rsep)] %q<results>={@select/inline strmatch(%q<themename>,u(setr,themename,elements(u(choosegame,%i0,%d0),4,u(fsep))))=0,{@pemit %#=u(separator,%q<themename>)};@pemit %#=u(FUN`CASTROW,u(choosegame,%i0,%d0))};@pemit %#=u(footer)
 
 &Q`SEARCH`CAST [u(cobj,theme)]=SELECT character_objid,tmember_type,character_status,theme_name FROm volv_theme_member WHERE theme_name LIKE '%!%' ORDER BY theme_name,character_name
 
@@ -80,7 +80,7 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
 &INC`VALID`CHARTYPE [u(cobj,theme)]=@check strlen(u(conf,CHARACTER_TYPES))=@attach %!/INC`MSG=ERROR: Character_types is empty! Fix with +theme/config!;@check strlen(u(setr,value,trim(stripansi(%0))))=@attach %!/INC`MSG=ERROR: Chartype cannot be empty.;@attach %!/INC`PARTIAL=%0,u(conf,CHARACTER_TYPES),|,value;
 
-&INC`ASSIGN [u(cobj,theme)]=@attach %!/INC`CHECKPC=before(%0,/),1;@stop gte(words(get(%q<t1>/V`THEME),chr(176)),u(conf,MAX_THEMES))=@attach %!/INC`MSG=ERROR: Cannot be a member of more than [u(conf,MAX_THEMES)] at once!;@attach %!/INC`VALID`CHARTYPE=after(%0,/);@attach %!/INC`FINDTHEME=%1;@attach %!/INC`DOSQL=ASSIGN`MEMBER,%q<t1id>,%q<theme>,%q<value>;@attach %!/INC`MSG=You assign %q<t1name> to Theme '%q<themename>';@attach %!/INC`MSG`CHAN=Assigned %q<t1name> to Theme '[u(pueblize,%q<themename>,+fclist %q<themename>)]';@attach %!/INC`REBUILDCHARACTER=%q<t1>
+&INC`ASSIGN [u(cobj,theme)]=@attach %!/INC`CHECKPC=before(%0,/),1;@stop gte(words(get(%q<t1>/V`THEME),u(rsep)),u(conf,MAX_THEMES))=@attach %!/INC`MSG=ERROR: Cannot be a member of more than [u(conf,MAX_THEMES)] at once!;@attach %!/INC`VALID`CHARTYPE=after(%0,/);@attach %!/INC`FINDTHEME=%1;@attach %!/INC`DOSQL=ASSIGN`MEMBER,%q<t1id>,%q<theme>,%q<value>;@attach %!/INC`MSG=You assign %q<t1name> to Theme '%q<themename>';@attach %!/INC`MSG`CHAN=Assigned %q<t1name> to Theme '[u(pueblize,%q<themename>,+fclist %q<themename>)]';@attach %!/INC`REBUILDCHARACTER=%q<t1>
 
 &Q`ASSIGN`MEMBER [u(cobj,theme)]=INSERT INTO vol_tmember (character_id,theme_id,tmember_type) VALUES (?,?,?) ON DUPLICATE KEY UPDATE tmember_type=VALUES(tmember_type)
 
@@ -96,7 +96,7 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
 &Q`SELECT`UNASSIGNED [u(cobj,theme)]=SELECT character_objid FROM volv_character WHERE character_is_deleted=0 AND character_id NOT IN (SELECT character_id FROM vol_tmember) ORDER BY character_name
 
-&INC`EMPTY [u(cobj,theme)]=@check words(u(setr,empty,u(mysql3,SELECT`EMPTY_NAMES)))=@attach %!/INC`MSG=There are no empty themes.;@attach %!/INC`MSG=The following themes have no cast: [iter(%q<empty>,u(pueblize,%i0,+fclist %i0),chr(176),\,%b)]
+&INC`EMPTY [u(cobj,theme)]=@check words(u(setr,empty,u(mysql3,SELECT`EMPTY_NAMES)))=@attach %!/INC`MSG=There are no empty themes.;@attach %!/INC`MSG=The following themes have no cast: [iter(%q<empty>,u(pueblize,%i0,+fclist %i0),u(rsep),\,%b)]
 
 &Q`SELECT`EMPTY_NAMES [u(cobj,theme)]=SELECT theme_name FROM volv_theme WHERE theme_id NOT IN (SELECT theme_id FROM vol_tmember) ORDER BY theme_name
 
@@ -108,7 +108,7 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
 &STARTUP [u(cobj,theme)]=@trigger %!/LOOP`REPORTEMPTY
 
-&LOOP`REPORTEMPTY [u(cobj,theme)]=@select/inline cand(words(u(setr,empty,u(mysql3,SELECT`EMPTY_NAMES))),u(conf,REPORT_EMPTY))=>0,{@attach %!/INC`MSG`CHAN=EMPTY THEMES: The following themes have no Cast: [iter(%q<empty>,u(pueblize,%i0,+fclist %i0),chr(176),\,%b)]};@wait mul(60,60,6)=@trigger %!/LOOP`REPORTEMPTY
+&LOOP`REPORTEMPTY [u(cobj,theme)]=@select/inline cand(words(u(setr,empty,u(mysql3,SELECT`EMPTY_NAMES))),u(conf,REPORT_EMPTY))=>0,{@attach %!/INC`MSG`CHAN=EMPTY THEMES: The following themes have no Cast: [iter(%q<empty>,u(pueblize,%i0,+fclist %i0),u(rsep),\,%b)]};@wait mul(60,60,6)=@trigger %!/LOOP`REPORTEMPTY
 
 &CONFIG`OPTIONS [u(cobj,theme)]=MAX_THEMES|REPORT_EMPTY|CHARACTER_TYPES|CHARACTER_STATUS
 

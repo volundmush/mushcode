@@ -31,7 +31,7 @@ th u(NEWCOBJ,Money System <MONEY>,money,,u(cobj,story),,WIZARD SAFE !NO_COMMAND,
 
 &CASH [u(cobj,money)]=%0 [switch(%0,>1,u(conf,PLURAL),u(conf,SINGULAR))]
 
-&INC`LOG [u(cobj,money)]=@select/inline cand(strlen(%0),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%0,1};@pemit %#=u(header,Transaction Log: %q<t1name>);@pemit %#=ansi(u(color,%#,MONEY,COLUMN_NAMES),align(10 15 45,Amount,Date,Reason));@pemit %#=u(separator);@dolist/inline u(mysql,LIST`TRANSACTIONS,%q<t1.id>)={th u(setq,data,u(mysql3,SELECT`TRANSACTION,%i0));@pemit %#=align(10 15 45,u(commafy,elements(%q<data>,1,chr(177))),u(fancytime,elements(%q<data>,2,chr(177)),%#),elements(%q<data>,3,chr(177)))};@pemit %#=u(footer)
+&INC`LOG [u(cobj,money)]=@select/inline cand(strlen(%0),u(isadmin,%#))=1,{@attach %!/INC`CHECKPC=%0,1};@pemit %#=u(header,Transaction Log: %q<t1name>);@pemit %#=ansi(u(color,%#,MONEY,COLUMN_NAMES),align(10 15 45,Amount,Date,Reason));@pemit %#=u(separator);@dolist/inline u(mysql,LIST`TRANSACTIONS,%q<t1.id>)={th u(setq,data,u(mysql3,SELECT`TRANSACTION,%i0));@pemit %#=align(10 15 45,u(commafy,elements(%q<data>,1,u(fsep))),u(fancytime,elements(%q<data>,2,u(fsep)),%#),elements(%q<data>,3,u(fsep)))};@pemit %#=u(footer)
 
 &Q`LIST`TRANSACTIONS [u(cobj,money)]=SELECT money_id FROM vol_inv_money_log WHERE character_id=? ORDER BY date_created
 &Q`SELECT`TRANSACTION [u(cobj,money)]=SELECT money_amount,UNIX_TIMESTAMP(money_amount),money_reason FROM vol_inv_money_log WHERE money_id=?

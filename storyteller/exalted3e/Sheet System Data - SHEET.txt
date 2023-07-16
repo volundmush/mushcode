@@ -35,7 +35,7 @@
 
 &FUN`SECTIONHEADER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,\})[center(u(FUN`COLOR,%1,SLASH,/)[u(FUN`COLOR,%1,HEADER,edit(%2,_,%b))][u(FUN`COLOR,%1,SLASH,/)],sub(u(width,%#),2),u(FUN`COLOR,%1,BORDER,-))][u(FUN`COLOR,%1,BORDER,\{)]
 
-&FUN`DOTFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,%4%5)%R[if(%7,u(setq,first,u(filter,LTSTRLEN,%6,chr(176),chr(176),%3))[u(setq,second,u(filter,GTESTRLEN,%6,chr(176),chr(176),sub(%3,10)))],u(setq,first,%6))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`STATFORMAT,%0,%1,%2,%3,%6,%q<first>)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`STATFORMAT2,%0,%1,%2,sub(u(width,%#),4),%6,%q<second>)))][switch(t(strlen(%q<firstsec>))[t(strlen(%q<secondsec>))],11,%q<firstsec>%R%q<secondsec>,10,%q<firstsec>,01,%q<secondsec>)])
+&FUN`DOTFORMAT [u(cobj,sheet)]=localize(u(FUN`SECTIONHEADER,%0,%1,%4%5)%R[if(%7,u(setq,first,u(filter,LTSTRLEN,%6,u(rsep),u(rsep),%3))[u(setq,second,u(filter,GTESTRLEN,%6,u(rsep),u(rsep),sub(%3,10)))],u(setq,first,%6))][if(strlen(%q<first>),u(setq,firstsec,u(FUN`STATFORMAT,%0,%1,%2,%3,%6,%q<first>)))][if(strlen(%q<second>),u(setq,secondsec,u(FUN`STATFORMAT2,%0,%1,%2,sub(u(width,%#),4),%6,%q<second>)))][switch(t(strlen(%q<firstsec>))[t(strlen(%q<secondsec>))],11,%q<firstsec>%R%q<secondsec>,10,%q<firstsec>,01,%q<secondsec>)])
 
 &FUN`ABILITIES [u(cobj,sheet)]=u(FUN`DOTFORMAT,%0,%1,%2,23,A,bilities,u(mysql3,LIST`PERSONA_STAT_CATEGORY,3,%2))
 
@@ -55,7 +55,7 @@
 
 &Q`LIST`PERSONA_MERITS [u(Cobj,sheet)]=SELECT CONCAT_WS(': ',merit_name,merit_context),merit_value FROM volv_story_persona_merits WHERE merit_category_id=? AND persona_id=? ORDER BY merit_name,merit_context
 
-@@ &FUN`STATFORMAT`STAT [u(cobj,sheet)]=localize([u(setq,namedisp,if(%9,left(elements(%3,1,chr(177)),%9),elements(%3,1,chr(177))))][u(setq,val,u(strfirstof,%5,elements(%3,2,chr(177))))][u(setq,bon,u(strfirstof,%6,elements(%3,5,chr(177))))][u(setq,totval,add(%q<val>,if(%7,%q<bon>)))][if(%7,u(setq,valdisp,if(%7,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<val>)))),[u(setq,astlen,if(lte(%q<bon>,-1),bound(add(%q<val>,%q<bon>),0),%q<val>))][u(setq,minlen,if(lte(%q<bon>,-1),abs(%q<bon>)))][u(setq,pluslen,if(gte(%q<bon>,1),%q<bon>))][u(setq,valdisp,[if(%q<astlen>,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<astlen>)))][if(%q<minlen>,u(FUN`COLOR,%1,STATDOT,repeat(-,%q<minlen>)))][if(%q<pluslen>,u(FUN`COLOR,%1,STATDOT,repeat(+,%q<pluslen>)))])])][if(%8,,u(setq,fav,elements(%3,3,chr(177))))][u(setq,statlen,strlen(%q<namedisp>))][if(lte(sub(%4,1,%q<statlen>,strlen(%q<valdisp>)),0),u(setq,valdisp,%q<totval>,dotlen,strlen(%q<totval>)),u(setq,dotlen,strlen(%q<valdisp>)))][u(setq,linelen,sub(%4,1,%q<dotlen>,%q<statlen>))][switch(%q<fav>,3,u(FUN`COLOR,%1,SUPMARK,+),2,u(FUN`COLOR,%1,CASTEMARK,+),1,u(FUN`COLOR,%1,FAVMARK,+),%b)][u(FUN`COLOR,%1,STATNAME,if(%5,%q<namedisp>,u(capnames,%q<namedisp>)))][if(gt(%q<linelen>,0),repeat(u(FUN`COLOR,%1,STATFILL,.),%q<linelen>))]%q<valdisp>)
+@@ &FUN`STATFORMAT`STAT [u(cobj,sheet)]=localize([u(setq,namedisp,if(%9,left(elements(%3,1,u(fsep)),%9),elements(%3,1,u(fsep))))][u(setq,val,u(strfirstof,%5,elements(%3,2,u(fsep))))][u(setq,bon,u(strfirstof,%6,elements(%3,5,u(fsep))))][u(setq,totval,add(%q<val>,if(%7,%q<bon>)))][if(%7,u(setq,valdisp,if(%7,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<val>)))),[u(setq,astlen,if(lte(%q<bon>,-1),bound(add(%q<val>,%q<bon>),0),%q<val>))][u(setq,minlen,if(lte(%q<bon>,-1),abs(%q<bon>)))][u(setq,pluslen,if(gte(%q<bon>,1),%q<bon>))][u(setq,valdisp,[if(%q<astlen>,u(FUN`COLOR,%1,STATDOT,repeat(*,%q<astlen>)))][if(%q<minlen>,u(FUN`COLOR,%1,STATDOT,repeat(-,%q<minlen>)))][if(%q<pluslen>,u(FUN`COLOR,%1,STATDOT,repeat(+,%q<pluslen>)))])])][if(%8,,u(setq,fav,elements(%3,3,u(fsep))))][u(setq,statlen,strlen(%q<namedisp>))][if(lte(sub(%4,1,%q<statlen>,strlen(%q<valdisp>)),0),u(setq,valdisp,%q<totval>,dotlen,strlen(%q<totval>)),u(setq,dotlen,strlen(%q<valdisp>)))][u(setq,linelen,sub(%4,1,%q<dotlen>,%q<statlen>))][switch(%q<fav>,3,u(FUN`COLOR,%1,SUPMARK,+),2,u(FUN`COLOR,%1,CASTEMARK,+),1,u(FUN`COLOR,%1,FAVMARK,+),%b)][u(FUN`COLOR,%1,STATNAME,if(%5,%q<namedisp>,u(capnames,%q<namedisp>)))][if(gt(%q<linelen>,0),repeat(u(FUN`COLOR,%1,STATFILL,.),%q<linelen>))]%q<valdisp>)
 
 
 @@ %0 = Player. %1 = Splat. %2 = pers_id. %3 = Entry. %4 = Length. %5 = manual value. %6 = Manual bonus. %7 = Don't show bonus. %8 = No favoreds. %9 = Truncate.
@@ -64,12 +64,12 @@
 &Q`GET`ADVANTAGES_STATS [u(Cobj,sheet)]=SELECT DISTINCT stat_id,stat_name FROM volv_story_persona_wordpower WHERE persona_id=? AND template_id=? ORDER BY stat_name
 &Q`GET`ADVANTAGES_POWERS [u(Cobj,sheet)]=SELECT wordpower_name,wordpower_purchases,wordpower_flags_1 FROM volv_story_persona_wordpower WHERE persona_id=? AND stat_id=? ORDER BY wordpower_name
 
-&INC`ADVANTAGES [u(cobj,sheet)]=@dolist/inline/delimit [chr(176)] [u(mysql3,GET`ADVANTAGES_TEMPLATES,%2)]={th u(setq,tdata,u(choosegame,%i0,%d0));@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,elements(%q<tdata>,2,chr(177))));@dolist/inline/delimit [chr(176)] [u(mysql3,GET`ADVANTAGES_STATS,%2,elements(%q<tdata>,1,chr(177)))]={th u(setq,sdata,u(choosegame,%i0,%d0));@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,elements(%q<sdata>,2,chr(177)));@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,u(mysql3,GET`ADVANTAGES_POWERS,%2,elements(%q<sdata>,1,chr(177)))))}};@attach %!/INC`EVOCATIONS
+&INC`ADVANTAGES [u(cobj,sheet)]=@dolist/inline/delimit [u(rsep)] [u(mysql3,GET`ADVANTAGES_TEMPLATES,%2)]={th u(setq,tdata,u(choosegame,%i0,%d0));@pemit %#=u(FUN`CHARMHEADER,%0,%1,u(capnames,elements(%q<tdata>,2,u(fsep))));@dolist/inline/delimit [u(rsep)] [u(mysql3,GET`ADVANTAGES_STATS,%2,elements(%q<tdata>,1,u(fsep)))]={th u(setq,sdata,u(choosegame,%i0,%d0));@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,elements(%q<sdata>,2,u(fsep)));@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,u(mysql3,GET`ADVANTAGES_POWERS,%2,elements(%q<sdata>,1,u(fsep)))))}};@attach %!/INC`EVOCATIONS
 
 &Q`GET`EVOCATION_ARTIFACTS [u(cobj,sheet)]=SELECT DISTINCT persona_merit_id,merit_context FROM volv_story_persona_merits_wordpowers WHERE persona_id=? ORDER BY merit_context
 &Q`GET`EVOCATIONS [u(cobj,sheet)]=SELECT merit_wordpower_name,merit_wordpower_purchases,merit_wordpower_flags_1 FROM volv_story_persona_merits_wordpowers WHERE persona_merit_id=? ORDER BY merit_wordpower_name
 
-&INC`EVOCATIONS [u(Cobj,sheet)]=@select/inline words(u(setr,arts,u(mysql3,GET`EVOCATION_ARTIFACTS,%2)),chr(176))=>0,{@pemit %#=u(FUN`CHARMHEADER,%0,%1,Evocations);@dolist/inline/delimit [chr(176)] %q<arts>={th u(setq,sdata,u(choosegame,%i0,%d0));@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,elements(%q<sdata>,2,chr(177)));@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,u(mysql3,GET`EVOCATIONS,elements(%q<sdata>,1,chr(177)))))}}
+&INC`EVOCATIONS [u(Cobj,sheet)]=@select/inline words(u(setr,arts,u(mysql3,GET`EVOCATION_ARTIFACTS,%2)),u(rsep))=>0,{@pemit %#=u(FUN`CHARMHEADER,%0,%1,Evocations);@dolist/inline/delimit [u(rsep)] %q<arts>={th u(setq,sdata,u(choosegame,%i0,%d0));@pemit %#=u(FUN`CHARMSUBHEADER,%0,%1,elements(%q<sdata>,2,u(fsep)));@pemit %#=u(FUN`BORDER,%0,%1,u(FUN`WORDLIST,%0,u(mysql3,GET`EVOCATIONS,elements(%q<sdata>,1,u(fsep)))))}}
 
 &INC`FOOTER [u(cobj,sheet)]=@attach %!/INC`HEALTH;@attach %!/INC`POOLS;@pemit %#=u(FUN`FOOTER,%0,%1)
 
@@ -79,7 +79,7 @@
 
 &FUN`POOLS [u(cobj,sheet)]=localize(align(1. [u(setr,c1,floor(u(setr,c0,fdiv(sub(u(width,%#),4),3))))] 1. [u(setr,c2,ceil(%q<c0>))] 1. [u(setr,c3,sub(u(width,%#),4,%q<c1>,%q<c2>))] 1.,u(FUN`COLOR,%1,BORDER,|),u(FUN`FORMATPOOLS,%0,Pool),u(FUN`COLOR,%1,BORDER,|),u(FUN`FORMATPOOLS,%0,Track),u(FUN`COLOR,%1,BORDER,|),u(FUN`XP,%0,%1,%2),u(FUN`COLOR,%1,BORDER,|),,,%R))
 
-&FUN`XP [u(cobj,sheet)]=u(trimlines,iter(u(u(cobj,xp)/mysql3,GET`TOTALS_PLAYER,%2),u(FUN`COLOR,%1,PSM,rjust(elements(%i0,1,chr(177)),13): [rjust(add(elements(%i0,2,chr(177)),0),3)]/[add(elements(%i0,3,chr(177)),0)]),chr(176),%R))
+&FUN`XP [u(cobj,sheet)]=u(trimlines,iter(u(u(cobj,xp)/mysql3,GET`TOTALS_PLAYER,%2),u(FUN`COLOR,%1,PSM,rjust(elements(%i0,1,u(fsep)),13): [rjust(add(elements(%i0,2,u(fsep)),0),3)]/[add(elements(%i0,3,u(fsep)),0)]),u(rsep),%R))
 
 &FUN`FOOTER [u(cobj,sheet)]=u(FUN`COLOR,%1,BORDER,|----------------------------------------------------------------------------|)%R%B[u(FUN`COLOR,%1,BORDER,\\)]%B[center(u(FUN`GETSERIES,%1),72)]%B[u(FUN`COLOR,%1,BORDER,/)]%R%B%B[u(FUN`COLOR,%1,BORDER,'------------------------------------------------------------------------')]
 

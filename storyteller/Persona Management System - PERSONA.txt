@@ -61,7 +61,7 @@ th u(NEWCOBJ,STORYTELLER: Persona Management System <PERSONA>,persona,,u(cobj,st
 
 &INC`SET [u(Cobj,persona)]=@attach %!/INC`GETSELECT=1;@attach %!/INC`PARTIAL=before(%0,/),u(SETTABLE,if(%3,u(mysql,ALL`PLAYABLE),%q<Persona1.templateid>)),|,category;@select/inline hasattr(%!/SET`%q<category>)=1,{@attach %!/SET`%q<category>},0,{@attach %!/SET`SQL=%q<category>,%q<Persona1.templateId>,after(%0,before(%0,/)/),%1}
 
-&SETTABLE [u(cobj,persona)]=Template|Power|Splat|Field[if(strlen(u(setr,res,u(mysql3,FIND`CATEGORY`LIST,u(SQL`IN`NUMBER,%0)))),|[iter(%q<res>,%i0,chr(176),|)])]
+&SETTABLE [u(cobj,persona)]=Template|Power|Splat|Field[if(strlen(u(setr,res,u(mysql3,FIND`CATEGORY`LIST,u(SQL`IN`NUMBER,%0)))),|[iter(%q<res>,%i0,u(rsep),|)])]
 
 &HIERARCHY [u(Cobj,persona)]=@attach %!/INC`SEARCHSQL=%0,Category,CATEGORY,1,%1;@check strlen(%2)=@attach %!/INC`MSG=ERROR: Nothing else entered to enter! Must enter a Subcategory or Stat to set!;th setq(subs,words(%2,/));@attach %!/INC`LOADSQL=STAT,u(setr,curparent,%q<Category1.id>),0;@dolist/inline/delimit / %2={@stop gt(add(strmatch(%i0,*>*),strmatch(%i0,*:*),strmatch(%i0,*_*)),1)=@attach %!/INC`MSG=Can only use one mode for CONTEXT\, SPECIALTY\, or CUSTOM! Cannot combine!;@attach %!/INC`SEARCHSQL=before(before(before(%i0,:),_),>),Stat or Sub-Category,STAT,inum(0),%q<curparent>;th u(setq,curparent,r(Stat[inum(0)].id));@attach %!/INC`LOADSQL=STAT,%q<curparent>,Final;th u(setq,context,trim(after(%i0,:)));th u(setq,custom,trim(after(%i0,>)));th u(setq,special,trim(after(%i0,_)))};@attach %!/INC`LOADSQL=STAT,%q<StatFinal.parentid>,Parent
 

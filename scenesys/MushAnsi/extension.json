@@ -1,0 +1,29 @@
+{
+	"name": "MushAnsi",
+	"version": "1.0.0",
+	"author": [
+		"Andrew 'Volund' Bastien"
+	],
+	"url": "https://github.com/volundmush/mushcode",
+	"MessageDirs": {
+		"MushAnsi": [
+			"i18n"
+		]
+	},
+	"descriptionmsg": "mushansi-desc",
+	"license-name": "None",
+	"type": "parserhook",
+	
+	
+	"AutoloadClasses": {
+		"MUSH": "MUSH.class.php"
+	},
+	"ExtensionMessagesFiles": {
+		"MushAnsiExtensionMagic": "MUSH.i18n.php"
+	},
+	"Hooks": {
+		"ParserFirstCallInit": "MUSH::onParserFirstCallInit"
+	},
+	"manifest_version": 1
+	
+}
