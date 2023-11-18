@@ -324,8 +324,8 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &RENDER [u(cobj,ccp)]=render(%0,ansi)
 
-&RSEP [u(cobj,ccp)]=u(rsep)
-&FSEP [u(cobj,ccp)]=u(fsep)
+&RSEP [u(cobj,ccp)]=chr(176)
+&FSEP [u(cobj,ccp)]=chr(177)
 
 &MYSQL [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(setr,sqlformat,u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9))),#-1 SQL QUERY DATA NOT FOUND)
 &MYSQL2 [u(cobj,ccp)]=if(hasattrp(%!/Q`%0),sql(u(setr,sqlformat,u(SQL`FORMAT,%0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),|,^),#-1 SQL QUERY DATA NOT FOUND)
