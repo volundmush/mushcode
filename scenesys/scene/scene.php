@@ -1,6 +1,5 @@
 <?php
 	require 'libraries/base.php';
-	$num = ($_REQUEST['id']  ? $_REQUEST['id'] : $num );
 
 	if (!$scenedb->count('volv_scene', ['scene_id'=>$num]))
 	{
@@ -30,11 +29,18 @@
 		$poser_list = implode(", ",$poser_ids);
 		$scene_date = substr($scene_data['scene_date_created'],0,10);
 		#'location'=>$scene_data['room_name'],
-		$scene = ["title"=>$scene_data['scene_title'], 'id'=>$num, 'description'=>$scene_data['scene_outcome'], 'formatted_poses'=>$log_data, 'url'=>$url, 'poser_ids'=>$poser_list, 'creation_date'=>$scene_date];
+		$scene = ["title"=>$scene_data['scene_title'], 'id'=>$num, 'description'=>$scene_data['scene_outcome'], 'formatted_poses'=>$log_data, 'url'=>$url, 'poser_ids'=>$poser_list, 'power_ids_raw'=>$poser_ids, 'creation_date'=>$scene_date];
 		
-		$smarty->assign('poses', $pose_data);
-		$smarty->assign('scene', $scene);
-		$smarty->display('templates/scene.tpl');
+		if($json)
+		{
+		    echo json_encode($scene);
+		}
+
+		else {
+            $smarty->assign('poses', $pose_data);
+            $smarty->assign('scene', $scene);
+            $smarty->display('templates/scene.tpl');
+	    }
 	}
 
 ?>

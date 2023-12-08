@@ -25,7 +25,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &STARTUP [u(cobj,ccp)]=@dolist/inline lattr(%!/START`*)={@include/nobreak %!/##}
 
-&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_options my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink namecolor weblink codename getproperty hideidle lastidle chanhash getmoniker,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
+&START`FUNCTIONS [u(cobj,ccp)]=@dolist/inline setunion(header subheader footer separator isadmin isapproved approved sortname color mxpmenu pueblize my_options opother my_names speech markup colormarkup chancolor colornames choosegame sortorder namelink namecolor weblink codename getproperty hideidle lastidle chanhash getmoniker,v(FUNCTIONLIST`EXTRA))={@function vol_%i0=u(cobj,ccp),%i0;@function/restrict vol_%i0=localize};@dolist/inline v(FUNCTIONLIST`ADMIN)={@function/restrict %i0=admin}
 
 @@ &FUNCTIONLIST`EXTRA [u(cobj,ccp)]=
 @@ &FUNCTIONLIST`ADMIN [u(cobj,ccp)]=
@@ -253,6 +253,10 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &GETPROPERTY`TIMEZONE [u(cobj,ccp)]=u(gettz,%0)
 &GETPROPERTY`UMAIL [u(cobj,ccp)]=u(umail,%0)
 &GETPROPERTY`ALTS [u(cobj,ccp)]=if(isdbref(u(cobj,alts)),u(u(cobj,alts)/FUN`ALTS`LIST,%0))
+
+&GETPROPERTY`OOCEMAIL [u(cobj,ccp)]=u(setq,em,get(%0/D`OOCFINGER`EMAIL))[switch(%q<em>,!*,if(u(isadmin,%#),ansi(hx,after(%q<em>,!)),*HIDDEN*),%q<em>)]
+
+&GETPROPERTY`UMAIL2 [u(cobj,ccp)]=localize(u(setr,unrd,u(umail,%0)) [switch(%q<unrd>,1,Unread Message,Unread Messages)])
 
 &GETPROPERTY`URL [u(cobj,ccp)]=u(weblink,get(%0/V`PROPERTY`%1))
 
@@ -709,7 +713,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &HEADER`PREP [u(cobj,ccp)]=setq(target,owner(u(strfirstof,%0,%#)))[setq(bordercolor,u(color,%q<target>,v(SYSTEM`COLORS),BORDER))][setq(bordermode,%1)][setq(width,sub(strfirstof(%3,u(width,%q<target>)),2))][setq(fill,u(conf,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,setq(start,ansi(%q<bordercolor>,/))[setq(end,ansi(%q<bordercolor>,chr(92)))],FOOTER,setq(start,ansi(%q<bordercolor>,chr(92)))[setq(end,ansi(%q<bordercolor>,/))]),1,setq(start,setr(end,ansi(%q<bordercolor>,+))),setq(start,setr(end,ansi(%q<bordercolor>,%q<fill>))))]
 
-&HEADER`RENDER [u(cobj,ccp)]=if(u(opother,%q<target>,SYSTEM,SCREEN_READER),%0[if(strlen(%1),: %1)],%q<start>[u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>)
+&HEADER`RENDER [u(cobj,ccp)]=if(u(opother,%q<target>,SYSTEM,SCREEN_READER),if(strlen(%1),%1),%q<start>[u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>)
 
 @@ HEADER family args: %0 - Title. %1 - Viewer dbref. %2 - True: Do not color title. %3 - Border mode bool. %4 - Width.
 
@@ -802,7 +806,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &SQL`DISCONNECT [u(cobj,ccp)]=@attach %!/INC`MSG`SYSCHAN={SQL server disconnect: %0}
 &START`SQL [u(cobj,ccp)]=@check sql(SELECT DATABASE());@trigger %!/LOOP`SQL;@trigger %!/LOOP`REINDEX
 &LOOP`SQL [u(cobj,ccp)]=@sql SELECT DATABASE();@wait 60=@trigger %!/LOOP`SQL
-&LOOP`REINDEX [u(cobj,ccp)]=@dolist sql(SHOW TABLES)=@sql ANALYZE TABLE %i0;@wait mul(60,60,24)=@trigger %!/LOOP`REINDEX
+&LOOP`REINDEX [u(cobj,ccp)]=@dolist/inline sql(SHOW TABLES)=@sql ANALYZE TABLE %i0;@wait mul(60,60,24)=@trigger %!/LOOP`REINDEX
 
 
 @@ Json Section
@@ -811,3 +815,8 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &J`NUMBER [u(cobj,ccp)]=json(number,%0)
 &J`BOOLEAN [u(cobj,ccp)]=json(boolean,%0)
 &J`STRING [u(Cobj,ccp)]=json(string,%0)
+
+&OBJECT`RENAME`LOG_CHARACTER [u(cobj,ccp)]=@select/inline type(%0)=PLAYER,{@select/inline t(get(%0/D`ID))=1,{@attach %!/INC`DOSQL=INSERT`RENAME_LOG/renlog_id,get(%0/D`ID),default(%#/D`ID,SET_NULL),%2,%1},0,{}}
+@set [u(cobj,ccp)]/OBJECT`RENAME`LOG_CHARACTER=no_inherit
+
+&Q`INSERT`RENAME_LOG [u(cobj,ccp)]=INSERT INTO vol_entity_namelog (entity_id,enactor_id,old_name,new_name,date_named) VALUES (?,?,?,?,UTC_TIMESTAMP())

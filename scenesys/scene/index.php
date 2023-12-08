@@ -11,7 +11,12 @@
 		$scene_data[] = $indiv_data;
 	}
 
-	$smarty->assign('scenes', $scene_data);
-	$smarty->display('templates/listing.tpl');
-
+    if($json)
+    {
+        echo json_encode($scene_data);
+    }
+    else {
+        $smarty->assign('scenes', $scene_data);
+        $smarty->display('templates/listing.tpl');
+    }
 ?>

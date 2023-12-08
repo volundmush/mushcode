@@ -17,4 +17,4 @@ th u(NEWCOBJ,Wiki Updater <WIKI>,wiki,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX 
 
 &INC`MAIN [u(cobj,wiki)]=@attach %!/INC`CHECKPC=if(cand(strlen(%0),u(isadmin,%#)),%0,%#),1;@dolist/inline/delimit | [v(FIELDS)]={@attach %!/FIELD`##=%q<t1>};@select/inline %#=%q<t1>,{@attach %!/INC`MSG=Wiki updated!},{@attach %!/INC`MSG=You have updated %q<t1name>'s Wiki fields!}
 
-&FIELD`SEX [u(cobj,wiki)]=th u(call`5,volp_field,0,get(%0/D`ID),v(SYSTEM`ID),'SEX','[sqlescape(get(%0/SEX))]',get(%#/D`ID))x
+&FIELD`SEX [u(cobj,wiki)]=th u(call`5,volp_field,0,get(%0/D`ID),v(SYSTEM`ID),'SEX','[sqlescape(get(%0/SEX))]',get(%#/D`ID))

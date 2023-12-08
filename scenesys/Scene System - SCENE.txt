@@ -391,7 +391,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`PLOT`DETAILS [u(cobj,scene)]=@attach %!/INC`FINDPLOT=%0;@pemit %#=u(HEADER,Plot ID %q<pl1id>: %q<pl1title>);@pemit %#=ansi(h,Runner:) %q<pl1ownname>%R[ansi(h,Co-Runners:)]%b[iter(%q<pl1coobjids>,u(getmoniker,%i0),%b,\,%b)]%R[ansi(h,Schedule:)] [u(fancytime,%q<pl1start>)] to [u(fancytime,%q<pl1end>)];@pemit %#=ansi(h,Pitch:) %q<pl1pitch>;@pemit %#=ansi(h,Outcome:) %q<pl1outcome>;@pemit %#=u(separator,Scenes);@dolist/inline/delimit [chr(176)] [u(mysql3,PLOT`SCENES,%q<pl1id>)]={};@pemit %#=u(FOOTER)
 
-&INC`PLOT`CREATE [u(cobj,scene)]=@attach %!/INC`VALID`PLOTNAME=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: The Plot needs a Pitch!;@attach %!/INC`DOSQL=NEW`PLOT/plot_id,%q<value>,%1;@attach %!/INC`DOSQL=SET`PLOT_PITCH_RENDER,u(render,%1),%q<plot_id>;@attach %!/INC`MSG=Plot added!
+&INC`PLOT`CREATE [u(cobj,scene)]=@attach %!/INC`VALID`PLOTNAME=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: The Plot needs a Pitch!;@attach %!/INC`DOSQL=NEW`PLOT/plot_id,%q<title>,%1;@attach %!/INC`DOSQL=SET`PLOT_PITCH_RENDER,u(render,%1),%q<plot_id>;@attach %!/INC`MSG=Plot %q<plot_id>: '%q<title>' added!
 
 &Q`NEW`PLOT [u(cobj,scene)]=INSERT INTO vol_plot (plot_title,plot_pitch,plot_date_start) VALUES (?,?,UTC_TIMESTAMP())
 
