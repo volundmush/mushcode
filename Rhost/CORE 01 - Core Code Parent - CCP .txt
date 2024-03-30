@@ -1,9 +1,10 @@
-@@ COMMENTS WILL GO HERE
+@@ MUST CREATE AND SET A MASTER ROOM FIRST USING
+@@ @admin master_room=#dbref
 
 @@ RUN THIS ON CODE WIZARD OBJECT!
 @switch/first/inline version()=PennMUSH*,{@switch/first/inline hasflag(%#,UNREGISTERED)=1,{@set me=!UNREGISTERED};@power me=no_pay},RhostMUSH*,{@set me=sidefx !wanderer;@admin command_quota_max=10000;@admin command_quota_increment=100}
 
-th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,switch(version(),PennMUSH*,config(master_room),RhostMUSH**,globalroom()))][parent(%#,%q0)][set(%q0,VA:[first(version())])][set(%q0,COBJ`CCP:[objid(%q0)])][set(%q0,switch(version(),PennMUSH*,WIZARD SAFE,RhostMUSH*,INHERIT SAFE SIDEFX))])
+th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,globalroom())][parent(%#,%q0)][set(%q0,VA:[first(version())])][set(%q0,COBJ`CCP:[objid(%q0)])][set(%q0,switch(version(),PennMUSH*,WIZARD SAFE,RhostMUSH*,INHERIT SAFE SIDEFX))])
 @@ Yeah, it's an awful hodgepodge of side effect functions. For a good cause.
 
 &COBJ [parent(%#)]=u(COBJ`%0)
@@ -13,12 +14,11 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,switc
 &IS_ANCESTOR [u(cobj,ccp)]=cand(hasattr(u(cobj,ccp),COBJ`ANCESTOR_PLAYER),strmatch(num(%0),num(u(cobj,ancestor_player))))
 
 &ATTRIB_SET [u(cobj,ccp)]=if(u(IS_ANCESTOR,%0),,set(%0,%1:%2,strmatch(%1,*`*)))
-&VATTRIB_SET [u(cobj,ccp)]=u(attrib_set,%0,%1,%2)[set(%0/%1,visual)]
+&VATTRIB_SET [u(cobj,ccp)]=u(attrib_set,%0,%1,%2)
 
 &LATTR [u(cobj,ccp)]=if(strlen(%1),iter(lattr(%0,,,,,1),%i0,%b,%1),lattr(%0,,,,,1))
 &LATTRP [u(cobj,ccp)]=if(strlen(%1),iter(lattrp(%0,,,,,1),%i0,%b,%1),lattrp(%0,,,,,1))
 &REGLATTR [u(cobj,ccp)]=if(strlen(%1),iter(lattr(%0,,,,1,1),%i0,%b,%1),lattr(%0,,,,1,1))
-
 &STRINGSECS [u(cobj,ccp)]=ladd(iter(secure(regeditall(%0,(h|m|s),$1%b)),switch(%i0,*ML,mul(%i0,31536000000),*y,mul(%i0,31471200),*C,mul(%i0,3153600000),*Mo,mul(%i0,2628000),*w,mul(%i0,604800),*d,mul(%i0,86400),*h,mul(%i0,3600),*m,mul(%i0,60),*s,add(%i0,0))) 0)
 &SETQ [u(cobj,ccp)]=setq(!,%1,%0)
 &SETR [u(cobj,ccp)]=setr(!,%1,%0)
@@ -392,7 +392,8 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,switc
 
 @@ The CONFIG Subsystem.
 &CMD`+GAMECONFIG`RHOSTMUSH [u(cobj,ccp)]=$^\+gameconfig(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GAMECONFIG`MAIN
-@set [u(cobj,ccp)]/CMD`+GAMECONFIG`RHOSTMUSH=regexp no_inherit
+@set [u(cobj,ccp)]/CMD`+GAMECONFIG`RHOSTMUSH=regexp
+@set [u(cobj,ccp)]/CMD`+GAMECONFIG`RHOSTMUSH=no_inherit
 &CMD`+GAMECONFIG`MAIN [u(cobj,ccp)]=@attach %!/INC`CONFIG=%2,%3
 
 &INC`CONFIG [u(cobj,ccp)]=@select/inline strlen(%0)=0,{@attach %!/INC`CONFIG`DISPLAY},{@check u(iswizard,%#)=@attach %!/INC`MSG=ERROR: Permission denied. Changing Config requires Wizard permissions.;@attach %!/INC`CONFIG`CHANGE}
@@ -521,8 +522,9 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,switc
 &PCONF [u(cobj,ccp)]=u(color,%@,%1)
 
 @@ COLOR SYSTEM!
-&CMD`+COLORS`PENNMUSH [u(cobj,ccp)]=$^\+color(?\:s)?(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+COLORS`MAIN
-@set [u(cobj,ccp)]/CMD`+COLORS`PENNMUSH=regexp no_inherit
+&CMD`+COLORS`RHOSTMUSH [u(cobj,ccp)]=$^\+color(?\:s)?(?\:/(\\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+COLORS`MAIN
+@set [u(cobj,ccp)]/CMD`+COLORS`RHOSTMUSH=regexp
+@set [u(cobj,ccp)]/CMD`+COLORS`RHOSTMUSH=no_inherit
 &CMD`+COLORS`MAIN [u(cobj,ccp)]=@select/inline strlen(%1)=>0,{@attach %!/INC`PARTIAL=%1,NAME,|,switch;@attach %!/INC`COLOR`NAME=%2,%3},{@attach %!/INC`COLOR=%2,%3,SYSTEM}
 @set [u(cobj,ccp)]/CMD`+COLORS`MAIN=no_inherit
 
@@ -540,7 +542,8 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,switc
 &NAMECOLOR [u(cobj,ccp)]=udefault(%0/COLOR_CHARACTER,switch(1,strmatch(num(%0),num(%1)),u(color,%0,v(SYSTEM`COLORS),ME),strmatch(num(%1),num(%2)),u(color,%0,v(SYSTEM`COLORS),SPEAKER),default(%0/CUSTCOLOR`CHARACTER`%1,u(color,%0,v(SYSTEM`COLORS),OTHER))),%1)
 
 &CMD`COLORDEMO [u(cobj,ccp)]=$^(?s)(?\:\+)?colordemo(?\:/(\S+)?)?$:@attach %!/INC`PARTIAL=%1,LONG,|,switch;@select/inline %q<switch>=LONG,{@dolist/inline lnum(97,122)=@pemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,+%i0))],%b,%r)))},{@pemit %#=iter(lnum(0,255),ansi(+xterm%i0,+xterm%i0))}
-@set [u(cobj,ccp)]/CMD`COLORDEMO=regexp no_inherit
+@set [u(cobj,ccp)]/CMD`COLORDEMO=regexp
+@set [u(cobj,ccp)]/CMD`COLORDEMO=no_inherit
 
 &CHANNELCOLOR [u(cobj,ccp)]=get(%0/CUSTCOLOR`CHANNEL`%1)
 
@@ -610,7 +613,8 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,switc
 
 @@ Options System!
 &CMD`+OPTIONS`PENNMUSH [u(cobj,ccp)]=$^\+options(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+OPTIONS`MAIN
-@set [u(cobj,ccp)]/CMD`+OPTIONS`PENNMUSH=regexp no_inherit
+@set [u(cobj,ccp)]/CMD`+OPTIONS`PENNMUSH=regexp
+@set [u(cobj,ccp)]/CMD`+OPTIONS`PENNMUSH=no_inherit
 &CMD`+OPTIONS`MAIN [u(cobj,ccp)]=@attach %!/INC`OPTION=%2,%3,SYSTEM
 
 &INC`OPTIONS [u(cobj,ccp)]=@attach %!/INC`OPTION
@@ -778,42 +782,42 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,switc
 
 &ISAPPROVED [u(cobj,ccp)]=cor(u(isadmin,%0),if(u(game_config,SYSTEM,REQUIRE_APPROVAL),default(%0/D`APPROVED,0),1))
 
-@@ EVENT HANDLING - PENN
-&PLAYER`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+@@ EVENT HANDLING - Rhost
+&PLAYER`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak lattr(%!/PLAYER`CONNECT`*)={@trigger %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CONNECT)={@trigger ##/PLAYER`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`CONNECT=no_inherit
 
 @@ Player-Approve is a pseudo-event triggered by the Account Management System.
 &PLAYER`APPROVE [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`APPROVE)={@trigger ##/PLAYER`APPROVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`APPROVE=no_inherit
 
-&PLAYER`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CREATE)={@trigger ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak u(lattr,%!/PLAYER`CREATE`*)={@attach/nobreak %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`CREATE)={@trigger ##/PLAYER`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`CREATE=no_inherit
 
-&PLAYER`DISCONNECT [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`DISCONNECT)={@trigger ##/PLAYER`DISCONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&PLAYER`DISCONNECT [u(cobj,ccp)]=@dolist/inline/nobreak u(lattr,%!/PLAYER`DISCONNECT`*)={@attach/nobreak %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,PLAYER`DISCONNECT)={@trigger ##/PLAYER`DISCONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/PLAYER`DISCONNECT=no_inherit
 
-&SOCKET`LOGINFAIL [u(cobj,ccp)]=@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`LOGINFAIL)={@trigger ##/SOCKET`LOGINFAIL=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&SOCKET`LOGINFAIL [u(cobj,ccp)]=@dolist/inline/nobreak u(lattr,%!/SOCKET`LOGINFAIL`*)={@attach/nobreak %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`LOGINFAIL)={@trigger ##/SOCKET`LOGINFAIL=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/SOCKET`LOGINFAIL=no_inherit
 
-&SOCKET`CONNECT [u(cobj,ccp)]=@check u(setr,banid,first(u(u(cao)/FUN`CHECKLOGINS,%1)));@select/inline gt(secs(),get(u(bandb)/%q<banid>`UNTIL))=1,{@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) EXPIRED Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) has connected.}},0,{@pemit/port %0=u(setr,message,strfirstof(get(u(bandb)/%q<banid>`MESSAGE),u(u(cao)/VAR`BANLIST`MESSAGE)));@boot/port %0;@cemit/noisy u(u(cao)/VAR`IP`ALERTSCHANNEL)={ansi(hr,WARNING:) Banned address %1 (match: BanID %q<banid>: [get(u(bandb)/%q<banid>)]) attempted to connect. Message sent to them: '%q<message>'}}
+&SOCKET`CONNECT [u(cobj,ccp)]=@dolist/inline/nobreak u(lattr,%!/SOCKET`CONNECT`*)={@attach/nobreak %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline/nobreak u(filter,HASATTR,children(%!),%b,%b,SOCKET`CONNECT)={@trigger ##/SOCKET`CONNECT=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/SOCKET`CONNECT=no_inherit
 
-&OBJECT`RENAME [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`RENAME)={@trigger ##/OBJECT`RENAME=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`RENAME [u(cobj,ccp)]=@dolist/inline/nobreak u(lattr,%!/OBJECT`RENAME`*)={@attach/nobreak %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`RENAME)={@trigger ##/OBJECT`RENAME=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`RENAME=no_inherit
 
-&OBJECT`DESTROY [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`DESTROY)={@trigger ##/OBJECT`DESTROY=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`DESTROY [u(cobj,ccp)]=@dolist/inline/nobreak u(lattr,%!/OBJECT`DESTROY`*)={@attach/nobreak %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`DESTROY)={@trigger ##/OBJECT`DESTROY=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`DESTROY=no_inherit
 
-&OBJECT`CREATE [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`CREATE)={@trigger ##/OBJECT`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`CREATE [u(cobj,ccp)]=@dolist/inline/nobreak u(lattr,%!/OBJECT`CREATE`*)={@attach/nobreak %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`CREATE)={@trigger ##/OBJECT`CREATE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`CREATE=no_inherit
 
-&OBJECT`MOVE [u(cobj,ccp)]=@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`MOVE)={@trigger ##/OBJECT`MOVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
+&OBJECT`MOVE [u(cobj,ccp)]=@dolist/inline/nobreak u(lattr,%!/OBJECT`MOVE`*)={@attach/nobreak %!/##=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9};@dolist/inline u(filter,HASATTR,children(%!),%b,%b,OBJECT`MOVE)={@trigger ##/OBJECT`MOVE=%0,%1,%2,%3,%4,%5,%6,%7,%8,%9}
 @set [u(cobj,ccp)]/OBJECT`MOVE=no_inherit
 
-&PLAYER`CREATE`ID [u(cobj,ccp)]=th u(attrib_set,%0,D`ID,u(call`4,volp_character,0,'%0','[sqlescape(%1)]',u(csecs,%0),u(isguest,%0)));
+&PLAYER`CREATE`ID [u(cobj,ccp)]=th u(attrib_set,%0,D`ID,u(call`4,volp_character,0,'[objid(%0)]','[sqlescape(%1)]',u(csecs,%0),u(isguest,%0)));
 @set [u(cobj,ccp)]/PLAYER`CREATE`ID=no_inherit
 
-&PLAYER`CONNECT`ID [u(cobj,ccp)]=th u(attrib_set,%0,D`ID,u(call`4,volp_character,0,'%0','[sqlescape(name(%0))]',u(csecs,%0),u(isguest,%0)));
+&PLAYER`CONNECT`ID [u(cobj,ccp)]=th u(attrib_set,%0,D`ID,u(call`4,volp_character,0,'[objid(%0)]','[sqlescape(name(%0))]',u(csecs,%0),u(isguest,%0)));
 @set [u(cobj,ccp)]/PLAYER`CONNECT`ID=no_inherit
 
 &SQL`CONNECT [u(cobj,ccp)]=@sql SET time_zone = '+00:00';@nscemit/noisy u(cmo`staffrep)=SQL server connect: %0
@@ -825,9 +829,9 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,switc
 
 @@ EVENT HANDLING - RHOST
 
-@ACONNECT [u(cobj,ccp)]=@check strmatch(%va,RhostMUSH);@select/inline and(eq(totcmds(%#),0),lt(sub(secs(),ctime(%#)),10))=1,{@attach/nobreak %!/PLAYER`CREATE=%#,words(ports(%#)),first(ports(%#))};@attach/nobreak %!/PLAYER`CONNECT=%#,words(ports(%#)),first(ports(%#))
+@ACONNECT [u(cobj,ccp)]=@check strmatch(%va,RhostMUSH);@select/inline and(eq(totcmds(%#),0),lt(sub(secs(),ctime(%#)),10))=1,{@attach/nobreak %!/PLAYER`CREATE=%#,name(%#),create};@attach/nobreak %!/PLAYER`CONNECT=%#,words(port(%#)),first(port(%#))
 @set [u(cobj,ccp)]/ACONNECT=no_inherit
-@ADISCONNECT [u(cobj,ccp)]=@check strmatch(%va,RhostMUSH);@attach/nobreak %!/PLAYER`DISCONNECT=%#,words(ports(%#)),ishidden(%#)
+@ADISCONNECT [u(cobj,ccp)]=@check strmatch(%va,RhostMUSH);@attach/nobreak %!/PLAYER`DISCONNECT=%#,words(port(%#)),ishidden(%#)
 @set [u(cobj,ccp)]/ADISCONNECT=no_inherit
 
 &STARTUP`RHOSTEVENT [u(cobj,ccp)]=@trigger %!/LOOP`RHOSTMUSH`EVENTHANDLER

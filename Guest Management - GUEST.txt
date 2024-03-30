@@ -37,11 +37,11 @@ th u(NEWCOBJ,Guest Management <GUEST>,guest,,,,WIZARD SAFE !NO_COMMAND,INHERIT S
 
 &GUEST`CREATE`DO`PENNMUSH [u(cobj,guest)]=@attach %!/GUEST`FIX`DO=pcreate(%0,guestaroonie)
 
-&GUEST`CREATE`DO`RHOSTMUSH [u(cobj,guest)]=
+&GUEST`CREATE`DO`RHOSTMUSH [u(cobj,guest)]=@attach %!/GUEST`FIX`DO=pcreate(%0,guestaroonie)
 
 &GUEST`FIX [u(Cobj,guest)]=@attach %!/GUEST`READY;@select/inline strlen(%0)=>0,{@attach %!/INC`CHECKPC=%0,1;@check u(isguest,%q<t1>)=@attach %!/INC`MSG=ERROR: They are not a Guest!;@attach %!/GUEST`FIX`DO=%q<t1>},{@attach %!/INC`MSG=Integrity checking all Guests!;@dolist [u(FUN`GUESTS)]=@attach %!/GUEST`FIX`DO=##}
 
-&GUEST`FIX`DO [u(cobj,guest)]=@describe %0=This is a Guest! Be kind to them!;@dolist/inline/delimit | [u(conf,channel)]={@chan/on %i0=%0};@tel %0=[u(conf,HOME)];@select/inline %va=PennMUSH,{@power %0=Guest},RhostMUSH,{@set %0=GUEST;th u(setq,guests,search(EPLAYER=\[hasflag(##,GUEST)\]));@admin guest_namelist=!ALL %q<guests>};@select/inline cand(hasattr(%0/D`OLDNAME),not(hasflag(%0,CONNECTED)))=1,{@name %0=[get(%0/D`OLDNAME)];@attach %!/WIPE=%0,D`OLDNAME};
+&GUEST`FIX`DO [u(cobj,guest)]=@describe %0=This is a Guest! Be kind to them!;@dolist/inline/delimit | [u(conf,channel)]={@chan/on %i0=%0};@tel %0=[u(conf,HOME)];@select/inline %va=PennMUSH,{@power %0=Guest},RhostMUSH,{@set %0=GUEST !WANDERER;th u(setq,guests,search(EPLAYER=\[hasflag(##,GUEST)\]));@admin guest_namelist=!ALL %q<guests>};@select/inline cand(hasattr(%0/D`OLDNAME),not(hasflag(%0,CONNECTED)))=1,{@name %0=[get(%0/D`OLDNAME)];@attach %!/WIPE=%0,D`OLDNAME};
 
 &FUN`GUESTS [u(cobj,guest)]=u(choosegame,lsearch(all,type,player,elock,POWER^GUEST),search(FLAGS=!))
 

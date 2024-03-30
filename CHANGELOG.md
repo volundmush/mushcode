@@ -1,4 +1,59 @@
-WHAT'S NEW FOR PLAYERS IN 3.0:
+# CHANGELOG
+
+## Version 3.5
+* (Experimental) Rhost support is in! There's probably a plethora of bugs, but much of the code is working. I'm still hammering out the kinks but feel welcome to try it.
+
+## Version 3.1
+
+### SCENESYS:
+* +scene/edit now properly documented. it uses ^^^ to split before/after, just like +bbedit.
+* +scene/joins are now timestamped. Timestamps older than 8h are invalidated. This is to prevent posing to the wrong scene two days later by accident.
+* +scene/start and +scene/continue now link the room to the scene. To log a scene you must be in said room. This means only one scene can ever be active in a location at a time. Again, to prevent accidental cross-scene logging.
+* +scene/upcoming aka +events, +Scenes, etc, now shows an empty day for today if there are no scenes today. This should make it easier to not mistake tomorrow for today, etc.
+* +scene/old now displays the scene's creation date instead of its finish date, as the latter might be wildly inaccurate.
+* Several fixes to the way scene data is created and handled. 
+
+### ACCOUNT:
+* +account/options MAIL option now works properly.
+
+### BBS:
+* The Mandatory board alert system now functions properly.
+* +bbadmin/create now gives output on a success.
+* +bbadmin/create works properly for setting default permissions now.
+* +help bbs/admin is now accurate.
+* +bbread/# now works for pagifying properly.
+
+### GROUP:
+* GBADMIN permission in default rank data renamed to BBADMIN. It was already supposed to be this, I just forgot.
+* +help Groups/Membership now explains Group Titles.
+* Group RADIO setting now processes kicks properly.
+* Added +group/options with the ability to make +group <target> change focus.
+
+### GUESTS:
+* Guests are no longer automatically added to 'CHANNELS_PLAYERS' list by the Account System.
+* Guest creation now works properly.
+
+### GRID:
+* +district/subcreate no longer gives display errors.
+* +shelp +district now displays properly. Pesky commas!
+
+### JOBS:
++job/newbucket now sets default permissions properly.
+
+### MEETME:
+* Displays now use the proper character (target, not enactor!) for figuring out width/color/formatting.
+
+### SCENESYS:
+* Now respects @lock/speech properly.
+
+### THEME aka FCLIST:
+* +Theme/status now works properly.
+
+### TECHNICAL/MISC:
+* Removed the vol_game_config legacy function.
+* SQL Schema no longer uses nested Stored Procedures due to incompatability with PennMUSH's sql connection. Simply re-run the Schema.sql file to fix.
+
+## Version 3.0:
 * GROUP TIERS: Now Groups can be arranged into custom-named Tiers 0-255, not just Minor and Major.
 * GROUP COMMANDS: Have been aggregated and streamlined into a new arrangement with much clearer meanings: +gmember, +gadmin, +grank, +gperm, etc, each with their own switches.
 * PRIVATE GROUPS: Groups can be 'private', visible to only staff and members of such a private group.
