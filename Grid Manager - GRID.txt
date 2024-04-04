@@ -6,9 +6,9 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &D`GRID [u(cobj,district)]=1
 
-@select/inline %va=PennMUSH,{@lock/enter [u(cobj,district)]=FUN`ENTER/1;@lset [u(cobj,district)]/enter=!no_inherit;@lock/teleport [u(cobj,district)]=FUN`TELEPORT/1;@lset [u(cobj,district)]/teleport=!no_inherit},RhostMUSH,{@lock/use [u(cobj,district)]=FUN`TELEPORT/1}
-&FUN`ENTER [u(cobj,district)]=vol_approved(%#)
-&FUN`TELEPORT [u(cobj,district)]=vol_approved(%#)
+@select/inline %va=PennMUSH,{@lock/enter [u(cobj,district)]=FUN`ENTER/1;@lset [u(cobj,district)]/enter=!no_inherit;@lock/teleport [u(cobj,district)]=FUN`TELEPORT/1;@lset [u(cobj,district)]/teleport=!no_inherit},RhostMUSH,{@lock/tport [u(cobj,district)]=FUN`TELEPORT/1}
+&FUN`ENTER [u(cobj,district)]=[vol_approved(%#)]
+&FUN`TELEPORT [u(cobj,district)]=[vol_approved(%#)]
 
 &CMD`+GRID`PENNMUSH [u(cobj,grid)]=$^(?s)\+(grid|district)(?\:/(\S+)?)?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+GRID`MAIN
 @set [u(cobj,grid)]/CMD`+GRID`PENNMUSH=regexp
@@ -38,7 +38,7 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &INC`LIST [u(cobj,grid)]=@pemit %#=u(HEADER,mudname() District Parents);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(5 2 26 9 33,DBREF,IC,Name,Rooms,Description));@pemit %#=u(SEPARATOR);@dolist/inline u(FUN`LISTDISTRICTS,u(cobj,district))={@attach %!/INC`DISTRICTLINE=##,0};@pemit %#=u(FOOTER)
 
-&INC`DISTRICTLINE [u(cobj,grid)]=th [u(setq,subs,u(FUN`LISTDISTRICTS,%0))];@pemit %#=[align(5 2 26 9 33,u(pueblize,ansi(if(controls(%#,%0),hg,hr),num(%0)),+district [u(setr,distn,u(FUN`DISTNAME,%0))]),default(%0/D`IC,0),[if(%1,space(mul(%1,2))-%B)][u(pueblize,name(%0),+district %q<distn>)],sub(u(nchildren,%0),words(%q<subs>)),default(%0/DESCRIBE,???))];@dolist/inline %q<subs>=@attach %!/INC`DISTRICTLINE=%i0,add(1,%1),words(%q<subs>)
+&INC`DISTRICTLINE [u(cobj,grid)]=th [u(setq,subs,u(FUN`LISTDISTRICTS,%0))];@pemit %#=[align(5 2 26 9 33,u(pueblize,ansi(if(controls(%#,%0),hg,hr),num(%0)),+district [u(setr,distn,u(FUN`DISTNAME,%0))]),default(%0/D`IC,0),[if(%1,space(mul(%1,2))-%B)][u(pueblize,name(%0),+district %q<distn>)],sub(u(nchildren,%0),words(%q<subs>)),default(%0/DESCRIBE,???))];@dolist/inline %q<subs>=@attach %!/INC`DISTRICTLINE=u(choosegame,%i0,%d0),add(1,%1),words(%q<subs>)
 
 &FUN`DISTRICTLINE [u(cobj,grid)]=[u(setq,subs,u(FUN`LISTDISTRICTS,%0))][align(5 2 26 9 33,u(pueblize,ansi(if(controls(%#,%0),hg,hr),num(%0)),+district [u(setr,distn,u(FUN`DISTNAME,%0))]),default(%0/D`IC,0),[if(%1,space(mul(%1,2))-%B)][u(pueblize,name(%0),+district %q<distn>)],sub(u(nchildren,%0),words(%q<subs>)),default(%0/DESCRIBE,???))][if(words(%q<subs>),%R[iter(%q<subs>,u(FUN`DISTRICTLINE,%i0,add(1,%1),words(%q<subs>)),%B,%R)])]
 
@@ -66,17 +66,19 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &INC`ORDER [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check strlen(%1)=@attach %!/INC`MSG=ERROR: Order value empty.;@check valnum(%1)=@attach %!/INC`MSG=ERROR: Order values must be whole, positive numbers.;&ORDER %q<dist>=%1;@set %q<dist>/ORDER=no_inherit;@attach %!/INC`MSG=Order set.;@attach %!/INC`MSG`CHAN={Changed order for %q<dist> '%q<distname>'}
 
-&INC`FINDDIST [u(cobj,grid)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No District entered to check.;th u(setq,dist%1,u(cobj,district));@select/inline strlen(%0)=0,{@@ We're sticking with the root district!},{@dolist/inline/delimit / %0={th u(setq,dname,trim(u(choosegame,%i0,%d0)));@check words(u(setr,dist%1,namegraball(u(FUN`LISTDISTRICTS,r(dist%1)),%q<dname>)))=@attach %!/INC`MSG=ERROR: District '%q<dname>' not found.;@stop gt(words(r(dist%1)),1)=@attach %!/INC`MSG=ERROR: '%q<dname>' matched [u(itemize,iter(r(dist%1),u(pueblize,name(%i0),+district %i0),%b,|),|,and,\,)]. Please be more specific!;th u(setq,distname%1,name(r(dist%1)));th u(setq,alldists%1,cat(r(alldists%1),r(dist%1)))}};th u(setq,distnames%1,iter(r(alldists%1),u(getmoniker,%i0),%b,ansi(hy,/)));
+&INC`FINDDIST [u(cobj,grid)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No District entered to check.;th u(setq,dist%1,u(cobj,district));@select/inline strlen(%0)=0,{@@ We're sticking with the root district!},{@dolist/inline/delimit / %0={th u(setq,dname,trim(u(choosegame,%i0,%d0)));@check words(u(setr,dist%1,u(namegraball,u(FUN`LISTDISTRICTS,r(dist%1)),%q<dname>)))=@attach %!/INC`MSG=ERROR: District '%q<dname>' not found.;@stop gt(words(r(dist%1)),1)=@attach %!/INC`MSG=ERROR: '%q<dname>' matched [u(itemize,iter(r(dist%1),u(pueblize,name(%i0),+district %i0),%b,|),|,and,\,)]. Please be more specific!;th u(setq,distname%1,name(r(dist%1)));th u(setq,alldists%1,);th u(setq,alldists%1,cat(r(alldists%1),r(dist%1)))}};th u(setq,distnames%1,iter(r(alldists%1),u(getmoniker,%i0),%b,ansi(hy,/)));
 
 &INC`RAWLOCK [u(cobj,grid)]=@attach %!/INC`LOCK=%0,%1,1
 
 &INC`LOCK [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`VALID`[if(not(%2),GROUP)]LOCK=%1;@attach %!/INC`LOCK`[v(GAME)];@attach %!/INC`MSG=Locked %q<dist> '%q<distname>' Enter/Teleport To: %q<value> (MEANING: %q<valueformat>);@attach %!/INC`MSG`CHAN=Locked %q<dist> '%q<distname>' Enter/Teleport To: %q<value> (MEANING: %q<valueformat>)
 
 &INC`LOCK`PENNMUSH [u(cobj,grid)]=@lock/enter %q<dist>=%q<value>;@lset %q<dist>/enter=!no_inherit visual;@lock/teleport %q<dist>=%q<value>;@lset %q<dist>/teleport=!no_inherit visual
+&INC`LOCK`RHOSTMUSH [u(cobj,grid)]=@lock/enter %q<dist>=%q<value>;@lset %q<dist>/enter=!no_inherit visual;@lock/tport %q<dist>=%q<value>;@lset %q<dist>/tport=!no_inherit visual
 
 &INC`UNLOCK [u(cobj,grid)]=@attach %!/INC`FINDDIST=%0;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`UNLOCK`[v(GAME)];@attach %!/INC`MSG=Unlocked %q<dist> '%q<distname>' for all entrants.;@attach %!/INC`MSG`CHAN=Unlocked %q<dist> '%q<distname>' for all entrants.
 
-&INC`UNLOCk`PENNMUSH [u(cobj,grid)]=@unlock/enter %q<dist>;@unlock/teleport %q<dist>;
+&INC`UNLOCk`PENNMUSH [u(cobj,grid)]=@unlock/enter %q<dist>;@unlock/teleport %q<dist>
+&INC`UNLOCk`RHOSTMUSH [u(cobj,grid)]=@unlock/enter %q<dist>;@unlock/tport %q<dist>
 
 &INC`DISTCHECK [u(cobj,grid)]=@check strlen(u(setr,dist,get(%#/D`DISTRICT)))=@attach %!/INC`MSG=Please choose a District using +district <name>.;@check match(u(FUN`LISTDISTRICTS),%q<dist>)=@attach %!/INC`MSG=ERROR: District no longer valid. Please choose a District using +district <name>.;@check cor(u(isadmin,%#),controls(%#,%q<dist>))=@attach %!/INC`MSG=ERROR: Permission denied.;th u(setq,distname,name(%q<dist>))
 

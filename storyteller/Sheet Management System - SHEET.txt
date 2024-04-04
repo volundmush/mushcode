@@ -31,7 +31,7 @@ th u(newcobj,STORYTELLER: Sheet Management System <SHEET>,sheet,,u(cobj,story),,
 
 &FUN`CLASSINFO`MAIN [u(cobj,sheet)]=%R[u(FUN`BORDER,%0,%1,align(floor(fdiv(sub(u(width,%#),6),2)) [ceil(floor(fdiv(sub(u(width,%#),6),2)))],u(FUN`INFOCOLUMN,%0,%1,%2,%3),u(FUN`INFOCOLUMN,%0,%1,%2,%4)))]
 
-&FUN`INFOCOLUMN [u(cobj,sheet)]=localize(u(setq,colwidth,u(lmax,iter(%3,strlen(elements(%i0,2,~)),|,%b)))[iter(%3,rjust(u(FUN`COLOR,%1,TEXTHEAD,elements(%i0,2,~)),%q<colwidth>)[u(FUN`COLOR,%1,COLON,:)]%B[u(FUN`COLOR,%1,TEXTFIELD,u(capnames,u(strfirstof,switch(elements(%i0,1,~),*_*,u(FUN`INFOCOLUMN`[before(elements(%i0,1,~),_)],%0,%1,%2,after(elements(%i0,1,~),_)),u(FUN`INFOCOLUMN`[elements(%i0,1,~)],%0,%1,%2)),elements(%i0,3,~))))],|,%R)])
+&FUN`INFOCOLUMN [u(cobj,sheet)]=localize(u(setq,colwidth,u(lmax,iter(%3,strlen(u(elements,%i0,2,~)),|,%b)))[iter(%3,rjust(u(FUN`COLOR,%1,TEXTHEAD,u(elements,%i0,2,~)),%q<colwidth>)[u(FUN`COLOR,%1,COLON,:)]%B[u(FUN`COLOR,%1,TEXTFIELD,u(capnames,u(strfirstof,switch(u(elements,%i0,1,~),*_*,u(FUN`INFOCOLUMN`[before(u(elements,%i0,1,~),_)],%0,%1,%2,after(u(elements,%i0,1,~),_)),u(FUN`INFOCOLUMN`[elements(%i0,1,~)],%0,%1,%2)),elements(%i0,3,~))))],|,%R)])
 
 &FUN`INFOCOLUMN`NAME [u(cobj,sheet)]=u(getmoniker,%0)
 &FUN`INFOCOLUMN`SEX [u(cobj,sheet)]=u(getproperty,%0,SEX)

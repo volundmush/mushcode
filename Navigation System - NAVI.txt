@@ -9,8 +9,12 @@ th u(NEWCOBJ,Navigation System <NAVI>,navi,,,,WIZARD SAFE !NO_COMMAND,INHERIT SI
 
 &FUN`TELDISTS [u(cobj,navi)]=squish(iter(u(u(cobj,grid)/FUN`LISTDISTRICTS,u(strfirstof,%0,u(cobj,district))),if(elock(%i0/[u(choosegame,Teleport,Use)],u(strfirstof,%1,%#)),%i0)))
 
+&FIL`CANTELEPORT`PENNMUSH [u(cobj,navi)]=elock(%0/teleport,%#)
+&FIL`CANTELEPORT`RHOSTMUSH [u(cobj,navi)]=elock(%0/tport,%#)
+
 &FUN`FINDROOM [u(cobj,navi)]=u(sortname,u(FUN`FINDROOM`%va,%0))
-&FUN`FINDROOM`PENNMUSH [u(cobj,navi)]=filterbool(#lambda/elock(\%0/teleport,%#),setunion(lsearch(all,type,room,name,%0,elock,D`GRID:1),lsearch(all,type,thing,name,%0,elock,PORT:>0)))
+&FUN`FINDROOM`PENNMUSH [u(cobj,navi)]=u(filter,CANTELEPORT`%va,setunion(lsearch(all,type,room,name,%0,elock,D`GRID:1),lsearch(all,type,thing,name,%0,elock,PORT:>0)))
+&FUN`FINDROOM`RHOSTMUSH [u(cobj,navi)]=u(filter,CANTELEPORT`%va,setunion(search(EROOM=\[cand(get(##/D`GRID),strmatch(name(##),*%0*))\]),search(ETHING=\[cand(get(##/PORT),strmatch(name(NAME),*%0*))\])))
 
 &FUN`LISTROOMS [u(cobj,navi)]=squish(iter(u(FUN`TELDISTS,,%1),u(FUN`LISTDISTROOMS,%i0))%B[u(FUN`LISTTHINGS)])
 &FUN`LISTDISTROOMS [u(cobj,navi)]=u(sortname,u(u(cobj,grid)/filter,NOTDIST,children(%0)))

@@ -24,7 +24,7 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
 &Q`SELECT`THEMECOUNT [u(cobj,theme)]=SELECT count(theme_id) FROM vol_theme
 
-&INC`FINDTHEME [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@select/inline words(u(setr,theme,u(mysql3,FIND`THEME[if(%2,`EXACT)],if(not(%2),sqlescape(%0),%0),%0)))=0,{@stop 1=@attach %!/INC`MSG=ERROR: Theme '%0' not found!},1,{},>1,{@select/inline t(%2)=1,{},0,{th u(setq,theme,first(%q<theme>,u(rsep)))}};th u(setq,themename,elements(%q<theme>,2,u(fsep)));th u(setq,theme,elements(%q<theme>,1,u(fsep)))
+&INC`FINDTHEME [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Name field empty.;@select/inline words(u(setr,theme,u(mysql3,FIND`THEME[if(%2,`EXACT)],if(not(%2),sqlescape(%0),%0),%0)))=0,{@stop 1=@attach %!/INC`MSG=ERROR: Theme '%0' not found!},1,{},>1,{@select/inline t(%2)=1,{},0,{th u(setq,theme,first(%q<theme>,u(rsep)))}};th u(setq,themename,u(elements,%q<theme>,2,u(fsep)));th u(setq,theme,u(elements,%q<theme>,1,u(fsep)))
 
 &Q`FIND`THEME [u(cobj,theme)]=SELECT theme_id,theme_name FROM volv_theme WHERE theme_name LIKE '!%' OR theme_id=? ORDER BY theme_name LIMIT 1
 &Q`FIND`THEME`EXACT [u(cobj,theme)]=SELECT theme_id,theme_name FROM volv_theme WHERE theme_name=? OR theme_id=?
@@ -39,9 +39,9 @@ th u(NEWCOBJ,Theme Database <THEMEDB>,themedb,u(cobj,theme),,1,SAFE,SAFE)
 
 &FUN`CASTCOLUMN [u(cobj,theme)]=ansi(u(color,%#,COLUMN_NAMES),align(26 24 8 8 10,Name,Faction,Last On,Type,Available))
 
-&FUN`CASTROW [u(cobj,theme)]=localize(align(26 24 8 8 10,u(namelink,u(setr,obj,elements(%0,1,u(fsep)))),u(strfirstof,u(getproperty,%q<obj>,FACTION),Unaffiliated),u(lastidle,%q<obj>),u(strfirstof,elements(%0,2,u(fsep))),u(strfirstof,elements(%0,3,u(fsep)),Open)))
+&FUN`CASTROW [u(cobj,theme)]=localize(align(26 24 8 8 10,u(namelink,u(setr,obj,u(elements,%0,1,u(fsep)))),u(strfirstof,u(getproperty,%q<obj>,FACTION),Unaffiliated),u(lastidle,%q<obj>),u(strfirstof,u(elements,%0,2,u(fsep))),u(strfirstof,u(elements,%0,3,u(fsep)),Open)))
 
-&INC`SEARCH [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Nothing entered to search by!;@check strlen(u(setr,results,u(mysql3,SEARCH`CAST,%0)))=@attach %!/INC`MSG=Nothing found. Sorry!;@pemit %#=u(header,Cast for: %0);@pemit %#=u(FUN`CASTCOLUMN);@dolist/inline/delimit [u(rsep)] %q<results>={@select/inline strmatch(%q<themename>,u(setr,themename,elements(u(choosegame,%i0,%d0),4,u(fsep))))=0,{@pemit %#=u(separator,%q<themename>)};@pemit %#=u(FUN`CASTROW,u(choosegame,%i0,%d0))};@pemit %#=u(footer)
+&INC`SEARCH [u(cobj,theme)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Nothing entered to search by!;@check strlen(u(setr,results,u(mysql3,SEARCH`CAST,%0)))=@attach %!/INC`MSG=Nothing found. Sorry!;@pemit %#=u(header,Cast for: %0);@pemit %#=u(FUN`CASTCOLUMN);@dolist/inline/delimit [u(rsep)] %q<results>={@select/inline strmatch(%q<themename>,u(setr,themename,u(elements,u(choosegame,%i0,%d0),4,u(fsep))))=0,{@pemit %#=u(separator,%q<themename>)};@pemit %#=u(FUN`CASTROW,u(choosegame,%i0,%d0))};@pemit %#=u(footer)
 
 &Q`SEARCH`CAST [u(cobj,theme)]=SELECT character_objid,tmember_type,character_status,theme_name FROm volv_theme_member WHERE theme_name LIKE '%!%' ORDER BY theme_name,character_name
 

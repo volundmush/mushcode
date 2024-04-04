@@ -56,7 +56,7 @@ th u(newcobj,STORYTELLER: Roll Management System <ROLL>,ROLL,,u(cobj,story),,WIZ
 
 &ROLL`ERROR [u(cobj,roll)]=u(setq,errcheck,setunion(%q<errcheck>,%0,|,|))
 
-&ROLL`READYSTATS [u(cobj,roll)]=localize(strcat(u(mysql3,SELECT`ROLLSTATS,u(SQL`IN`NUMBER,edit(u(lattr,%!/ROLL_PARENT`*),ROLL_PARENT`,)),%0),switch(if(strlen(v(SELECT`POWERSTAT)),strlen(elements(u(setr,powerstat,u(mysql3,SELECT`POWERSTAT,%0)),2,u(fsep)))),>0,u(rsep)[elements(%q<powerstat>,2 3,u(fsep),u(fsep))])))
+&ROLL`READYSTATS [u(cobj,roll)]=localize(strcat(u(mysql3,SELECT`ROLLSTATS,u(SQL`IN`NUMBER,edit(u(lattr,%!/ROLL_PARENT`*),ROLL_PARENT`,)),%0),switch(if(strlen(v(SELECT`POWERSTAT)),strlen(u(elements,u(setr,powerstat,u(mysql3,SELECT`POWERSTAT,%0)),2,u(fsep)))),>0,u(rsep)[u(elements,%q<powerstat>,2 3,u(fsep),u(fsep))])))
 
 &Q`SELECT`ROLLSTATS [u(cobj,roll)]=SELECT display_roll_name,stat_value FROM volv_story_persona_stats WHERE stat_parent IN (!) AND stat_value>0 AND persona_id=? ORDER BY display_roll_name
 &Q`SELECT`POWERSTAT [u(cobj,roll)]=SELECT template_id,template_power_stat_name,power_stat_value FROM volv_story_personas WHERE persona_id=?
@@ -79,7 +79,7 @@ th u(newcobj,STORYTELLER: Roll Management System <ROLL>,ROLL,,u(cobj,story),,WIZ
 
 &ROLL`CALC [u(cobj,roll)]=u(ladd,regeditalli(%0,(\[-+\])%B(\\d+),$1$2))
 
-&ROLL`MAPDICE [u(cobj,roll)]=lmath(add,elements(%1,%0))
+&ROLL`MAPDICE [u(cobj,roll)]=lmath(add,u(elements,%1,%0))
 
 &ROLL`REROLLS [u(cobj,roll)]=localize(if(u(setr,redice,words(u(filter,DICEMATCH,u(setr,sortdice,sort(die(%0,10,1))),%b,%b,%q<re>))),u(ROLL`REROLLS,%q<redice>,1,if(%1,%2|%q<sortdice>,%q<sortdice>)),if(strlen(%2),%2[if(strlen(%q<sortdice>),|%q<sortdice>)],%q<sortdice>)))
 
@@ -91,7 +91,7 @@ th u(newcobj,STORYTELLER: Roll Management System <ROLL>,ROLL,,u(cobj,story),,WIZ
 
 &ROLL`FORMATNUM [u(cobj,roll)]=if(isint(%0),ansi(hw,%0),localize([u(setq,found,grab(%1,%0*,u(rsep)))][if(strlen(%q<found>),ansi(hw,before(%q<found>,u(fsep))<[after(%q<found>,u(fsep))]>),ansi(hx,%0<0>))]))
 
-&ROLL`FANCYDICE [u(cobj,roll)]=iter(%0,ansi(switchall(1,eq(u(setr,res,elements(%q<dicemap>,%i0)),0.001),hx,eq(%q<res>,0),hr,eq(%q<res>,1),hg,eq(%q<res>,2),hy,gte(%i0,%q<ag>),u,t(match(%q<re>,%i0)),C),switch(%q<res>,2,<%i0>,0.001,-%i0-,%i0)))
+&ROLL`FANCYDICE [u(cobj,roll)]=iter(%0,ansi(switchall(1,eq(u(setr,res,u(elements,%q<dicemap>,%i0)),0.001),hx,eq(%q<res>,0),hr,eq(%q<res>,1),hg,eq(%q<res>,2),hy,gte(%i0,%q<ag>),u,t(match(%q<re>,%i0)),C),switch(%q<res>,2,<%i0>,0.001,-%i0-,%i0)))
 
 &ROLL [u(cobj,roll)]=if(if(strlen(%2),not(u(ROLL`PARAM,%2)),0),#-1 %q<errcheck>,[u(ROLL`INIT)][if(not(strlen(u(setr,normalize,u(ROLL`NORMALIZE,%1)))),#-1 NOTHING ENTERED OR IMPROPERLY FORMATTED,if(not(words(u(setr,allstats,u(ROLL`READYSTATS,%0)),u(rsep))),#-1 NO STATS TO ROLL. CHECK PERSONA.,if(not(strlen(u(setr,findnames,u(ROLL`FINDNAMES,%q<normalize>,%q<allstats>)))),#-1 COULD NOT NORMALIZE. CHECK DICE ROLL STRING.,if(not(u(setr,calc,u(ROLL`CALC,u(setr,calcdice,u(ROLL`CALCDICE,%q<findnames>,%q<allstats>))))),#-1 NO DICE TO ROLL. CHECK STATS CHOSEN.,[null(u(setr,finalsuxx,add(u(setr,suxx,add(0,before(u(setr,mapresults,u(ROLL`MAPDICE,edit(edit(u(setr,rollresults,u(ROLL`DOROLL,%q<calc>)),%R,%b),|,%b),%q<dicemap>)),.))),%q<sux>,mul(-1,%q<pen>)))[u(setq,ones,if(strlen(after(%q<mapresults>,.)),mul(after(%q<mapresults>,.),1000),0))][if(u(conf,ONES_SUBTRACT),u(setq,finalsuxx,sub(%q<suxx>,%q<ones>)))][if(cor(%q<def>,%q<dif>),u(setq,finalsuxx,sub(%q<finalsuxx>,max(%q<def>,%q<div>))))][u(setq,status,if(eq(-1,switch(u(conf,BOTCHES),0,0,1,if(and(gt(%q<finalsuxx>,0),lt(%q<finalsuxx>,1)),-1,0),2,if(lt(%q<suxx>,0),-1,0),0)),-1,if(%q<def>,gte(%q<finalsuxx>,1),t(%q<finalsuxx>))))][u(setq,fancyresults,iter(%q<rollresults>,iter(%i0,u(ROLL`FANCYDICE,%i0),|,|),%R,%R))][u(setq,fancystats,u(ROLL`FORMATROLL,%q<findnames>,%q<allstats>))])]%q<finalsuxx>|%q<status>|%q<fancystats>|MUL:%q<mul>^TN:%q<tn>^DIF:%q<dif>^SUX:%q<sux>^PEN:%q<pen>^AG:%q<ag>^DEF:%q<def>^RE:%q<re>^DBL:%q<dbl>|%q<calc>%R%q<fancyresults>))))])
 @@ This should PROBABLY be called via localize() or ulocal().

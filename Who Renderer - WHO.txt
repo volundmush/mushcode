@@ -57,7 +57,7 @@ th u(NEWCOBJ,Who Renderer <WHO>,who,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SA
 
 &J`WHO`PLAYERS`PACKAGE [u(Cobj,who)]=json(object,system,json(string,who),pages,json(number,%3),page,json(number,%2),data,u(J`WHO`PLAYERS,%1,%0))
 
-&W`WHO`RECEIVE [u(cobj,who)]=@dolist/inline lnum(1,u(setr,pages,ceil(fdiv(words(u(setr,lwho,u(lwhoid,%0))),u(setr,per,50)))))={@pemit %0=wsjson(u(J`WHO`PLAYERS`PACKAGE,%0,elements(%q<lwho>,lnum(add(1,mul(%q<per>,sub(%i0,1))),mul(%q<per>,%i0))),%i0,%q<pages>),null())}
+&W`WHO`RECEIVE [u(cobj,who)]=@dolist/inline lnum(1,u(setr,pages,ceil(fdiv(words(u(setr,lwho,u(lwhoid,%0))),u(setr,per,50)))))={@pemit %0=wsjson(u(J`WHO`PLAYERS`PACKAGE,%0,u(elements,%q<lwho>,lnum(add(1,mul(%q<per>,sub(%i0,1))),mul(%q<per>,%i0))),%i0,%q<pages>),null())}
 
 @@ COMMUNITY - WHO
 &HLP`WHO [u(cobj,who)]=[ansi(hc,Commands)]%R[align(5 [sub(u(width,%#),6)],,[ansi(h,+who)] - Show all visible\, connected players.%R[ansi(h,+who/idle)] - Like above\, but sorts by idle times.%R%R[ansi(h,+who <text>)] - Search for online players starting with <text>.)]

@@ -11,7 +11,7 @@ th u(NEWCOBJ,Desc Management System <DESC>,desc,,,,WIZARD SAFE !NO_COMMAND,INHER
 
 &SWITCHES`PLAYER [u(cobj,desc)]=SAVE|DELETE|NOISY|VIEW|RENAME
 
-&INC`FIND [u(cobj,desc)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Desc name field empty!;@check strlen(u(setr,desc,u(mysql3,LOAD`DESC[if(%4,`EXACT)],%q<t1id>,[sqlescape(%0)])))=@attach %!/INC`MSG=ERROR: Desc '%0' not found.[if(%4,%bThis mode uses exact-match.)];th u(setq,descname,elements(%q<desc>,2,u(fsep)));th u(setq,descid,elements(%q<desc>,1,u(fsep)));th u(setq,desctext,elements(%q<desc>,3,u(fsep)));
+&INC`FIND [u(cobj,desc)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: Desc name field empty!;@check strlen(u(setr,desc,u(mysql3,LOAD`DESC[if(%4,`EXACT)],%q<t1id>,[sqlescape(%0)])))=@attach %!/INC`MSG=ERROR: Desc '%0' not found.[if(%4,%bThis mode uses exact-match.)];th u(setq,descname,u(elements,%q<desc>,2,u(fsep)));th u(setq,descid,u(elements,%q<desc>,1,u(fsep)));th u(setq,desctext,u(elements,%q<desc>,3,u(fsep)));
 
 &Q`LOAD`DESC [u(cobj,desc)]=SELECT field_id,field_name,field_text FROM vol_field WHERE entity_id=? AND field_type=0 AND field_name LIKE '!%%' ORDER BY field_name LIMIT 1
 &Q`LOAD`DESC`EXACT [u(cobj,desc)]=SELECT field_id,field_name,field_text FROM vol_field WHERE entity_id=? AND field_type=0 AND field_name=!

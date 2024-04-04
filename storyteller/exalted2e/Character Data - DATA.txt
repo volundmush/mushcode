@@ -34,7 +34,7 @@
 
 @@ Attributes
 
-&INC`SET`ATTRIBUTE [u(cobj,data)]=@attach %!/DO`SET`ATTRIBUTE=%0,elements(%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Attribute
+&INC`SET`ATTRIBUTE [u(cobj,data)]=@attach %!/DO`SET`ATTRIBUTE=%0,u(elements,%1,2,|),%2;@attach %!/DO`RENDERSTAT=%0,Attribute
 
 &DO`VAL`ATTRIBUTE [u(cobj,data)]=@check strlen(%1)=@attach %!/INC`MSG=ERROR: No Attribute name entered.;@attach %!/INC`PARTIAL=%1,u(u(cobj,data)/FUN`GET`ATTRIBUTES),|,find,attribute;@attach [u(cobj,data)]/DO`CHECKSTAT=%0,Attributes,%2
 &DO`SET`ATTRIBUTE [u(cobj,data)]=@attach [u(cobj,data)]/DO`VAL`ATTRIBUTE;@attach [u(cobj,data)]/KEYVALUE`SET=%0,D`ATTRIBUTES,%q<find>,%q<value>

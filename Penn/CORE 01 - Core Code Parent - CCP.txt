@@ -241,7 +241,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &WILDGREPI [u(cobj,ccp)]=wildgrepi(%0,%1,%2)
 
-&UMAIL [u(cobj,ccp)]=elements(mail(%0),2)
+&UMAIL [u(cobj,ccp)]=u(elements,mail(%0),2)
 
 &FULLALIAS [u(cobj,ccp)]=fullalias(%0)
 
@@ -264,13 +264,13 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &GETPROPERTY`URL [u(cobj,ccp)]=u(weblink,get(%0/V`PROPERTY`%1))
 
-&GETPROPERTY`THEME [u(cobj,ccp)]=localize(if(strlen(u(setr,themes,get(%0/V`THEME))),u(pueblize,setr(theme,first(elements(%q<themes>,3,u(fsep)),u(rsep))),+theme %q<theme>))
-&GETPROPERTY`TYPE [u(cobj,ccp)]=first(elements(get(%0/V`THEME),2,u(fsep)),u(rsep))
+&GETPROPERTY`THEME [u(cobj,ccp)]=localize(if(strlen(u(setr,themes,get(%0/V`THEME))),u(pueblize,setr(theme,first(u(elements,%q<themes>,3,u(fsep)),u(rsep))),+theme %q<theme>))
+&GETPROPERTY`TYPE [u(cobj,ccp)]=first(u(elements,get(%0/V`THEME),2,u(fsep)),u(rsep))
 
 &GETPROPERTY`SCENE [u(cobj,ccp)]=if(default(%0/D`OBSERVER,0),ansi(hw,OBS),default(%0/D`SCENE,???))
 
-&GETPROPERTY`GROUPDB [u(cobj,ccp)]=if(%1,elements(get(%0/V`TIERS),%1),get(%0/V`TIERS))
-&GETPROPERTY`TIERDB [u(cobj,ccp)]=if(%2,elements(get(%0/V`TIERS`%1),%2),get(%0/V`TIERS`%1))
+&GETPROPERTY`GROUPDB [u(cobj,ccp)]=if(%1,u(elements,get(%0/V`TIERS),%1),get(%0/V`TIERS))
+&GETPROPERTY`TIERDB [u(cobj,ccp)]=if(%2,u(elements,get(%0/V`TIERS`%1),%2),get(%0/V`TIERS`%1))
 
 &GETPROPERTY`FACTION [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`tierdb,%0,u(conf,FACTION_TIER),1))),u(%q<grp>/GET`NAME))
 &GETPROPERTY`FACABBR [u(cobj,ccp)]=if(isdbref(setr(grp,u(getproperty`tierdb,%0,u(conf,FACTION_TIER),1))),u(%q<grp>/GET`ABBREVIATION))
@@ -289,7 +289,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &COLUMNLINE [u(cobj,ccp)]=lalign(iter(u(setr,hdr,%0),after(%i0,~),|,%b),iter(%q<hdr>,before(%i0,~),|,u(fsep)),u(fsep))
 &PLAYERLINE [u(cobj,ccp)]=lalign(iter(u(setr,col,%1),after(%i0,~),|,%b),iter(%q<col>,u(getprop,%0,%i0),|,u(fsep)),u(fsep))
 
-&GETPROP [u(cobj,ccp)]=u(strfirstof,u(getproperty,%0,setr(fget,elements(setr(get,before(%1,~)),1,/)),elements(%q<get>,2,/),elements(%q<get>,3,/),elements(%q<get>,4,/),elements(%q<get>,5,/)),if(strlen(%2),get(%0/%2`%q<fget>)))
+&GETPROP [u(cobj,ccp)]=u(strfirstof,u(getproperty,%0,setr(fget,u(elements,setr(get,before(%1,~)),1,/)),u(elements,%q<get>,2,/),u(elements,%q<get>,3,/),u(elements,%q<get>,4,/),u(elements,%q<get>,5,/)),if(strlen(%2),get(%0/%2`%q<fget>)))
 
 &INC`VALID`COLUMNS [u(cobj,ccp)]=@check strlen(setr(value,stripansi(trim(%0))))=@attach %!/INC`MSG=ERROR: No Columns data given!;@stop strmatch(u(COLUMNLINE,%q<value>),*#-1*)=@attach %!/INC`MSG=ERROR: Column definition results in an Error. Check input and try again. +help DynamicData
 
@@ -364,7 +364,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &INC`DOCALL`2 [u(cobj,ccp)]=@stop strmatch(setr(errcheck,u(call`2,before(%0,/),0,%1,%2,%3,%4,%5,%6,%7,%8,%9)),#-*)[if(strlen(after(%0,/)),setq(after(%0,/),first(%q<errcheck>)))]={@attach %!/INC`MSG=SQL ERROR - [before(%0,/)]: %q<errcheck>;@attach %!/INC`MSG`CHAN=SQL ERROR - %!/[before(%0,/)]: %q<errcheck>}
 
-&INC`SEARCHSQL [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No %1 name entered!;@select/inline words(u(setr,tempresults,u(strfirstof,u(setr,searchexact,u(mysql3,FIND`%2`EXACT[if(isint(%0),`ID)],%0,%4,%5,%6,%7,%8,%9)),if(not(strlen(%q<searchexact>)),u(mysql3,FIND`%2`WILD,sqlescape(%0),%4,%5,%6,%7,%8,%9)))),u(rsep))=>1,{@stop 1=@attach %!/INC`MSG=ERROR: Results are Ambiguous. That matches: [iter(%q<tempresults>,elements(%i0,2,u(fsep)),u(rsep),\,%b)]},0,{@stop 1=@attach %!/INC`MSG=ERROR: Could not find %1 '%0'. Choices are: [iter(u(mysql3,FIND`%2`LIST,%4,%5,%6,%7,%8,%9),%i0,u(rsep),\,%b)]},1,{@attach %!/INC`LOADSQL=%2,elements(%q<tempresults>,1,u(fsep)),%3;th unsetq(tempresults searchexact)}
+&INC`SEARCHSQL [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No %1 name entered!;@select/inline words(u(setr,tempresults,u(strfirstof,u(setr,searchexact,u(mysql3,FIND`%2`EXACT[if(isint(%0),`ID)],%0,%4,%5,%6,%7,%8,%9)),if(not(strlen(%q<searchexact>)),u(mysql3,FIND`%2`WILD,sqlescape(%0),%4,%5,%6,%7,%8,%9)))),u(rsep))=>1,{@stop 1=@attach %!/INC`MSG=ERROR: Results are Ambiguous. That matches: [iter(%q<tempresults>,u(elements,%i0,2,u(fsep)),u(rsep),\,%b)]},0,{@stop 1=@attach %!/INC`MSG=ERROR: Could not find %1 '%0'. Choices are: [iter(u(mysql3,FIND`%2`LIST,%4,%5,%6,%7,%8,%9),%i0,u(rsep),\,%b)]},1,{@attach %!/INC`LOADSQL=%2,u(elements,%q<tempresults>,1,u(fsep)),%3;th unsetq(tempresults searchexact)}
 @@ Searches database for id,name pairs and attempts partial matching and etc.
 @@ %0 - Text or ID to search for. %1 - name to display it as. %2 - QUERY CATEGORY to search. What kind of OBJECT is this? %3 - What slot # to load data into? %4+ - Additional parameters needed by SQL queries.
 
@@ -372,7 +372,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 @@ Retrieves FIELD`%0 names and loads them into structured named registers.
 @@ %0 - The TYPE OF OBJECT this is going to be. This must match the queries. Q`LOAD`%0 will be called. %1 - The ID of the object to load. %2 - The # that this will be loaded into. %3 - Alternate SQL LOAD name to use.
 
-&INC`REGOBJ [u(cobj,ccp)]=@dolist/inline %1={th u(setq,%0%2.%i0,elements(%3,inum(0),u(fsep)))}
+&INC`REGOBJ [u(cobj,ccp)]=@dolist/inline %1={th u(setq,%0%2.%i0,u(elements,%3,inum(0),u(fsep)))}
 @@ Takes arbitrary data (usually from SQL) and loads it into named registers following pattern of <thing>#.<parameter>.
 @@ %0 - the Thing name. %1 - space-delimited list of parameters. %2 - The # for this object. %3 - The data, presented in mysql fashion (delimiter is character 177)
 
@@ -525,7 +525,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &GROUPCOLOR [u(cobj,ccp)]=get(%0/CUSTCOLOR`GROUP`%1)
 &NAMECOLOR [u(cobj,ccp)]=udefault(%0/COLOR_CHARACTER,switch(1,strmatch(num(%0),num(%1)),u(color,%0,v(SYSTEM`COLORS),ME),strmatch(num(%1),num(%2)),u(color,%0,v(SYSTEM`COLORS),SPEAKER),default(%0/CUSTCOLOR`CHARACTER`%1,u(color,%0,v(SYSTEM`COLORS),OTHER))),%1)
 
-&CMD`COLORDEMO [u(cobj,ccp)]=$^(?s)(?\:\+)?colordemo(?\:/(\S+)?)?$:@attach %!/INC`PARTIAL=%1,LONG,|,switch;@select/inline %q<switch>=LONG,{@dolist/inline lnum(97,122)=@pemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(elements(%qc,matchall(%qg,%i0)),ansi(+%i0,+%i0))],%b,%r)))},{@pemit %#=iter(lnum(0,255),ansi(+xterm%i0,+xterm%i0))}
+&CMD`COLORDEMO [u(cobj,ccp)]=$^(?s)(?\:\+)?colordemo(?\:/(\S+)?)?$:@attach %!/INC`PARTIAL=%1,LONG,|,switch;@select/inline %q<switch>=LONG,{@dolist/inline lnum(97,122)=@pemit %#=letq(c,colors(chr(%i0)*),letq(g,regeditall(%qc,\\d+\\b,),iter(unique(sort(%qg)),ljust(%i0,15): [iter(u(elements,%qc,matchall(%qg,%i0)),ansi(+%i0,+%i0))],%b,%r)))},{@pemit %#=iter(lnum(0,255),ansi(+xterm%i0,+xterm%i0))}
 @set [u(cobj,ccp)]/CMD`COLORDEMO=regexp no_inherit
 
 &CHANNELCOLOR [u(cobj,ccp)]=get(%0/CUSTCOLOR`CHANNEL`%1)
@@ -641,20 +641,20 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &INC`VERIFY [u(cobj,ccp)]=@select/inline strmatch(get(%#/VERIFY_OK),%1)=0,{th u(attrib_set,%#,VERIFY_OK,%1);@wait 10=@wipe %#/VERIFY_OK;@stop 1={@attach %!/INC`MSG=%0,,,%2}},1,{@wipe %#/VERIFY_OK}
 @@ VERIFY Arguments: %0 = message to display, %1 = code to set for verification.
 
-&INC`CPTREE [u(cobj,ccp)]=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/##=%2/%3`[elements(##,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)]}
+&INC`CPTREE [u(cobj,ccp)]=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/##=%2/%3`[u(elements,##,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)]}
 
-&AGFN`CPTREE [u(cobj,ccp)]=null(attrib_set(%2/%3,get(%0/%1))[iter(lattr(%0/%1`**),attrib_set(%2/%3`[elements(%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)],get(%0/%i0)))])
+&AGFN`CPTREE [u(cobj,ccp)]=null(attrib_set(%2/%3,get(%0/%1))[iter(lattr(%0/%1`**),attrib_set(%2/%3`[u(elements,%i0,lnum(add(words(%1,`),1),add(words(%1,`),11)),`,`)],get(%0/%i0)))])
 
 @@ CPTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
 
-&INC`MVTREE [u(cobj,ccp)]=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/##=%2/%3`[elements(##,lnum(add(1,words(%1,`)),add(words(%1,`),11)),`,`)]};@attach %!/WIPE=%0,%1
+&INC`MVTREE [u(cobj,ccp)]=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/##=%2/%3`[u(elements,##,lnum(add(1,words(%1,`)),add(words(%1,`),11)),`,`)]};@attach %!/WIPE=%0,%1
 @@ MVTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
 
 &INC`GETSWITCH [u(cobj,ccp)]=@attach %!/INC`PARTIAL=%0,u(SYSTEM`SWITCHES),|,switch,switch
 
 &SYSTEM`SWITCHES [u(cobj,ccp)]=setunion(setunion(setunion(u(SWITCHES`PLAYER),u(SWITCHES`PLAYER`EXTRA),|,|),if(u(isadmin,%#),setunion(u(SWITCHES`ADMIN),u(SWITCHES`ADMIN`EXTRA),|,|)),|,|),if(u(iswizard,%#),setunion(v(SWITCHES`WIZARD),v(SWITCHES`WIZARD`EXTRA),|,|)),|,|)
 
-&INC`PARTIAL [u(cobj,ccp)]=@select/inline or(not(strlen(%0)),setr(matched,match(%1,setr(strfirstof(%3,choice),%0),strfirstof(%2,%b))))=0,{@check words(setr(strfirstof(%3,choice),graball(%1,%0*,strfirstof(%2,%b),strfirstof(%2,%b))))=@attach %!/INC`MSG={ERROR: Invalid %4! Valid choices are: [u(itemize,%1,strfirstof(%2,%b),and,\,)]};@stop gt(words(r(strfirstof(%3,choice)),strfirstof(%2,%b)),1)=@attach %!/INC`MSG={ERROR: %0 matched [u(itemize,r(strfirstof(%3,choice)),strfirstof(%2,%b),and,\,)]. Please be more specific.}},1,{@select/inline cand(t(strlen(%0)),t(%q<matched>))=1,{th setq(strfirstof(%3,choice),elements(%1,%q<matched>,strfirstof(%2,%b)))}}
+&INC`PARTIAL [u(cobj,ccp)]=@select/inline or(not(strlen(%0)),setr(matched,match(%1,setr(strfirstof(%3,choice),%0),strfirstof(%2,%b))))=0,{@check words(setr(strfirstof(%3,choice),graball(%1,%0*,strfirstof(%2,%b),strfirstof(%2,%b))))=@attach %!/INC`MSG={ERROR: Invalid %4! Valid choices are: [u(itemize,%1,strfirstof(%2,%b),and,\,)]};@stop gt(words(r(strfirstof(%3,choice)),strfirstof(%2,%b)),1)=@attach %!/INC`MSG={ERROR: %0 matched [u(itemize,r(strfirstof(%3,choice)),strfirstof(%2,%b),and,\,)]. Please be more specific.}},1,{@select/inline cand(t(strlen(%0)),t(%q<matched>))=1,{th setq(strfirstof(%3,choice),u(elements,%1,%q<matched>,strfirstof(%2,%b)))}}
 @@ PARTIAL %0 = entry, %1 = choices, %2 = delimiter, %3 = register name, %4 = topic name
 
 &WIPE [u(cobj,ccp)]=@select/inline hasflag(%0,SAFE)=1,{@set %0=!SAFE;@wipe %0/%1;@set %0=SAFE},0,{@wipe %0/%1}

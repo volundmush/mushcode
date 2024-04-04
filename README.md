@@ -146,6 +146,7 @@ Be sure you are saving the .conf files with UNIX linebreaks if you're on Windows
 ### make confsource options:
 * B1: enable mysql support.
 * 29: Enable 150 to 250 qregs.
+* 7: Disable hardcoded +help
 
 ### netrhost.conf options:
 * includenest 30

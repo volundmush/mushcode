@@ -25,9 +25,9 @@ th u(NEWCOBJ,Job Tracker <JOB>,job,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAF
 &CONFIG`OWNER_APPOINT`DEFAULT [u(cobj,job)]=0
 &CONFIG`OWNER_APPOINT`VALID [u(cobj,job)]=BOOL
 
-&INIT [u(cobj,job)]=th u(setr,isadmin,u(isadmin,%#));th u(setq,admbids,iter(if(%q<isadmin>,u(setr,start,u(mysql3,SELECT`START_JOBS)),u(filter,TESTLOCK,u(setr,start,u(mysql3,SELECT`START_JOBS)),u(rsep),u(rsep),%:,4)),first(%i0,u(fsep)),u(rsep),%b));th u(setq,postnames,iter(u(FILTER,TESTLOCK,%q<start>,u(rsep),u(rsep),%:,3),elements(%i0,2,u(fsep)),u(rsep),|))
+&INIT [u(cobj,job)]=th u(setr,isadmin,u(isadmin,%#));th u(setq,admbids,iter(if(%q<isadmin>,u(setr,start,u(mysql3,SELECT`START_JOBS)),u(filter,TESTLOCK,u(setr,start,u(mysql3,SELECT`START_JOBS)),u(rsep),u(rsep),%:,4)),first(%i0,u(fsep)),u(rsep),%b));th u(setq,postnames,iter(u(FILTER,TESTLOCK,%q<start>,u(rsep),u(rsep),%:,3),u(elements,%i0,2,u(fsep)),u(rsep),|))
 
-&FIL`TESTLOCK [u(cobj,job)]=cor(u(isadmin,%1),u(lmax,iter(%2,testlock(elements(%0,%i0,u(fsep)),%1))))
+&FIL`TESTLOCK [u(cobj,job)]=cor(u(isadmin,%1),u(lmax,iter(%2,testlock(u(elements,%0,%i0,u(fsep)),%1))))
 
 &CMD`+REQUEST`PENNMUSH [u(cobj,job)]=$^(?s)\+request(?\:/(\S+))?(?\: +(.+?))?(?\:=(.*))?$:@attach %!/CMD`+REQUEST`MAIN
 @set [u(cobj,job)]/CMD`+REQUEST`PENNMUSH=regexp
@@ -107,7 +107,7 @@ th u(NEWCOBJ,Job Tracker <JOB>,job,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAF
 
 &INC`FINDBUCKET [u(cobj,job)]=@check strlen(%0)=@attach %!/INC`MSG=No Bucket Name entered!;@check cor(u(setr,bucket_id,u(mysql,FIND`EXACTBUCKET,%0)),u(setr,bucket_id,u(mysql,FIND`WILDBUCKET,%0)))=@attach %!/INC`MSG=ERROR: Bucket '%0' not found!;@attach %!/INC`LOADBUCKET=%q<bucket_id>,1;
 
-&INC`LOADBUCKET [u(cobj,job)]=th u(setq,bdata,u(mysql3,LOAD`BUCKET,%0));th iter(id name postlock adminlock anonymous due,u(setq,b%1%i0,elements(%q<bdata>,inum(0),u(fsep))));
+&INC`LOADBUCKET [u(cobj,job)]=th u(setq,bdata,u(mysql3,LOAD`BUCKET,%0));th iter(id name postlock adminlock anonymous due,u(setq,b%1%i0,u(elements,%q<bdata>,inum(0),u(fsep))));
 
 &Q`FIND`EXACTBUCKET [u(cobj,job)]=SELECT bucket_id FROM volv_bucket WHERE bucket_name=? LIMIT 1
 &Q`FIND`WILDBUCKET [u(cobj,job)]=SELECT bucket_id FROM volv_bucket WHERE bucket_name LIKE '!%' ORDER BY bucket_name LIMIT 1
@@ -126,7 +126,7 @@ th u(NEWCOBJ,Job Tracker <JOB>,job,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAF
 
 &INC`BUCKETS [u(cobj,job)]=@pemit %#=u(HEADER,mudname() Jobs);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(8 34 4 4 4 4 4 4 4,Name,Description,Pen,App,Dny,Cnc,Over,Due,Anon));@pemit %#=u(separator);@dolist/inline/delimit [u(rsep)] [u(mysql3,LIST`BUCKETS)]={@pemit %#=ansi(if(mod(inum(0),2),u(color,%#,ROW_A),u(color,%#,ROW_B)),u(FUN`BUCKETLINE,u(choosegame,%i0,%d0)));@pemit %#=};@pemit %#=u(FOOTER)
 
-&FUN`BUCKETLINE [u(cobj,job)]=localize(align(8 34 4 4 4 4 4 4 4,u(pueblize,elements(%0,2,u(fsep)),+[lcstr(%q<mode>)] [elements(%0,2,u(fsep))]),elements(%0,3,u(fsep)),elements(u(setr,data,if(not(elements(%0,6,u(fsep))),iter(lnum(1,10),?,%b,u(fsep)),elements(%0,7 8 9 10 11,u(fsep),u(fsep)))),1,u(fsep)),elements(%q<data>,2,u(fsep)),elements(%q<data>,3,u(fsep)),elements(%q<data>,4,u(fsep)),elements(%q<data>,5,u(fsep)),u(strfirstof,u(etime,elements(%0,4,u(fsep))),0),elements(%0,5,u(fsep))))
+&FUN`BUCKETLINE [u(cobj,job)]=localize(align(8 34 4 4 4 4 4 4 4,u(pueblize,u(elements,%0,2,u(fsep)),+[lcstr(%q<mode>)] [u(elements,%0,2,u(fsep))]),u(elements,%0,3,u(fsep)),u(elements,u(setr,data,if(not(u(elements,%0,6,u(fsep))),iter(lnum(1,10),?,%b,u(fsep)),u(elements,%0,7 8 9 10 11,u(fsep),u(fsep)))),1,u(fsep)),u(elements,%q<data>,2,u(fsep)),u(elements,%q<data>,3,u(fsep)),u(elements,%q<data>,4,u(fsep)),u(elements,%q<data>,5,u(fsep)),u(strfirstof,u(etime,u(elements,%0,4,u(fsep))),0),u(elements,%0,5,u(fsep))))
 
 &Q`LIST`BUCKETS [u(cobj,job)]=SELECT bucket_id,bucket_name,bucket_description,bucket_due,bucket_is_anonymous,bucket_stats,pending_count,approved_count,deny_count,cancel_count,overdue_count from volv_bucket_list
 
@@ -141,7 +141,7 @@ th u(NEWCOBJ,Job Tracker <JOB>,job,,,,WIZARD SAFE !NO_COMMAND,INHERIT SIDEFX SAF
 &Q`GET`JOBLISTBUCKETOLD [u(cobj,job)]=SELECT j.job_status,j.job_date_latest_activity>jl.jlink_date_check OR jl.jlink_date_check IS NULL AS job_is_unread,j.job_id,j.job_is_anonymous,j.owner_objid,j.owner_name,j.job_title,j.handler_objids,j.job_date_due_secs,j.job_is_overdue,j.job_date_latest_activity_secs FROM volv_job AS j LEFT JOIN vol_jlink AS jl ON jl.job_id=j.job_id AND jl.character_id=? WHERE j.bucket_id=? AND j.job_status>0 ORDER BY j.job_id DESC LIMIT 30 OFFSET ?
 &Q`GET`JOBLISTBUCKETCOUNTOLD [u(cobj,job)]=SELECT count(job_id) from volv_job WHERE bucket_id=? AND job_status>0
 
-&FUN`LISTJOBSTAFF [u(cobj,job)]=localize(align(2 >4 15 15 15 11 10,if(elements(%0,2,u(fsep)),ansi(hr,*),%b)[switch(elements(%0,1,u(fsep)),0,P,1,A,2,D,3,C,?)],u(pueblize,elements(%0,3,u(fsep)),+job [elements(%0,3,u(fsep))]),ansi(if(isobjid(u(setr,ownobj,elements(%0,5,u(fsep)))),,hx),if(elements(%0,4,u(fsep)),Anonymous,if(isobjid(%q<ownobj>),u(getmoniker,%q<ownobj>),elements(%0,6,u(fsep))))),elements(%0,7,u(fsep)),u(strfirstof,iter(elements(%0,8,u(fsep)),u(getmoniker,%i0),%b,\,%b),---),ansi(if(elements(%0,10,u(fsep)),hr,),u(fancydate,elements(%0,9,u(fsep)))),u(fancydate,elements(%0,11,u(fsep)))))
+&FUN`LISTJOBSTAFF [u(cobj,job)]=localize(align(2 >4 15 15 15 11 10,if(u(elements,%0,2,u(fsep)),ansi(hr,*),%b)[switch(u(elements,%0,1,u(fsep)),0,P,1,A,2,D,3,C,?)],u(pueblize,u(elements,%0,3,u(fsep)),+job [elements(%0,3,u(fsep))]),ansi(if(isobjid(u(setr,ownobj,elements(%0,5,u(fsep)))),,hx),if(elements(%0,4,u(fsep)),Anonymous,if(isobjid(%q<ownobj>),u(getmoniker,%q<ownobj>),elements(%0,6,u(fsep))))),elements(%0,7,u(fsep)),u(strfirstof,iter(elements(%0,8,u(fsep)),u(getmoniker,%i0),%b,\,%b),---),ansi(if(elements(%0,10,u(fsep)),hr,),u(fancydate,elements(%0,9,u(fsep)))),u(fancydate,elements(%0,11,u(fsep)))))
 
 &FUN`LIST`CLAIMERS [u(cobj,job)]=iter(u(mysql,GET`CLAIM,%0,2),u(getmoniker,%i0),%b,\,)
 

@@ -34,7 +34,7 @@ th u(NEWCOBJ,Simple Message System <SMS>,sms,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &Q`SELECT`HAS_READ [u(cobj,sms)]=SELECT c.character_name,l.msg_is_unread FROM volv_sms_msg_link AS l LEFT JOIN volv_character AS c ON l.character_id=c.character_id WHERE msg_id=? AND msg_link_type=0
 
-&INC`FINDMSG [u(cobj,sms)]=@attach %!/INC`VALID`POSINT=%0,TXT ID;@check u(setr,msg_link_id,elements(u(mysql,SELECT`MSG_LINK_IDS,%q<t0id>,sub(%q<value>,1)),%q<value>))=@attach %!/INC`MSG=ERROR: You don't have a Txt msg ID %q<value>!;@attach %!/INC`LOADSQL=MSGLINK,%q<msg_link_id>,%1,msg;
+&INC`FINDMSG [u(cobj,sms)]=@attach %!/INC`VALID`POSINT=%0,TXT ID;@check u(setr,msg_link_id,u(elements,u(mysql,SELECT`MSG_LINK_IDS,%q<t0id>,sub(%q<value>,1)),%q<value>))=@attach %!/INC`MSG=ERROR: You don't have a Txt msg ID %q<value>!;@attach %!/INC`LOADSQL=MSGLINK,%q<msg_link_id>,%1,msg;
 
 &Q`EXIST`MSG_LINK_ID [u(cobj,sms)]=SELECT l.msg_link_id FROM vol_sms_msg_link AS l LEFT JOIN vol_sms_msg AS m on l.msg_id=m.msg_id WHERE l.character_id=? AND l.msg_link_display=1 LIMIT 1 OFFSET ?
 
