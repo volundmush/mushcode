@@ -626,9 +626,9 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &FUN`CHATFORMAT [u(cobj,group)]=if(cor(%6,%8),,switch(1,hasflag(%0,PARANOID),%[[name(%1)]%(%1%)%],hasflag(%0,NOSPOOF),%[[name(%1)]:%]))[ansi(c,<)][ansi(u(strfirstof,u(groupcolor,%0,%5),get(%5/SET`COLOR),hx),u(getmoniker,%5))][if(cand(%4,not(%8)),ansi(c,-)[switch(%4,2,REPORT,SYS)],switch(%3,OOC,ansi(c,-)[ansi(r,ucstr(%3))],IC,))][ansi(c,>)]%B[if(cor(%4,%8),u(colormarkup,%0,%2),if(get(%5/SET`CHANNELRANK),\[[u(strfirstof,u(FUN`GETRANK,%5,%1),?)]\]%B)[if(strlen(get(%1/D`GROUP`%5`TITLE)),get(%1/D`GROUP`%5`TITLE)%B)][u(speech,%1,u(colormarkup,%0,%2),%0,%7,GROUPS,%9)])]
 
-&CMD`CHAT`PENNMUSH [u(cobj,group)]=$^(?s)(-|=)(\w+)?(?\:/(\S+)?)?(?\: +(.+))?$:@attach %!/CMD`CHAT`MAIN
+@@ &CMD`CHAT`PENNMUSH [u(cobj,group)]=$^(?s)(-|=)(\w+)?(?\:/(\S+)?)?(?\: +(.+))?$:@attach %!/CMD`CHAT`MAIN
 @set [u(cobj,group)]/CMD`CHAT`PENNMUSH=regexp
-&CMD`CHAT`RHOSTMUSH [u(cobj,group)]=$^(?s)(-|=)(\\w+)?(?\:/(\\S+)?)?(?\: +(.+))?$:@attach %!/CMD`CHAT`MAIN
+@@ &CMD`CHAT`RHOSTMUSH [u(cobj,group)]=$^(?s)(-|=)(\\w+)?(?\:/(\\S+)?)?(?\: +(.+))?$:@attach %!/CMD`CHAT`MAIN
 @set [u(cobj,group)]/CMD`CHAT`RHOSTMUSH=regexp
 &CMD`CHAT`MAIN [u(cobj,group)]=th u(setq,chan,switch(%1,-,IC,=,OOC));@attach %!/INC`PARTIAL=%3,GAG|UNGAG|JOIN|LEAVE|RECALL,|,switch;@select/inline strlen(%q<switch>)=>0,{@attach %!/INC`FINDGROUP=u(strfirstof,%2,get(%#/D`GROUP)),1;@attach %!/GRP`GCHANNEL`%q<switch>`START=%4},{@check isdbref(u(setr,g1,u(namegrab,u(filter,ONCHANNEL,u(FUN`LISTGROUPS,%:),%b,%b,%:,switch(%1,-,IC,=,OOC,OOC)),u(strfirstof,%2,get(%#/D`GROUP)))))=@attach %!/INC`MSG=ERROR: Group not found!;@attach %!/INC`LOADGROUP=%q<g1>,1;@check strlen(%4)=@pemit %#=What will you say?;@attach %!/INC`CODE`CHAT=%4,switch(%1,-,IC,=,OOC,OOC),0}
 @set [u(cobj,group)]/CMD`CHAT`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command

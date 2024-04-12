@@ -1089,7 +1089,7 @@ CREATE OR REPLACE VIEW volv_scene AS
 	SELECT s.scene_id,s.scene_title,s.scene_title_ansi,s.scene_pitch,s.scene_outcome,s.post_id,s.scene_date_created,UNIX_TIMESTAMP(s.scene_date_created) AS scene_date_created_secs,s.scene_date_scheduled,UNIX_TIMESTAMP(s.scene_date_scheduled) AS scene_date_scheduled_secs,s.scene_date_started,UNIX_TIMESTAMP(s.scene_date_started) AS scene_date_started_secs,s.scene_date_finished,UNIX_TIMESTAMP(s.scene_date_finished) AS scene_date_finished_secs,s.scene_status,s.scene_log_ooc,a.character_id AS runner_id,a.character_name AS runner_name,a.character_objid AS runner_objid,s.scene_max_tags as scene_max_tags
 	FROM vol_scene AS s LEFT JOIN volv_actor AS a ON s.scene_id=a.scene_id AND a.actor_type=2
 	ORDER BY s.scene_id;
-	
+
 CREATE TABLE IF NOT EXISTS vol_action_source (
 	source_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	scene_id INT UNSIGNED NOT NULL,
@@ -1099,7 +1099,7 @@ CREATE TABLE IF NOT EXISTS vol_action_source (
 	source_type TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY(source_id),
 	FOREIGN KEY(scene_id) REFERENCES vol_scene(scene_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	UNIQUE(scene_id, source_objid, source_vr, source_type)
+	UNIQUE(scene_id, source_objid, source_name, source_vr, source_type)
 	) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS vol_action (

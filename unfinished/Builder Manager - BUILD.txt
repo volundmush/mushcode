@@ -7,7 +7,6 @@
 &SWITCHES`DIG`PLAYER [u(cobj,grid)]=TELEPORT
 &SWITCHES`BUILDER`ADMIN [u(cobj,grid)]=ADD|REMOVE
 
-
 &INC`DIG`TELEPORT [u(cobj,grid)]=@attach %!/INC`DIG`MAIN=%0,%1,1
 &INC`DIG`MAIN [u(cobj,grid)]=@attach %!/INC`DISTCHECK;@check hastype(%l,ROOM)=@attach %!/INC`MSG=ERROR: +dig can only be used from a proper room.;@check strlen(%0)=@attach %!/INC`MSG=ERROR: No room name entered.;@check valid(name,%0)=@attach %!/INC`MSG=ERROR: '%0' is not a good name for a Room.;@check u(setr,room,dig(%0))=@attach %!/INC`MSG=ERROR: Could not create room.;th u(setq,source,%l);@parent %q<room>=%q<dist>;@attach %!/INC`MSG=Room created successfully!;@select/inline strlen(u(setr,exname,before(%1,\,)))=>0,{@select/inline isdbref(u(setr,there,open(%q<exname>,%q<room>,%q<source>)))=1,{@attach %!/INC`MSG=Exit to new room created successfully!},0,{@attach %!/INC`MSG=ERROR: Exit to new room creation failed.}};@select/inline strlen(u(setr,exname,after(%1,\,)))=>0,{@select/inline isdbref(u(setr,back,open(%q<exname>,%q<source>,%q<room>)))=1,{@attach %!/INC`MSG=Exit from new room created successfully!},0,{@attach %!/INC`MSG=ERROR: Exit from new room creation failed.}};@select/inline %2=1,{@teleport %#=%q<room>};@attach %!/INC`MSG`CHAN={Room %q<room> '%0' created for %q<dist> '%q<distname>'}
 
