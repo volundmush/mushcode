@@ -647,7 +647,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 @@ CPTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
 
-&INC`MVTREE [u(cobj,ccp)]=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/##=%2/%3`[u(elements,##,lnum(add(1,words(%1,`)),add(words(%1,`),11)),`,`)]};@attach %!/WIPE=%0,%1
+&INC`MVTREE [u(cobj,ccp)]=@cpattr %0/%1=%2/%3;@dolist/inline lattr(%0/%1`**)={@cpattr %0/##=%2/%3`[elements(##,lnum(add(1,words(%1,`)),add(words(%1,`),11)),`,`)]};@attach %!/WIPE=%0,%1
 @@ MVTREE arguments: %0 = source DBREF, %1 = source root attribute, %2 = target dbref, %3 = new root attr
 
 &INC`GETSWITCH [u(cobj,ccp)]=@attach %!/INC`PARTIAL=%0,u(SYSTEM`SWITCHES),|,switch,switch

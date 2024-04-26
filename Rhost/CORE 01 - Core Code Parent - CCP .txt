@@ -58,7 +58,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,globa
 &FIL`TESTLOCK [u(cobj,ccp)]=testlock(%1,%0)
 
 @@ LOCK MANAGER
-&INC`VALID`GROUPLOCK [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No lock entered!;@check u(lmin,iter(%0,cand(isdbref(u(setr,fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%#))),cor(not(strlen(after(%i0,/))),if(isint(after(%i0,/)),gte(after(%i0,/),0),match(u(u(cobj,group)/FUN`PERMS,%q<fgrp>,1),after(%i0,/),|)))),|,%B))=@attach %!/INC`MSG=ERROR: One or more group entries did not validate. Group names must be typed correctly and the /specification must be a Rank integer or a full Permission - sorry\, no partial match.;th u(setq,value,u(setr,lockstr,u(GROUP_LOCK,%0))[if(%1,|V`ADMIN:>0|FLAG^ROYALTY|FLAG^WIZARD)]);th u(setq,valueformat,iter(%0,[u(setq,fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%#))][if(get(%q<fgrp>/SET`PRIVATE),*PRIVATE*,u(%q<fgrp>/GET`NAME))]%B\([if(not(strlen(after(%i0,/))),Member,if(isint(u(setr,parm,after(%i0,/))),Rank %q<parm>+,ucstr(%q<parm>) Permission))]\),|,%BOR%B))
+&INC`VALID`GROUPLOCK [u(cobj,ccp)]=@check strlen(%0)=@attach %!/INC`MSG=ERROR: No lock entered!;@check u(lmin,iter(%0,cand(isdbref(u(setr,fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%#))),cor(not(strlen(after(%i0,/))),if(isint(after(%i0,/)),gte(after(%i0,/),0),match(u(u(cobj,group)/FUN`PERMS,%q<fgrp>,1),after(%i0,/),|)))),|,%B))=@attach %!/INC`MSG=ERROR: One or more group entries did not validate. Group names must be typed correctly and the /specification must be a Rank integer or a full Permission - sorry\, no partial match.;th u(setq,value,u(setr,lockstr,u(GROUP_LOCK,%0))[if(%1,|V`ADMIN:>0)]);th u(setq,valueformat,iter(%0,[u(setq,fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%#))][if(get(%q<fgrp>/SET`PRIVATE),*PRIVATE*,u(%q<fgrp>/GET`NAME))]%B\([if(not(strlen(after(%i0,/))),Member,if(isint(u(setr,parm,after(%i0,/))),Rank %q<parm>+,ucstr(%q<parm>) Permission))]\),|,%BOR%B))
 
 &GROUP_LOCK [u(cobj,ccp)]=localize(iter(%0,[u(setq,fgrp,u(u(cobj,group)/FUN`FINDGROUP,before(%i0,/),%1))][if(not(strlen(after(%i0,/))),u(setq,parm,9001),u(setq,parm,after(%i0,/)))][if(isint(%q<parm>),V`GROUP`[get(%q<fgrp>/D`ID)]:<=[strfirstof(after(%i0,/),9001)],V`GROUP`[get(%q<fgrp>/D`ID)]`PERMISSION`[ucstr(%q<parm>)]:>0)],|,|))
 
@@ -107,13 +107,13 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,globa
 
 &FANCYBASE [u(cobj,ccp)]=if(%0,timefmt(%2,%0,if(strlen(%1),if(isdbref(%1),u(gettz,%1),%1),u(gettz,%#))),<invalid date>)
 
-&FANCYTIME [u(cobj,ccp)]=u(fancybase,%0,%1,$b $D $02H:$02T$P $i)
+&FANCYTIME [u(cobj,ccp)]=u(fancybase,%0,%1,$b $02D $02H:$02T$P $i)
 
-&FANCYTIME2 [u(cobj,ccp)]=u(fancybase,%0,%1,$a $b $d $I:$M$p $Z)
+&FANCYTIME2 [u(cobj,ccp)]=u(fancybase,%0,%1,$a $b $02D $02I:$02M$p $Z)
 
-&FANCYTIME3 [u(cobj,ccp)]=u(fancybase,%0,%1,$b $d $I:$M$p $Y $Z)
+&FANCYTIME3 [u(cobj,ccp)]=u(fancybase,%0,%1,$b $02D $02I:$02M$p $Y $Z)
 
-&FANCYDAY [u(cobj,ccp)]=u(fancybase,%0,%1,$b $D $Y)
+&FANCYDAY [u(cobj,ccp)]=u(fancybase,%0,%1,$b $02D $Y)
 
 &FANCYDATE [u(cobj,ccp)]=u(fancybase,%0,%1,$m/$d/$Y)
 
@@ -123,7 +123,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,globa
 
 &CHANCOLOR [u(cobj,ccp)]=localize(if(isdbref(u(setr,mog,cmogrifier(stripansi(%0)))),u(color,%@,CHANNEL,%q<mog>,,1)))
 
-&GETTZ [u(cobj,ccp)]=u(pconf,%0,TIMEZONE)
+&GETTZ [u(cobj,ccp)]=strfirstof(get(%0/TIMEZONE),UTC)
 
 &CHARSEARCH [u(cobj,ccp)]=u(lmax,iter(%1,strmatch(%0,*%i0*)))
 
@@ -214,8 +214,10 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,globa
 &ALIGN_HANDLER0 [u(cobj,ccp)]=[strfunc(printf,[u(format_align2-0,%1,%0,v(add(words(%1),2)),v(add(words(%1),3)))][beep()][iter(lnum(2,add(%0,2)),%-##,,[beep()][v(add(words(%1),3))]%r[beep()])],[beep()])]
 &FORMAT_ALIGN2-1 [u(cobj,ccp)]=[iter(%0,$[before(strip(pedit(%i0,=,_,-,^,<,-,.,),$#Xx>),%()][ifelse(wildmatch(*>* *<* *=* *-* *_*,%i0),,-)][ifelse(!^or(pos(x,%i0),pos(X,%i0)),|")]s)]
 &FORMAT_ALIGN2-0 [u(cobj,ccp)]=[iter(%0,$[ifelse(and(!!$v(2),!^pos($,%i0)),:%2:)][before(strip(pedit(%i0,=,_,-,^,<,-,.,),$#Xx>),%()][ifelse(wildmatch(*>* *<* *=* *-* *_*,%i0),,-)][ifelse(!^or(pos(x,%i0),pos(X,%i0)),|")]s,,$1&.:%3:s)]
-&SORTKEY [u(cobj,ccp)]=munge(#lambda/%[sort%(%%0%,%2%,%3%)%],iter(%1,edit(u(%0,itext(0)),%b,),ifelse(!$v(3),%b,%3),ifelse(!$v(3),%b,%3)),%1,ifelse(!$v(3),%b,%3),ifelse(!$v(4),ifelse(!$v(3),%b,%3),%4))
 &LALIGN [u(cobj,ccp)]=[strfunc(printf,[iter(%0,$[case(mid(%i0,0,1),<,-[delete(%i0,0,1)],>,[delete(%i0,0,1)],_,_[delete(%i0,0,1)],-,^[delete(%i0,0,1)],=,_[delete(%i0,0,1)],-%i0)]|"s)]%2%1,%2)]
+
+&SORTKEY [u(cobj,ccp)]=munge(#lambda/%[sort%(%%0%,%2%,%3%)%],iter(%1,edit(u(%0,itext(0)),%b,),ifelse(!$v(3),%b,%3),ifelse(!$v(3),%b,%3)),%1,ifelse(!$v(3),%b,%3),ifelse(!$v(4),ifelse(!$v(3),%b,%3),%4))
+
 
 &BASECONV [u(cobj,ccp)]=pack(unpack(%0,%1),%2)
 
@@ -636,7 +638,7 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,globa
 &OPTION`TIMEZONE [u(cobj,ccp)]=Timezone used for all displays. See help timezones2 for a list. Is case-sensitive.
 &OPTION`TIMEZONE`DEFAULT [u(cobj,ccp)]=UTC
 &OPTION`TIMEZONE`VALID [u(cobj,ccp)]=TIMEZONE
-&OPTION`TIMEZONE`FINISH [u(cobj,ccp)]=@tz [u(accid,%#)]=%q<value>
+&OPTION`TIMEZONE`FINISH [u(cobj,ccp)]=&timezone [u(accid,%#)]=%q<value>
 
 &OPTION`IDLE [u(cobj,ccp)]=Seconds until pagers receive idle message. Only works if you haven't set an @idle. You must use @idle if you want a custom message.
 &OPTION`IDLE`DEFAULT [u(cobj,ccp)]=1800
@@ -720,17 +722,17 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,globa
 
 &INC`MSG`ROOM [u(cobj,ccp)]=@pemit/list u(strfirstof,%1,lcon(%l))=udefault(%!/RMSG,%0,##,%0,%1,u(SYSTEM`NAME),u(strfirstof,%4,%#),%5,%6,%7,%8)
 
-&INC`MSG`NOTICE [u(cobj,ccp)]=@attach %!/INC`MSG=[ansi(h,\[[if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(conf,ANONYMOUS_NOTICES))),SYSTEM,name(%#))]\])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
+&INC`MSG`NOTICE [u(cobj,ccp)]=@attach %!/INC`MSG=[ansi(h,[chr(91)][if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(conf,ANONYMOUS_NOTICES))),SYSTEM,name(%#))][chr(93)])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
-&INC`MSG`CHAN [u(cobj,ccp)]=th u(setq,chanmsg,if(not(%5),ansi(h,\[[u(getmoniker,u(firstof,%4,%#))]\])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof,%1,u(conf,STAFF_ALERTS))]={@cemit %d0=%q<chanmsg>}
+&INC`MSG`CHAN [u(cobj,ccp)]=th u(setq,chanmsg,if(not(%5),ansi(h,[chr(91)][u(getmoniker,u(firstof,%4,%#))][chr(93)])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof,%1,u(conf,STAFF_ALERTS))]={th cemit(%d0,%q<chanmsg>)}
 @@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
 
-&INC`MSG`SYSCHAN [u(cobj,ccp)]=th u(setq,chanmsg,[if(not(%5),ansi(h,\[[u(strfirstof,%4,SYSTEM)]\]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit %d0=%q<chanmsg>}
+&INC`MSG`SYSCHAN [u(cobj,ccp)]=th u(setq,chanmsg,[if(not(%5),ansi(h,[chr(91)][u(strfirstof,%4,SYSTEM)][chr(93)]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit %d0=%q<chanmsg>}
 
 &REG`ENCODETIME [u(cobj,ccp)]=\^\^\^(?P<time>\d+)\^\^\^
 
 &MSG [u(cobj,ccp)]=if(not(%5),u(msghead,%3,%0)%B)[if(%4,regeditalli(%1,v(REG`ENCODETIME),u(fancytime,$<time>,u(gettz,%0))),%1)]
-&RMSG [u(cobj,ccp)]=if(not(%5),u(msghead,%3,%0)%B\[[ansi(h,u(getmoniker,%4))]\]%B)%1
+&RMSG [u(cobj,ccp)]=if(not(%5),u(msghead,%3,%0)%B[chr(91)][ansi(h,u(getmoniker,%4))][chr(93)]%B)%1
 
 &MSGHEAD [u(cobj,ccp)]=localize(udefault(%!/MSGHEAD`CUSTOM,if(u(opother,u(firstof,%1,%#),SYSTEM,SCREEN_READER),ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0)):,ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,>=-)]),%0,%1,%2,%3,%4,%5,%6,%7,%8,%9))
 

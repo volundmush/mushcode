@@ -15,7 +15,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &SWITCHES`LOG`PLAYER [u(cobj,scene)]=ID|CREATE|LOUDCREATE|LIGHT|UNLIGHT|START|LOUDSTART|SCHEDULE|RESCHEDULE|JOIN|LEAVE|TITLE|OUTCOME|PITCH|RECALL|FINISH|PAUSE|CONTINUE|START|UNDO|REDO|EDIT|SPOOF|PLOT|OLD|WHO|WITH|EXCLUDE|TAG|UNTAG|MAIL|UPCOMING|MINE|DELETE|OPTIONS|COLORS|SLOTS|MAKECHAN|JOINCHAN|RENAMECHAN|TOGGLETAG[if(u(cobj,meetme),|INVITE)]
 &SWITCHES`LOG`ADMIN [u(cobj,scene)]=MERGE|CONFIG
 
-&SWITCHES`CHAN`PLAYER [u(cobj,scene)]=LIST|SEND|MAKE|JOIN|LEAVE|RENAME|COLOR
+&SWITCHES`CHAN`PLAYER [u(cobj,scene)]=LIST|SEND|MAKE|JOIN|LEAVE|RENAME|COLOR|RECALL
 &SWITCHES`CHAN`ADMIN [u(cobj,scene)]=
 
 &SWITCHES`POT`PLAYER [u(cobj,scene)]=LAST|MAX|LIST|BRIEF|MODE|SUMMARY|TOGGLE
@@ -105,7 +105,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &STARTUP`OVERRIDE [u(cobj,scene)]=@select/inline %va=PennMUSH,{@dolist/inline @emit pose say semipose=@hook/override/inline %i0=%!,override`ic},RhostMUSH,{@dolist/inline @emit pose say semipose P S=@hook/ignore %d0}
 
-&LOOP`IDLECHECK [u(cobj,scene)]=@dolist/inline/nobreak/delimit [u(rsep)] [u(MYSQL3,LOG`IDLECHECK)]={th u(setq,data,u(choosegame,%i0,%d0));@attach %!/INC`MSGSCENE=u(elements,%q<data>,1,u(fsep)),{Scene [u(elements,%q<data>,1,u(fsep))] - '[u(elements,%q<data>,2,u(fsep))]' has been automatically marked Unfinished for idleness. Use [u(pueblize,+log/continue [u(elements,%q<data>,1,u(fsep))])] to resume it.};@attach %!/INC`MSG`CHAN=Scene [u(elements,%q<data>,1,u(fsep))] - '[u(elements,%q<data>,2,u(fsep))]' has been automatically marked Unfinished for idleness.;@attach %!/INC`CLEANUPSCENE=u(elements,%q<data>,1,u(fsep)),u(elements,%q<data>,3,u(fsep));@attach %!/INC`DOSQL=SET`SCENESTATE,2,u(elements,%q<data>,1,u(fsep))};@wait 1800=@trigger %!/LOOP`IDLECHECK
+&LOOP`IDLECHECK [u(cobj,scene)]=th u(setq,logs,u(MYSQL3,LOG`IDLECHECK));@select/inline t(words(%q<logs>,u(rsep)))=1,{@dolist/inline/nobreak/delimit [u(rsep)] %q<logs>={th u(setq,data,u(choosegame,%i0,%d0));th u(setq,sid,u(elements,%q<data>,1,u(fsep)));th u(setq,startmsg,Scene %q<sid> - '[u(elements,%q<data>,2,u(fsep))]' has been automatically marked Unfinished for idleness.);@attach %!/INC`MSGSCENE=%q<sid>,%q<startmsg> Use [u(pueblize,+log/continue %q<sid>)] to resume it.,1;@attach %!/INC`MSG`CHAN=%q<startmsg>;@attach %!/INC`CLEANUPSCENE=%q<sid>,u(elements,%q<data>,3,u(fsep));@attach %!/INC`DOSQL=SET`SCENESTATE,2,%q<sid>}};@wait 1800=@trigger %!/LOOP`IDLECHECK
 
 &Q`LOG`IDLECHECK [u(cobj,scene)]=SELECT scene_id,scene_title,scene_log_ooc FROM volv_scene_final WHERE scene_date_started IS NOT NULL AND action_count>0 AND action_latest<NOW() - INTERVAL 2 HOUR AND scene_status=0
 
@@ -116,11 +116,26 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &Q`CLEANUP`POT [u(cobj,scene)]=DELETE FROM vol_messages WHERE message_type=0 AND message_date_created<NOW() - INTERVAL 2 HOUR
 
 @@ --- HOOKS AND POSE RECORDING
-&OVERRIDE`IC [u(cobj,scene)]=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@attach %!/INC`CHECK_SPEECH=%0,%1,%2,0;@attach/nobreak %!/INC`HEADER=%q<logged>,%q<sceneactive>,%q<pose>;@select/inline %va=PennMUSH,{@message/spoof %q<custrecp>=%q<basic>,%!/FUN`FORMATPOSE,##,if(%q<logged>,%q<t2>,%#),switch(%1,pose,:,semipose,;,say,",@emit,|),%q<markup>,%q<custrecp>},RhostMUSH,{@pemit/list %q<custrecp>=udefault(%!/FUN`FORMATPOSE,%q<basic>,##,if(%q<logged>,%q<t2>,%#),switch(%1,pose,:,semipose,;,say,",@emit,|),%q<markup>,%q<custrecp>)};@attach %!/INC`FOOTER=%q<logged>,%q<sceneactive>,%q<pose>;@select/inline cand(%q<cansql>,%q<scene>,not(%q<logged>))=1,{@attach %!/INC`MSG=ERROR: %q<logged>};@dolist/inline/nobreak u(lattr,%!/OVERRIDE`EXTRA`*)={@attach %!/%i0}
-@set u(cobj,scene)/OVERRIDE`IC=regexp
+&OVERRIDE`IC`PENNMUSH [u(cobj,scene)]=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@attach %!/OVERRIDE`IC=%0,%1,%2
+@set [u(cobj,scene)]/OVERRIDE`IC`PENNMUSH=regexp
+&OVERRIDE`IC`RHOSTMUSH [u(cobj,scene)]=$^(?s)(pose|semipose|say|@emit)(?\:/noeval)?(?\: +(.*))?$:@attach %!/OVERRIDE`IC=%0,%1,%2
+@set [u(cobj,scene)]/OVERRIDE`IC`RHOSTMUSH=regexp
+@set [u(cobj,scene)]/OVERRIDE`IC`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&CMD`+OOC [u(cobj,scene)]=$^(?s)(\+ooc|osay|\+osay|ooc)(?\:/noeval)?(?\: +(.*))?$:@attach %!/INC`CHECK_SPEECH=%0,say,%2,1;@select/inline %va=PennMUSH,{@message/spoof %q<custrecp>=%q<basic>,%!/FUN`MSGOOC,if(%q<logged>,%q<t2>,%#),##,%q<markup>},RhostMUSH,{@pemit/list %q<custrecp>=udefault(%!/FUN`MSGOOC,,if(%q<logged>,%q<t2>,%#),##,%q<markup>)};
-@set u(cobj,scene)/CMD`+OOC=regexp
+&OVERRIDE`IC [u(cobj,scene)]=@attach %!/INC`CHECK_SPEECH=%0,%1,%2,0;@attach/nobreak %!/INC`HEADER=%q<logged>,%q<sceneactive>,%q<pose>;@select/inline %va=PennMUSH,{@message/spoof %q<custrecp>=%q<basic>,%!/FUN`FORMATPOSE,##,if(%q<logged>,%q<t2>,%#),switch(%1,pose,:,semipose,;,say,",@emit,|),%q<markup>,%q<custrecp>},RhostMUSH,{@pemit/list %q<custrecp>=udefault(%!/FUN`FORMATPOSE,%q<basic>,##,if(%q<logged>,%q<t2>,%#),switch(%1,pose,:,semipose,;,say,",@emit,|),%q<markup>,%q<custrecp>)};@attach %!/INC`FOOTER=%q<logged>,%q<sceneactive>,%q<pose>;@select/inline cand(%q<cansql>,%q<scene>,not(%q<logged>))=1,{@attach %!/INC`MSG=ERROR: %q<logged>};@dolist/inline/nobreak u(lattr,%!/OVERRIDE`EXTRA`*)={@attach %!/%i0}
+
+&CMD`+OOCALIAS`PENNMUSH [u(cobj,scene)]=$^(?s)(')(.*)?$:@attach %!/CMD`+OOC=%0,say,%2,1
+@set [u(cobj,scene)]/CMD`+OOCALIAS`PENNMUSH=regexp
+&CMD`+OOCALIAS`RHOSTMUSH [u(cobj,scene)]=$^(?s)(')(.*)?$:@attach %!/CMD`+OOC=%0,say,%2,1
+@set [u(cobj,scene)]/CMD`+OOCALIAS`RHOSTMUSH=regexp
+@set [u(cobj,scene)]/CMD`+OOCALIAS`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
+
+&CMD`+OOC`PENNMUSH [u(cobj,scene)]=$^(?s)(\+ooc|osay|\+osay|ooc)(?\:/noeval)?(?\: +(.*))?$:@attach %!/CMD`+OOC
+@set [u(cobj,scene)]/CMD`+OOC`PENNMUSH=regexp
+&CMD`+OOC`RHOSTMUSH [u(cobj,scene)]=$^(?s)(\\+ooc|osay|\\+osay|ooc)(?\:/noeval)?(?\: +(.*))?$:@attach %!/CMD`+OOC
+@set [u(cobj,scene)]/CMD`+OOC`RHOSTMUSH=regexp
+&CMD`+OOC [u(cobj,scene)]=@attach %!/INC`CHECK_SPEECH=%0,say,%2,1;@select/inline %va=PennMUSH,{@message/spoof %q<custrecp>=%q<basic>,%!/FUN`MSGOOC,if(%q<logged>,%q<t2>,%#),##,%q<markup>},RhostMUSH,{@pemit/list %q<custrecp>=udefault(%!/FUN`MSGOOC,,if(%q<logged>,%q<t2>,%#),##,%q<markup>)}
+@set [u(cobj,scene)]/CMD`+OOC`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
 &OVERRIDE`OOC [u(cobj,scene)]=$"*:@attach/command %!/CMD'+OOC=,osay,%0
 
@@ -176,7 +191,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`CHAN`MAIN [u(cobj,scene)]=@select/inline strlen(%0)=0,{@attach %!/INC`CHAN`LIST},{@attach %!/INC`CHAN`SEND=%0,%1};
 
-&INC`CHAN`LIST [u(cobj,scene)]=@check u(setr,scene,get(%#/D`SCENE))=@attach %!/INC`MSG=ERROR: You are not in any scenes!;@attach %!/INC`VALID`SCENE=get(%#/D`SCENE);
+&INC`CHAN`LIST [u(cobj,scene)]=@check u(setr,scene,get(%#/D`SCENE))=@attach %!/INC`MSG=ERROR: You are not in any scenes!;@attach %!/INC`VALID`SCENE=get(%#/D`SCENE);@pemit %#=u(header,Scene Channels for Scene %q<scene>);@pemit %#=ansi(u(color,%#,COLUMN_NAMES),align(20 10 10,Name,Color,MyColor));@pemit %#=u(separator);@dolist/inline/delimit [u(rsep)] [u(mysql3,LIST`CHANNEL,%q<scene>)]={th u(setq,data,u(choosegame,%i0,%d0));@pemit %#=align(20 10 10,elements(%q<data>,2,u(fsep)),elements(%q<data>,3,u(fsep)),)};@pemit %#=u(footer);
 
 &INC`VALID`CHAN_NAME [u(Cobj,scene)]=@attach %!/INC`VALID`ENAME=%0,Scene Channel;th u(setq,cname,%q<value>);@select/inline isint(u(setr,chanid2,u(mysql,EXISTS`CHANNEL,%q<scene>,%q<cname>)))=1,{@check eq(%q<chanid2>,%q<chanid>=@attach %!/INC`MSG=ERROR: That channel name is already in use.}
 
@@ -184,14 +199,21 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`CHAN`RENAME [u(cobj,scene)]=@attach %!/INC`GETCHAN;@attach %!/INC`VALID`CHAN_NAME=before(%1,/),%q<ch1name>;@select/inline t(strlen(after(%1,/)))=1,{@attach %!/INC`VALID`COLOR=after(%1,/)};@attach %!/INC`DOSQL=RENAME`CHANNEL,%q<cname>,%q<value>,%q<chanid>;@attach %!/INC`MESSAGE=%q<scene>,u(getmoniker,%#) renamed Scene Channel '%q<ch1name>' to: [if(strlen(%q<value>),ansi(%q<value>,%q<cname>),%q<cname>)]
 
+&INC`CHAN`RECALL [u(cobj,scene)]=@attach %!/INC`GETCHAN;@select/inline t(strlen(%1))=1,{@attach %!/INC`VALID`POSINT=%1,Lines},{th u(setq,value,100)};@attach %!/INC`LOG`RECALL`DO=Recall: %q<ch1name>,revwords(u(mysql,SELECT`RECALL_CHAN,%q<chanid>,%q<value>))
+
+&Q`SELECT`RECALL_CHAN [u(cobj,scene)]=SELECT action_id FROM volv_action WHERE action_is_deleted=0 AND source_id=? ORDER BY action_id DESC LIMIT ?
+
 &INC`CHAN`JOIN [u(cobj,scene)]=@attach %!/INC`GETCHAN;@stop default(%#/D`SCENE`CHAN`%q<chanid>,u(op,SCENESYS,CHANJOIN))=@attach %!/INC`MSG=ERROR: You are already joined to Scene Channel '%q<c1name>'!;&D`SCENE`CHAN`%q<chanid> %#=1;@attach %!/INC`MSG=You have joined the '%q<c1name>' Scene Channel.
 &INC`CHAN`COLOR [u(cobj,scene)]=@attach %!/INC`GETCHAN;@attach %!/INC`VALID`COLOR=%1;&D`SCENE`CHAN`%q<chanid>`COLOR %#=%q<value>;@attach %!/INC`MSG=Personal Color of Scene Channel '%q<c1name>' set to [ansi(%q<value>,this)].
 &INC`CHAN`LEAVE [u(cobj,scene)]=@attach %!/INC`GETCHAN;@check default(%#/D`SCENE`CHAN`%q<chanid>,u(op,SCENESYS,CHANJOIN))=@attach %!/INC`MSG=ERROR: You are not joined to Scene Channel '%q<c1name>'!
 
-&INC`CHAN`SEND [u(cobj,scene)]=@attach %!/INC`CHECK_SPEECH=,say,%1,3,%0;
+&INC`CHAN`SEND [u(cobj,scene)]=@attach %!/INC`CHECK_SPEECH=,say,%1,3,%0;@check t(%q<logged>)=@attach %!/INC`MSG=ERROR: That would not be logged.;@attach %!/INC`LOADCHAN=%q<chanid>,1;@select/inline %va=PennMUSH,{@message/spoof %q<custrecp>=%q<basic>,%!/FUN`CHAN,%q<t2>,##,%q<markup>,%q<chanid>,%q<ch1name>,%q<ch1color>},RhostMUSH,{@pemit/list %q<custrecp>=udefault(%!/FUN`CHAN,,%q<t2>,##,%q<markup>,%q<chanid>,%q<ch1name>,%q<ch1color>)};
+
+&FUN`CHAN [u(cobj,scene)]=localize(ansi(u(setr,borcol,u(color,%1,CHANEDGE)),<)[ansi(u(strfirstof,get(%1/D`SCENE`CHAN`%3`COLOR),%3,u(color,%1,SCENECHAN),n),%4)][if(%q<logged>,:%B[ansi(hg,%q<scene>)])][ansi(%q<borcol>,>)]%B[if(u(isadmin,%0),ansi(h,lit([Staff])%B))][u(speech,%0,u(colormarkup,%1,%2,%0),%1,,SCENECHAN,%2)])
 
 &Q`NEW`CHANNEL [u(cobj,scene)]=INSERT INTO vol_action_source (scene_id,source_objid,source_vr,source_name,source_type) VALUES (?,'CHANNEL',?,?,3)
 &Q`EXISTS`CHANNEL [u(cobj,scene)]=SELECT source_id FROM vol_action_source WHERE scene_id=? and source_objid='CHANNEL' AND source_name=? AND source_type=3 LIMIT 1
+&Q`LIST`CHANNEL [u(cobj,scene)]=SELECT source_id,source_name,source_vr FROM vol_action_source WHERE scene_id=? and source_objid='CHANNEL' AND source_type=3
 &Q`FIND`CHANNEL [u(cobj,scene)]=SELECT source_id FROM vol_action_source WHERE scene_id=? AND source_objid='CHANNEL' AND source_type=3 AND source_name LIKE '!%%'
 &Q`RENAME`CHANNEL [u(cobj,scene)]=UPDATE vol_action_source SET source_name=?,source_vr=? WHERE source_id=?
 
@@ -256,8 +278,10 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &Q`SET`ACTOR_TYPE [u(cobj,scene)]=INSERT INTO vol_actor (actor_type,scene_id,character_id) VALUES (?,?,?) ON DUPLICATE KEY UPDATE actor_type=VALUES(actor_type)
 &Q`NEW`ACTOR [u(cobj,scene)]=INSERT IGNORE INTO vol_actor (character_id,scene_id) VALUES (?,?)
 
-&INC`MESSAGE [u(cobj,scene)]=@attach %!/INC`MSG`ROOM=%1,setunion(setunion(lockfilter(D`SCENE:%0,u(mysql,get`objidsinscene,%0)),%:),iter(uldefault(%l/D`CUSTRECP,lcon(%l),%#),objid(%i0)))
-&INC`MSGSCENE [u(cobj,scene)]=@attach %!/INC`MSG`ROOM=%1,setunion(setunion(lockfilter(D`SCENE:%0,setunion(%:,u(mysql,get`objidsinscene,%0))),%:),iter(uldefault(%l/D`CUSTRECP,lcon(%l),%#),objid(%i0)))
+&FIL`SCENE [u(cobj,scene)]=eq(default(%0/D`SCENE,0),%1)
+
+&INC`MESSAGE [u(cobj,scene)]=@attach %!/INC`MSG`ROOM=%1,setunion(setunion(u(filter,SCENE,u(mysql,get`objidsinscene,%0),%b,%b,%0),%:),iter(uldefault(%l/D`CUSTRECP,lcon(%l),%#),objid(%i0)))
+&INC`MSGSCENE [u(cobj,scene)]=@attach %!/INC`MSG`ROOM=%1,setunion(setunion(u(filter,SCENE,setunion(%:,u(mysql,get`objidsinscene,%0)),%b,%b,%0),%:),if(%2,,iter(uldefault(%l/D`CUSTRECP,lcon(%l),%#),objid(%i0))))
 
 &Q`GET`OBJIDSINSCENE [u(cobj,scene)]=SELECT character_objid FROM volv_actor WHERE scene_id=? AND (actor_type>0 OR actor_status>0)
 
@@ -300,18 +324,18 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &Q`JAVAMUSH`REPORT_POSES [u(cobj,scene)]=SELECT character_objid,action_count FROM volv_actor_agg WHERE scene_id=? AND action_count>0
 
-&INC`LOG`CONTINUE [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=u(strfirstof,%0,get(%#/D`SCENE));@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),eq(2,%q<mytype>),cand(match(1,%q<status>),u(mysql,COUNT`POSES,%q<scene>,%q<t1id>)))=@attach %!/INC`MSG=ERROR: Permission denied.;@check %q<started>=@attach %!/INC`MSG=ERROR: This scene has not begun! Use +scene/start instead of +scene/continue!;@attach %!/INC`DOSQL=SET`STATE,0,%q<scene>;&D`SCENE %l=%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,[u(getmoniker,%#)] has continued Scene %q<scene>! It will now record new poses.;@attach %!/INC`LOG`JOIN`DO=%#,%q<scene>;@attach %!/INC`LOG`AUTOJOIN=Continued;@select/inline %q<stype>=1,{@force %#=>clock 20};@trigger [u(cobj,ccp)]/SCENE`CHANGE_STATUS=%q<scene>,%q<title>,0,%q<finished>,not(%q<finished>);
+&INC`LOG`CONTINUE [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=u(strfirstof,%0,get(%#/D`SCENE));@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),eq(2,%q<mytype>),cand(match(1,%q<status>),u(mysql,COUNT`POSES,%q<scene>,%q<t1id>)))=@attach %!/INC`MSG=ERROR: Permission denied.;@check %q<started>=@attach %!/INC`MSG=ERROR: This scene has not begun! Use +scene/start instead of +scene/continue!;@attach %!/INC`DOSQL=SET`STATE,0,%q<scene>;&D`SCENE %l=%q<scene>;@attach %!/INC`MESSAGE=%q<scene>,[u(getmoniker,%#)] has continued Scene %q<scene>! It will now record new poses.;@attach %!/INC`LOG`JOIN`DO=%#,%q<scene>;@attach %!/INC`LOG`AUTOJOIN=Continued;@select/inline %q<stype>=1,{@force %#=>clock 20};@trigger [u(cobj,ccp)]/SCENE`CHANGE_STATUS=%q<scene>,%q<title>,0,%q<finished>,not(%q<finished>)
 
 &Q`COUNT`POSES [u(cobj,scene)]=SELECT COUNT(*) FROM volv_action WHERE scene_id=? AND character_id=?
 
 &INC`LOG`LOUDSTART [u(cobj,scene)]=@attach %!/INC`LOG`START=%0,%1,%2,1
-&INC`LOG`START [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=u(strfirstof,%0,get(%#/D`SCENE));@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),eq(2,%q<mytype>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`DOSQL=SET`STATE,0,%q<scene>;@attach %!/INC`DOSQL=SET`STARTED,secs(),%q<scene>;&D`SCENE %l=%q<scene>;@select/inline t(%q<stype>)=1,{@force %#=>clock 20};@attach %!/INC`MESSAGE=%q<scene>,[u(getmoniker,%#)] has begun Scene %q<scene>!;th u(setq,recip,uldefault(%l/D`CUSTRECP,lcon(%l),%#));@attach %!/INC`LOG`AUTOJOIN=Started;@@ @attach %!/INC`MSG`ROOM=iter(u(sortname,%q<finalrecip>),u(getmoniker,%i0),%b,\,%b) have been Auto-Joined to Scene %q<scene>!;@select/inline t(%3)=1,{@attach %!/INC`MSG`CHAN=[ansi(h,u(getmoniker,%#))] started a Scene at [if(match(u(u(cobj,grid)/FUN`LISTIC),%l),u(pueblize,%l - [name(%l)],+port %l),name(%l))]: Scene %q<scene>[if(strlen(%q<title>),:%b%q<title>)],u(conf,ROLEPLAY_CHANNEL),,1,,1}
+&INC`LOG`START [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=u(strfirstof,%0,get(%#/D`SCENE));@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),eq(2,%q<mytype>))=@attach %!/INC`MSG=ERROR: Permission denied.;@attach %!/INC`DOSQL=SET`STATE,0,%q<scene>;@attach %!/INC`DOSQL=SET`STARTED,secs(),%q<scene>;&D`SCENE %l=%q<scene>;@select/inline t(%q<stype>)=1,{@force %#=>clock 20};@attach %!/INC`MESSAGE=%q<scene>,[u(getmoniker,%#)] has begun Scene %q<scene>!;th u(setq,recip,uldefault(%l/D`CUSTRECP,lcon(%l),%#));@attach %!/INC`LOG`AUTOJOIN=Started;@attach %!/INC`MSG`ROOM=iter(u(sortname,%q<finalrecip>),u(getmoniker,%i0),%b,\,%b) have been Auto-Joined to Scene %q<scene>!;@select/inline t(%3)=1,{@attach %!/INC`MSG`CHAN=[ansi(h,u(getmoniker,%#))] started a Scene at [if(match(u(u(cobj,grid)/FUN`LISTIC),%l),u(pueblize,%l - [name(%l)],+port %l),name(%l))]: Scene %q<scene>[if(strlen(%q<title>),:%b%q<title>)],u(conf,ROLEPLAY_CHANNEL),,1,,1}
 
 &Q`SET`STATE [u(cobj,scene)]=UPDATE vol_scene SET scene_status=? WHERE scene_id=?
 &Q`SET`FINISH [u(cobj,scene)]=UPDATE vol_scene SET scene_date_finished=UTC_TIMESTAMP(),scene_status=3 WHERE scene_id=?
 &Q`SET`STARTED [u(cobj,scene)]=UPDATE vol_scene SET scene_date_started=FROM_UNIXTIME(?) WHERE scene_id=?
 
-&INC`CLEANUPSCENE [u(cobj,scene)]=@dolist/inline u(choosegame,lsearch(all,type,player,elock,D`SCENE:%0),search(TYPE=PLAYERS,EVAL=\[eq(get(##/D`SCENE),%0)\]))=@attach %!/INC`LOG`LEAVE`Do=##;
+&INC`CLEANUPSCENE [u(cobj,scene)]=@dolist/inline u(choosegame,lsearch(all,type,player,elock,D`SCENE:%0),search(EPLAYER=\[eq(default(##/D`SCENE,-1),%0)\]))=@attach %!/INC`LOG`LEAVE`Do=##;
 
 &INC`LOG`UNDO [u(cobj,scene)]=@attach %!/INC`CHECKPC=u(firstof,get(%#/D`SCENE`SPOOF),%:),2,1;@attach %!/INC`VALID`SCENE=get(%#/D`SCENE);@attach %!/INC`LOADSCENE;@check eq(%q<status>,0)=@attach %!/INC`MSG=That scene is not Active!;@select/inline strlen(%1)=0,{@check gt(u(setr,pose,u(mysql,SELECT`LAST_POSE,%q<scene>,%q<t2id>,0)),0)=@attach %!/INC`MSG=You have no poses that can be undone.},{@check gt(u(setr,pose,u(mysql,SELECT`POSE_EXISTS,%q<scene>,%q<t2id>,0,%1)),0)=@attach %!/INC`MSG=ERROR: No active pose from you with ID '%1'.};th u(setr,act_id,u(mysql,SELECT`ACTOR_ID,%q<scene>,%q<t2id>));@attach %!/INC`DOSQL=SET`POSE_DELETED,1,%q<pose>;@attach %!/INC`DOSQL=DEC`POSE_COUNT,%q<act_id>;@attach %!/INC`MSGSCENE=%q<scene>,[u(getmoniker,%#)] undid %p previous pose: %q<pose>
 
@@ -330,10 +354,19 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 &Q`EDIT`POSE_TEXT_RENDER [u(cobj,scene)]=UPDATE vol_action SET action_text_render=? WHERE action_id=?
 &Q`SELECT`TEXT [u(cobj,scene)]=SELECT action_text FROM vol_action WHERE action_id=?
 
-&INC`LOG`RECALL [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=u(strfirstof,%0,get(%#/D`SCENE));@select/inline gt(strlen(%1),0)=1,{@check u(valnum,%1)=@attach %!/INC`MSG=The number of poses must be a whole, positive number.;th u(setq,poses,%1)},0,{th u(setq,poses,15)};th u(setq,dbs,u(lwhoid));th [u(setq,quote,ansi(u(color,%#,QUOTES),"))][u(setq,speechcol,u(color,%#,SPEECH))];@pemit %#=u(HEADER,Scene %q<scene>[if(strlen(%q<title>),:%B%q<title>)]);@dolist/inline revwords(u(mysql,SELECT`RECALL_IDS,%q<scene>,%q<poses>))={th u(setq,data,u(mysql3,LOAD`POSE,##));@pemit %#=u(SEPARATOR,if(isobjid(u(elements,%q<data>,9,u(fsep))),u(getmoniker,u(elements,%q<data>,9,u(fsep))),ansi(hx,u(elements,%q<data>,10,u(fsep)))) Posed on [u(fancytime3,u(elements,%q<data>,2,u(fsep)),%#)]);@pemit %#=u(colormarkup,%#,u(markup,regeditalli(u(elements,%q<data>,3,u(fsep)),v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>),%q<dbs>),%1)};@pemit %#=u(FOOTER)
+&INC`LOG`RECALL [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=u(strfirstof,%0,get(%#/D`SCENE));@select/inline gt(strlen(%1),0)=1,{@check u(valnum,%1)=@attach %!/INC`MSG=The number of poses must be a whole, positive number.;th u(setq,poses,%1)},0,{th u(setq,poses,15)};th u(setq,dbs,u(lwhoid));th [u(setq,quote,ansi(u(color,%#,QUOTES),"))][u(setq,speechcol,u(color,%#,SPEECH))];@attach %!/INC`LOG`RECALL`DO=Scene %q<scene>[if(strlen(%q<title>),:%B%q<title>)],revwords(u(mysql,SELECT`RECALL_IDS,%q<scene>,%q<poses>))
 
-&Q`SELECT`RECALL_IDS [u(cobj,scene)]=SELECT action_id FROM volv_action WHERE action_is_deleted=0 AND scene_id=? ORDER BY action_id DESC LIMIT ?
-&Q`LOAD`POSE [u(cobj,scene)]=SELECT action_id,action_date_Created_secs,action_text,action_type,source_objid,source_name,source_type,actor_type,character_objid,character_name FROM volv_action WHERE action_id=?
+&INC`LOG`RECALL`DO [u(cobj,scene)]=@pemit %#=u(HEADER,%0);@dolist/inline %1={th u(setq,data,u(mysql3,LOAD`POSE,##));th u(setq,act,u(mysql3,LOAD`ACTION,##));@attach %!/INC`LOG`RECALL`[elements(%q<data>,6,u(fsep))]};@pemit %#=u(FOOTER)
+
+&INC`LOG`RECALL`0 [u(cobj,scene)]=@pemit %#=u(SEPARATOR,if(isobjid(u(elements,%q<data>,8,u(fsep))),u(getmoniker,u(elements,%q<data>,8,u(fsep))),ansi(hx,u(elements,%q<data>,9,u(fsep)))) Posed on [u(fancytime3,u(elements,%q<data>,2,u(fsep)),%#)]);@pemit %#=u(colormarkup,%#,u(markup,regeditalli(%q<act>,v(REG`SPEECH),%q<quote>[ansi(%q<speechcol>,$1)]%q<quote>),%q<dbs>),%1)
+
+&INC`LOG`RECALL`1 [u(cobj,scene)]=@pemit %#=%q<data>
+&INC`LOG`RECALL`2 [u(cobj,scene)]=@pemit %#=%q<data>
+&INC`LOG`RECALL`3 [u(cobj,scene)]=@pemit %#=%q<data>
+
+&Q`SELECT`RECALL_IDS [u(cobj,scene)]=SELECT action_id FROM volv_action WHERE action_is_deleted=0 AND scene_id=? AND action_type=0 ORDER BY action_id DESC LIMIT ?
+&Q`LOAD`POSE [u(cobj,scene)]=SELECT action_id,action_date_created_secs,action_type,source_objid,source_name,source_type,actor_type,character_objid,character_name,source_vr FROM volv_action WHERE action_id=?
+&Q`LOAD`ACTION [u(cobj,scene)]=SELECT action_text FROM volv_action WHERE action_id=?
 
 &INC`LOG`MAIN [u(cobj,scene)]=@select/inline t(strlen(%0))[isint(%0)]=0*,{@attach %!/INC`LOG`PLAYERLIST=%:,%1,%2,0},11,{@attach %!/INC`LOG`DETAILS=%0,%1,%2,%3},10,{@attach %!/INC`LOG`PLAYERLIST=%0,%1,%2,0}
 
@@ -377,7 +410,7 @@ th u(NEWCOBJ,Scene Management System <SCENE>,scene,,,,WIZARD SAFE !NO_COMMAND,IN
 
 &INC`LOG`DETAILS`PLOTS [u(cobj,scene)]=@select/inline strlen(%q<plots>)=>0,{@pemit %#=u(SUBHEADER,Plots Featuring this Scene);@dolist/inline/delimit [u(rsep)] %q<plots>={th u(setq,cdata,u(choosegame,%i0,%d0));@pemit %#=align(4 20 10 10 15 7,u(pueblize,u(elements,%q<cdata>,1,u(fsep)),+log [u(elements,%q<cdata>,1,u(fsep))]),u(pueblize,u(elements,%q<cdata>,2,u(fsep)),+log [u(elements,%q<cdata>,1,u(fsep))]),if(u(elements,%q<cdata>,5,u(fsep)),u(fancytime,u(elements,%q<cdata>,5,u(fsep)),%#),N/A),if(u(elements,%q<cdata>,6,u(fsep)),u(fancytime,u(elements,%q<cdata>,6,u(fsep)),%#),N/A),if(isobjid(u(elements,%q<cdata>,8,u(fsep))),u(getmoniker,u(elements,%q<cdata>,8,u(fsep))),ansi(hx,u(elements,%q<cdata>,9,u(fsep)))),u(elements,%q<cdata>,4,u(fsep)))}}
 
-&INC`LOG`WHO [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=u(strfirstof,%0,get(%#/D`SCENE));@attach %!/INC`MSG=Joined participants for Scene %q<scene>: [u(strfirstof,u(itemize,iter(lsearch(all,type,player,elock,D`SCENE:%q<scene>),name(%i0)[if(strmatch(%l,loc(%i0)),,%b\(not present\))],%b,|),|,and,\,),Nobody!)]
+&INC`LOG`WHO [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=u(strfirstof,%0,get(%#/D`SCENE));@attach %!/INC`MSG=Joined participants for Scene %q<scene>: [u(strfirstof,u(itemize,iter(u(choosegame,lsearch(all,type,player,elock,D`SCENE:%q<scene>),search(EPLAYER=\[eq(default(##/D`SCENE,-1),%q<scene>)\])),name(%i0)[if(strmatch(%l,loc(%i0)),,%b\(not present\))],%b,|),|,and,\,),Nobody!)]
 
 &INC`LOG`DELETE [u(cobj,scene)]=@attach %!/INC`VALID`SCENE=%0;@attach %!/INC`LOADSCENE;@check cor(u(isadmin,%#),cand(strmatch(%:,%q<ownobjid>),not(u(mysql,action_count,%q<scene>))))=@attach %!/INC`MSG=ERROR: Permission denied.;@check strmatch(%q<title>,%1)=@attach %!/INC`MSG=ERROR: Must include the Scene's Title for verification. Syntax: +log/delete <id>=<title>;@attach %!/INC`VERIFY={[ansi(hr,WARNING:)] This will COMPLETELY DELETE Scene %q<scene>. All associated poses and data will go with it. This will not affect the Wiki's copy. Are you sure? Enter the same command to verify.},DELETE SCENE %q<scene>;@attach %!/INC`MESSAGE=%q<scene>,{[u(getmoniker,%#)] deleted Scene %q<scene>.};@attach %!/INC`DOSQL=DELETE`SCENE,%q<scene>;@attach %!/INC`MSG=You have Deleted Scene %q<scene>. If this was in error use the command again to undo this.;@attach %!/INC`MSG`CHAN=Deleted Scene %q<scene>.;
 

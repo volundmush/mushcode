@@ -77,7 +77,7 @@ th u(NEWCOBJ,Account Database <ACCOUNTS>,accounts,u(cobj,account),,,WIZARD SAFE,
 
 &INC`MAIN [u(cobj,account)]=@select/inline cand(u(isadmin,%#),strlen(%0))=1,{@attach %!/INC`TARGET},0,{@check isdbref(u(setr,accid,get(%#/D`ACCOUNT)))=@attach %!/INC`MSG=ERROR: No account to display.;th u(setq,accname,name(%q<accid>))};@attach %!/INC`SHOW
 
-&INC`CREATE [u(cobj,account)]=@attach %!/INC`VALID`ACCOUNT=%0;@stop isdbref(u(find_in,u(cobj,accounts),%q<value>))=@attach %!/INC`MSG=ERROR: An account already exists with that name.;@check valid(name,%q<value>)=@attach %!/INC`MSG=ERROR: That name can't be used for an account.;@attach %!/INC`CREATE`DO;@attach %!/INC`MSG`CHAN={Created NEW ACCOUNT: %q<accname>}
+&INC`CREATE [u(cobj,account)]=@attach %!/INC`VALID`ACCOUNT=%0;@stop isdbref(u(find_in,u(cobj,accounts),%q<value>))=@attach %!/INC`MSG=ERROR: An account already exists with that name.;@check valid(name,%q<value>)=@attach %!/INC`MSG=ERROR: That name can't be used for an account.;@attach %!/INC`CREATE`DO;@attach %!/INC`MSG=You have created the account: %q<accname>;@attach %!/INC`MSG`CHAN={Created NEW ACCOUNT: %q<accname>}
 
 &INC`CREATE`DO [u(cobj,account)]=@tel [u(setr,accid,objid(create(u(setr,accname,%q<value>))))]=u(cobj,accounts);@parent %q<accid>=u(cobj,accounts);th u(attrib_set,%q<accid>,D`ACCOUNT,%q<accid>);th u(attrib_set,%q<accid>,D`ACCOUNT`ID,u(call`2,volp_account,0,'[sqlescape(%q<accid>)]','[sqlescape(%q<accname>)]'));
 
