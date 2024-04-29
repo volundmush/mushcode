@@ -724,10 +724,10 @@ th if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,globa
 
 &INC`MSG`NOTICE [u(cobj,ccp)]=@attach %!/INC`MSG=[ansi(h,[chr(91)][if(cand(u(isadmin,%#),cor(u(ishidden,%#),u(conf,ANONYMOUS_NOTICES))),SYSTEM,name(%#))][chr(93)])]%B%0,%1,%2,%3,%4,%5,%6,%7,%8,%9
 
-&INC`MSG`CHAN [u(cobj,ccp)]=th u(setq,chanmsg,if(not(%5),ansi(h,[chr(91)][u(getmoniker,u(firstof,%4,%#))][chr(93)])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof,%1,u(conf,STAFF_ALERTS))]={th cemit(%d0,%q<chanmsg>)}
+&INC`MSG`CHAN [u(cobj,ccp)]=th u(setq,chanmsg,if(not(%5),ansi(h,[chr(91)][u(getmoniker,u(firstof,%4,%#))][chr(93)])%B)[if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof,%1,u(conf,STAFF_ALERTS))]={th localize(cemit(%d0,%q<chanmsg>))}
 @@ %0 - Message. %1 - Channels (| delimit). %2 - System. %3 - Ignore system boolean. %4 - Enactor. %5 - Ignore enactor.
 
-&INC`MSG`SYSCHAN [u(cobj,ccp)]=th u(setq,chanmsg,[if(not(%5),ansi(h,[chr(91)][u(strfirstof,%4,SYSTEM)][chr(93)]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={@cemit %d0=%q<chanmsg>}
+&INC`MSG`SYSCHAN [u(cobj,ccp)]=th u(setq,chanmsg,[if(not(%5),ansi(h,[chr(91)][u(strfirstof,%4,SYSTEM)][chr(93)]%B))][if(cand(strlen(u(strfirstof,%2,u(SYSTEM`NAME))),not(%3)),u(strfirstof,%2,u(SYSTEM`NAME)):%b)]%0);@dolist/inline/delimit | [u(strfirstof(%1,u(conf,STAFF_ALERTS)))]={th localize(cemit(%d0,%q<chanmsg>))}
 
 &REG`ENCODETIME [u(cobj,ccp)]=\^\^\^(?P<time>\d+)\^\^\^
 
