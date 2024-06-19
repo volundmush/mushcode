@@ -29,7 +29,9 @@ th u(NEWCOBJ,District Parent <DISTRICT>,district,u(cobj,grid),u(cobj,ancestor_ro
 
 &FUN`LISTDISTRICTS [u(cobj,grid)]=u(sortname,u(filter,ISDIST,children(%0)))
 
-&FUN`CHAIN [u(cobj,grid)]=iter(u(filter,ISDIST,revwords(lparent(%0))),u(getmoniker,%i0),%b,switch(%1,1,/,2,\,%B,%B-%B))
+&FUN`DIST_ANCESTORS [u(cobj,grid)]=u(filter,ISDIST,revwords(u(choosegame,lparent(%0),parents(%0))))
+
+&FUN`CHAIN [u(cobj,grid)]=iter(u(FUN`DIST_ANCESTORS,%0) %0,u(getmoniker,%i0),%b,switch(%1,1,/,2,[chr(44)]%b,%b-%b))
 
 &FIL`ISDIST [u(cobj,grid)]=cand(hastype(%0,THING),get(%0/D`DISTRICT))
 &FIL`NOTDIST [u(cobj,grid)]=not(u(FIL`ISDIST,%0))

@@ -38,8 +38,6 @@ th u(NEWCOBJ,OOCFinger <OOCFINGER>,oocfinger,,,,WIZARD SAFE !NO_COMMAND,INHERIT 
 
 &INC`MAIN [u(cobj,oocfinger)]=@attach %!/INC`CHECKPC=u(strfirstof,%0,%#),1;@pemit %#=u(HEADER,%q<t1name>);@dolist/inline/delimit | [u(conf,COLUMN_DEFINITION)]={@pemit %#=align(1. >[u(setr,oocw,u(conf,WIDTH))] 1. [sub(u(width,%#),%q<oocw>,7)] 1.,ansi(u(color,%#,BORDER),|),u(elements,##,2,~),ansi(u(color,%#,BORDER),|),u(getprop,%q<t1>,u(elements,##,1,~),D`OOCFINGER),ansi(u(color,%#,BORDER),|))};@dolist/inline/delimit | [u(conf,EXTRA_DEFINITION)]={@select/inline t(strlen(u(setr,found,u(getprop,%q<t1>,##,D`OOCFINGER))))=1,{@pemit %#=u(subheader,u(capnames,##));@pemit %#=align(1. [sub(u(width,%#),4)] 1.,ansi(u(color,%#,BORDER),|),edit(%q<found>,%t,space(8)),ansi(u(color,%#,BORDER),|))}};@pemit %#=u(FOOTER);
 
-
-
 &INC`FIELDS [u(cobj,oocfinger)]=@attach %!/INC`MSG=Available Fields: [iter(u(FUN`FIELDS,%#),%i0,|,\,%b)]
 
 &FUN`FIELDS [u(cobj,oocfinger)]=setunion(u(conf,PLAYER_FIELDS),if(u(isadmin,%#),u(conf,ADMIN_FIELDS)),|,|)

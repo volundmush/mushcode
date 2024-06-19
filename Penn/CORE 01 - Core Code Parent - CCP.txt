@@ -1,7 +1,6 @@
-
-
 @@ RUN THIS ON CODE WIZARD OBJECT!
 @cmdquota me=99999
+@set me=SIDEFX
 @switch/first/inline hasflag(%#,UNREGISTERED)=1,{@set me=!UNREGISTERED};@power me=no_pay
 
 think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,config(master_room))][parent(%#,%q0)][set(%q0,COBJ`CCP:[objid(%q0)])][set(%q0,WIZARD SAFE !NO_COMMAND)])
@@ -23,7 +22,7 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 &SETQ [u(cobj,ccp)]=setq(%0,%1)
 &SETR [u(cobj,ccp)]=setr(%0,%1)
 
-&ELEMENTS [u(cobj,ccp)]=elementsmux(%0,%1,%2)
+&ELEMENTS [u(cobj,ccp)]=elements(%0,%1,%2)
 
 &STARTUP [u(cobj,ccp)]=@dolist/inline lattr(%!/START`*)={@include/nobreak %!/##}
 
@@ -714,19 +713,19 @@ think if(isdbref(u(cobj,ccp)),,setq(0,create(Core Code Parent <CCP>))[tel(%q0,co
 
 &MSGROOM [u(cobj,ccp)]=localize(if(u(opother,u(firstof,%1,%#),SYSTEM,SCREEN_READER),ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0)):,ansi(setr(msgcolor,u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSG)),-=<*)[ansi(u(color,u(firstof,%1,%#),v(SYSTEM`COLORS),MSGTEXT),ucstr(%0))][ansi(%q<msgcolor>,*>=-)]))
 
-&HEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),HEADER,%4,%5,%6,%7)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][setr(borderstar,ansi(%q<hstarcolor>,*))]%B[if(%2,%0,ansi(%q<htextcolor>,%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,HEADER,%0)])
+&HEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),HEADER,%4,%5,%6,%7,%8)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))][setr(borderstar,ansi(%q<hstarcolor>,*))]%B[if(%2,%0,ansi(%q<htextcolor>,%0))]%B%q<borderstar>[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,HEADER,%0)])
 
-&SUBHEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER,%4,%5,%6,%7)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(%q<htextcolor>,%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,SUBHEADER,%0)])
+&SUBHEADER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SUBHEADER,%4,%5,%6,%7,%8)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(%q<htextcolor>,%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,SUBHEADER,%0)])
 
-&SEPARATOR [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR,%4,%5,%6,%7)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(%q<htextcolor>,%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,SEPARATOR,%0)])
+&SEPARATOR [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,%3,SEPARATOR,%4,%5,%6,%7,%8)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(%q<htextcolor>,%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,SEPARATOR,%0)])
 
-&FOOTER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),FOOTER,%4,%5,%6,%7)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(%q<htextcolor>,%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,FOOTER,%0)])
+&FOOTER [u(cobj,ccp)]=localize(u(HEADER`PREP,%1,strfirstof(%3,u(conf,BORDER_MODE)),FOOTER,%4,%5,%6,%7,%8)[setq(headertext,if(strlen(%0),[ansi(%q<bordercolor>,<)][if(u(pueblo,%q<target>),endtag(a))]%B[if(%2,%0,ansi(%q<htextcolor>,%0))]%B[ansi(%q<bordercolor>,>)]))][u(HEADER`RENDER,FOOTER,%0)])
 
-&HEADER`PREP [u(cobj,ccp)]=setq(target,owner(u(strfirstof,%0,%#)))[setq(bordercolor,u(strfirstof,%4,u(color,%q<target>,v(SYSTEM`COLORS),BORDER)))][setq(bordermode,%1)][setq(width,sub(strfirstof(%3,u(width,%q<target>)),2))][setq(fill,u(conf,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,setq(start,ansi(%q<bordercolor>,/))[setq(end,ansi(%q<bordercolor>,chr(92)))],FOOTER,setq(start,ansi(%q<bordercolor>,chr(92)))[setq(end,ansi(%q<bordercolor>,/))]),1,setq(start,setr(end,ansi(%q<bordercolor>,+))),setq(start,setr(end,ansi(%q<bordercolor>,%q<fill>))))][setq(htextcolor,u(strfirstof,%6,u(color,%q<target>,v(SYSTEM`COLORS),HEADER_TEXT)))][setq(hstarcolor,u(strfirstof,%5,u(color,%q<target>,v(SYSTEM`COLORS),HEADER_STAR)))]
+&HEADER`PREP [u(cobj,ccp)]=setq(target,owner(u(strfirstof,%0,%#)))[setq(bordercolor,u(strfirstof,%4,u(color,%q<target>,v(SYSTEM`COLORS),BORDER)))][setq(bordermode,%1)][setq(width,sub(strfirstof(%3,u(width,%q<target>)),2))][u(setq,lwidth,%7)][setq(fill,u(conf,%2_FILL))][switch(%q<bordermode>,2,switch(%2,HEADER,setq(start,ansi(%q<bordercolor>,/))[setq(end,ansi(%q<bordercolor>,chr(92)))],FOOTER,setq(start,ansi(%q<bordercolor>,chr(92)))[setq(end,ansi(%q<bordercolor>,/))]),1,setq(start,setr(end,ansi(%q<bordercolor>,+))),setq(start,setr(end,ansi(%q<bordercolor>,%q<fill>))))][setq(htextcolor,u(strfirstof,%6,u(color,%q<target>,v(SYSTEM`COLORS),HEADER_TEXT)))][setq(hstarcolor,u(strfirstof,%5,u(color,%q<target>,v(SYSTEM`COLORS),HEADER_STAR)))]
 
-&HEADER`RENDER [u(cobj,ccp)]=if(u(opother,%q<target>,SYSTEM,SCREEN_READER),if(strlen(%1),%1),%q<start>[u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>))]%q<end>)
+&HEADER`RENDER [u(cobj,ccp)]=if(u(opother,%q<target>,SYSTEM,SCREEN_READER),if(strlen(%1),%1),%q<start>[if(%q<lwidth>,[repeat(ansi(%q<bordercolor>,%q<fill>),%q<lwidth>)]%q<headertext>[repeat(ansi(%q<bordercolor>,%q<fill>),sub(%q<width>,%q<lwidth>,strlen(%q<headertext>)))],u(center,%q<headertext>,%q<width>,ansi(%q<bordercolor>,%q<fill>)))]%q<end>)
 
-@@ HEADER family args: %0 - Title. %1 - Viewer dbref. %2 - True: Do not color title. %3 - Border mode bool. %4 - Width.
+@@ HEADER family args: %0 - Title. %1 - Viewer dbref. %2 - True: Do not color title. %3 - Border mode bool. %4 - Width. %5 - color manual override, %6 - color family, %7 - color category, %8 - left side manual size
 
 &MARKUP [u(cobj,ccp)]=regeditalli(%0,\([edit(edit(iter(%1,\\b[name(%i0)]\\b,%b,|),-,\\-),.,\\.)]\),if(neq(ord(left(setr(found,$0),1)),ord(lcstr(left($0,1)))),^^^[pmatch(%q<found>)]:%q<found>^^^,%q<found>))
 @@ %0 - Text to search. %1 - Dbrefs to check.

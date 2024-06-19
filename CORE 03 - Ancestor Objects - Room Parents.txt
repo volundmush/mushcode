@@ -26,7 +26,7 @@
 
 &EXITFORMAT [u(cobj,ancestor_room)]=[if(words(lvexits(%!)),udefault(EXITFORMAT`[u(SETTINGS`ROOM_EXITS)],u(EXITFORMAT`DEFAULT)),u(SUBHEADER,u(FOOTER_TEXT)))]
 
-&EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[null(if(u(setr,lvexits,lvexits(%!)),iter(exitalias exitname exitwrap exitdest,u(setq,col%i0,u(strfirstof,v(DISTCOLOR`%i0),vol_color(%#,ROOM,%i0))))))][table(iter(vol_sortorder(vol_sortname(%q<lvexits>)),u(RENDER_EXIT,%i0,37),%b,|),37,width(%#),|)]%R[u(SUBHEADER)]
+&EXITFORMAT`DEFAULT [u(cobj,ancestor_room)]=[u(SEPARATOR,Exits)]%R[null(if(t(u(setr,lvexits,lvexits(%!))),iter(exitalias exitname exitwrap exitdest,u(setq,col%i0,u(strfirstof,v(DISTCOLOR`%i0),vol_color(%#,ROOM,%i0))))))][table(iter(vol_sortorder(vol_sortname(%q<lvexits>)),u(RENDER_EXIT,%i0,37),%b,|),37,width(%#),|)]%R[u(SUBHEADER)]
 
 &RENDER_EXIT [u(cobj,ancestor_room)]=ljust(if(strlen(alias(%0)),[ansi(%q<colexitwrap>,<)][ansi(%q<colexitalias>,vol_pueblize(ucstr(alias(%0)),name(%0)))][ansi(%q<colexitwrap>,>)]),6)[ansi(%q<colexitname>,vol_pueblize(vol_getmoniker(%0),name(%0)))] to [ansi(%q<colexitdest>,left(name(loc(%0)),sub(%1,6,4,strlen(name(%0)))))]
 
@@ -35,7 +35,7 @@
 
 @@ ANCESTOR EXIT
 
-@select/inline isdbref(u(oldcobj,ancestor_exit))=1,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_EXIT,objid(u(oldcobj,ancestor_exit)))},0,{@select/inline isdbref(u(cobj,ancestor_exit))=0,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_EXIT,objid(open(Ancestor Exit,#0,u(cobj,ancestor_room))))}}
+@select/inline isdbref(u(oldcobj,ancestor_exit))=1,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_EXIT,objid(u(oldcobj,ancestor_exit)))},0,{@select/inline isdbref(u(cobj,ancestor_exit))=0,{th u(attrib_set,u(cobj,ccp),COBJ`ANCESTOR_EXIT,objid(create(Ancestor Exit)))};@tel [u(cobj,ancestor_exit)]=[u(cobj,ancestor_room)]}
 
 &ODROP [u(cobj,ancestor_exit)]=heads over from [fullname(home(me))]
 &OSUCCESS [u(cobj,ancestor_exit)]=heads over to [fullname(loc(me))]

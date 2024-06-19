@@ -1,0 +1,5 @@
+@@ PRE REQS: Myrddin's MUSH cron.
+
+
+&CRON_TIME_BACKUP [u(cobj,mcron)]=||||00
+&CRON_JOB_BACKUP [u(cobj,mcron)]=@dump/flat;wmail/unload

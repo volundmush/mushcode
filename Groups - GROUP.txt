@@ -259,7 +259,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &DIV`DADMIN`DISBAND`DO [u(cobj,group)]=th u(attrib_set,%0,DIVISIONS,u(sortname,u(filter,ISOBJID,setdiff(get(%0/DIVISIONS),objid(%1)))));@attach %!/GRP`GADMIN`DISBAND`DO=%1
 
 &ADMIN`PLAYER [u(cobj,group)]=COLOR|STARTRANK|IC|OOC|COMMAND|CHANNELRANK|SYSALERT
-&ADMIN`ADMIN [u(cobj,group)]=PRIVATE|TIER|DISPLAYMODE|ABBREVIATION|LETTER|CHANNELS|NOREPORT|RADIOS
+&ADMIN`ADMIN [u(cobj,group)]=PRIVATE|SECRETIVE|TIER|DISPLAYMODE|ABBREVIATION|LETTER|CHANNELS|NOREPORT|RADIOS
 
 &GRP`GADMIN`LIST [u(cobj,group)]=@pemit %#=u(header,%q<g1name> - Settings);@dolist/inline u(lattrp,%q<g1>/SET`*)={@pemit %#=rjust(last(##,`),10): [get(%q<g1>/##)]};@pemit %#=u(footer)
 
@@ -272,6 +272,8 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &GRP`GADMIN`SET`COLOR [u(cobj,group)]=@attach %!/INC`VALID`COLOR=%1;&SET`COLOR %q<g1>=%q<value>
 
 &GRP`GADMIN`SET`STARTRANK [u(cobj,group)]=@attach %!/INC`VALID`POSINT=%1,STARTRANK;@stop lte(%q<value>,2)=@attach %!/INC`MSG=ERROR: STARTRANK may not be higher than 3.;@stop lte(%q<value>,u(FUN`GETRANK,%q<g1>,%:))=@attach %!/INC`MSG=ERROR: Cannot raise STARTRANK beyond your own rank.;@check hasattrp(%q<g1>/RANK`%q<value>)=@attach %!/INC`MSG=ERROR: Cannot find that rank.;&SET`STARTRANK %q<g1>=%q<value>
+
+&GRP`GADMIN`SET`SECRETIVE [u(cobj,group)]=@attach %!/INC`VALID`BOOL=%1,SECRETIVE;&SET`SECRETIVE %q<g1>=%q<value>
 
 &GRP`GADMIN`SET`RADIOS [u(cobj,group)]=@attach %!/INC`VALID`RADIOLIST=%1;&SET`%q<option> %q<g1>=%q<value>
 
@@ -531,7 +533,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 
 &GRP`GWHO`LIST [u(cobj,group)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,if(%q<online>,ONLINE%B)MEMBERS: %q<g1name>);@select/inline cand(not(%2),hasattr(%q<g1>/DESCRIBE))=1,{@pemit %#=get(%q<g1>/DESCRIBE);@pemit %#=u(separator)};@attach %!/DISPLAY`[u(strfirstof,get(%q<g1>/SET`DISPLAYMODE),STANDARD)];@pemit %#=u(FOOTER)
 
-&DIV`DIVISIONS`MAIN [u(cobj,group)]=@attach %!/INC`TARGET;@pemit %#=u(HEADER,DIVISIONS: %q<g1name>);@pemit %#=ansi(u(color,%#,GROUPS,COLUMN_NAMES),align(24 21 20 10,Name,Rank,Title,Last/Idle));th u(setq,divcount,NULL);@dolist/inline/delimit [u(rsep)] [u(mysql3,SELECT`DIVISION_CASCADE,%q<g1id>)]={th u(setq,ddat,u(choosegame,%i0,%d0));th u(setq,divs,setunion(u(elements,%q<ddat>,1,u(fsep)),%q<divs>));@select/inline strmatch(u(elements,%q<ddat>,1,u(fsep)),%q<divcount>)=0,{@pemit %#=u(separator,u(elements(%q<ddat>,1,u(fsep))/GET`NAME))};th u(setq,divcount,u(elements,%q<ddat>,1,u(fsep)));@pemit %#=align(24 21 19 >10,u(pueblize,u(getmoniker,u(setr,obj,u(elements,%q<ddat>,2,u(fsep)))),+finger [name(%q<obj>)]),u(elements,%q<ddat>,4,u(fsep)),u(elements,%q<ddat>,5,u(fsep)),u(lastidle,%q<obj>,%#))};@select/inline if(words(%q<divs>),words(u(setr,empty,u(mysql,SELECT`EMPTY_DIVISIONS`1,%q<g1id>,u(SQL`IN`STRING,%q<divs>)))),words(u(setr,empty,u(mysql,SELECT`EMPTY_DIVISIONS`2,%q<g1id>))))=>0,{@pemit %#=u(subheader,Empty Divisions);@pemit %#=iter(%q<empty>,u(%i0/GET`NAME),%b,\,%B)};@pemit %#=u(FOOTER)
+&DIV`DIVISIONS`MAIN [u(cobj,group)]=@attach %!/INC`TARGET;@pemit %#=u(HEADER,DIVISIONS: %q<g1name>);@pemit %#=ansi(u(color,%#,GROUPS,COLUMN_NAMES),align(24 21 20 10,Name,Rank,Title,Last/Idle));th u(setq,divcount,NULL);@dolist/inline/delimit [u(rsep)] [u(mysql3,SELECT`DIVISION_CASCADE,%q<g1id>)]={th u(setq,ddat,u(choosegame,%i0,%d0));th u(setq,divs,setunion(u(elements,%q<ddat>,1,u(fsep)),%q<divs>));@select/inline strmatch(u(elements,%q<ddat>,1,u(fsep)),%q<divcount>)=0,{@pemit %#=u(separator,u(elements,%q<ddat>,1,u(fsep))/GET`NAME))};th u(setq,divcount,u(elements,%q<ddat>,1,u(fsep)));@pemit %#=align(24 21 19 >10,u(pueblize,u(getmoniker,u(setr,obj,u(elements,%q<ddat>,2,u(fsep)))),+finger [name(%q<obj>)]),u(elements,%q<ddat>,4,u(fsep)),u(elements,%q<ddat>,5,u(fsep)),u(lastidle,%q<obj>,%#))};@select/inline if(words(%q<divs>),words(u(setr,empty,u(mysql,SELECT`EMPTY_DIVISIONS`1,%q<g1id>,u(SQL`IN`STRING,%q<divs>)))),words(u(setr,empty,u(mysql,SELECT`EMPTY_DIVISIONS`2,%q<g1id>))))=>0,{@pemit %#=u(subheader,Empty Divisions);@pemit %#=iter(%q<empty>,u(%i0/GET`NAME),%b,\,%B)};@pemit %#=u(FOOTER)
 
 &Q`SELECT`EMPTY_DIVISIONS`1 [u(cobj,group)]=SELECT group_objid FROM volv_group WHERE group_parent=? AND group_objid NOT IN (!) ORDER BY group_name
 
@@ -542,7 +544,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &GRP`GROUPS`PRIVATE [u(cobj,group)]=@attach %!/DISPLAY`GROUPLIST=1
 &GRP`GROUPS`MAIN [u(cobj,group)]=@attach %!/DISPLAY`GROUPLIST=0
 
-&DISPLAY`GROUPLIST [u(cobj,group)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,mudname() [if(%0,\(Private\)%B)]Groups);@dolist/inline/nobreak/delimit [u(rsep)] [u(mysql3,LIST`GROUP_TIERS,%0)]={th u(setq,data,u(choosegame,%i0,%d0));th u(setq,vis,if(%0,u(filter,PRIVATE,u(elements,%q<data>,3,u(fsep)),%b,%b,%:),u(elements,%q<data>,3,u(fsep))));@check words(%q<vis>);@pemit %#=u(separator,Tier [elements(%q<data>,1,u(fsep))]: [elements(%q<data>,2,u(fsep))]);@dolist/inline %q<vis>={th u(setq,gdat,u(choosegame,%i0,%d0));@pemit %#=align(27 20 20 7,u(pueblize,u(%q<gdat>/GET`NAME),+group [name(%q<gdat>)]),u(FUN`LISTRANKNAMES,%q<gdat>,1),u(FUN`LISTRANKNAMES,%q<gdat>,2),rjust(words(setinter(%q<lwhoid>,u(setr,members,u(filter,ISOBJID,get(%q<gdat>/MEMBERS))))),2,0)/[rjust(words(%q<members>),2,0)])}};@pemit %#=u(footer,'+group <groupname>' for details)
+&DISPLAY`GROUPLIST [u(cobj,group)]=th u(setq,lwhoid,u(lwhoid,%#));@pemit %#=u(header,mudname() [if(%0,\(Private\)%B)]Groups);th u(setq,glist,u(mysql3,LIST`GROUP_TIERS,%0));@dolist/inline/nobreak/delimit [u(rsep)] %q<glist>={th u(setq,data,u(choosegame,%i0,%d0));th u(setq,vis,if(%0,u(filter,PRIVATE,u(elements,%q<data>,3,u(fsep)),%b,%b,%:),u(elements,%q<data>,3,u(fsep))));@check t(words(%q<vis>,u(fsep)));@pemit %#=u(separator,Tier [u(elements,%q<data>,1,u(fsep))]: [u(elements,%q<data>,2,u(fsep))],,,,,,,,2);@dolist/inline %q<vis>={th u(setq,gdat,u(choosegame,%i0,%d0));@pemit %#=align(27 20 20 7,u(pueblize,u(%q<gdat>/GET`NAME),+group [name(%q<gdat>)]),u(FUN`LISTRANKNAMES,%q<gdat>,1),u(FUN`LISTRANKNAMES,%q<gdat>,2),rjust(words(setinter(%q<lwhoid>,u(setr,members,u(filter,ISOBJID,get(%q<gdat>/MEMBERS))))),2,0)/[rjust(words(%q<members>),2,0)])}};@pemit %#=u(footer,'+group <groupname>' for details)
 
 &Q`LIST`GROUP_TIERS [u(cobj,group)]=SELECT group_tier,tier_name,group_objids FROM volv_group_tiers WHERE group_parent IS NULL AND group_is_private=?
 
@@ -645,7 +647,7 @@ th u(NEWCOBJ,Division Object Parent <GOP>,dop,u(cobj,group),,,WIZARD SAFE,INHERI
 &OBJECT`DESTROY`CLEANUP [u(cobj,group)]=@select/inline %2=PLAYER,{@dolist/inline u(filter,ISGROUPMEMBER,u(FUN`LISTGROUPS),%B,%B,%0)={@attach %!/GRP`GMEMBER`KICK`DO=%i0,%0}}
 
 &FIL`ISGROUPMEMBER [u(cobj,group)]=match(get(%0/MEMBERS),%1)
-
+&FIL`ISGROUPMEMBER_OR_ADMIN [u(cobj,group)]=cor(u(isadmin,%1),u(FIL`ISGROUPMEMBER,%0,%1))
 
 @@ HELP FILES
 @@ COMMUNITY - GROUPS

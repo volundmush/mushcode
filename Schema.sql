@@ -177,6 +177,7 @@ CREATE TABLE IF NOT EXISTS vol_field (
 	field_name VARCHAR(255),
 	field_text TEXT NULL,
 	field_text_render TEXT NULL DEFAULT NULL,
+    field_text_summary TEXT NULL DEFAULT NULL,
 	field_date_modified DATETIME NULL,
 	author_id INT UNSIGNED NOT NULL,
 	PRIMARY KEY(field_id),
@@ -208,6 +209,22 @@ CREATE PROCEDURE volp_field(IN in_entity_id INT UNSIGNED,IN in_field_type TINYIN
 		END IF;
 		SELECT found_field_id;
 	END$$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS volp_field_summary;
+DELIMITER $$
+CREATE PROCEDURE volp_field_summary(IN in_entity_id INT UNSIGNED,IN in_field_type TINYINT UNSIGNED,IN in_field_name VARCHAR(255),IN in_field_text TEXT,IN in_author_id INT UNSIGNED)
+BEGIN
+    DECLARE found_field_id MEDIUMINT UNSIGNED;
+    SELECT field_id INTO found_field_id FROM vol_field WHERE entity_id=in_entity_id AND field_type=in_field_type AND field_name=in_field_name;
+    IF found_field_id IS NULL THEN
+        INSERT INTO vol_field(entity_id,field_type,field_name,field_text,field_text_summary,field_date_modified,author_id) VALUES (in_entity_id,in_field_type,in_field_name,NULL,in_field_text,UTC_TIMESTAMP(),in_author_id);
+        SET found_field_id=LAST_INSERT_ID();
+    ELSE
+        UPDATE vol_field SET field_text_summary=in_field_text,field_name=in_field_name,field_date_modified=UTC_TIMESTAMP(),author_id=in_author_id WHERE field_id=found_field_id;
+    END IF;
+    SELECT found_field_id;
+END$$
 DELIMITER ;
 
 CREATE OR REPLACE VIEW volv_infofile AS

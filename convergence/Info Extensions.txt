@@ -1,17 +1,25 @@
-&CMD`+INFO`PENNMUSH [u(cobj,info)]=$^(?s)(?\:\+)?(info|pinfo|bg|abi|ability|res|resource|npc|npcs|com|complication)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
+&CMD`+INFO`PENNMUSH [u(cobj,info)]=$^(?s)(?\:\+)?(info|pinfo|bg|abi|ability|res|resource|npc|npcs|com|complication|app|application|ext|extra|cop|copy)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
 @set [u(cobj,info)]/CMD`+INFO`PENNMUSH=regexp
-&CMD`+INFO`RHOSTMUSH [u(cobj,info)]=$^(?s)(?\:\+)?(info|pinfo|bg|abi|ability|res|resource|npc|npcs|com|complication)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
+&CMD`+INFO`RHOSTMUSH [u(cobj,info)]=$^(?s)(?\:\+)?(info|pinfo|bg|abi|ability|res|resource|npc|npcs|com|complication|app|application|ext|extra|cop|copy)(?\:/(\\S+)?)?(?\: +(.+?))?(?\:/(.+?))?(?\:=(.*))?$:@attach %!/CMD`+INFO`MAIN
 @set [u(cobj,info)]/CMD`+INFO`RHOSTMUSH=regexp
 
-&INIT`ABI [u(cobj,info)]=th u(setq,sysname,ABILITIES);th u(setq,root,101);th u(setq,private,0);th u(setq,comm,+abi);th u(setq,lockapprove,1)
-&INIT`RES [u(cobj,info)]=th u(setq,sysname,RESOURCES);th u(setq,root,105);th u(setq,private,0);th u(setq,comm,+res);th u(setq,lockapprove,1)
-&INIT`NPC [u(cobj,info)]=th u(setq,sysname,NPCS);th u(setq,root,107);th u(setq,private,0);th u(setq,comm,+npc);th u(setq,lockapprove,1)
-&INIT`COM [u(cobj,info)]=th u(setq,sysname,COMPLICATIONS);th u(setq,root,109);th u(setq,private,0);th u(setq,comm,+com);th u(setq,lockapprove,1)
+&INIT`ABI [u(cobj,info)]=th u(setq,sysname,ABILITIES);th u(setq,root,101);th u(setq,private,0);th u(setq,comm,+abi);th u(setq,lockapprove,1);th u(setq,summary,1)
+&INIT`RES [u(cobj,info)]=th u(setq,sysname,RESOURCES);th u(setq,root,105);th u(setq,private,0);th u(setq,comm,+res);th u(setq,lockapprove,1);th u(setq,summary,1)
+&INIT`NPC [u(cobj,info)]=th u(setq,sysname,NPCS);th u(setq,root,107);th u(setq,private,0);th u(setq,comm,+npc);th u(setq,lockapprove,1);th u(setq,summary,1)
+&INIT`COM [u(cobj,info)]=th u(setq,sysname,COMPLICATIONS);th u(setq,root,109);th u(setq,private,0);th u(setq,comm,+com);th u(setq,lockapprove,1);th u(setq,summary,1)
+&INIT`EXT [u(cobj,info)]=th u(setq,sysname,EXTRA);th u(setq,root,111);th u(setq,private,0);th u(setq,comm,+ext);th u(setq,lockapprove,0);th u(setq,summary,1)
+&INIT`APP [u(cobj,info)]=th u(setq,sysname,APPLICATION);th u(setq,root,113);th u(setq,private,1);th u(setq,comm,+app);th u(setq,lockapprove,1);th u(setq,summary,1)
+&INIT`COP [u(cobj,info)]=th u(setq,sysname,COPY);th u(setq,root,115);th u(setq,private,0);th u(setq,comm,+cop);th u(setq,lockapprove,0);th u(setq,summary,1)
 
 &INIT`ABILITY [u(cobj,info)]=@attach %!/INIT`ABI
 &INIT`RESOURCE [u(cobj,info)]=@attach %!/INIT`RES
 &INIT`NPCS [u(cobj,info)]=@attach %!/INIT`NPC
 &INIT`COMPLICATION [u(cobj,info)]=@attach %!/INIT`COM
+&INIT`APPLICATION [u(cobj,info)]=@attach %!/INIT`APP
+&INIT`EXTRA [u(cobj,info)]=@attach %!/INIT`EXT
+&INIT`COPY [u(cobj,info)]=@attach %!/INIT`COP
+
+&FUN`ROOTID [u(cobj,info)]=switch(%0,ABILITIES,101,RESOURCES,105,NPCS,107,COMPLICATIONS,109,EXTRA,111,APPLICATION,113,COPY,115)
 
 &CMD`+LIST`PENNMUSH [u(cobj,info)]=$^(?\:\+)?(list|sheet)(?\:/(\S+)?)?(?\: +(.+?))?(?\:/(.+?))?$:@attach %!/CMD`+LIST`MAIN
 @set [u(cobj,info)]/CMD`+LIST`PENNMUSH=regexp
@@ -20,20 +28,21 @@
 &CMD`+LIST`MAIN [u(cobj,info)]=th u(setq,mode2,%1);@attach %!/INC`GETSWITCH=%2;@attach %!/%1`[u(strfirstof,%q<switch>,MAIN)]=%3,%4
 @set [u(cobj,info)]/CMD`+LIST`[u(choosegame,RHOSTMUSH,PENNMUSH)]=no_command
 
-&SWITCHES`PLAYER`EXTRA [u(cobj,info)]=switch(%q<mode2>,list,WIKIFY|ALL,GET|RENAME|DELETE|ALL)
+&SWITCHES`PLAYER`EXTRA [u(cobj,info)]=switch(%q<mode2>,list,WIKIFY|ALL|FULL,GET|RENAME|DELETE|ALL)
 &SWITCHES`ADMIN`EXTRA [u(cobj,info)]=switch(%q<mode2>,list,,LOCK|UNLOCK)
-
-&FUN`ROOTID [u(cobj,info)]=switch(%0,ABILITIES,101,RESOURCES,105,NPCS,107,COMPLICATIONS,109)
 
 &INC`ALL [u(cobj,info)]=@attach %!/INC`TARGET;@attach %!/LIST`MAIN=%q<t1>,%q<sysname>
 
-&LIST`MAIN [u(cobj,info)]=@include %!/INC`CHECKPC=%0,1;th u(setq,target,%q<t1>);@include %!/INC`PARTIAL=%1,ABILITIES|RESOURCES|NPCS|COMPLICATIONS,|,choice,choice;@dolist/inline/delimit | [u(strfirstof,%q<choice>,ABILITIES|RESOURCES|NPCS|COMPLICATIONS)]={th u(setq,cdata1,u(choosegame,%i0,%d0));@pemit %#=u(HEADER,%q<t1name>'s [capstr(lcstr(%q<cdata1>))]);@dolist/inline/delimit [u(rsep)] [u(mysql3,LIST`POWERS,%q<t1id>,u(FUN`ROOTID,%q<cdata1>))]={th u(setq,cdata,u(choosegame,%i0,%d0));@pemit %#=u(separator,elements(%q<cdata>,2,u(fsep)) - [u(fancytime3,elements(%q<cdata>,3,u(fsep)),%#)]);@pemit %#=u(mysql,VIEW`FILE,elements(%q<cdata>,1,u(fsep)))}};@pemit %#=u(FOOTER)
+&LIST`BASE [u(cobj,info)]=@include %!/INC`CHECKPC=%0,1;th u(setq,target,%q<t1>);th u(setq,choice,);@select/inline t(strlen(%1))=1,{@attach %!/INC`PARTIAL=%1,ABILITIES|COPY|RESOURCES|NPCS|COMPLICATIONS,|,choice,choice};@dolist/inline/delimit | [u(strfirstof,%q<choice>,ABILITIES|COPY|RESOURCES|NPCS|COMPLICATIONS)]={th u(setq,cdata1,u(choosegame,%i0,%d0));@pemit %#=u(HEADER,%q<t1name>'s [capstr(lcstr(%q<cdata1>))][if(%2,%B- Full)]);@dolist/inline/delimit [u(rsep)] [u(mysql3,LIST`POWERS,%q<t1id>,u(FUN`ROOTID,%q<cdata1>))]={th u(setq,cdata,u(choosegame,%i0,%d0));@pemit %#=u(separator,elements(%q<cdata>,2,u(fsep)) - [u(fancytime3,elements(%q<cdata>,3,u(fsep)),%#)]);@pemit %#=u(strfirstof,u(mysql,VIEW`[if(%2,FILE,SUMMARY)],elements(%q<cdata>,1,u(fsep))),<No [if(%2,main,summary)]%bentry!>)}};@pemit %#=u(FOOTER)
+
+&LIST`MAIN [u(cobj,info)]=@attach %!/LIST`BASE=%0,%1,0
+&LIST`FULL [u(cobj,info)]=@attach %!/LIST`BASE=%0,%1,1
 
 &Q`LIST`POWERS [u(cobj,info)]=SELECT info_id,info_name,info_date_modified_secs FROM volv_infofile WHERE owner_id=? AND info_type=? ORDER BY info_name
 
-&LIST`WIKIFY [u(cobj,info)]=@include %!/INC`CHECKPC=%0,1;th u(setq,target,%q<t1>);@include %!/INC`PARTIAL=%1,ABILITIES|RESOURCES|NPCS|COMPLICATIONS,|,choice,choice;@pemit %#=u(HEADER,WIKIFY: %q<t1name>);@dolist/inline/delimit | [u(strfirstof,%q<choice>,ABILITIES|RESOURCES|NPCS|COMPLICATIONS)]={@pemit %#=== [capstr(##)] ==;@dolist/inline/delimit [u(rsep)] [u(mysql3,LIST`POWERS,%q<t1id>,u(FUN`ROOTID,%i0))]={th u(setq,cdata,u(choosegame,%i0,%d0));@pemit %#='''[elements(%q<cdata>,2,u(fsep))]:''' [u(mysql,VIEW`FILE,elements(%q<cdata>,1,u(fsep)))]<br />}};@pemit %#=u(FOOTER)
+&LIST`WIKIFY [u(cobj,info)]=@include %!/INC`CHECKPC=%0,1;th u(setq,target,%q<t1>);@include %!/INC`PARTIAL=%1,ABILITIES|COPY|RESOURCES|NPCS|COMPLICATIONS,|,choice,choice;@pemit %#=u(HEADER,WIKIFY: %q<t1name>);@dolist/inline/delimit | [u(strfirstof,%q<choice>,ABILITIES|COPY|RESOURCES|NPCS|COMPLICATIONS)]={@pemit %#=== [capstr(##)] ==;@dolist/inline/delimit [u(rsep)] [u(mysql3,LIST`POWERS,%q<t1id>,u(FUN`ROOTID,%i0))]={th u(setq,cdata,u(choosegame,%i0,%d0));@pemit %#='''[elements(%q<cdata>,2,u(fsep))]:''' [u(mysql,VIEW`FILE,elements(%q<cdata>,1,u(fsep)))]<br />}};@pemit %#=u(FOOTER)
 
-&SHEET`MAIN [u(cobj,info)]=@include %!/INC`CHECKPC=u(strfirstof,%0,%#),1;th u(setq,target,%q<t1>);@include %!/INC`PARTIAL=%1,ABILITIES|RESOURCES|NPCS|COMPLICATIONS,|,choice,choice;@dolist/inline/delimit | [u(strfirstof,%q<choice>,ABILITIES|RESOURCES|NPCS|COMPLICATIONS)]={th u(setq,cdata,u(choosegame,%i0,%d0));@pemit %#=u(HEADER,%q<t1name>'s [capstr(lcstr(%q<cdata>))]);@pemit %#=u(setr,section,u(FUN`SHEETSECTION,%q<t1>,u(FUN`ROOTID,%q<cdata>),u(setr,com,switch(%q<cdata>,ABILITIES,+abi,RESOURCES,+res,NPCS,+npc,COMPLICATIONS,+fla))))[if(strlen(%q<section>),%R%R[center(%q<com> %q<t1name>/<entry>,u(setr,half,floor(fdiv(u(width,%#),2))))][center(%q<com>/all %q<t1name>,%q<half>)])]};@pemit %#=u(FOOTER,+sheet/all %q<t1name>)
+&SHEET`MAIN [u(cobj,info)]=@include %!/INC`CHECKPC=u(strfirstof,%0,%#),1;th u(setq,target,%q<t1>);@include %!/INC`PARTIAL=%1,ABILITIES|COPY|RESOURCES|NPCS|COMPLICATIONS,|,choice,choice;@dolist/inline/delimit | [u(strfirstof,%q<choice>,ABILITIES|COPY|RESOURCES|NPCS|COMPLICATIONS)]={th u(setq,cdata,u(choosegame,%i0,%d0));@pemit %#=u(HEADER,%q<t1name>'s [capstr(lcstr(%q<cdata>))]);@pemit %#=u(setr,section,u(FUN`SHEETSECTION,%q<t1>,u(FUN`ROOTID,%q<cdata>),u(setr,com,switch(%q<cdata>,ABILITIES,+abi,RESOURCES,+res,NPCS,+npc,COMPLICATIONS,+fla,COPY,+cop,EXTRA,+ext))))[if(strlen(%q<section>),%R%R[center(%q<com> %q<t1name>/<entry>,u(setr,half,floor(fdiv(u(width,%#),2))))][center(%q<com>/all %q<t1name>,%q<half>)])]};@pemit %#=u(FOOTER,+sheet/all %q<t1name>)
 
 &SHEET`ALL [u(cobj,info)]=@attach %!/LIST`MAIN=%0
 
